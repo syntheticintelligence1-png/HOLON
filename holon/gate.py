@@ -61,7 +61,8 @@ class Gate:
         self.bend_version = "not_run"
         reg = ir.load_registry(milestone, self.root)
         self.facts_path = self.root / reg.get("facts", "facts/morph_header.json")
-        self.irv = ir.ir_version_of(milestone, self.root)
+        vs = {l["ir_version"] for l in ir.load_laws_any(milestone, self.root)}
+        self.irv = "holon-ir/0.2" if "holon-ir/0.2" in vs else (vs.pop() if vs else "holon-ir/0.1")
         self.results = self.root / "results" / milestone
         self.gen = self.root / "gen" / milestone
         self.check_outputs: list[str] = []
@@ -210,12 +211,12 @@ class Gate:
                                  else "; ".join(bad))
 
     # ------------------------------------------------------------ canaries (G4)
-    def canary_candidates(self, facts: dict) -> list[tuple[str, str, dict]]:
+    def canary_candidates(self, facts: dict, laws: list | None = None) -> list[tuple[str, str, dict]]:
         """(kind, source law, mutated law IR) from every PROVED law, in a fixed order."""
         out = []
         recs = self.records()
         fns = facts["functions"]
-        for law in ir.load_laws(self.m, self.root):
+        for law in (laws if laws is not None else ir.load_laws(self.m, self.root)):
             lid = law["law_id"]
             if not recs.get(lid) or recs[lid]["status"] != "PROVED":
                 continue
@@ -250,7 +251,7 @@ class Gate:
         tmp = Path(tempfile.mkdtemp(prefix="holon-gate-g4m-"))
         try:
             cm = CompiledMachine.build(self.facts_path, self.cfg)
-            laws = ir.load_laws_any(self.m, self.root)
+            laws = [l for l in ir.load_laws_any(self.m, self.root) if l["ir_version"] == "holon-ir/0.2"]
             recs = {k: v for k, v in self.records().items() if v}
             self.canaries = run_canaries(cm, laws, recs, tmp, self.cfg)
             if self.m == "M3_sorts":
@@ -266,19 +267,18 @@ class Gate:
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
-    def g4(self) -> None:
-        if self.irv == "holon-ir/0.2":
-            return self.g4_machine()
+    def _g4_par(self, facts_path: Path, laws: list | None = None) -> None:
+        """M0-style PAR canaries for ir/0.1 laws on one facts file."""
         try:
-            facts = F.load(self.facts_path)
-            model = CompiledModel.build(self.facts_path, cfg=self.cfg)
-            name = model_name(self.facts_path)
+            facts = F.load(facts_path)
+            model = CompiledModel.build(facts_path, cfg=self.cfg)
+            name = model_name(facts_path)
             tmp = Path(tempfile.mkdtemp(prefix="holon-gate-g4-"))
             (tmp / "model").mkdir()
             shutil.copy(self.gen / "model" / f"{name}.bend", tmp / "model" / f"{name}.bend")
             imp = f"../model/{name}.bend"
             counts: dict[str, int] = {}
-            for kind, src, law in self.canary_candidates(facts):
+            for kind, src, law in self.canary_candidates(facts, laws):
                 if len(self.canaries) >= MAX_CANARIES:
                     break
                 if counts.get(kind, 0) >= MAX_CANARIES // 3:
@@ -318,6 +318,30 @@ class Gate:
                                       "checker_first_line": r.first_line, "counterexample": cex, "law": law})
                 counts[kind] = n + 1
             shutil.rmtree(tmp, ignore_errors=True)
+        except Exception as e:  # noqa: BLE001
+            self.checks["G4"] = _res(False, f"error: {e}")
+
+    def g4(self) -> None:
+        if self.irv == "holon-ir/0.2":
+            self.g4_machine()
+            if "G4" in self.checks and not self.checks["G4"]["passed"]:
+                return
+            # ir/0.1 laws in the same milestone (e.g. header-codec laws carried in):
+            # M0-style PAR canaries on each such facts file, in sorted order.
+            par = [l for l in ir.load_laws_any(self.m, self.root) if l["ir_version"] == "holon-ir/0.1"]
+            for fp in sorted({self.root / l["facts"] for l in par}):
+                laws = [l for l in par if self.root / l["facts"] == fp]
+                self._g4_par(fp, laws)
+                if "G4" in self.checks and not self.checks["G4"]["passed"]:
+                    return
+            kinds = {c["kind"] for c in self.canaries}
+            accepted = [c["id"] for c in self.canaries if not c["rejected"]]
+            ok = len(self.canaries) >= MIN_CANARIES and len(kinds) >= 3 and not accepted
+            self.checks["G4"] = _res(ok, f"{len(self.canaries)} canaries of kinds {sorted(kinds)}, all rejected" if ok
+                                     else f"{len(self.canaries)} canaries, kinds {sorted(kinds)}, ACCEPTED: {accepted}")
+            return
+        try:
+            self._g4_par(self.facts_path)
             kinds = {c["kind"] for c in self.canaries}
             accepted = [c["id"] for c in self.canaries if not c["rejected"]]
             ok = len(self.canaries) >= MIN_CANARIES and len(kinds) >= 3 and not accepted

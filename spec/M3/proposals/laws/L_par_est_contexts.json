@@ -1,0 +1,119 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_par_est_contexts",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "PAR",
+  "subform": "branch_equality",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": null,
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "edge",
+      "name": "EstimateCompressedSizeWithNewPayload (omits blockContexts)",
+      "src": "common/batch/batch_data.go:124-135",
+      "expect": "append(cks.txsPayload, txPayload...)",
+      "doc": "measures txsPayload only"
+    },
+    {
+      "kind": "edge",
+      "name": "WillExceedCompressedSizeLimit (includes blockContexts)",
+      "src": "common/batch/batch_data.go:149-161",
+      "expect": "combinePayloads",
+      "doc": "measures contexts + payload"
+    },
+    {
+      "kind": "edge",
+      "name": "call sites: V1+ path uses WillExceed, legacy path uses Estimate",
+      "src": "common/batch/batch_cache.go:1281-1283",
+      "expect": "EstimateCompressedSizeWithNewPayload",
+      "doc": "branch on isBatchUpgraded"
+    },
+    {
+      "kind": "edge",
+      "name": "sealing compresses TxsPayloadV2 (contexts included) on the upgraded path",
+      "src": "common/batch/batch_cache.go:1581",
+      "expect": "TxsPayloadV2",
+      "doc": "what the estimator must predict"
+    }
+  ],
+  "premises": [
+    {
+      "name": "HypZstd",
+      "kind": "oracle",
+      "text": "zstd.CompressBatchBytes is an oracle function c : Bytes -> Bytes; the law is parametric in c"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "both capacity estimators on any batch under construction"
+  },
+  "statement": {
+    "forall": [
+      {
+        "name": "bd",
+        "type": "BatchData"
+      },
+      {
+        "name": "ctx",
+        "type": "Bytes"
+      },
+      {
+        "name": "tx",
+        "type": "Bytes"
+      },
+      {
+        "name": "k",
+        "type": "Nat"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "call": "will_exceed",
+          "args": [
+            {
+              "var": "bd"
+            },
+            {
+              "var": "ctx"
+            },
+            {
+              "var": "tx"
+            },
+            {
+              "var": "k"
+            }
+          ]
+        },
+        {
+          "call": "estimate_new_payload",
+          "args": [
+            {
+              "var": "bd"
+            },
+            {
+              "var": "tx"
+            },
+            {
+              "var": "k"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Two parallel estimators of one quantity (will the sealed blob fit). The legacy estimator omits the block contexts that the upgraded sealing path compresses.",
+  "maps_to": "O5 (F9)",
+  "evidence": [
+    "E4"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "bd with len(blockContexts) > 0 and payload sized so that len(tx)+len(txsPayload) <= k*126976 < len(ctx)+len(tx)+len(txsPayload): estimate says fit, will_exceed says exceed.",
+  "prediction_origin": "derived"
+}

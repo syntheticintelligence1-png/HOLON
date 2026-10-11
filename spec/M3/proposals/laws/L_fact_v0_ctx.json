@@ -1,0 +1,130 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_fact_v0_ctx",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "FACT",
+  "subform": "kernel_containment",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "facts/morph_header.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "consumer",
+      "name": "derivation reads block contexts from calldata when present",
+      "src": "node/derivation/batch_info.go:166-178",
+      "expect": "batch.BlockContexts != nil",
+      "doc": "calldata path"
+    },
+    {
+      "kind": "edge",
+      "name": "on-chain commitment: header hash binds dataHash(lbn, n, l1 hashes) and BVH binds the blob; calldata contexts appear in neither",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:318-322",
+      "expect": "_commitBatch(",
+      "doc": "kernel of the commitment"
+    },
+    {
+      "kind": "carrier",
+      "name": "legacy ABI with blockContexts bytes",
+      "src": "node/derivation/derivation.go:612-660",
+      "expect": "BlockContexts",
+      "doc": "UnPackData legacy shape"
+    }
+  ],
+  "premises": [
+    {
+      "name": "CF_keccak_headers",
+      "kind": "collision_freedom",
+      "text": "CF(keccak256, S) for the finite set S of headers and presented headers in the trace (Cor 6.16); premise, never an axiom"
+    },
+    {
+      "name": "CF_kzg",
+      "kind": "collision_freedom",
+      "text": "CF(versioned_hash, blobs in the trace)"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "version-0 commits whose block contexts travel in calldata"
+  },
+  "statement": {
+    "forall": [
+      {
+        "name": "tx",
+        "type": "CommitTx"
+      },
+      {
+        "name": "tx2",
+        "type": "CommitTx"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "call": "commitment",
+            "args": [
+              {
+                "var": "tx"
+              }
+            ]
+          },
+          {
+            "call": "commitment",
+            "args": [
+              {
+                "var": "tx2"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "call": "version",
+            "args": [
+              {
+                "var": "tx"
+              }
+            ]
+          },
+          {
+            "bytes": "00"
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "call": "derive",
+          "args": [
+            {
+              "var": "tx"
+            }
+          ]
+        },
+        {
+          "call": "derive",
+          "args": [
+            {
+              "var": "tx2"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "FACT: consumption (derived blocks) must factor through the on-chain commitment (CB_i, BVH_i). For v0 the contexts are consumed but not committed, so F(m, c) > 0.",
+  "maps_to": "O24 (F11f)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "tx, tx2 with equal header and blob, calldata contexts differing in a block timestamp or gas limit: equal commitments, different derived blocks.",
+  "prediction_origin": "derived"
+}

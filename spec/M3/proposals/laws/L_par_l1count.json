@@ -1,0 +1,169 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_par_l1count",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "PAR",
+  "subform": "recompute",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "register",
+      "name": "header l1MessagePopped / numL1Messages (bound by dataHash)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:344-345",
+      "expect": "storeL1MessagePopped",
+      "doc": "on-chain count"
+    },
+    {
+      "kind": "consumer",
+      "name": "derivation sums per-block l1MsgNum but never compares with the header",
+      "src": "node/derivation/batch_info.go:238",
+      "expect": "l1MsgNum += uint64(block.l1MsgNum)",
+      "doc": "sum computed and discarded"
+    },
+    {
+      "kind": "consumer",
+      "name": "L1 messages are fetched per block from parent total + per-block counts",
+      "src": "node/derivation/derivation.go:731-742",
+      "expect": "getL1Message(totalL1MessagePopped",
+      "doc": "the queue cursor advances by the payload's counts, not the header's"
+    }
+  ],
+  "premises": [
+    {
+      "name": "CF_keccak_headers",
+      "kind": "collision_freedom",
+      "text": "CF(keccak256, S) for the finite set S of headers and presented headers in the trace (Cor 6.16); premise, never an axiom"
+    },
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "every derived batch"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "a",
+        "type": "Act"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "is_commit_any",
+            "args": [
+              {
+                "var": "a"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "runs_ok",
+            "args": [
+              {
+                "trace": [
+                  {
+                    "var": "a"
+                  }
+                ]
+              },
+              {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "derive_ok",
+            "args": [
+              {
+                "fn": "payload_of",
+                "args": [
+                  {
+                    "var": "a"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "sum_l1msg",
+          "args": [
+            {
+              "fn": "derive",
+              "args": [
+                {
+                  "fn": "payload_of",
+                  "args": [
+                    {
+                      "var": "a"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "fn": "n_of",
+          "args": [
+            {
+              "var": "a"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "E4 recompute across components: the L1 contract binds n in dataHash; the node re-derives the count from block contexts and never checks agreement. Disagreement desynchronizes the L1 queue cursor (popped by header counts, :652-655) from derived L2 state.",
+  "maps_to": "F11 (L1 counts discarded); no O row",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "payload contexts with Σ l1MsgNum = n+1 under a header with numL1Messages = n: both accepted; finalizeBatch pops n, derivation consumed n+1.",
+  "prediction_origin": "derived"
+}

@@ -16,23 +16,23 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.302
+      "seconds": 0.156
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.597
+      "seconds": 0.278
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.302
+    "seconds": 0.156
   },
   "difference": null,
-  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -41,7 +41,14 @@
   "law_id": "L_disch_delay_pay",
   "maps_to": "O33 (F7 reconciled)",
   "premises": [
-    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+    "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+    "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+    "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+    "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+    "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+    "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+    "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+    "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
   ],
   "replay": {
     "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
@@ -49,7 +56,7 @@
   },
   "rule": "DISCH",
   "scope": "unbounded",
-  "statement_hash": "sha256:99034c66e191e8f0073714a551a330555eb751024a16c308bad3f3fcd42c1534",
+  "statement_hash": "sha256:570fdef09ef278e6b3cc3edd191cf38c5d709afe139d0d4a5b75255d62aa1353",
   "status": "PROVED",
   "subform": "profile_point",
   "triage": "none",

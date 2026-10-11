@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.733
+      "seconds": 0.832
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 7.132
+      "seconds": 5.154
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.733
+    "seconds": 0.832
   },
   "difference": {
     "lhs": false,
@@ -47,7 +47,8 @@
   "maps_to": "O28 (F12.7)",
   "premises": [
     "[{\"var\": \"k\"}, {\"nat\": 65535}]",
-    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+    "blocks are abstracted to their L1 message count k = len(l1TxHashes); block contexts and tx payloads are not modelled",
+    "k <= 65535 per block (the per-block count is itself a uint16 in node/derivation/batch_info.go:26), so one truncation per append suffices"
   ],
   "replay": {
     "detail": "Append(65535 L1 hashes) then Append(1): l1TxNum=0 (uint16 wrap) while 65536 hashes were appended (log: spec/M3/sorts/replay/go/holon_l1num_test.log) @ morph 3e44e795586a",

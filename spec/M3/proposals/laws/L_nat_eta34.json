@@ -1,0 +1,120 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_nat_eta34",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "NAT",
+  "subform": "composition",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "migration",
+      "name": "eta3 = initialize3(rollupDelayPeriod) reinitializer(3)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:199-203",
+      "expect": "reinitializer(3)",
+      "doc": "sets D != 0"
+    },
+    {
+      "kind": "migration",
+      "name": "eta4 = initialize4 reinitializer(4) does not check D",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:209-219",
+      "expect": "reinitializer(4)",
+      "doc": "composition hazard"
+    },
+    {
+      "kind": "guard",
+      "name": "D = 0 makes rollupDelay and l1MsgQueueDelayed true immediately",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:389-400",
+      "expect": "rollupDelay",
+      "doc": "consequence: commitBatchWithProof is always open; commitBatch requires n > 0 whenever the queue is non-empty"
+    },
+    {
+      "kind": "action",
+      "name": "updateRollupDelayPeriod (owner) repairs D",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:518-523",
+      "expect": "function updateRollupDelayPeriod",
+      "doc": "the 'until parameter update' bound"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    },
+    {
+      "name": "HypOZ",
+      "kind": "oracle",
+      "text": "OpenZeppelin reinitializer(n) admits n only if n > the stored initialized version, so eta3 is unreachable after eta4"
+    }
+  ],
+  "scope": {
+    "kind": "bounded(H)",
+    "domain": "migration sequences over {eta3, eta4}; D read by both permissionless-entry predicates"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "D",
+          "of": {
+            "mig": "eta4",
+            "of": {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            },
+            "args": []
+          }
+        },
+        {
+          "obsv": "D",
+          "of": {
+            "mig": "eta4",
+            "of": {
+              "mig": "eta3",
+              "of": {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              },
+              "args": [
+                {
+                  "nat": 1
+                }
+              ]
+            },
+            "args": []
+          }
+        }
+      ]
+    }
+  },
+  "notes": "Thm 6.7(a) pasting: the composite migration must not depend on the order in which the reinitializers were applied. Skipping eta3 (or applying eta4 first) leaves D = 0 with no guard in eta4.",
+  "maps_to": "O18 (A15)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "p = [] ; eta4 alone: D = 0; eta3;eta4: D = 1. Observable: commitBatch(n = 0) with a pending message reverts 'l1msg delay' only in the first.",
+  "prediction_origin": "derived"
+}

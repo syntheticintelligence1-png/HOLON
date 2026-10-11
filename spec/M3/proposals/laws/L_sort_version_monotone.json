@@ -1,0 +1,152 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort_version_monotone",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "SORT",
+  "subform": "version_order",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "guard",
+      "name": "only version <= 2 is checked; no comparison with the parent header's version",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:293",
+      "expect": "invalid version",
+      "doc": "downgrade admitted"
+    },
+    {
+      "kind": "register",
+      "name": "parent version is available at commit (byte 0 of the loaded parent header)",
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:44-47",
+      "expect": "function getVersion",
+      "doc": "the missing read"
+    },
+    {
+      "kind": "consumer",
+      "name": "derivation mixes paths on a v0 child of a v1+ parent",
+      "src": "node/derivation/batch_info.go:128-178",
+      "expect": "if batch.Version > 0",
+      "doc": "v0 child: blockCount from calldata prefix; v1 lbn logic skipped"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    },
+    {
+      "name": "CF_keccak_headers",
+      "kind": "collision_freedom",
+      "text": "CF(keccak256, S) for the finite set S of headers and presented headers in the trace (Cor 6.16); premise, never an axiom"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "every successful commit; Ver sort is ordered"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "a",
+        "type": "Act"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "is_commit_any",
+            "args": [
+              {
+                "var": "a"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "runs_ok",
+            "args": [
+              {
+                "trace": [
+                  {
+                    "var": "a"
+                  }
+                ]
+              },
+              {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "ge",
+          "args": [
+            {
+              "fn": "ver_of",
+              "args": [
+                {
+                  "var": "a"
+                }
+              ]
+            },
+            {
+              "fn": "ver_parent",
+              "args": [
+                {
+                  "run": {
+                    "var": "p"
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Ver-sorted register must be monotone along the parent edge (the codec/derivation paths assume it). A v2 -> v0 downgrade also re-types the 57..89 field (see L_tag_BVH).",
+  "maps_to": "F12 (downgrade); no O row, adjacent to O26",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "parent header version 2; commitBatch with version 0 succeeds (header length 249, lbn absent).",
+  "prediction_origin": "derived"
+}

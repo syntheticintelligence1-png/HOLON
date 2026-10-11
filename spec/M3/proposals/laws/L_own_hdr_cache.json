@@ -1,0 +1,102 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_own_hdr_cache",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "OWN",
+  "subform": "lost_write",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": null,
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "heap",
+      "name": "value receiver: b is a copy; b.EncodedBytes = batchBytes writes the copy",
+      "src": "common/batch/batch_header.go:228",
+      "expect": "b.EncodedBytes = batchBytes",
+      "doc": "lost write (V0)"
+    },
+    {
+      "kind": "heap",
+      "name": "same in V1.Bytes",
+      "src": "common/batch/batch_header.go:258",
+      "expect": "b.EncodedBytes = batchBytes",
+      "doc": "lost write (V1)"
+    },
+    {
+      "kind": "edge",
+      "name": "cache read: if len(b.EncodedBytes) > 0 return it (stale if set externally)",
+      "src": "common/batch/batch_header.go:240-242",
+      "expect": "len(b.EncodedBytes) > 0",
+      "doc": "the cache, when populated by anyone else, shadows the fields"
+    },
+    {
+      "kind": "edge",
+      "name": "caller mutates the returned slice (h[0] = 2): aliasing with any future cache",
+      "src": "common/batch/batch_cache.go:1729-1730",
+      "expect": "h[0] = BatchHeaderVersion2",
+      "doc": "would corrupt a working cache"
+    }
+  ],
+  "premises": [],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "BatchHeaderV0.Bytes and BatchHeaderV1.Bytes (value receivers)"
+  },
+  "statement": {
+    "forall": [
+      {
+        "name": "h",
+        "type": "BatchHeaderV1"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "call": "cache_empty",
+            "args": [
+              {
+                "var": "h"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "call": "cache_empty",
+          "args": [
+            {
+              "call": "after_bytes",
+              "args": [
+                {
+                  "var": "h"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "notes": "OWN lost-write: a write through a value receiver never reaches the caller's object. The cache is ineffective; if it were effective, the h[0] = 2 mutation at the call site would alias into it (second OWN obligation, conditional).",
+  "maps_to": "O37 (F12.3)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "any h with empty EncodedBytes: after h.Bytes(), h.EncodedBytes is still empty.",
+  "prediction_origin": "derived"
+}

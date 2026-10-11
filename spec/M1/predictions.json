@@ -1,11 +1,4 @@
 {
-  "milestone": "M1",
-  "source": "HOLON v2 whitepaper §11.8 (preregistered before mechanization, by the human author); transcribed to law ids. Laws marked post_hoc were added during M1 and are NOT preregistered.",
-  "statuses": [
-    "PROVED",
-    "REFUTED",
-    "UNKNOWN"
-  ],
   "laws": [
     {
       "law_id": "L_undo_CSR",
@@ -21,7 +14,7 @@
       "law_id": "L_undo_BVH",
       "status": "REFUTED",
       "triage": "finding",
-      "whitepaper_row": "commit(i, β); revert(i); commitBatch(i, β′) reverts in one run, succeeds in the other",
+      "whitepaper_row": "commit(i, \u03b2); revert(i); commitBatch(i, \u03b2\u2032) reverts in one run, succeeds in the other",
       "witness_constraints": {
         "continuation_differs": true
       }
@@ -50,7 +43,7 @@
     {
       "law_id": "L_disch_delay_nofree",
       "status": "PROVED",
-      "whitepaper_row": "L_disch_delay | Profile {(c_msg, 0), (0, Δ_fin)}: (0,0) is not a profile point"
+      "whitepaper_row": "L_disch_delay | Profile {(c_msg, 0), (0, \u0394_fin)}: (0,0) is not a profile point"
     },
     {
       "law_id": "L_disch_delay_pay",
@@ -60,12 +53,12 @@
     {
       "law_id": "L_disch_delay_wait",
       "status": "PROVED",
-      "whitepaper_row": "L_disch_delay: strategy program (0, Δ_fin)"
+      "whitepaper_row": "L_disch_delay: strategy program (0, \u0394_fin)"
     },
     {
       "law_id": "L_disch_stale",
       "status": "PROVED",
-      "whitepaper_row": "L_disch_stale | Blocked for permissionless committers | invariant inChallenge ∧ t > s + W, preserved by those committers and by time"
+      "whitepaper_row": "L_disch_stale | Blocked for permissionless committers | invariant inChallenge \u2227 t > s + W, preserved by those committers and by time"
     },
     {
       "law_id": "L_disch_stale_commit",
@@ -81,8 +74,8 @@
     {
       "law_id": "L_sym_omega",
       "status": "REFUTED",
-      "triage": "finding",
-      "whitepaper_row": "L_sym_ω(zk, challenge): order swap leaves f_i open in one order, closed in the other"
+      "triage": "intent_question",
+      "whitepaper_row": "L_sym_\u03c9(zk, challenge): order swap leaves f_i open in one order, closed in the other"
     },
     {
       "law_id": "L_own_txspayload",
@@ -92,22 +85,35 @@
     },
     {
       "law_id": "L_disch_delay_prove",
-      "status": "PROVED",
+      "note": "third, dominated profile point found by the strategy search",
       "post_hoc": true,
-      "note": "third, dominated profile point found by the strategy search"
+      "status": "PROVED"
     },
     {
       "law_id": "L_nat_eta2",
-      "status": "REFUTED",
-      "triage": "finding",
+      "note": "O15 / N1 (whitepaper \u00a711.4); not in the \u00a711.8 table",
       "post_hoc": true,
-      "note": "O15 / N1 (whitepaper §11.4); not in the §11.8 table"
+      "status": "REFUTED",
+      "triage": "intent_question"
+    },
+    {
+      "law_id": "L_par_hdr_v2_composed",
+      "note": "M0 obstruction O11 resolved at the system level: the real v2 producer is enc_go_v1 then h[0]=2 (batch_cache.go:1727-1731). Statement copied verbatim from laws/M0/L_par_hdr_v2.json with only the Go-side call swapped; not preregistered.",
+      "post_hoc": true,
+      "status": "PROVED"
     }
   ],
+  "milestone": "M1",
   "not_in_M1": [
     {
       "whitepaper_row": "L_par_hdr_* / L_dom_v0",
       "why": "M0"
     }
+  ],
+  "source": "HOLON v2 whitepaper \u00a711.8 (preregistered before mechanization, by the human author); transcribed to law ids. Laws marked post_hoc were added during M1 and are NOT preregistered.",
+  "statuses": [
+    "PROVED",
+    "REFUTED",
+    "UNKNOWN"
   ]
 }
