@@ -1,0 +1,804 @@
+{
+ "_defs": {
+  "extra": [],
+  "missing": [],
+  "recovered_from_ast": 3,
+  "spec_bound": 5
+ },
+ "challengeState": {
+  "extra": [
+   {
+    "item": {
+     "reason": 24,
+     "require": [
+      "&&",
+      [
+       ">",
+       [
+        "get",
+        [
+         "call",
+         "w",
+         "lfi",
+         "win",
+         "idx"
+        ],
+        "bdo"
+       ],
+       0
+      ],
+      [
+       ">=",
+       "idx",
+       "lfi"
+      ]
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:478"
+    },
+    "kind": "strengthened",
+    "reason": "extracted guard/write not present in hand facts"
+   }
+  ],
+  "missing": [
+   {
+    "item": {
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "chals"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "==",
+      "rri",
+      0
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!",
+      "paused"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "<=",
+      "idx",
+      "lci"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      ">",
+      [
+       "get",
+       [
+        "call",
+        "w",
+        "lfi",
+        "win",
+        "idx"
+       ],
+       "bdo"
+      ],
+      0
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   }
+  ],
+  "recovered_from_ast": 9,
+  "spec_bound": 1
+ },
+ "commitBatch": {
+  "extra": [
+   {
+    "item": {
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
+     "reason": 8,
+     "require": [
+      "<=",
+      "parent",
+      "lci"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:313"
+    },
+    "kind": "strengthened",
+    "reason": "extracted guard/write not present in hand facts"
+   }
+  ],
+  "missing": [
+   {
+    "item": {
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "active"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "==",
+      "rri",
+      0
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!",
+      "paused"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "let": [
+      "call",
+      "nth",
+      "blobs",
+      0
+     ]
+    },
+    "kind": "hand_simplification",
+    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+   },
+   {
+    "item": {
+     "let": [
+      "call",
+      "nth",
+      "blobs",
+      1
+     ]
+    },
+    "kind": "hand_simplification",
+    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+   },
+   {
+    "item": {
+     "require": [
+      "||",
+      [
+       "!=",
+       "ver",
+       2
+      ],
+      [
+       ">",
+       [
+        "call",
+        "blob_count",
+        "blobs"
+       ],
+       0
+      ]
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "||",
+      [
+       "==",
+       "ver",
+       2
+      ],
+      [
+       "==",
+       "b1",
+       0
+      ]
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "win": [
+      "call",
+      "snoc",
+      "win",
+      [
+       "mk",
+       "Entry",
+       {
+        "bdf": [
+         "+",
+         [
+          "+",
+          "t",
+          "F"
+         ],
+         "prt"
+        ],
+        "bdn": "lbn",
+        "bdo": "t",
+        "bds": "who",
+        "bvh": "bvh",
+        "csr": "post",
+        "hb": "bvh",
+        "lbn": "lbn",
+        "n": "n",
+        "post": "post",
+        "prev": "prev",
+        "tag": "tag",
+        "tot": [
+         "+",
+         "tot",
+         "n"
+        ],
+        "ver": "ver"
+       }
+      ]
+     ]
+    },
+    "kind": "hand_simplification",
+    "reason": "hand write simplified relative to extracted semantics"
+   }
+  ],
+  "recovered_from_ast": 20,
+  "spec_bound": 2
+ },
+ "commitBatchWithProof": {
+  "extra": [
+   {
+    "item": {
+     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)",
+     "reason": 6,
+     "require": [
+      ">",
+      "next",
+      "lci0"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+    },
+    "kind": "strengthened",
+    "reason": "extracted guard/write not present in hand facts"
+   },
+   {
+    "item": {
+     "reason": 7,
+     "require": [
+      "==",
+      "parent",
+      "lci0"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+    },
+    "kind": "strengthened",
+    "reason": "extracted guard/write not present in hand facts"
+   },
+   {
+    "item": {
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
+     "reason": 8,
+     "require": [
+      "<=",
+      "parent",
+      "lci0"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:313"
+    },
+    "kind": "strengthened",
+    "reason": "extracted guard/write not present in hand facts"
+   },
+   {
+    "item": {
+     "reason": 16,
+     "require": [
+      ">",
+      "proof",
+      0
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+    },
+    "kind": "strengthened",
+    "reason": "extracted guard/write not present in hand facts"
+   }
+  ],
+  "missing": [
+   {
+    "item": {
+     "require": [
+      "==",
+      "rri",
+      0
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!",
+      "paused"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "||",
+      [
+       "!=",
+       "stored",
+       0
+      ],
+      [
+       "!=",
+       "ver",
+       2
+      ],
+      [
+       ">",
+       [
+        "call",
+        "blob_count",
+        "blobs"
+       ],
+       0
+      ]
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "||",
+      [
+       "!=",
+       "stored",
+       0
+      ],
+      [
+       "==",
+       "ver",
+       2
+      ],
+      [
+       "==",
+       "b1",
+       0
+      ]
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "let": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ]
+    },
+    "kind": "hand_simplification",
+    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+   },
+   {
+    "item": {
+     "require": [
+      ">",
+      "next",
+      "lci"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "==",
+      "parent",
+      "lci"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!=",
+      "proof",
+      0
+     ]
+    },
+    "kind": "oracle_gap",
+    "reason": "hand guard relies on an oracle the extractor models differently"
+   },
+   {
+    "item": {
+     "win": [
+      "call",
+      "snoc",
+      "win",
+      [
+       "mk",
+       "Entry",
+       {
+        "bdf": "t",
+        "bdn": "lbn",
+        "bdo": "t",
+        "bds": 0,
+        "bvh": "bvh",
+        "csr": "post",
+        "hb": "bvh",
+        "lbn": "lbn",
+        "n": "n",
+        "post": "post",
+        "prev": "prev",
+        "tag": "tag",
+        "tot": [
+         "+",
+         "tot",
+         "n"
+        ],
+        "ver": "ver"
+       }
+      ]
+     ]
+    },
+    "kind": "hand_simplification",
+    "reason": "hand write simplified relative to extracted semantics"
+   }
+  ],
+  "recovered_from_ast": 25,
+  "spec_bound": 2
+ },
+ "commitState": {
+  "extra": [
+   {
+    "item": {
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
+     "reason": 8,
+     "require": [
+      "<=",
+      "parent",
+      "lci"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:313"
+    },
+    "kind": "strengthened",
+    "reason": "extracted guard/write not present in hand facts"
+   }
+  ],
+  "missing": [
+   {
+    "item": {
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "active"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "==",
+      "rri",
+      0
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!",
+      "paused"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "win": [
+      "call",
+      "snoc",
+      "win",
+      [
+       "mk",
+       "Entry",
+       {
+        "bdf": [
+         "+",
+         [
+          "+",
+          "t",
+          "F"
+         ],
+         "prt"
+        ],
+        "bdn": "lbn",
+        "bdo": "t",
+        "bds": "who",
+        "bvh": "bvh",
+        "csr": "post",
+        "hb": "bvh",
+        "lbn": "lbn",
+        "n": "n",
+        "post": "post",
+        "prev": "prev",
+        "tag": "tag",
+        "tot": [
+         "+",
+         "tot",
+         "n"
+        ],
+        "ver": "ver"
+       }
+      ]
+     ]
+    },
+    "kind": "hand_simplification",
+    "reason": "hand write simplified relative to extracted semantics"
+   }
+  ],
+  "recovered_from_ast": 23,
+  "spec_bound": 2
+ },
+ "finalizeBatch": {
+  "extra": [],
+  "missing": [
+   {
+    "item": {
+     "require": [
+      "==",
+      "rri",
+      0
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!",
+      "paused"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "win": [
+      "call",
+      "drop",
+      "win",
+      1
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand effect on 'win' has no extracted counterpart"
+   }
+  ],
+  "recovered_from_ast": 15,
+  "spec_bound": 2
+ },
+ "proveState": {
+  "extra": [
+   {
+    "item": {
+     "reason": 16,
+     "require": [
+      "||",
+      "timeout",
+      [
+       ">",
+       "proof",
+       0
+      ]
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+    },
+    "kind": "strengthened",
+    "reason": "extracted guard/write not present in hand facts"
+   }
+  ],
+  "missing": [
+   {
+    "item": {
+     "require": [
+      "==",
+      "rri",
+      0
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!",
+      "paused"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "active"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "||",
+      "timeout",
+      [
+       "!=",
+       "proof",
+       0
+      ]
+     ]
+    },
+    "kind": "oracle_gap",
+    "reason": "hand guard relies on an oracle the extractor models differently"
+   },
+   {
+    "item": {
+     "chs": [
+      "call",
+      "set_ch",
+      "chs",
+      "idx",
+      [
+       "with",
+       "Ch",
+       "ch",
+       {
+        "f": true,
+        "w": "timeout"
+       }
+      ]
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand effect on 'chs' has no extracted counterpart"
+   }
+  ],
+  "recovered_from_ast": 9,
+  "spec_bound": 0
+ },
+ "revertBatch": {
+  "extra": [
+   {
+    "item": {
+     "reason": 11,
+     "require": [
+      "<=",
+      1,
+      "idx"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:443"
+    },
+    "kind": "strengthened",
+    "reason": "extracted guard/write not present in hand facts"
+   }
+  ],
+  "missing": [
+   {
+    "item": {
+     "require": [
+      "==",
+      "who",
+      "OWNER"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   }
+  ],
+  "recovered_from_ast": 7,
+  "spec_bound": 8
+ },
+ "sendMessage": {
+  "extra": [],
+  "missing": [
+   {
+    "item": {
+     "qlen": [
+      "+",
+      "qlen",
+      1
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand effect on 'qlen' has no extracted counterpart"
+   }
+  ],
+  "recovered_from_ast": 1,
+  "spec_bound": 0
+ },
+ "setPause": {
+  "extra": [],
+  "missing": [
+   {
+    "item": {
+     "require": [
+      "==",
+      "who",
+      "OWNER"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "paused": "status"
+    },
+    "kind": "hand_simplification",
+    "reason": "hand write simplified relative to extracted semantics"
+   }
+  ],
+  "recovered_from_ast": 4,
+  "spec_bound": 0
+ },
+ "wait": {
+  "extra": [],
+  "missing": [],
+  "recovered_from_ast": 1,
+  "spec_bound": 0
+ }
+}
