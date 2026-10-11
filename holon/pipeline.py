@@ -201,7 +201,7 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
         rec["status"] = status
         rec["attempts"] = attempts
         stext = statement_text(law, facts, model_import)
-        kbound["laws"][lid] = {"cone": {d: "" for d in bindings.kernel_cone(stext, kernel)}}
+        kbound["laws"][lid] = {"model": name, "cone": bindings.kernel_cone(stext, kernel)}
         rec.update(records.v2_fields(law, rec, stext, model_src,
                                      ir.load_registry(milestone, ROOT).get("facts", "facts/morph_header.json"),
                                      compiled.artifact, ROOT))

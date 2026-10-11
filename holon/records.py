@@ -13,8 +13,9 @@ The cone of a law is the set of generated model definitions its frozen statement
 the `M.<name>` references of the emitted statement (a type for a constructor), closed
 over references between definitions. The references are textual tokens, so a local
 variable spelled like a definition adds a spurious edge: the cone over-approximates,
-which can only add assumptions, never hide one. (I2 replaces the token graph with the
-generators' own definition index.)
+which can only add assumptions, never hide one. Since I2 it is cross-checked against the
+checker's own BendTT dependency graph (holon/bindings.py): for all 24 laws the two agree on
+the model's own definitions (tests_m2/test_bindings.py, prediction I2-P4).
 
 model_assumptions are the spec/ledger entries whose introducing definitions meet the cone.
 Which bundle applies (resolve_bundle):

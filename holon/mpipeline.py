@@ -311,7 +311,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                                  "marker": v.marker, "seconds": v.seconds})
         rec["status"] = status
         rec["attempts"] = attempts
-        kbound["laws"][lid] = {"cone": {d: "" for d in bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))}}
+        kbound["laws"][lid] = {"model": model_src.stem,
+                               "cone": bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT))
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status

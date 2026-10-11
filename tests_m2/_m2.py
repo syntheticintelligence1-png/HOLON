@@ -4,8 +4,9 @@ The cone computation here does not import holon/. It reads the generated model a
 generated LAWS.bend files (holon.records reads the emitted statement instead). It is not
 an independent algorithm, though: holon/records.py uses the same token-and-closure
 approach, so a flaw shared by both (for example a local variable spelled like a
-definition) passes unnoticed. I2 builds the cone from the generators' own definition
-index, which makes the two computations genuinely different.
+definition) passes unnoticed. The genuinely independent check is I2's: the checker's
+own BendTT dependency graph (holon/bindings.py) must give the same cone on the model's own
+definitions (tests_m2/test_bindings.py::test_kernel_cone_equals_token_cone).
 """
 from __future__ import annotations
 

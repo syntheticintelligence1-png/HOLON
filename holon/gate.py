@@ -6,7 +6,8 @@ Order: GENV, G2, G1, G3, G5, G11, G6, G9, G7, G4. The report is always written; 
   GENV  no bunfig.toml / .env under root (else Bend is never invoked), pinned bend version
   G2    statement hashes match REGISTRY.json; registry lists exactly laws/<m>; facts hash; and
         spec/bindings/<m>.json matches the kernel (BendTT) form of every definition each statement
-        reaches in the committed models (a mismatch names the laws and the definitions)
+        reaches in the committed models, plus the emitted statement and counter-law (a mismatch
+        names the laws and the definitions); self-certified until I10 and Q1
   G1    regeneration into a temp dir is byte-identical (gen/**/*.bend, summary.json, and every
         result record with `seconds` stripped and artifact paths normalised), from a fresh build dir
   G3    no escape hatches in generated Bend; the checker reports no TODO / unsafe reliance
@@ -238,13 +239,26 @@ class Gate:
             if not p.exists():
                 self.checks["G2"] = _res(False, f"no bindings: {p.relative_to(self.root)} is missing")
                 return
-            laws, defs, msgs = bindings.diff(_load(p), bindings.derive(self.m, self.root, self.cfg))
+            bound = _load(p)
+            laws, defs, msgs = bindings.diff(bound, bindings.derive(self.m, self.root, self.cfg))
+            # the LAWS.bend the checker accepted is exactly the bound emission for its status
+            for lid, rec in self.records().items():
+                if not rec or rec.get("status") not in ("PROVED", "REFUTED") or lid not in bound.get("laws", {}):
+                    continue
+                key = "counter_sha256" if rec["status"] == "REFUTED" else "statement_sha256"
+                f = _resolve(self.root, rec["artifacts"].get("laws"))
+                got = bindings.text_sha256(f.read_text()) if f and f.exists() else None
+                if got != bound["laws"][lid].get(key):
+                    laws.append(lid)
+                    msgs.append(f"{lid}: the checked LAWS.bend is not the bound {key.split('_')[0]} emission")
             if laws:
                 self.checks["G2"] = _res(False, "bindings: " + "; ".join(msgs))
             else:
                 n = len(_load(p)["laws"])
-                self.checks["G2"] = _res(True, self.checks["G2"]["detail"] + f"; {n} laws bound to the kernel form "
-                                                                          "of every definition they reach")
+                self.checks["G2"] = _res(True, self.checks["G2"]["detail"] + f"; {n} laws bound to their emitted "
+                                         "statement and counter-law and to the kernel form of every definition they "
+                                         "reach (registry and bindings are agent-writable: self-certified until I10 "
+                                         "and the human's freeze, Q1)")
         except Exception as e:  # noqa: BLE001
             self.checks["G2"] = _res(False, f"bindings: error: {type(e).__name__}: {e}")
 
@@ -293,8 +307,9 @@ class Gate:
                         if f.is_file() and (f.suffix == ".bend" or f.name.endswith(".defs.json"))}
             a, b = bends(self.gen), bends(tmp / "gen")
             diff = sorted(k for k in set(a) | set(b) if a.get(k) != b.get(k))
-            same_summary = all((self.results / f).exists() and (self.results / f).read_bytes() ==
-                               (tmp / "results" / f).read_bytes() for f in ("summary.json", "deps.json"))
+            same = {f: (self.results / f).exists() and (self.results / f).read_bytes() ==
+                    (tmp / "results" / f).read_bytes() for f in ("summary.json", "deps.json")}
+            same_summary = all(same.values())
             ra = self.norm_records(self.results, self.gen)
             rb = self.norm_records(tmp / "results", tmp / "gen")
             # canonical bytes, not ==: 1, 1.0 and true must not compare equal
@@ -303,8 +318,9 @@ class Gate:
             ok = not diff and same_summary and bool(a) and not rdiff and bool(ra)
             self.checks["G1"] = _res(ok, f"{len(a)} generated .bend and .defs.json files identical, summary and deps identical, "
                                          f"{len(ra)} records identical" if ok else
-                                     f"differs: {diff[:10]}; records differ: {rdiff[:10]}; summary identical: "
-                                     f"{same_summary}; files: {len(a)}; records: {len(ra)}")
+                                     f"differs: {diff[:10]}; records differ: {rdiff[:10]}; "
+                                     + "; ".join(f"{f} identical: {v}" for f, v in same.items())
+                                     + f"; files: {len(a)}; records: {len(ra)}")
         except Exception as e:  # noqa: BLE001
             self.checks["G1"] = _res(False, f"error: {e}")
         finally:
