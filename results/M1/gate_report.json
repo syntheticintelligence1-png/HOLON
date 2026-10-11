@@ -1518,6 +1518,274 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {
+        "p": []
+      },
+      "id": "CANARY_negated_1_L_sort_remaining",
+      "kind": "negated",
+      "law": {
+        "evidence": [
+          "E5"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_1_L_sort_remaining",
+        "maps_to": "O27 (F4)",
+        "milestone": "M1",
+        "predicted": "REFUTED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "p",
+              "q": "forall",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "s0": {}
+                    },
+                    "obs": {
+                      "var": "p"
+                    }
+                  },
+                  {
+                    "nat": 16
+                  }
+                ],
+                "fn": "no_code"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "realize"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_sort_remaining"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "p": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          },
+          {
+            "idx": 1,
+            "op": "challengeState",
+            "value": 1,
+            "who": 4
+          },
+          {
+            "dt": 11,
+            "op": "wait"
+          }
+        ]
+      },
+      "id": "CANARY_witness_prefix_0_L_sort_remaining",
+      "kind": "witness_prefix",
+      "law": {
+        "evidence": [
+          "E5"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_witness_prefix_0_L_sort_remaining",
+        "maps_to": "O27 (F4)",
+        "milestone": "M1",
+        "predicted": "REFUTED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "p",
+              "q": "forall",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "s0": {}
+                    },
+                    "obs": {
+                      "var": "p"
+                    }
+                  },
+                  {
+                    "nat": 16
+                  }
+                ],
+                "fn": "no_code"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "realize"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_sort_remaining"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "p": []
+      },
+      "id": "CANARY_negated_2_L_tag_BVH",
+      "kind": "negated",
+      "law": {
+        "evidence": [
+          "E2",
+          "E5"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_2_L_tag_BVH",
+        "maps_to": "O26 (F6)",
+        "milestone": "M1",
+        "predicted": "REFUTED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "p",
+              "q": "forall",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "obsv": "tags_ok",
+                "of": {
+                  "from": {
+                    "s0": {}
+                  },
+                  "run": {
+                    "var": "p"
+                  }
+                }
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "ghost_tag"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_tag_BVH"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "p": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          },
+          {
+            "count": 1,
+            "idx": 1,
+            "op": "revertBatch",
+            "who": 1
+          }
+        ]
+      },
+      "id": "CANARY_witness_prefix_1_L_tag_BVH",
+      "kind": "witness_prefix",
+      "law": {
+        "evidence": [
+          "E2",
+          "E5"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_witness_prefix_1_L_tag_BVH",
+        "maps_to": "O26 (F6)",
+        "milestone": "M1",
+        "predicted": "REFUTED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "p",
+              "q": "forall",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "obsv": "tags_ok",
+                "of": {
+                  "from": {
+                    "s0": {}
+                  },
+                  "run": {
+                    "var": "p"
+                  }
+                }
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "ghost_tag"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_tag_BVH"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
         "s1": {
           "state": {
             "$": "HSt",
@@ -1598,7 +1866,7 @@
             "rri": 0,
             "s_bd": [],
             "s_bvh": [
-              1
+              17
             ],
             "s_csr": [],
             "s_tag": [],
@@ -2854,7 +3122,7 @@
         },
         "tr": []
       },
-      "id": "CANARY_negated_1_L_undo_BD",
+      "id": "CANARY_negated_3_L_undo_BD",
       "kind": "negated",
       "law": {
         "evidence": [
@@ -2863,7 +3131,7 @@
         "facts": "spec/M1/facts/morph_rollup.json",
         "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_1_L_undo_BD",
+        "law_id": "CANARY_negated_3_L_undo_BD",
         "maps_to": "D5 (whitepaper \u00a711.6)",
         "milestone": "M1",
         "predicted": "PROVED",
@@ -3028,7 +3296,7 @@
             "rri": 0,
             "s_bd": [],
             "s_bvh": [
-              1
+              17
             ],
             "s_csr": [],
             "s_tag": [],
@@ -4272,393 +4540,6 @@
       "negated": false,
       "rejected": true,
       "source_law": "L_undo_CSR"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": []
-        },
-        "s2": {
-          "run": []
-        },
-        "tr": []
-      },
-      "id": "CANARY_negated_2_L_undo_CSR",
-      "kind": "negated",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_2_L_undo_CSR",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "s_csr"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "s_csr"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_csr"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_csr"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_undo_CSR"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "h": {
-          "batchIndex": "0x0000000000000000",
-          "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "l1MessagePopped": "0x0000000000000000",
-          "lastBlockNumber": "0x0000000000000000",
-          "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
-          "totalL1MessagePopped": "0x0000000000000000",
-          "version": "0x02",
-          "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
-        }
-      },
-      "id": "CANARY_pin_const_0_L_par_hdr_v2_composed",
-      "kind": "pin_const",
-      "law": {
-        "evidence": [
-          "E1",
-          "E6"
-        ],
-        "facts": "spec/M1/facts/morph_header_m1.json",
-        "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
-        "ir_version": "holon-ir/0.1",
-        "law_id": "CANARY_pin_const_0_L_par_hdr_v2_composed",
-        "maps_to": "O2 (PAR-domain v2; resolves L_par_hdr_v2 at the producer level)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "PAR",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "field": "version",
-                  "of": {
-                    "var": "h"
-                  }
-                },
-                {
-                  "bytes": "0x02"
-                }
-              ]
-            },
-            {
-              "eq": [
-                {
-                  "field": "sequencerSetVerifyHash",
-                  "of": {
-                    "var": "h"
-                  }
-                },
-                {
-                  "bytes": "0x0000000000000000000000000000000000000000000000000000000000000001"
-                }
-              ]
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "var": "h"
-                  }
-                ],
-                "call": "enc_sol"
-              },
-              {
-                "args": [
-                  {
-                    "var": "h"
-                  }
-                ],
-                "call": "enc_go_v2_producer"
-              }
-            ]
-          },
-          "forall": [
-            {
-              "name": "h",
-              "type": "Header"
-            }
-          ]
-        },
-        "subform": "cross_component_codec"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_par_hdr_v2_composed"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "h": {
-          "batchIndex": "0x0000000000000000",
-          "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "l1MessagePopped": "0x0000000000000000",
-          "lastBlockNumber": "0x0000000000000000",
-          "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "totalL1MessagePopped": "0x0000000000000000",
-          "version": "0x02",
-          "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
-        }
-      },
-      "id": "CANARY_swap_fn_0_L_par_hdr_v2_composed",
-      "kind": "swap_fn",
-      "law": {
-        "evidence": [
-          "E1",
-          "E6"
-        ],
-        "facts": "spec/M1/facts/morph_header_m1.json",
-        "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
-        "ir_version": "holon-ir/0.1",
-        "law_id": "CANARY_swap_fn_0_L_par_hdr_v2_composed",
-        "maps_to": "O2 (PAR-domain v2; resolves L_par_hdr_v2 at the producer level)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "PAR",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "field": "version",
-                  "of": {
-                    "var": "h"
-                  }
-                },
-                {
-                  "bytes": "0x02"
-                }
-              ]
-            },
-            {
-              "eq": [
-                {
-                  "field": "sequencerSetVerifyHash",
-                  "of": {
-                    "var": "h"
-                  }
-                },
-                {
-                  "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                }
-              ]
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "var": "h"
-                  }
-                ],
-                "call": "enc_go_v0"
-              },
-              {
-                "args": [
-                  {
-                    "var": "h"
-                  }
-                ],
-                "call": "enc_go_v2_producer"
-              }
-            ]
-          },
-          "forall": [
-            {
-              "name": "h",
-              "type": "Header"
-            }
-          ]
-        },
-        "subform": "cross_component_codec"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_par_hdr_v2_composed"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "h": {
-          "batchIndex": "0x0000000000000000",
-          "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "l1MessagePopped": "0x0000000000000000",
-          "lastBlockNumber": "0x0000000000000000",
-          "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "totalL1MessagePopped": "0x0000000000000000",
-          "version": "0x02",
-          "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
-        }
-      },
-      "id": "CANARY_swap_fn_1_L_par_hdr_v2_composed",
-      "kind": "swap_fn",
-      "law": {
-        "evidence": [
-          "E1",
-          "E6"
-        ],
-        "facts": "spec/M1/facts/morph_header_m1.json",
-        "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
-        "ir_version": "holon-ir/0.1",
-        "law_id": "CANARY_swap_fn_1_L_par_hdr_v2_composed",
-        "maps_to": "O2 (PAR-domain v2; resolves L_par_hdr_v2 at the producer level)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "PAR",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "field": "version",
-                  "of": {
-                    "var": "h"
-                  }
-                },
-                {
-                  "bytes": "0x02"
-                }
-              ]
-            },
-            {
-              "eq": [
-                {
-                  "field": "sequencerSetVerifyHash",
-                  "of": {
-                    "var": "h"
-                  }
-                },
-                {
-                  "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                }
-              ]
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "var": "h"
-                  }
-                ],
-                "call": "enc_go_v1"
-              },
-              {
-                "args": [
-                  {
-                    "var": "h"
-                  }
-                ],
-                "call": "enc_go_v2_producer"
-              }
-            ]
-          },
-          "forall": [
-            {
-              "name": "h",
-              "type": "Header"
-            }
-          ]
-        },
-        "subform": "cross_component_codec"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_par_hdr_v2_composed"
     }
   ],
   "checks": {
@@ -4683,7 +4564,7 @@
       "passed": true
     },
     "G4": {
-      "detail": "24 canaries of kinds ['erase_live', 'negated', 'pin_const', 'swap_fn'], all rejected",
+      "detail": "24 canaries of kinds ['erase_live', 'negated', 'pin_const', 'witness_prefix'], all rejected",
       "passed": true
     },
     "G5": {

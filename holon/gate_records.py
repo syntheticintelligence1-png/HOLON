@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 from pathlib import Path
 
 from . import ir, refute
@@ -287,24 +288,55 @@ def _debt_files(root: Path) -> tuple[list, list]:
     return out, problems
 
 
-def _debt_listed(el: str, debt_text: list) -> bool:
-    return any(el == d or el in d.split() for d in debt_text)
+def _debt_symbol(element: str) -> str:
+    """The identifier a debt element names: its leading token — the element
+    itself for a bare name ('commitBatch'), the named thing before qualifiers
+    ('proveCommittedBatchState (view)' → 'proveCommittedBatchState'), or a
+    source site ('common/batch/x.go:39 append T.f' → 'common/batch/x.go:39',
+    which is never a facts name). `reason` text is never consulted."""
+    toks = element.split()
+    return toks[0].strip('`"\'').rstrip(",;:.") if toks else ""
 
 
-def _stale_debt(modelled: set, debt_text: list) -> list:
-    """Debt claiming to explain an element that IS modelled: the debt is stale."""
-    return [f"stale coverage debt: {el!r} is modelled in the facts"
-            for el in sorted(modelled) if _debt_listed(el, debt_text)]
+def _debt_symbols(debt_text: list) -> set:
+    return {s for s in (_debt_symbol(d) for d in debt_text) if s}
 
 
-def _coverage_holes(uncovered: list, debt_text: list) -> list:
+def _stale_debt(modelled_by_file: dict, facts_debt: dict, spec_items: list) -> list:
+    """Stale debt: an element whose symbol is exactly a name the facts model.
+
+    A facts file's own coverage.debt is checked against that file's namespace;
+    spec/M2/coverage items have no home facts and are checked against the union
+    of modelled names. Elements naming nothing in the facts' namespace (Go
+    methods, source sites) are simply outside the facts, not stale."""
+    union = set().union(*modelled_by_file.values()) if modelled_by_file else set()
+    out = []
+    for fp, items in sorted(facts_debt.items()):
+        scope = modelled_by_file.get(fp, set())
+        for d in items:
+            if _debt_symbol(d) in scope:
+                out.append(f"stale coverage debt: {d!r} in {fp} names modelled "
+                           f"{_debt_symbol(d)!r}")
+    for i in spec_items:
+        sym = _debt_symbol(i["element"])
+        if sym in union:
+            out.append(f"stale coverage debt: {i['element']!r} in {i['source']} "
+                       f"names modelled {sym!r}")
+    return sorted(set(out))
+
+
+_HOLE = re.compile(r"(.+): (?:action|register) (\S+)$")
+
+
+def _coverage_holes(uncovered: list, debt_syms_by_file: dict, spec_syms: set) -> list:
     """Modelled actions/registers no law touches and no debt explains."""
     out = []
     for u in uncovered:
-        if ": action " not in u and ": register " not in u:
+        m = _HOLE.match(u)
+        if not m:
             continue
-        el = u.rsplit(" ", 1)[-1]
-        if el == LOG_CHANNEL or _debt_listed(el, debt_text):
+        fp, el = m.group(1), m.group(2)
+        if el == LOG_CHANNEL or el in debt_syms_by_file.get(fp, set()) or el in spec_syms:
             continue
         out.append(f"coverage hole: {u} is touched by no law and not in debt")
     return out
@@ -316,31 +348,36 @@ def g8_check(gate) -> dict:
     laws = ir.load_laws_any(m, root)
     report = {"milestone": m, "facts": {}, "coverage_debt": [], "uncovered": []}
     problems = []
-    modelled = set()  # action/register names for stale-debt detection
+    modelled_by_file: dict[str, set] = {}  # fp -> modelled action/register names
+    facts_debt: dict[str, list] = {}       # fp -> that file's own coverage.debt
     for fp in sorted({l["facts"] for l in laws}):
         facts = F.load(root / fp)
         fl = [l for l in laws if l["facts"] == fp]
+        modelled_by_file[fp] = set()
         if "actions" in facts:
             cov, probs = _machine_coverage(facts, fl)
-            modelled |= set(cov["actions"])
-            modelled |= set(cov["registers"])
+            modelled_by_file[fp] |= set(cov["actions"]) | set(cov["registers"])
         else:
             cov, probs = _codec_coverage(facts, fl)
+            modelled_by_file[fp] |= set(cov.get("functions", {}))
         problems += probs
         report["facts"][fp] = cov
         report["uncovered"] += [f"{fp}: {u}" for u in cov["uncovered"]]
-        report["coverage_debt"] += [{"element": d, "source": fp}
-                                    for d in sorted(facts.get("coverage", {}).get("debt", []))]
+        facts_debt[fp] = list(facts.get("coverage", {}).get("debt", []))
+        report["coverage_debt"] += [{"element": d, "source": fp} for d in sorted(facts_debt[fp])]
     debt, dprobs = _debt_files(root)
     problems += dprobs
+    spec_items = [{"element": i["element"], "source": e["file"]}
+                  for e in debt for i in e["items"]]
     report["coverage_debt"] += [{"element": i["element"], "kind": i["kind"], "reason": i["reason"],
                                  "source": e["file"]} for e in debt for i in e["items"]]
-    debt_text = [d["element"] for d in report["coverage_debt"]]
-    problems += _stale_debt(modelled, debt_text)
+    problems += _stale_debt(modelled_by_file, facts_debt, spec_items)
     # a modelled action or register (not the log channel) no law touches and no
     # debt explains is a coverage hole the gate must flag; codec functions are
     # reported as context (they are the M0 surface, not M2 actions/registers)
-    problems += _coverage_holes(report["uncovered"], debt_text)
+    debt_syms_by_file = {fp: _debt_symbols(items) for fp, items in facts_debt.items()}
+    spec_syms = _debt_symbols([i["element"] for i in spec_items])
+    problems += _coverage_holes(report["uncovered"], debt_syms_by_file, spec_syms)
     out = gate.results / "coverage_report.json"
     out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     ok = not problems

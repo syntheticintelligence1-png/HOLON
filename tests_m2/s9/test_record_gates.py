@@ -123,18 +123,50 @@ class TestG8(unittest.TestCase):
 
     def test_coverage_hole_fails(self):
         # an untouched register is a hole unless debt explains it
-        holes = gate_records._coverage_holes([f"{ROLLUP}: register s_csr"], [])
+        holes = gate_records._coverage_holes([f"{ROLLUP}: register s_csr"], {}, set())
         self.assertTrue(any("s_csr" in h for h in holes))
-        self.assertEqual(gate_records._coverage_holes([f"{ROLLUP}: register s_csr"],
-                                                      ["stale debt naming s_csr"]), [])
+        self.assertEqual(gate_records._coverage_holes(
+            [f"{ROLLUP}: register s_csr"], {ROLLUP: {"s_csr"}}, set()), [])
         # the log channel and codec functions are exempt
-        self.assertEqual(gate_records._coverage_holes([f"{ROLLUP}: register log"], []), [])
-        self.assertEqual(gate_records._coverage_holes(["spec/M1/facts/h.json: function dec_go"], []), [])
+        self.assertEqual(gate_records._coverage_holes([f"{ROLLUP}: register log"], {}, set()), [])
+        self.assertEqual(gate_records._coverage_holes(
+            ["spec/M1/facts/h.json: function dec_go"], {}, set()), [])
 
-    def test_stale_debt_fails(self):
-        stale = gate_records._stale_debt({"commitBatch", "s_csr"}, ["commitBatch is modelled", "other debt"])
+    def test_stale_debt_symbol_semantics(self):
+        # stale iff the element's symbol (leading token) is a modelled name
+        mbf = {ROLLUP: {"commitBatch", "s_csr"}}
+        stale = gate_records._stale_debt(mbf, {ROLLUP: ["commitBatch is modelled"]}, [])
         self.assertTrue(any("commitBatch" in s for s in stale))
         self.assertFalse(any("s_csr" in s for s in stale))
+        # a modelled name later in the element (not the symbol) is NOT stale
+        self.assertEqual(gate_records._stale_debt(mbf, {ROLLUP: ["revert of commitBatch"]},
+                                                  []), [])
+        # facts debt is scoped to its own file's namespace
+        other = "spec/M1/facts/morph_batchdata.json"
+        self.assertEqual(gate_records._stale_debt({other: {"view"}},
+                                                  {ROLLUP: ["view fn"]}, []), [])
+
+    def test_stale_debt_spec_items(self):
+        """A spec/M2/coverage item is stale iff its element's symbol is a
+        modelled name — checked against the union of all facts' namespaces."""
+        mbf = {ROLLUP: {"commitBatch"}, "spec/M1/facts/morph_batchdata.json": {"append"}}
+        # exact match on a modelled facts action: stale
+        stale = gate_records._stale_debt(mbf, {}, [{"element": "append",
+                                                  "source": "spec/M2/coverage/x.json"}])
+        self.assertTrue(any("append" in s for s in stale))
+        # a Go source-site element whose text contains a modelled name: NOT stale
+        items = [{"element": "common/batch/batch_data.go:39 append BatchData.l1TxHashes",
+                  "source": "spec/M2/coverage/go.json"}]
+        self.assertEqual(gate_records._stale_debt(mbf, {}, items), [])
+        # S3's real go.json does not trigger stale debt at all
+        go = json.loads((REPO / "spec/M2/coverage/go.json").read_text())
+        real_items = [{"element": i["element"], "source": "spec/M2/coverage/go.json"}
+                      for i in go["items"]]
+        self.assertEqual(gate_records._stale_debt(mbf, {}, real_items), [])
+        # reason text is never consulted
+        items = [{"element": "site/x", "source": "spec/M2/coverage/x.json",
+                  "reason": "no append, no commitBatch"}]
+        self.assertEqual(gate_records._stale_debt(mbf, {}, items), [])
 
     def test_malformed_debt_file_fails(self):
         tmp = Path(tempfile.mkdtemp())
