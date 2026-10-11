@@ -1,0 +1,51 @@
+{
+  "artifacts": {
+    "law_name": "l_rt_go_v2",
+    "laws": "gen/M0/L_rt_go_v2/LAWS.bend",
+    "model": "gen/M0/model/morph_header.bend",
+    "proof": "gen/M0/L_rt_go_v2/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "open_refl",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.413
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.828
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.413
+  },
+  "difference": null,
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_rt_go_v2",
+  "premises": [
+    "h.version == 0x02",
+    "h.sequencerSetVerifyHash == 0x00*32"
+  ],
+  "replay": {
+    "detail": "replay is milestone P5",
+    "status": "not_run"
+  },
+  "scope": "unbounded",
+  "statement": "\u2200 h: Header. h.version == 0x02 \u2227 h.sequencerSetVerifyHash == 0x00*32 \u21d2 dec_go(enc_sol(h)) == Some(view(h))",
+  "statement_hash": "sha256:529c9ef84201b214c684642f8683bb42afeb1d9aff6ddc759efcadeb028d78aa",
+  "status": "PROVED",
+  "triage": "none",
+  "witness": null
+}

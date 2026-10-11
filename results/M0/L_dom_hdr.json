@@ -1,0 +1,72 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_dom_hdr",
+    "laws": "gen/M0/L_dom_hdr/LAWS.bend",
+    "model": "gen/M0/model/morph_header.bend",
+    "proof": "gen/M0/L_dom_hdr/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : Cmp.is_ge(Nat.cmp(List.length(&2, U32, t), 248n))\n- observed : Cmp.is_eq(Nat.cmp(List.length(&2, U32, t), 248n))\nContext:\n- t : List<&2, U32>\nLocation: l_dom_hdr_at\n 9 |     case 0n:\n10>|       {==}\n   |       ^^^^\n11 |     case 1n:",
+      "exit_code": 1,
+      "generator": "version_split",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "seconds": 0.346
+    },
+    {
+      "bound": "Bytes: empty + versions [0, 1, 2, 3, 255] x lengths around [249, 257] x (zeros, ones, 1 random; seed 20261010)",
+      "engine": "compiled-model search",
+      "hit": true,
+      "kind": "refute",
+      "notes": [
+        "hit: version=0, len=250, zeros"
+      ],
+      "tried": 14,
+      "undefined": 0
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.377
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.772
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.377
+  },
+  "difference": {
+    "lhs": true,
+    "rhs": false
+  },
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_dom_hdr",
+  "premises": [],
+  "replay": {
+    "detail": "replay is milestone P5",
+    "status": "not_run"
+  },
+  "scope": "unbounded",
+  "statement": "\u2200 b: Bytes. ok_sol(b) == ok_go(b)",
+  "statement_hash": "sha256:7e96f1ebf47573eec8de471393bb719992c5264ec5af270a361d39fe6b127535",
+  "status": "REFUTED",
+  "triage": "finding",
+  "witness": {
+    "b": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

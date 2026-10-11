@@ -1,0 +1,51 @@
+{
+  "artifacts": {
+    "law_name": "l_par_hdr_v0",
+    "laws": "gen/M0/L_par_hdr_v0/LAWS.bend",
+    "model": "gen/M0/model/morph_header.bend",
+    "proof": "gen/M0/L_par_hdr_v0/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "open_refl",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.361
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.772
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.361
+  },
+  "difference": null,
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_par_hdr_v0",
+  "premises": [
+    "h.version == 0x00",
+    "h.sequencerSetVerifyHash == 0x00*32"
+  ],
+  "replay": {
+    "detail": "replay is milestone P5",
+    "status": "not_run"
+  },
+  "scope": "unbounded",
+  "statement": "\u2200 h: Header. h.version == 0x00 \u2227 h.sequencerSetVerifyHash == 0x00*32 \u21d2 enc_sol(h) == enc_go_v0(h)",
+  "statement_hash": "sha256:d753f5fc344e138c5d065014ba0f5c152106a4c44644a790e1900cfd4ad581c8",
+  "status": "PROVED",
+  "triage": "none",
+  "witness": null
+}
