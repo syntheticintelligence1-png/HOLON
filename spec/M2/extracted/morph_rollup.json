@@ -1,0 +1,3312 @@
+{
+ "facts_version": "holon-facts/0.2",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "scope": "Rollup batch lifecycle (commit x3, revert, challenge, prove, finalize, pause) + L1MessageQueue cursors"
+ },
+ "extraction": {
+  "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
+ },
+ "abstractions": [
+  "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+  "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+  "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+  "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+  "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+  "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+  "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+  "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
+ ],
+ "params": {
+  "Z": 1,
+  "OWNER": 1,
+  "DEP": 1,
+  "AGG_BASE": 1000
+ },
+ "constants_doc": {
+  "Z": "ZERO_VERSIONED_HASH (Rollup.sol:24) = versioned hash of the all-zero blob (oracle-checked by holon: 0x01 || sha256(0xc0 || 0^47)[1:])"
+ },
+ "types": {
+  "Entry": {
+   "doc": "one committed batch: header fields + its per-index registers",
+   "fields": [
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "tot",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "hb",
+     "Nat"
+    ],
+    [
+     "prev",
+     "Nat"
+    ],
+    [
+     "post",
+     "Nat"
+    ],
+    [
+     "lbn",
+     "Nat"
+    ],
+    [
+     "csr",
+     "Nat"
+    ],
+    [
+     "bvh",
+     "Nat"
+    ],
+    [
+     "tag",
+     "Nat"
+    ],
+    [
+     "bdo",
+     "Nat"
+    ],
+    [
+     "bdf",
+     "Nat"
+    ],
+    [
+     "bdn",
+     "Nat"
+    ],
+    [
+     "bds",
+     "Nat"
+    ]
+   ],
+   "ghost": [
+    "tag"
+   ],
+   "doc_fields": {
+    "hb": "header bytes 57..89 (blob field)",
+    "csr": "committedStateRoots",
+    "bvh": "batchBlobVersionedHashes",
+    "tag": "GHOST: writer sort of bvh (1 = versioned hash, 2 = aggregate keccak); never read by modelled code",
+    "bdo": "batchDataStore.originTimestamp",
+    "bdf": "batchDataStore.finalizeTimestamp",
+    "bdn": "batchDataStore.blockNumber",
+    "bds": "batchDataStore.submitter (0 = address(0))"
+   }
+  },
+  "BD": {
+   "fields": [
+    [
+     "o",
+     "Nat"
+    ],
+    [
+     "f",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "s",
+     "Nat"
+    ]
+   ]
+  },
+  "Ch": {
+   "doc": "BatchChallenge",
+   "fields": [
+    [
+     "c",
+     "Nat"
+    ],
+    [
+     "d",
+     "Nat"
+    ],
+    [
+     "s",
+     "Nat"
+    ],
+    [
+     "w",
+     "Bool"
+    ],
+    [
+     "f",
+     "Bool"
+    ]
+   ]
+  }
+ },
+ "state": [
+  [
+   "t",
+   "Nat",
+   "block.timestamp (environment)"
+  ],
+  [
+   "lfi",
+   "Nat",
+   "lastFinalizedBatchIndex"
+  ],
+  [
+   "inch",
+   "Bool",
+   "inChallenge"
+  ],
+  [
+   "bc",
+   "Nat",
+   "batchChallenged"
+  ],
+  [
+   "rri",
+   "Nat",
+   "revertReqIndex"
+  ],
+  [
+   "paused",
+   "Bool",
+   "Pausable._paused"
+  ],
+  [
+   "W",
+   "Nat",
+   "proofWindow"
+  ],
+  [
+   "F",
+   "Nat",
+   "finalizationPeriodSeconds"
+  ],
+  [
+   "D",
+   "Nat",
+   "rollupDelayPeriod"
+  ],
+  [
+   "qlen",
+   "Nat",
+   "L1MessageQueue.messageQueue.length"
+  ],
+  [
+   "qpend",
+   "Nat",
+   "L1MessageQueue.pendingQueueIndex"
+  ],
+  [
+   "enq",
+   "List<Nat>",
+   "L1MessageQueue.messageEnqueueTime"
+  ],
+  [
+   "active",
+   "List<Nat>",
+   "ISubmitter active set"
+  ],
+  [
+   "chals",
+   "List<Nat>",
+   "isChallenger"
+  ],
+  [
+   "fsr",
+   "List<Nat>",
+   "finalizedStateRoots (absolute index)"
+  ],
+  [
+   "chs",
+   "List<Ch>",
+   "challenges (absolute index)"
+  ],
+  [
+   "win",
+   "List<Entry>",
+   "batches LFI..LCI"
+  ],
+  [
+   "s_csr",
+   "List<Nat>",
+   "committedStateRoots residues at LCI+1.."
+  ],
+  [
+   "s_bd",
+   "List<BD>",
+   "batchDataStore residues at LCI+1.."
+  ],
+  [
+   "s_bvh",
+   "List<Nat>",
+   "batchBlobVersionedHashes residues at LCI+1.."
+  ],
+  [
+   "s_tag",
+   "List<Nat>",
+   "GHOST tags of s_bvh"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "observations (newest first)"
+  ]
+ ],
+ "ghost_state": [
+  "s_tag"
+ ],
+ "shadow": {
+  "s_csr": "csr",
+  "s_bd": "bd",
+  "s_bvh": "bvh",
+  "s_tag": "tag"
+ },
+ "initial": {
+  "doc": "after initialize(...) and importGenesisBatch at t = 10 (Rollup.sol:226-252)",
+  "t": 10,
+  "lfi": 0,
+  "inch": false,
+  "bc": 0,
+  "rri": 0,
+  "paused": false,
+  "W": 10,
+  "F": 40,
+  "D": 20,
+  "qlen": 0,
+  "qpend": 0,
+  "enq": [],
+  "active": [
+   2,
+   3
+  ],
+  "chals": [
+   4
+  ],
+  "fsr": [
+   100
+  ],
+  "chs": [],
+  "win": [
+   {
+    "ver": 0,
+    "tot": 0,
+    "n": 0,
+    "hb": 1,
+    "prev": 0,
+    "post": 100,
+    "lbn": 0,
+    "csr": 100,
+    "bvh": 1,
+    "tag": 1,
+    "bdo": 10,
+    "bdf": 10,
+    "bdn": 0,
+    "bds": 0
+   }
+  ],
+  "s_csr": [],
+  "s_bd": [],
+  "s_bvh": [],
+  "s_tag": [],
+  "log": []
+ },
+ "principals": {
+  "1": "owner",
+  "2": "submitter A",
+  "3": "submitter B",
+  "4": "challenger",
+  "5": "anyone"
+ },
+ "reasons": {
+  "1": "only active submitter allowed",
+  "2": "pending revert request",
+  "3": "Pausable: paused",
+  "4": "commitBatch requires no stored blob hash",
+  "5": "l1msg delay",
+  "6": "V2 requires at least 1 blob",
+  "7": "legacy batches support exactly 1 blob",
+  "8": "invalid version",
+  "9": "previous state root is zero",
+  "10": "new state root is zero",
+  "11": "batch already committed",
+  "12": "incorrect batch index",
+  "13": "incorrect parent batch hash",
+  "14": "incorrect previous state root",
+  "15": "message index out of range",
+  "16": "panic:0x11",
+  "17": "commitState must not carry blob",
+  "18": "no stored blob hash for this batch",
+  "19": "invalid timing",
+  "20": "must not carry blob when using stored blob hash",
+  "21": "incorrect batch hash",
+  "22": "Invalid batch proof",
+  "23": "invalid proof",
+  "24": "Ownable: caller is not the owner",
+  "25": "count must be nonzero",
+  "26": "reverting must start from the ending",
+  "27": "can only revert unFinalized batch",
+  "28": "only challenger allowed",
+  "29": "already in challenge",
+  "30": "batch already finalized",
+  "31": "batch not exist",
+  "32": "batch already challenged",
+  "33": "cannot challenge batch outside the challenge window",
+  "34": "insufficient value",
+  "35": "batch in challenge",
+  "36": "batch should be revert",
+  "37": "batch in challenge window",
+  "38": "batch already verified",
+  "39": "start index mismatch",
+  "40": "Pausable: not paused"
+ },
+ "defs": {
+  "lci": {
+   "params": [
+    [
+     "lfi",
+     "Nat"
+    ],
+    [
+     "win",
+     "List<Entry>"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "-",
+    [
+     "+",
+     "lfi",
+     [
+      "call",
+      "len",
+      "win"
+     ]
+    ],
+    1
+   ],
+   "doc": "lastCommittedBatchIndex"
+  },
+  "in_win": {
+   "params": [
+    [
+     "lfi",
+     "Nat"
+    ],
+    [
+     "win",
+     "List<Entry>"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "&&",
+    [
+     ">=",
+     "idx",
+     "lfi"
+    ],
+    [
+     "<=",
+     "idx",
+     [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ]
+    ]
+   ]
+  },
+  "w": {
+   "params": [
+    [
+     "lfi",
+     "Nat"
+    ],
+    [
+     "win",
+     "List<Entry>"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "type": "Entry",
+   "body": [
+    "?",
+    [
+     "call",
+     "in_win",
+     "lfi",
+     "win",
+     "idx"
+    ],
+    [
+     "call",
+     "win_at",
+     "win",
+     [
+      "-",
+      "idx",
+      "lfi"
+     ]
+    ],
+    [
+     "call",
+     "empty_entry"
+    ]
+   ],
+   "doc": "storage of batch idx; zero outside LFI..LCI (deleted below LFI; callers only read above LCI through bvh_at/tag_at)"
+  },
+  "bvh_at": {
+   "params": [
+    [
+     "lfi",
+     "Nat"
+    ],
+    [
+     "win",
+     "List<Entry>"
+    ],
+    [
+     "s_bvh",
+     "List<Nat>"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "?",
+    [
+     "<",
+     "idx",
+     "lfi"
+    ],
+    0,
+    [
+     "?",
+     [
+      "<=",
+      "idx",
+      [
+       "call",
+       "lci",
+       "lfi",
+       "win"
+      ]
+     ],
+     [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "bvh"
+     ],
+     [
+      "call",
+      "nth",
+      "s_bvh",
+      [
+       "-",
+       [
+        "-",
+        "idx",
+        [
+         "call",
+         "lci",
+         "lfi",
+         "win"
+        ]
+       ],
+       1
+      ]
+     ]
+    ]
+   ],
+   "doc": "batchBlobVersionedHashes[idx], including residues above LCI"
+  },
+  "tag_at": {
+   "params": [
+    [
+     "lfi",
+     "Nat"
+    ],
+    [
+     "win",
+     "List<Entry>"
+    ],
+    [
+     "s_tag",
+     "List<Nat>"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "?",
+    [
+     "<",
+     "idx",
+     "lfi"
+    ],
+    0,
+    [
+     "?",
+     [
+      "<=",
+      "idx",
+      [
+       "call",
+       "lci",
+       "lfi",
+       "win"
+      ]
+     ],
+     [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "tag"
+     ],
+     [
+      "call",
+      "nth",
+      "s_tag",
+      [
+       "-",
+       [
+        "-",
+        "idx",
+        [
+         "call",
+         "lci",
+         "lfi",
+         "win"
+        ]
+       ],
+       1
+      ]
+     ]
+    ]
+   ],
+   "ghost": true
+  },
+  "enq_first": {
+   "params": [
+    [
+     "qpend",
+     "Nat"
+    ],
+    [
+     "qlen",
+     "Nat"
+    ],
+    [
+     "enq",
+     "List<Nat>"
+    ],
+    [
+     "t",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "?",
+    [
+     "&&",
+     [
+      "<",
+      "qpend",
+      "qlen"
+     ],
+     [
+      "!=",
+      [
+       "call",
+       "nth",
+       "enq",
+       "qpend"
+      ],
+      0
+     ]
+    ],
+    [
+     "call",
+     "nth",
+     "enq",
+     "qpend"
+    ],
+    "t"
+   ],
+   "src": null
+  },
+  "open_ch": {
+   "params": [
+    [
+     "chs",
+     "List<Ch>"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "&&",
+    [
+     "!=",
+     [
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "idx"
+      ],
+      "c"
+     ],
+     0
+    ],
+    [
+     "!",
+     [
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "idx"
+      ],
+      "f"
+     ]
+    ]
+   ],
+   "src": null
+  },
+  "blob_hash": {
+   "params": [
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "blobs",
+     "List<Nat>"
+    ]
+   ],
+   "type": "Nat",
+   "body": null,
+   "src": null
+  }
+ },
+ "actions": [
+  {
+   "name": "commitBatch",
+   "principal": "active submitter",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "parent",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "lbn",
+     "Nat"
+    ],
+    [
+     "prev",
+     "Nat"
+    ],
+    [
+     "post",
+     "Nat"
+    ],
+    [
+     "blobs",
+     "List<Nat>"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "active"
+     ],
+     "reason": 1,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+    },
+    {
+     "require": [
+      "==",
+      "rri",
+      0
+     ],
+     "reason": 2,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+    },
+    {
+     "require": [
+      "!",
+      "paused"
+     ],
+     "reason": 3,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "let": "next",
+     "expr": [
+      "+",
+      "parent",
+      1
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:260"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "call",
+       "bvh_at",
+       "lfi",
+       "win",
+       "s_bvh",
+       "next"
+      ],
+      0
+     ],
+     "reason": 4,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:261"
+    },
+    {
+     "require": [
+      "||",
+      [
+       ">=",
+       [
+        "+",
+        [
+         "call",
+         "enq_first",
+         "qpend",
+         "qlen",
+         "enq",
+         "t"
+        ],
+        "D"
+       ],
+       "t"
+      ],
+      [
+       ">",
+       "n",
+       0
+      ]
+     ],
+     "reason": 5,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:265"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "!=",
+       "ver",
+       2
+      ],
+      [
+       ">",
+       [
+        "call",
+        "blob_count",
+        "blobs"
+       ],
+       0
+      ]
+     ],
+     "reason": 6,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "==",
+       "ver",
+       2
+      ],
+      [
+       "==",
+       [
+        "call",
+        "nth",
+        "blobs",
+        1
+       ],
+       0
+      ]
+     ],
+     "reason": 7,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+    },
+    {
+     "let": "bvh",
+     "expr": [
+      "call",
+      "blob_hash",
+      "ver",
+      "blobs"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:267"
+    },
+    {
+     "let": "tag",
+     "expr": [
+      "?",
+      [
+       "==",
+       "ver",
+       2
+      ],
+      2,
+      1
+     ]
+    },
+    {
+     "require": [
+      "<=",
+      "ver",
+      2
+     ],
+     "reason": 8,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+    },
+    {
+     "require": [
+      "!=",
+      "prev",
+      0
+     ],
+     "reason": 9,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+    },
+    {
+     "require": [
+      "!=",
+      "post",
+      0
+     ],
+     "reason": 10,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+    },
+    {
+     "require": [
+      ">",
+      "next",
+      [
+       "call",
+       "lci",
+       "lfi",
+       "win"
+      ]
+     ],
+     "reason": 11,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
+     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
+    },
+    {
+     "let": "lci",
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ]
+    },
+    {
+     "require": [
+      "==",
+      "parent",
+      "lci"
+     ],
+     "reason": 12,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+    },
+    {
+     "require": [
+      "<=",
+      "parent",
+      "lci"
+     ],
+     "reason": 13,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:313",
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "get",
+       [
+        "call",
+        "w",
+        "lfi",
+        "win",
+        "parent"
+       ],
+       "csr"
+      ],
+      "prev"
+     ],
+     "reason": 14,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+    },
+    {
+     "let": "tot",
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "parent"
+      ],
+      "tot"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:316"
+    },
+    {
+     "require": [
+      "<=",
+      [
+       "+",
+       "tot",
+       "n"
+      ],
+      "qlen"
+     ],
+     "reason": 15,
+     "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+     "note": "_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length"
+    },
+    {
+     "let": "tot",
+     "expr": [
+      "+",
+      "tot",
+      "n"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:325"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "!",
+       "inch"
+      ],
+      [
+       "<=",
+       "t",
+       [
+        "+",
+        "W",
+        [
+         "get",
+         [
+          "call",
+          "nth_ch",
+          "chs",
+          "bc"
+         ],
+         "s"
+        ]
+       ]
+      ]
+     ],
+     "reason": 16,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+    }
+   ],
+   "effects": {
+    "win": [
+     "call",
+     "snoc",
+     "win",
+     [
+      "mk",
+      "Entry",
+      {
+       "ver": "ver",
+       "tot": "tot",
+       "n": "n",
+       "hb": "bvh",
+       "prev": "prev",
+       "post": "post",
+       "lbn": "lbn",
+       "csr": "post",
+       "bvh": "bvh",
+       "tag": [
+        "?",
+        [
+         "==",
+         "ver",
+         2
+        ],
+        2,
+        1
+       ],
+       "bdo": "t",
+       "bdf": [
+        "+",
+        [
+         "+",
+         "t",
+         "F"
+        ],
+        [
+         "-",
+         [
+          "+",
+          "W",
+          [
+           "get",
+           [
+            "call",
+            "nth_ch",
+            "chs",
+            "bc"
+           ],
+           "s"
+          ]
+         ],
+         "t"
+        ]
+       ],
+       "bdn": "lbn",
+       "bds": "who"
+      }
+     ]
+    ],
+    "s_csr": [
+     "call",
+     "tail",
+     "s_csr"
+    ],
+    "s_bd": [
+     "call",
+     "tail",
+     "s_bd"
+    ],
+    "s_bvh": [
+     "call",
+     "tail",
+     "s_bvh"
+    ],
+    "s_tag": [
+     "call",
+     "tail",
+     "s_tag"
+    ]
+   }
+  },
+  {
+   "name": "commitState",
+   "principal": "active submitter",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "parent",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "lbn",
+     "Nat"
+    ],
+    [
+     "prev",
+     "Nat"
+    ],
+    [
+     "post",
+     "Nat"
+    ],
+    [
+     "blobs",
+     "List<Nat>"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "active"
+     ],
+     "reason": 1,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+    },
+    {
+     "require": [
+      "==",
+      "rri",
+      0
+     ],
+     "reason": 2,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+    },
+    {
+     "require": [
+      "!",
+      "paused"
+     ],
+     "reason": 3,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "let": "b0",
+     "expr": [
+      "call",
+      "nth",
+      "blobs",
+      0
+     ]
+    },
+    {
+     "require": [
+      "==",
+      [
+       "call",
+       "nth",
+       "blobs",
+       0
+      ],
+      0
+     ],
+     "reason": 17,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:276"
+    },
+    {
+     "let": "next",
+     "expr": [
+      "+",
+      "parent",
+      1
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:278"
+    },
+    {
+     "require": [
+      "!=",
+      [
+       "call",
+       "bvh_at",
+       "lfi",
+       "win",
+       "s_bvh",
+       "next"
+      ],
+      0
+     ],
+     "reason": 18,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:279"
+    },
+    {
+     "require": [
+      "||",
+      [
+       ">=",
+       [
+        "+",
+        [
+         "call",
+         "enq_first",
+         "qpend",
+         "qlen",
+         "enq",
+         "t"
+        ],
+        "D"
+       ],
+       "t"
+      ],
+      [
+       ">",
+       "n",
+       0
+      ]
+     ],
+     "reason": 5,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:283"
+    },
+    {
+     "require": [
+      "<=",
+      "ver",
+      2
+     ],
+     "reason": 8,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+    },
+    {
+     "require": [
+      "!=",
+      "prev",
+      0
+     ],
+     "reason": 9,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+    },
+    {
+     "require": [
+      "!=",
+      "post",
+      0
+     ],
+     "reason": 10,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+    },
+    {
+     "require": [
+      ">",
+      "next",
+      [
+       "call",
+       "lci",
+       "lfi",
+       "win"
+      ]
+     ],
+     "reason": 11,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
+     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
+    },
+    {
+     "let": "lci",
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ]
+    },
+    {
+     "require": [
+      "==",
+      "parent",
+      "lci"
+     ],
+     "reason": 12,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+    },
+    {
+     "require": [
+      "<=",
+      "parent",
+      "lci"
+     ],
+     "reason": 13,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:313",
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "get",
+       [
+        "call",
+        "w",
+        "lfi",
+        "win",
+        "parent"
+       ],
+       "csr"
+      ],
+      "prev"
+     ],
+     "reason": 14,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+    },
+    {
+     "let": "tot",
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "parent"
+      ],
+      "tot"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:316"
+    },
+    {
+     "require": [
+      "<=",
+      [
+       "+",
+       "tot",
+       "n"
+      ],
+      "qlen"
+     ],
+     "reason": 15,
+     "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+     "note": "_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length"
+    },
+    {
+     "let": "tot",
+     "expr": [
+      "+",
+      "tot",
+      "n"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:325"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "!",
+       "inch"
+      ],
+      [
+       "<=",
+       "t",
+       [
+        "+",
+        "W",
+        [
+         "get",
+         [
+          "call",
+          "nth_ch",
+          "chs",
+          "bc"
+         ],
+         "s"
+        ]
+       ]
+      ]
+     ],
+     "reason": 16,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+    }
+   ],
+   "effects": {
+    "win": [
+     "call",
+     "snoc",
+     "win",
+     [
+      "mk",
+      "Entry",
+      {
+       "ver": "ver",
+       "tot": "tot",
+       "n": "n",
+       "hb": [
+        "call",
+        "bvh_at",
+        "lfi",
+        "win",
+        "s_bvh",
+        "next"
+       ],
+       "prev": "prev",
+       "post": "post",
+       "lbn": "lbn",
+       "csr": "post",
+       "bvh": [
+        "call",
+        "bvh_at",
+        "lfi",
+        "win",
+        "s_bvh",
+        "next"
+       ],
+       "tag": "tag",
+       "bdo": "t",
+       "bdf": [
+        "+",
+        [
+         "+",
+         "t",
+         "F"
+        ],
+        [
+         "-",
+         [
+          "+",
+          "W",
+          [
+           "get",
+           [
+            "call",
+            "nth_ch",
+            "chs",
+            "bc"
+           ],
+           "s"
+          ]
+         ],
+         "t"
+        ]
+       ],
+       "bdn": "lbn",
+       "bds": "who"
+      }
+     ]
+    ],
+    "s_csr": [
+     "call",
+     "tail",
+     "s_csr"
+    ],
+    "s_bd": [
+     "call",
+     "tail",
+     "s_bd"
+    ],
+    "s_bvh": [
+     "call",
+     "tail",
+     "s_bvh"
+    ],
+    "s_tag": [
+     "call",
+     "tail",
+     "s_tag"
+    ]
+   }
+  },
+  {
+   "name": "commitBatchWithProof",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "parent",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "lbn",
+     "Nat"
+    ],
+    [
+     "prev",
+     "Nat"
+    ],
+    [
+     "post",
+     "Nat"
+    ],
+    [
+     "blobs",
+     "List<Nat>"
+    ],
+    [
+     "proof",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "==",
+      "rri",
+      0
+     ],
+     "reason": 2,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+    },
+    {
+     "require": [
+      "!",
+      "paused"
+     ],
+     "reason": 3,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "let": "lci0",
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ]
+    },
+    {
+     "let": "rd",
+     "expr": [
+      "<",
+      [
+       "+",
+       [
+        "get",
+        [
+         "get",
+         [
+          "call",
+          "w",
+          "lfi",
+          "win",
+          "lci0"
+         ],
+         null
+        ],
+        "bdo"
+       ],
+       "D"
+      ],
+      "t"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:389"
+    },
+    {
+     "let": "qd",
+     "expr": [
+      "<",
+      [
+       "+",
+       [
+        "call",
+        "enq_first",
+        "qpend",
+        "qlen",
+        "enq",
+        "t"
+       ],
+       "D"
+      ],
+      "t"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:393"
+    },
+    {
+     "require": [
+      "||",
+      "rd",
+      [
+       "!",
+       "qd"
+      ],
+      [
+       ">",
+       "n",
+       0
+      ]
+     ],
+     "reason": 5,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:398"
+    },
+    {
+     "require": [
+      "||",
+      "rd",
+      "qd"
+     ],
+     "reason": 19,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:400"
+    },
+    {
+     "let": "next",
+     "expr": [
+      "+",
+      "parent",
+      1
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:403"
+    },
+    {
+     "let": "b0",
+     "expr": [
+      "call",
+      "nth",
+      "blobs",
+      0
+     ]
+    },
+    {
+     "require": [
+      "||",
+      [
+       "==",
+       [
+        "call",
+        "bvh_at",
+        "lfi",
+        "win",
+        "s_bvh",
+        "next"
+       ],
+       0
+      ],
+      [
+       "==",
+       [
+        "call",
+        "nth",
+        "blobs",
+        0
+       ],
+       0
+      ]
+     ],
+     "reason": 20,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:406"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "!=",
+       [
+        "call",
+        "bvh_at",
+        "lfi",
+        "win",
+        "s_bvh",
+        "next"
+       ],
+       0
+      ],
+      [
+       "!=",
+       "ver",
+       2
+      ],
+      [
+       ">",
+       [
+        "call",
+        "blob_count",
+        "blobs"
+       ],
+       0
+      ]
+     ],
+     "reason": 6,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "!=",
+       [
+        "call",
+        "bvh_at",
+        "lfi",
+        "win",
+        "s_bvh",
+        "next"
+       ],
+       0
+      ],
+      [
+       "==",
+       "ver",
+       2
+      ],
+      [
+       "==",
+       [
+        "call",
+        "nth",
+        "blobs",
+        1
+       ],
+       0
+      ]
+     ],
+     "reason": 7,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+    },
+    {
+     "let": "bvh",
+     "expr": [
+      "?",
+      [
+       "!=",
+       [
+        "call",
+        "bvh_at",
+        "lfi",
+        "win",
+        "s_bvh",
+        "next"
+       ],
+       0
+      ],
+      [
+       "call",
+       "bvh_at",
+       "lfi",
+       "win",
+       "s_bvh",
+       "next"
+      ],
+      [
+       "call",
+       "blob_hash",
+       "ver",
+       "blobs"
+      ]
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:405-408"
+    },
+    {
+     "require": [
+      "<=",
+      "ver",
+      2
+     ],
+     "reason": 8,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+    },
+    {
+     "require": [
+      "!=",
+      "prev",
+      0
+     ],
+     "reason": 9,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+    },
+    {
+     "require": [
+      "!=",
+      "post",
+      0
+     ],
+     "reason": 10,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+    },
+    {
+     "require": [
+      ">",
+      "next",
+      "lci0"
+     ],
+     "reason": 11,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
+     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
+    },
+    {
+     "require": [
+      "==",
+      "parent",
+      "lci0"
+     ],
+     "reason": 12,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+    },
+    {
+     "require": [
+      "<=",
+      "parent",
+      "lci0"
+     ],
+     "reason": 13,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:313",
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "get",
+       [
+        "call",
+        "w",
+        "lfi",
+        "win",
+        "parent"
+       ],
+       "csr"
+      ],
+      "prev"
+     ],
+     "reason": 14,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+    },
+    {
+     "let": "tot",
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "parent"
+      ],
+      "tot"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:316"
+    },
+    {
+     "require": [
+      "<=",
+      [
+       "+",
+       "tot",
+       "n"
+      ],
+      "qlen"
+     ],
+     "reason": 15,
+     "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+     "note": "_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length"
+    },
+    {
+     "let": "tot",
+     "expr": [
+      "+",
+      "tot",
+      "n"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:325"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "!",
+       "inch"
+      ],
+      [
+       "<=",
+       "t",
+       [
+        "+",
+        "W",
+        [
+         "get",
+         [
+          "call",
+          "nth_ch",
+          "chs",
+          "bc"
+         ],
+         "s"
+        ]
+       ]
+      ]
+     ],
+     "reason": 16,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+    },
+    {
+     "require": [
+      "<=",
+      "idx",
+      "lci0"
+     ],
+     "reason": 21,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:418",
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
+    },
+    {
+     "require": [
+      ">",
+      "proof",
+      0
+     ],
+     "reason": 22,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+    },
+    {
+     "let": "v_blobHashInput",
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "hb"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:765"
+    },
+    {
+     "require": [
+      "==",
+      "proof",
+      1
+     ],
+     "reason": 23,
+     "src": "oracle: IRollupVerifier.verifyAggregateProof"
+    }
+   ],
+   "effects": {
+    "win": [
+     "call",
+     "snoc",
+     "win",
+     [
+      "mk",
+      "Entry",
+      {
+       "ver": "ver",
+       "tot": "tot",
+       "n": "n",
+       "hb": "bvh",
+       "prev": "prev",
+       "post": "post",
+       "lbn": "lbn",
+       "csr": "post",
+       "bvh": "bvh",
+       "tag": [
+        "?",
+        [
+         "!=",
+         "stored",
+         0
+        ],
+        [
+         "call",
+         "tag_at",
+         "lfi",
+         "win",
+         "s_tag",
+         "next"
+        ],
+        [
+         "?",
+         [
+          "==",
+          "ver",
+          2
+         ],
+         2,
+         1
+        ]
+       ],
+       "bdo": "t",
+       "bdf": "t",
+       "bdn": "lbn",
+       "bds": 0
+      }
+     ]
+    ],
+    "s_csr": [
+     "call",
+     "tail",
+     "s_csr"
+    ],
+    "s_bd": [
+     "call",
+     "tail",
+     "s_bd"
+    ],
+    "s_bvh": [
+     "call",
+     "tail",
+     "s_bvh"
+    ],
+    "s_tag": [
+     "call",
+     "tail",
+     "s_tag"
+    ]
+   }
+  },
+  {
+   "name": "revertBatch",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:430-466",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ],
+    [
+     "count",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "==",
+      "OWNER",
+      "who"
+     ],
+     "reason": 24,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    },
+    {
+     "require": [
+      ">",
+      "count",
+      0
+     ],
+     "reason": 25,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:431"
+    },
+    {
+     "require": [
+      "<=",
+      "idx",
+      [
+       "call",
+       "lci",
+       "lfi",
+       "win"
+      ]
+     ],
+     "reason": 21,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:436",
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
+    },
+    {
+     "require": [
+      ">",
+      [
+       "+",
+       "idx",
+       "count"
+      ],
+      [
+       "call",
+       "lci",
+       "lfi",
+       "win"
+      ]
+     ],
+     "reason": 26,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:439",
+     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
+    },
+    {
+     "require": [
+      ">",
+      "idx",
+      "lfi"
+     ],
+     "reason": 27,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:441"
+    },
+    {
+     "require": [
+      "<=",
+      1,
+      "idx"
+     ],
+     "reason": 16,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:443"
+    },
+    {
+     "let": "p",
+     "expr": [
+      "-",
+      "idx",
+      "lfi"
+     ]
+    },
+    {
+     "let": "moved",
+     "expr": [
+      "call",
+      "drop",
+      "win",
+      "p"
+     ]
+    }
+   ],
+   "effects": {
+    "win": [
+     "call",
+     "take",
+     "win",
+     "p"
+    ],
+    "s_csr": [
+     "call",
+     "concat",
+     [
+      "call",
+      "es_csr",
+      "moved"
+     ],
+     "s_csr"
+    ],
+    "s_bd": [
+     "call",
+     "concat",
+     [
+      "call",
+      "es_bd",
+      "moved"
+     ],
+     "s_bd"
+    ],
+    "s_bvh": [
+     "call",
+     "concat",
+     [
+      "call",
+      "es_bvh",
+      "moved"
+     ],
+     "s_bvh"
+    ],
+    "s_tag": [
+     "call",
+     "concat",
+     [
+      "call",
+      "es_tag",
+      "moved"
+     ],
+     "s_tag"
+    ],
+    "inch": [
+     "&&",
+     "inch",
+     [
+      "!",
+      [
+       "call",
+       "any_open",
+       "chs",
+       "idx",
+       "lci"
+      ]
+     ]
+    ],
+    "chs": [
+     "call",
+     "clear_chs",
+     "chs",
+     "idx",
+     "lci"
+    ],
+    "rri": [
+     "?",
+     [
+      "&&",
+      [
+       ">",
+       "rri",
+       0
+      ],
+      [
+       ">=",
+       "rri",
+       "idx"
+      ],
+      [
+       "<=",
+       "rri",
+       "lci"
+      ]
+     ],
+     0,
+     "rri"
+    ]
+   }
+  },
+  {
+   "name": "challengeState",
+   "principal": "challenger",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:471-496",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "chals"
+     ],
+     "reason": 28,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:126"
+    },
+    {
+     "require": [
+      "==",
+      "rri",
+      0
+     ],
+     "reason": 2,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+    },
+    {
+     "require": [
+      "!",
+      "paused"
+     ],
+     "reason": 3,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "require": [
+      "!",
+      "inch"
+     ],
+     "reason": 29,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:475"
+    },
+    {
+     "require": [
+      "<",
+      "lfi",
+      "idx"
+     ],
+     "reason": 30,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:476"
+    },
+    {
+     "require": [
+      "&&",
+      [
+       ">",
+       [
+        "get",
+        [
+         "get",
+         [
+          "call",
+          "w",
+          "lfi",
+          "win",
+          "idx"
+         ],
+         null
+        ],
+        "bdo"
+       ],
+       0
+      ],
+      [
+       "commit_cmp",
+       "!=",
+       "idx",
+       0
+      ]
+     ],
+     "reason": 31,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:478"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "get",
+       [
+        "call",
+        "nth_ch",
+        "chs",
+        "idx"
+       ],
+       "c"
+      ],
+      0
+     ],
+     "reason": 32,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:479"
+    },
+    {
+     "require": [
+      ">",
+      [
+       "get",
+       [
+        "get",
+        [
+         "call",
+         "w",
+         "lfi",
+         "win",
+         "idx"
+        ],
+        null
+       ],
+       "bdf"
+      ],
+      "t"
+     ],
+     "reason": 33,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:481"
+    },
+    {
+     "require": [
+      ">=",
+      "value",
+      "DEP"
+     ],
+     "reason": 34,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:483"
+    }
+   ],
+   "effects": {
+    "bc": "idx",
+    "win": [
+     "call",
+     "bump_f",
+     "win",
+     [
+      "-",
+      "idx",
+      "lfi"
+     ],
+     "W"
+    ],
+    "inch": true,
+    "chs": [
+     "call",
+     "set_ch",
+     "chs",
+     "idx",
+     [
+      "mk",
+      "Ch",
+      {
+       "c": "who",
+       "d": "value",
+       "s": "t",
+       "w": false,
+       "f": false
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "name": "proveState",
+   "principal": "active submitter",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:595-622",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ],
+    [
+     "proof",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "==",
+      "rri",
+      0
+     ],
+     "reason": 2,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+    },
+    {
+     "require": [
+      "!",
+      "paused"
+     ],
+     "reason": 3,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "active"
+     ],
+     "reason": 1,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+    },
+    {
+     "require": [
+      "<=",
+      "idx",
+      [
+       "call",
+       "lci",
+       "lfi",
+       "win"
+      ]
+     ],
+     "reason": 21,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:603",
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
+    },
+    {
+     "require": [
+      "call",
+      "open_ch",
+      "chs",
+      "idx"
+     ],
+     "reason": 35,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:606"
+    },
+    {
+     "let": "vchallenger",
+     "expr": [
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "idx"
+      ],
+      "c"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:805"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "<=",
+       [
+        "+",
+        [
+         "get",
+         [
+          "call",
+          "nth_ch",
+          "chs",
+          "idx"
+         ],
+         "s"
+        ],
+        "W"
+       ],
+       "t"
+      ],
+      [
+       ">",
+       "proof",
+       0
+      ]
+     ],
+     "reason": 22,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+    },
+    {
+     "let": "v_blobHashInput",
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "hb"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:765"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "<=",
+       [
+        "+",
+        [
+         "get",
+         [
+          "call",
+          "nth_ch",
+          "chs",
+          "idx"
+         ],
+         "s"
+        ],
+        "W"
+       ],
+       "t"
+      ],
+      [
+       "==",
+       "proof",
+       1
+      ]
+     ],
+     "reason": 23,
+     "src": "oracle: IRollupVerifier.verifyAggregateProof"
+    },
+    {
+     "let": "vchallengeDeposit",
+     "expr": [
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "idx"
+      ],
+      "d"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:792"
+    }
+   ],
+   "effects": {
+    "inch": false,
+    "rri": [
+     "?",
+     [
+      "<=",
+      [
+       "+",
+       [
+        "get",
+        [
+         "call",
+         "nth_ch",
+         "chs",
+         "idx"
+        ],
+        "s"
+       ],
+       "W"
+      ],
+      "t"
+     ],
+     "idx",
+     "rri"
+    ],
+    "active": [
+     "?",
+     [
+      "<=",
+      [
+       "+",
+       [
+        "get",
+        [
+         "call",
+         "nth_ch",
+         "chs",
+         "idx"
+        ],
+        "s"
+       ],
+       "W"
+      ],
+      "t"
+     ],
+     [
+      "call",
+      "remove",
+      [
+       "get",
+       [
+        "get",
+        [
+         "call",
+         "w",
+         "lfi",
+         "win",
+         "idx"
+        ],
+        null
+       ],
+       "bds"
+      ],
+      "active"
+     ],
+     "active"
+    ]
+   },
+   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:609-621, _challengerWin :803-808 (slash deactivates the batch submitter)"
+  },
+  {
+   "name": "finalizeBatch",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "==",
+      "rri",
+      0
+     ],
+     "reason": 2,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+    },
+    {
+     "require": [
+      "!",
+      "paused"
+     ],
+     "reason": 3,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "require": [
+      "<=",
+      "idx",
+      [
+       "call",
+       "lci",
+       "lfi",
+       "win"
+      ]
+     ],
+     "reason": 21,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:629",
+     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
+    },
+    {
+     "require": [
+      "&&",
+      [
+       ">",
+       [
+        "get",
+        [
+         "get",
+         [
+          "call",
+          "w",
+          "lfi",
+          "win",
+          "idx"
+         ],
+         null
+        ],
+        "bdo"
+       ],
+       0
+      ],
+      [
+       "commit_cmp",
+       "!=",
+       "idx",
+       0
+      ]
+     ],
+     "reason": 31,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:630"
+    },
+    {
+     "require": [
+      "!",
+      [
+       "call",
+       "open_ch",
+       "chs",
+       "idx"
+      ]
+     ],
+     "reason": 35,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:631"
+    },
+    {
+     "require": [
+      "!",
+      [
+       "get",
+       [
+        "call",
+        "nth_ch",
+        "chs",
+        "idx"
+       ],
+       "w"
+      ]
+     ],
+     "reason": 36,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:632"
+    },
+    {
+     "require": [
+      "<=",
+      [
+       "get",
+       [
+        "get",
+        [
+         "call",
+         "w",
+         "lfi",
+         "win",
+         "idx"
+        ],
+        null
+       ],
+       "bdf"
+      ],
+      "t"
+     ],
+     "reason": 37,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:633"
+    },
+    {
+     "require": [
+      "<=",
+      1,
+      "idx"
+     ],
+     "reason": 16,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:636"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "call",
+       "nth",
+       "fsr",
+       [
+        "-",
+        "idx",
+        1
+       ]
+      ],
+      [
+       "get",
+       [
+        "call",
+        "w",
+        "lfi",
+        "win",
+        "idx"
+       ],
+       "prev"
+      ]
+     ],
+     "reason": 14,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:635"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "call",
+       "nth",
+       "fsr",
+       "idx"
+      ],
+      0
+     ],
+     "reason": 38,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:640"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "+",
+       "lfi",
+       1
+      ],
+      "idx"
+     ],
+     "reason": 12,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:643"
+    },
+    {
+     "let": "btot",
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "tot"
+     ]
+    },
+    {
+     "let": "bn",
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "n"
+     ]
+    },
+    {
+     "require": [
+      "||",
+      [
+       "==",
+       "bn",
+       0
+      ],
+      [
+       "==",
+       "qpend",
+       [
+        "-",
+        "btot",
+        "bn"
+       ]
+      ]
+     ],
+     "reason": 39,
+     "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325",
+     "note": "popCrossDomainMessage(startIndex,_) requires pendingQueueIndex == startIndex, under l1MessagePopped > 0"
+    }
+   ],
+   "effects": {
+    "lfi": "idx",
+    "fsr": [
+     "call",
+     "set_nat",
+     "fsr",
+     "idx",
+     [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "post"
+     ]
+    ],
+    "qpend": [
+     "?",
+     [
+      "==",
+      "bn",
+      0
+     ],
+     "qpend",
+     "btot"
+    ],
+    "chs": [
+     "call",
+     "set_ch",
+     "chs",
+     [
+      "-",
+      "idx",
+      1
+     ],
+     [
+      "call",
+      "empty_ch"
+     ]
+    ]
+   },
+   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:644-660 (deletes batchDataStore/committedStateRoots/batchBlobVersionedHashes/challenges at idx-1: the old window head)"
+  },
+  {
+   "name": "setPause",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:573-588",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "status",
+     "Bool"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "==",
+      "OWNER",
+      "who"
+     ],
+     "reason": 24,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "!",
+       "status"
+      ],
+      [
+       "!",
+       "paused"
+      ]
+     ],
+     "reason": 3,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "require": [
+      "||",
+      "status",
+      "paused"
+     ],
+     "reason": 40,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84"
+    }
+   ],
+   "effects": {
+    "paused": [
+     "&&",
+     "status",
+     [
+      "||",
+      "status",
+      "paused"
+     ]
+    ],
+    "chs": [
+     "?",
+     [
+      "&&",
+      "status",
+      "inch"
+     ],
+     [
+      "call",
+      "set_ch",
+      "chs",
+      "bc",
+      [
+       "call",
+       "empty_ch"
+      ]
+     ],
+     "chs"
+    ],
+    "inch": [
+     "&&",
+     [
+      "!",
+      "status"
+     ],
+     "inch"
+    ]
+   },
+   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:575-583 (pausing deletes the open challenge; finalizeTimestamp extensions stay)"
+  },
+  {
+   "name": "sendMessage",
+   "principal": "anyone (through the messenger; fee abstracted as one message cost)",
+   "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288-301,366-379",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ]
+   ],
+   "guards": [],
+   "effects": {
+    "enq": [
+     "call",
+     "snoc",
+     "enq",
+     "t"
+    ]
+   },
+   "note": "models appendCrossDomainMessage through _queueTransaction; the onlyMessenger check is folded into the principal class and _validateGasLimit into gas-limit debt"
+  },
+  {
+   "name": "wait",
+   "principal": "environment",
+   "src": "environment: time progress",
+   "inputs": [
+    [
+     "dt",
+     "Nat"
+    ]
+   ],
+   "guards": [],
+   "effects": {
+    "t": [
+     "+",
+     "t",
+     "dt"
+    ]
+   }
+  }
+ ],
+ "migrations": {
+  "legacy": {
+   "doc": "state as written by Rollup before reinitializer(2): committedStateRoots did not exist (all zero)",
+   "effects": {
+    "win": [
+     "call",
+     "zero_csr",
+     "win"
+    ],
+    "s_csr": [
+     "call",
+     "zeros_like",
+     "s_csr"
+    ]
+   }
+  }
+ },
+ "observers": {
+  "lci_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "call",
+    "lci",
+    "lfi",
+    "win"
+   ],
+   "doc": "LCI of a state"
+  },
+  "csr_last": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "get",
+    [
+     "call",
+     "win_last",
+     "win"
+    ],
+    "csr"
+   ]
+  },
+  "kappa": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "&&",
+    "inch",
+    [
+     "<",
+     [
+      "+",
+      "W",
+      [
+       "get",
+       [
+        "call",
+        "nth_ch",
+        "chs",
+        "bc"
+       ],
+       "s"
+      ]
+     ],
+     "t"
+    ]
+   ],
+   "doc": "DISCH guard kappa: an open challenge whose proof window has passed (the realize site at :363 underflows)"
+  },
+  "tags_ok": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "call",
+    "tags_exact",
+    "win"
+   ],
+   "doc": "Prop 6.19 ghost-tag exactness: every committed header's blob field has the sort its version implies (v2 <=> aggregate)"
+  },
+  "new_hdr": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "List<Nat>",
+   "body": [
+    "call",
+    "hdr_of",
+    [
+     "call",
+     "win_last",
+     "win"
+    ]
+   ],
+   "doc": "header of the newest batch (committedBatches[LCI] = keccak256 of it, under CF)"
+  }
+ },
+ "disch": {
+  "doc": "cost model for discharge profiles (whitepaper Def 6.20): one unit per L1 message sent; delay is time waited",
+  "cost": {
+   "sendMessage": 1,
+   "commitBatchWithProof": 1000
+  },
+  "cost_doc": "units: one L1 message = 1; one validity proof = 1000 (assumption c_proof >> c_msg: proving a batch costs far more than sending one L1 message)",
+  "delay": {
+   "action": "wait",
+   "input": "dt"
+  }
+ },
+ "consumers": {
+  "blobs_of": {
+   "doc": "the blob sidecar a commit transaction delivers to L2 derivation (the consumer of FACT)",
+   "input": "blobs"
+  }
+ },
+ "coverage": {
+  "modelled": [
+   "commitBatch",
+   "commitState",
+   "commitBatchWithProof",
+   "revertBatch",
+   "challengeState",
+   "proveState",
+   "finalizeBatch",
+   "setPause",
+   "L1MessageQueue.appendCrossDomainMessage",
+   "L1MessageQueue.popCrossDomainMessage",
+   "L1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+   "L1MessageQueue.getCrossDomainMessage (range)",
+   "initialize2"
+  ],
+  "debt": [
+   "importGenesisBatch",
+   "initialize",
+   "initialize3",
+   "initialize4",
+   "updateProofWindow",
+   "updateFinalizePeriodSeconds",
+   "updateRollupDelayPeriod",
+   "addChallenger",
+   "removeChallenger",
+   "updateVerifier",
+   "updateRewardPercentage",
+   "claimProveRemaining",
+   "claimReward",
+   "_defenderWin/_challengerWin accounting",
+   "withdrawalRoots",
+   "dataHash contents",
+   "proveCommittedBatchState (view)"
+  ]
+ }
+}

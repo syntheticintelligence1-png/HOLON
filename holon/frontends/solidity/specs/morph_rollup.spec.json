@@ -1,0 +1,2081 @@
+{
+ "spec_version": "holon-sol-frontend/0.1",
+ "facts_version": "holon-facts/0.2",
+ "doc": "Extraction spec for M2 unit S1: solc AST of Rollup.sol + L1MessageQueueWithGasPriceOracle.sol -> guarded-command facts. The 'model' sections declare the state vocabulary the machine is extracted into (types, state, defs scaffold, params, observers); the 'binding' sections map contract storage, oracle calls, header carriers and named rules onto that vocabulary. Transition semantics (guards, writes, reads) are computed from the AST, never copied from anywhere. The extractor never reads spec/M1/facts; comparison happens only in tests_m2.",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "scope": "Rollup batch lifecycle (commit x3, revert, challenge, prove, finalize, pause) + L1MessageQueue cursors"
+ },
+ "morph_root_env": "HOLON_MORPH_DIR",
+ "morph_root_default": "~/.holon/morph",
+ "base_path": "contracts",
+ "include_path": "contracts/node_modules",
+ "repo_prefix": "contracts/",
+ "solc": {
+  "evm_version": "cancun"
+ },
+ "contracts": {
+  "contracts/l1/rollup/Rollup.sol": {
+   "name": "Rollup"
+  },
+  "contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol": {
+   "name": "L1MessageQueueWithGasPriceOracle"
+  },
+  "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": {
+   "name": "PausableUpgradeable"
+  },
+  "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": {
+   "name": "OwnableUpgradeable"
+  }
+ },
+ "output": "spec/M2/extracted/morph_rollup.json",
+ "coverage_out": "spec/M2/coverage/solidity_transitions.json",
+ "frontend_name": "solidity_transitions",
+ "extraction": {
+  "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
+ },
+ "params": {
+  "Z": 1,
+  "OWNER": 1,
+  "DEP": 1,
+  "AGG_BASE": 1000
+ },
+ "constants_doc": {
+  "Z": "ZERO_VERSIONED_HASH (Rollup.sol:24) = versioned hash of the all-zero blob (oracle-checked by holon: 0x01 || sha256(0xc0 || 0^47)[1:])"
+ },
+ "principals": {
+  "1": "owner",
+  "2": "submitter A",
+  "3": "submitter B",
+  "4": "challenger",
+  "5": "anyone"
+ },
+ "abstractions": [
+  "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+  "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+  "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+  "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+  "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+  "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+  "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+  "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
+ ],
+ "types": {
+  "Entry": {
+   "doc": "one committed batch: header fields + its per-index registers",
+   "fields": [
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "tot",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "hb",
+     "Nat"
+    ],
+    [
+     "prev",
+     "Nat"
+    ],
+    [
+     "post",
+     "Nat"
+    ],
+    [
+     "lbn",
+     "Nat"
+    ],
+    [
+     "csr",
+     "Nat"
+    ],
+    [
+     "bvh",
+     "Nat"
+    ],
+    [
+     "tag",
+     "Nat"
+    ],
+    [
+     "bdo",
+     "Nat"
+    ],
+    [
+     "bdf",
+     "Nat"
+    ],
+    [
+     "bdn",
+     "Nat"
+    ],
+    [
+     "bds",
+     "Nat"
+    ]
+   ],
+   "ghost": [
+    "tag"
+   ],
+   "doc_fields": {
+    "hb": "header bytes 57..89 (blob field)",
+    "csr": "committedStateRoots",
+    "bvh": "batchBlobVersionedHashes",
+    "tag": "GHOST: writer sort of bvh (1 = versioned hash, 2 = aggregate keccak); never read by modelled code",
+    "bdo": "batchDataStore.originTimestamp",
+    "bdf": "batchDataStore.finalizeTimestamp",
+    "bdn": "batchDataStore.blockNumber",
+    "bds": "batchDataStore.submitter (0 = address(0))"
+   }
+  },
+  "BD": {
+   "fields": [
+    [
+     "o",
+     "Nat"
+    ],
+    [
+     "f",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "s",
+     "Nat"
+    ]
+   ]
+  },
+  "Ch": {
+   "doc": "BatchChallenge",
+   "fields": [
+    [
+     "c",
+     "Nat"
+    ],
+    [
+     "d",
+     "Nat"
+    ],
+    [
+     "s",
+     "Nat"
+    ],
+    [
+     "w",
+     "Bool"
+    ],
+    [
+     "f",
+     "Bool"
+    ]
+   ]
+  }
+ },
+ "state": [
+  [
+   "t",
+   "Nat",
+   "block.timestamp (environment)"
+  ],
+  [
+   "lfi",
+   "Nat",
+   "lastFinalizedBatchIndex"
+  ],
+  [
+   "inch",
+   "Bool",
+   "inChallenge"
+  ],
+  [
+   "bc",
+   "Nat",
+   "batchChallenged"
+  ],
+  [
+   "rri",
+   "Nat",
+   "revertReqIndex"
+  ],
+  [
+   "paused",
+   "Bool",
+   "Pausable._paused"
+  ],
+  [
+   "W",
+   "Nat",
+   "proofWindow"
+  ],
+  [
+   "F",
+   "Nat",
+   "finalizationPeriodSeconds"
+  ],
+  [
+   "D",
+   "Nat",
+   "rollupDelayPeriod"
+  ],
+  [
+   "qlen",
+   "Nat",
+   "L1MessageQueue.messageQueue.length"
+  ],
+  [
+   "qpend",
+   "Nat",
+   "L1MessageQueue.pendingQueueIndex"
+  ],
+  [
+   "enq",
+   "List<Nat>",
+   "L1MessageQueue.messageEnqueueTime"
+  ],
+  [
+   "active",
+   "List<Nat>",
+   "ISubmitter active set"
+  ],
+  [
+   "chals",
+   "List<Nat>",
+   "isChallenger"
+  ],
+  [
+   "fsr",
+   "List<Nat>",
+   "finalizedStateRoots (absolute index)"
+  ],
+  [
+   "chs",
+   "List<Ch>",
+   "challenges (absolute index)"
+  ],
+  [
+   "win",
+   "List<Entry>",
+   "batches LFI..LCI"
+  ],
+  [
+   "s_csr",
+   "List<Nat>",
+   "committedStateRoots residues at LCI+1.."
+  ],
+  [
+   "s_bd",
+   "List<BD>",
+   "batchDataStore residues at LCI+1.."
+  ],
+  [
+   "s_bvh",
+   "List<Nat>",
+   "batchBlobVersionedHashes residues at LCI+1.."
+  ],
+  [
+   "s_tag",
+   "List<Nat>",
+   "GHOST tags of s_bvh"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "observations (newest first)"
+  ]
+ ],
+ "ghost_state": [
+  "s_tag"
+ ],
+ "shadow": {
+  "s_csr": "csr",
+  "s_bd": "bd",
+  "s_bvh": "bvh",
+  "s_tag": "tag"
+ },
+ "initial": {
+  "doc": "after initialize(...) and importGenesisBatch at t = 10 (Rollup.sol:226-252)",
+  "t": 10,
+  "lfi": 0,
+  "inch": false,
+  "bc": 0,
+  "rri": 0,
+  "paused": false,
+  "W": 10,
+  "F": 40,
+  "D": 20,
+  "qlen": 0,
+  "qpend": 0,
+  "enq": [],
+  "active": [
+   2,
+   3
+  ],
+  "chals": [
+   4
+  ],
+  "fsr": [
+   100
+  ],
+  "chs": [],
+  "win": [
+   {
+    "ver": 0,
+    "tot": 0,
+    "n": 0,
+    "hb": 1,
+    "prev": 0,
+    "post": 100,
+    "lbn": 0,
+    "csr": 100,
+    "bvh": 1,
+    "tag": 1,
+    "bdo": 10,
+    "bdf": 10,
+    "bdn": 0,
+    "bds": 0
+   }
+  ],
+  "s_csr": [],
+  "s_bd": [],
+  "s_bvh": [],
+  "s_tag": [],
+  "log": []
+ },
+ "observers": {
+  "lci_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "call",
+    "lci",
+    "lfi",
+    "win"
+   ],
+   "doc": "LCI of a state"
+  },
+  "csr_last": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "get",
+    [
+     "call",
+     "win_last",
+     "win"
+    ],
+    "csr"
+   ]
+  },
+  "kappa": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "&&",
+    "inch",
+    [
+     "<",
+     [
+      "+",
+      "W",
+      [
+       "get",
+       [
+        "call",
+        "nth_ch",
+        "chs",
+        "bc"
+       ],
+       "s"
+      ]
+     ],
+     "t"
+    ]
+   ],
+   "doc": "DISCH guard kappa: an open challenge whose proof window has passed (the realize site at :363 underflows)"
+  },
+  "tags_ok": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "call",
+    "tags_exact",
+    "win"
+   ],
+   "doc": "Prop 6.19 ghost-tag exactness: every committed header's blob field has the sort its version implies (v2 <=> aggregate)"
+  },
+  "new_hdr": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "List<Nat>",
+   "body": [
+    "call",
+    "hdr_of",
+    [
+     "call",
+     "win_last",
+     "win"
+    ]
+   ],
+   "doc": "header of the newest batch (committedBatches[LCI] = keccak256 of it, under CF)"
+  }
+ },
+ "disch": {
+  "doc": "cost model for discharge profiles (whitepaper Def 6.20): one unit per L1 message sent; delay is time waited",
+  "cost": {
+   "sendMessage": 1,
+   "commitBatchWithProof": 1000
+  },
+  "cost_doc": "units: one L1 message = 1; one validity proof = 1000 (assumption c_proof >> c_msg: proving a batch costs far more than sending one L1 message)",
+  "delay": {
+   "action": "wait",
+   "input": "dt"
+  }
+ },
+ "consumers": {
+  "blobs_of": {
+   "doc": "the blob sidecar a commit transaction delivers to L2 derivation (the consumer of FACT)",
+   "input": "blobs"
+  }
+ },
+ "coverage": {
+  "modelled": [
+   "commitBatch",
+   "commitState",
+   "commitBatchWithProof",
+   "revertBatch",
+   "challengeState",
+   "proveState",
+   "finalizeBatch",
+   "setPause",
+   "L1MessageQueue.appendCrossDomainMessage",
+   "L1MessageQueue.popCrossDomainMessage",
+   "L1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+   "L1MessageQueue.getCrossDomainMessage (range)",
+   "initialize2"
+  ],
+  "debt": [
+   "importGenesisBatch",
+   "initialize",
+   "initialize3",
+   "initialize4",
+   "updateProofWindow",
+   "updateFinalizePeriodSeconds",
+   "updateRollupDelayPeriod",
+   "addChallenger",
+   "removeChallenger",
+   "updateVerifier",
+   "updateRewardPercentage",
+   "claimProveRemaining",
+   "claimReward",
+   "_defenderWin/_challengerWin accounting",
+   "withdrawalRoots",
+   "dataHash contents",
+   "proveCommittedBatchState (view)"
+  ]
+ },
+ "migrations_declared": {
+  "legacy": {
+   "doc": "state as written by Rollup before reinitializer(2): committedStateRoots did not exist (all zero)",
+   "effects": {
+    "win": [
+     "call",
+     "zero_csr",
+     "win"
+    ],
+    "s_csr": [
+     "call",
+     "zeros_like",
+     "s_csr"
+    ]
+   }
+  }
+ },
+ "storage": {
+  "lastFinalizedBatchIndex": {
+   "kind": "scalar",
+   "field": "lfi"
+  },
+  "inChallenge": {
+   "kind": "scalar",
+   "field": "inch"
+  },
+  "batchChallenged": {
+   "kind": "scalar",
+   "field": "bc"
+  },
+  "revertReqIndex": {
+   "kind": "scalar",
+   "field": "rri"
+  },
+  "_paused": {
+   "kind": "scalar",
+   "field": "paused"
+  },
+  "proofWindow": {
+   "kind": "scalar",
+   "field": "W"
+  },
+  "finalizationPeriodSeconds": {
+   "kind": "scalar",
+   "field": "F"
+  },
+  "rollupDelayPeriod": {
+   "kind": "scalar",
+   "field": "D"
+  },
+  "pendingQueueIndex": {
+   "kind": "scalar",
+   "field": "qpend"
+  },
+  "messageEnqueueTime": {
+   "kind": "abs_map",
+   "field": "enq"
+  },
+  "isChallenger": {
+   "kind": "role_set",
+   "field": "chals"
+  },
+  "challenges": {
+   "kind": "abs_map",
+   "field": "chs",
+   "record": "Ch"
+  },
+  "finalizedStateRoots": {
+   "kind": "abs_map",
+   "field": "fsr"
+  },
+  "committedStateRoots": {
+   "kind": "batch_map",
+   "entry_field": "csr"
+  },
+  "batchDataStore": {
+   "kind": "batch_map",
+   "fields": {
+    "originTimestamp": "bdo",
+    "finalizeTimestamp": "bdf",
+    "blockNumber": "bdn",
+    "submitter": "bds"
+   }
+  },
+  "batchBlobVersionedHashes": {
+   "kind": "batch_map",
+   "entry_field": "bvh",
+   "accessor": "bvh_at",
+   "shadow": "s_bvh",
+   "ghost_field": "tag",
+   "ghost_accessor": "tag_at",
+   "ghost_shadow": "s_tag"
+  },
+  "committedBatches": {
+   "kind": "commitment"
+  },
+  "ZERO_VERSIONED_HASH": {
+   "kind": "const",
+   "value": "Z"
+  },
+  "batchChallengeReward": {
+   "kind": "unmodelled",
+   "why": "reward/deposit accounting"
+  },
+  "proveRemaining": {
+   "kind": "unmodelled",
+   "why": "reward/deposit accounting"
+  },
+  "proofRewardPercent": {
+   "kind": "unmodelled",
+   "why": "reward/deposit accounting"
+  },
+  "withdrawalRoots": {
+   "kind": "unmodelled",
+   "why": "withdrawal roots"
+  },
+  "l2BaseFee": {
+   "kind": "unmodelled",
+   "why": "fee accounting"
+  },
+  "maxGasLimit": {
+   "kind": "unmodelled",
+   "why": "gas-limit accounting"
+  },
+  "__droppedMessageBitmap": {
+   "kind": "unmodelled",
+   "why": "dropped-message bitmap"
+  },
+  "__skippedMessageBitmap": {
+   "kind": "unmodelled",
+   "why": "skipped-message bitmap"
+  },
+  "__maxNumTxInChunk": {
+   "kind": "unmodelled",
+   "why": "chunk size constant"
+  },
+  "legacyCutoverBatchIndex": {
+   "kind": "unmodelled",
+   "why": "legacy migration cutover"
+  },
+  "whitelistChecker": {
+   "kind": "oracle_addr",
+   "why": "whitelist oracle"
+  },
+  "submitterContract": {
+   "kind": "oracle_addr"
+  },
+  "verifier": {
+   "kind": "oracle_addr"
+  },
+  "messageQueue": {
+   "kind": "queue",
+   "field": "qlen"
+  },
+  "MESSENGER": {
+   "kind": "immutable"
+  },
+  "ROLLUP_CONTRACT": {
+   "kind": "immutable"
+  },
+  "ENFORCED_TX_GATEWAAY": {
+   "kind": "immutable"
+  },
+  "LAYER_2_CHAIN_ID": {
+   "kind": "immutable"
+  },
+  "EIP1967_PROXY_ADMIN_SLOT": {
+   "kind": "unmodelled",
+   "why": "proxy admin slot"
+  },
+  "_initialized": {
+   "kind": "unmodelled",
+   "why": "upgrade bookkeeping"
+  },
+  "__gap": {
+   "kind": "unmodelled",
+   "why": "storage gap"
+  },
+  "lastCommittedBatchIndex": {
+   "kind": "derived_lci"
+  },
+  "nextRevertBatchIndex": {
+   "kind": "scalar",
+   "field": "rri"
+  }
+ },
+ "env": {
+  "msg.sender": "who",
+  "_msgSender()": "who",
+  "block.timestamp": "t",
+  "msg.value": "value",
+  "paused()": "paused",
+  "owner()": "OWNER"
+ },
+ "oracles": {
+  "ISubmitter.isActive": {
+   "emit": [
+    "call",
+    "mem",
+    "@a0",
+    "active"
+   ]
+  },
+  "ISubmitter.challengeDeposit": {
+   "emit": "DEP"
+  },
+  "ISubmitter.slash": {
+   "returns_unmodelled": "slash reward",
+   "effects": [
+    {
+     "field": "active",
+     "expr": [
+      "call",
+      "remove",
+      "@a0",
+      "active"
+     ]
+    }
+   ],
+   "note": "slash deactivates the submitter; the returned reward feeds unmodelled accounting"
+  },
+  "IRollupVerifier.verifyAggregateProof": {
+   "guard": {
+    "require": [
+     "==",
+     "proof",
+     1
+    ],
+    "reason": "invalid proof",
+    "src": "oracle: IRollupVerifier.verifyAggregateProof"
+   }
+  },
+  "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime": {
+   "emit": [
+    "call",
+    "enq_first",
+    "qpend",
+    "qlen",
+    "enq",
+    "t"
+   ]
+  },
+  "IL1MessageQueue.popCrossDomainMessage": {
+   "inline": [
+    "L1MessageQueueWithGasPriceOracle",
+    "popCrossDomainMessage"
+   ]
+  },
+  "IL1MessageQueue.getCrossDomainMessage": {
+   "debt": "message hash payload not modelled; only its range require is (lifted by the caller loop)"
+  },
+  "IWhitelist.isSenderAllowed": {
+   "debt": "whitelist oracle result not modelled"
+  },
+  "AddressAliasHelper.applyL1ToL2Alias": {
+   "emit": "@a0",
+   "note": "L1->L2 address alias folded into the caller token"
+  }
+ },
+ "codec_fields": {
+  "getBatchIndex": "INDEX",
+  "getPrevStateHash": "prev",
+  "getPostStateHash": "post",
+  "getL1MessagePopped": "n",
+  "getTotalL1MessagePopped": "tot",
+  "getBlobVersionedHash": "hb",
+  "getLastBlockNumber": "lbn",
+  "getDataHash": null,
+  "getWithdrawRootHash": null,
+  "getSequencerSetVerifyHash": null,
+  "storeVersion": "ver",
+  "storeBatchIndex": null,
+  "storeL1MessagePopped": "n",
+  "storeTotalL1MessagePopped": "tot",
+  "storeDataHash": null,
+  "storeBlobVersionedHash": "hb",
+  "storePrevStateHash": "prev",
+  "storePostStateHash": "post",
+  "storeWithdrawRootHash": null,
+  "storeSequencerSetVerifyHash": null,
+  "storeParentBatchHash": null,
+  "storeLastBlockNumber": "lbn"
+ },
+ "struct_ctors": {
+  "BatchData": {
+   "entry_fields": [
+    "bdo",
+    "bdf",
+    "bdn",
+    "bds"
+   ]
+  },
+  "BatchChallenge": {
+   "record": "Ch",
+   "fields": [
+    "c",
+    "d",
+    "s",
+    "w",
+    "f"
+   ],
+   "skip_args": [
+    0
+   ],
+   "member_fields": {
+    "challenger": "c",
+    "challengeDeposit": "d",
+    "startTime": "s",
+    "challengeSuccess": "w",
+    "finished": "f"
+   },
+   "fresh_defaults": {
+    "w": false,
+    "f": false
+   }
+  }
+ },
+ "defs_from": {
+  "enq_first": {
+   "fn": [
+    "L1MessageQueueWithGasPriceOracle",
+    "getFirstUnfinalizedMessageEnqueueTime"
+   ],
+   "params": [
+    [
+     "qpend",
+     "Nat"
+    ],
+    [
+     "qlen",
+     "Nat"
+    ],
+    [
+     "enq",
+     "List<Nat>"
+    ],
+    [
+     "t",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "arg_map": {}
+  },
+  "open_ch": {
+   "fn": [
+    "Rollup",
+    "batchInChallenge"
+   ],
+   "params": [
+    [
+     "chs",
+     "List<Ch>"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "type": "Bool",
+   "arg_map": {
+    "idx": 0
+   }
+  },
+  "blob_hash": {
+   "fn": [
+    "Rollup",
+    "_computeBlobVersionedHash"
+   ],
+   "params": [
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "blobs",
+     "List<Nat>"
+    ]
+   ],
+   "type": "Nat",
+   "arg_map": {
+    "ver": 0
+   }
+  }
+ },
+ "defs_scaffold": [
+  "lci",
+  "in_win",
+  "w",
+  "bvh_at",
+  "tag_at"
+ ],
+ "modifiers_abstracted": [
+  "initializer",
+  "reinitializer",
+  "onlyInitializing",
+  "nonReentrant"
+ ],
+ "abstracted_fns": [
+  "_loadBatchHeader",
+  "_getBatchVersion",
+  "loadAndValidate",
+  "_getProxyAdmin",
+  "computeTransactionHash",
+  "calculateIntrinsicGasFee",
+  "initialize",
+  "initialize3",
+  "initialize4",
+  "importGenesisBatch",
+  "proveCommittedBatchState",
+  "claimReward",
+  "claimProveRemaining",
+  "updateProofWindow",
+  "updateFinalizePeriodSeconds",
+  "updateRollupDelayPeriod",
+  "addChallenger",
+  "removeChallenger",
+  "updateVerifier",
+  "updateRewardPercentage",
+  "setL2BaseFee",
+  "updateMaxGasLimit",
+  "updateWhitelistChecker",
+  "appendEnforcedTransaction",
+  "_validateGasLimit",
+  "nextCrossDomainMessageIndex",
+  "estimateCrossDomainMessageFee",
+  "getMessageEnqueueTimestamp",
+  "isBatchFinalized",
+  "getQueueLength",
+  "getMessageQueueIndex"
+ ],
+ "handlers": {
+  "_loadL1MessageHashes": {
+   "handler": "queue_read_range"
+  },
+  "_popL1Messages": {
+   "handler": "pop_messages",
+   "require_src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325",
+   "note": "popCrossDomainMessage(startIndex,_) requires pendingQueueIndex == startIndex, under l1MessagePopped > 0"
+  },
+  "keccak256": {
+   "handler": "agg_or_drop"
+  },
+  "assembly": {
+   "handler": "asm_scan"
+  },
+  "_commitBatch": {
+   "handler": "inline_through"
+  },
+  "computeTransactionHash": {
+   "handler": "unmodelled_value"
+  }
+ },
+ "principal_map": {
+  "onlyActiveSubmitter": "active submitter",
+  "onlyChallenger": "challenger",
+  "onlyOwner": "owner"
+ },
+ "drop_requires": [
+  {
+   "reason": "incorrect parent batch hash",
+   "note": "honest-header premise: a presented header's hash equals committedBatches at its index by CF"
+  },
+  {
+   "reason": "incorrect batch header",
+   "note": "honest-header premise: the presented header carries index LCI (just committed)"
+  }
+ ],
+ "sites": [
+  {
+   "expr": [
+    "-",
+    [
+     "+",
+     "W",
+     "cstart"
+    ],
+    "t"
+   ],
+   "site": {
+    "rule": "SORT",
+    "kind": "realize",
+    "expr": "W + cstart - t",
+    "sort": "Dur(signed) realized in uint256"
+   },
+   "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)"
+  }
+ ],
+ "expected_deltas": [
+  {
+   "action": "proveState",
+   "where": "effects.chs",
+   "note": "challengeSuccess written only under timeout; the slot's w is false while open (w=>f in the model, f=false under open_ch), so the merged value simplifies to 'timeout'"
+  },
+  {
+   "action": "sendMessage",
+   "where": "guards",
+   "note": "onlyMessenger + _validateGasLimit requires are principal/gas-limit debt, not modelled guards"
+  }
+ ],
+ "commit_notes": {
+  "commit_zero": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)",
+  "commit_hash": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
+  "commit_neq": "committedBatches[k] != 0 <=> k <= LCI (contiguous committed range)"
+ },
+ "actions": [
+  {
+   "name": "commitBatch",
+   "fn": [
+    "Rollup",
+    "commitBatch"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "parent",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "lbn",
+     "Nat"
+    ],
+    [
+     "prev",
+     "Nat"
+    ],
+    [
+     "post",
+     "Nat"
+    ],
+    [
+     "blobs",
+     "List<Nat>"
+    ]
+   ],
+   "members": {
+    "batchDataInput.version": "ver",
+    "batchDataInput.numL1Messages": "n",
+    "batchDataInput.lastBlockNumber": "lbn",
+    "batchDataInput.prevStateRoot": "prev",
+    "batchDataInput.postStateRoot": "post",
+    "batchDataInput.parentBatchHeader": {
+     "carrier": "parent"
+    },
+    "batchDataInput.withdrawalRoot": {
+     "debt": "withdrawalRoot header field not modelled"
+    },
+    "batchDataInput.batchIndex": "next",
+    "batchDataInput.batchIndexInEpoch": "next"
+   },
+   "inputs_extra": {
+    "_msgSender()": "who"
+   },
+   "local_names": {
+    "_nextBatchIndex": "next",
+    "_blobVersionedHash": "bvh",
+    "_totalL1MessagesPoppedOverall": "tot"
+   },
+   "expr_lets": [
+    {
+     "expr": [
+      "call",
+      "enq_first",
+      "qpend",
+      "qlen",
+      "enq",
+      "t"
+     ],
+     "name": "ef"
+    },
+    {
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ],
+     "name": "lci"
+    },
+    {
+     "expr": [
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "bc"
+      ],
+      "s"
+     ],
+     "name": "cstart"
+    }
+   ],
+   "ghost_tag": {
+    "name": "tag",
+    "expr": [
+     "?",
+     [
+      "==",
+      "ver",
+      2
+     ],
+     2,
+     1
+    ],
+    "after": "bvh"
+   },
+   "entry_at": "next",
+   "entry_template": {
+    "ver": "ver",
+    "tot": [
+     "+",
+     "tot",
+     "n"
+    ],
+    "n": "n",
+    "hb": "bvh",
+    "prev": "prev",
+    "post": "post",
+    "lbn": "lbn",
+    "csr": "post",
+    "bvh": "bvh",
+    "tag": "tag",
+    "bdo": "t",
+    "bdf": [
+     "+",
+     [
+      "+",
+      "t",
+      "F"
+     ],
+     "prt"
+    ],
+    "bdn": "lbn",
+    "bds": "who"
+   }
+  },
+  {
+   "name": "commitState",
+   "fn": [
+    "Rollup",
+    "commitState"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "parent",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "lbn",
+     "Nat"
+    ],
+    [
+     "prev",
+     "Nat"
+    ],
+    [
+     "post",
+     "Nat"
+    ],
+    [
+     "blobs",
+     "List<Nat>"
+    ]
+   ],
+   "members": {
+    "batchDataInput.version": "ver",
+    "batchDataInput.numL1Messages": "n",
+    "batchDataInput.lastBlockNumber": "lbn",
+    "batchDataInput.prevStateRoot": "prev",
+    "batchDataInput.postStateRoot": "post",
+    "batchDataInput.parentBatchHeader": {
+     "carrier": "parent"
+    },
+    "batchDataInput.withdrawalRoot": {
+     "debt": "withdrawalRoot header field not modelled"
+    },
+    "batchDataInput.batchIndex": "next",
+    "batchDataInput.batchIndexInEpoch": "next"
+   },
+   "inputs_extra": {
+    "_msgSender()": "who"
+   },
+   "local_names": {
+    "_nextBatchIndex": "next",
+    "_totalL1MessagesPoppedOverall": "tot"
+   },
+   "expr_lets": [
+    {
+     "expr": [
+      "call",
+      "bvh_at",
+      "lfi",
+      "win",
+      "s_bvh",
+      "next"
+     ],
+     "name": "bvh"
+    },
+    {
+     "expr": [
+      "call",
+      "tag_at",
+      "lfi",
+      "win",
+      "s_tag",
+      "next"
+     ],
+     "name": "tag"
+    },
+    {
+     "expr": [
+      "call",
+      "enq_first",
+      "qpend",
+      "qlen",
+      "enq",
+      "t"
+     ],
+     "name": "ef"
+    },
+    {
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ],
+     "name": "lci"
+    },
+    {
+     "expr": [
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "bc"
+      ],
+      "s"
+     ],
+     "name": "cstart"
+    }
+   ],
+   "entry_at": "next",
+   "entry_template": {
+    "ver": "ver",
+    "tot": [
+     "+",
+     "tot",
+     "n"
+    ],
+    "n": "n",
+    "hb": "bvh",
+    "prev": "prev",
+    "post": "post",
+    "lbn": "lbn",
+    "csr": "post",
+    "bvh": "bvh",
+    "tag": "tag",
+    "bdo": "t",
+    "bdf": [
+     "+",
+     [
+      "+",
+      "t",
+      "F"
+     ],
+     "prt"
+    ],
+    "bdn": "lbn",
+    "bds": "who"
+   }
+  },
+  {
+   "name": "commitBatchWithProof",
+   "fn": [
+    "Rollup",
+    "commitBatchWithProof"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "ver",
+     "Nat"
+    ],
+    [
+     "parent",
+     "Nat"
+    ],
+    [
+     "n",
+     "Nat"
+    ],
+    [
+     "lbn",
+     "Nat"
+    ],
+    [
+     "prev",
+     "Nat"
+    ],
+    [
+     "post",
+     "Nat"
+    ],
+    [
+     "blobs",
+     "List<Nat>"
+    ],
+    [
+     "proof",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "batchDataInput.version": "ver",
+    "batchDataInput.numL1Messages": "n",
+    "batchDataInput.lastBlockNumber": "lbn",
+    "batchDataInput.prevStateRoot": "prev",
+    "batchDataInput.postStateRoot": "post",
+    "batchDataInput.parentBatchHeader": {
+     "carrier": "parent"
+    },
+    "batchDataInput.withdrawalRoot": {
+     "debt": "withdrawalRoot header field not modelled"
+    },
+    "_batchHeader": {
+     "carrier": "self"
+    },
+    "_batchProof": "proof",
+    "batchDataInput.batchIndex": "next",
+    "batchDataInput.batchIndexInEpoch": "next"
+   },
+   "inputs_extra": {
+    "_msgSender()": "who"
+   },
+   "local_names": {
+    "rollupDelay": "rd",
+    "l1MsgQueueDelayed": "qd",
+    "_nextBatchIndex": "next",
+    "_blobVersionedHash": "bvh",
+    "_totalL1MessagesPoppedOverall": "tot"
+   },
+   "expr_lets": [
+    {
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ],
+     "name": [
+      "lci0",
+      "lci"
+     ]
+    },
+    {
+     "expr": [
+      "call",
+      "enq_first",
+      "qpend",
+      "qlen",
+      "enq",
+      "t"
+     ],
+     "name": "ef"
+    },
+    {
+     "expr": [
+      "call",
+      "bvh_at",
+      "lfi",
+      "win",
+      "s_bvh",
+      "next"
+     ],
+     "name": "stored"
+    },
+    {
+     "expr": [
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "bc"
+      ],
+      "s"
+     ],
+     "name": "cstart"
+    }
+   ],
+   "ghost_tag": {
+    "name": "tag",
+    "expr": [
+     "?",
+     [
+      "!=",
+      "stored",
+      0
+     ],
+     [
+      "call",
+      "tag_at",
+      "lfi",
+      "win",
+      "s_tag",
+      "next"
+     ],
+     [
+      "?",
+      [
+       "==",
+       "ver",
+       2
+      ],
+      2,
+      1
+     ]
+    ],
+    "after": "bvh"
+   },
+   "entry_overrides": {
+    "bdf": "t",
+    "bds": 0
+   },
+   "entry_at": "next",
+   "entry_template": {
+    "ver": "ver",
+    "tot": [
+     "+",
+     "tot",
+     "n"
+    ],
+    "n": "n",
+    "hb": "bvh",
+    "prev": "prev",
+    "post": "post",
+    "lbn": "lbn",
+    "csr": "post",
+    "bvh": "bvh",
+    "tag": "tag",
+    "bdo": "t",
+    "bdf": [
+     "+",
+     [
+      "+",
+      "t",
+      "F"
+     ],
+     "prt"
+    ],
+    "bdn": "lbn",
+    "bds": "who"
+   }
+  },
+  {
+   "name": "revertBatch",
+   "fn": [
+    "Rollup",
+    "revertBatch"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:430-466",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ],
+    [
+     "count",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_batchHeader": {
+     "carrier": "self"
+    },
+    "_count": "count",
+    "batchIndex": "idx",
+    "_batchIndex": "idx"
+   },
+   "inputs_extra": {
+    "_msgSender()": "who"
+   },
+   "local_names": {},
+   "expr_lets": [
+    {
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ],
+     "name": "lci"
+    },
+    {
+     "expr": [
+      "-",
+      "idx",
+      "lfi"
+     ],
+     "name": "p"
+    },
+    {
+     "expr": [
+      "call",
+      "drop",
+      "win",
+      "p"
+     ],
+     "name": "moved"
+    }
+   ],
+   "loop_handler": "revert_loop"
+  },
+  {
+   "name": "challengeState",
+   "fn": [
+    "Rollup",
+    "challengeState"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:471-496",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "batchIndex": "idx",
+    "_batchHash": {
+     "hash_of": "self"
+    },
+    "msg.value": "value"
+   },
+   "inputs_extra": {
+    "_msgSender()": "who"
+   },
+   "local_names": {},
+   "expr_lets": [
+    {
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ],
+     "name": "lci"
+    }
+   ]
+  },
+  {
+   "name": "proveState",
+   "fn": [
+    "Rollup",
+    "proveState"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:595-622",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ],
+    [
+     "proof",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_batchHeader": {
+     "carrier": "self"
+    },
+    "_batchProof": "proof",
+    "_batchIndex": "idx",
+    "batchIndex": "idx"
+   },
+   "inputs_extra": {
+    "_msgSender()": "who"
+   },
+   "local_names": {
+    "timeout": "timeout"
+   },
+   "expr_lets": [
+    {
+     "expr": [
+      "call",
+      "nth_ch",
+      "chs",
+      "idx"
+     ],
+     "name": "ch"
+    },
+    {
+     "expr": [
+      "<=",
+      [
+       "+",
+       [
+        "get",
+        "ch",
+        "s"
+       ],
+       "W"
+      ],
+      "t"
+     ],
+     "name": "timeout"
+    }
+   ],
+   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:609-621, _challengerWin :803-808 (slash deactivates the batch submitter)"
+  },
+  {
+   "name": "finalizeBatch",
+   "fn": [
+    "Rollup",
+    "finalizeBatch"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_batchHeader": {
+     "carrier": "self"
+    },
+    "_batchIndex": "idx",
+    "batchIndex": "idx"
+   },
+   "inputs_extra": {
+    "_msgSender()": "who"
+   },
+   "local_names": {},
+   "expr_lets": [
+    {
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ],
+     "name": "lci"
+    },
+    {
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "n"
+     ],
+     "name": "bn"
+    },
+    {
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "tot"
+     ],
+     "name": "btot"
+    }
+   ],
+   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:644-660 (deletes batchDataStore/committedStateRoots/batchBlobVersionedHashes/challenges at idx-1: the old window head)"
+  },
+  {
+   "name": "setPause",
+   "fn": [
+    "Rollup",
+    "setPause"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:573-588",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "status",
+     "Bool"
+    ]
+   ],
+   "members": {
+    "_status": "status"
+   },
+   "inputs_extra": {
+    "_msgSender()": "who"
+   },
+   "local_names": {},
+   "expr_lets": [],
+   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:575-583 (pausing deletes the open challenge; finalizeTimestamp extensions stay)"
+  },
+  {
+   "name": "sendMessage",
+   "synth_fn": [
+    "L1MessageQueueWithGasPriceOracle",
+    "_queueTransaction"
+   ],
+   "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288-301,366-379",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who"
+   },
+   "inputs_extra": {},
+   "local_names": {},
+   "expr_lets": [],
+   "principal": "anyone (through the messenger; fee abstracted as one message cost)",
+   "note": "models appendCrossDomainMessage through _queueTransaction; the onlyMessenger check is folded into the principal class and _validateGasLimit into gas-limit debt"
+  },
+  {
+   "name": "wait",
+   "declared": {
+    "inputs": [
+     [
+      "dt",
+      "Nat"
+     ]
+    ],
+    "principal": "environment",
+    "src": "environment: time progress",
+    "guards": [],
+    "effects": {
+     "t": [
+      "+",
+      "t",
+      "dt"
+     ]
+    }
+   }
+  }
+ ],
+ "eta2": {
+  "fn": [
+   "Rollup",
+   "initialize2"
+  ],
+  "name": "eta2",
+  "inputs": [
+   [
+    "root",
+    "Nat"
+   ]
+  ],
+  "members": {
+   "_prevStateRoot": "root"
+  },
+  "src": "contracts/contracts/l1/rollup/Rollup.sol:188-195",
+  "doc": "initialize2(_prevStateRoot): writes committedStateRoots[LCI] only if it is zero",
+  "drop_all_requires": "upgrade lifecycle guards (reinitializer, initialized version) are admin preconditions, not model guards"
+ },
+ "coverage_items": [
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:226 func importGenesisBatch",
+   "kind": "unmodelled_fn",
+   "reason": "genesis bootstrap; the initial state is post-genesis"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:141 func initialize",
+   "kind": "unmodelled_fn",
+   "reason": "initializer; deployment wiring not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:197 func initialize3",
+   "kind": "unmodelled_fn",
+   "reason": "upgrade initializer; admin bookkeeping"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:205 func initialize4",
+   "kind": "unmodelled_fn",
+   "reason": "upgrade initializer; admin bookkeeping"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:499 func updateProofWindow",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:508 func updateFinalizePeriodSeconds",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:517 func updateRollupDelayPeriod",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:526 func addChallenger",
+   "kind": "unmodelled_fn",
+   "reason": "challenger admin"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:540 func removeChallenger",
+   "kind": "unmodelled_fn",
+   "reason": "challenger admin"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:554 func updateVerifier",
+   "kind": "unmodelled_fn",
+   "reason": "verifier admin"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:563 func updateRewardPercentage",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:674 func claimProveRemaining",
+   "kind": "unmodelled_fn",
+   "reason": "reward/deposit accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:673 func claimReward",
+   "kind": "unmodelled_fn",
+   "reason": "reward/deposit accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:793 func _defenderWin",
+   "kind": "unmodelled_write",
+   "reason": "proveRemaining += and batchChallengeReward += are reward accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:806 func _challengerWin",
+   "kind": "unmodelled_write",
+   "reason": "batchChallengeReward += is reward accounting (slash's active-set effect IS modelled)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:812 func _transfer",
+   "kind": "unmodelled_fn",
+   "reason": "ETH transfer; only reachable from reward claims"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:714 func proveCommittedBatchState",
+   "kind": "unmodelled_fn",
+   "reason": "view wrapper of _verifyProof; no writes"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:648 map withdrawalRoots",
+   "kind": "unmodelled_write",
+   "reason": "withdrawalRoots not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:447 write batchChallengeReward",
+   "kind": "unmodelled_write",
+   "reason": "challenge deposit refunds inside the revert loop are reward accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:579 write batchChallengeReward",
+   "kind": "unmodelled_write",
+   "reason": "challenge deposit refund on pause is reward accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:340 write headerLength",
+   "kind": "unmodelled_value",
+   "reason": "V0/V1 header-length choice affects header bytes only, not modelled fields"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:318 call _commitBatch",
+   "kind": "unmodelled_value",
+   "reason": "dataHash contents not modelled (the memory pipeline reduces to the queue range guard)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288 func appendCrossDomainMessage",
+   "kind": "folded_fn",
+   "reason": "modelled via _queueTransaction as sendMessage (onlyMessenger -> principal)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:305 func appendEnforcedTransaction",
+   "kind": "unmodelled_fn",
+   "reason": "enforced-tx gateway path not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:383 func _validateGasLimit",
+   "kind": "unmodelled_fn",
+   "reason": "gas-limit accounting not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:280 func setL2BaseFee",
+   "kind": "unmodelled_fn",
+   "reason": "fee accounting not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:341 func updateMaxGasLimit",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:351 func updateWhitelistChecker",
+   "kind": "unmodelled_fn",
+   "reason": "whitelist admin"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:107 func getCrossDomainMessage",
+   "kind": "unmodelled_value",
+   "reason": "message hash payload not modelled; its index range require is lifted by the caller loop guard"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:113 func estimateCrossDomainMessageFee",
+   "kind": "unmodelled_fn",
+   "reason": "fee estimation not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:270 func getMessageEnqueueTimestamp",
+   "kind": "unmodelled_fn",
+   "reason": "view; not on a modelled transition path"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:91 func initialize",
+   "kind": "unmodelled_fn",
+   "reason": "initializer; deployment wiring not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:102 func nextCrossDomainMessageIndex",
+   "kind": "unmodelled_fn",
+   "reason": "view; no transition effect"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:91 storage l2BaseFee",
+   "kind": "unmodelled_storage",
+   "reason": "fee accounting not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:90 storage __droppedMessageBitmap",
+   "kind": "unmodelled_storage",
+   "reason": "dropped-message bitmap not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:91 storage __skippedMessageBitmap",
+   "kind": "unmodelled_storage",
+   "reason": "skipped-message bitmap not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:270 func popCrossDomainMessage require _count <= 256",
+   "kind": "subsumed_require",
+   "reason": "the 256-chunk loop bounds count <= 256 by construction"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:322 func popCrossDomainMessage require _msgSender == ROLLUP_CONTRACT",
+   "kind": "subsumed_require",
+   "reason": "internal call from finalizeBatch; caller identity is the contract"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:313 require incorrect parent batch hash",
+   "kind": "subsumed_require",
+   "reason": "honest-header premise: presented parent header's hash matches committedBatches[parent] by CF"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:417 require incorrect batch header",
+   "kind": "subsumed_require",
+   "reason": "honest-header premise: presented header carries the just-committed index LCI"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:419 require incorrect batch hash",
+   "kind": "subsumed_require",
+   "reason": "honest-header premise"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:756 func _verifyProof keccak public-input hash",
+   "kind": "unmodelled_value",
+   "reason": "the public input hash is oracle-side; the verifier decision is the proof==1 oracle"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:836 func _loadBatchHeader",
+   "kind": "abstracted_fn",
+   "reason": "header byte decoding and validation are the honest-header premise; a presented header is the stored header of the index it names"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:819 func _getBatchVersion",
+   "kind": "abstracted_fn",
+   "reason": "version extraction is part of the header-load abstraction"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:726 func _getProxyAdmin",
+   "kind": "unmodelled_fn",
+   "reason": "EIP-1967 admin slot not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:870 asm blob collect",
+   "kind": "abstracted_asm",
+   "reason": "the blobhash-collection loop is modelled as blob_count blobs / agg blobs"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:130 func computeTransactionHash",
+   "kind": "unmodelled_value",
+   "reason": "queue entry hash contents not modelled (queue is length-only)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:122 func calculateIntrinsicGasFee",
+   "kind": "unmodelled_value",
+   "reason": "intrinsic gas computation not modelled"
+  }
+ ],
+ "contract_ifaces": {
+  "submitterContract": "ISubmitter",
+  "messageQueue": "IL1MessageQueue",
+  "_messageQueue": "IL1MessageQueue",
+  "verifier": "IRollupVerifier",
+  "rollupVerifier": "IRollupVerifier",
+  "whitelistChecker": "IWhitelist"
+ },
+ "carrier_idx": {
+  "self": "idx",
+  "parent": "parent"
+ }
+}
