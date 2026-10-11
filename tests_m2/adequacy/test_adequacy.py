@@ -144,6 +144,55 @@ class TestMutate(unittest.TestCase):
         self.assertIn("pipeline_error", s03)
         self.assertEqual(s03["label"], "rule_gap")
 
+    def _synthetic(self, mutant_id: str, mutant: dict, work_name: str) -> dict:
+        from holon.mutate.runner import run_mutants
+        spec = json.loads(SPEC.read_text())
+        spec["mutants"] = [mutant]
+        sp = self.work / f"{work_name}_spec.json"
+        sp.write_text(json.dumps(spec))
+        out = self.work / f"{work_name}_report.json"
+        run_mutants(sp, MORPH, [mutant_id], self.work / work_name, _solc(), out)
+        (r,) = json.loads(out.read_text())["mutants"]
+        return r
+
+    def test_assemble_error_is_extraction_gap(self):
+        """A mutant that compiles but whose extraction/assembly raises a
+        non-compile error stays valid, is not detected, and is labelled
+        extraction_gap with pipeline_error 'assemble: ...'."""
+        from unittest import mock
+        from holon.mutate import runner
+        from holon.mutate.runner import run_mutants
+        spec = json.loads(SPEC.read_text())
+        (g01,) = [m for m in spec["mutants"] if m["id"] == "G01"]
+        spec["mutants"] = [{"id": "S98", "file": g01["file"], "line": g01["line"],
+                            "original": g01["original"], "replacement": g01["original"],
+                            "operator": "noop", "equivalent": False}]
+        sp = self.work / "asmerr_spec.json"
+        sp.write_text(json.dumps(spec))
+        out = self.work / "asmerr_report.json"
+        with mock.patch.object(runner, "assemble",
+                               side_effect=ValueError("synthetic assemble failure")):
+            run_mutants(sp, MORPH, ["S98"], self.work / "asmerr", _solc(), out)
+        (r,) = json.loads(out.read_text())["mutants"]
+        self.assertTrue(r["valid"])
+        self.assertFalse(r["detected"])
+        self.assertEqual(r["label"], "extraction_gap")
+        self.assertTrue(r["pipeline_error"].startswith("assemble: "))
+
+    def test_compile_failure_is_invalid(self):
+        """A mutant whose replacement does not compile is invalid."""
+        spec = json.loads(SPEC.read_text())
+        (g01,) = [m for m in spec["mutants"] if m["id"] == "G01"]
+        r = self._synthetic("S97", {"id": "S97", "file": g01["file"],
+                                    "line": g01["line"],
+                                    "original": g01["original"],
+                                    "replacement": "this does not compile ((",
+                                    "operator": "break", "equivalent": False},
+                            "compfail")
+        self.assertFalse(r["valid"])
+        self.assertEqual(r["label"], "invalid")
+        self.assertFalse(r["detected"])
+
     def test_noop_mutant_is_extraction_gap(self):
         """A synthetic mutant whose replacement equals the original: the
         extraction is byte-identical, so the label is extraction_gap and

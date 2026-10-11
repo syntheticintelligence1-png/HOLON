@@ -18,6 +18,10 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_WORK = Path.home() / "work" / "holon-mut"
 
 
+class CompileError(RuntimeError):
+    """A compile failure of the mutated target — the ONLY route to `invalid`."""
+
+
 def _solc(arg: Path | None) -> Path:
     if arg:
         return Path(arg)
@@ -113,7 +117,12 @@ def _extract_and_run(wt: Path, solc: Path, scratch: Path) -> dict:
     plus facts sha/bytes for the miss-label comparison. Assembly and solc
     compile failures raise; pipeline-stage failures (facts.load, generator,
     emitter) are caught by the caller."""
-    doc, cov = assemble(wt, solc, out_dir=scratch / "extracted")
+    try:
+        doc, cov = assemble(wt, solc, out_dir=scratch / "extracted")
+    except RuntimeError as e:
+        if str(e).startswith("solc"):
+            raise CompileError(str(e)) from e
+        raise
     facts_p = scratch / "facts.json"
     write_docs(doc, cov, facts_p)
     return {"doc": doc, "coverage": cov, "facts_p": facts_p,
@@ -190,11 +199,22 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                     continue
             try:
                 run = _extract_and_run(wt, solc_p, scratch)
-            except Exception as e:
-                # solidity mutants: a failed solc compile (or unassemblable
-                # extraction) is invalid, never detected
+            except CompileError as e:
+                # a failed compile of the mutated target is invalid,
+                # never detected — the only route to `invalid`
                 rec.update({"valid": False, "detected": False, "label": "invalid",
                             "changed": [], "build_error": str(e)[:500],
+                            "seconds": round(time.time() - t0, 3)})
+                results.append(rec)
+                continue
+            except Exception as e:
+                # any other extraction/assemble failure on a mutant that
+                # compiled: stays valid, not detected, extraction_gap
+                first = (str(e).splitlines() or [repr(e)])[0]
+                rec.update({"valid": True, "detected": False,
+                            "label": "extraction_gap", "changed": [],
+                            "pipeline_error": f"assemble: {first}"[:500],
+                            "link_fallbacks": [],
                             "seconds": round(time.time() - t0, 3)})
                 results.append(rec)
                 continue
@@ -207,9 +227,10 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                 # the frozen definitions on the facts comparison
                 label = ("extraction_gap" if run["facts_bytes"] == base["facts_bytes"]
                          else "rule_gap")
+                first = (str(e).splitlines() or [repr(e)])[0]
                 rec.update({"valid": True, "detected": False, "label": label,
                             "facts_sha256": run["facts_sha"], "changed": [],
-                            "pipeline_error": str(e).splitlines()[0][:500] if str(e) else repr(e),
+                            "pipeline_error": f"pipeline: {first}"[:500],
                             "link_fallbacks": run["link_fallbacks"],
                             "seconds": round(time.time() - t0, 3)})
                 results.append(rec)
