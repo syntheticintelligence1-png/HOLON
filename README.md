@@ -24,6 +24,12 @@ python -m holon run  --milestone M1      # 16 state-machine laws (spec/M1, laws/
 python -m holon gate --milestone M1      # incl. 21 canaries
 python -m holon replay --milestone M1 --morph <morph checkout> --solc <solc 0.8.24>   # Foundry + go test
 python -m unittest discover -s tests_m1 -t .    # HOLON_REPLAY=1 to include replay
+
+python -m holon sorts                     # M3: sort inference (7.7) -> spec/M3/sorts/{assignment,facts,gen}, 7.8 Bend types + canaries, registry
+python -m holon run    --milestone M3_sorts   # 6 SORT laws (O20, O21, O27, O28); docs/M3_SORTS_REPORT.md
+python -m holon replay --milestone M3_sorts --morph <morph checkout> --solc <solc 0.8.24>
+python -m holon gate   --milestone M3_sorts   # incl. negated / witness_prefix / sort_* canaries
+python -m unittest discover -s tests_m3 -t .
 ```
 
 The rest of this README is the original starter-kit guide that framed M0. It is kept for the session-by-session workflow.

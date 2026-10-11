@@ -1,0 +1,43 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort3_enq_fresh",
+  "milestone": "M3_sorts",
+  "rule": "SORT",
+  "subform": "sentinel",
+  "facts": "spec/M3/sorts/facts/morph_rollup.sorted.json",
+  "facts_sha256": "26e3a06a4c40cbf1d9f4c45fc0e3840a3e2d169affe70ca57c9ae564539869d0",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "enq_first_sound",
+          "of": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "The same sentinel obligation from the post-upgrade initial state: every writer of enq is a Time >= 10 (t in s0), so the Null member is unreachable without legacy messages.",
+  "maps_to": "O21 (F7)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "UNKNOWN"
+}

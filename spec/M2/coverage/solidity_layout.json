@@ -1,0 +1,46 @@
+{
+  "frontend": "solidity/layout",
+  "target_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "items": [
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:keccak256(_batchPtr, _headerLength)",
+      "kind": "edge",
+      "reason": "hash primitive is outside the byte-layout model; recorded as an edge fact"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:mstore(0x40, add(_batchPtr, _headerLength))",
+      "kind": "infrastructure",
+      "reason": "free-memory-pointer bump writes outside the tracked header buffer"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(_batchIndex == lastCommittedBatchIndex, \\\"incorrect batch index\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.postStateRoot != bytes32(0), \\\"new state root is zero\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.prevStateRoot != bytes32(0), \\\"previous state root is zer",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex + 1] == bytes32(0), \\\"batch already committ",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex] == _parentBatchHash, \\\"incorrect parent ba",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedStateRoots[_batchIndex] == batchDataInput.prevStateRoot, \\\"inco",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    }
+  ]
+}

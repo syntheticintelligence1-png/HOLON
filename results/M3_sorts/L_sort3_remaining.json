@@ -1,0 +1,108 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_sort3_remaining",
+    "laws": "gen/M3_sorts/L_sort3_remaining/LAWS.bend",
+    "model": "gen/M3_sorts/model/morph_rollup_sorted.bend",
+    "proof": "gen/M3_sorts/L_sort3_remaining/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 11046
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.168
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.3
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.168
+  },
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "facts_sha256": "26e3a06a4c40cbf1d9f4c45fc0e3840a3e2d169affe70ca57c9ae564539869d0",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_sort3_remaining",
+  "maps_to": "O27 (F4)",
+  "premises": [
+    "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+    "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+    "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+    "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+    "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+    "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+    "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+    "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
+  ],
+  "replay": {
+    "detail": "last step on the real code: ('rev', 'panic:0x11') @ morph 3e44e795586a",
+    "status": "passed"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "statement_hash": "sha256:70f0d752d69ee2a45477c88bc71abe93faa705be490cbee57239381f03c967ac",
+  "status": "REFUTED",
+  "subform": "realize",
+  "triage": "finding",
+  "witness": {
+    "p": [
+      {
+        "blobs": [
+          17
+        ],
+        "lbn": 1,
+        "n": 0,
+        "op": "commitBatch",
+        "parent": 0,
+        "post": 110,
+        "prev": 100,
+        "ver": 1,
+        "who": 2
+      },
+      {
+        "idx": 1,
+        "op": "challengeState",
+        "value": 1,
+        "who": 4
+      },
+      {
+        "dt": 11,
+        "op": "wait"
+      },
+      {
+        "blobs": [
+          27
+        ],
+        "lbn": 2,
+        "n": 0,
+        "op": "commitBatch",
+        "parent": 1,
+        "post": 123,
+        "prev": 110,
+        "ver": 1,
+        "who": 2
+      }
+    ]
+  }
+}
