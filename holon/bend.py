@@ -57,6 +57,10 @@ def _env() -> dict:
     # inside the checker): the checker never inherits it
     for k in [k for k in env if k == "BUN_OPTIONS" or k.startswith("BUN_CONFIG_")]:
         env.pop(k)
+    # bend2/bend.ts resolves package imports through BEND_LIB / BEND_HUB: never let the environment
+    # redirect them (HOLON's files import only Base and relative paths)
+    for k in ("BEND_LIB", "BEND_HUB"):
+        env.pop(k, None)
     return env
 
 
