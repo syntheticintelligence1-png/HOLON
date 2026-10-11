@@ -489,6 +489,133 @@
       "thresholds": {
         "budget_s_per_file": 120
       }
+    },
+    "I4": {
+      "title": "Replay completion, provisional finding filter, case-study coverage",
+      "plan": "docs/BUILD_PLAN.md#i4",
+      "prompt": "prompts/I4_replay_filter_casestudy.md",
+      "predictions": [
+        {
+          "id": "I4-P1",
+          "claim": "M0 L_par_hdr_v2, Solidity side on the commit path: from s0 on the real Rollup at the pinned commit, a sequencer commitBatch at version 2 with one blob succeeds, and the committed 257-byte header has byte 0 = 0x02, with keccak256(header) equal to committedBatches(batch_index) read on chain.",
+          "check": "tests_m2/test_replay_completion.py::TestM0CommitPath::test_v2_byte0_on_chain"
+        },
+        {
+          "id": "I4-P2",
+          "claim": "M0 L_par_hdr_ssvh, Solidity side on the commit path: a version-1 commitBatch from s0 writes bytes 185..216 (sequencerSetVerifyHash) as 32 zero bytes, with keccak256(header) equal to committedBatches(batch_index).",
+          "check": "tests_m2/test_replay_completion.py::TestM0CommitPath::test_ssvh_zero_on_chain"
+        },
+        {
+          "id": "I4-P3",
+          "claim": "L_tag_BVH consumer: the version-2 header the real Rollup commits through commitState after commitBatch(v1, blob) and revertBatch carries the stored v1 versioned hash at [57:89]; Go's BlobCommitHash() on that header returns it, and it differs from aggregateBlobHashes([stored hash]) = keccak256(stored hash), the value a version-2 consumer recomputes.",
+          "check": "tests_m2/test_replay_completion.py::TestConsumerSides::test_tag_bvh_consumer"
+        },
+        {
+          "id": "I4-P4",
+          "claim": "L_fact_Z consumer: node/derivation BatchInfo.ParseBatch gives different outcomes for the no-blob batch and the one-zero-blob batch whose committedBatches hashes are equal; the no-blob outcome is the error 'blobs length can not be zero'.",
+          "check": "tests_m2/test_replay_completion.py::TestConsumerSides::test_fact_z_consumer"
+        },
+        {
+          "id": "I4-P5",
+          "claim": "Provisional bins (rule tests_m2/_i4.py::expected_bin, fixed at this prereg) of the laws whose bins depend on the new replays I4-P1..P4: finding for all four. Deviates from the plan's prediction line (pending for L_tag_BVH and L_fact_Z); see the prompt.",
+          "check": "tests_m2/test_filter.py::TestBins::test_predicted_bins_new_replays",
+          "expected": {
+            "L_par_hdr_v2": "finding",
+            "L_par_hdr_ssvh": "finding",
+            "L_tag_BVH": "finding",
+            "L_fact_Z": "finding"
+          }
+        },
+        {
+          "id": "I4-P6",
+          "kind": "construction",
+          "claim": "Construction check, not counted toward prediction accuracy (provenance describes how each side runs, and the replay code is written after this prereg): per-side witness_provenance. Trace replays on the deployed Rollup are public_schedule; L_dom_hdr's Solidity side calls _loadBatchHeader through an internal harness; L_nat_eta2 emulates pre-upgrade storage; Go sides are library_api.",
+          "check": "tests_m2/test_filter.py::TestBins::test_predicted_provenance",
+          "expected": {
+            "L_dom_hdr": {
+              "go": "library_api",
+              "solidity": "internal_harness"
+            },
+            "L_par_hdr_ssvh": {
+              "go": "library_api",
+              "solidity": "public_schedule"
+            },
+            "L_par_hdr_v2": {
+              "go": "library_api",
+              "solidity": "public_schedule"
+            },
+            "L_fact_Z": {
+              "go_consumer": "library_api",
+              "solidity": "public_schedule"
+            },
+            "L_nat_eta2": {
+              "solidity": "emulated_storage"
+            },
+            "L_own_txspayload": {
+              "go": "library_api"
+            },
+            "L_sort_remaining": {
+              "solidity": "public_schedule"
+            },
+            "L_sym_omega": {
+              "solidity": "public_schedule"
+            },
+            "L_tag_BVH": {
+              "go_consumer": "library_api",
+              "solidity": "public_schedule"
+            },
+            "L_undo_BVH": {
+              "solidity": "public_schedule"
+            },
+            "L_undo_cancel": {
+              "solidity": "public_schedule"
+            }
+          }
+        },
+        {
+          "id": "I4-P7",
+          "kind": "construction",
+          "claim": "Construction check, not counted: the bins that follow from replays already recorded and the provenance table: finding for L_undo_BVH, L_undo_cancel, L_sort_remaining, L_sym_omega; pending for L_dom_hdr (internal harness), L_nat_eta2 (emulated storage) and L_own_txspayload (library call only, no public schedule).",
+          "check": "tests_m2/test_filter.py::TestBins::test_bins_of_recorded_replays",
+          "expected": {
+            "L_undo_BVH": "finding",
+            "L_undo_cancel": "finding",
+            "L_sort_remaining": "finding",
+            "L_sym_omega": "finding",
+            "L_dom_hdr": "pending",
+            "L_nat_eta2": "pending",
+            "L_own_txspayload": "pending"
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I4-R1",
+          "claim": "Every side replayed before I4 still passes with its obstruction observed (L_dom_hdr both sides; the Go sides of L_par_hdr_v2 and L_par_hdr_ssvh; the M1 trace replays and L_own_txspayload); the refinement corpus still has 0 disagreements and no harness mismatch.",
+          "check": "tests_m2/test_replay_completion.py::TestSides and tests_m1/test_m1_replay.py"
+        },
+        {
+          "id": "I4-R2",
+          "claim": "All 24 statuses, statement hashes and generated .bend files unchanged; gates M0 and M1 pass with strict G6.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "results/M0/",
+        "results/M1/",
+        "replay/M0/report.json",
+        "replay/M1/report.json",
+        "results/casestudy_coverage.json",
+        "docs/CASESTUDY.md"
+      ],
+      "tests": [
+        "tests_m2/test_replay_completion.py",
+        "tests_m2/test_filter.py",
+        "tests_m2/test_casestudy.py"
+      ],
+      "thresholds": {
+        "refinement_disagreements": 0
+      }
     }
   }
 }

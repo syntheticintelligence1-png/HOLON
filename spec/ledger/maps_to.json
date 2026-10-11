@@ -1,0 +1,22 @@
+{
+  "doc": "Case-study mapping sidecar (BUILD_PLAN I4). Frozen M0 law IR cannot gain the maps_to field, so this file maps each M0 law to the whitepaper §11 ids it bears on, and each checked hypothesis (results/M2/hypotheses.json) to the §11.6 obligation it discharges. M1 laws carry maps_to in their own IR. An empty list means the law is outside the §11 catalog; tools/casestudy.py lists such laws under laws_outside. Written at the I4 prereg, before the coverage table exists.",
+  "M0": {
+    "L_dom_hdr": ["O1"],
+    "L_par_hdr_ssvh": [],
+    "L_par_hdr_v0": ["D1"],
+    "L_par_hdr_v1": ["D1"],
+    "L_par_hdr_v2": ["O2"],
+    "L_rt_go_v0": ["D1"],
+    "L_rt_go_v1": ["D1"],
+    "L_rt_go_v2": ["D1"]
+  },
+  "hypotheses": {
+    "Hyp-Z0-kzg": ["D2"]
+  },
+  "notes": {
+    "L_par_hdr_ssvh": "Not a §11 row. It surfaces a premise of D1: the Solidity commit path always writes sequencerSetVerifyHash = 0, so D1's 'Solidity ≡ Go except byte 0' holds only for ssvh = 0 (L_par_hdr_v0 and L_par_hdr_v1 carry that premise). Listed as outside the catalog rather than counted against or for D1.",
+    "L_rt_go_v0": "Go getters recover every field of the header Solidity commits: the decoding half of D1.",
+    "L_rt_go_v1": "As L_rt_go_v0, version 1.",
+    "L_rt_go_v2": "As L_rt_go_v0, version 2 (D1 names v0/v1 layouts; v2 reuses the v1 wire format)."
+  }
+}
