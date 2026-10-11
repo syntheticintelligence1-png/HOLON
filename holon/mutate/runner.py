@@ -3,6 +3,7 @@ spec/M2/A2/mutants.json (A2, held-out set) for the contracts."""
 from __future__ import annotations
 
 import hashlib
+import collections
 import json
 import os
 import subprocess
@@ -360,7 +361,8 @@ def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
         hdr = _extract_and_run(wt, solc_p, scratch)
         return {"rollup_p": run["facts_p"], "header_p": hdr["facts_p"],
                 "facts_sha": run["facts_sha"],
-                "facts_bytes": run["facts_bytes"],
+                # miss labels compare BOTH extracted facts files (rollup + header)
+                "facts_bytes": run["facts_bytes"] + b"\0" + hdr["facts_bytes"],
                 "link_fallbacks": hdr["link_fallbacks"]}
 
     def pipeline_of(wt: Path, scratch: Path) -> dict:
@@ -481,6 +483,8 @@ def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
         "final": scored >= take and limit is None,
         "baseline_seconds": base_seconds,
         "baseline_facts_sha256": base["facts_sha"],
+        "baseline_status_counts": {f: dict(sorted(collections.Counter(base["statuses"][f].values()).items()))
+                                   for f in base["statuses"]},
         "provenance": {
             "mutants_sha256": _file_sha(ROOT / A2_SPEC),
             "registry_sha256": a2["registry_sha256"],
