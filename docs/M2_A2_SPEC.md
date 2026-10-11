@@ -81,14 +81,35 @@ recorded here.
 4. **Fix 2 (extraction, before freezing).** S1 must extract the queue-length write, or record
    it as debt.
 
-## Held-out mutant sampler (preregistered before the law freeze)
+## Held-out mutant sampler (frozen with the A2 laws)
 
-`spec/M2/A2/sample_mutants.py` builds the pool mechanically from Rollup.sol at the target
-commit. It covers the in-scope Rollup functions and modifiers, uses four operators
-(require_delete, statement_delete, cmp_flip and neg_drop), and excludes every A1 site
-(file+line). At this commit the pool has 93 candidates.
+`spec/M2/A2/sample_mutants.py` implements the "Held-out mutant set A2" section above. It
+writes `spec/M2/A2/mutants.json`.
 
-30 mutants are drawn with `random.Random(int(seed, 16))`, where seed = sha256 over the sorted
-`statement_hash` values in the frozen `laws/A2/REGISTRY.json`. Neither the sampler nor the pool
-may change after the freeze. The A1 apply, detection, validity and equivalence rules in
-`spec/M2/mutants.json` apply unchanged.
+- **Seed.** `int(sha256("\n".join(sorted statement_hash values of laws/A2/REGISTRY.json)), 16) mod 2**32`
+  = 4039881274. The registry is unchanged since c70dad3; its sha256 is recorded in the output.
+- **Pool.** 137 (site, operator) candidates, using the A1 operator classes as applied by the
+  sampler's docstring rules (at most one candidate per line and operator). Identity
+  candidates and A1 lines are skipped.
+- **Draw.** `random.Random(seed).shuffle` of the file-ordered pool gives `order`. The
+  campaign walks `order` and keeps the first 30 mutants that compile. A mutant that fails
+  to compile is invalid, is recorded, and is replaced by the next one in order.
+- **Erratum.** A first sampler (371f2dc) contradicted the section above: it had other
+  operators and functions, and a seed without the mod. I discarded it unscored; its draw
+  file sha256 is a530d081… and it was never run. The present sampler follows the section
+  above. Its operand-parsing bugs (an arith_drop that ate a `]`, a condition_drop that left
+  a stray `)`) were found by inspecting the pool and fixed before `order` was first printed.
+- **Frozen.** Neither the sampler, the pool, nor `order` changes from here on.
+
+## Pre-freeze log, continued (1374b3a, before the draw)
+
+S1 extraction fixes, all derived from the AST:
+- modifiers now run on actions;
+- `finalizeBatch` drops its window head;
+- the `proveState` challenge record ctor lookup now resolves;
+- `challengeState` gains its batch-hash guard.
+
+A2 on the extracted facts: 71 PROVED, 1 REFUTED (`L_a2_pr_timeout_blocks_commit`, the
+preregistered miss), 0 UNKNOWN. On the hand facts it stays 70/1/1: `panic:0x11` is ambiguous
+(codes 16 and 41). M1 Rollup laws on the extracted facts: 13 of 15 match results/M1;
+`L_nat_eta2` and `L_sym_omega` remain UNKNOWN as S1 coverage debt.
