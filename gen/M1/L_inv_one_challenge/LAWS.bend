@@ -29,12 +29,20 @@ def check_l_inv_one_challenge_assignment(+s: M.State, index: Nat) -> Bool:
 def check_l_inv_one_challenge(+s: M.State) -> Bool:
   check_l_inv_one_challenge_assignment(s, 0n)
 
-def all_states_l_inv_one_challenge(states: List<&2, M.State>) -> Bool:
+def check_frontier_l_inv_one_challenge(states: List<&2, M.State>) -> Bool:
   match states:
     case Nil{}:
       True{}
-    case Con{state, rest}:
-      Bool.and(check_l_inv_one_challenge(state), all_states_l_inv_one_challenge(rest))
+    case Con{+state, +rest}:
+      Bool.and(check_l_inv_one_challenge(state), check_frontier_l_inv_one_challenge(rest))
+
+def check_reach_l_inv_one_challenge(k: Nat, +frontier: List<&2, M.State>) -> Bool:
+  match k:
+    case 0n:
+      check_frontier_l_inv_one_challenge(frontier)
+    case 1n+p:
+      Bool.and(check_frontier_l_inv_one_challenge(frontier),
+        check_reach_l_inv_one_challenge(p, M.expand_all(frontier)))
 
 law l_inv_one_challenge:
-  {all_states_l_inv_one_challenge(M.reach_k(3n)) == True{} : Bool}
+  {check_reach_l_inv_one_challenge(3n, [M.init_state()]) == True{} : Bool}

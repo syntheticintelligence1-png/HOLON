@@ -15,16 +15,33 @@ Branch `devin/m1-sm`. Pipeline: `python3 -m holon run --milestone M1`, gate:
 | L_disch_nonowner | 4 | REFUTED | REFUTED | yes | checked |
 | L_disch_timeout | 4 | REFUTED | REFUTED | yes | checked |
 | L_nat_delay_frontier | 5 | REFUTED | REFUTED | yes | checked |
-| L_inv_prefix | 5 | UNKNOWN | PROVED@bound | no | failed |
-| L_inv_one_challenge | 5 | UNKNOWN | PROVED@bound | no | failed |
+| L_inv_prefix | 5 | PROVED | PROVED@bound | yes | checked |
+| L_inv_one_challenge | 5 | PROVED | PROVED@bound | yes | checked |
 | L_par_hdr_v2_composed | — | PROVED | PROVED | yes | checked |
 
-Both invariant laws: the plain checker prints `ALL PROOFS CHECK` on the
-generated `{all_states(reach(K), check) == true}` law proved by `{==}`, but
-`bend --verdict` reports a mismatch between the TypeScript implementation and
-the formalized BendTT kernel, so per policy the status is UNKNOWN (checker is
-authoritative). The proofs themselves are the exact bounded-reach laws; this
-is a tool/kernel limitation, not a model disagreement.
+All 9 laws now match predictions: 6 REFUTED + 3 PROVED.
+
+## --verdict mismatch bisected and fixed (Task A)
+
+Original `{all_states_<lid>(M.reach_k(K n)) == True{}}` laws passed plain
+`bend` but `--verdict` reported "mismatch between the TypeScript
+implementation, and the formalized BendTT kernel". Bisect under /tmp/vmt:
+
+- `reach_k` laws for K<=2 verdict-OK; K=3 (1308 unique states) fails.
+- A `llen` law over a 1500-element list of the *same* 25-field record passes;
+  a 1085-record append passes; ~1300+ *distinct* 25-field records in one list
+  term fails. Trigger = normalized size of the materialized deduplicated
+  `reach_k` list term, not the dedup/equality functions themselves.
+- Fix (generator-only, `holon/sm_emit.py`): for K<=3 emit a fused per-layer
+  fold `check_reach_<lid>(k, frontier)` that checks each expanded frontier
+  layer including the base — the exact same universal claim (every state
+  reachable in <=K Ok steps satisfies check), without materializing the
+  deduplicated list. K>3 keeps `all_states(reach_k)` (the undeduplicated
+  per-layer expansion would be ~1172 states/layer x 5, too large for the
+  plain checker). Keyed on K, not law ID.
+- Both invariant laws now PROVED (verdict=checked). Minimal reproducer:
+  `bend/notes/verdict_mismatch/` (failing + passing PROOF.bend, model copy,
+  README with commands, outputs and the bisect table).
 
 ## Witness traces (plain words)
 
@@ -56,8 +73,8 @@ is a tool/kernel limitation, not a model disagreement.
 | L_disch_nonowner | 5.58 | 1.79 | 0.25 | 0.73 |
 | L_disch_timeout | 5.54 | 1.34 | 0.27 | 2.33 |
 | L_nat_delay_frontier | 44.53 | 1.09 | 0.17 | 0.32 |
-| L_inv_prefix | 2.03 | — | — | 7.83 (kernel rejected) |
-| L_inv_one_challenge | 2.11 | — | — | 7.64 (kernel rejected) |
+| L_inv_prefix | 2.03 | — | — | ~0.3 (fused fold; was 7.83 kernel-rejected) |
+| L_inv_one_challenge | 2.11 | — | — | ~0.3 (fused fold; was 7.64 kernel-rejected) |
 | L_par_hdr_v2_composed | 0.21 | — | — | 0.37 |
 
 ## Reach-set sizes (compiled `reach_k`, unique states per layer)
@@ -80,8 +97,10 @@ reported, not hidden — none survived.
   `committed[j] != 0`; once it fails the body would only touch already-zero
   slots, so modeled end state is unchanged either way — but the intended
   reading is "break"). Please confirm the break-vs-skip reading.
-- **Kernel verdict**: the two invariant laws prove under the plain checker
-  but `--verdict` rejects with the TS-vs-BendTT mismatch; kept UNKNOWN.
+- **Kernel verdict**: the two invariant laws originally failed `--verdict`
+  (TS-vs-BendTT mismatch on the materialized ~1.3k-element `reach_k` list);
+  fixed by the fused per-layer fold (see above). Reproducer under
+  `bend/notes/verdict_mismatch/` for an upstream report.
 - **Bend codegen hazards hit**: callee-before-caller ordering required;
   recursive helpers must match the fuel parameter first; `Ok{+s}` needed to
   reuse states; mutual recursion rejected (rewritten with `Bool.pick`).
@@ -91,3 +110,37 @@ reported, not hidden — none survived.
 - **Early pipeline bug found by the oracle tests**: loop bodies originally
   ran the first index twice; caught by `rollup_ref` cross-check before any
   law relied on it.
+
+## Replay on real code (Task B)
+
+All 6 REFUTED witnesses replayed on the real contracts (Morph @3e44e79,
+read-only; harness `replay/M1/solidity/Harness.t.sol`, real Rollup +
+ERC1967Proxy, real L1MessageQueueWithGasPriceOracle + proxy, real Submitter +
+proxy, accept-all verifier; config F=2, P=2, D=3, genesis at t=1):
+`forge test --match-path test/M1Harness.t.sol -vv` — 6/6 PASS. Report:
+`replay/M1/report.json`, `replay/M1/README.md`.
+
+- undo_commit_revert: after commit + revertBatch(1,1),
+  `batchBlobVersionedHashes(1) != 0`, `batchDataStore(1)` and
+  `committedStateRoots(1)` retain residue (model's claim failure confirmed).
+- undo_enabled: commitBatch then reverts "commitBatch requires no stored
+  blob hash"; commitState succeeds and recommits batch 1.
+- undo_pause: challenge(1) extends batch 2 fin_ts 3->5; pause/unpause leaves
+  it at 5; re-challenging batch 1 succeeds and extends it again to 7
+  (extra observation past the model witness).
+- disch_nonowner: after timeout proveState, revertReqIndex=1 and the
+  submitter is slashed; every non-owner path (commitBatch on a re-staked
+  submitter, commitState, commitBatchWithProof, challengeState, proveState,
+  finalizeBatch) reverts "pending revert request"; owner revertBatch clears.
+- disch_timeout: past the window, commitBatch and commitBatchWithProof
+  revert Panic(0x11), challengeState reverts "already in challenge";
+  setPause(true) clears with no slash (submitter stays active).
+- nat_delay_frontier: enqueue -> commitBatch(1 msg) -> warp 5 ->
+  commitBatch(0) reverts "l1msg delay"; permissionless finalizeBatch pops
+  the message and lifts the guard.
+- M0 closure: real commitBatch at version 2 through the deployed Rollup;
+  byte0==2, ssvh==0, committed bytes == model `enc_go_v2_producer` output
+  evaluated via holon/model_eval (byte-for-byte). Go side drives the real
+  `createBatchHeaderWithSequencerSetHash` on a hand-built BatchCache in
+  `~/ext/morph_scratch` (test copied to `replay/M1/go/`) — same 257 bytes
+  match. No divergences between model and real code.

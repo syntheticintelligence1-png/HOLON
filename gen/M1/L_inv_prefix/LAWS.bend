@@ -29,12 +29,20 @@ def check_l_inv_prefix_assignment(+s: M.State, index: Nat) -> Bool:
 def check_l_inv_prefix(+s: M.State) -> Bool:
   check_l_inv_prefix_assignment(s, 0n)
 
-def all_states_l_inv_prefix(states: List<&2, M.State>) -> Bool:
+def check_frontier_l_inv_prefix(states: List<&2, M.State>) -> Bool:
   match states:
     case Nil{}:
       True{}
-    case Con{state, rest}:
-      Bool.and(check_l_inv_prefix(state), all_states_l_inv_prefix(rest))
+    case Con{+state, +rest}:
+      Bool.and(check_l_inv_prefix(state), check_frontier_l_inv_prefix(rest))
+
+def check_reach_l_inv_prefix(k: Nat, +frontier: List<&2, M.State>) -> Bool:
+  match k:
+    case 0n:
+      check_frontier_l_inv_prefix(frontier)
+    case 1n+p:
+      Bool.and(check_frontier_l_inv_prefix(frontier),
+        check_reach_l_inv_prefix(p, M.expand_all(frontier)))
 
 law l_inv_prefix:
-  {all_states_l_inv_prefix(M.reach_k(3n)) == True{} : Bool}
+  {check_reach_l_inv_prefix(3n, [M.init_state()]) == True{} : Bool}
