@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 
 from . import bend, ir, refute
+from .replay import load_report, replay_status
 from . import facts as F
 from .gen import laws as LG
 from .gen import model as G
@@ -124,6 +125,7 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
         raise RuntimeError(f"bend {kver} is not the pinned {cfg['bend']['pinned_version']}")
     verdict = bend.verdict_enabled(cfg)
     triage = load_triage(milestone)
+    report = None if no_registry else load_report(milestone, ROOT)
 
     # 1. the model, generated from the facts (and compiled for the refuter)
     name = model_name(facts_path)
@@ -146,7 +148,7 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
                "kernel": {"name": "bend", "version": kver, "verdict": "not_run"},
                "artifacts": {"laws": None, "proof": None, "model": relpath(model_src), "law_name": None},
                "checker": {"exit_code": None, "marker": "not_run"}, "witness": None, "difference": None,
-               "triage": "none", "replay": {"status": "not_run", "detail": "replay is milestone P5"}}
+               "triage": "none", "replay": {"status": "not_run", "detail": "certificates are not replayed; refinement replay is M2"}}
         status, em, r = "UNKNOWN", None, None
         try:
             em, r = prove(law, facts, d, model_import, cfg, attempts)
@@ -157,6 +159,7 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
                 if r is not None:
                     status = "REFUTED"
                     rec["witness"], rec["difference"] = s.witness, s.difference
+                    rec["replay"] = replay_status(report, lid, s.witness)
                     t = triage.get(lid, {})
                     rec["triage"] = t.get("triage", "finding")
                     if t.get("why"):

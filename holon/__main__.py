@@ -2,6 +2,7 @@
 
   python -m holon run  --milestone M0 [--facts PATH] [--out DIR] [--gen-dir DIR] [--no-registry]
   python -m holon gate --milestone M0 [--root DIR] [--report PATH]
+  python -m holon replay --morph PATH [--forge F] [--solc S] [--work DIR]
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
 """
 from __future__ import annotations
@@ -24,6 +25,12 @@ def main(argv=None) -> int:
     g.add_argument("--milestone", default="M0")
     g.add_argument("--root")
     g.add_argument("--report")
+    rp = sub.add_parser("replay", help="replay REFUTED witnesses on the real Go and Solidity code")
+    rp.add_argument("--milestone", default="M0")
+    rp.add_argument("--morph", required=True, help="morph-l2/morph checkout at the facts' commit")
+    rp.add_argument("--forge")
+    rp.add_argument("--solc", help="path to a solc 0.8.24 binary (forge --use)")
+    rp.add_argument("--work")
     lay = sub.add_parser("layout", help="print the symbolic byte layout of an encoder")
     lay.add_argument("fn")
     lay.add_argument("version", type=int)
@@ -35,6 +42,9 @@ def main(argv=None) -> int:
     if a.cmd == "gate":
         from .gate import main_gate
         return main_gate(a)
+    if a.cmd == "replay":
+        from .replay import main_replay
+        return main_replay(a)
     if a.cmd == "layout":
         from . import facts, layout
         for i, c in enumerate(layout.layout(facts.load(a.facts), a.fn, a.version)):

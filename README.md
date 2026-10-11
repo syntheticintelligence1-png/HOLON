@@ -1,4 +1,27 @@
-# HOLON starter kit: milestone M0 (Morph header laws, end to end)
+# HOLON v2: violations as obstructions to commutation, in Bend 2
+
+**Status: M0 complete.** The factory loop has run end to end on the Morph batch-header codecs. See `docs/ARCHITECTURE.md` for the architecture, the M0 exit criteria and the M1 plan.
+
+| Law | Outcome | Second kernel (BendTT) | Replay on real code (morph `3e44e79`) |
+|---|---|---|---|
+| L_par_hdr_v0, L_par_hdr_v1 | PROVED | checked | n/a |
+| L_rt_go_v0, L_rt_go_v1, L_rt_go_v2 | PROVED | checked | n/a |
+| L_par_hdr_v2 | REFUTED (finding O2/F12.2) | checked | Go passed |
+| L_dom_hdr | REFUTED (finding O1/F12.1) | checked | Go passed, Solidity passed |
+| L_par_hdr_ssvh | REFUTED (intent question) | checked | Go passed |
+
+```
+tools/setup_env.sh                       # Bend 2.0.36 (pinned) + Lean 4.34.0 for --verdict
+python -m holon run  --milestone M0      # facts -> model -> laws -> proofs / counter-laws -> records
+python -m holon gate --milestone M0      # GENV, G1-G5, G7 (dual kernel), G11, 16 canaries
+python -m unittest discover -s tests -t .
+```
+
+The rest of this README is the original starter-kit guide that framed M0. It is kept for the session-by-session workflow.
+
+---
+
+## HOLON starter kit: milestone M0 (Morph header laws, end to end)
 
 This kit turns the HOLON v2 whitepaper into work an agent can execute and you can review. M0 runs the whole factory loop once, on a small known target:
 

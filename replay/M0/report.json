@@ -1,0 +1,46 @@
+{
+  "laws": {
+    "L_dom_hdr": {
+      "go": {
+        "command": "(cd common && HOLON_RESULTS=\u2026 go test ./batch -run TestHolonReplay -v -count=1)  # exit 0",
+        "observed": "len=250; Version()=(0,<nil>); Hash() err=invalid BatchHeaderBytes length; BatchIndex() err=invalid BatchHeaderBytes length",
+        "status": "passed"
+      },
+      "solidity": {
+        "command": "HOLON_RESULTS=holon_results forge test --match-contract HolonReplay -vv --offline --use <solc 0.8.24>  # exit 0",
+        "observed": "len=250 version=0: _loadBatchHeader accepted; batchHash=0xe13fa46f2e07a6104dab7720c4820eb17a7395719c3eba8da33ecc47ba44c6a7",
+        "status": "passed"
+      }
+    },
+    "L_par_hdr_ssvh": {
+      "go": {
+        "command": "(cd common && HOLON_RESULTS=\u2026 go test ./batch -run TestHolonReplay -v -count=1)  # exit 0",
+        "observed": "Bytes()[185:217]=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff; witness ssvh=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "status": "passed"
+      },
+      "solidity": {
+        "command": "",
+        "observed": "needs a full commitBatch deployment (ssvh is written as zero on the commit path): M1",
+        "status": "not_applicable"
+      }
+    },
+    "L_par_hdr_v2": {
+      "go": {
+        "command": "(cd common && HOLON_RESULTS=\u2026 go test ./batch -run TestHolonReplay -v -count=1)  # exit 0",
+        "observed": "witness version=2; BatchHeaderV1.Bytes()[0]=1; len=257",
+        "status": "passed"
+      },
+      "solidity": {
+        "command": "",
+        "observed": "needs a full commitBatch deployment (byte 0 = 2 is written on the commit path): M1",
+        "status": "not_applicable"
+      }
+    }
+  },
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "witness_sha256": {
+    "L_dom_hdr": "eac432ee14c10e1aaeb5d3bf581e25b2e97b9ab9957ab2b35fc76ff01ac8864c",
+    "L_par_hdr_ssvh": "ed2f86aa91e6a10dc8a8b61dbc18c974ba9cd427a98ee435d3ac5747a0ba0668",
+    "L_par_hdr_v2": "c2817712a89fbbbbc6d998ff0ac5c8eeb17444bf91a61c6f6a974571db94d3fc"
+  }
+}
