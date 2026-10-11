@@ -68,27 +68,28 @@ def _status(law_id: str, milestone: str) -> dict:
     return json.loads(p.read_text())
 
 
-def emit_law(law: dict, kind: str, facts: dict, counter: bool, witness) -> tuple[str, list[str], str | None]:
-    """(statement block, extra def lines, unsupported reason)."""
+def emit_law(law: dict, kind: str, facts: dict, counter: bool, witness):
+    """(statement block, extra def lines, unsupported reason, proof expected to check)."""
     if kind == "codec":
         try:
             block, defs = laws01.emit(law, facts, counter=counter, witness=witness)
         except laws01.Unsupported as e:
-            return "", [], str(e)
-        return block, defs, None
+            return "", [], str(e), True
+        return block, defs, None, True
     m = machine_gen.LMachine(facts)
     e = laws02.LEmit(m)
     try:
-        block, defs, unsup = e.emit(law, counter, witness)
+        block, defs, unsup, expected = e.emit(law, counter, witness)
     except laws02.Unsupported as ex:
-        return "", [], str(ex)
-    return block, e.view_defs() + defs, unsup
+        return "", [], str(ex), True
+    return block, e.view_defs() + defs, unsup, expected
 
 
 def check(path: Path) -> tuple[int, float, str]:
     t0 = time.time()
     try:
-        p = subprocess.run([LEAN, str(path)], capture_output=True, text=True, timeout=TIMEOUT)
+        p = subprocess.run([LEAN, str(path.relative_to(ROOT))], cwd=ROOT,
+                           capture_output=True, text=True, timeout=TIMEOUT)
         secs = round(time.time() - t0, 3)
         return p.returncode, secs, (p.stderr or p.stdout)[-4000:]
     except subprocess.TimeoutExpired:
@@ -108,7 +109,7 @@ def run_milestone(milestone: str) -> dict:
         counter = status == "REFUTED"
         witness = rec.get("witness")
         s_hash = ir.statement_hash(law)
-        block, defs, unsup = emit_law(law, kind, facts, counter, witness)
+        block, defs, unsup, expected = emit_law(law, kind, facts, counter, witness)
         gen_dir = _gen_dir(milestone)
         lpath = gen_dir / f"{lid}.lean"
         if not block:
@@ -128,7 +129,7 @@ def run_milestone(milestone: str) -> dict:
         text = model_text + "\n" + "\n".join(defs) + ("\n" if defs else "") + block
         lpath.write_text(text)
         code, secs, tail = check(lpath)
-        kernel = "PASS" if code == 0 else ("UNSUPPORTED" if unsup else "FAIL")
+        kernel = "PASS" if code == 0 else ("UNSUPPORTED" if (unsup or not expected) else "FAIL")
         record = {"law_id": lid, "milestone": milestone, "m0_status": status,
                   "statement_hash": s_hash, "lean_file": str(lpath.relative_to(ROOT)),
                   "lean_sha256": hashlib.sha256(text.encode()).hexdigest(),
@@ -137,7 +138,11 @@ def run_milestone(milestone: str) -> dict:
             record["checker_tail"] = tail
             if unsup:
                 record["reason"] = unsup
-                coverage.append({"element": lid, "kind": "proof_template_missing", "reason": unsup})
+                coverage.append({"element": lid, "kind": "proof_template_unsupported", "reason": unsup})
+            elif not expected:
+                record["reason"] = tail.splitlines()[-1] if tail else "lean error"
+                coverage.append({"element": lid, "kind": "proof_template_unsupported",
+                                 "reason": record["reason"]})
             else:
                 coverage.append({"element": lid, "kind": "kernel_rejected",
                                  "reason": tail.splitlines()[-1] if tail else "lean error"})
@@ -146,7 +151,8 @@ def run_milestone(milestone: str) -> dict:
     cov_dir = ROOT / "spec" / "M2" / "coverage"
     cov_dir.mkdir(parents=True, exist_ok=True)
     cov = {"frontend": "lean", "milestone": milestone,
-           "items": sorted(coverage, key=lambda x: x["element"])}
+           "target_commit": next(iter(models.values()))[2]["target"]["commit"],
+           "items": sorted(coverage, key=lambda x: (x["element"], x["kind"], x["reason"]))}
     (cov_dir / f"lean_{milestone.lower()}.json").write_text(
         json.dumps(cov, indent=2, sort_keys=True) + "\n")
     return {"coverage": cov}

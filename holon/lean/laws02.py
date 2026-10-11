@@ -231,13 +231,17 @@ class LEmit:
         raise Unsupported(f"witness literal type {ty}")
 
     # ------------------------------------------------------------ proof templates
-    def proof(self, law: dict, counter: bool, witness: dict | None) -> tuple[str, list[str]]:
-        """Returns (proof_body, extra_defs). Body may be 'UNSUPPORTED:<reason>'."""
+    def proof(self, law: dict, counter: bool, witness: dict | None) -> tuple[str, list[str], bool]:
+        """Returns (proof_body, extra_defs, expected_to_check).
+        Body may be 'UNSUPPORTED:<reason>' (no faithful template exists).
+        `expected` is False only for the generic rfl probe — the template set
+        does not cover the statement class, so a kernel rejection reports
+        `proof_template_unsupported`, never a kernel disagreement."""
         st = law["statement"]
         binders, assume, claims = self.statement(st, counter)
         if counter or any(qq == "exists" for qq, _, _ in binders):
             if witness is None:
-                return "UNSUPPORTED:no witness recorded", []
+                return "UNSUPPORTED:no witness recorded", [], True
             try:
                 wits = []
                 for _, n, t in binders:
@@ -246,24 +250,27 @@ class LEmit:
                         raise Unsupported(f"witness missing binder {n}")
                     wits.append(self.value_literal(t, raw))
             except Unsupported as e:
-                return f"UNSUPPORTED:witness: {e}", []
+                return f"UNSUPPORTED:witness: {e}", [], True
             exact = ", ".join(wits) + (", " if wits else "")
-            return f"exact ⟨{exact}by decide⟩", []
+            return f"exact ⟨{exact}by decide⟩", [], True
 
         # forall PROVED: detect statement class
         nat_binders = [n for _, n, t in binders if t == "Nat"]
         sig = [t for _, _, t in binders]
         if sig == ["Trace", "State", "State"] and len(assume) == 1 and len(claims) == 1 \
                 and all(x.startswith("(proj_V_") for x, _, _ in assume + claims):
-            return self._ni_proof(law, binders)
+            b, d = self._ni_proof(law, binders)
+            return b, d, True
         intro = " ".join(n for _, n, _ in binders) + "".join(f" h{i}" for i, _ in enumerate(assume))
         if nat_binders and not any(t in ("State", "Trace", "Act") for _, _, t in binders):
             cs = "\n".join(f"cases {n} <;> rfl" for n in nat_binders)
-            return f"intro {intro}\n{cs}", []
+            return f"intro {intro}\n{cs}", [], True
         if nat_binders:
             cs = "\n".join(f"cases {n} <;> rfl" for n in nat_binders)
-            return f"intro {intro}\n{cs}", []
-        return f"intro {intro}\nrfl", []
+            return f"intro {intro}\n{cs}", [], True
+        # generic rfl probe: no faithful template covers this statement class;
+        # a kernel rejection is a missing-template report, not a disagreement
+        return f"intro {intro}\nrfl", [], False
 
     @staticmethod
     def _unln(n: str) -> str:
@@ -332,13 +339,14 @@ class LEmit:
 
     # ------------------------------------------------------------ top level
     def emit(self, law: dict, counter: bool, witness: dict | None):
-        """Returns (statement_block_text, extra_def_texts, unsupported_reason_or_None)."""
+        """Returns (statement_block_text, extra_def_texts, unsupported_reason_or_None,
+        proof_expected_to_check)."""
         self.views = {}
         # first pass to register views
         binders, assume, claims = self.statement(law["statement"], counter)
         name = law_name(law["law_id"], counter)
         stmt = self.emit_statement(law, counter)
-        body, defs = self.proof(law, counter, witness)
+        body, defs, expected = self.proof(law, counter, witness)
         unsupported = body.split(":", 1)[1] if body.startswith("UNSUPPORTED:") else None
         if unsupported is not None:
             body = "-- coverage debt: no faithful proof template for this statement class\nskip"
@@ -346,4 +354,4 @@ class LEmit:
                 f"-- law_id: {law['law_id']}   counter: {str(counter).lower()}",
                 f"set_option maxRecDepth {REC_DEPTH}", "set_option maxHeartbeats 16000000", ""]
         block = head + [f"theorem {name} : {stmt} := by", "  " + body.replace("\n", "\n  ")]
-        return "\n".join(block) + "\n", defs, unsupported
+        return "\n".join(block) + "\n", defs, unsupported, expected

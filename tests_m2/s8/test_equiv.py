@@ -57,7 +57,7 @@ class TestStatementEquivalence(unittest.TestCase):
             return lean, bend
         m = machine_gen.LMachine(facts)
         e = laws02.LEmit(m)
-        _, defs, _ = e.emit(law, rec["status"] == "REFUTED", witness)
+        _, defs, _, _ = e.emit(law, rec["status"] == "REFUTED", witness)
         defs = e.view_defs() + defs
         samples = equiv.samples_for(law, m, witness)
         self.assertTrue(samples, f"{law['law_id']}: no evaluable sample")

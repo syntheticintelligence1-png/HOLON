@@ -275,6 +275,10 @@ structure Hdr where
   pc2 : HC2
 
 -- Nat comparisons as Bool (mirrors Bend's Nat.is_*).
+def natAdd : Nat -> Nat -> Nat
+  | 0, b => b
+  | a+1, b => Nat.succ (natAdd a b)
+
 def isLt (a b : Nat) : Bool := Nat.ble (a + 1) b
 def isLe (a b : Nat) : Bool := Nat.ble a b
 def isGt (a b : Nat) : Bool := Nat.ble (b + 1) a
