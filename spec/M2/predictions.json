@@ -1,0 +1,95 @@
+{
+  "milestone": "M2",
+  "doc": "Preregistration for M2 iterations (docs/BUILD_PLAN.md §0.1). One key per iteration under iterations. A key is written once, in its prereg commit, before any of its outcome_paths change; holon audit prereg checks the order and that the key is never edited afterwards. predictions count toward prediction accuracy; regressions are outcomes already recorded in the repo that must not change.",
+  "iterations": {
+    "I1": {
+      "title": "Prereg tool, honest ledger, v2 records, G1 over records, G6/G9",
+      "plan": "docs/BUILD_PLAN.md#i1",
+      "prompt": "prompts/I1_ledger.md",
+      "predictions": [
+        {
+          "id": "I1-P1",
+          "claim": "Each record's model_assumptions is exactly the ledger entries whose introduced_by meets the cone of its frozen statement. Hand-derived from spec/ledger/assumptions.json and the statements: M0 encoder-parity laws reach enc_sol_at, an enc_go and Hdr; round-trip laws reach enc_sol_at, dec_go and Hdr but no enc_go; L_dom_hdr reaches only the byte-level validity checks. Every rollup law reaches run or step, hence every action; s0, mig_legacy, cost and perm are defined after run and are reached only from statements that name them. L_own_txspayload reaches no hash stand-in.",
+          "check": "tests_m2/test_ledger.py::TestLedger::test_model_assumptions_match_prediction",
+          "expected": {
+            "L_dom_hdr": ["A-hash"],
+            "L_par_hdr_ssvh": ["A-cache", "A-dirty", "A-hash", "A-version", "A-width"],
+            "L_par_hdr_v0": ["A-cache", "A-dirty", "A-hash", "A-version", "A-width"],
+            "L_par_hdr_v1": ["A-cache", "A-dirty", "A-hash", "A-version", "A-width"],
+            "L_par_hdr_v2": ["A-cache", "A-dirty", "A-hash", "A-version", "A-width"],
+            "L_rt_go_v0": ["A-dirty", "A-hash", "A-version", "A-width"],
+            "L_rt_go_v1": ["A-dirty", "A-hash", "A-version", "A-width"],
+            "L_rt_go_v2": ["A-dirty", "A-hash", "A-version", "A-width"],
+            "L_disch_delay_nofree": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_disch_delay_pay": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-disch-cost-units", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_disch_delay_prove": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-disch-cost-units", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_disch_delay_wait": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-disch-cost-units", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_disch_stale": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-principal-classes", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_disch_stale_commit": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_fact_Z": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_nat_eta2": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-legacy-pseudo-migration", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_own_txspayload": ["abs-go-heap", "abs-newbatchdata-cap0", "oracle-go-sizeclass-trunc512", "scope-batchdata-unmodelled"],
+            "L_sort_remaining": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_sym_omega": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_tag_BVH": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_undo_BD": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_undo_BVH": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_undo_CSR": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
+            "L_undo_cancel": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"]
+          }
+        },
+        {
+          "id": "I1-P2",
+          "claim": "With the hard-coded CF string removed, every record's premises are exactly the rendered assume clauses of its frozen statement; no record premise mentions CF.",
+          "check": "tests_m2/test_ledger.py::TestLedger::test_premises_are_exactly_the_rendered_statement_premises"
+        },
+        {
+          "id": "I1-P3",
+          "claim": "G6 (replay binding) and G9 (record completeness against the frozen v1 and the new v2 schema) PASS for M0 and M1, once the two M0 Solidity sides that were never replayed carry the label 'model-only pending replay'.",
+          "check": "tests_m2/test_gate_g1_g6_g9.py::TestGateM0::test_g6_g9_pass and TestGateM1::test_g6_g9_pass"
+        },
+        {
+          "id": "I1-P4",
+          "claim": "G1 compares every result record (with seconds stripped and artifact paths normalised) and passes on the committed tree: 8 records for M0, 16 for M1. Tampering with a record's replay status fails G1; flipping a witness hash in a replay report fails G6; deleting a v2 field fails G9.",
+          "check": "tests_m2/test_gate_g1_g6_g9.py"
+        },
+        {
+          "id": "I1-P5",
+          "claim": "All 16 M1 law IR files validate against spec/schemas/law_ir_0_2.schema.json, written from the emitter's term grammar (holon/gen/mlaws.py docstring) and not from the law files.",
+          "check": "tests_m2/test_ir02_schema.py"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I1-R1",
+          "claim": "All 24 statuses unchanged: results/M0/summary.json and results/M1/summary.json are byte-identical.",
+          "check": "tests_m2/test_records_v2.py::TestRecordsV2::test_statuses_unchanged",
+          "expected": {
+            "M0": {"L_dom_hdr": "REFUTED", "L_par_hdr_ssvh": "REFUTED", "L_par_hdr_v0": "PROVED", "L_par_hdr_v1": "PROVED", "L_par_hdr_v2": "REFUTED", "L_rt_go_v0": "PROVED", "L_rt_go_v1": "PROVED", "L_rt_go_v2": "PROVED"},
+            "M1": {"L_disch_delay_nofree": "PROVED", "L_disch_delay_pay": "PROVED", "L_disch_delay_prove": "PROVED", "L_disch_delay_wait": "PROVED", "L_disch_stale": "PROVED", "L_disch_stale_commit": "PROVED", "L_fact_Z": "REFUTED", "L_nat_eta2": "REFUTED", "L_own_txspayload": "REFUTED", "L_sort_remaining": "REFUTED", "L_sym_omega": "REFUTED", "L_tag_BVH": "REFUTED", "L_undo_BD": "PROVED", "L_undo_BVH": "REFUTED", "L_undo_CSR": "PROVED", "L_undo_cancel": "REFUTED"}
+          }
+        },
+        {
+          "id": "I1-R2",
+          "claim": "All 24 statement hashes unchanged (laws/M0 and laws/M1 untouched; the registries still match).",
+          "check": "tests_m2/test_records_v2.py::TestRecordsV2::test_statement_hashes_unchanged"
+        },
+        {
+          "id": "I1-R3",
+          "claim": "Every generated .bend file under gen/M0 and gen/M1 is byte-identical (I1 changes records, not models or proofs).",
+          "check": "gate G1"
+        }
+      ],
+      "outcome_paths": ["results/M0/", "results/M1/", "replay/M0/report.json", "replay/M1/report.json", "gen/M0/", "gen/M1/"],
+      "tests": [
+        "tests_m2/test_ledger.py",
+        "tests_m2/test_records_v2.py",
+        "tests_m2/test_gate_g1_g6_g9.py",
+        "tests_m2/test_ir02_schema.py",
+        "tests_m2/test_prereg_order.py",
+        "tests_m2/test_predictions_schema.py"
+      ],
+      "thresholds": {}
+    }
+  }
+}

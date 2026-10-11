@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON preregistration file (spec/<M>/predictions.json for M2 and later)",
+  "type": "object",
+  "required": ["milestone", "doc", "iterations"],
+  "additionalProperties": false,
+  "properties": {
+    "milestone": {"type": "string", "pattern": "^M[0-9]+$"},
+    "doc": {"type": "string"},
+    "iterations": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/iteration"}
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "required": ["id", "claim", "check"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^I[0-9]+-[PR][0-9]+$"},
+        "claim": {"type": "string"},
+        "check": {"type": "string"},
+        "expected": {}
+      }
+    },
+    "iteration": {
+      "type": "object",
+      "required": ["title", "plan", "prompt", "predictions", "regressions", "outcome_paths", "tests", "thresholds"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {"type": "string"},
+        "plan": {"type": "string"},
+        "prompt": {"type": "string"},
+        "predictions": {"type": "array", "items": {"$ref": "#/$defs/item"}},
+        "regressions": {"type": "array", "items": {"$ref": "#/$defs/item"}},
+        "outcome_paths": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "tests": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^tests_m[0-9]+/test_[a-z0-9_]+\\.py$"}},
+        "thresholds": {"type": "object"}
+      }
+    }
+  }
+}

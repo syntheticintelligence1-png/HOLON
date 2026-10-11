@@ -1,0 +1,250 @@
+{
+  "ledger_version": "holon-ledger/0.1",
+  "doc": "Model assumptions per facts bundle (whitepaper §8.5, §8.6, Def 4.7). A result record lists, in model_assumptions, every entry whose introduced_by meets the cone of its law: the model definitions the frozen statement reaches. Every definition of a bundle's generated model is classified: by one or more entries (entries take precedence), or else by exactly one no_assumption group with its reason. Patterns are fnmatch globs over definition names; \"*\" in introduced_by means every law of the bundle. Kinds: hash (a collision-freedom stand-in, Cor 6.16), oracle (a neighbour or runtime replaced by a stand-in), hypothesis (a constant or oracle claim checkable outside the model), abstraction (a representation choice of the model), scope_note (what the bundle does not cover). Statement premises (assume clauses) are not here: they are in the frozen IR and in each record's premises.",
+  "bundles": [
+    {
+      "facts": "facts/morph_header.json",
+      "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+      "model": "morph_header",
+      "entries": [
+        {
+          "id": "A-width",
+          "kind": "abstraction",
+          "source": "facts/morph_header.json#/assumptions/0",
+          "text": "batchIndex, l1MessagePopped, totalL1MessagePopped and lastBlockNumber are < 2^64 and modelled as 8-byte fields; Solidity stores shl(192, x) of a uint256, so larger values would be truncated.",
+          "introduced_by": ["Hdr"]
+        },
+        {
+          "id": "A-version",
+          "kind": "abstraction",
+          "source": "facts/morph_header.json#/assumptions/1",
+          "text": "The version field is one byte in the Header record.",
+          "introduced_by": ["Hdr"]
+        },
+        {
+          "id": "A-cache",
+          "kind": "abstraction",
+          "source": "facts/morph_header.json#/assumptions/2",
+          "text": "Go encoders are modelled with an empty EncodedBytes cache.",
+          "introduced_by": ["enc_go_v0", "enc_go_v1"]
+        },
+        {
+          "id": "A-dirty",
+          "kind": "abstraction",
+          "source": "facts/morph_header.json#/assumptions/3",
+          "text": "Solidity encodes into memory at the free pointer whose prior contents are unknown; the model marks unwritten bytes UNKNOWN (0xDEAD, outside the byte range).",
+          "introduced_by": ["enc_sol_at"]
+        },
+        {
+          "id": "A-hash",
+          "kind": "scope_note",
+          "source": "facts/morph_header.json#/assumptions/4",
+          "text": "M0 compares header bytes, not hashes; no hash premise is used.",
+          "introduced_by": ["*"]
+        }
+      ],
+      "no_assumption": [
+        {
+          "defs": ["overlay", "put", "zeros", "slice", "tail_len_ge", "tail_len_eq", "eq_bytes", "eq_fields", "eq_maybe_fields", "eq_bool", "is_true"],
+          "why": "byte-list and equality utilities of the generator prelude; no modelling choice"
+        },
+        {
+          "defs": ["hdr_version", "get_*", "view_at", "view"],
+          "why": "field projections of the Header record, generated from the facts types"
+        },
+        {
+          "defs": ["ok_go_at", "ok_go", "dec_go_fields_at", "dec_go_fields", "dec_go_sel", "dec_go", "enc_sol", "ok_sol_at", "ok_sol"],
+          "why": "transcribed from the facts functions (source lines in the facts); fidelity is measured by replay, not assumed"
+        }
+      ]
+    },
+    {
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+      "model": "morph_rollup",
+      "entries": [
+        {
+          "id": "abs-nat-tokens",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/0",
+          "text": "State roots, hashes and versioned hashes are Nat tokens (0 is bytes32(0)); times are Nat seconds from an epoch.",
+          "introduced_by": ["HSt"]
+        },
+        {
+          "id": "CF-keccak-headers",
+          "kind": "hash",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/1",
+          "text": "CF(keccak256, {stored headers, presented header}): header equality stands for committedBatches equality; a caller presents the stored header of the index it names, and committedBatches[k] != 0 iff k <= LCI (abstractions/2).",
+          "introduced_by": ["b_hdr_of", "d_lci"]
+        },
+        {
+          "id": "abs-window-shadow",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/3",
+          "text": "Per-batch registers live in a window (LFI..LCI) and shadow lists (LCI+1, ...: residues of revertBatch); finalized indices keep only committedBatches and finalizedStateRoots.",
+          "introduced_by": ["HEntry", "b_es_csr", "b_es_bd", "b_es_bvh", "b_es_tag", "d_in_win", "d_w"]
+        },
+        {
+          "id": "abs-absolute-index-arrays",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/4",
+          "text": "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+          "introduced_by": ["HCh"]
+        },
+        {
+          "id": "CF-keccak-blobhashes",
+          "kind": "hash",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/5",
+          "text": "keccak256 over the blob versioned hashes (version 2) is the injective stand-in agg(xs) = AGG_BASE + enc(xs): CF(keccak256, S) for every finite S.",
+          "introduced_by": ["d_blob_hash", "b_enc", "b_pair"]
+        },
+        {
+          "id": "Hyp-Z0-kzg",
+          "kind": "hypothesis",
+          "source": "spec/M1/facts/morph_rollup.json#/params/Z",
+          "text": "Token Z stands for ZERO_VERSIONED_HASH (Rollup.sol:25), assumed equal to the KZG versioned hash of the all-zero blob, 0x01 || sha256(0xc0 || 0^47)[1:] (D2, whitepaper §11.6). The facts' constants_doc cites Rollup.sol:24 and says the value is oracle-checked by holon; no code in the repo performed that check before I3. Not the compression hypothesis HypZ of §8.5.",
+          "introduced_by": ["d_blob_hash"]
+        },
+        {
+          "id": "oracle-ISubmitter",
+          "kind": "oracle",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/6",
+          "text": "ISubmitter is a stand-in: isActive is membership of the active list, challengeDeposit = DEP, and _challengerWin's slash removes the batch submitter from the active list.",
+          "introduced_by": ["decide_commitBatch", "decide_commitState", "decide_proveState", "exec_proveState", "decide_challengeState"]
+        },
+        {
+          "id": "oracle-verifier",
+          "kind": "oracle",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/6",
+          "text": "IRollupVerifier is a stand-in that accepts iff proof == 1.",
+          "introduced_by": ["decide_commitBatchWithProof", "decide_proveState"]
+        },
+        {
+          "id": "oracle-messenger",
+          "kind": "oracle",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/6",
+          "text": "The cross-domain messenger is a stand-in: sendMessage appends one message to the queue.",
+          "introduced_by": ["step_sendMessage"]
+        },
+        {
+          "id": "scope-rollup-coverage-debt",
+          "kind": "scope_note",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/7",
+          "text": "Not modelled: reward and deposit accounting, withdrawalRoots, parameter updates, challenger and verifier admin, importGenesisBatch, initialize3/4, dataHash contents (facts coverage.debt).",
+          "introduced_by": ["*"]
+        },
+        {
+          "id": "abs-post-genesis-initial",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/initial/doc",
+          "text": "The initial state s0 is the state after initialize(...) and importGenesisBatch at t = 10, with parameters W = 10, F = 40, D = 20, active = [2, 3], challengers = [4].",
+          "introduced_by": ["s0"]
+        },
+        {
+          "id": "abs-legacy-pseudo-migration",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/migrations/legacy",
+          "text": "The pre-reinitializer(2) state is emulated by a pseudo-migration that zeroes committedStateRoots in a state reached by the current version's actions; it is not a versioned machine.",
+          "introduced_by": ["mig_legacy"]
+        },
+        {
+          "id": "abs-disch-cost-units",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/disch",
+          "text": "Discharge costs are per-action constants: one L1 message = 1, one validity proof = 1000 (c_proof >> c_msg); delay is time waited.",
+          "introduced_by": ["cost"]
+        },
+        {
+          "id": "abs-principal-classes",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/actions",
+          "text": "The obligated class of a DISCH law is derived from each action's free-text principal label (perm: true for actions open to anyone or the environment), not from a permission predicate over callers.",
+          "introduced_by": ["perm"]
+        }
+      ],
+      "no_assumption": [
+        {
+          "defs": ["ite", "nth_d", "set_d", "tail0", "last_d", "b_nth", "b_set_nat", "b_mem", "b_remove", "b_blob_count", "b_zeros_like", "eq_bool", "eq_list_nat", "is_true"],
+          "why": "list, Nat and Bool utilities of the generator prelude; no modelling choice"
+        },
+        {
+          "defs": ["g_*", "with_*", "empty_*", "HBD", "HObs", "HAct", "Dec_*"],
+          "why": "record plumbing generated from the facts types (getters, updaters, empty values, action and observation types, decision types)"
+        },
+        {
+          "defs": ["b_bump_go", "b_bump_f", "b_any_go", "b_any_open", "b_clear_go", "b_clear_chs", "b_zero_csr", "b_set_last_csr", "d_enq_first", "d_tag_at", "d_bvh_at", "d_open_ch"],
+          "why": "builtins and defs named by the facts effects and guards, transcribed from source lines; fidelity is measured by the replay corpus, not assumed"
+        },
+        {
+          "defs": ["b_tags_exact"],
+          "why": "ghost observer (Prop 6.19): reads only the ghost tags and adds no behaviour"
+        },
+        {
+          "defs": ["dec_*", "decide_*", "exec_*", "step_*", "step", "run", "mig_eta2"],
+          "why": "guard and effect chains transcribed from the facts actions and migrations with source lines; fidelity is measured by the replay corpus (300 traces, 0 disagreements), not assumed"
+        },
+        {
+          "defs": ["clear_log", "log_of", "obs", "ok_head", "last_ok", "all_ok", "runs_ok", "no_code", "eq_obs", "eq_obs_list", "is_commitBatch", "is_commitState", "is_commitBatchWithProof", "is_revertBatch", "is_challengeState", "is_proveState", "is_finalizeBatch", "is_setPause", "is_sendMessage", "is_wait", "elapsed", "blobs_of", "lci_of", "csr_last", "kappa", "tags_ok", "new_hdr"],
+          "why": "statement vocabulary generated from the facts observers, consumers and the action log; no modelling choice beyond the entries their cones reach"
+        }
+      ]
+    },
+    {
+      "facts": "spec/M1/facts/morph_batchdata.json",
+      "facts_sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d",
+      "model": "morph_batchdata",
+      "entries": [
+        {
+          "id": "abs-go-heap",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_batchdata.json#/abstractions/0",
+          "text": "The Go heap is a list of backing arrays of Nat bytes; a slice is (backing, offset, len, cap); append writes in place when len + k <= cap and allocates otherwise.",
+          "introduced_by": ["HSl", "HArr"]
+        },
+        {
+          "id": "oracle-go-sizeclass-trunc512",
+          "kind": "oracle",
+          "source": "spec/M1/facts/morph_batchdata.json#/abstractions/1",
+          "text": "Go 1.24 slice growth (nextslicecap plus roundupsize) with the size-class table truncated to classes <= 512 bytes; larger allocations use the exact requested capacity, which is wrong for real Go.",
+          "introduced_by": ["b_go_loop", "b_go_nextcap", "b_first_ge", "s0"]
+        },
+        {
+          "id": "abs-newbatchdata-cap0",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_batchdata.json#/abstractions/2",
+          "text": "NewBatchData's make([]byte, 0) slices start with capacity 0 and no backing array.",
+          "introduced_by": ["s0"]
+        },
+        {
+          "id": "scope-batchdata-unmodelled",
+          "kind": "scope_note",
+          "source": "spec/M1/facts/morph_batchdata.json#/abstractions/3",
+          "text": "l1TxHashes, blockNum and l1TxNum are not modelled.",
+          "introduced_by": ["*"]
+        }
+      ],
+      "no_assumption": [
+        {
+          "defs": ["ite", "nth_d", "set_d", "tail0", "last_d", "b_nth", "b_set_nat", "b_mem", "b_remove", "b_blob_count", "b_pair", "b_enc", "b_zeros_like", "eq_bool", "eq_list_nat", "is_true"],
+          "why": "list, Nat and Bool utilities of the generator prelude; no modelling choice"
+        },
+        {
+          "defs": ["g_*", "empty_*", "HObs", "HSt", "HAct", "Dec_*"],
+          "why": "record plumbing generated from the facts types"
+        },
+        {
+          "defs": ["b_overlay", "b_put", "b_zeros", "b_go_read", "b_go_append_slice", "b_go_append_heap"],
+          "why": "heap operations transcribed from Go append and copy semantics; their representation is abs-go-heap, reached through the types"
+        },
+        {
+          "defs": ["decide_*", "exec_*", "step_*", "step", "run"],
+          "why": "action chains transcribed from batch_data.go with source lines"
+        },
+        {
+          "defs": ["clear_log", "log_of", "obs", "ok_head", "last_ok", "all_ok", "runs_ok", "no_code", "eq_obs", "eq_obs_list", "is_append", "is_txsPayloadV2", "cost", "elapsed", "perm", "view_intact"],
+          "why": "statement vocabulary generated from the facts observers and the action log"
+        }
+      ]
+    }
+  ]
+}
