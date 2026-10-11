@@ -1,0 +1,71 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort3_width_l1num",
+  "milestone": "M3_sorts",
+  "rule": "SORT",
+  "subform": "width",
+  "facts": "spec/M3/sorts/facts/morph_batchdata_l1num.json",
+  "facts_sha256": "b5d4db4cb9b69ce90ec7ad1023ae4201aa96f3b60806486e65a0731593f1781c",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "k",
+        "type": "Nat"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "var": "k"
+          },
+          {
+            "nat": 65535
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "width_ok",
+          "of": {
+            "run": {
+              "trace": [
+                {
+                  "act": "appendBlock",
+                  "args": {
+                    "k": {
+                      "var": "k"
+                    }
+                  }
+                },
+                {
+                  "act": "appendBlock",
+                  "args": {
+                    "k": {
+                      "nat": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Compiled from the width obligation at action:appendBlock/effect:l1num: the sum \u03a3 len(l1TxHashes) has sort Cnt[msg] and width 17 after two blocks but is realized in uint16 (batch_data.go:16,41). The coercion premise is total < 2^16; the premise k == 65535 is the explorer's seed for the one witness family (k+1 >= 2^16).",
+  "maps_to": "O28 (F12.7)",
+  "evidence": [
+    "E12"
+  ],
+  "predicted": "REFUTED"
+}

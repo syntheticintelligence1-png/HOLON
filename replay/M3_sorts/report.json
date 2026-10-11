@@ -1,0 +1,178 @@
+{
+  "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
+  "harness_mismatch": false,
+  "laws": {
+    "L_sort3_enq_sentinel": {
+      "observed": "model-only pending replay: migration legacy_enq (pre-upgrade storage) has no Foundry harness step",
+      "obstruction_reproduced": false,
+      "status": "not_run",
+      "traces": []
+    },
+    "L_sort3_prin_challenger": {
+      "observed": "model-only pending replay: no Foundry harness step for ['addChallenger'] (the witness needs a caller/role the harness cannot impersonate)",
+      "obstruction_reproduced": false,
+      "status": "not_run",
+      "traces": []
+    },
+    "L_sort3_prin_submitter": {
+      "observed": "the real contract accepts the whole trace (the ghost-tag violation is invisible on chain by design)",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": [
+        {
+          "agree": 2,
+          "disagree": [],
+          "label": "trace",
+          "real": [
+            "ok",
+            "ok"
+          ],
+          "trace": [
+            {
+              "dt": 21,
+              "op": "wait"
+            },
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatchWithProof",
+              "parent": 0,
+              "post": 111,
+              "prev": 100,
+              "proof": 1,
+              "ver": 1,
+              "who": 5
+            }
+          ]
+        }
+      ]
+    },
+    "L_sort3_remaining": {
+      "observed": "last step on the real code: ('rev', 'panic:0x11')",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": [
+        {
+          "agree": 4,
+          "disagree": [],
+          "label": "trace",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "rev panic:0x11"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 11,
+              "op": "wait"
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 1,
+              "post": 123,
+              "prev": 110,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        }
+      ]
+    },
+    "L_sort3_width_l1num": {
+      "command": "cp spec/M3/sorts/replay/go/holon_l1num_test.go <morph>/common/batch/ && cd <morph>/common/batch && go test -run TestHolonL1NumWidth -v .",
+      "evidence": [
+        "spec/M3/sorts/replay/go/holon_l1num_test.go",
+        "spec/M3/sorts/replay/go/holon_l1num_test.log"
+      ],
+      "observed": "Append(65535 L1 hashes) then Append(1): l1TxNum=0 (uint16 wrap) while 65536 hashes were appended (log: spec/M3/sorts/replay/go/holon_l1num_test.log)",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": []
+    }
+  },
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "refinement": {
+    "disagreements": [],
+    "n_disagreements": 0,
+    "per_action": {
+      "challengeState": {
+        "agree": 9,
+        "disagree": 0
+      },
+      "commitBatch": {
+        "agree": 188,
+        "disagree": 0
+      },
+      "commitBatchWithProof": {
+        "agree": 31,
+        "disagree": 0
+      },
+      "commitState": {
+        "agree": 43,
+        "disagree": 0
+      },
+      "finalizeBatch": {
+        "agree": 26,
+        "disagree": 0
+      },
+      "proveState": {
+        "agree": 16,
+        "disagree": 0
+      },
+      "revertBatch": {
+        "agree": 14,
+        "disagree": 0
+      },
+      "sendMessage": {
+        "agree": 21,
+        "disagree": 0
+      },
+      "setPause": {
+        "agree": 31,
+        "disagree": 0
+      },
+      "wait": {
+        "agree": 131,
+        "disagree": 0
+      }
+    },
+    "seed": 20261011,
+    "steps": 510,
+    "traces": 60
+  },
+  "witness_sha256": {
+    "L_sort3_enq_sentinel": "a10c48d363169bcc6d01d07e6cc70498840c11701ed780af5414e224083f2429",
+    "L_sort3_prin_challenger": "05139bf92a7c500fc931a6f8d3a1c2e97dfcfedcc8f5cb2158cb40f442f96efd",
+    "L_sort3_prin_submitter": "00b971014b10ef3fd90e58dc063d07504d84f8d2ba566e7027c882ed27b9131d",
+    "L_sort3_remaining": "865e720cc26246ed9b385b422a22065dd247a19980eade6643b5529a3bbcc23a",
+    "L_sort3_width_l1num": "b2ad097054d592e230d4cd380d0cc72159ddc254fbcdfff40b3b0dba93a89a9b"
+  }
+}

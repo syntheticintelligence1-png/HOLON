@@ -1,0 +1,54 @@
+{
+  "artifacts": {
+    "law_name": "l_par_hdr_v2_composed",
+    "laws": "gen/M1/L_par_hdr_v2_composed/LAWS.bend",
+    "model": "gen/M1/model/morph_header_m1.bend",
+    "proof": "gen/M1/L_par_hdr_v2_composed/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "open_refl",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.231
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.476
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.231
+  },
+  "difference": null,
+  "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_par_hdr_v2_composed",
+  "maps_to": "O2 (PAR-domain v2; resolves L_par_hdr_v2 at the producer level)",
+  "premises": [
+    "h.version == 0x02",
+    "h.sequencerSetVerifyHash == 0x00*32"
+  ],
+  "replay": {
+    "detail": "not replayed",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "statement": "\u2200 h: Header. h.version == 0x02 \u2227 h.sequencerSetVerifyHash == 0x00*32 \u21d2 enc_sol(h) == enc_go_v2_producer(h)",
+  "statement_hash": "sha256:52d65cb8cb44db88f9e41e10db254224dfdf2700ef8f844bbefa04a9fa051e63",
+  "status": "PROVED",
+  "subform": "cross_component_codec",
+  "triage": "none",
+  "witness": null
+}

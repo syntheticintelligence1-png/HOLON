@@ -2,7 +2,7 @@
 
 **Status: M0 and M1 complete.**
 - **M0:** the factory loop on the Morph batch-header codecs.
-- **M1:** the Rollup state machine (UNDO, SORT, DISCH, FACT, SYM, NAT) plus the Go OWN aliasing law. 16 laws: 8 PROVED (unbounded, dual-kernel) and 8 REFUTED, every refutation replayed on the real code. Details are in `docs/M1_REPORT.md`; the architecture is in `docs/ARCHITECTURE.md`.
+- **M1:** the Rollup state machine (UNDO, SORT, DISCH, FACT, SYM, NAT) plus the Go OWN aliasing law. 17 laws: 9 PROVED (dual-kernel) and 8 REFUTED, every refutation replayed on the real code. Details are in `docs/M1_REPORT.md`; the architecture is in `docs/ARCHITECTURE.md`.
 
 M0 results:
 
@@ -24,6 +24,12 @@ python -m holon run  --milestone M1      # 16 state-machine laws (spec/M1, laws/
 python -m holon gate --milestone M1      # incl. 21 canaries
 python -m holon replay --milestone M1 --morph <morph checkout> --solc <solc 0.8.24>   # Foundry + go test
 python -m unittest discover -s tests_m1 -t .    # HOLON_REPLAY=1 to include replay
+
+python -m holon sorts                     # M3: sort inference (7.7) -> spec/M3/sorts/{assignment,facts,gen}, 7.8 Bend types + canaries, registry
+python -m holon run    --milestone M3_sorts   # 6 SORT laws (O20, O21, O27, O28); docs/M3_SORTS_REPORT.md
+python -m holon replay --milestone M3_sorts --morph <morph checkout> --solc <solc 0.8.24>
+python -m holon gate   --milestone M3_sorts   # incl. negated / witness_prefix / sort_* canaries
+python -m unittest discover -s tests_m3 -t .
 ```
 
 The rest of this README is the original starter-kit guide that framed M0. It is kept for the session-by-session workflow.

@@ -1,0 +1,66 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_sort3_width_l1num",
+    "laws": "gen/M3_sorts/L_sort3_width_l1num/LAWS.bend",
+    "model": "gen/M3_sorts/model/morph_batchdata_l1num.bend",
+    "proof": "gen/M3_sorts/L_sort3_width_l1num/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 1
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.832
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 5.154
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.832
+  },
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "facts_sha256": "b5d4db4cb9b69ce90ec7ad1023ae4201aa96f3b60806486e65a0731593f1781c",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_sort3_width_l1num",
+  "maps_to": "O28 (F12.7)",
+  "premises": [
+    "[{\"var\": \"k\"}, {\"nat\": 65535}]",
+    "blocks are abstracted to their L1 message count k = len(l1TxHashes); block contexts and tx payloads are not modelled",
+    "k <= 65535 per block (the per-block count is itself a uint16 in node/derivation/batch_info.go:26), so one truncation per append suffices"
+  ],
+  "replay": {
+    "detail": "Append(65535 L1 hashes) then Append(1): l1TxNum=0 (uint16 wrap) while 65536 hashes were appended (log: spec/M3/sorts/replay/go/holon_l1num_test.log) @ morph 3e44e795586a",
+    "status": "passed"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "statement_hash": "sha256:48a5eabded9dcc0796f57eba02d6dfc1c7674ba5602f02f04a1d49d5360b3a58",
+  "status": "REFUTED",
+  "subform": "width",
+  "triage": "finding",
+  "witness": {
+    "k": 65535
+  }
+}
