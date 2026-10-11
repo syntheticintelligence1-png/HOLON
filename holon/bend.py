@@ -13,7 +13,7 @@ import shlex
 import shutil
 import subprocess
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,8 +47,11 @@ def bend_cmd(cfg: dict | None = None) -> list[str]:
 def _env() -> dict:
     env = dict(os.environ)
     elan = Path.home() / ".elan" / "bin"
-    if elan.is_dir():  # `--verdict` builds the BendTT kernel with Lean
-        env["PATH"] = str(elan) + os.pathsep + env.get("PATH", "")
+    if elan.is_dir():
+        # `--verdict` builds the BendTT kernel with Lean. Appended, never prepended: nothing in
+        # ~/.elan/bin may shadow a command (the checker itself always runs by absolute path, see
+        # checker_cmd)
+        env["PATH"] = os.pathsep.join(x for x in (env.get("PATH", ""), str(elan)) if x)
     env["BEND_NO_TELEMETRY"] = "1"  # main.ts skips its daily version check (a network GET)
     # bun reads BUN_OPTIONS as extra command-line flags (e.g. --preload ./x.ts, which would run code
     # inside the checker): the checker never inherits it
@@ -133,6 +136,15 @@ def resolve_checker(cfg: dict | None = None) -> tuple[str, Path]:
     return bun_path, checkout
 
 
+def checker_cmd(cfg: dict | None = None) -> list[str]:
+    """The exact argv prefix every Bend run executes: [bun, <checkout>/bend2/main.ts], both absolute
+    and realpath-resolved by resolve_checker (the wrapper itself is not executed: its one allowed
+    command is exactly this). fingerprint() hashes this same pair, so PATH cannot substitute another
+    checker between GENV and a check."""
+    bun_path, checkout = resolve_checker(cfg)
+    return [bun_path, str(checkout / "bend2" / "main.ts")]
+
+
 FINGERPRINT_SOURCES = ("bend2/**/*.ts", "bend2/**/*.lean", "bend2/**/*.bend")
 
 
@@ -148,12 +160,24 @@ def sources_sha256(checkout: Path) -> str:
     return h.hexdigest()
 
 
-def fingerprint(cfg: dict | None = None) -> dict:
-    """The identity of the checker the gate runs: checkout HEAD, its sources and the bun version.
+def file_sha256(p: Path) -> str:
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
-    `fingerprint` = "sha256:" + sha256 of the canonical JSON of {head, sources_sha256, bun}; it is
-    pinned as config bend.pinned_fingerprint. Deterministic: no timestamps, no absolute paths hashed.
-    A checkout that is not a git repository gets head "unknown" (and so will not match a pin)."""
+
+def fingerprint(cfg: dict | None = None) -> dict:
+    """The identity of the checker run() executes (checker_cmd): checkout HEAD, its sources, the bun
+    version and the bun executable's bytes.
+
+    `fingerprint` = "sha256:" + sha256 of the canonical JSON of {head, sources_sha256, bun, bun_sha256};
+    it is pinned as config bend.pinned_fingerprint. Deterministic: no timestamps, no absolute paths
+    hashed. Also returned, unhashed: `checkout`, `bun_path` and `command` (the argv prefix run()
+    executes, which GENV compares with what a run actually executed). A checkout that is not a git
+    repository gets head "unknown" (and so will not match a pin). The --verdict kernel binary is
+    pinned separately (verdict_kernel_path, bend.pinned_kernel_sha256)."""
     cfg = cfg or config()
     bun_path, checkout = resolve_checker(cfg)
     try:
@@ -171,9 +195,35 @@ def fingerprint(cfg: dict | None = None) -> dict:
     bun_v = b.stdout.strip()
     if b.returncode != 0 or not bun_v:
         raise FingerprintError(f"{bun_path} --version failed: {(b.stdout + b.stderr)[:300]!r}")
-    core = {"head": head, "sources_sha256": sources_sha256(checkout), "bun": bun_v}
+    core = {"head": head, "sources_sha256": sources_sha256(checkout), "bun": bun_v,
+            "bun_sha256": file_sha256(bun_path)}
     digest = hashlib.sha256(json.dumps(core, sort_keys=True).encode()).hexdigest()
-    return {"checkout": str(checkout), "bun_path": bun_path, **core, "fingerprint": "sha256:" + digest}
+    return {"checkout": str(checkout), "bun_path": bun_path, "command": [bun_path, str(checkout / "bend2" / "main.ts")],
+            **core, "fingerprint": "sha256:" + digest}
+
+
+# bend2/safe.ts kernel_bin(): with $BENDTT unset (GENV refuses it), --verdict runs the kernel built
+# from bendtt.lean and cached at ~/.bend/bendtt/<sha256(LEAN_VERSION "\0" bendtt.lean)[:16]>/bendtt.
+# These are the source lines that derivation is read from; if they change, the path is unknown.
+_KERNEL_HASH_SRC = ('const hash = crypto.createHash("sha256").update(LEAN_VERSION).update("\\0").update(text)'
+                    '.digest("hex").slice(0, 16);')
+_KERNEL_DIR_SRC = 'const dir = path.join(os.homedir(), ".bend", "bendtt", hash);'
+
+
+def verdict_kernel_path(checkout: Path) -> Path:
+    """Where the checkout's bend2 caches the BendTT kernel binary that `--verdict` executes.
+
+    Mirrors safe.ts kernel_bin() (its derivation lines are matched verbatim, else FingerprintError):
+    os.homedir() is $HOME (as for Node), the source is bend2/bendtt.lean."""
+    checkout = Path(checkout)
+    safe = (checkout / "bend2" / "safe.ts").read_text()
+    m = re.search(r'^const LEAN_VERSION = "([^"]+)";', safe, re.M)
+    if not m or _KERNEL_HASH_SRC not in safe or _KERNEL_DIR_SRC not in safe:
+        raise FingerprintError("bend2/safe.ts no longer derives the kernel cache path as holon/bend.py mirrors it; "
+                               "the --verdict kernel cannot be located")
+    text = (checkout / "bend2" / "bendtt.lean").read_bytes().decode("utf-8", errors="replace")
+    h = hashlib.sha256(m.group(1).encode() + b"\0" + text.encode()).hexdigest()[:16]
+    return Path(os.path.expanduser("~")) / ".bend" / "bendtt" / h / "bendtt"
 
 
 def global_bunfig() -> list[str]:
@@ -196,6 +246,7 @@ class Run:
     code: int | None
     out: str
     seconds: float
+    argv: list = field(default_factory=list)  # exactly what was executed
 
     @property
     def first_line(self) -> str:
@@ -214,26 +265,32 @@ class Run:
 
 
 def run(args: list, cwd=None, timeout: int | None = None, cfg: dict | None = None) -> Run:
+    """Run the resolved checker (checker_cmd: absolute bun + main.ts, the pair fingerprint() hashes)."""
     cfg = cfg or config()
-    cmd = bend_cmd(cfg) + [str(a) for a in args]
-    if shutil.which(cmd[0]) is None and not Path(cmd[0]).exists():
-        raise FileNotFoundError(f"bend command not found: {cmd[0]!r} (see tools/install_bend.sh)")
+    try:
+        prefix = checker_cmd(cfg)
+    except FingerprintError as e:
+        raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
+    cmd = prefix + [str(a) for a in args]
     t0 = time.monotonic()
     try:
         p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, env=_env(),
                            timeout=timeout or int(cfg["bend"].get("timeout_s", 180)))
-        return Run(p.returncode, p.stdout + p.stderr, round(time.monotonic() - t0, 3))
+        return Run(p.returncode, p.stdout + p.stderr, round(time.monotonic() - t0, 3), cmd)
     except subprocess.TimeoutExpired as e:
         out = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
-        return Run(None, out + "\n[timeout]", round(time.monotonic() - t0, 3))
+        return Run(None, out + "\n[timeout]", round(time.monotonic() - t0, 3), cmd)
 
 
-def version(cfg: dict | None = None) -> str:
-    r = run(["version"], cfg=cfg)
+def parse_version(r: Run) -> str:
     m = re.search(r"bend (\d+\.\d+\.\d+)", r.out)
     if r.code != 0 or not m:
         raise RuntimeError(f"cannot read bend version: {r.out[:300]}")
     return m.group(1)
+
+
+def version(cfg: dict | None = None) -> str:
+    return parse_version(run(["version"], cfg=cfg))
 
 
 def check(proof_file: Path, cfg: dict | None = None) -> Run:
@@ -254,7 +311,9 @@ def verdict_enabled(cfg: dict | None = None) -> bool:
 
 
 def check_verdict(proof_file: Path, cfg: dict | None = None) -> Run:
-    """Second kernel (whitepaper §8.8): BendTT, whose soundness is proved in Lean."""
+    """Second kernel (whitepaper §8.8): BendTT, whose soundness is proved in Lean. Runs through run(),
+    so the same resolved checker; the kernel binary it executes is pinned by GENV
+    (verdict_kernel_path, bend.pinned_kernel_sha256)."""
     proof_file = Path(proof_file)
     return run([proof_file.name, "--verdict"], cwd=proof_file.parent, cfg=cfg, timeout=1800)
 

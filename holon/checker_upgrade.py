@@ -1,10 +1,13 @@
 """`holon checker-upgrade`: try a candidate checker in a scratch copy and report what changes (§8.8, I3).
 
-  python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
+  python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--kernel-sha256 HEX]
+                                  [--milestones M0,M1] [--out PATH]
 
 The repository is copied (without .git, caches, node_modules, tmp and build) into a temporary
 directory. In the copy only, config/holon.json gets bend.pinned_fingerprint = FINGERPRINT (and
-bend.cmd = CMD when --bend-cmd is given). Then, for each milestone, `holon run` regenerates every
+bend.cmd = CMD when --bend-cmd is given, bend.pinned_kernel_sha256 = HEX when --kernel-sha256 is
+given: a candidate with a different bendtt.lean uses a different --verdict kernel binary, which GENV
+pins once it is built). Then, for each milestone, `holon run` regenerates every
 record and `holon gate` re-checks everything under the candidate, in the copy. Every result record
 is compared with the one in the tree (`seconds` stripped, artifact paths made relative to their
 gen dir, canonical JSON), and each law whose record differs is listed with the differing top-level
@@ -13,8 +16,8 @@ keys.
 The candidate must really be the checker named by --to: if it is not, GENV fails in the copy and
 the report says so. Nothing in the real tree is changed except the report written to --out
 (default results/checker_upgrade/<from>-<to>.json, 12-hex prefixes). Adopting the candidate is a
-human config change (bend.pinned_fingerprint, and bend.cmd if the command changes) made after
-reading this report; this tool never adopts it. Exit 0 iff every gate passed in the copy.
+human config change (bend.pinned_fingerprint, plus bend.cmd and bend.pinned_kernel_sha256 if they
+change) made after reading this report; this tool never adopts it. Exit 0 iff every gate passed in the copy.
 """
 from __future__ import annotations
 
@@ -40,6 +43,12 @@ PATH_KEYS = ("laws", "proof", "model")
 def _fp(s: str) -> str:
     if not FP_RE.match(s):
         raise argparse.ArgumentTypeError(f"not a checker fingerprint (sha256:<64 hex>): {s!r}")
+    return s
+
+
+def _kernel(s: str) -> str:
+    if not re.fullmatch(r"[0-9a-f]{64}", s):
+        raise argparse.ArgumentTypeError(f"not a sha256 hex digest: {s!r}")
     return s
 
 
@@ -130,6 +139,8 @@ def main(argv=None) -> int:
                                              "and report every record diff (adoption is a human config change)")
     ap.add_argument("--to", required=True, type=_fp, help="the candidate checker's fingerprint (sha256:...)")
     ap.add_argument("--bend-cmd", help="the candidate checker command (default: the configured one)")
+    ap.add_argument("--kernel-sha256", type=_kernel,
+                    help="the candidate's --verdict kernel binary sha256 (default: the configured pin)")
     ap.add_argument("--milestones", default="M0,M1")
     ap.add_argument("--out", help="report path (default results/checker_upgrade/<from>-<to>.json)")
     a = ap.parse_args(argv)
@@ -148,6 +159,8 @@ def main(argv=None) -> int:
         cfg_path = copy / "config" / "holon.json"
         cfg = json.loads(cfg_path.read_text()) if cfg_path.exists() else src_cfg
         cfg["bend"]["pinned_fingerprint"] = a.to
+        if a.kernel_sha256:
+            cfg["bend"]["pinned_kernel_sha256"] = a.kernel_sha256
         env = dict(os.environ)
         if a.bend_cmd:
             cfg["bend"]["cmd"] = shlex.split(a.bend_cmd)
@@ -164,9 +177,9 @@ def main(argv=None) -> int:
         shutil.rmtree(tmp, ignore_errors=True)
 
     rep = {"from": frm, "to": a.to, "bend_cmd": shlex.split(a.bend_cmd) if a.bend_cmd else None,
-           "milestones": results,
+           "kernel_sha256": a.kernel_sha256, "milestones": results,
            "note": "dry run in a scratch copy; adopting the candidate is a human change to config/holon.json "
-                   "(bend.pinned_fingerprint, and bend.cmd if the command changes)"}
+                   "(bend.pinned_fingerprint, plus bend.cmd and bend.pinned_kernel_sha256 if they change)"}
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(rep, indent=2, sort_keys=True) + "\n")
     for m, r in results.items():

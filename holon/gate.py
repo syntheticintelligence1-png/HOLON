@@ -3,10 +3,13 @@
 Order: GENV, G2, G1, G3, G5, G11, G11V, G6, G9, G7, G4. The report is always written; exit 0 iff passed.
 `--checks G6,G9` runs a subset (after GENV) and marks the report partial.
 
-  GENV  no bunfig.toml / .env under root and no global bunfig ($XDG_CONFIG_HOME, $HOME) (else Bend is
-        never invoked); the command resolves to a bun + bend2/main.ts checkout whose fingerprint
-        (HEAD, sources, bun version) equals bend.pinned_fingerprint; that fingerprint is not in
-        results/quarantine.json; pinned bend version
+  GENV  no bunfig.toml / .env under root, no BENDTT override and no global bunfig ($XDG_CONFIG_HOME,
+        $HOME) (else Bend is never invoked); the command resolves to an absolute bun +
+        bend2/main.ts pair whose fingerprint (checkout HEAD, bend2 sources, bun version, bun
+        executable sha256) equals bend.pinned_fingerprint; that fingerprint is not in
+        results/quarantine.json (agent-writable: self-certified until Q1); with --verdict enabled,
+        the cached BendTT kernel binary, if built, has sha256 bend.pinned_kernel_sha256; the
+        command a run actually executed is the fingerprinted pair; pinned bend version
   G2    statement hashes match REGISTRY.json; registry lists exactly laws/<m>; facts hash; and
         spec/bindings/<m>.json matches the kernel (BendTT) form of every definition each statement
         reaches in the committed models, plus the emitted statement and counter-law (a mismatch
@@ -310,17 +313,45 @@ class Gate:
             return fail(f"quarantine file unreadable, refusing: {e}", "skipped: checker quarantined")
         if quarantined:
             return fail(f"checker fingerprint {fp['fingerprint']} is in quarantine "
-                        f"({quarantine_path(self.root).relative_to(self.root)}: an accepted canary); a human must "
-                        "clear it", "skipped: checker quarantined")
+                        f"({quarantine_path(self.root).relative_to(self.root)}: an accepted canary; agent-writable "
+                        "tripwire: self-certified until Q1); a human must clear it", "skipped: checker quarantined")
+        # the second kernel: with $BENDTT refused, --verdict executes the binary bend2 built from
+        # bendtt.lean and cached under $HOME; once built, it is pinned by its bytes
+        if bend.verdict_enabled(self.cfg):
+            try:
+                kp = bend.verdict_kernel_path(Path(fp["checkout"]))
+            except Exception as e:  # noqa: BLE001
+                return fail(f"cannot locate the --verdict kernel: {e}", "skipped: checker not the pinned one")
+            pin_k = self.cfg["bend"].get("pinned_kernel_sha256")
+            if kp.exists():
+                got_k = bend.file_sha256(kp)
+                if got_k != pin_k:
+                    return fail(f"--verdict kernel {kp} has sha256 {got_k}, not the pinned kernel sha256 {pin_k}",
+                                "skipped: checker not the pinned one")
+                kernel = f"kernel {kp} sha256 {got_k[:12]} pinned"
+            else:
+                kernel = (f"kernel not built yet ({kp} is absent: the first --verdict run builds it from the "
+                          "pinned bendtt.lean, and GENV pins it from then on)")
+        else:
+            kernel = "kernel not checked (--verdict disabled)"
         self.checker = fp
         try:
-            self.bend_version = bend.version(self.cfg)
+            r = bend.run(["version"], cfg=self.cfg)
+        except Exception as e:  # noqa: BLE001
+            return fail(f"cannot run bend: {e}", "skipped: bend unavailable or not the pinned version")
+        if r.argv[:len(fp["command"])] != fp["command"]:
+            return fail(f"the executed command {r.argv[:len(fp['command'])]} is not the fingerprinted checker "
+                        f"{fp['command']}", "skipped: checker not the pinned one")
+        try:
+            self.bend_version = bend.parse_version(r)
         except Exception as e:  # noqa: BLE001
             return fail(f"cannot run bend: {e}", "skipped: bend unavailable or not the pinned version")
         pin = self.cfg["bend"]["pinned_version"]
         ok = self.bend_version == pin
         self.checks["GENV"] = _res(ok, f"bend {self.bend_version}, pinned {pin}; fingerprint {fp['fingerprint']} "
-                                       f"pinned ({where}); no global bunfig; not quarantined")
+                                       f"pinned ({where}, bun sha256 {fp['bun_sha256'][:12]}); executes "
+                                       f"{' '.join(fp['command'])}; {kernel}; no global bunfig; not quarantined "
+                                       "(results/quarantine.json is agent-writable: self-certified until Q1)")
         if not ok:
             self.genv_skip = "skipped: bend unavailable or not the pinned version"
         return ok
@@ -466,7 +497,8 @@ class Gate:
         if not fp:
             return "; checker fingerprint unknown, not quarantined"
         p = quarantine(self.root, fp, accepted)
-        return f"; the checker accepted {accepted}: {fp} quarantined in {p.relative_to(self.root)}"
+        return (f"; the checker accepted {accepted}: {fp} quarantined in {p.relative_to(self.root)} "
+                "(agent-writable tripwire: self-certified until Q1)")
 
     def g3(self) -> None:
         bad = []
