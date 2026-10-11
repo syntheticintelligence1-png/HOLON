@@ -7,6 +7,9 @@
 // executes every model trace from $HOLON_TRACES (fresh deployment per trace) and logs one line per step:
 //   HOLON <trace> <step> ok <committedBatches[LCI] after the step>
 //   HOLON <trace> <step> rev <reason>          (Error(string) text, or panic:0x.., or raw:0x..)
+// and, for the genesis batch and after every successful commit, the header the harness rebuilt
+// together with what the chain stores for that index (keccak(header) must equal the second value):
+//   HOLON-HDR <trace> <step|g> <index> <header> <committedBatches(index)> <batchBlobVersionedHashes(index)>
 pragma solidity =0.8.24;
 
 import {Test, console} from "forge-std/Test.sol";
@@ -109,6 +112,13 @@ contract HolonTraceReplayTest is Test {
         bytes memory g = hdr(0, 0, bytes32(uint256(1)), ZVH, bytes32(r0));
         rollup.importGenesisBatch(g);
         hdrs[tid][0] = g;
+        logHeader(tid, "g", 0, g);
+    }
+
+    function logHeader(uint256 tid, string memory si, uint256 idx, bytes memory h) internal view {
+        console.log(string.concat("HOLON-HDR ", HV.toString(tid), " ", si, " ", HV.toString(idx), " ", HV.toString(h), " ",
+                                  HV.toString(rollup.committedBatches(idx)), " ",
+                                  HV.toString(rollup.batchBlobVersionedHashes(idx))));
     }
 
     function reason(bytes memory data) internal view returns (string memory) {
@@ -220,6 +230,7 @@ contract HolonTraceReplayTest is Test {
                 bytes memory h = newHeader(tid, s, o, rollup.batchBlobVersionedHashes(idx));
                 hdrs[tid][idx] = h;
                 if (keccak256(h) != rollup.committedBatches(idx)) console.log("HOLON harness-mismatch", tid, si);
+                logHeader(tid, HV.toString(si), idx, h);
             }
         } else if (op == 4) {
             (ok, ret) = callAs(who, abi.encodeCall(Rollup.revertBatch, (headerFor(tid, s[o + 2]), s[o + 3])), 0);

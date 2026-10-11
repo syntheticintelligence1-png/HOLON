@@ -6,8 +6,9 @@ A v2 record keeps every §8.6 item in its own field, next to the frozen v1 field
   kernels, independence_class, refinement_refs, replay (witness replay status), coverage
 
 plus the cone of the law, its model_assumptions, the generator hash and the fields later
-iterations fill (non_vacuity: I3, witness_provenance and filter_bin: I4, refinement_refs:
-I16, coverage: I19). A pending field holds "pending:I<n>", never a made-up value.
+iterations fill: non_vacuity (I3) and witness_provenance / filter_bin (I4, from the replay
+report through holon.filter) are filled; refinement_refs (I16) and coverage (I19) are still
+pending. A pending field holds "pending:I<n>", never a made-up value.
 
 The cone of a law is the set of generated model definitions its frozen statement reaches:
 the `M.<name>` references of the emitted statement (a type for a constructor), closed
@@ -321,6 +322,12 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
     c = cone(statement_text, model_text)
     refuted = rec["status"] == "REFUTED"
     b, match = resolve_bundle(rec["facts_sha256"], base_facts, root, model_text, set(c))
+    wp, fb = None, None
+    if refuted:  # provisional finding filter (I4), from the committed replay report
+        from .filter import record_fields
+        from .replay import load_report, witness_sha256
+        wp, fb = record_fields(load_report(law["milestone"], Path(root)), law["law_id"], rec.get("witness"),
+                               witness_sha256)
     return {
         "record_version": RECORD_VERSION,
         "model_sha256": sha256_file(model_path),
@@ -335,6 +342,6 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
         "refinement_refs": "pending:I16",
         "coverage": "pending:I19",
         "non_vacuity": None,  # set by the pipeline from holon.inhabit (I3)
-        "witness_provenance": "pending:I4" if refuted else None,
-        "filter_bin": "pending:I4" if refuted else None,
+        "witness_provenance": wp,
+        "filter_bin": fb,
     }

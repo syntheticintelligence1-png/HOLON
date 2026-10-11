@@ -24,7 +24,12 @@ Order: GENV, G2, G1, G3, G5, G11, G11V, G6, G9, G7, G4. The report is always wri
         premises (holon/inhabit.py); a premised REFUTED law counts through its counter-law witness
   G6    every REFUTED record is bound to a passed replay: its witness sha256 is in the replay
         report, the report is for the facts' target commit, and a side not replayed is labelled
-        "model-only pending replay"
+        "model-only pending replay". Strict since I4: the report has exactly the sides each
+        witness claims (holon.filter.claimed_sides, from the IR), each with a status, a boolean
+        obstruction_observed (true only when passed), a provenance from the enum, what was
+        observed and the command; the record's witness_provenance and filter_bin equal
+        holon.filter recomputed from the report; the report's toolchain hashes equal the pins in
+        config/holon.json replay. G6 reads no git and runs no tool.
   G9    every record validates against the frozen v1 schema and spec/schemas/result_record_v2
   G7    second kernel: BendTT (--verdict) re-checks every proof, or the run is labelled
         single-kernel when Lean is unavailable
@@ -187,6 +192,11 @@ class Gate:
             out[f.stem] = r
         return out
 
+    def claimed_sides(self) -> dict[str, set]:
+        from .filter import claimed_sides
+        reg = ir.load_registry(self.m, self.root)
+        return {law["law_id"]: claimed_sides(law, reg.get("facts")) for law in ir.load_laws_any(self.m, self.root)}
+
     def target_commits(self) -> dict[str, str]:
         """facts sha256 -> the target commit named by that facts file."""
         out = {}
@@ -207,6 +217,7 @@ class Gate:
             bad.append(f"replay report unreadable: {e}")
         targets = self.target_commits()
         refuted = {lid: rec for lid, rec in self.records().items() if rec and rec.get("status") == "REFUTED"}
+        claimed = self.claimed_sides()
         if report is None:
             if refuted and not bad:
                 bad.append(f"no replay report for {len(refuted)} REFUTED records")
@@ -246,23 +257,85 @@ class Gate:
                 if not isinstance(entry, dict):
                     bad.append(f"{lid}: not in the replay report")
                     continue
-                sides = {"_": entry} if "status" in entry else {k: v for k, v in entry.items() if isinstance(v, dict)}
-                if not sides:
-                    bad.append(f"{lid}: replay entry has no side")
-                for side, v in sorted(sides.items()):
-                    st = v.get("status")
-                    if st == "not_applicable":
-                        if not str(v.get("observed", "")).startswith(MODEL_ONLY):
-                            bad.append(f"{lid}: {side} side not replayed and not labelled '{MODEL_ONLY}'")
-                        else:
-                            model_only.append(f"{lid}/{side}")
-                            if MODEL_ONLY not in str(rp.get("detail", "")):
-                                bad.append(f"{lid}: record says replay passed without saying its {side} side is "
-                                           f"{MODEL_ONLY}")
-                    elif st != "passed":
-                        bad.append(f"{lid}: {side} side replay {st!r}")
-        self.checks["G6"] = _res(not bad, f"{n} REFUTED records bound to passed replays; {MODEL_ONLY}: "
-                                          f"{', '.join(model_only) or 'none'}" if not bad else "; ".join(bad))
+                bad += self.g6_strict(lid, rec, rp, entry, claimed.get(lid), model_only)
+            bad += self.g6_toolchain(report)
+        for lid, rec in sorted(self.records().items()):
+            if rec and rec.get("status") != "REFUTED" and (rec.get("witness_provenance") is not None
+                                                          or rec.get("filter_bin") is not None):
+                bad.append(f"{lid}: a {rec.get('status')} record carries witness_provenance / filter_bin")
+        self.checks["G6"] = _res(not bad, f"{n} REFUTED records bound to passed replays with strict sides, provenance "
+                                          f"and recomputed filter bins; {MODEL_ONLY}: {', '.join(model_only) or 'none'}"
+                                 if not bad else "; ".join(bad))
+
+    def g6_strict(self, lid: str, rec: dict, rp: dict, entry: dict, claimed: set | None, model_only: list) -> list[str]:
+        """I4: every claimed side present and well-formed; the record's provenance and bin equal the
+        filter recomputed from the report. Never reads git and never runs a tool."""
+        from . import filter as FL
+        bad: list[str] = []
+        m1 = "sides" in entry
+        if m1 and not isinstance(entry.get("sides"), dict):
+            return [f"{lid}: replay entry 'sides' is not an object"]
+        if not m1:
+            junk = sorted(k for k, v in entry.items() if not isinstance(v, dict))
+            if junk:
+                bad.append(f"{lid}: M0 replay entry holds non-side keys {junk}")
+        ss = FL.sides(entry)
+        if not ss:
+            return bad + [f"{lid}: replay entry has no side"]
+        if claimed is not None and set(ss) != claimed:
+            bad.append(f"{lid}: replay sides {sorted(ss)} differ from the sides its witness claims {sorted(claimed)} "
+                       f"(missing: {sorted(claimed - set(ss)) or 'none'})")
+        for side, v in sorted(ss.items()):
+            st = v.get("status")
+            if st not in FL.STATUSES:
+                bad.append(f"{lid}: {side} side status {st!r}")
+                continue
+            if not isinstance(v.get("obstruction_observed"), bool):
+                bad.append(f"{lid}: {side} side obstruction_observed is not a boolean")
+            elif v["obstruction_observed"] and st != "passed":
+                bad.append(f"{lid}: {side} side observed the obstruction without passing")
+            if v.get("provenance") not in FL.PROVENANCE:
+                bad.append(f"{lid}: {side} side provenance {v.get('provenance')!r} is not one of {list(FL.PROVENANCE)}")
+            if not isinstance(v.get("observed"), str) or not v.get("observed"):
+                bad.append(f"{lid}: {side} side records nothing observed")
+            if st in ("passed", "failed") and (not isinstance(v.get("command"), str) or not v.get("command")):
+                bad.append(f"{lid}: {side} side records no command")
+            if st == "not_applicable":
+                if not str(v.get("observed", "")).startswith(MODEL_ONLY):
+                    bad.append(f"{lid}: {side} side not replayed and not labelled '{MODEL_ONLY}'")
+                else:
+                    model_only.append(f"{lid}/{side}")
+                    if MODEL_ONLY not in str(rp.get("detail", "")):
+                        bad.append(f"{lid}: record says replay passed without saying its {side} side is {MODEL_ONLY}")
+            elif st != "passed":
+                bad.append(f"{lid}: {side} side replay {st!r}")
+        if m1:
+            if (entry.get("status") == "passed") != all(v.get("status") == "passed" for v in ss.values()):
+                bad.append(f"{lid}: law-level replay status {entry.get('status')!r} is not the conjunction of its sides")
+            if entry.get("obstruction_reproduced") is not all(v.get("obstruction_observed") is True for v in ss.values()):
+                bad.append(f"{lid}: obstruction_reproduced is not the conjunction of its sides")
+        want_wp, want_bin = FL.provenance_of(ss), FL.bin_of(ss)
+        if rec.get("witness_provenance") != want_wp:
+            bad.append(f"{lid}: record witness_provenance {rec.get('witness_provenance')!r} != {want_wp!r} from the report")
+        if rec.get("filter_bin") != want_bin:
+            bad.append(f"{lid}: record filter_bin {rec.get('filter_bin')!r} != {want_bin!r} recomputed from the report")
+        return bad
+
+    def g6_toolchain(self, report: dict) -> list[str]:
+        """The report's toolchain hashes equal the pins in config/holon.json replay."""
+        from .replay import PIN_KEYS
+        pins = self.cfg.get("replay") or {}
+        tc = report.get("toolchain")
+        if not isinstance(tc, dict):
+            return ["replay report records no toolchain"]
+        bad = []
+        for k in PIN_KEYS:
+            pin = pins.get(k)
+            if not isinstance(pin, str) or re.fullmatch(r"[0-9a-f]{64}", pin) is None:
+                bad.append(f"config/holon.json replay.{k} is not a sha256 pin")
+            elif tc.get(k) != pin:
+                bad.append(f"replay report toolchain {k} {tc.get(k)!r} != config pin {pin}")
+        return bad
 
     def g9(self) -> None:
         from . import schema

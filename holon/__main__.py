@@ -6,7 +6,7 @@
   python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon oracle zero-blob [--morph PATH]
   python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
-  python -m holon replay --morph PATH [--forge F] [--solc S] [--work DIR]
+  python -m holon replay [--milestone M] [--morph PATH] [--forge F] [--solc S] [--work DIR] [--write-pins]
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
 """
 from __future__ import annotations
@@ -48,11 +48,14 @@ def main(argv=None) -> int:
     au.add_argument("rest", nargs=argparse.REMAINDER)
     rp = sub.add_parser("replay", help="replay REFUTED witnesses on the real Go and Solidity code")
     rp.add_argument("--milestone", default="M0")
-    rp.add_argument("--morph", required=True, help="morph-l2/morph checkout at the facts' commit")
-    rp.add_argument("--forge")
-    rp.add_argument("--solc", help="path to a solc 0.8.24 binary (forge --use)")
+    rp.add_argument("--morph", help="morph-l2/morph checkout at the facts' commit (default: config replay.morph)")
+    rp.add_argument("--forge", help="forge binary (default: config replay.forge); its sha256 must match the pin")
+    rp.add_argument("--solc", help="solc 0.8.24 binary for forge --use (default: config replay.solc), pinned likewise")
     rp.add_argument("--work")
-    rp.add_argument("--corpus", type=int, default=60, help="M1: random refinement traces")
+    rp.add_argument("--corpus", type=int, default=300, help="M1: random refinement traces (seeded)")
+    rp.add_argument("--write-pins", action="store_true",
+                    help="write the toolchain's current sha256 values into config/holon.json replay.* (a human "
+                         "should review that change); without it, a missing or different pin refuses to run")
     lay = sub.add_parser("layout", help="print the symbolic byte layout of an encoder")
     lay.add_argument("fn")
     lay.add_argument("version", type=int)

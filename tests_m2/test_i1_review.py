@@ -154,12 +154,21 @@ class TestGateRobustness(unittest.TestCase):
         self.assertIn("L_undo_CSR", rep["checks"]["G6"]["detail"])
 
     def test_record_hiding_a_model_only_side_fails_g6(self):
+        # since I4 the M0 commit-path side is replayed, so the edit first makes it model-only in the
+        # report (and rebins the record to match), then hides that in the record's replay detail
         def edit(repo):
+            r = repo / "replay" / "M0" / "report.json"
+            rep = load_json(r)
+            rep["laws"]["L_par_hdr_v2"]["solidity"].update(
+                status="not_applicable", obstruction_observed=False, observed="model-only pending replay: test")
+            write_json(r, rep)
             f = repo / "results" / "M0" / "L_par_hdr_v2.json"
             d = load_json(f)
+            d["filter_bin"] = "pending"
             d["replay"]["detail"] = "go: passed; solidity: not_applicable @ morph 3e44e795586a"
             write_json(f, d)
-        self.tampered("M0", "G6", edit, "G6")
+        rep = self.tampered("M0", "G6", edit, "G6")
+        self.assertIn("without saying its solidity side", rep["checks"]["G6"]["detail"])
 
     def test_g1_distinguishes_0_from_false(self):
         def edit(repo):

@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.492
+      "seconds": 0.283
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.643
+      "seconds": 0.438
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.492
+    "seconds": 0.283
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -232,7 +232,7 @@
     ]
   },
   "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-  "filter_bin": "pending:I4",
+  "filter_bin": "finding",
   "generator_sha256": "378c645b1dc21a9e10e43980f3f6825379db35fff97f11ea9c25e5b522839751",
   "independence_class": "I1-shared",
   "kernel": {
@@ -292,7 +292,7 @@
   "record_version": "holon-record/0.2",
   "refinement_refs": "pending:I16",
   "replay": {
-    "detail": "committedBatches after c1 / c2: ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') / ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') (different blob sidecars) @ morph 3e44e795586a",
+    "detail": "go_consumer: ParseBatch on the same parent header: c1 (0 all-zero blobs) -> error: blobs length can not be zero; c2 (1 all-zero blob) -> error: decompress batch bytes error:morph da zstd decode: invalid frame; the all-zero blob's versioned hash is 0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014 (= ZERO_VERSIONED_HASH); outcomes differ; solidity: committedBatches after c1 / c2: ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') / ('ok', '0xe13873b91d31",
     "status": "passed"
   },
   "rule": "FACT",
@@ -334,5 +334,8 @@
     },
     "p": []
   },
-  "witness_provenance": "pending:I4"
+  "witness_provenance": {
+    "go_consumer": "library_api",
+    "solidity": "public_schedule"
+  }
 }

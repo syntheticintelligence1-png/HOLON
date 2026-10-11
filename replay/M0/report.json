@@ -4,11 +4,15 @@
       "go": {
         "command": "(cd common && HOLON_RESULTS=\u2026 go test ./batch -run TestHolonReplay -v -count=1)  # exit 0",
         "observed": "len=250; Version()=(0,<nil>); Hash() err=invalid BatchHeaderBytes length; BatchIndex() err=invalid BatchHeaderBytes length",
+        "obstruction_observed": true,
+        "provenance": "library_api",
         "status": "passed"
       },
       "solidity": {
         "command": "HOLON_RESULTS=holon_results forge test --match-contract HolonReplay -vv --offline --use <solc 0.8.24>  # exit 0",
         "observed": "len=250 version=0: _loadBatchHeader accepted; batchHash=0xe13fa46f2e07a6104dab7720c4820eb17a7395719c3eba8da33ecc47ba44c6a7",
+        "obstruction_observed": true,
+        "provenance": "internal_harness",
         "status": "passed"
       }
     },
@@ -16,28 +20,80 @@
       "go": {
         "command": "(cd common && HOLON_RESULTS=\u2026 go test ./batch -run TestHolonReplay -v -count=1)  # exit 0",
         "observed": "Bytes()[185:217]=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff; witness ssvh=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "obstruction_observed": true,
+        "provenance": "library_api",
         "status": "passed"
       },
       "solidity": {
-        "command": "",
-        "observed": "model-only pending replay: needs a full commitBatch deployment (ssvh is written as zero on the commit path); scheduled in docs/BUILD_PLAN.md I4",
-        "status": "not_applicable"
+        "batch_index": 1,
+        "checked_cells": "185..216",
+        "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
+        "committed_hash": "0xdb0df2b6beafa8c8154d3aa8351d7b1087a2ced0d93ea019945645168f7d5599",
+        "header": "0x01000000000000000100000000000000000000000000000000e979da4b80d60a17ce56fa19278c6f3a7e1b43359fb8a8ea46d0264de7d653ab01000000000000000000000000000000000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000006e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a60000000000000001",
+        "observed": "commitBatch(version 1, 1 blob) from s0 on the deployed Rollup: ok; committed header bytes 185..216 = 0x0000000000000000000000000000000000000000000000000000000000000000, as the model's enc_sol writes them (enc_go_v1 differs there on the witness); keccak256(header) == committedBatches(1)",
+        "obstruction_observed": true,
+        "provenance": "public_schedule",
+        "status": "passed",
+        "trace": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
       }
     },
     "L_par_hdr_v2": {
       "go": {
         "command": "(cd common && HOLON_RESULTS=\u2026 go test ./batch -run TestHolonReplay -v -count=1)  # exit 0",
         "observed": "witness version=2; BatchHeaderV1.Bytes()[0]=1; len=257",
+        "obstruction_observed": true,
+        "provenance": "library_api",
         "status": "passed"
       },
       "solidity": {
-        "command": "",
-        "observed": "model-only pending replay: needs a full commitBatch deployment (byte 0 = 2 is written on the commit path); scheduled in docs/BUILD_PLAN.md I4",
-        "status": "not_applicable"
+        "batch_index": 1,
+        "checked_cells": "0",
+        "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
+        "committed_hash": "0x9c551bd6f98234ae2bf50e411fccd9d21573fb1f31ac361aec59efd72ca92191",
+        "header": "0x02000000000000000100000000000000000000000000000000e979da4b80d60a17ce56fa19278c6f3a7e1b43359fb8a8ea46d0264de7d653abdb6c86c99192f3e4b015de59bf2f50daeb2f83b1502f560a0e1df38b9fa4d9a80000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000006e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a60000000000000001",
+        "observed": "commitBatch(version 2, 1 blob) from s0 on the deployed Rollup: ok; committed header bytes 0 = 0x02, as the model's enc_sol writes them (enc_go_v1 differs there on the witness); keccak256(header) == committedBatches(1)",
+        "obstruction_observed": true,
+        "provenance": "public_schedule",
+        "status": "passed",
+        "trace": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 2,
+            "who": 2
+          }
+        ]
       }
     }
   },
   "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "go_version": "go version go1.24.7 linux/amd64",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  },
   "witness_sha256": {
     "L_dom_hdr": "eac432ee14c10e1aaeb5d3bf581e25b2e97b9ab9957ab2b35fc76ff01ac8864c",
     "L_par_hdr_ssvh": "ed2f86aa91e6a10dc8a8b61dbc18c974ba9cd427a98ee435d3ac5747a0ba0668",

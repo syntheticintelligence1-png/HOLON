@@ -80,6 +80,7 @@ class TestGateCatchesTampering(unittest.TestCase):
         def edit(repo):
             f = repo / "replay" / "M0" / "report.json"
             d = load_json(f)
+            d["laws"]["L_par_hdr_v2"]["solidity"]["status"] = "not_applicable"
             d["laws"]["L_par_hdr_v2"]["solidity"]["observed"] = "needs a full commitBatch deployment: M1"
             write_json(f, d)
         rep = self.tampered("M0", "G6", edit)

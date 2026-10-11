@@ -64,12 +64,13 @@
         "bound": {"type": ["string", "null"]}
       }
     },
-    "witness_provenance": {"enum": ["pending:I4", null]},
-    "filter_bin": {"enum": ["pending:I4", null]}
+    "witness_provenance": {"type": ["object", "null"],
+                           "additionalProperties": {"enum": ["public_schedule", "internal_harness", "emulated_storage", "library_api"]}},
+    "filter_bin": {"enum": ["finding", "model_defect", "pending", null]}
   },
   "allOf": [
     {"if": {"properties": {"status": {"const": "REFUTED"}}},
-     "then": {"properties": {"witness_provenance": {"const": "pending:I4"}, "filter_bin": {"const": "pending:I4"}}}},
+     "then": {"properties": {"witness_provenance": {"type": "object"}, "filter_bin": {"enum": ["finding", "model_defect", "pending"]}}}},
     {"if": {"properties": {"status": {"enum": ["PROVED", "UNKNOWN"]}}},
      "then": {"properties": {"witness_provenance": {"type": "null"}, "filter_bin": {"type": "null"}}}},
     {"if": {"properties": {"status": {"const": "UNKNOWN"}}},

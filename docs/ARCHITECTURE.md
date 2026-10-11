@@ -24,7 +24,9 @@ holon gate:  GENV → G2 → G1 → G5 → G3 → G11 → G11V → G6 → G9 →
 | §10.4 proof generators per class | `holon/gen/proofs.py` | `open_refl` (proof by computation), `version_split` (case split on the version byte with a lemma), `counter` (refutation). |
 | §10.5 refutation engines | `holon/refute.py` | Deterministic boundary-value and fixed-seed search, evaluated on the compiled Bend model, never in Python. Every intermediate subterm must be defined. |
 | §8.6 three outcomes, result records | `holon/pipeline.py`, `holon/records.py`, `schemas/result_record.schema.json`, `spec/schemas/result_record_v2.schema.json` | Records carry the statement hash, facts hash, premises, scope, kernel and verdict, artifacts, attempts, triage and replay. Since I1, records also carry the v2 fields of §4b. |
-| §8.7 refinement evidence by replay | `holon/replay.py`, `replay/M0/` | Go and Solidity harnesses read the witnesses from the records. A replay counts for a record only if the witness hash matches. |
+| §8.7 refinement evidence by replay | `holon/replay.py`, `holon/mreplay.py`, `holon/consumers.py`, `replay/M0/`, `replay/M1/` | Go and Solidity harnesses read the witnesses from the records. A replay counts for a record only if the witness hash matches. Since I4 every side the witness claims is replayed: the M0 codec witnesses also on the commit path of a deployed Rollup, and `L_tag_BVH` / `L_fact_Z` also at a Go consumer fed the bytes the chain replay logged. Each side records `provenance` and `obstruction_observed`, set from the real code's output. The toolchain (forge, solc, Solidity deps) is pinned by sha256 in `config/holon.json` `replay`. |
+| §9.6, §10.9 provisional finding filter (I4) | `holon/filter.py` | REFUTED records carry `witness_provenance` (side → public_schedule, internal_harness, emulated_storage or library_api) and `filter_bin` (finding, model_defect, pending), recomputed by G6 from the replay report. `known_limitation` waits for I40. Bins are about reproducibility; v1 `triage` (intent) is untouched. |
+| §11 case-study coverage (I4) | `tools/casestudy.py`, `spec/ledger/maps_to.json` | `results/casestudy_coverage.json` and `docs/CASESTUDY.md`, computed from the whitepaper catalog, the law mappings, the records and the replay reports. |
 | §8.8 trusting the kernel | `holon/bend.py`, gate G4/G7 | Canaries (must be rejected for a *semantic* reason), a pinned version, and a Bun-config tamper guard. BendTT `--verdict` re-checks bend2's elaboration of the same file. It shares the front end, so dual-checked results are class `I1-shared`, not the independent `I2` of §8.8. A Lean re-proof is I9. |
 | §9.3 gate | `holon/gate.py` | GENV, G1, G2, G3, G4, G5, G6, G7, G9, G11, G11V. G6 binds REFUTED records to the committed replay report; the replays themselves run through `holon replay` and `tests/test_50_replay.py`. G8 (coverage) arrives with extraction (M2) and G10 with the intent lane (M5). G11 checks only law names; non-vacuity is G11V (I3, `holon/inhabit.py`): every PROVED law that has premises has a dual-checked inhabitant. The inhabitant is regenerated from the parent's IR and the recorded witness, and must be reachable and non-degenerate where states are involved. |
 | §8.8 checker pin (I3) | `holon/bend.py fingerprint()`, GENV, `holon/checker_upgrade.py` | Pinned in `config/holon.json`. The fingerprint hashes the resolved checkout's HEAD, every `.ts`, `.lean` and `.bend` file under `bend2/`, and bun. GENV refuses a mismatch, an unresolvable override, a global bunfig, a `BENDTT` override, or a quarantine. Bend runs without `BUN_OPTIONS` and with `BEND_NO_TELEMETRY=1`. An accepted canary writes `results/quarantine.json`, an agent-writable tripwire. G5 enforces a per-file time budget. `python -m holon checker-upgrade` reports every record diff under a candidate checker. |
@@ -39,7 +41,7 @@ holon gate:  GENV → G2 → G1 → G5 → G3 → G11 → G11V → G6 → G9 →
 | v2 and the domain law REFUTED with the predicted witnesses | `L_par_hdr_v2`: zero header, version 2, byte 0 is 2 vs 1. `L_dom_hdr`: 250 zero bytes, Solidity true / Go false. Also `L_par_hdr_ssvh` REFUTED, first difference at 185, triaged as an intent question. |
 | All canaries rejected | 16 canaries (pin_const, swap_fn, negated), all rejected with an expected/observed mismatch |
 | One law dual-kernel | **All 8** re-checked by BendTT `--verdict` (a Lean-proven kernel). BendTT shares bend2's front end, so this is the `I1-shared` class, not an independent second kernel. The frozen M0 spec allowed the substitution; the Lean re-proof is I9 (`docs/BUILD_PLAN.md`). |
-| Witnesses replay on the real code | Go: all 3 REFUTED witnesses replay at morph `3e44e79`. Solidity: `L_dom_hdr` replays through the real `Rollup._loadBatchHeader`. The commit-path replays (v2 byte 0, ssvh) need deployment wiring and belong to M1. |
+| Witnesses replay on the real code | Go: all 3 REFUTED witnesses replay at morph `3e44e79`. Solidity: `L_dom_hdr` replays through the real `Rollup._loadBatchHeader` (an internal harness). Since I4 the commit-path replays run on a deployed Rollup: version 2 commits byte 0 = 0x02, and version 1 writes the ssvh cells as zero, with keccak(header) == committedBatches. |
 | Mutation adequacy (A1 in miniature) | All 4 planted bugs move outcomes as predicted. MUT3 reaches **PROVED** (case-split proof), not just UNKNOWN. |
 | Predictions vs. outcomes | 8/8 preregistered outcomes matched on the first mechanized run |
 
@@ -50,9 +52,11 @@ tools/setup_env.sh                          # Bend 2.0.36 (pinned) + Lean 4.34.0
 python -m holon run --milestone M0          # about 10 s including --verdict
 python -m holon gate --milestone M0         # about 35 s
 python -m unittest discover -s tests -t .   # about 4 min
-tools/setup_env.sh --replay && PATH=~/.holon/foundry:$PATH \
-  python -m holon replay --morph ~/.holon/morph --solc ~/.holon/solc-0.8.24
-HOLON_REPLAY=1 python -m unittest tests.test_50_replay
+tools/setup_env.sh --replay                 # forge, solc, a morph checkout
+python -m holon replay --milestone M0       # paths and sha256 pins from config/holon.json replay
+python -m holon replay --milestone M1       # (--write-pins records new pins, for human review)
+HOLON_REPLAY=1 python -m unittest tests.test_50_replay tests_m1.test_m1_replay
+python tools/casestudy.py                   # results/casestudy_coverage.json, docs/CASESTUDY.md
 ```
 
 ## 3. Design decisions worth knowing
@@ -108,7 +112,7 @@ Every result record now carries one field per §8.6 item, next to the frozen v1 
 
 The gate now also runs:
 - **G1** over records;
-- **G6**: every REFUTED record is bound to a passed replay of the same witness for the facts' target commit, and a side not replayed is labelled `model-only pending replay`;
+- **G6**: every REFUTED record is bound to a passed replay of the same witness for the facts' target commit, and a side not replayed is labelled `model-only pending replay`. Strict since I4: exactly the claimed sides, well-formed, with the record's provenance and bin recomputed from the report and the toolchain hashes equal to the pins;
 - **G9**: every record validates against the v1 and v2 schemas.
 
 `python -m holon audit prereg --milestone M2` checks the preregistration order (`docs/BUILD_PLAN.md` §0.1).
