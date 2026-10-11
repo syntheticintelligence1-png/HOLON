@@ -1,0 +1,34 @@
+{
+  "agreement": "held",
+  "attempts": [],
+  "difference": null,
+  "engines": {
+    "grammar_fuzz": {
+      "bound": "Header grammar: 29 fills + 96 random + mutation tier (2 cells), versions at [0, 1, 2, 3, 255], seed 20261011",
+      "hit": false,
+      "notes": [],
+      "seed": 20261011,
+      "tried": 250,
+      "undefined": 0
+    },
+    "qf_ufbv": {
+      "answer": "unsat",
+      "len_bound": 259,
+      "note": "UNSAT is evidence, not a proof",
+      "seconds": 0.004,
+      "solver": {
+        "logic": "QF_UFBV",
+        "name": "z3",
+        "version": "4.15.4"
+      }
+    }
+  },
+  "expected_status": "PROVED",
+  "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
+  "law_id": "L_par_hdr_v2_composed",
+  "milestone": "M1",
+  "statement": "\u2200 h: Header. h.version == 0x02 \u2227 h.sequencerSetVerifyHash == 0x00*32 \u21d2 enc_sol(h) == enc_go_v2_producer(h)",
+  "statement_hash": "sha256:52d65cb8cb44db88f9e41e10db254224dfdf2700ef8f844bbefa04a9fa051e63",
+  "status": "UNSAT_EVIDENCE",
+  "witness": null
+}
