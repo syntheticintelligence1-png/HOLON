@@ -429,6 +429,66 @@
         "tests_m2/test_bindings.py"
       ],
       "thresholds": {}
+    },
+    "I3": {
+      "title": "Non-vacuity (G11V), D2 zero-blob check, checker pin and upgrade procedure",
+      "plan": "docs/BUILD_PLAN.md#i3",
+      "prompt": "prompts/I3_nonvacuity_pins.md",
+      "predictions": [
+        {
+          "id": "I3-P1",
+          "claim": "L_undo_CSR and L_undo_BD get non-degenerate inhabitants (the two state binders differ), found by the compiled model's search with the claim replaced by s1 == s2.",
+          "check": "tests_m2/test_nonvacuity.py::TestNonVacuity::test_undo_inhabitants_are_non_degenerate"
+        },
+        {
+          "id": "I3-P2",
+          "claim": "L_disch_stale and L_disch_stale_commit get reachable inhabitants: the state binder is run(p, s0) for a trace p that opens a challenge and lets it go stale (kappa true), with a permitted / proof-backed action.",
+          "check": "tests_m2/test_nonvacuity.py::TestNonVacuity::test_disch_inhabitants_are_reachable"
+        },
+        {
+          "id": "I3-P3",
+          "claim": "Each of the 5 premised PROVED M0 laws is inhabited by the header that carries its pin bytes and zeros in every other field; the 2 premised REFUTED M0 laws and the 4 premised REFUTED M1 laws are counted through their accepted counter-law witnesses (status counter_witness).",
+          "check": "tests_m2/test_nonvacuity.py::TestNonVacuity::test_m0_inhabitants_are_pin_headers"
+        },
+        {
+          "id": "I3-P4",
+          "claim": "A law with contradictory premises (is_commitBatch(a) and is_wait(a)) gets non_vacuity status unknown with its search bound, so G11V would fail for it.",
+          "check": "tests_m2/test_nonvacuity.py::TestNonVacuity::test_contradictory_premises_are_unknown"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I3-R1",
+          "claim": "D2: 0x01 || sha256(0xc0 || 0^47)[1:] equals ZERO_VERSIONED_HASH (Rollup.sol:25) and EmptyVersionedHash (common/blob/payload.go:22). Already recomputed by hand in I1 (docs/M1_REPORT.md §5), so not a prediction.",
+          "check": "tests_m2/test_zero_blob.py"
+        },
+        {
+          "id": "I3-R2",
+          "claim": "Every proof file checks well within a 120 s budget (record timings are all under a few seconds); a checker-upgrade dry run to the current fingerprint shows zero record diffs (G1 determinism).",
+          "check": "tests_m2/test_pins.py"
+        },
+        {
+          "id": "I3-R3",
+          "claim": "All 24 statuses, statement hashes and generated .bend files outside nonvac/ unchanged; gates M0 and M1 pass, now with G11V.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "results/M0/",
+        "results/M1/",
+        "results/M2/",
+        "gen/M0/",
+        "gen/M1/",
+        "spec/bindings/"
+      ],
+      "tests": [
+        "tests_m2/test_nonvacuity.py",
+        "tests_m2/test_zero_blob.py",
+        "tests_m2/test_pins.py"
+      ],
+      "thresholds": {
+        "budget_s_per_file": 120
+      }
     }
   }
 }
