@@ -1,0 +1,8 @@
+{
+  "M0": {
+    "L_par_hdr_ssvh": {
+      "triage": "intent_question",
+      "why": "Solidity always writes sequencerSetVerifyHash = bytes32(0); Go copies the struct field. Whether Go producers ever set a nonzero value is an intent question, not a codec defect: batch_cache.go:1447-1462 (sealBatch) rejects nonzero sequencerSetVerifyHash for live batches; nonzero is allowed only for legacy replay at index <= legacyCutoverBatchIndex."
+    }
+  }
+}
