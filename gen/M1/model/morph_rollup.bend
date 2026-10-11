@@ -264,11 +264,20 @@ type HAct is Data:
   A_sendMessage{who: Nat}
   A_wait{dt: Nat}
 
-def empty_entry() -> HEntry:
+def empty_Entry() -> HEntry:
   HEntry{0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n}
 
-def empty_ch() -> HCh:
+def empty_BD() -> HBD:
+  HBD{0n, 0n, 0n, 0n}
+
+def empty_Ch() -> HCh:
   HCh{0n, 0n, 0n, False{}, False{}}
+
+def empty_entry() -> HEntry:
+  empty_Entry()
+
+def empty_ch() -> HCh:
+  empty_Ch()
 
 def b_es_csr(es: List<&2, HEntry>) -> List<&2, Nat>:
   match es:

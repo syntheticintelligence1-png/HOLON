@@ -274,6 +274,26 @@ def compare(facts: dict, model: list, real: dict, tid: int, trace: list[dict]) -
     return agree, dis
 
 
+def replay_own_go(morph: Path, work: Path, results: Path) -> tuple[dict, str]:
+    """OWN laws over Go facts: run the witness on the real common/batch.BatchData."""
+    ws = work / "go"
+    shutil.rmtree(ws, ignore_errors=True)
+    ws.mkdir(parents=True)
+    for d in ("bindings", "common"):
+        shutil.copytree(morph / d, ws / d, symlinks=True)
+    (ws / "go.work").write_text("go 1.24.0\n\nuse (\n\t./bindings\n\t./common\n)\n")
+    shutil.copy(ROOT / "replay" / "M1" / "go" / "holon_own_test.go", ws / "common" / "batch")
+    shutil.copytree(results, ws / "holon_results")
+    gv = subprocess.run(["go", "version"], capture_output=True, text=True).stdout.strip()
+    cmd = ["go", "test", "./batch", "-run", "TestHolonOwn", "-v", "-count=1"]
+    code, out = _run(cmd, ws / "common", {"HOLON_RESULTS": str(ws / "holon_results"), "HOLON_GOVERSION": gv})
+    lines = _holon_lines(out)
+    m = re.search(r"HOLON realistic (\w+) (.*)", out)
+    if m:
+        lines["realistic"] = ("passed" if m.group(1) == "true" else "failed", m.group(2))
+    return lines, f"(cd common && {' '.join(cmd)})  # exit {code}; {gv}"
+
+
 def main_replay_m1(args) -> int:
     morph = Path(args.morph).resolve()
     milestone = args.milestone
@@ -281,6 +301,7 @@ def main_replay_m1(args) -> int:
     facts_path = ROOT / reg["facts"]
     facts = F.load(facts_path)
     sha = check_checkout(morph, facts["target"]["commit"][:7])
+    shutil.rmtree(Path(args.work or ROOT / "build" / "replay_m1").resolve() / "go", ignore_errors=True)
     results = ROOT / "results" / milestone
     cm = CompiledMachine.build(facts_path)
     work = Path(args.work or ROOT / "build" / "replay_m1").resolve()
@@ -288,9 +309,13 @@ def main_replay_m1(args) -> int:
     records = {p.stem: json.loads(p.read_text()) for p in results.glob("L_*.json")}
     # witness corpus
     plan = []
+    go_laws = []
     for lid in sorted(records):
         r = records[lid]
         if r["status"] != "REFUTED":
+            continue
+        if laws[lid]["facts"] != reg["facts"]:
+            go_laws.append(lid)  # Go-side machine (OWN): replayed through go test below
             continue
         runs = linearise(laws[lid], r["witness"])
         fill_eta2_root(cm, runs)
@@ -343,6 +368,14 @@ def main_replay_m1(args) -> int:
         entry["obstruction_reproduced"] = reproduced
         entry["observed"] = why
         report["laws"][lid] = entry
+        report["witness_sha256"][lid] = witness_sha256(records[lid]["witness"])
+    for lid in go_laws:
+        lines, gcmd = replay_own_go(morph, work, results)
+        st, obs = lines.get(lid, ("failed", "no result from go test"))
+        realistic = lines.get("realistic")
+        report["laws"][lid] = {"status": st, "obstruction_reproduced": st == "passed", "command": gcmd,
+                               "observed": obs + (f"; realistic 60-byte contexts: {realistic[0]} ({realistic[1]})" if realistic else ""),
+                               "traces": []}
         report["witness_sha256"][lid] = witness_sha256(records[lid]["witness"])
     # refinement corpus
     per_op: dict = {}

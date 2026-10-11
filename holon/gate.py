@@ -99,6 +99,20 @@ class Gate:
         return self.bend_version == pin
 
     def g2(self) -> None:
+        if self.irv == "holon-ir/0.2":
+            from .mpipeline import check_registry_multi
+            try:
+                import holon.mpipeline as _mp
+                old = _mp.ROOT
+                _mp.ROOT = self.root
+                try:
+                    check_registry_multi(ir.load_laws_any(self.m, self.root), ir.load_registry(self.m, self.root))
+                finally:
+                    _mp.ROOT = old
+                self.checks["G2"] = _res(True, "all statement and facts hashes match the registry")
+            except Exception as e:  # noqa: BLE001
+                self.checks["G2"] = _res(False, str(e))
+            return
         try:
             laws = ir.load_laws_any(self.m, self.root)
             reg = ir.load_registry(self.m, self.root)

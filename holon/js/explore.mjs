@@ -12,7 +12,7 @@ const req = JSON.parse(readFileSync(0, "utf8"));
 const M = (await import(pathToFileURL(req.module).href)).default;
 const facts = req.facts;
 const law = req.law;
-const B = Object.assign({ prefixDepth: 3, suffixDepth: 4, natMax: 5, maxNodes: 400000, maxPrefixes: 3000 }, req.budget || {});
+const B = Object.assign({ prefixDepth: 3, suffixDepth: 4, natMax: 5, maxNodes: 400000, maxPrefixes: 3000 }, req.facts.search || {}, req.budget || {});
 const ACTIONS = Object.fromEntries(facts.actions.map((a) => [a.name, a]));
 const notes = [];
 let tried = 0;

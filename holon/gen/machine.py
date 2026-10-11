@@ -145,6 +145,78 @@ def is_true(b: Bool) -> Type:
 '''
 
 
+GO_LIB = """\
+# ---- Go runtime oracle (Go 1.24 runtime/slice.go nextslicecap; roundupsize = smallest size class >= n)
+# `ite` is strict, so the loop stops through a matched flag: done = (newcap >= newlen) after a step
+def b_go_loop(fuel: Nat, done: Bool, +newcap: Nat, +newlen: Nat) -> Nat:
+  match fuel:
+    case 0n:
+      newcap
+    case 1n+p:
+      match done:
+        case True{}:
+          newcap
+        case False{}:
+          +nc = Nat.add(newcap, Nat.div(Nat.add(newcap, 768n), 4n))
+          b_go_loop(p, Nat.is_ge(nc, newlen), nc, newlen)
+
+def b_go_nextcap(+newlen: Nat, +oldcap: Nat) -> Nat:
+  ite(Nat, Nat.is_gt(newlen, Nat.add(oldcap, oldcap)), newlen, ite(Nat, Nat.is_lt(oldcap, 256n), Nat.add(oldcap, oldcap), b_go_loop(newlen, False{}, oldcap, newlen)))
+
+def b_first_ge(cls: List<&2, Nat>, +n: Nat) -> Nat:
+  match cls:
+    case Nil{}:
+      n
+    case Con{+h, t}:
+      ite(Nat, Nat.is_ge(h, n), h, b_first_ge(t, n))
+
+def b_overlay(mem: List<&2, Nat>, bs: List<&2, Nat>) -> List<&2, Nat>:
+  match mem bs:
+    case Nil{} _:
+      Nil{}
+    case Con{h, t} Nil{}:
+      Con{h, t}
+    case Con{h, t} Con{b, r}:
+      Con{b, b_overlay(t, r)}
+
+def b_put(mem: List<&2, Nat>, off: Nat, bs: List<&2, Nat>) -> List<&2, Nat>:
+  match mem off:
+    case Nil{} _:
+      Nil{}
+    case Con{h, t} 0n:
+      b_overlay(Con{h, t}, bs)
+    case Con{h, t} 1n+p:
+      Con{h, b_put(t, p, bs)}
+
+def b_zeros(n: Nat) -> List<&2, Nat>:
+  match n:
+    case 0n:
+      Nil{}
+    case 1n+p:
+      Con{0n, b_zeros(p)}
+
+def b_go_read(heap: List<&2, HArr>, s: HSl) -> List<&2, Nat>:
+  match s:
+    case HSl{b, off, len, cap}:
+      List.take(&2, Nat, List.drop(&2, Nat, g_Arr_cells(nth_d(HArr, heap, b, empty_Arr())), off), len)
+
+# append(s, xs...): in place when it fits the capacity, else a new backing array of the grown capacity
+def b_go_append_slice(+heap: List<&2, HArr>, s: HSl, +xs: List<&2, Nat>, +cls: List<&2, Nat>) -> HSl:
+  match s:
+    case HSl{+b, +off, +len, +cap}:
+      +n = Nat.add(len, List.length(&2, Nat, xs))
+      ite(HSl, Nat.is_le(n, cap), HSl{b, off, n, cap}, HSl{List.length(&2, HArr, heap), 0n, n, b_first_ge(cls, b_go_nextcap(n, cap))})
+
+def b_go_append_heap(+heap: List<&2, HArr>, +s: HSl, +xs: List<&2, Nat>, +cls: List<&2, Nat>) -> List<&2, HArr>:
+  match s:
+    case HSl{+b, +off, +len, +cap}:
+      +n = Nat.add(len, List.length(&2, Nat, xs))
+      +nc = b_first_ge(cls, b_go_nextcap(n, cap))
+      +grown = List.append(&2, Nat, b_go_read(heap, HSl{b, off, len, cap}), xs)
+      ite(List<&2, HArr>, Nat.is_le(n, cap), set_d(HArr, heap, b, HArr{b_put(g_Arr_cells(nth_d(HArr, heap, b, empty_Arr())), Nat.add(off, len), xs)}, empty_Arr()), List.append(&2, HArr, heap, [HArr{List.append(&2, Nat, grown, b_zeros(Nat.sub(nc, n)))}]))
+"""
+
+
 class FactsError(Exception):
     pass
 
@@ -192,8 +264,8 @@ class Machine:
         self.reads: dict[str, list[str]] = {}
         # decide chains, for proof generators: action -> {"top": [...], "helpers": [...]}
         self.chains: dict[str, dict] = {}
-        if "Entry" not in self.types or "log" not in self.stypes:
-            raise FactsError("a machine needs an Entry record and a log field")
+        if "log" not in self.stypes:
+            raise FactsError("a machine needs a log field")
 
     # ------------------------------------------------------------ builtins
     def builtin(self, name: str, args: list) -> tuple[str, str]:
@@ -239,6 +311,18 @@ class Machine:
         if name == "agg":
             need(1)
             return f"Nat.add({self.params.get('AGG_BASE', 1000)}n, b_enc({txt[0]}))", "Nat"
+        if name in ("go_read",):
+            need(2)
+            return f"b_go_read({txt[0]}, {txt[1]})", "List<Nat>"
+        if name == "go_append_slice":
+            need(4)
+            return f"b_go_append_slice({', '.join(txt)})", "Sl"
+        if name == "go_append_heap":
+            need(4)
+            return f"b_go_append_heap({', '.join(txt)})", "List<Arr>"
+        if name == "eq_nats":
+            need(2)
+            return f"eq_list_nat({txt[0]}, {txt[1]})", "Bool"
         fixed = {"nth": "Nat", "set_nat": "List<Nat>", "mem": "Bool", "remove": "List<Nat>", "blob_count": "Nat",
                  "zeros_like": "List<Nat>", "bump_f": "List<Entry>", "any_open": "Bool", "clear_chs": "List<Ch>",
                  "zero_csr": "List<Entry>", "set_last_csr": "List<Entry>", "tags_exact": "Bool",
@@ -394,12 +478,19 @@ class Machine:
         return out
 
     def gen_record_lib(self) -> list[str]:
-        """Record-specific builtins (empty values, projections over the window)."""
+        """Record-specific builtins (empty values, projections over the window, Go heap)."""
+        zero = lambda t: "False{}" if t == "Bool" else ("Nil{}" if t.startswith("List<") else "0n")
+        out = []
+        for ty, fields in self.types.items():
+            out += [f"def empty_{ty}() -> H{ty}:", f"  H{ty}{{" + ", ".join(zero(t) for _, t in fields) + "}", ""]
+        if "Sl" in self.types and "Arr" in self.types:
+            out += GO_LIB.splitlines() + [""]
+        if "Entry" not in self.types:
+            return out
         E = self.types["Entry"]
-        zero = lambda t: "False{}" if t == "Bool" else "0n"
-        out = ["def empty_entry() -> HEntry:", "  HEntry{" + ", ".join(zero(t) for _, t in E) + "}", ""]
+        out += ["def empty_entry() -> HEntry:", "  empty_Entry()", ""]
         if "Ch" in self.types:
-            out += ["def empty_ch() -> HCh:", "  HCh{" + ", ".join(zero(t) for _, t in self.types["Ch"]) + "}", ""]
+            out += ["def empty_ch() -> HCh:", "  empty_Ch()", ""]
         epat = ", ".join(f for f, _ in E)
         for sf, field in self.shadow.items():
             et = elem(self.stypes[sf])

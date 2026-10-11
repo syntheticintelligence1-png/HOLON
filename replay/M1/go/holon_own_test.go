@@ -70,6 +70,20 @@ func TestHolonOwnReplay(t *testing.T) {
 	}
 }
 
+// The realistic configuration: 60-byte block contexts, 1-byte payloads (blocks with few txs).
+func TestHolonOwnRealistic(t *testing.T) {
+	d := NewBatchData()
+	ctx := func(k byte) []byte { return bytes.Repeat([]byte{k}, 60) }
+	for k := byte(1); k <= 3; k++ {
+		d.Append(ctx(k), []byte{k}, nil)
+	}
+	view := d.TxsPayloadV2()
+	snap := append([]byte(nil), view...)
+	d.Append(ctx(4), []byte{4}, nil)
+	changed := !bytes.Equal(view, snap)
+	fmt.Printf("HOLON realistic %v len=%d cap(blockContexts)=%d first-diff=%d\n", changed, len(view), cap(d.blockContexts), firstDiff(view, snap))
+}
+
 func firstDiff(a, b []byte) int {
 	for i := range a {
 		if i >= len(b) || a[i] != b[i] {

@@ -1,6 +1,7 @@
 // Search policy for the Morph rollup machine: candidate actions from a decoded state.
 // Untrusted heuristics (like a fuzzing dictionary): they only steer the search.
 export function policyOf(s, facts) {
+  if (facts.policy === "batchdata") return batchdataPolicy(s);
 
   const lci = s.lfi + s.win.length - 1;
   const last = s.win[s.win.length - 1] || {};
@@ -34,3 +35,16 @@ export function policyOf(s, facts) {
   return out;
 }
 
+
+// Go BatchData (OWN): Append 60-byte block contexts with small/empty/medium/large payloads; TxsPayloadV2.
+function batchdataPolicy(s) {
+  const k = (s.log.length % 200) + 1;
+  // small 8-byte contexts first (they reach the same growth regimes with smaller kernel terms), then real 60-byte ones
+  const out = [];
+  for (const n of [8, 60]) {
+    const ctx = Array(n).fill(k);
+    for (const payload of [[k], [], Array(8).fill(k), Array(80).fill(k)]) out.push({ op: "append", bctx: ctx, payload });
+  }
+  out.push({ op: "txsPayloadV2" });
+  return out;
+}

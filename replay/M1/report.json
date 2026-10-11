@@ -149,6 +149,13 @@
         }
       ]
     },
+    "L_own_txspayload": {
+      "command": "(cd common && go test ./batch -run TestHolonOwn -v -count=1)  # exit 0; go version go1.24.7 linux/amd64",
+      "observed": "view held across Append: len=70 cap(blockContexts)=80 changed=true first-diff=68 (Go go version go1.24.7 linux/amd64); realistic 60-byte contexts: passed (len=183 cap(blockContexts)=256 first-diff=180)",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": []
+    },
     "L_sort_remaining": {
       "observed": "last step on the real code: ('rev', 'panic:0x11')",
       "obstruction_reproduced": true,
@@ -653,6 +660,7 @@
   "witness_sha256": {
     "L_fact_Z": "bb676259f3c0b78c8867027595552193b2a5c262dacf6dfe9e39116e63633072",
     "L_nat_eta2": "1eb685ab9ceb749cb27b3e6e38f8b5c5b6a384646ed7c99b1adf7f236953b08d",
+    "L_own_txspayload": "96c09a55bdafa067fc0a07555007d3506c3b1788c7a2baa521a4288e82a00a66",
     "L_sort_remaining": "865e720cc26246ed9b385b422a22065dd247a19980eade6643b5529a3bbcc23a",
     "L_sym_omega": "f9e7391243d243af9f844c6d3c99c32aefd68d21071566d00ed0ad38442db4e8",
     "L_tag_BVH": "ccd20d33b5ea817e77e04d1a3b7706d222bcf22be6b7de4c9d8100daf39e6199",

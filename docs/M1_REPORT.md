@@ -8,13 +8,13 @@
 **Exit criterion:** every M1 row of §11.8 matches or is explained, and every REFUTED witness replays as a Foundry test on the pinned contract.
 
 **Status: met.**
-- **Predictions:** all 13 preregistered M1 laws matched their predicted outcome on the mechanized run. Two further laws were added post hoc and are marked as such.
+- **Predictions:** all 14 preregistered M1 laws (§11.8, including the OWN row) matched their predicted outcome on the mechanized run. Two further laws were added post hoc and are marked as such.
 - **Kernels:** every certificate and counter-law is accepted by Bend and re-checked by BendTT `--verdict`.
-- **Replay:** every REFUTED witness replays on the real `Rollup` and `L1MessageQueueWithGasPriceOracle` at morph `3e44e79`, step for step.
+- **Replay:** every REFUTED witness replays on the real code at morph `3e44e79`: the `Rollup` and `L1MessageQueueWithGasPriceOracle` witnesses step for step through Foundry, and the OWN witness on the real Go `BatchData` (Go 1.24.7).
 - **Refinement evidence:** a seeded random corpus of 300 traces (2,432 steps, all 10 actions) agrees with the real contracts on every step.
 
 ```
-python -m holon run    --milestone M1      # ~30 s: 8 PROVED, 7 REFUTED, all dual-kernel
+python -m holon run    --milestone M1      # ~40 s: 8 PROVED, 8 REFUTED, all dual-kernel
 python -m holon gate   --milestone M1      # ~60 s: GENV G1 G2 G3 G4(21 canaries) G5 G7 G11
 python -m holon replay --milestone M1 --morph <checkout> --solc <solc-0.8.24>   # ~2 min, needs forge
 python -m unittest discover -s tests_m1 -t .        # HOLON_REPLAY=1 to include the replay check
@@ -37,6 +37,7 @@ python -m unittest discover -s tests_m1 -t .        # HOLON_REPLAY=1 to include 
 | L_disch_stale_commit | DISCH | blocked | **PROVED**, unbounded | `chain_revert`: while kappa holds, commitBatchWithProof reverts for every input (kappa falsifies the require at :363) |
 | L_fact_Z | FACT | REFUTED | **REFUTED**, replayed | two commits from genesis, identical except blobs = [] vs [ZERO_VERSIONED_HASH], produce the **same** committedBatches hash on the real contract (O22) |
 | L_sym_omega | SYM-ω | REFUTED | **REFUTED**, replayed | [commitBatchWithProof(2), challenge(1)] vs the reverse order. After proving batch 1, batch 2 can be challenged in one order (f₂ reopened to t+W) and not in the other (O19/F5) |
+| L_own_txspayload | OWN | REFUTED, conditional | **REFUTED**, replayed on Go | Go `BatchData` (heap model, Go 1.24 growth oracle): append(8 B ctx), append(60 B ctx), `TxsPayloadV2`, append(8 B ctx). The held view's bytes 68.. are overwritten. Real Go: cap 80, first diff 68, exactly as modelled. The realistic case (three 60-byte contexts, 1-byte payloads) corrupts too: cap 256, first diff 180 (O36) |
 | L_disch_delay_prove | DISCH | *post hoc* | **PROVED** | third profile point (c_proof, 0), found by the strategy search (§2) |
 | L_nat_eta2 | NAT | *post hoc* (O15/N1) | **REFUTED**, replayed | legacy state with LFI < LCI; initialize2 writes CSR only at LCI; revert(1); recommit → "incorrect previous state root". Natively it succeeds. Replayed by emulating the pre-v2 storage (CSR slots zeroed) and calling the real `initialize2` |
 
@@ -52,10 +53,16 @@ python -m unittest discover -s tests_m1 -t .        # HOLON_REPLAY=1 to include 
 3. **The cancellation residue is visible to challengers, not only to finalization (L_undo_cancel).** The shortest witness observes the stale +W through `challengeState`: a cancelled challenge keeps other batches challengeable longer.
 4. **N1 reproduces with the minimal configuration.** LFI = 0, LCI = 1, revert into (0, 1]. The genesis index's committedStateRoots is zero in a legacy state, so even the first recommit fails.
 5. **Ghost-tag direction.** Either version swap breaks exactness. The witness the search reaches first is v1→v2.
+6. **A bend2 / BendTT disagreement (kernel finding).**
+   - **What happened.** The first OWN counter-law, with 60-byte contexts and a 32 KiB size-class table in the state, was accepted by bend2 in 0.3 s, but `--verdict` reported "a mismatch between the TypeScript implementation and the formalized BendTT kernel".
+   - **Bisected.** Every component and smaller instances of the same claim pass both kernels.
+   - **Workaround.** Trimming the oracle table to ≤ 512 B and letting the search prefer 8-byte contexts gives a witness both kernels accept. The real-code replay still runs the realistic 60-byte case.
+   - **Kept for upstream.** The failing case is preserved in `replay/M1/kernel_mismatch/` to report upstream (whitepaper §8.8: kernel bugs found along the way are reported).
+   - **Status.** The certificate's dual-kernel status is honest: the committed result is `verdict: checked`.
 
 ## 3. How the certificates work (no tactics, no axioms)
 
-**Model.** The rollup is a *guarded-command machine* in `spec/M1/facts/morph_rollup.json`, hand-written from the real repo with a source line per guard. `holon/gen/machine.py` compiles every action to:
+**Model.** The rollup is a *guarded-command machine* in `spec/M1/facts/morph_rollup.json`, hand-written from the real repo with a source line per guard. The Go side of OWN is a second machine, `spec/M1/facts/morph_batchdata.json`, with the same DSL: a heap of backing arrays, slices as (backing, offset, len, cap), and Go 1.24's growth policy as an oracle. Both compile through the same generator. `holon/gen/machine.py` compiles every action to:
 
 - `decide_a(reads.., inputs..) -> Dec_a`: the requires, in source order, reading **only** the state fields they mention;
 - `exec_a(d, fields.., inputs..)`: field-wise effects selected by the decision.
@@ -127,6 +134,5 @@ The outcomes move as predicted. Examples: (4) turns L_undo_CSR from PROVED to RE
 
 ## 7. Not in M1, and next
 
-- **L_own_txspayload (OWN, Go heap aliasing).** It is not part of the Rollup state-machine slice. A Go-heap machine and its replay are the next step (docs/ARCHITECTURE.md §4).
 - **Reachability invariants (D4) and NAT laws other than η₂.** These need induction over `Reach`. Today's PROVED laws avoid that by holding from *every* state. That is stronger than needed, and enough.
 - **M2.** Automated extraction (solc/Yul → facts DSL; go/ssa → facts), historical-input replay, and a preregistered mutation-adequacy threshold. The facts DSL is the target format extraction must produce.

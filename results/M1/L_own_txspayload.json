@@ -1,0 +1,169 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_own_txspayload",
+    "laws": "gen/M1/L_own_txspayload/LAWS.bend",
+    "model": "gen/M1/model/morph_batchdata.bend",
+    "proof": "gen/M1/L_own_txspayload/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 5 over policy actions (<= 4000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 5219
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.251
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 6.565
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.251
+  },
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "facts_sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_own_txspayload",
+  "maps_to": "O36 (F9 sub-item)",
+  "premises": [
+    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  ],
+  "replay": {
+    "detail": "view held across Append: len=70 cap(blockContexts)=80 changed=true first-diff=68 (Go go version go1.24.7 linux/amd64); realistic 60-byte contexts: passed (len=183 cap(blockContexts)=256 first-diff=180) @ morph 3e44e795586a",
+    "status": "passed"
+  },
+  "rule": "OWN",
+  "scope": "unbounded",
+  "statement_hash": "sha256:e1d9e70fbe020ae01ff4036476a4677efb2fac20bb0febc8a37049ec8fa562c6",
+  "status": "REFUTED",
+  "subform": "alias",
+  "triage": "finding",
+  "triage_why": "Conditional (whitepaper O36): corrupts a TxsPayloadV2 result only if a caller holds it across a later Append; the in-repo callers (batch_cache.go:1581, verify_local.go:186) consume it immediately.",
+  "witness": {
+    "p": [
+      {
+        "bctx": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "op": "append",
+        "payload": [
+          1
+        ]
+      },
+      {
+        "bctx": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "op": "append",
+        "payload": [
+          2
+        ]
+      },
+      {
+        "op": "txsPayloadV2"
+      },
+      {
+        "bctx": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "op": "append",
+        "payload": [
+          4
+        ]
+      }
+    ]
+  }
+}

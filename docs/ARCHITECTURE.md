@@ -61,7 +61,15 @@ HOLON_REPLAY=1 python -m unittest tests.test_50_replay
 4. **Records are deterministic functions of (facts, laws, replay report).** Only `seconds` fields vary. G1 compares the generated `.bend` files and `summary.json` byte for byte.
 5. **Canaries must fail for a semantic reason.** A canary that Bend rejects because of a parse error would count as rejected while proving nothing, so G4 requires the checker's `- expected :` mismatch.
 
-## 4. M1: the rollup state-machine slice (next)
+## 4. M1: the rollup state-machine slice (DONE, see docs/M1_REPORT.md)
+
+M1 was built along the plan below. Where it differs:
+- **Window/shadow representation.** It makes UNDO non-interference structural.
+- **Absolute-index arrays for challenges.** These make the DISCH proofs need only generic list and Nat lemmas.
+- **A second machine for the Go OWN law.**
+- **Proof generators:** `noninterference`, `deadline`, `chain_revert`, `nat_split`, `evaluate` and `counter`.
+
+The original plan follows for the record.
 
 Scope (whitepaper §15.2): registers CB, CSR, BVH, BD, CH, LCI, LFI, P, T, L, enq, inChallenge, s, W, D; actions commit (three kinds), revert, challenge, prove, finalize, pause; rules UNDO, DISCH, SORT, NAT, SYM-ω. Predictions to hit are the M1 rows of whitepaper §11.8.
 

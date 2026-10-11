@@ -1,0 +1,331 @@
+{
+ "facts_version": "holon-facts/0.2",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "scope": "common/batch.BatchData: Append and TxsPayloadV2 over Go slices (OWN rule)"
+ },
+ "extraction": {
+  "method": "hand-written from the real repo at the pinned commit (M1)",
+  "date": "2026-10-11"
+ },
+ "abstractions": [
+  "Go heap: a list of backing arrays (byte values as Nat). A slice is (backing, offset, len, cap); append writes in place when len + k <= cap, else allocates a new backing array.",
+  "Oracle (Go 1.24 runtime, runtime/slice.go nextslicecap + roundupsize for noscan byte slices): new capacity = smallest size class >= nextslicecap(newLen, oldCap). The class table (runtime/sizeclasses.go class_to_size) is in the state, truncated to classes <= 512 bytes: larger allocations are out of scope (the model then uses the exact requested capacity, which is wrong for real Go). The search policy keeps every slice below 512 bytes.",
+  "NewBatchData's make([]byte, 0) slices have capacity 0 and no backing array (backing index 0 is never written while cap = 0).",
+  "l1TxHashes, blockNum and l1TxNum are not modelled (no aliasing relevant to TxsPayloadV2)."
+ ],
+ "params": {},
+ "types": {
+  "Sl": {
+   "doc": "Go slice header",
+   "fields": [
+    [
+     "b",
+     "Nat"
+    ],
+    [
+     "off",
+     "Nat"
+    ],
+    [
+     "len",
+     "Nat"
+    ],
+    [
+     "cap",
+     "Nat"
+    ]
+   ]
+  },
+  "Arr": {
+   "doc": "a backing array",
+   "fields": [
+    [
+     "cells",
+     "List<Nat>"
+    ]
+   ]
+  }
+ },
+ "state": [
+  [
+   "heap",
+   "List<Arr>",
+   "Go heap (backing arrays)"
+  ],
+  [
+   "ctx",
+   "Sl",
+   "BatchData.blockContexts"
+  ],
+  [
+   "txp",
+   "Sl",
+   "BatchData.txsPayload"
+  ],
+  [
+   "view",
+   "Sl",
+   "the slice the last TxsPayloadV2 call returned"
+  ],
+  [
+   "snap",
+   "List<Nat>",
+   "GHOST: contents of the view when it was returned"
+  ],
+  [
+   "live",
+   "Bool",
+   "GHOST: a caller holds the view"
+  ],
+  [
+   "classes",
+   "List<Nat>",
+   "oracle: Go runtime size classes"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "observations"
+  ]
+ ],
+ "ghost_state": [
+  "snap",
+  "live"
+ ],
+ "initial": {
+  "doc": "NewBatchData() (batch_data.go:23-29)",
+  "heap": [
+   {
+    "cells": []
+   }
+  ],
+  "ctx": {
+   "b": 0,
+   "off": 0,
+   "len": 0,
+   "cap": 0
+  },
+  "txp": {
+   "b": 0,
+   "off": 0,
+   "len": 0,
+   "cap": 0
+  },
+  "view": {
+   "b": 0,
+   "off": 0,
+   "len": 0,
+   "cap": 0
+  },
+  "snap": [],
+  "live": false,
+  "classes": [
+   0,
+   8,
+   16,
+   24,
+   32,
+   48,
+   64,
+   80,
+   96,
+   112,
+   128,
+   144,
+   160,
+   176,
+   192,
+   208,
+   224,
+   240,
+   256,
+   288,
+   320,
+   352,
+   384,
+   416,
+   448,
+   480,
+   512
+  ],
+  "log": []
+ },
+ "principals": {},
+ "reasons": {},
+ "defs": {},
+ "actions": [
+  {
+   "name": "append",
+   "src": "common/batch/batch_data.go:31-43 BatchData.Append",
+   "principal": "anyone (caller of the batch builder)",
+   "inputs": [
+    [
+     "bctx",
+     "List<Nat>"
+    ],
+    [
+     "payload",
+     "List<Nat>"
+    ]
+   ],
+   "guards": [
+    {
+     "let": "h1",
+     "expr": [
+      "call",
+      "go_append_heap",
+      "heap",
+      "ctx",
+      "bctx",
+      "classes"
+     ],
+     "src": "common/batch/batch_data.go:35"
+    },
+    {
+     "let": "c1",
+     "expr": [
+      "call",
+      "go_append_slice",
+      "heap",
+      "ctx",
+      "bctx",
+      "classes"
+     ],
+     "src": "common/batch/batch_data.go:35"
+    },
+    {
+     "let": "h2",
+     "expr": [
+      "call",
+      "go_append_heap",
+      "h1",
+      "txp",
+      "payload",
+      "classes"
+     ],
+     "src": "common/batch/batch_data.go:36"
+    },
+    {
+     "let": "t1",
+     "expr": [
+      "call",
+      "go_append_slice",
+      "h1",
+      "txp",
+      "payload",
+      "classes"
+     ],
+     "src": "common/batch/batch_data.go:36"
+    }
+   ],
+   "effects": {
+    "heap": "h2",
+    "ctx": "c1",
+    "txp": "t1"
+   }
+  },
+  {
+   "name": "txsPayloadV2",
+   "src": "common/batch/batch_data.go:117-120 BatchData.TxsPayloadV2",
+   "principal": "anyone",
+   "inputs": [],
+   "guards": [
+    {
+     "let": "pb",
+     "expr": [
+      "call",
+      "go_read",
+      "heap",
+      "txp"
+     ]
+    },
+    {
+     "let": "h1",
+     "expr": [
+      "call",
+      "go_append_heap",
+      "heap",
+      "ctx",
+      "pb",
+      "classes"
+     ],
+     "src": "common/batch/batch_data.go:119 append(cks.blockContexts, cks.txsPayload...)"
+    },
+    {
+     "let": "v",
+     "expr": [
+      "call",
+      "go_append_slice",
+      "heap",
+      "ctx",
+      "pb",
+      "classes"
+     ]
+    }
+   ],
+   "effects": {
+    "heap": "h1",
+    "view": "v",
+    "snap": [
+     "call",
+     "go_read",
+     "h1",
+     "v"
+    ],
+    "live": true
+   }
+  }
+ ],
+ "observers": {
+  "view_intact": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "||",
+    [
+     "!",
+     "live"
+    ],
+    [
+     "call",
+     "eq_nats",
+     [
+      "call",
+      "go_read",
+      "heap",
+      "view"
+     ],
+     "snap"
+    ]
+   ],
+   "doc": "OWN-alias: while a caller holds the view, its contents are unchanged by writes not made through it"
+  }
+ },
+ "policy": "batchdata",
+ "search": {
+  "prefixDepth": 5,
+  "maxPrefixes": 4000
+ },
+ "coverage": {
+  "modelled": [
+   "NewBatchData",
+   "Append (blockContexts, txsPayload)",
+   "TxsPayloadV2"
+  ],
+  "debt": [
+   "Append l1TxHashes / counters",
+   "Encode",
+   "DataHash",
+   "DataHashV2",
+   "EstimateCompressedSizeWithNewPayload",
+   "combinePayloads"
+  ]
+ }
+}

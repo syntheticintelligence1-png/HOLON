@@ -13,6 +13,10 @@
     "L_tag_BVH": {
       "triage": "finding",
       "why": "Ghost-tag exactness fails: a recommit can change the version while reusing a blob field of the other sort (F6 / O26)."
+    },
+    "L_own_txspayload": {
+      "triage": "finding",
+      "why": "Conditional (whitepaper O36): corrupts a TxsPayloadV2 result only if a caller holds it across a later Append; the in-repo callers (batch_cache.go:1581, verify_local.go:186) consume it immediately."
     }
   }
 }

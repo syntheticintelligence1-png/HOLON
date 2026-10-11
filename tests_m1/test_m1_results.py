@@ -60,14 +60,17 @@ class TestM1Results(unittest.TestCase):
 
     def test_refuted_witnesses_hold_on_the_compiled_model(self):
         from holon.mpipeline import CompiledMachine
-        cm = CompiledMachine.build(ROOT / "spec" / "M1" / "facts" / "morph_rollup.json")
+        machines = {}
         for lid, pred in predictions().items():
             if pred["status"] != "REFUTED":
                 continue
             with self.subTest(law=lid):
                 r = self.rec(lid)
+                law = load_json(LAWS / f"{lid}.json")
+                if law["facts"] not in machines:
+                    machines[law["facts"]] = CompiledMachine.build(ROOT / law["facts"])
                 self.assertEqual(r["triage"], pred.get("triage", "finding"))
-                ev = cm.evaluate(load_json(LAWS / f"{lid}.json"), r["witness"])
+                ev = machines[law["facts"]].evaluate(law, r["witness"])
                 self.assertTrue(all(ev["premises"]), ev)
                 self.assertFalse(all(ev["claims"]), ev)
 

@@ -1,6 +1,10 @@
 # HOLON v2: violations as obstructions to commutation, in Bend 2
 
-**Status: M0 complete.** The factory loop has run end to end on the Morph batch-header codecs. See `docs/ARCHITECTURE.md` for the architecture, the M0 exit criteria and the M1 plan.
+**Status: M0 and M1 complete.**
+- **M0:** the factory loop on the Morph batch-header codecs.
+- **M1:** the Rollup state machine (UNDO, SORT, DISCH, FACT, SYM, NAT) plus the Go OWN aliasing law. 16 laws: 8 PROVED (unbounded, dual-kernel) and 8 REFUTED, every refutation replayed on the real code. Details are in `docs/M1_REPORT.md`; the architecture is in `docs/ARCHITECTURE.md`.
+
+M0 results:
 
 | Law | Outcome | Second kernel (BendTT) | Replay on real code (morph `3e44e79`) |
 |---|---|---|---|
@@ -15,6 +19,11 @@ tools/setup_env.sh                       # Bend 2.0.36 (pinned) + Lean 4.34.0 fo
 python -m holon run  --milestone M0      # facts -> model -> laws -> proofs / counter-laws -> records
 python -m holon gate --milestone M0      # GENV, G1-G5, G7 (dual kernel), G11, 16 canaries
 python -m unittest discover -s tests -t .
+
+python -m holon run  --milestone M1      # 16 state-machine laws (spec/M1, laws/M1)
+python -m holon gate --milestone M1      # incl. 21 canaries
+python -m holon replay --milestone M1 --morph <morph checkout> --solc <solc 0.8.24>   # Foundry + go test
+python -m unittest discover -s tests_m1 -t .    # HOLON_REPLAY=1 to include replay
 ```
 
 The rest of this README is the original starter-kit guide that framed M0. It is kept for the session-by-session workflow.

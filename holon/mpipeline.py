@@ -185,15 +185,17 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
     cfg = bend.config(ROOT)
     laws = ir.load_laws_any(milestone, ROOT)
     reg = ir.load_registry(milestone, ROOT)
-    facts_path = Path(facts_path or ROOT / reg["facts"])
+    primary = reg["facts"]
+    override = Path(facts_path) if facts_path else None
     out_dir = Path(out or ROOT / "results" / milestone)
     gen = Path(gen_dir or ROOT / "gen" / milestone)
-    facts_sha = F.sha256_file(facts_path)
+
+    def fpath_of(law: dict) -> Path:
+        return override if (override and law["facts"] == primary) else ROOT / law["facts"]
     if no_registry:
-        laws = [ir.rebind_facts(l, facts_sha) for l in laws]
+        laws = [ir.rebind_facts(l, F.sha256_file(fpath_of(l))) for l in laws]
     else:
-        from .pipeline import check_registry
-        check_registry(laws, milestone, facts_sha)
+        check_registry_multi(laws, reg)
     kver = bend.version(cfg)
     if kver != cfg["bend"]["pinned_version"]:
         raise RuntimeError(f"bend {kver} is not the pinned {cfg['bend']['pinned_version']}")
@@ -204,19 +206,25 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         triage = json.loads(tp.read_text()).get(milestone, {})
     report = None if no_registry else load_report(milestone, ROOT)
 
-    cm = CompiledMachine.build(facts_path, cfg)
-    name = model_name(facts_path)
     if gen.exists():
         shutil.rmtree(gen)
-    model_src = gen / "model" / f"{name}.bend"
-    model_src.parent.mkdir(parents=True)
-    model_src.write_text(cm.source.read_text())
-    imp = f"../model/{name}.bend"
+    (gen / "model").mkdir(parents=True)
+    machines: dict = {}
+
+    def machine_for(law: dict):
+        fp = fpath_of(law)
+        if fp not in machines:
+            cm_ = CompiledMachine.build(fp, cfg)
+            src = gen / "model" / f"{model_name(fp)}.bend"
+            src.write_text(cm_.source.read_text())
+            machines[fp] = (cm_, src, f"../model/{model_name(fp)}.bend", F.sha256_file(fp))
+        return machines[fp]
     out_dir.mkdir(parents=True, exist_ok=True)
 
     summary = {}
     for law in laws:
         lid = law["law_id"]
+        cm, model_src, imp, facts_sha = machine_for(law)
         d = gen / lid
         attempts: list = []
         rec = {"law_id": lid, "statement_hash": ir.statement_hash(law), "facts_sha256": facts_sha,
@@ -305,6 +313,24 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         log(f"{lid:22s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
     return summary
+
+
+def check_registry_multi(laws: list[dict], reg: dict) -> None:
+    from .pipeline import RegistryMismatch
+    problems = []
+    files = reg.get("facts_files") or {reg["facts"]: reg["facts_sha256"]}
+    for path, sha in files.items():
+        if F.sha256_file(ROOT / path) != sha:
+            problems.append(f"facts {path} hash differs from the registry")
+    if sorted(reg["statements"]) != sorted(l["law_id"] for l in laws):
+        problems.append("registry and laws/ list different law ids")
+    for law in laws:
+        if files.get(law["facts"]) != law["facts_sha256"]:
+            problems.append(f"{law['law_id']}: facts_sha256 differs from its facts file")
+        if reg["statements"].get(law["law_id"]) != ir.statement_hash(law):
+            problems.append(f"{law['law_id']}: statement hash differs from the registry")
+    if problems:
+        raise RegistryMismatch("; ".join(problems))
 
 
 def _law_names(text: str) -> list[str]:
