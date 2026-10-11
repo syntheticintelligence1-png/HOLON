@@ -24,6 +24,15 @@ class CompileError(RuntimeError):
 
 ROLLUP_FACTS = "spec/M1/facts/morph_rollup.json"
 
+# Laws whose extracted-baseline status diverges from results/M1 because their
+# counter-models need requires the AST cannot justify (S1 PR #16).
+BASELINE_MISMATCH_REASONS = {
+    "L_disch_delay_wait": "extracted baseline lacks requires the AST cannot justify (S1 PR #16)",
+    "L_nat_eta2": "extracted baseline lacks requires the AST cannot justify (S1 PR #16)",
+    "L_sort_remaining": "extracted baseline lacks requires the AST cannot justify (S1 PR #16)",
+    "L_sym_omega": "extracted baseline lacks requires the AST cannot justify (S1 PR #16)",
+}
+
 
 def _s1():
     """S1's Solidity transition extractor; ImportError => pending_extractor."""
@@ -199,6 +208,7 @@ def _run_pipelines(facts_p: Path, scratch: Path) -> dict:
 
 def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                 work: Path | None, solc: Path | None, out: Path) -> int:
+    t_start = time.time()
     spec = json.loads(Path(spec_path).read_text())
     solc_p = _solc(solc)
     work = work or DEFAULT_WORK
@@ -398,8 +408,13 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
     except OSError:
         pass
     rvs = {lid: {"baseline": st, "results_M1": results_m1.get(lid),
-                 "match": st == results_m1.get(lid)}
+                 "match": st == results_m1.get(lid),
+                 **({"reason": BASELINE_MISMATCH_REASONS[lid]}
+                    if st != results_m1.get(lid) else {})}
            for lid, st in (rb.get("statuses") or {}).items()} if rb else {}
+    for lid, v in rvs.items():
+        if not v["match"]:
+            v.setdefault("reason", None)
     report = {
         "schema": "holon-mutation-report/0.1",
         "spec": str(spec_path), "target_commit": commit,
@@ -423,6 +438,7 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
         "score_definition": spec["score"],
         "threshold": spec["threshold"],
         "equivalence_reclassifications": [],
+        "total_seconds": round(time.time() - t_start, 3),
     }
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
