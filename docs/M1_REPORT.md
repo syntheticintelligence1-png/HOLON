@@ -39,6 +39,7 @@ python -m unittest discover -s tests_m1 -t .        # HOLON_REPLAY=1 to include 
 | L_sym_omega | SYM-ω | REFUTED | **REFUTED**, replayed | [commitBatchWithProof(2), challenge(1)] vs the reverse order. After proving batch 1, batch 2 can be challenged in one order (f₂ reopened to t+W) and not in the other (O19/F5) |
 | L_own_txspayload | OWN | REFUTED, conditional | **REFUTED**, replayed on Go | Go `BatchData` (heap model, Go 1.24 growth oracle): append(8 B ctx), append(60 B ctx), `TxsPayloadV2`, append(8 B ctx). The held view's bytes 68.. are overwritten. Real Go: cap 80, first diff 68, exactly as modelled. The realistic case (three 60-byte contexts, 1-byte payloads) corrupts too: cap 256, first diff 180 (O36) |
 | L_disch_delay_prove | DISCH | *post hoc* | **PROVED** | third profile point (c_proof, 0), found by the strategy search (§2) |
+| L_par_hdr_v2_composed | PAR | *post hoc* | **PROVED**, dual-kernel; replayed on Solidity + Go | the M0 obstruction (O11): the system *composes* the v1 producer with a version patch — `BatchHeaderV1.Bytes()` then `h[0] = 2` (batch_cache.go:1727-1731). Facts `spec/M1/facts/morph_header_m1.json` add `enc_go_v2_producer`; the statement is laws/M0/L_par_hdr_v2 verbatim with only the Go-side call swapped, proved on both kernels, and replayed byte-for-byte: a real v2 `commitBatch` through the deployed Rollup, and the real `createBatchHeaderWithSequencerSetHash`, both equal to the compiled model's bytes |
 | L_nat_eta2 | NAT | *post hoc* (O15/N1) | **REFUTED**, replayed | legacy state with LFI < LCI; initialize2 writes CSR only at LCI; revert(1); recommit → "incorrect previous state root". Natively it succeeds. Replayed by emulating the pre-v2 storage (CSR slots zeroed) and calling the real `initialize2` |
 
 *Predictions:* `spec/M1/predictions.json`, transcribed from §11.8. *Records:* `results/M1/`. *Bend files:* `gen/M1/`. *Replay:* `replay/M1/report.json`.
@@ -82,7 +83,7 @@ python -m unittest discover -s tests_m1 -t .        # HOLON_REPLAY=1 to include 
 | `nat_split` / `evaluate` | DISCH profile points | Case split, or check a strategy by computation. |
 | `counter` | all REFUTED laws | The concrete witness, premises by computation, the two sides separated through the model's equality function. |
 
-**Kernels.** All 15 checked files also pass BendTT `--verdict` (0.5–1.2 s each).
+**Kernels.** All 16 checked files also pass BendTT `--verdict` (0.5–1.2 s each).
 
 ## 4. Refinement evidence (whitepaper §8.7, §12.1)
 
@@ -96,6 +97,13 @@ python -m unittest discover -s tests_m1 -t .        # HOLON_REPLAY=1 to include 
 
 **Corpora:**
 - **Witnesses.** Each REFUTED law is linearised into the traces its claim compares. All steps agree, and the obstruction reproduces on the real code (table in §1).
+
+
+**Composed-producer replay.** `L_par_hdr_v2_composed` is an ir/0.1 codec law carried into M1 on its own facts file; `holon replay --milestone M1` extends the harness with `test_v2_composed` (a real v2 `commitBatch`, codec-built header, `vm.blobhashes`: stored bytes start 0x02, carry zero sequencerSetVerifyHash, and equal the model's `enc_go_v2_producer` output) and `replay/M1/go/holon_v2_test.go` (the real `createBatchHeaderWithSequencerSetHash` on a `BatchCache`; 257 bytes, byte-identical to the model).
+
+**Independent oracle.** `tests_m1/test_m1_oracle.py` is a Python reimplementation of the rollup actions written from Rollup.sol and the L1 queue source — it does not read the facts, the model, or machine.mjs. Cross-checked against the compiled machine on 1,914 distinct states to depth 3 over the policy domain plus 300 fixed-seed random traces: outcome tags and all modelled registers agree, 0 disagreements.
+
+**Kernel mismatch, second case.** `replay/M1/kernel_mismatch/reach_set/` preserves a second `--verdict` divergence: a ~1.3k-element list of distinct 25-field records normalised in one term (upstream-reported reproducer from the devin work).
 - **Random corpus.** 300 seeded random traces, 2,432 steps. They mix successful and failing actions, perturbed indices and principals, and every revert path the policy reaches. Per action, model and real outcomes agree on all steps: commitBatch 874, wait 628, commitState 224, commitBatchWithProof 130, setPause 123, finalizeBatch 114, sendMessage 108, proveState 96, revertBatch 68, challengeState 67. There were **0 disagreements**.
 
 Earlier runs did fail. Both causes were harness defects, and both were fixed in the harness, not the model:
@@ -109,6 +117,13 @@ Earlier runs did fail. Both causes were harness defects, and both were fixed in 
 - **Oracles.** ISubmitter and the verifier are oracles (stand-ins above). keccak over blob hashes (version 2) is an injective stand-in `agg`. Replay uses real keccak, and outcomes agreed.
 - **Index specialization.** Reads of per-batch registers above LCI go through the shadow only for `batchBlobVersionedHashes`. Every other read follows a guard that established `idx ≤ LCI`. This is documented per guard in the facts and exercised by the random corpus.
 - **Representative state for DISCH-delay.** The profile is computed at s*, a reachable representative of the guard class: one message, included, delay window passed, finalization pending. The profile is per state (Def 6.20), not global.
+- **DISCH profile scope (R4).** The delay laws establish **two achievable example points** (pay: cost 1 message, delay 0; wait: cost 0, delay Δ_fin) plus a **restricted immediate-call obstruction** (nofree: a bare commitBatch with any n reverts at s*) plus the post-hoc prove point. Minimality over the full principal strategy language is **not established**: no universal lower bound over admissible strategies is claimed.
+
+**Scope of `unbounded` (R3).** `scope: unbounded` in a result record means *unbounded in the closed generated model*: every state and trace of the machine, not unbounded refinement to Solidity, Go, or a deployed chain. The refinement evidence is the replay/refinement corpus (§4), whose oracle stand-ins are: honestly presented headers, Nat-token aggregation (`agg` stands in for keccak256 over blob hashes), the `proof == 1` verifier stand-in, and the ISubmitter stand-in (active set, DEP deposit, slash deactivates).
+
+### Audit round 1
+
+Remediation for [docs/audit/round1.md](audit/round1.md): the M0 `L_par_hdr_v2` helper refutation is classified `model_defect_path` (production producer patches byte 0; the system-level law is `L_par_hdr_v2_composed`, R1) — its M0 result record is **unchanged by design**: M0 results are scored against preregistered predictions by frozen tests, so the record keeps its preregistered triage `finding` (helper level) and the reclassification lives in this report and `replay/M0/facts_audit.md`. `L_sym_omega` is `conditional` (no real-proof schedule, R3); `L_nat_eta2` is `known_limitation_historical` (R5); `L_own_txspayload` records the ≤512-byte growth-oracle validity bound (R6); UNDO/SORT replay findings are labelled with their owner prerequisite; the `batchInChallenge` citation is corrected to Rollup.sol:691-693 (R7). The schema's triage enum has no free-form value, so these labels are the first words of each record's `why`, with the closest enum value in `triage`.
 
 ## 6. Gate, canaries and mutation adequacy
 

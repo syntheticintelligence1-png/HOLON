@@ -7,16 +7,28 @@
   },
   "M1": {
     "L_nat_eta2": {
-      "triage": "finding",
-      "why": "Latent and historical: affects only a chain upgraded through reinitializer(2) while LFI < LCI and later reverted into (LFI, LCI]."
-    },
-    "L_tag_BVH": {
-      "triage": "finding",
-      "why": "Ghost-tag exactness fails: a recommit can change the version while reusing a blob field of the other sort (F6 / O26)."
+      "triage": "intent_question",
+      "why": "known_limitation_historical: latent and historical \u2014 affects only a chain upgraded through reinitializer(2) while LFI < LCI and later reverted into (LFI, LCI]; the replay injects storage to erase CSR, and initialize2's reinitializer(2)/root!=0 domain is not modelled; audit R5."
     },
     "L_own_txspayload": {
       "triage": "finding",
-      "why": "Conditional (whitepaper O36): corrupts a TxsPayloadV2 result only if a caller holds it across a later Append; the in-repo callers (batch_cache.go:1581, verify_local.go:186) consume it immediately."
+      "why": "Conditional (whitepaper O36): corrupts a TxsPayloadV2 result only if a caller holds it across a later Append; the in-repo callers (batch_cache.go:1581, verify_local.go:186) consume it immediately. Native validity bound: the Go growth oracle matches the runtime only for allocations <=512 bytes (Go 1.24 size-class table); outside that the facts fallback is wrong (513->576); audit R6."
+    },
+    "L_sym_omega": {
+      "triage": "intent_question",
+      "why": "conditional: both orders need proof acceptance by the stand-in verifier (proof == 1); the real ZkEvmVerifierV1 rejects that proof; no real-proof schedule; audit R3."
+    },
+    "L_tag_BVH": {
+      "triage": "finding",
+      "why": "owner prerequisite (revertBatch/setPause): ghost-tag exactness fails \u2014 a recommit can change the version while reusing a blob field of the other sort (F6 / O26)."
+    },
+    "L_undo_BVH": {
+      "triage": "finding",
+      "why": "owner prerequisite (revertBatch/setPause): residue after owner revert \u2014 recommit of the same data reverts via the stored blob hash (O11/F2)."
+    },
+    "L_undo_cancel": {
+      "triage": "finding",
+      "why": "owner prerequisite (revertBatch/setPause): pause clears the open challenge but keeps the +W finalizeTimestamp extension, so batch 2 can be challenged again after unpause (O12/N2)."
     }
   }
 }

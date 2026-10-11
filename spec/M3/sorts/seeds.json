@@ -1,0 +1,152 @@
+{
+  "doc": "Lexical seeds for sort inference (whitepaper 7.7 step 1): the sort of every state register, record field, parameter and action input of the frozen M1 facts, read off the Morph source. `@w` is the realization width (bits) of the register in the real code. Everything else (lets, defs, writer unions, obligations) is inferred by holon.sorts.infer; the result is frozen in spec/M3/sorts/assignment/*.json before any Bend typing (Theorem 6.18).",
+  "spec/M1/facts/morph_rollup.json": {
+    "list_families": {
+      "win": "batch",
+      "enq": "msg",
+      "active": "submitter",
+      "chals": "challenger",
+      "fsr": "batch",
+      "chs": "batch",
+      "s_csr": "batch",
+      "s_bd": "batch",
+      "s_bvh": "batch",
+      "s_tag": "batch",
+      "blobs": "blob"
+    },
+    "registers": {
+      "t": "Time",
+      "lfi": "Idx[batch]@256",
+      "inch": "Bool",
+      "bc": "Idx[batch]@256",
+      "rri": "Idx[batch]@256",
+      "paused": "Bool",
+      "W": "Dur@256",
+      "F": "Dur@256",
+      "D": "Dur@256",
+      "qlen": "Cnt[msg]@256",
+      "qpend": "Idx[msg]@256",
+      "enq": "Time",
+      "active": "Prin[submitter]",
+      "chals": "Prin[challenger]",
+      "fsr": "Dig[root]",
+      "s_csr": "Dig[root]",
+      "s_bvh": "Dig[bvh]",
+      "s_tag": "Ver"
+    },
+    "fields": {
+      "Entry.ver": "Ver@8",
+      "Entry.tot": "Cnt[msg]@64",
+      "Entry.n": "Cnt[msg]@16",
+      "Entry.hb": "Dig[bvh]",
+      "Entry.prev": "Dig[root]",
+      "Entry.post": "Dig[root]",
+      "Entry.lbn": "Idx[block]@64",
+      "Entry.csr": "Dig[root]",
+      "Entry.bvh": "Dig[bvh]",
+      "Entry.tag": "Ver",
+      "Entry.bdo": "Time@256",
+      "Entry.bdf": "Time@256",
+      "Entry.bdn": "Idx[block]@256",
+      "Entry.bds": "Prin[submitter]",
+      "BD.o": "Time",
+      "BD.f": "Time",
+      "BD.n": "Idx[block]",
+      "BD.s": "Prin[submitter]",
+      "Ch.c": "Prin[challenger]",
+      "Ch.d": "Amt[eth]",
+      "Ch.s": "Time",
+      "Ch.w": "Bool",
+      "Ch.f": "Bool"
+    },
+    "params": {
+      "Z": "Dig[bvh]",
+      "OWNER": "Prin[owner]",
+      "DEP": "Amt[eth]",
+      "AGG_BASE": "Mach(256)"
+    },
+    "inputs": {
+      "commitBatch.who": "Prin[submitter]",
+      "commitState.who": "Prin[submitter]",
+      "commitBatchWithProof.who": "Prin[anyone]",
+      "revertBatch.who": "Prin[anyone]",
+      "challengeState.who": "Prin[challenger]",
+      "proveState.who": "Prin[submitter]",
+      "finalizeBatch.who": "Prin[anyone]",
+      "setPause.who": "Prin[anyone]",
+      "sendMessage.who": "Prin[anyone]",
+      "*.ver": "Ver@8",
+      "*.parent": "Idx[batch]@256",
+      "*.n": "Cnt[msg]@16",
+      "*.lbn": "Idx[block]@64",
+      "*.prev": "Dig[root]",
+      "*.post": "Dig[root]",
+      "*.blobs": "Dig[bvh]",
+      "*.proof": "Mach(256)",
+      "*.idx": "Idx[batch]@256",
+      "*.count": "Cnt[batch]@256",
+      "*.value": "Amt[eth]@256",
+      "*.status": "Bool",
+      "wait.dt": "Dur@256",
+      "eta2.root": "Dig[root]"
+    },
+    "def_params": {
+      "idx": "Idx[batch]",
+      "ver": "Ver",
+      "blobs": "List<Dig[bvh]>"
+    }
+  },
+  "spec/M1/facts/morph_batchdata.json": {
+    "list_families": {
+      "heap": "arr",
+      "classes": "class"
+    },
+    "registers": {
+      "snap": "Mach(8)",
+      "live": "Bool",
+      "classes": "Cnt[byte]"
+    },
+    "fields": {
+      "Sl.b": "Idx[arr]",
+      "Sl.off": "Cnt[byte]",
+      "Sl.len": "Cnt[byte]",
+      "Sl.cap": "Cnt[byte]",
+      "Arr.cells": "Mach(8)"
+    },
+    "params": {},
+    "inputs": {
+      "append.bctx": "Mach(8)",
+      "append.payload": "Mach(8)"
+    }
+  },
+  "spec/M3/sorts/facts/morph_batchdata_l1num.json": {
+    "list_families": {},
+    "registers": {
+      "l1num": "Cnt[msg]@16",
+      "blocks": "Cnt[block]@64",
+      "total": "Cnt[msg]"
+    },
+    "fields": {},
+    "params": {},
+    "inputs": {
+      "appendBlock.k": "Cnt[msg]@16"
+    }
+  },
+  "facts/morph_header.json": {
+    "header_fields": {
+      "version": "Ver",
+      "batchIndex": "Idx[batch]",
+      "l1MessagePopped": "Cnt[msg]",
+      "totalL1MessagePopped": "Cnt[msg]",
+      "dataHash": "Dig[data]",
+      "blobVersionedHash": "Dig[bvh]",
+      "prevStateHash": "Dig[root]",
+      "postStateHash": "Dig[root]",
+      "withdrawRootHash": "Dig[root]",
+      "sequencerSetVerifyHash": "Dig[ssvh]",
+      "parentBatchHash": "Dig[batch]",
+      "lastBlockNumber": "Idx[block]",
+      "numL1Messages": "Cnt[msg]"
+    }
+  }
+}

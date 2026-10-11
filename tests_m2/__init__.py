@@ -1,1 +1,1 @@
-"""M2 test package."""
+"""M2 unit tests."""

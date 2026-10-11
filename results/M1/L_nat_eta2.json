@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.284
+      "seconds": 0.187
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.504
+      "seconds": 0.275
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.284
+    "seconds": 0.187
   },
   "difference": {
     "lhs": [
@@ -52,7 +52,7 @@
       }
     ]
   },
-  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -61,7 +61,14 @@
   "law_id": "L_nat_eta2",
   "maps_to": "O15 (N1)",
   "premises": [
-    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+    "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+    "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+    "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+    "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+    "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+    "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+    "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+    "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
   ],
   "replay": {
     "detail": "continuation outcomes on the real code: ['ok', 'rev incorrect previous state root'] vs ['ok', 'ok'] @ morph 3e44e795586a",
@@ -69,11 +76,11 @@
   },
   "rule": "NAT",
   "scope": "unbounded",
-  "statement_hash": "sha256:70d40207439f673886b0db0fddf96218f866216b847a97babf6e7a47a6c2e96b",
+  "statement_hash": "sha256:64d439f9ea7ca13945867fcba7172b8b6ca1af60b8817804e58e4d05e0fe493c",
   "status": "REFUTED",
   "subform": "native_equivalence",
-  "triage": "finding",
-  "triage_why": "Latent and historical: affects only a chain upgraded through reinitializer(2) while LFI < LCI and later reverted into (LFI, LCI].",
+  "triage": "intent_question",
+  "triage_why": "known_limitation_historical: latent and historical \u2014 affects only a chain upgraded through reinitializer(2) while LFI < LCI and later reverted into (LFI, LCI]; the replay injects storage to erase CSR, and initialize2's reinitializer(2)/root!=0 domain is not modelled; audit R5.",
   "witness": {
     "p": [
       {

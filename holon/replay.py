@@ -195,7 +195,7 @@ def stamp_records(milestone: str, results: Path, report: dict) -> list[str]:
 
 def main_replay(args) -> int:
     from . import ir as _ir
-    if _ir.ir_version_of(args.milestone, ROOT) == "holon-ir/0.2":
+    if "holon-ir/0.2" in {l["ir_version"] for l in _ir.load_laws_any(args.milestone, ROOT)}:
         from .mreplay import main_replay_m1
         return main_replay_m1(args)
     morph = Path(args.morph).resolve()

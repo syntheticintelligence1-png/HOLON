@@ -11,23 +11,23 @@
       "generator": "chain_revert",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.359
+      "seconds": 0.195
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.582
+      "seconds": 0.256
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.359
+    "seconds": 0.195
   },
   "difference": null,
-  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -38,7 +38,14 @@
   "premises": [
     "[{\"obsv\": \"kappa\", \"of\": {\"var\": \"s\"}}, {\"bool\": true}]",
     "[{\"args\": [{\"var\": \"a\"}], \"fn\": \"is_commitBatchWithProof\"}, {\"bool\": true}]",
-    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+    "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+    "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+    "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+    "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+    "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+    "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+    "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+    "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
   ],
   "replay": {
     "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
@@ -46,7 +53,7 @@
   },
   "rule": "DISCH",
   "scope": "unbounded",
-  "statement_hash": "sha256:f16e4a0e3e04b5e7c8704d4c873540f27968167225afad83a98217b9ef0fb7d6",
+  "statement_hash": "sha256:e4d8ebeb76fc48e3d9557df160fe337f1323fcacaefbd713ff709ee645d49726",
   "status": "PROVED",
   "subform": "blocking",
   "triage": "none",

@@ -1,0 +1,4020 @@
+{
+  "chain": {
+    "chain_id": 1,
+    "name": "ethereum"
+  },
+  "coverage": [
+    {
+      "element": "chain:0xb2f539aede77df4cd1d427d046bbbbd8db4cbaaf->0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "kind": "unverified_source",
+      "reason": "unverified implementation source: 0x9e2fb684935a32ced121972f23bd0e4634377ca2"
+    },
+    {
+      "element": "chain:0x9e2fb684935a32ced121972f23bd0e4634377ca2->0xac3c379d772f3520b34690d32ba14510ab36c3fb",
+      "kind": "unverified_source",
+      "reason": "unverified implementation source: 0x9e2fb684935a32ced121972f23bd0e4634377ca2"
+    }
+  ],
+  "m1_facts": {
+    "eta2": {
+      "block": 21283676,
+      "function": "initialize2",
+      "impl": "0xad900db30bcdf84c38df0067ea327bbecccf071a",
+      "m1_src": "contracts/contracts/l1/rollup/Rollup.sol:188-195",
+      "reinitializer_version": 2,
+      "tx": "0xa452e20183f6860f105cb398bccc9d75dd3758444b956061b3031d1f0a33c424",
+      "upgrade_seq": 3,
+      "writes": "committedStateRoots[LCI] = _prevStateRoot if currently zero"
+    },
+    "later_reinitializers": [
+      {
+        "args": {
+          "_rollupDelayPeriod": 604800
+        },
+        "block": 24575030,
+        "function": "initialize3",
+        "tx": "0xc86bc6dc60ad304afbc7f423668a272434c17dbf4a0bb27906d74f0940a6eab1",
+        "upgrade_seq": 7,
+        "version": 3
+      },
+      {
+        "args": {
+          "_expectedLegacyCutoverBatchIndex": 60477,
+          "_newSubmitter": "0xf2d50000c994565a4742059802fdbb0bee1cbef6"
+        },
+        "block": 26031669,
+        "function": "initialize4",
+        "tx": "0xdeb5268cbec1b47c77ad46cb8dd29491833e45ae374d2905f94f4e0499e8110e",
+        "upgrade_seq": 11,
+        "version": 4
+      }
+    ],
+    "legacy": {
+      "meaning": "storage as written before reinitializer(2): committedStateRoots did not exist (all zero)",
+      "until_upgrade_seq": 3
+    }
+  },
+  "proxies": [
+    {
+      "address": "0x759894ced0e6af42c26668076ffa84d02e3cef60",
+      "admin_history": [
+        {
+          "block": 20996846,
+          "log_index": 178,
+          "new_admin": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+          "previous_admin": "0x0000000000000000000000000000000000000000",
+          "tx": "0xfb3bc602abb088d5d94e6869d56417de3c16a3966e5c6abfa4d157dfbcc36cba"
+        },
+        {
+          "block": 20999844,
+          "log_index": 193,
+          "new_admin": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+          "previous_admin": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+          "tx": "0x100ba91f649a1e6b1b95ded8026351a187477cbee796f27f4ed50a97a7771319"
+        }
+      ],
+      "admin_slot": "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103",
+      "contract": "Rollup",
+      "current_admin_slot": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+      "current_impl_slot": "0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d",
+      "deploy": {
+        "block": 20996846,
+        "deployer": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+        "init_data": "",
+        "init_data_empty": true,
+        "initial_admin": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+        "initial_impl": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+        "tx": "0xfb3bc602abb088d5d94e6869d56417de3c16a3966e5c6abfa4d157dfbcc36cba"
+      },
+      "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+      "implementations": [
+        {
+          "address": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+          "code_size": 21,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x24ed4fbe4d0c9d35ea9821523e9f749edb1a6c8ad31221d73860bd1b2bbc24c8",
+          "source_sha256": {
+            "contracts/misc/EmptyContract.sol": "0x12c7ed8a78edc692c7051524a805cfb1598c2889377b9302212106aaa2dda979"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 1,
+            "name": "EmptyContract",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [],
+            "sha256": "0x4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "verified": true
+        },
+        {
+          "address": "0xcffddbcb5b9ea2ee45aba121e0849adc87c38326",
+          "code_size": 18019,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x2fff278790f409df682f02df3243ef4c1559098ebf52920820220fff3b59dd33",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0x7712f5a31dc3a3607660e7eb3df520e2cfbe19bea70f74d061e6d1d174a193b9",
+            "contracts/l1/rollup/IRollup.sol": "0x06782d8136bca2a7802b1b3c561d112ac305f944a1e8a6acab07cbe4ab87f4d2",
+            "contracts/l1/rollup/Rollup.sol": "0xfa8d57828173386cb26bcf2e726f25d87cbb5a43dd1fbbe6f71788b80543d8f0",
+            "contracts/l1/staking/IL1Staking.sol": "0x3598fe0552ca5368b62f2da6526cf1f7288dbc635a50976568a71587abb9115e",
+            "contracts/libraries/codec/BatchCodecV0.sol": "0x23d359563cf705782c060029691c20fad0ab48ae8a5bf2d1515cc2d0375939a0",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0x343eea8d1f4548cc926a33ce2f0328c27e904a4b176b0939e9194f8131e5cabe",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x255135f8af2c149f70212aea0dc533e77caaf9826f3bc1d80b52ad59819f6a12",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "l1StakingContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)2637_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)2651_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              }
+            ],
+            "sha256": "0x77934928171a2a2c7c85ed098afbaa2784d9bb1ac4f8211c4013721da215a2aa"
+          },
+          "verified": true
+        },
+        {
+          "address": "0x073403e147a8e607b80985fe458c0b527287278f",
+          "code_size": 17900,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x13df98561945025e451e07e3959113689847d67617f8b212dca346c20bb71e38",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0x7712f5a31dc3a3607660e7eb3df520e2cfbe19bea70f74d061e6d1d174a193b9",
+            "contracts/l1/rollup/IRollup.sol": "0x06782d8136bca2a7802b1b3c561d112ac305f944a1e8a6acab07cbe4ab87f4d2",
+            "contracts/l1/rollup/Rollup.sol": "0xabbd6be9800fbd4c66b1cc8f0954efa20c87ea6bdafc3e2c2fce2863069f2f2f",
+            "contracts/l1/staking/IL1Staking.sol": "0x3598fe0552ca5368b62f2da6526cf1f7288dbc635a50976568a71587abb9115e",
+            "contracts/libraries/codec/BatchCodecV0.sol": "0x23d359563cf705782c060029691c20fad0ab48ae8a5bf2d1515cc2d0375939a0",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0x343eea8d1f4548cc926a33ce2f0328c27e904a4b176b0939e9194f8131e5cabe",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x255135f8af2c149f70212aea0dc533e77caaf9826f3bc1d80b52ad59819f6a12",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "l1StakingContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)2625_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)2639_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              }
+            ],
+            "sha256": "0x41e92d917c5da22507d148f9dd903dde3a23bc46696b9b071afdd95a7c29bc1f"
+          },
+          "verified": true
+        },
+        {
+          "address": "0xad900db30bcdf84c38df0067ea327bbecccf071a",
+          "code_size": 18880,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x5329806f3b481c238f3613799e0516d2b4b1e495e2cfa35322f838d5d0bf23f9",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0x7712f5a31dc3a3607660e7eb3df520e2cfbe19bea70f74d061e6d1d174a193b9",
+            "contracts/l1/rollup/IRollup.sol": "0x06782d8136bca2a7802b1b3c561d112ac305f944a1e8a6acab07cbe4ab87f4d2",
+            "contracts/l1/rollup/Rollup.sol": "0x7ea38f8d42196302a479fcd02c4497650fa9368a87231cc2965d250ac38dee11",
+            "contracts/l1/staking/IL1Staking.sol": "0x3598fe0552ca5368b62f2da6526cf1f7288dbc635a50976568a71587abb9115e",
+            "contracts/libraries/codec/BatchCodecV0.sol": "0x23d359563cf705782c060029691c20fad0ab48ae8a5bf2d1515cc2d0375939a0",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0x343eea8d1f4548cc926a33ce2f0328c27e904a4b176b0939e9194f8131e5cabe",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x255135f8af2c149f70212aea0dc533e77caaf9826f3bc1d80b52ad59819f6a12",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "l1StakingContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)2722_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)2736_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedStateRoots",
+                "offset": 0,
+                "slot": 171,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              }
+            ],
+            "sha256": "0x99f2e5b852619dac7846471728fbc2ce0abcbdcab62d0eec58e30771e47af751"
+          },
+          "verified": true
+        },
+        {
+          "address": "0x43190dfd1f572cb56b1942b44482d1774151d77a",
+          "code_size": 18401,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x27b87c5a5829b4fe1f1dc98f2bc29b9cd0d793a572f9289c6b5165b1651ef6b4",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0xca206f3373b62673bde66fa2a733f90495f881ac71b70f425f43d7e79dba803a",
+            "contracts/l1/rollup/IRollup.sol": "0x42e2c50bbe8e96d1f71c4455bc6e083481ac6c375b93bf82b5aeef84dcb33279",
+            "contracts/l1/rollup/Rollup.sol": "0x14175b7952d75dd025aa660dd47eea37c7e7f551474aa0f1cf6e5698263370d6",
+            "contracts/l1/staking/IL1Staking.sol": "0x3598fe0552ca5368b62f2da6526cf1f7288dbc635a50976568a71587abb9115e",
+            "contracts/libraries/codec/BatchCodecV0.sol": "0x23d359563cf705782c060029691c20fad0ab48ae8a5bf2d1515cc2d0375939a0",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0xec2d7e8b7170fc05da833ae17e455288be76faf7b5821c15e948810b6f63c4b5",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x255135f8af2c149f70212aea0dc533e77caaf9826f3bc1d80b52ad59819f6a12",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "l1StakingContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)2580_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)2594_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedStateRoots",
+                "offset": 0,
+                "slot": 171,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              }
+            ],
+            "sha256": "0x936fa6db4272f40d5921ebce6b1b2cf1456ece800385132a56c5c37168e38b7f"
+          },
+          "verified": true
+        },
+        {
+          "address": "0x9c79e8f5d0fe910d84a6a0d4a03e8136d036ebec",
+          "code_size": 18469,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x8288155e169b25986a9552d6abc7c2360a7d38d11439e894cb9233b5d2ca2106",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0xe0e97b0e51e0b60709e1c8529b3331521f2e79b11f93d5953ba3c628db7e5d13",
+            "contracts/l1/rollup/IRollup.sol": "0x629116d0d1c143f92e3a9844582bb4a7ddd03c773451f81062e89cacb4eea847",
+            "contracts/l1/rollup/Rollup.sol": "0x050758d7c1697e0ffe7cdac5625f26bdc5f3f99704deba4ff72951105fb1c275",
+            "contracts/l1/staking/IL1Staking.sol": "0x3598fe0552ca5368b62f2da6526cf1f7288dbc635a50976568a71587abb9115e",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0xe35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+            "contracts/libraries/codec/BatchHeaderCodecV1.sol": "0xbd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x7b859a80a68eb1bd3b2dfa21d87bae9969156e1b2e0bb063a8ac0efef5601296",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "l1StakingContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)2481_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)2495_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedStateRoots",
+                "offset": 0,
+                "slot": 171,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              }
+            ],
+            "sha256": "0xb700ac548a31703c84af8300753f7f95b0a4b244c1719baea72acd2784114239"
+          },
+          "verified": true
+        },
+        {
+          "address": "0xdf0749e688ae74508d84699ba2405ed610aaf8c5",
+          "code_size": 18469,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x7527d31c13a36c071fc77976f20307997e01157fabc937e272d18e200a11ad2c",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0xe0e97b0e51e0b60709e1c8529b3331521f2e79b11f93d5953ba3c628db7e5d13",
+            "contracts/l1/rollup/IRollup.sol": "0x629116d0d1c143f92e3a9844582bb4a7ddd03c773451f81062e89cacb4eea847",
+            "contracts/l1/rollup/Rollup.sol": "0x050758d7c1697e0ffe7cdac5625f26bdc5f3f99704deba4ff72951105fb1c275",
+            "contracts/l1/staking/IL1Staking.sol": "0x3598fe0552ca5368b62f2da6526cf1f7288dbc635a50976568a71587abb9115e",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0xe35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+            "contracts/libraries/codec/BatchHeaderCodecV1.sol": "0xbd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x7b859a80a68eb1bd3b2dfa21d87bae9969156e1b2e0bb063a8ac0efef5601296",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "l1StakingContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)2481_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)2495_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedStateRoots",
+                "offset": 0,
+                "slot": 171,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              }
+            ],
+            "sha256": "0xb700ac548a31703c84af8300753f7f95b0a4b244c1719baea72acd2784114239"
+          },
+          "verified": true
+        },
+        {
+          "address": "0x1320d6a438d268044c8eeff0ee6b24e5ec9584e3",
+          "code_size": 20050,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0xcd80328153f94f36bbebb28975152d6f1e85c465fbf3aced84db6b4e385f46a5",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0x59245b916ed1e966c5bf2fd25a76e42b7c38d144cce9967b6ef28e42d9496c1a",
+            "contracts/l1/rollup/IRollup.sol": "0xcdfbcf60a1a9ed8ef2d438898c0e018e1ec48745d2dc5af95e8b113f16be1ba4",
+            "contracts/l1/rollup/Rollup.sol": "0x086448b615b555534f588a1f0df680e2edf72d8bff0b212a0aee7ae584ebdc19",
+            "contracts/l1/staking/IL1Staking.sol": "0x3598fe0552ca5368b62f2da6526cf1f7288dbc635a50976568a71587abb9115e",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0xe35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+            "contracts/libraries/codec/BatchHeaderCodecV1.sol": "0xbd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x7b859a80a68eb1bd3b2dfa21d87bae9969156e1b2e0bb063a8ac0efef5601296",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "l1StakingContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)2699_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)2713_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedStateRoots",
+                "offset": 0,
+                "slot": 171,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "rollupDelayPeriod",
+                "offset": 0,
+                "slot": 172,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              }
+            ],
+            "sha256": "0xdaf8e034dc795ffa3cdcd327c6f687d5a19c2bcdcd31149c4bf088369ea6b7a6"
+          },
+          "verified": true
+        },
+        {
+          "address": "0xb2f539aede77df4cd1d427d046bbbbd8db4cbaaf",
+          "code_size": 20236,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x956553ce3bda403b5a9756aadf304393d896aa6bf285fa16752686816aed94f5",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0x59245b916ed1e966c5bf2fd25a76e42b7c38d144cce9967b6ef28e42d9496c1a",
+            "contracts/l1/rollup/IRollup.sol": "0xcdfbcf60a1a9ed8ef2d438898c0e018e1ec48745d2dc5af95e8b113f16be1ba4",
+            "contracts/l1/rollup/Rollup.sol": "0x24f24c809abf486f8e603d02d22219c09af7e30f597675c341410fff43de72d8",
+            "contracts/l1/staking/IL1Staking.sol": "0x3598fe0552ca5368b62f2da6526cf1f7288dbc635a50976568a71587abb9115e",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0xe35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+            "contracts/libraries/codec/BatchHeaderCodecV1.sol": "0xbd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x7b859a80a68eb1bd3b2dfa21d87bae9969156e1b2e0bb063a8ac0efef5601296",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "l1StakingContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)2745_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)2759_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedStateRoots",
+                "offset": 0,
+                "slot": 171,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "rollupDelayPeriod",
+                "offset": 0,
+                "slot": 172,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              }
+            ],
+            "sha256": "0x651c61cd3e60772d407969147471cf4cbaa9844921fb71633c7030bf02edc6ef"
+          },
+          "verified": true
+        },
+        {
+          "address": "0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+          "code_size": 21827,
+          "runtime_code_sha256": "0x49841e64e5e0e5b63f350edbd8854dc668af4c78220c0be1539611ce26bb3144",
+          "verified": false
+        },
+        {
+          "address": "0xac3c379d772f3520b34690d32ba14510ab36c3fb",
+          "code_size": 22063,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x147d95959985c1ced218ce674c9516d7d6ead923d50db812d10447585f1cfd1b",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0x59245b916ed1e966c5bf2fd25a76e42b7c38d144cce9967b6ef28e42d9496c1a",
+            "contracts/l1/rollup/IRollup.sol": "0x577e0c902d10f90b6cb3af1e3032c7c15a6b4328e8e3dfefe133c02443487e20",
+            "contracts/l1/rollup/Rollup.sol": "0x887fb8d9eb94edd94381b620de13aeed820b4469a18b38c1062e083342827e7f",
+            "contracts/l1/staking/IL1Staking.sol": "0x3598fe0552ca5368b62f2da6526cf1f7288dbc635a50976568a71587abb9115e",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0xe35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+            "contracts/libraries/codec/BatchHeaderCodecV1.sol": "0xbd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x7b859a80a68eb1bd3b2dfa21d87bae9969156e1b2e0bb063a8ac0efef5601296",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "l1StakingContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)3000_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)3014_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedStateRoots",
+                "offset": 0,
+                "slot": 171,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "rollupDelayPeriod",
+                "offset": 0,
+                "slot": 172,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchBlobVersionedHashes",
+                "offset": 0,
+                "slot": 173,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              }
+            ],
+            "sha256": "0xcc886b8404ab6127857fccf5b62561c4d628592addde51905196fb90e53a635d"
+          },
+          "verified": true
+        },
+        {
+          "address": "0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d",
+          "code_size": 19192,
+          "repo_pin_match": true,
+          "repo_tag": "v0.6.3",
+          "runtime_code_sha256": "0x53ec06626d3eedd585816d6258540daeffcf87b4ca9f8e575aebe49e1d79972e",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0x59245b916ed1e966c5bf2fd25a76e42b7c38d144cce9967b6ef28e42d9496c1a",
+            "contracts/l1/rollup/IRollup.sol": "0x24e4861d9a369b0e8fec7471d8150474a54de907709d4287e63457d9bf5ff327",
+            "contracts/l1/rollup/ISubmitter.sol": "0x42637f2de9c520e230487acfa247d0c3b13b9f0b76f5e90194d3bc0a18e40786",
+            "contracts/l1/rollup/Rollup.sol": "0x134b0f2dc5356af913c0a12c0a2febe29360b053a5acae57bdda575a2fb832b8",
+            "contracts/libraries/codec/BatchHeaderCodecV0.sol": "0xe35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+            "contracts/libraries/codec/BatchHeaderCodecV1.sol": "0xbd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d",
+            "contracts/libraries/verifier/IRollupVerifier.sol": "0x7b859a80a68eb1bd3b2dfa21d87bae9969156e1b2e0bb063a8ac0efef5601296",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol": "0x75f05e967778c82f77388aab6cd9523400e894de0247156935f827b3ad5830a9",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 12,
+            "name": "Rollup",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "Rollup",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "_paused",
+                "offset": 0,
+                "slot": 101,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 102,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "Rollup",
+                "label": "submitterContract",
+                "offset": 0,
+                "slot": 151,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizationPeriodSeconds",
+                "offset": 0,
+                "slot": 152,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofWindow",
+                "offset": 0,
+                "slot": 153,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "__maxNumTxInChunk",
+                "offset": 0,
+                "slot": 154,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 155,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "verifier",
+                "offset": 0,
+                "slot": 156,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastFinalizedBatchIndex",
+                "offset": 0,
+                "slot": 157,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "lastCommittedBatchIndex",
+                "offset": 0,
+                "slot": 158,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "isChallenger",
+                "offset": 0,
+                "slot": 159,
+                "type": "mapping(address => bool)",
+                "type_id": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "finalizedStateRoots",
+                "offset": 0,
+                "slot": 160,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedBatches",
+                "offset": 0,
+                "slot": 161,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchDataStore",
+                "offset": 0,
+                "slot": 162,
+                "type": "mapping(uint256 => struct IRollup.BatchData)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchData)3206_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "withdrawalRoots",
+                "offset": 0,
+                "slot": 163,
+                "type": "mapping(bytes32 => bool)",
+                "type_id": "t_mapping(t_bytes32,t_bool)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "challenges",
+                "offset": 0,
+                "slot": 164,
+                "type": "mapping(uint256 => struct IRollup.BatchChallenge)",
+                "type_id": "t_mapping(t_uint256,t_struct(BatchChallenge)3220_storage)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallengeReward",
+                "offset": 0,
+                "slot": 165,
+                "type": "mapping(address => uint256)",
+                "type_id": "t_mapping(t_address,t_uint256)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "inChallenge",
+                "offset": 0,
+                "slot": 166,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchChallenged",
+                "offset": 0,
+                "slot": 167,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "revertReqIndex",
+                "offset": 0,
+                "slot": 168,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proofRewardPercent",
+                "offset": 0,
+                "slot": 169,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "proveRemaining",
+                "offset": 0,
+                "slot": 170,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "committedStateRoots",
+                "offset": 0,
+                "slot": 171,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "rollupDelayPeriod",
+                "offset": 0,
+                "slot": 172,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "Rollup",
+                "label": "batchBlobVersionedHashes",
+                "offset": 0,
+                "slot": 173,
+                "type": "mapping(uint256 => bytes32)",
+                "type_id": "t_mapping(t_uint256,t_bytes32)"
+              },
+              {
+                "contract": "Rollup",
+                "label": "legacyCutoverBatchIndex",
+                "offset": 0,
+                "slot": 174,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              }
+            ],
+            "sha256": "0x9621d3c039a7051789f65267a9647a97a6bf3c04e200df91c40d7d688651e938"
+          },
+          "verified": true
+        }
+      ],
+      "kind": "TransparentUpgradeableProxy",
+      "name": "Rollup",
+      "upgrades": [
+        {
+          "block": 20996846,
+          "impl": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+          "log_index": 177,
+          "seq": 0,
+          "tx": "0xfb3bc602abb088d5d94e6869d56417de3c16a3966e5c6abfa4d157dfbcc36cba",
+          "via": [
+            {
+              "kind": "constructor"
+            }
+          ]
+        },
+        {
+          "block": 20998835,
+          "impl": "0xcffddbcb5b9ea2ee45aba121e0849adc87c38326",
+          "log_index": 455,
+          "reinit": {
+            "args": {
+              "_finalizationPeriodSeconds": 900,
+              "_l1StakingContract": "0x0dc417f8af88388737c5053ff73f345f080543f7",
+              "_messageQueue": "0x3931ade842f5bb8763164bdd81e5361dce6cc1ef",
+              "_proofRewardPercent": 70,
+              "_proofWindow": 259200,
+              "_verifier": "0x87c1d0dab8d96b69cb91f97f4135e3ed5a49dcf6"
+            },
+            "function": "initialize",
+            "reinitializer_version": 1,
+            "selector": "0x728cdbca",
+            "signature": "initialize(address,address,address,uint256,uint256,uint256)"
+          },
+          "seq": 1,
+          "tx": "0xeb4cc4248a0b3f459f4d7ab5877114fd4f55fd073c78347df548a9f03013068e",
+          "via": [
+            {
+              "address": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+              "kind": "tx_from"
+            },
+            {
+              "function": "upgradeToAndCall",
+              "kind": "proxy"
+            }
+          ]
+        },
+        {
+          "block": 21007191,
+          "impl": "0x073403e147a8e607b80985fe458c0b527287278f",
+          "log_index": 330,
+          "seq": 2,
+          "tx": "0xd60de4a76f275ec7931bc430b7440f07c15f30028195405f855bd98c33ad72d6",
+          "via": [
+            {
+              "address": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgrade",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 21283676,
+          "impl": "0xad900db30bcdf84c38df0067ea327bbecccf071a",
+          "log_index": 255,
+          "reinit": {
+            "args": {
+              "_prevStateRoot": "0x2f3d926be55dfd7d9c20670cff9eedfd9699cab32bc61047ba40b396fc721c73"
+            },
+            "function": "initialize2",
+            "reinitializer_version": 2,
+            "selector": "0x61267290",
+            "signature": "initialize2(bytes32)"
+          },
+          "seq": 3,
+          "tx": "0xa452e20183f6860f105cb398bccc9d75dd3758444b956061b3031d1f0a33c424",
+          "via": [
+            {
+              "address": "0xce7257224441385345ce6eedd9d8667ad9bab9f0",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xb822319ab7848b7cc4537c8409e50f85bfb04377",
+              "inner_target": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "kind": "gnosis_safe"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgradeAndCall",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 21614093,
+          "impl": "0x43190dfd1f572cb56b1942b44482d1774151d77a",
+          "log_index": 371,
+          "seq": 4,
+          "tx": "0x809b1d9bba9fd8f61c038603ddf7a6f0a079db83a4a6d341cf23d2af5764a9be",
+          "via": [
+            {
+              "address": "0xad249861a911717fe74fa329fec3c619f55dffdf",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xb822319ab7848b7cc4537c8409e50f85bfb04377",
+              "inner_target": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "kind": "gnosis_safe"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgrade",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 22465639,
+          "impl": "0x9c79e8f5d0fe910d84a6a0d4a03e8136d036ebec",
+          "log_index": 599,
+          "seq": 5,
+          "tx": "0x1cd98e49b0d0c30a39c97683c374f5d3541d1ed02b14272a7113709fe01700d7",
+          "via": [
+            {
+              "address": "0xf39d8310a7dfec320bd17bdde32a53d47e340b2e",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xf101f7f59a348c1f971a2bc64fdbda58c7bbd887",
+              "inner_target": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "kind": "gnosis_safe"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgrade",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 23874746,
+          "impl": "0xdf0749e688ae74508d84699ba2405ed610aaf8c5",
+          "log_index": 904,
+          "seq": 6,
+          "tx": "0x27b0e1b46f9878a502c68e414bc6fea028c3a551760e5687c56bdd4eda4f31c9",
+          "via": [
+            {
+              "address": "0xf06ff3cb536197bea6d3af6de30bd96ae4533300",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xf101f7f59a348c1f971a2bc64fdbda58c7bbd887",
+              "inner_target": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "kind": "gnosis_safe"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgrade",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 24575030,
+          "impl": "0x1320d6a438d268044c8eeff0ee6b24e5ec9584e3",
+          "log_index": 266,
+          "reinit": {
+            "args": {
+              "_rollupDelayPeriod": 604800
+            },
+            "function": "initialize3",
+            "reinitializer_version": 3,
+            "selector": "0xcf9a6745",
+            "signature": "initialize3(uint256)"
+          },
+          "seq": 7,
+          "tx": "0xc86bc6dc60ad304afbc7f423668a272434c17dbf4a0bb27906d74f0940a6eab1",
+          "via": [
+            {
+              "address": "0xc7f81b58ec3937d11bf4ba74c04ff69e944423f2",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xf101f7f59a348c1f971a2bc64fdbda58c7bbd887",
+              "inner_target": "0x542675e90e269f20ecbb9e0095d4751ac155b530",
+              "kind": "gnosis_safe"
+            },
+            {
+              "kind": "admin_wrapper"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgradeAndCall",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 24745644,
+          "impl": "0xb2f539aede77df4cd1d427d046bbbbd8db4cbaaf",
+          "log_index": 697,
+          "seq": 8,
+          "tx": "0x8eec835066ebedafa6430fc7b0cd1de2b7a46eb09e56519868ca9dbb938f4c8f",
+          "via": [
+            {
+              "address": "0x05e1d4694041af987af6f8402d902686018e2136",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xf101f7f59a348c1f971a2bc64fdbda58c7bbd887",
+              "inner_target": "0x542675e90e269f20ecbb9e0095d4751ac155b530",
+              "kind": "gnosis_safe"
+            },
+            {
+              "kind": "admin_wrapper"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgrade",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 24769565,
+          "impl": "0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+          "log_index": 536,
+          "seq": 9,
+          "tx": "0xd2892f5b4e5c8fe4bd476e83689b21f4716a38185a3923bd1fcbcf61deefb8f9",
+          "via": [
+            {
+              "address": "0xc7f81b58ec3937d11bf4ba74c04ff69e944423f2",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xf101f7f59a348c1f971a2bc64fdbda58c7bbd887",
+              "inner_target": "0x542675e90e269f20ecbb9e0095d4751ac155b530",
+              "kind": "gnosis_safe"
+            },
+            {
+              "kind": "admin_wrapper"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgrade",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 25236554,
+          "impl": "0xac3c379d772f3520b34690d32ba14510ab36c3fb",
+          "log_index": 635,
+          "seq": 10,
+          "tx": "0xe9128be913e8685a928c8e8468a030a95ad44ef4ad78534c688cd721af496a54",
+          "via": [
+            {
+              "address": "0x05e1d4694041af987af6f8402d902686018e2136",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xf101f7f59a348c1f971a2bc64fdbda58c7bbd887",
+              "inner_target": "0x542675e90e269f20ecbb9e0095d4751ac155b530",
+              "kind": "gnosis_safe"
+            },
+            {
+              "kind": "admin_wrapper"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgrade",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 26031669,
+          "impl": "0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d",
+          "log_index": 447,
+          "reinit": {
+            "args": {
+              "_expectedLegacyCutoverBatchIndex": 60477,
+              "_newSubmitter": "0xf2d50000c994565a4742059802fdbb0bee1cbef6"
+            },
+            "function": "initialize4",
+            "reinitializer_version": 4,
+            "selector": "0x843bc9a1",
+            "signature": "initialize4(address,uint256)"
+          },
+          "seq": 11,
+          "tx": "0xdeb5268cbec1b47c77ad46cb8dd29491833e45ae374d2905f94f4e0499e8110e",
+          "via": [
+            {
+              "address": "0x05e1d4694041af987af6f8402d902686018e2136",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xf101f7f59a348c1f971a2bc64fdbda58c7bbd887",
+              "inner_target": "0x542675e90e269f20ecbb9e0095d4751ac155b530",
+              "kind": "gnosis_safe"
+            },
+            {
+              "kind": "admin_wrapper"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgradeAndCall",
+              "kind": "proxy_admin"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "address": "0x3931ade842f5bb8763164bdd81e5361dce6cc1ef",
+      "admin_history": [
+        {
+          "block": 20996821,
+          "log_index": 65,
+          "new_admin": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+          "previous_admin": "0x0000000000000000000000000000000000000000",
+          "tx": "0xed442ee7f96c1151761ddca9e4b923adff4e0703bc9ae42ca30bf4356f195f5d"
+        },
+        {
+          "block": 20999836,
+          "log_index": 298,
+          "new_admin": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+          "previous_admin": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+          "tx": "0x1eb0a9b5e918895643fbff2f5d24c1ee5d615791b3f1461297ddfab58d26e0cf"
+        }
+      ],
+      "admin_slot": "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103",
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "current_admin_slot": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+      "current_impl_slot": "0xf3b7724334cb0adbc49cac90e166af99c07be6aa",
+      "deploy": {
+        "block": 20996821,
+        "deployer": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+        "init_data": "",
+        "init_data_empty": true,
+        "initial_admin": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+        "initial_impl": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+        "tx": "0xed442ee7f96c1151761ddca9e4b923adff4e0703bc9ae42ca30bf4356f195f5d"
+      },
+      "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+      "implementations": [
+        {
+          "address": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+          "code_size": 21,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x24ed4fbe4d0c9d35ea9821523e9f749edb1a6c8ad31221d73860bd1b2bbc24c8",
+          "source_sha256": {
+            "contracts/misc/EmptyContract.sol": "0x12c7ed8a78edc692c7051524a805cfb1598c2889377b9302212106aaa2dda979"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 1,
+            "name": "EmptyContract",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [],
+            "sha256": "0x4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "verified": true
+        },
+        {
+          "address": "0x828f68e2e05a34fa836416f124350e25021876ac",
+          "code_size": 6298,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x54bd18d831d15c2a07fc61f0b59e2c7ad6b548552bad16758727ae90e0a434d8",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0x7712f5a31dc3a3607660e7eb3df520e2cfbe19bea70f74d061e6d1d174a193b9",
+            "contracts/l1/rollup/IL1MessageQueueWithGasPriceOracle.sol": "0xdf96643843b8e7d75276627fdd12b3000e8a33d02ae02c99f89b92f448325d83",
+            "contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol": "0x9bc37052f1dde0cd4460d4b8a129427d48c95e08e299212da99c4743d476a583",
+            "contracts/libraries/common/AddressAliasHelper.sol": "0xc8f9e3b9476bef6b4fe20ea48561b2b89e13bef3c9976d8cd7ad04068a0cf537",
+            "contracts/libraries/common/IWhitelist.sol": "0x4c10719038fa4adeb6b099896b01279d93a1d9af92ecce4fb7bccfd7604ae558",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/structs/BitMapsUpgradeable.sol": "0x28ab4847aca05ff8305a5440b4728e18e2e62f9ba6a8653b5ad74d15a61c1e7a"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 10,
+            "name": "L1MessageQueueWithGasPriceOracle",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "l2BaseFee",
+                "offset": 0,
+                "slot": 101,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 102,
+                "type": "bytes32[]",
+                "type_id": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "pendingQueueIndex",
+                "offset": 0,
+                "slot": 103,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "maxGasLimit",
+                "offset": 0,
+                "slot": 104,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "droppedMessageBitmap",
+                "offset": 0,
+                "slot": 105,
+                "type": "struct BitMapsUpgradeable.BitMap",
+                "type_id": "t_struct(BitMap)1095_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "skippedMessageBitmap",
+                "offset": 0,
+                "slot": 106,
+                "type": "mapping(uint256 => uint256)",
+                "type_id": "t_mapping(t_uint256,t_uint256)"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "whitelistChecker",
+                "offset": 0,
+                "slot": 107,
+                "type": "address",
+                "type_id": "t_address"
+              }
+            ],
+            "sha256": "0x93e6d25f74d02b5595be7458077ad2d4ba7cb45764d544597698903a6dfc136c"
+          },
+          "verified": true
+        },
+        {
+          "address": "0xa3b5bfb885ff92eb8445f262c289548e77c3c0aa",
+          "code_size": 5384,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0x4ba15aefc4ad2b57a2b05b04358f0ecf6e8326135aea9be1ee93d273b951d797",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0xca206f3373b62673bde66fa2a733f90495f881ac71b70f425f43d7e79dba803a",
+            "contracts/l1/rollup/IL1MessageQueueWithGasPriceOracle.sol": "0xdf96643843b8e7d75276627fdd12b3000e8a33d02ae02c99f89b92f448325d83",
+            "contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol": "0x5615676fd6ebb22a622bc3d35fece35375cb69bccf3eaebd3af156156f006e4f",
+            "contracts/libraries/common/AddressAliasHelper.sol": "0xc8f9e3b9476bef6b4fe20ea48561b2b89e13bef3c9976d8cd7ad04068a0cf537",
+            "contracts/libraries/common/IWhitelist.sol": "0x4c10719038fa4adeb6b099896b01279d93a1d9af92ecce4fb7bccfd7604ae558",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/structs/BitMapsUpgradeable.sol": "0x28ab4847aca05ff8305a5440b4728e18e2e62f9ba6a8653b5ad74d15a61c1e7a"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 10,
+            "name": "L1MessageQueueWithGasPriceOracle",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "l2BaseFee",
+                "offset": 0,
+                "slot": 101,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 102,
+                "type": "bytes32[]",
+                "type_id": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "pendingQueueIndex",
+                "offset": 0,
+                "slot": 103,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "maxGasLimit",
+                "offset": 0,
+                "slot": 104,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__droppedMessageBitmap",
+                "offset": 0,
+                "slot": 105,
+                "type": "struct BitMapsUpgradeable.BitMap",
+                "type_id": "t_struct(BitMap)897_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__skippedMessageBitmap",
+                "offset": 0,
+                "slot": 106,
+                "type": "mapping(uint256 => uint256)",
+                "type_id": "t_mapping(t_uint256,t_uint256)"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "whitelistChecker",
+                "offset": 0,
+                "slot": 107,
+                "type": "address",
+                "type_id": "t_address"
+              }
+            ],
+            "sha256": "0x6e567d969530b85ad85dea84e82de13391247d0485fc9f963fbfeff4ca300a1e"
+          },
+          "verified": true
+        },
+        {
+          "address": "0xf3b7724334cb0adbc49cac90e166af99c07be6aa",
+          "code_size": 5566,
+          "repo_pin_match": false,
+          "repo_tag": null,
+          "runtime_code_sha256": "0xd9f0b32c4a6fff0b3c2df763af2feab7d57fa3b10a28c8155395270a6ecd7160",
+          "source_sha256": {
+            "contracts/l1/rollup/IL1MessageQueue.sol": "0x59245b916ed1e966c5bf2fd25a76e42b7c38d144cce9967b6ef28e42d9496c1a",
+            "contracts/l1/rollup/IL1MessageQueueWithGasPriceOracle.sol": "0x024ae75f9fe58631f4b77a6a6456f18f09c70749da64d85603b712079fb50efc",
+            "contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol": "0xf075d37b1e689f1e5f3140ab2e85cd43c384ccb61db05c83a21550f5a2377eff",
+            "contracts/libraries/common/AddressAliasHelper.sol": "0xc8f9e3b9476bef6b4fe20ea48561b2b89e13bef3c9976d8cd7ad04068a0cf537",
+            "contracts/libraries/common/IWhitelist.sol": "0x40c8c1d152ea0d7eb955568d5c0924f46a9430c185d375665c7097fee112002f",
+            "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "0x2d9e57d2a4b0775334be2968019c1939377d45b69e8b724fe6bb80af47e28419",
+            "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "0xa2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "0xdb92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "0x2d3d7dc6e116cb8ebb8517208141cb3d0950b337a285f15f8476ec3df29d824e",
+            "node_modules/@openzeppelin/contracts-upgradeable/utils/structs/BitMapsUpgradeable.sol": "0x28ab4847aca05ff8305a5440b4728e18e2e62f9ba6a8653b5ad74d15a61c1e7a"
+          },
+          "sourcify": {
+            "compilerVersion": "0.8.24+commit.e11b9ed9",
+            "match": "match",
+            "n_sources": 10,
+            "name": "L1MessageQueueWithGasPriceOracle",
+            "runtimeMatch": "match"
+          },
+          "storage_layout": {
+            "fields": [
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "_initialized",
+                "offset": 0,
+                "slot": 0,
+                "type": "uint8",
+                "type_id": "t_uint8"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "_initializing",
+                "offset": 1,
+                "slot": 0,
+                "type": "bool",
+                "type_id": "t_bool"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 1,
+                "type": "uint256[50]",
+                "type_id": "t_array(t_uint256)50_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "_owner",
+                "offset": 0,
+                "slot": 51,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__gap",
+                "offset": 0,
+                "slot": 52,
+                "type": "uint256[49]",
+                "type_id": "t_array(t_uint256)49_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "l2BaseFee",
+                "offset": 0,
+                "slot": 101,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "messageQueue",
+                "offset": 0,
+                "slot": 102,
+                "type": "bytes32[]",
+                "type_id": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "pendingQueueIndex",
+                "offset": 0,
+                "slot": 103,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "maxGasLimit",
+                "offset": 0,
+                "slot": 104,
+                "type": "uint256",
+                "type_id": "t_uint256"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__droppedMessageBitmap",
+                "offset": 0,
+                "slot": 105,
+                "type": "struct BitMapsUpgradeable.BitMap",
+                "type_id": "t_struct(BitMap)951_storage"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "__skippedMessageBitmap",
+                "offset": 0,
+                "slot": 106,
+                "type": "mapping(uint256 => uint256)",
+                "type_id": "t_mapping(t_uint256,t_uint256)"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "whitelistChecker",
+                "offset": 0,
+                "slot": 107,
+                "type": "address",
+                "type_id": "t_address"
+              },
+              {
+                "contract": "L1MessageQueueWithGasPriceOracle",
+                "label": "messageEnqueueTime",
+                "offset": 0,
+                "slot": 108,
+                "type": "mapping(uint256 => uint256)",
+                "type_id": "t_mapping(t_uint256,t_uint256)"
+              }
+            ],
+            "sha256": "0x585772c6b69078950ec65765f550cc466ef009ae1169e2b1b4de24103a7b901b"
+          },
+          "verified": true
+        }
+      ],
+      "kind": "TransparentUpgradeableProxy",
+      "name": "L1MessageQueue",
+      "upgrades": [
+        {
+          "block": 20996821,
+          "impl": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+          "log_index": 64,
+          "seq": 0,
+          "tx": "0xed442ee7f96c1151761ddca9e4b923adff4e0703bc9ae42ca30bf4356f195f5d",
+          "via": [
+            {
+              "kind": "constructor"
+            }
+          ]
+        },
+        {
+          "block": 20998777,
+          "impl": "0x828f68e2e05a34fa836416f124350e25021876ac",
+          "log_index": 295,
+          "reinit": {
+            "args": {
+              "_maxGasLimit": 100000000,
+              "_whitelistChecker": "0xffafdd9167777c0e5421e0b6789d6d7a5e386984"
+            },
+            "function": "initialize",
+            "reinitializer_version": 1,
+            "selector": "0xda35a26f",
+            "signature": "initialize(uint256,address)"
+          },
+          "seq": 1,
+          "tx": "0xae27c6c83cea4ce8b8a923fddfb122f66e63139e514ba0624a5373b1a1f2829c",
+          "via": [
+            {
+              "address": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+              "kind": "tx_from"
+            },
+            {
+              "function": "upgradeToAndCall",
+              "kind": "proxy"
+            }
+          ]
+        },
+        {
+          "block": 21614290,
+          "impl": "0xa3b5bfb885ff92eb8445f262c289548e77c3c0aa",
+          "log_index": 217,
+          "seq": 2,
+          "tx": "0x60cc38cb058516da361ecd5f548fc9216fbcda9eb08255b529ebbf78dac44f7b",
+          "via": [
+            {
+              "address": "0x05e1d4694041af987af6f8402d902686018e2136",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xb822319ab7848b7cc4537c8409e50f85bfb04377",
+              "inner_target": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "kind": "gnosis_safe"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgrade",
+              "kind": "proxy_admin"
+            }
+          ]
+        },
+        {
+          "block": 24575015,
+          "impl": "0xf3b7724334cb0adbc49cac90e166af99c07be6aa",
+          "log_index": 420,
+          "seq": 3,
+          "tx": "0x29632a0458dbc5cbad5e831228a54c118e8e0746bff06fcf151cad568079a318",
+          "via": [
+            {
+              "address": "0xc7f81b58ec3937d11bf4ba74c04ff69e944423f2",
+              "kind": "tx_from"
+            },
+            {
+              "address": "0xf101f7f59a348c1f971a2bc64fdbda58c7bbd887",
+              "inner_target": "0x542675e90e269f20ecbb9e0095d4751ac155b530",
+              "kind": "gnosis_safe"
+            },
+            {
+              "kind": "admin_wrapper"
+            },
+            {
+              "address": "0x31110622d6ca24c9ff307d6ae1715f16e47f16a0",
+              "function": "upgrade",
+              "kind": "proxy_admin"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "schema": "holon.migrations/v1",
+  "storage_diffs": [
+    {
+      "added": [
+        {
+          "label": "__gap",
+          "offset": 0,
+          "slot": 102,
+          "type": "uint256[49]"
+        },
+        {
+          "label": "__maxNumTxInChunk",
+          "offset": 0,
+          "slot": 154,
+          "type": "uint256"
+        },
+        {
+          "label": "_initialized",
+          "offset": 0,
+          "slot": 0,
+          "type": "uint8"
+        },
+        {
+          "label": "_initializing",
+          "offset": 1,
+          "slot": 0,
+          "type": "bool"
+        },
+        {
+          "label": "_owner",
+          "offset": 0,
+          "slot": 51,
+          "type": "address"
+        },
+        {
+          "label": "_paused",
+          "offset": 0,
+          "slot": 101,
+          "type": "bool"
+        },
+        {
+          "label": "batchChallengeReward",
+          "offset": 0,
+          "slot": 165,
+          "type": "mapping(address => uint256)"
+        },
+        {
+          "label": "batchChallenged",
+          "offset": 0,
+          "slot": 167,
+          "type": "uint256"
+        },
+        {
+          "label": "batchDataStore",
+          "offset": 0,
+          "slot": 162,
+          "type": "mapping(uint256 => struct IRollup.BatchData)"
+        },
+        {
+          "label": "challenges",
+          "offset": 0,
+          "slot": 164,
+          "type": "mapping(uint256 => struct IRollup.BatchChallenge)"
+        },
+        {
+          "label": "committedBatches",
+          "offset": 0,
+          "slot": 161,
+          "type": "mapping(uint256 => bytes32)"
+        },
+        {
+          "label": "finalizationPeriodSeconds",
+          "offset": 0,
+          "slot": 152,
+          "type": "uint256"
+        },
+        {
+          "label": "finalizedStateRoots",
+          "offset": 0,
+          "slot": 160,
+          "type": "mapping(uint256 => bytes32)"
+        },
+        {
+          "label": "inChallenge",
+          "offset": 0,
+          "slot": 166,
+          "type": "bool"
+        },
+        {
+          "label": "isChallenger",
+          "offset": 0,
+          "slot": 159,
+          "type": "mapping(address => bool)"
+        },
+        {
+          "label": "l1StakingContract",
+          "offset": 0,
+          "slot": 151,
+          "type": "address"
+        },
+        {
+          "label": "lastCommittedBatchIndex",
+          "offset": 0,
+          "slot": 158,
+          "type": "uint256"
+        },
+        {
+          "label": "lastFinalizedBatchIndex",
+          "offset": 0,
+          "slot": 157,
+          "type": "uint256"
+        },
+        {
+          "label": "messageQueue",
+          "offset": 0,
+          "slot": 155,
+          "type": "address"
+        },
+        {
+          "label": "proofRewardPercent",
+          "offset": 0,
+          "slot": 169,
+          "type": "uint256"
+        },
+        {
+          "label": "proofWindow",
+          "offset": 0,
+          "slot": 153,
+          "type": "uint256"
+        },
+        {
+          "label": "proveRemaining",
+          "offset": 0,
+          "slot": 170,
+          "type": "uint256"
+        },
+        {
+          "label": "revertReqIndex",
+          "offset": 0,
+          "slot": 168,
+          "type": "uint256"
+        },
+        {
+          "label": "verifier",
+          "offset": 0,
+          "slot": 156,
+          "type": "address"
+        },
+        {
+          "label": "withdrawalRoots",
+          "offset": 0,
+          "slot": 163,
+          "type": "mapping(bytes32 => bool)"
+        }
+      ],
+      "from_impl": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+      "moved": [],
+      "proxy": "Rollup",
+      "removed": [],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0xcffddbcb5b9ea2ee45aba121e0849adc87c38326"
+    },
+    {
+      "added": [],
+      "from_impl": "0xcffddbcb5b9ea2ee45aba121e0849adc87c38326",
+      "moved": [],
+      "proxy": "Rollup",
+      "removed": [],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0x073403e147a8e607b80985fe458c0b527287278f"
+    },
+    {
+      "added": [
+        {
+          "label": "committedStateRoots",
+          "offset": 0,
+          "slot": 171,
+          "type": "mapping(uint256 => bytes32)"
+        }
+      ],
+      "from_impl": "0x073403e147a8e607b80985fe458c0b527287278f",
+      "moved": [],
+      "proxy": "Rollup",
+      "removed": [],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0xad900db30bcdf84c38df0067ea327bbecccf071a"
+    },
+    {
+      "added": [],
+      "from_impl": "0xad900db30bcdf84c38df0067ea327bbecccf071a",
+      "moved": [],
+      "proxy": "Rollup",
+      "removed": [],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0x43190dfd1f572cb56b1942b44482d1774151d77a"
+    },
+    {
+      "added": [],
+      "from_impl": "0x43190dfd1f572cb56b1942b44482d1774151d77a",
+      "moved": [],
+      "proxy": "Rollup",
+      "removed": [],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0x9c79e8f5d0fe910d84a6a0d4a03e8136d036ebec"
+    },
+    {
+      "added": [],
+      "from_impl": "0x9c79e8f5d0fe910d84a6a0d4a03e8136d036ebec",
+      "moved": [],
+      "proxy": "Rollup",
+      "removed": [],
+      "retyped": [],
+      "status": "identical_source",
+      "to_impl": "0xdf0749e688ae74508d84699ba2405ed610aaf8c5"
+    },
+    {
+      "added": [
+        {
+          "label": "rollupDelayPeriod",
+          "offset": 0,
+          "slot": 172,
+          "type": "uint256"
+        }
+      ],
+      "from_impl": "0xdf0749e688ae74508d84699ba2405ed610aaf8c5",
+      "moved": [],
+      "proxy": "Rollup",
+      "removed": [],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0x1320d6a438d268044c8eeff0ee6b24e5ec9584e3"
+    },
+    {
+      "added": [],
+      "from_impl": "0x1320d6a438d268044c8eeff0ee6b24e5ec9584e3",
+      "moved": [],
+      "proxy": "Rollup",
+      "removed": [],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0xb2f539aede77df4cd1d427d046bbbbd8db4cbaaf"
+    },
+    {
+      "from_impl": "0xb2f539aede77df4cd1d427d046bbbbd8db4cbaaf",
+      "proxy": "Rollup",
+      "reason": "unverified implementation source: 0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "status": "unverifiable",
+      "to_impl": "0x9e2fb684935a32ced121972f23bd0e4634377ca2"
+    },
+    {
+      "from_impl": "0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "proxy": "Rollup",
+      "reason": "unverified implementation source: 0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "status": "unverifiable",
+      "to_impl": "0xac3c379d772f3520b34690d32ba14510ab36c3fb"
+    },
+    {
+      "added": [
+        {
+          "label": "legacyCutoverBatchIndex",
+          "offset": 0,
+          "slot": 174,
+          "type": "uint256"
+        },
+        {
+          "label": "submitterContract",
+          "offset": 0,
+          "slot": 151,
+          "type": "address"
+        }
+      ],
+      "from_impl": "0xac3c379d772f3520b34690d32ba14510ab36c3fb",
+      "moved": [],
+      "proxy": "Rollup",
+      "removed": [
+        {
+          "label": "l1StakingContract",
+          "offset": 0,
+          "slot": 151,
+          "type": "address"
+        }
+      ],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d"
+    },
+    {
+      "added": [
+        {
+          "label": "__gap",
+          "offset": 0,
+          "slot": 52,
+          "type": "uint256[49]"
+        },
+        {
+          "label": "_initialized",
+          "offset": 0,
+          "slot": 0,
+          "type": "uint8"
+        },
+        {
+          "label": "_initializing",
+          "offset": 1,
+          "slot": 0,
+          "type": "bool"
+        },
+        {
+          "label": "_owner",
+          "offset": 0,
+          "slot": 51,
+          "type": "address"
+        },
+        {
+          "label": "droppedMessageBitmap",
+          "offset": 0,
+          "slot": 105,
+          "type": "struct BitMapsUpgradeable.BitMap"
+        },
+        {
+          "label": "l2BaseFee",
+          "offset": 0,
+          "slot": 101,
+          "type": "uint256"
+        },
+        {
+          "label": "maxGasLimit",
+          "offset": 0,
+          "slot": 104,
+          "type": "uint256"
+        },
+        {
+          "label": "messageQueue",
+          "offset": 0,
+          "slot": 102,
+          "type": "bytes32[]"
+        },
+        {
+          "label": "pendingQueueIndex",
+          "offset": 0,
+          "slot": 103,
+          "type": "uint256"
+        },
+        {
+          "label": "skippedMessageBitmap",
+          "offset": 0,
+          "slot": 106,
+          "type": "mapping(uint256 => uint256)"
+        },
+        {
+          "label": "whitelistChecker",
+          "offset": 0,
+          "slot": 107,
+          "type": "address"
+        }
+      ],
+      "from_impl": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+      "moved": [],
+      "proxy": "L1MessageQueue",
+      "removed": [],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0x828f68e2e05a34fa836416f124350e25021876ac"
+    },
+    {
+      "added": [
+        {
+          "label": "__droppedMessageBitmap",
+          "offset": 0,
+          "slot": 105,
+          "type": "struct BitMapsUpgradeable.BitMap"
+        },
+        {
+          "label": "__skippedMessageBitmap",
+          "offset": 0,
+          "slot": 106,
+          "type": "mapping(uint256 => uint256)"
+        }
+      ],
+      "from_impl": "0x828f68e2e05a34fa836416f124350e25021876ac",
+      "moved": [],
+      "proxy": "L1MessageQueue",
+      "removed": [
+        {
+          "label": "droppedMessageBitmap",
+          "offset": 0,
+          "slot": 105,
+          "type": "struct BitMapsUpgradeable.BitMap"
+        },
+        {
+          "label": "skippedMessageBitmap",
+          "offset": 0,
+          "slot": 106,
+          "type": "mapping(uint256 => uint256)"
+        }
+      ],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0xa3b5bfb885ff92eb8445f262c289548e77c3c0aa"
+    },
+    {
+      "added": [
+        {
+          "label": "messageEnqueueTime",
+          "offset": 0,
+          "slot": 108,
+          "type": "mapping(uint256 => uint256)"
+        }
+      ],
+      "from_impl": "0xa3b5bfb885ff92eb8445f262c289548e77c3c0aa",
+      "moved": [],
+      "proxy": "L1MessageQueue",
+      "removed": [],
+      "retyped": [],
+      "status": "diffed",
+      "to_impl": "0xf3b7724334cb0adbc49cac90e166af99c07be6aa"
+    }
+  ]
+}

@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.363
+      "seconds": 0.203
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.529
+      "seconds": 0.3
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.363
+    "seconds": 0.203
   },
   "difference": {
     "lhs": [
@@ -52,7 +52,7 @@
       }
     ]
   },
-  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -65,7 +65,14 @@
     "[{\"args\": [{\"var\": \"b\"}], \"fn\": \"is_challengeState\"}, {\"bool\": true}]",
     "[{\"args\": [{\"trace\": [{\"var\": \"a\"}, {\"var\": \"b\"}]}, {\"from\": {\"s0\": {}}, \"run\": {\"var\": \"p\"}}], \"fn\": \"runs_ok\"}, {\"bool\": true}]",
     "[{\"args\": [{\"trace\": [{\"var\": \"b\"}, {\"var\": \"a\"}]}, {\"from\": {\"s0\": {}}, \"run\": {\"var\": \"p\"}}], \"fn\": \"runs_ok\"}, {\"bool\": true}]",
-    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+    "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+    "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+    "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+    "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+    "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+    "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+    "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+    "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
   ],
   "replay": {
     "detail": "continuation outcomes on the real code: ['ok', 'ok'] vs ['ok', 'rev cannot challenge batch outside the challenge window'] @ morph 3e44e795586a",
@@ -73,10 +80,11 @@
   },
   "rule": "SYM",
   "scope": "unbounded",
-  "statement_hash": "sha256:5d7246f8ced86b32d1d3d549bf6f14fafd84cb59109847e04b4fa47950d3bada",
+  "statement_hash": "sha256:725aef064b343a56d42c1dd6ee5a3cecc90ff80742f333194f736a0f03c2bb9a",
   "status": "REFUTED",
   "subform": "reorder",
-  "triage": "finding",
+  "triage": "intent_question",
+  "triage_why": "conditional: both orders need proof acceptance by the stand-in verifier (proof == 1); the real ZkEvmVerifierV1 rejects that proof; no real-proof schedule; audit R3.",
   "witness": {
     "a": {
       "blobs": [

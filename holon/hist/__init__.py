@@ -1,4 +1,4 @@
-"""holon.hist: historical-input replay (M2).
+"""holon.hist: historical-input tooling (M2).
 
 S5 owns holon/hist/fetch* (corpus fetching). S6 owns holon/hist/replay*:
 replays corpus commits through the COMPILED generated model and writes

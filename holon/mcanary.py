@@ -9,6 +9,11 @@ on which the compiled model shows the canary false. Kinds:
   negated     the counter-law of a proved forall law, at a point where the law holds.
   pin_const   an existence (strategy) law with one claimed constant changed (cost, delay, index),
               checked with the original witness.
+  negated     (REFUTED laws) the counter-law certificate re-emitted at a point where the law HOLDS
+              (the empty trace / the smallest Nat): the certificate's evaluation premise is false there,
+              so Bend must reject it for the semantic reason that the model does not refute the law at
+              that point. This is the canary kind of the SORT milestones, whose laws are mostly refuted.
+  witness_prefix  the same certificate at the witness shortened by one step (the law still holds there).
 """
 from __future__ import annotations
 
@@ -31,9 +36,20 @@ def candidates(laws: list[dict], records: dict) -> list[tuple[str, str, dict, di
     for law in laws:
         lid = law["law_id"]
         rec = records.get(lid)
-        if not rec or rec["status"] != "PROVED":
+        if not rec:
             continue
         st = law["statement"]
+        if rec["status"] == "REFUTED" and not st.get("assume"):
+            bs = [(b["name"], b["type"]) for b in st["binders"]]
+            if len(bs) == 1 and bs[0][1] in ("Trace", "Nat") and all(b["q"] == "forall" for b in st["binders"]):
+                name, ty = bs[0]
+                out.append(("negated", lid, copy.deepcopy(law), {name: [] if ty == "Trace" else 0}))
+                w = (rec.get("witness") or {}).get(name)
+                if w and (len(w) if ty == "Trace" else w) > 0:   # one step short of the witness
+                    out.append(("witness_prefix", lid, copy.deepcopy(law), {name: w[:-1] if ty == "Trace" else w - 1}))
+            continue
+        if rec["status"] != "PROVED":
+            continue
         if law.get("subform") == "dead_residue":
             erased = st["assume"][0]["eq"][0]["proj"]
             for f in LIVE_FIELDS:
@@ -71,7 +87,7 @@ def run_canaries(cm, laws: list[dict], records: dict, workdir, cfg: dict, max_n:
         law.pop("notes", None)
         E = mlaws.Emitter(cm.m)
         try:
-            if kind == "negated":
+            if kind in ("negated", "witness_prefix"):
                 em = E.emit(law, imp, counter=True)
                 env = {n: mlaws.value_literal(cm.m, t, point[n]) for _, n, t in em.binders}
                 lhs, _, ty = mlaws.Emitter(cm.m).prop(law["statement"]["claim"], env, {n: t for _, n, t in em.binders})
@@ -104,7 +120,7 @@ def run_canaries(cm, laws: list[dict], records: dict, workdir, cfg: dict, max_n:
         (d / "PROOF.bend").write_text(proof)
         r = bend.check(d / "PROOF.bend", cfg)
         semantic = r.marker == bend.MARK_FAIL and "- expected :" in r.out
-        res.append({"id": law["law_id"], "kind": kind, "source_law": src, "negated": kind == "negated",
+        res.append({"id": law["law_id"], "kind": kind, "source_law": src, "negated": kind in ("negated", "witness_prefix"),
                     "rejected": (not r.ok) and semantic, "checker_first_line": r.first_line, "counterexample": cex,
                     "law": law})
         counts[kind] = k + 1

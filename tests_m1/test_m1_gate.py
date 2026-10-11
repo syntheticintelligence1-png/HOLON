@@ -43,10 +43,13 @@ class TestM1Gate(unittest.TestCase):
         self.assertGreaterEqual(len(cans), 10)
         self.assertGreaterEqual(len({c["kind"] for c in cans}), 3)
         for c in cans:
+            if c["law"].get("ir_version") != "holon-ir/0.2":
+                # ir/0.1 (PAR) canaries are validated inside the gate itself
+                continue
             with self.subTest(canary=c["id"]):
                 self.assertTrue(c["rejected"])
                 ev = cm.evaluate(c["law"], c["counterexample"])
-                if c["kind"] == "negated":
+                if c.get("negated", c["kind"] == "negated"):
                     self.assertTrue(all(ev["premises"]) and all(ev["claims"]), "negated canary: the law holds here")
                 else:
                     self.assertTrue(all(ev["premises"]))
