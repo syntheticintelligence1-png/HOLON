@@ -73,9 +73,13 @@ SCEN = [  # (law_id, setup, probe, kind, why)
 ]
 
 def run_of(setup): return {"run": {"trace": setup}, "from": {"s0": {}}}
+# Reason codes are per-facts-file numbering (the S1 extraction numbers them differently), so a
+# law names a revert by its message; the emitter resolves {"reason": msg} against the facts file
+# it is built on. The preregistered codes (eb4a3d0) are mapped through the hand facts' table.
+REASONS = json.loads((Path(__file__).resolve().parents[3] / FACTS).read_text())["reasons"]
 def claim(setup, probe, kind):
     if kind[0] == "rev":
-        return {"eq": [{"fn": "no_code", "args": [{"obs": {"trace": [probe]}, "from": run_of(setup)}, {"nat": kind[1]}]}, {"bool": False}]}
+        return {"eq": [{"fn": "no_code", "args": [{"obs": {"trace": [probe]}, "from": run_of(setup)}, {"reason": REASONS[str(kind[1])]}]}, {"bool": False}]}
     if kind[0] == "ok":
         return {"eq": [{"fn": "last_ok", "args": [{"step": probe, "from": run_of(setup)}]}, {"bool": True}]}
     if kind[0] == "lci":
