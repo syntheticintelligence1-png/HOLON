@@ -1,9 +1,12 @@
 """`holon gate`: regenerate and re-check everything from scratch (whitepaper §9.3, M0_SPEC §7).
 
-Order: GENV, G2, G1, G3, G5, G11, G6, G9, G7, G4. The report is always written; exit 0 iff passed.
+Order: GENV, G2, G1, G3, G5, G11, G11V, G6, G9, G7, G4. The report is always written; exit 0 iff passed.
 `--checks G6,G9` runs a subset (after GENV) and marks the report partial.
 
-  GENV  no bunfig.toml / .env under root (else Bend is never invoked), pinned bend version
+  GENV  no bunfig.toml / .env under root and no global bunfig ($XDG_CONFIG_HOME, $HOME) (else Bend is
+        never invoked); the command resolves to a bun + bend2/main.ts checkout whose fingerprint
+        (HEAD, sources, bun version) equals bend.pinned_fingerprint; that fingerprint is not in
+        results/quarantine.json; pinned bend version
   G2    statement hashes match REGISTRY.json; registry lists exactly laws/<m>; facts hash; and
         spec/bindings/<m>.json matches the kernel (BendTT) form of every definition each statement
         reaches in the committed models, plus the emitted statement and counter-law (a mismatch
@@ -11,8 +14,11 @@ Order: GENV, G2, G1, G3, G5, G11, G6, G9, G7, G4. The report is always written; 
   G1    regeneration into a temp dir is byte-identical (gen/**/*.bend, summary.json, and every
         result record with `seconds` stripped and artifact paths normalised), from a fresh build dir
   G3    no escape hatches in generated Bend; the checker reports no TODO / unsafe reliance
-  G5    every PROVED/REFUTED PROOF.bend re-checks: exit 0 and ALL PROOFS CHECK
+  G5    every PROVED/REFUTED PROOF.bend re-checks: exit 0 and ALL PROOFS CHECK, each within
+        bend.budget_s_per_file seconds (default 120); timings go to results/<m>/gate_timing.json
   G11   every law has a record; every checked LAWS.bend states exactly its expected law
+  G11V  non-vacuity: every premised PROVED law has a dual-checked inhabitant stating exactly its
+        premises (holon/inhabit.py); a premised REFUTED law counts through its counter-law witness
   G6    every REFUTED record is bound to a passed replay: its witness sha256 is in the replay
         report, the report is for the facts' target commit, and a side not replayed is labelled
         "model-only pending replay"
@@ -20,7 +26,8 @@ Order: GENV, G2, G1, G3, G5, G11, G6, G9, G7, G4. The report is always written; 
   G7    second kernel: BendTT (--verdict) re-checks every proof, or the run is labelled
         single-kernel when Lean is unavailable
   G4    >= 10 canaries of >= 3 kinds (pin_const, swap_fn, negated), all rejected, each for a
-        semantic reason (an expected/observed mismatch), never a parse error
+        semantic reason (an expected/observed mismatch), never a parse error; an accepted canary
+        quarantines the checker's fingerprint (results/quarantine.json, see `quarantine`)
 """
 from __future__ import annotations
 
@@ -44,8 +51,59 @@ from .model_eval import CompiledModel, model_name
 ROOT = Path(__file__).resolve().parents[1]
 MIN_CANARIES = 10
 MAX_CANARIES = 24
-CHECK_ORDER = ["GENV", "G2", "G1", "G3", "G5", "G11", "G6", "G9", "G7", "G4"]
+CHECK_ORDER = ["GENV", "G2", "G1", "G3", "G5", "G11", "G11V", "G6", "G9", "G7", "G4"]
 MODEL_ONLY = "model-only pending replay"
+# Gate outputs under results/: never part of what G1 regenerates and compares (G1 compares only
+# L_*.json, summary.json and deps.json; this guards that list).
+G1_EXCLUDED = ("gate_timing.json", "gate_report.json", "quarantine.json")
+QUARANTINE_NOTE = ("agent-writable tripwire: an accepted canary quarantines this checker version until a human "
+                   "clears it")
+
+
+def quarantine_path(root: Path) -> Path:
+    return Path(root) / "results" / "quarantine.json"
+
+
+def quarantine(root: Path, fingerprint: str, ids) -> Path:
+    """Quarantine a checker fingerprint after an accepted canary: GENV then refuses that checker.
+
+    Writes <root>/results/quarantine.json. It is an agent-writable tripwire, not a protected record:
+    deleting the file clears it, which only a human may do. A quarantine already recorded for the
+    same fingerprint gains the new canary ids; one recorded for another fingerprint is kept under
+    "earlier" (GENV refuses those too), so a new quarantine never clears an old one."""
+    p = quarantine_path(root)
+    old = None
+    if p.exists():
+        try:
+            old = _load(p)
+        except Exception:  # noqa: BLE001  (an unreadable file is replaced, its text kept as evidence)
+            old = {"unreadable": p.read_text(errors="replace")}
+    ids = set(ids)
+    earlier = []
+    if isinstance(old, dict):
+        earlier = [e for e in old.get("earlier", []) if isinstance(e, dict)]
+        if old.get("fingerprint") == fingerprint:
+            ids |= set(old.get("canaries") or [])
+        else:
+            earlier.append({k: v for k, v in old.items() if k != "earlier"})
+    rec = {"fingerprint": fingerprint, "canaries": sorted(ids), "note": QUARANTINE_NOTE}
+    if earlier:
+        rec["earlier"] = earlier
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
+    return p
+
+
+def quarantined_fingerprints(root: Path) -> set[str]:
+    """Fingerprints quarantined under root (raises if the quarantine file is unreadable)."""
+    p = quarantine_path(root)
+    if not p.exists():
+        return set()
+    q = _load(p)
+    if not isinstance(q, dict):
+        raise ValueError("results/quarantine.json is not an object")
+    out = {q.get("fingerprint")} | {e.get("fingerprint") for e in q.get("earlier", []) if isinstance(e, dict)}
+    return {f for f in out if isinstance(f, str)}
 
 
 def _res(passed: bool, detail: str) -> dict:
@@ -64,6 +122,10 @@ def _resolve(root: Path, p: str | None) -> Path | None:
 
 
 class Gate:
+    checker: dict | None = None          # bend.fingerprint() of the checker GENV accepted
+    timings: dict | None = None          # {"G5": {law_id: seconds}} once G5 has run
+    genv_skip = "skipped: GENV failed"   # why the other checks were not run
+
     def __init__(self, milestone: str, root: Path):
         self.m, self.root = milestone, Path(root).resolve()
         self.cfg = bend.config(self.root)
@@ -117,6 +179,8 @@ class Gate:
             r = strip(_load(f))
             if isinstance(r.get("artifacts"), dict):
                 r["artifacts"] = {k: (rel(v) if k in ("laws", "proof", "model") else v) for k, v in r["artifacts"].items()}
+            if isinstance(r.get("non_vacuity"), dict) and r["non_vacuity"].get("law"):
+                r["non_vacuity"] = {**r["non_vacuity"], "law": rel(r["non_vacuity"]["law"])}
             out[f.stem] = r
         return out
 
@@ -216,18 +280,50 @@ class Gate:
 
     # ------------------------------------------------------------ checks
     def genv(self) -> bool:
+        def fail(detail: str, skip: str) -> bool:
+            self.checks["GENV"] = _res(False, detail)
+            self.genv_skip = skip
+            return False
         bad = bend.unsafe_env_files(self.root)
         if bad:
-            self.checks["GENV"] = _res(False, f"unsafe Bun config present, Bend not invoked: {bad}")
-            return False
+            return fail(f"unsafe Bun config present, Bend not invoked: {bad}", "skipped: unsafe environment")
+        if os.environ.get("BENDTT"):
+            return fail("BENDTT is set: an unpinned second-kernel override is refused (unset it, or pin it in a "
+                        "reviewed config change)", "skipped: unpinned BENDTT override")
+        glob_cfg = bend.global_bunfig()
+        if glob_cfg:
+            return fail(f"global bunfig present, Bend not invoked: {glob_cfg} (a preload there runs inside the "
+                        "checker)", "skipped: unsafe environment")
+        # identify the checker before running it: an unresolvable command is never invoked
+        try:
+            fp = bend.fingerprint(self.cfg)
+        except Exception as e:  # noqa: BLE001
+            return fail(f"cannot fingerprint the checker: {e}", "skipped: checker not the pinned one")
+        pin_fp = self.cfg["bend"].get("pinned_fingerprint")
+        where = f"checkout {fp['checkout']} at {fp['head'][:12]}, bun {fp['bun']}"
+        if fp["fingerprint"] != pin_fp:
+            return fail(f"checker fingerprint {fp['fingerprint']} ({where}, sources {fp['sources_sha256'][:12]}) "
+                        f"is not the pinned fingerprint {pin_fp}", "skipped: checker not the pinned one")
+        try:
+            quarantined = fp["fingerprint"] in quarantined_fingerprints(self.root)
+        except Exception as e:  # noqa: BLE001  (fail closed: only a human clears or repairs a quarantine)
+            return fail(f"quarantine file unreadable, refusing: {e}", "skipped: checker quarantined")
+        if quarantined:
+            return fail(f"checker fingerprint {fp['fingerprint']} is in quarantine "
+                        f"({quarantine_path(self.root).relative_to(self.root)}: an accepted canary); a human must "
+                        "clear it", "skipped: checker quarantined")
+        self.checker = fp
         try:
             self.bend_version = bend.version(self.cfg)
         except Exception as e:  # noqa: BLE001
-            self.checks["GENV"] = _res(False, f"cannot run bend: {e}")
-            return False
+            return fail(f"cannot run bend: {e}", "skipped: bend unavailable or not the pinned version")
         pin = self.cfg["bend"]["pinned_version"]
-        self.checks["GENV"] = _res(self.bend_version == pin, f"bend {self.bend_version}, pinned {pin}")
-        return self.bend_version == pin
+        ok = self.bend_version == pin
+        self.checks["GENV"] = _res(ok, f"bend {self.bend_version}, pinned {pin}; fingerprint {fp['fingerprint']} "
+                                       f"pinned ({where}); no global bunfig; not quarantined")
+        if not ok:
+            self.genv_skip = "skipped: bend unavailable or not the pinned version"
+        return ok
 
     def g2(self) -> None:
         self.g2_registry()
@@ -308,7 +404,8 @@ class Gate:
             a, b = bends(self.gen), bends(tmp / "gen")
             diff = sorted(k for k in set(a) | set(b) if a.get(k) != b.get(k))
             same = {f: (self.results / f).exists() and (self.results / f).read_bytes() ==
-                    (tmp / "results" / f).read_bytes() for f in ("summary.json", "deps.json")}
+                    (tmp / "results" / f).read_bytes() for f in ("summary.json", "deps.json")
+                    if f not in G1_EXCLUDED}
             same_summary = all(same.values())
             ra = self.norm_records(self.results, self.gen)
             rb = self.norm_records(tmp / "results", tmp / "gen")
@@ -332,7 +429,8 @@ class Gate:
                 self.check_outputs.append(bend.check(d / "PROOF.bend", self.cfg).out)
 
     def g5(self) -> None:
-        bad, n = [], 0
+        bad, n, timing = [], 0, {}
+        budget = float(self.cfg["bend"].get("budget_s_per_file", 120))
         for lid, rec, d in self.checked_dirs():
             n += 1
             proof = d / "PROOF.bend"
@@ -341,9 +439,34 @@ class Gate:
                 continue
             r = bend.check(proof, self.cfg)
             self.check_outputs.append(r.out)
+            timing[lid] = r.seconds
             if not r.ok:
                 bad.append(f"{lid}: exit {r.code}, {r.first_line}")
-        self.checks["G5"] = _res(not bad and n > 0, f"{n} proofs re-checked from scratch" if not bad else "; ".join(bad))
+            if r.seconds > budget:
+                bad.append(f"{lid}: {r.seconds} s exceeds the budget of {budget:g} s per file")
+        self.timings = {"G5": dict(sorted(timing.items()))}
+        slowest = max(timing.values(), default=0)
+        self.checks["G5"] = _res(not bad and n > 0, f"{n} proofs re-checked from scratch, slowest {slowest} s "
+                                 f"(budget {budget:g} s per file)" if not bad else "; ".join(bad))
+
+    def write_timings(self) -> Path:
+        """results/<m>/gate_timing.json: per-proof check seconds. Not compared by G1 (G1_EXCLUDED)."""
+        p = self.results / "gate_timing.json"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(self.timings, indent=2, sort_keys=True) + "\n")
+        return p
+
+    def quarantine_accepted(self) -> str:
+        """Quarantine the running checker if it accepted a canary (said ALL PROOFS CHECK on a false law);
+        a canary rejected for a non-semantic reason fails G4 but does not quarantine. Returns a detail suffix."""
+        accepted = sorted(c["id"] for c in self.canaries if c.get("checker_first_line") == bend.MARK_OK)
+        if not accepted:
+            return ""
+        fp = (self.checker or {}).get("fingerprint")
+        if not fp:
+            return "; checker fingerprint unknown, not quarantined"
+        p = quarantine(self.root, fp, accepted)
+        return f"; the checker accepted {accepted}: {fp} quarantined in {p.relative_to(self.root)}"
 
     def g3(self) -> None:
         bad = []
@@ -375,6 +498,11 @@ class Gate:
             bad.append("summary.json missing")
         self.checks["G11"] = _res(not bad, "every law has a record and a non-vacuous LAWS.bend" if not bad
                                   else "; ".join(bad))
+
+    def g11v(self) -> None:
+        from . import inhabit
+        ok, detail = inhabit.g11v(self)
+        self.checks["G11V"] = _res(ok, detail)
 
     def g7(self) -> None:
         if not bend.verdict_enabled(self.cfg):
@@ -437,7 +565,8 @@ class Gate:
             accepted = [c["id"] for c in self.canaries if not c["rejected"]]
             ok = len(self.canaries) >= MIN_CANARIES and len(kinds) >= 3 and not accepted
             self.checks["G4"] = _res(ok, f"{len(self.canaries)} canaries of kinds {sorted(kinds)}, all rejected" if ok
-                                     else f"{len(self.canaries)} canaries, kinds {sorted(kinds)}, ACCEPTED: {accepted}")
+                                     else f"{len(self.canaries)} canaries, kinds {sorted(kinds)}, ACCEPTED: {accepted}"
+                                     + self.quarantine_accepted())
         except Exception as e:  # noqa: BLE001
             self.checks["G4"] = _res(False, f"error: {e}")
         finally:
@@ -499,7 +628,8 @@ class Gate:
             accepted = [c["id"] for c in self.canaries if not c["rejected"]]
             ok = len(self.canaries) >= MIN_CANARIES and len(kinds) >= 3 and not accepted
             self.checks["G4"] = _res(ok, f"{len(self.canaries)} canaries of kinds {sorted(kinds)}, all rejected" if ok
-                                     else f"{len(self.canaries)} canaries, kinds {sorted(kinds)}, ACCEPTED: {accepted}")
+                                     else f"{len(self.canaries)} canaries, kinds {sorted(kinds)}, ACCEPTED: {accepted}"
+                                     + self.quarantine_accepted())
         except Exception as e:  # noqa: BLE001
             self.checks["G4"] = _res(False, f"error: {e}")
 
@@ -509,8 +639,8 @@ class Gate:
         unknown = sorted(set(only or []) - set(CHECK_ORDER))
         if unknown:
             raise SystemExit(f"unknown checks: {unknown}")
-        steps = {"G2": self.g2, "G1": self.g1, "G5": self.g5, "G3": self.g3, "G11": self.g11, "G6": self.g6,
-                 "G9": self.g9, "G7": self.g7, "G4": self.g4}
+        steps = {"G2": self.g2, "G1": self.g1, "G5": self.g5, "G3": self.g3, "G11": self.g11, "G11V": self.g11v,
+                 "G6": self.g6, "G9": self.g9, "G7": self.g7, "G4": self.g4}
         # a fresh build directory: nothing compiled is reused from the tree under check
         build = Path(tempfile.mkdtemp(prefix="holon-gate-build-"))
         old_build = os.environ.get("HOLON_BUILD_DIR")
@@ -519,7 +649,7 @@ class Gate:
             if self.genv():
                 if "G3" in order and "G5" not in order:
                     self.recheck_outputs()  # G3 reads the checker's own output; get it without recording G5
-                for g in ["G2", "G1", "G5", "G3", "G11", "G6", "G9", "G7", "G4"]:
+                for g in ["G2", "G1", "G5", "G3", "G11", "G11V", "G6", "G9", "G7", "G4"]:
                     if g in order:
                         try:
                             steps[g]()
@@ -527,14 +657,15 @@ class Gate:
                             self.checks[g] = _res(False, f"error: {type(e).__name__}: {e}")
             else:
                 for g in order[1:]:
-                    self.checks[g] = _res(False, "skipped: unsafe environment" if bend.unsafe_env_files(self.root)
-                                          else "skipped: bend unavailable or not the pinned version")
+                    self.checks[g] = _res(False, self.genv_skip)
         finally:
             if old_build is None:
                 os.environ.pop("HOLON_BUILD_DIR", None)
             else:
                 os.environ["HOLON_BUILD_DIR"] = old_build
             shutil.rmtree(build, ignore_errors=True)
+        if self.timings is not None:  # G5 ran (also in a --checks subset)
+            self.write_timings()
         checks = {g: self.checks[g] for g in order}
         rep = {"milestone": self.m, "passed": all(c["passed"] for c in checks.values()),
                "bend_version": self.bend_version, "checks": checks, "canaries": self.canaries}

@@ -8,7 +8,7 @@ they appear in a Morph checkout, at the facts' target commit.
 This hypothesis is named Hyp-Z0-kzg. It is NOT HypZ: §8.5 reserves HypZ for the compression
 hypothesis (Dec(Enc x ++ 0^k) = x), which this module does not touch.
 
-The comparison reads the target's source text; it never reads tests/reference/.
+The comparison reads the target's source text, never the frozen test oracle.
 """
 from __future__ import annotations
 

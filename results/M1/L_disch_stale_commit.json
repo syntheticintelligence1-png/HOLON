@@ -11,20 +11,20 @@
       "generator": "chain_revert",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.301
+      "seconds": 0.332
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.509
+      "seconds": 0.449
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.301
+    "seconds": 0.332
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -255,7 +255,57 @@
     "scope-rollup-coverage-debt"
   ],
   "model_sha256": "9458837c5853449e9b85b9be2aeae80dc394a140fd367703cf83b7ea6e1e8fc1",
-  "non_vacuity": "pending:I3",
+  "non_vacuity": {
+    "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+    "degenerate": null,
+    "law": "gen/M1/L_disch_stale_commit/nonvac/LAWS.bend",
+    "parent_statement_hash": "sha256:f16e4a0e3e04b5e7c8704d4c873540f27968167225afad83a98217b9ef0fb7d6",
+    "reachable": true,
+    "status": "inhabited",
+    "witness": {
+      "a": {
+        "blobs": [
+          27
+        ],
+        "lbn": 2,
+        "n": 0,
+        "op": "commitBatchWithProof",
+        "parent": 1,
+        "post": 123,
+        "prev": 110,
+        "proof": 1,
+        "ver": 1,
+        "who": 5
+      },
+      "s": {
+        "run": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          },
+          {
+            "idx": 1,
+            "op": "challengeState",
+            "value": 1,
+            "who": 4
+          },
+          {
+            "dt": 11,
+            "op": "wait"
+          }
+        ]
+      }
+    }
+  },
   "premises": [
     "kappa(s) == true",
     "is_commitBatchWithProof(a) == true"

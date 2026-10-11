@@ -11,20 +11,20 @@
       "generator": "noninterference",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.324
+      "seconds": 0.353
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.459
+      "seconds": 0.525
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.324
+    "seconds": 0.353
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -251,7 +251,80 @@
     "scope-rollup-coverage-debt"
   ],
   "model_sha256": "9458837c5853449e9b85b9be2aeae80dc394a140fd367703cf83b7ea6e1e8fc1",
-  "non_vacuity": "pending:I3",
+  "non_vacuity": {
+    "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+    "degenerate": false,
+    "law": "gen/M1/L_undo_BD/nonvac/LAWS.bend",
+    "parent_statement_hash": "sha256:3c8a37fdd3f483f21e5d91caa8ebf89b4e501e9bdd6d159559d87a5760dcfb47",
+    "reachable": false,
+    "status": "inhabited",
+    "witness": {
+      "s1": {
+        "run": []
+      },
+      "s2": {
+        "state": {
+          "$": "HSt",
+          "D": 20,
+          "F": 40,
+          "W": 10,
+          "active": [
+            2,
+            3
+          ],
+          "bc": 0,
+          "chals": [
+            4
+          ],
+          "chs": [],
+          "enq": [],
+          "fsr": [
+            100
+          ],
+          "inch": false,
+          "lfi": 0,
+          "log": [],
+          "paused": false,
+          "qlen": 0,
+          "qpend": 0,
+          "rri": 0,
+          "s_bd": [
+            {
+              "$": "HBD",
+              "f": 0,
+              "n": 0,
+              "o": 0,
+              "s": 0
+            }
+          ],
+          "s_bvh": [],
+          "s_csr": [],
+          "s_tag": [],
+          "t": 10,
+          "win": [
+            {
+              "$": "HEntry",
+              "bdf": 10,
+              "bdn": 0,
+              "bdo": 10,
+              "bds": 0,
+              "bvh": 1,
+              "csr": 100,
+              "hb": 1,
+              "lbn": 0,
+              "n": 0,
+              "post": 100,
+              "prev": 0,
+              "tag": 1,
+              "tot": 0,
+              "ver": 0
+            }
+          ]
+        }
+      },
+      "tr": []
+    }
+  },
   "premises": [
     "erase[s_bd](s1) == erase[s_bd](s2)"
   ],

@@ -11,20 +11,20 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.435
+      "seconds": 0.467
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.932
+      "seconds": 0.902
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.435
+    "seconds": 0.467
   },
   "compiled_sha256": "22cced9693768ccb489a503ae87d2b9b8ad6c1b763da6936878bc00a1cc4243a",
   "cone": [
@@ -81,7 +81,30 @@
     "A-width"
   ],
   "model_sha256": "a4c3fef09dd69d202ebffe8cdea675a715c22a9cb21012e3ed49c500f69ac5b7",
-  "non_vacuity": "pending:I3",
+  "non_vacuity": {
+    "bound": "pins with zeros elsewhere",
+    "degenerate": null,
+    "law": "gen/M0/L_rt_go_v1/nonvac/LAWS.bend",
+    "parent_statement_hash": "sha256:091b2c8c5785fbc857250b6f3fc9af20853bcf1b240471038c00d1bdfcf79d77",
+    "reachable": null,
+    "status": "inhabited",
+    "witness": {
+      "h": {
+        "batchIndex": "0x0000000000000000",
+        "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "l1MessagePopped": "0x0000000000000000",
+        "lastBlockNumber": "0x0000000000000000",
+        "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "totalL1MessagePopped": "0x0000000000000000",
+        "version": "0x01",
+        "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  },
   "premises": [
     "h.version == 0x01",
     "h.sequencerSetVerifyHash == 0x00*32"

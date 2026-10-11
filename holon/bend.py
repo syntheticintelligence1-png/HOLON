@@ -5,6 +5,7 @@ Bend's verdicts are final (AGENTS.md rule 6), so everything here is about runnin
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -48,7 +49,146 @@ def _env() -> dict:
     elan = Path.home() / ".elan" / "bin"
     if elan.is_dir():  # `--verdict` builds the BendTT kernel with Lean
         env["PATH"] = str(elan) + os.pathsep + env.get("PATH", "")
+    env["BEND_NO_TELEMETRY"] = "1"  # main.ts skips its daily version check (a network GET)
+    # bun reads BUN_OPTIONS as extra command-line flags (e.g. --preload ./x.ts, which would run code
+    # inside the checker): the checker never inherits it
+    for k in [k for k in env if k == "BUN_OPTIONS" or k.startswith("BUN_CONFIG_")]:
+        env.pop(k)
     return env
+
+
+# ------------------------------------------------------------------ checker fingerprint (I3, §8.8)
+class FingerprintError(RuntimeError):
+    """The bend command cannot be resolved to a bun + bend2/main.ts checkout, so it cannot be pinned."""
+
+
+def _which(name: str) -> str | None:
+    found = shutil.which(name)
+    if found is None and os.sep in name and Path(name).is_file():
+        found = name
+    return os.path.realpath(found) if found else None
+
+
+def _is_text_script(path: str) -> bool:
+    try:
+        with open(path, "rb") as f:
+            head = f.read(4096)
+    except OSError:
+        return False
+    return head.startswith(b"#!") and b"\0" not in head
+
+
+def _parse_wrapper(path: str) -> tuple[str, str]:
+    """(bun, main.ts) from a wrapper whose only command is `exec <bun> <.../bend2/main.ts> "$@"`.
+
+    Strict on purpose: any other command in the wrapper (an export, a preload flag, a second
+    exec) could change what runs, so it is refused rather than fingerprinted."""
+    lines = [ln.strip() for ln in Path(path).read_text().splitlines()[1:]]
+    lines = [ln for ln in lines if ln and not ln.startswith("#")]
+    if len(lines) != 1:
+        raise FingerprintError(f"{path}: expected a wrapper whose only command is "
+                               f"`exec <bun> <checkout>/bend2/main.ts \"$@\"`, found {len(lines)} commands")
+    try:
+        toks = shlex.split(lines[0])
+    except ValueError as e:
+        raise FingerprintError(f"{path}: cannot parse {lines[0]!r}: {e}") from None
+    if len(toks) != 4 or toks[0] != "exec" or toks[3] != "$@":
+        raise FingerprintError(f"{path}: expected `exec <bun> <checkout>/bend2/main.ts \"$@\"`, found {lines[0]!r}")
+    return toks[1], toks[2]
+
+
+def _checkout_of(main_ts: str, origin: str) -> Path:
+    m = Path(os.path.realpath(main_ts))
+    if m.name != "main.ts" or m.parent.name != "bend2" or not m.is_file():
+        raise FingerprintError(f"{origin}: {main_ts!r} is not an existing <checkout>/bend2/main.ts")
+    return m.parent.parent
+
+
+def resolve_checker(cfg: dict | None = None) -> tuple[str, Path]:
+    """(bun binary, checkout root) of the checker `bend_cmd(cfg)` actually runs (HOLON_BEND_CMD included).
+
+    Accepted forms: a wrapper script (followed through symlinks) whose only command is
+    `exec <bun> <checkout>/bend2/main.ts "$@"`, or a command `[<bun>, <checkout>/bend2/main.ts]`.
+    Anything else (an installer binary, a fake script, extra arguments) raises FingerprintError."""
+    cmd = bend_cmd(cfg)
+    if not cmd:
+        raise FingerprintError("the bend command is empty")
+    exe = _which(cmd[0])
+    if exe is None:
+        raise FingerprintError(f"bend command not found: {cmd[0]!r}")
+    if _is_text_script(exe):
+        if len(cmd) != 1:
+            raise FingerprintError(f"extra arguments after the wrapper {cmd[0]!r} are not pinned: {cmd[1:]}")
+        bun, main_ts = _parse_wrapper(exe)
+        origin = exe
+    elif len(cmd) == 2:
+        bun, main_ts, origin = cmd[0], cmd[1], " ".join(cmd)
+    else:
+        raise FingerprintError(f"{' '.join(cmd)!r} resolves to {exe}, which is neither a bun wrapper over "
+                               "<checkout>/bend2/main.ts nor `<bun> <checkout>/bend2/main.ts`")
+    checkout = _checkout_of(main_ts, origin)
+    bun_path = _which(bun)
+    if bun_path is None or not os.access(bun_path, os.X_OK):
+        raise FingerprintError(f"{origin}: bun {bun!r} not found or not executable")
+    return bun_path, checkout
+
+
+FINGERPRINT_SOURCES = ("bend2/**/*.ts", "bend2/**/*.lean", "bend2/**/*.bend")
+
+
+def sources_sha256(checkout: Path) -> str:
+    """sha256 over (relative path, NUL, bytes, NUL) of every .ts, .lean and .bend file under bend2/
+    (the checker, its proven kernel and its Base library), sorted by path."""
+    checkout = Path(checkout)
+    files = sorted({f for pat in FINGERPRINT_SOURCES for f in checkout.glob(pat) if f.is_file()},
+                   key=lambda f: f.relative_to(checkout).as_posix())
+    h = hashlib.sha256()
+    for f in files:
+        h.update(f.relative_to(checkout).as_posix().encode() + b"\0" + f.read_bytes() + b"\0")
+    return h.hexdigest()
+
+
+def fingerprint(cfg: dict | None = None) -> dict:
+    """The identity of the checker the gate runs: checkout HEAD, its sources and the bun version.
+
+    `fingerprint` = "sha256:" + sha256 of the canonical JSON of {head, sources_sha256, bun}; it is
+    pinned as config bend.pinned_fingerprint. Deterministic: no timestamps, no absolute paths hashed.
+    A checkout that is not a git repository gets head "unknown" (and so will not match a pin)."""
+    cfg = cfg or config()
+    bun_path, checkout = resolve_checker(cfg)
+    try:
+        g = subprocess.run(["git", "-C", str(checkout), "rev-parse", "HEAD"], capture_output=True, text=True,
+                           timeout=60)
+        head = g.stdout.strip() if g.returncode == 0 and re.fullmatch(r"[0-9a-f]{40,64}", g.stdout.strip()) \
+            else "unknown"
+    except (OSError, subprocess.SubprocessError):
+        head = "unknown"
+    try:
+        b = subprocess.run([bun_path, "--version"], capture_output=True, text=True, env=_env(), timeout=60,
+                           cwd=str(checkout))
+    except (OSError, subprocess.SubprocessError) as e:
+        raise FingerprintError(f"cannot run {bun_path} --version: {e}") from None
+    bun_v = b.stdout.strip()
+    if b.returncode != 0 or not bun_v:
+        raise FingerprintError(f"{bun_path} --version failed: {(b.stdout + b.stderr)[:300]!r}")
+    core = {"head": head, "sources_sha256": sources_sha256(checkout), "bun": bun_v}
+    digest = hashlib.sha256(json.dumps(core, sort_keys=True).encode()).hexdigest()
+    return {"checkout": str(checkout), "bun_path": bun_path, **core, "fingerprint": "sha256:" + digest}
+
+
+def global_bunfig() -> list[str]:
+    """Global Bun config files that exist: $XDG_CONFIG_HOME/.bunfig.toml and $HOME/.bunfig.toml.
+
+    Bun reads the first of these that applies; both are refused whenever present (a preload in
+    either runs code inside the checker). Read from os.environ at call time."""
+    out = []
+    for var in ("XDG_CONFIG_HOME", "HOME"):
+        d = os.environ.get(var)
+        if d:
+            p = Path(d) / ".bunfig.toml"
+            if p.exists() and str(p) not in out:
+                out.append(str(p))
+    return out
 
 
 @dataclass

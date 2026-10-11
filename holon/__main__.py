@@ -4,6 +4,8 @@
   python -m holon gate --milestone M0 [--root DIR] [--report PATH] [--checks G6,G9]
   python -m holon audit prereg --milestone M2 [--root DIR]
   python -m holon bind --milestone M1 [--accept-change REASON]
+  python -m holon oracle zero-blob [--morph PATH]
+  python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
   python -m holon replay --morph PATH [--forge F] [--solc S] [--work DIR]
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
 """
@@ -15,6 +17,10 @@ import sys
 
 
 def main(argv=None) -> int:
+    argv = sys.argv[1:] if argv is None else list(argv)
+    if argv[:1] == ["checker-upgrade"]:  # its flags go to holon.checker_upgrade unparsed
+        from . import checker_upgrade
+        return checker_upgrade.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
@@ -32,6 +38,11 @@ def main(argv=None) -> int:
     bd.add_argument("--milestone", default="M0")
     bd.add_argument("--root")
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
+    orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2, results/M2/hypotheses.json)")
+    orc.add_argument("which", choices=["zero-blob"])
+    orc.add_argument("rest", nargs=argparse.REMAINDER)
+    cu = sub.add_parser("checker-upgrade", help="re-run gates and runs under a candidate checker; report every diff")
+    cu.add_argument("rest", nargs=argparse.REMAINDER)
     au = sub.add_parser("audit", help="audits: `audit prereg --milestone M2` checks preregistration order")
     au.add_argument("what", choices=["prereg"])
     au.add_argument("rest", nargs=argparse.REMAINDER)
@@ -56,6 +67,12 @@ def main(argv=None) -> int:
     if a.cmd == "bind":
         from .bindings import main_bind
         return main_bind(a)
+    if a.cmd == "oracle":
+        from .oracles import zero_blob
+        return zero_blob.main(a.rest)
+    if a.cmd == "checker-upgrade":
+        from . import checker_upgrade
+        return checker_upgrade.main(a.rest)
     if a.cmd == "audit":
         from .audit import prereg
         return prereg.main(a.rest)
