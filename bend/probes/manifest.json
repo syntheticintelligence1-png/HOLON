@@ -1,0 +1,154 @@
+{
+  "verified_with": {
+    "bend_version": "2.0.36",
+    "bend_commit": "2343aec043b7967f2a6f653e7f2e3bcbe55c8c9a",
+    "runner": "bun 1.4.2 running bend2/main.ts from a checkout",
+    "date": "2026-10-10"
+  },
+  "probes": [
+    {
+      "id": "p01_law_refl",
+      "file": "p01_law_refl.bend",
+      "dir": null,
+      "expect_exit": 0,
+      "expect_first_line": "ALL PROOFS CHECK",
+      "expect_contains": null,
+      "teaches": "law + proof by induction and rewrite"
+    },
+    {
+      "id": "p02_false_refl",
+      "file": "p02_false_refl.bend",
+      "dir": null,
+      "expect_exit": 1,
+      "expect_first_line": "SOME PROOFS FAIL",
+      "expect_contains": "- expected :",
+      "teaches": "a false {==} is rejected with expected/observed terms"
+    },
+    {
+      "id": "p03_open_law",
+      "file": "p03_open_law.bend",
+      "dir": null,
+      "expect_exit": 1,
+      "expect_first_line": "SOME PROOFS FAIL",
+      "expect_contains": "TODO found",
+      "teaches": "a law with no def is an open claim"
+    },
+    {
+      "id": "p04_todo",
+      "file": "p04_todo.bend",
+      "dir": null,
+      "expect_exit": 1,
+      "expect_first_line": "SOME PROOFS FAIL",
+      "expect_contains": "TODO found",
+      "teaches": "?TODO leaves a goal open"
+    },
+    {
+      "id": "p05_unsafe",
+      "file": "p05_unsafe.bend",
+      "dir": null,
+      "expect_exit": 1,
+      "expect_first_line": "SOME PROOFS FAIL",
+      "expect_contains": "rely on unsafe or foreign code",
+      "teaches": "@unsafe evidence is rejected"
+    },
+    {
+      "id": "p06_vacuous_file",
+      "file": "p06_vacuous_file.bend",
+      "dir": null,
+      "expect_exit": 0,
+      "expect_first_line": "ALL PROOFS CHECK",
+      "expect_contains": null,
+      "teaches": "HAZARD: zero laws still prints ALL PROOFS CHECK; gates must count laws"
+    },
+    {
+      "id": "p07_codec_equal",
+      "file": "p07_codec_equal.bend",
+      "dir": null,
+      "expect_exit": 0,
+      "expect_first_line": "ALL PROOFS CHECK",
+      "expect_contains": null,
+      "teaches": "PAR by computation: overlapping EVM-style writes vs Go-style writes"
+    },
+    {
+      "id": "p08_codec_unequal",
+      "file": "p08_codec_unequal.bend",
+      "dir": null,
+      "expect_exit": 1,
+      "expect_first_line": "SOME PROOFS FAIL",
+      "expect_contains": "- expected : [2,",
+      "teaches": "the same claim at version 2 is rejected; the error shows the differing byte"
+    },
+    {
+      "id": "p09_counterlaw_forall",
+      "file": "p09_counterlaw_forall.bend",
+      "dir": null,
+      "expect_exit": 0,
+      "expect_first_line": "ALL PROOFS CHECK",
+      "expect_contains": null,
+      "teaches": "counter-law for all inputs via a discriminating motive"
+    },
+    {
+      "id": "p10_counterlaw_false",
+      "file": "p10_counterlaw_false.bend",
+      "dir": null,
+      "expect_exit": 1,
+      "expect_first_line": "SOME PROOFS FAIL",
+      "expect_contains": "- expected : Empty",
+      "teaches": "a counter-law for an equal pair is rejected"
+    },
+    {
+      "id": "p11_counterlaw_exists",
+      "file": "p11_counterlaw_exists.bend",
+      "dir": null,
+      "expect_exit": 0,
+      "expect_first_line": "ALL PROOFS CHECK",
+      "expect_contains": null,
+      "teaches": "generic exists-counter-law with a concrete witness (refuter output pattern)"
+    },
+    {
+      "id": "p12_fn_premise",
+      "file": "p12_fn_premise.bend",
+      "dir": null,
+      "expect_exit": 0,
+      "expect_first_line": "ALL PROOFS CHECK",
+      "expect_contains": null,
+      "teaches": "function-typed binders and hypothesis premises (no axioms)"
+    },
+    {
+      "id": "p13_eval_main",
+      "file": "p13_eval_main.bend",
+      "dir": null,
+      "expect_exit": 0,
+      "expect_first_line": "[255, 3, 2, 1]",
+      "expect_contains": null,
+      "teaches": "main returning a value is normalized and printed"
+    },
+    {
+      "id": "p14_multifile",
+      "file": "PROOF.bend",
+      "dir": "p14_multifile",
+      "expect_exit": 0,
+      "expect_first_line": "ALL PROOFS CHECK",
+      "expect_contains": null,
+      "teaches": "LAWS.bend / PROOF.bend split; proofs fill def Laws.<name>"
+    },
+    {
+      "id": "p15_override",
+      "file": "PROOF.bend",
+      "dir": "p15_override",
+      "expect_exit": 1,
+      "expect_first_line": "SOME PROOFS FAIL",
+      "expect_contains": "a fresh name",
+      "teaches": "a proof file cannot redefine model defs"
+    },
+    {
+      "id": "p16_counterlaw_bad_witness",
+      "file": "p16_counterlaw_bad_witness.bend",
+      "dir": null,
+      "expect_exit": 1,
+      "expect_first_line": "SOME PROOFS FAIL",
+      "expect_contains": "- expected : Empty",
+      "teaches": "an exists-counter-law with a non-witness is rejected"
+    }
+  ]
+}

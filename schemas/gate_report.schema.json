@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON gate report (M0)",
+  "type": "object",
+  "required": [
+    "milestone",
+    "passed",
+    "checks",
+    "canaries",
+    "bend_version"
+  ],
+  "properties": {
+    "milestone": {
+      "type": "string"
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "bend_version": {
+      "type": "string"
+    },
+    "checks": {
+      "type": "object",
+      "required": [
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G11",
+        "GENV"
+      ],
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "passed",
+          "detail"
+        ],
+        "properties": {
+          "passed": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "canaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "source_law",
+          "rejected",
+          "counterexample"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "source_law": {
+            "type": "string"
+          },
+          "rejected": {
+            "type": "boolean"
+          },
+          "counterexample": {
+            "type": "object",
+            "description": "model-evaluated input on which the canary claim is false"
+          }
+        }
+      }
+    }
+  }
+}

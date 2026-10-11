@@ -1,0 +1,98 @@
+{
+  "milestone": "M0",
+  "purpose": "Mutation adequacy (auditor class A1, in miniature): plant a realistic bug in the FACTS, rerun the whole pipeline, and require the outcomes to move as predicted. Proves the model and laws are wired to the facts rather than hard-coded.",
+  "mutations": [
+    {
+      "id": "MUT1_go_v1_version_const",
+      "edit": {
+        "pointer": "/functions/enc_go_v1/ops/0/src/0/const",
+        "value": 2
+      },
+      "story": "Go V1 encoder writes version byte 2 instead of 1",
+      "expect": {
+        "L_par_hdr_v1": [
+          "REFUTED"
+        ],
+        "L_par_hdr_v2": [
+          "PROVED"
+        ],
+        "L_par_hdr_v0": [
+          "PROVED"
+        ],
+        "L_rt_go_v1": [
+          "PROVED"
+        ]
+      }
+    },
+    {
+      "id": "MUT2_sol_datahash_offset",
+      "edit": {
+        "pointer": "/functions/enc_sol/ops/4/offset",
+        "value": 26
+      },
+      "story": "off-by-one: Solidity stores dataHash at offset 26",
+      "expect": {
+        "L_par_hdr_v0": [
+          "REFUTED"
+        ],
+        "L_par_hdr_v1": [
+          "REFUTED"
+        ],
+        "L_rt_go_v0": [
+          "REFUTED"
+        ],
+        "L_rt_go_v1": [
+          "REFUTED"
+        ],
+        "L_rt_go_v2": [
+          "REFUTED"
+        ],
+        "L_dom_hdr": [
+          "REFUTED"
+        ]
+      }
+    },
+    {
+      "id": "MUT3_go_v0_len_ge",
+      "edit": {
+        "pointer": "/functions/ok_go/rules/1/then",
+        "value": {
+          "len_ge": 249
+        }
+      },
+      "story": "Go validate made as permissive as Solidity for version 0",
+      "expect": {
+        "L_dom_hdr": [
+          "PROVED",
+          "UNKNOWN"
+        ],
+        "L_par_hdr_v1": [
+          "PROVED"
+        ]
+      },
+      "note": "PROVED needs a case-split proof (not plain {==}); UNKNOWN is acceptable if the refuter exhausts its bounded search without a witness. REFUTED is a failure."
+    },
+    {
+      "id": "MUT4_go_v1_drops_lbn",
+      "edit": {
+        "pointer": "/functions/enc_go_v1/ops",
+        "op": "remove_last"
+      },
+      "story": "Go V1 encoder forgets to write lastBlockNumber",
+      "expect": {
+        "L_par_hdr_v1": [
+          "REFUTED"
+        ],
+        "L_par_hdr_v2": [
+          "REFUTED"
+        ],
+        "L_par_hdr_v0": [
+          "PROVED"
+        ],
+        "L_rt_go_v1": [
+          "PROVED"
+        ]
+      }
+    }
+  ]
+}
