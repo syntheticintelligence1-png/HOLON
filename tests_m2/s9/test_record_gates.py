@@ -84,7 +84,13 @@ class TestG6(unittest.TestCase):
 class TestG8(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.gate = StubGate(REPO)
+        # g8_check writes coverage_report.json into gate.results — a tracked
+        # file when results is the real dir. Copy the records to a temp dir so
+        # nothing tracked is touched.
+        tmp = Path(tempfile.mkdtemp())
+        cls.results = tmp / "results"
+        shutil.copytree(REPO / "results" / M1, cls.results)
+        cls.gate = StubGate(REPO, results=cls.results)
         cls.res = gate_records.g8_check(cls.gate)
         cls.report = json.loads((cls.gate.results / "coverage_report.json").read_text())
 
@@ -289,7 +295,9 @@ class TestG11(unittest.TestCase):
         cert.close()
         recs["L_g11_canary_vacuous"] = {"law_id": "L_g11_canary_vacuous", "status": "PROVED",
                                         "artifacts": {"laws": cert.name}}
-        stub = StubGate(REPO)
+        # g11_inhabitance writes g11_inhabitance.json into gate.results — send
+        # it to a temp dir, never the tracked file
+        stub = StubGate(REPO, results=Path(tempfile.mkdtemp()))
         stub.records = lambda: recs
         with mock.patch.object(gate_records.ir, "load_laws_any",
                                return_value=[*laws, canary]):

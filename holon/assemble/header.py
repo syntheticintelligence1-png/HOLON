@@ -344,14 +344,17 @@ def assemble(morph: Path, solc: Path | None = None,
         "types": s2doc["types"],
         "functions": functions,
     }
+    items = sorted(debt, key=lambda d: (d["element"], d["kind"], d["reason"]))
     coverage = {
-        "assembler": "holon/assemble/header.py",
+        "frontend": "assemble-header",
         "target_commit": doc["target"]["commit"],
+        "items": items,
+        "assembler": "holon/assemble/header.py",
         "consumed_keys": CONSUMED,
         "omitted_descriptive": ["types.Header.fields[].sol", "types.Header.fields[].go",
                                 "functions.*.meaning", "functions.*.preconditions",
                                 "assumptions (not consumed by the M0 pipeline)"],
-        "debt": sorted(debt, key=lambda d: (d["element"], d["kind"])),
+        "debt": items,
     }
     return doc, coverage
 

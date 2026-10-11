@@ -384,7 +384,8 @@ def g8_check(gate) -> dict:
     n_act = sum(len(c.get("actions", {})) for c in report["facts"].values())
     n_reg = sum(len(c.get("registers", {})) for c in report["facts"].values())
     detail = (f"coverage of {len(report['facts'])} facts files: {n_act} actions, {n_reg} registers; "
-              f"{len(report['uncovered'])} uncovered elements (incl. the log channel); report at {out.relative_to(root)}"
+              f"{len(report['uncovered'])} uncovered elements (incl. the log channel); report at "
+              f"{out.relative_to(root) if out.is_relative_to(root) else out}"
               if ok else "; ".join(problems))
     return _res(ok, detail)
 
