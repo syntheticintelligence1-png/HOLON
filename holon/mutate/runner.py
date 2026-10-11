@@ -9,8 +9,9 @@ import sys
 import time
 from pathlib import Path
 
-from .. import pipeline
-from ..assemble.header import assemble, facts_sha256, write_docs
+from .. import mpipeline, pipeline
+from ..assemble.header import (M1_HEADER_FACTS, M1_HEADER_LAWS, assemble,
+                               facts_sha256, write_docs)
 from ..frontends.solidity import layout_extract
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -95,16 +96,44 @@ def _go_build(wt: Path) -> tuple[bool, str]:
     return r.returncode == 0, (r.stderr or r.stdout)[-500:]
 
 
+def _detected_via(changed: list[dict]) -> str | None:
+    """`flip` when some PROVED<->REFUTED transition fired, `unknown_only` when
+    every change is to/from UNKNOWN."""
+    if not changed:
+        return None
+    flips = {"PROVED", "REFUTED"}
+    if any({c["baseline"], c["mutant"]} <= flips and c["baseline"] != c["mutant"]
+           for c in changed):
+        return "flip"
+    return "unknown_only"
+
+
 def _extract_and_run(wt: Path, solc: Path, scratch: Path) -> dict:
-    """assemble facts + run the M0 pipeline; returns statuses {law: status}
-    plus facts sha/bytes for the miss-label comparison."""
-    doc, _cov = assemble(wt, solc)
+    """assemble facts + run the pipelines; returns statuses {law: status}
+    plus facts sha/bytes for the miss-label comparison. Assembly and solc
+    compile failures raise; pipeline-stage failures (facts.load, generator,
+    emitter) are caught by the caller."""
+    doc, cov = assemble(wt, solc, out_dir=scratch / "extracted")
     facts_p = scratch / "facts.json"
-    write_docs(doc, _cov, facts_p)
-    statuses = pipeline.run("M0", str(facts_p), str(scratch / "results"),
-                            str(scratch / "gen"), no_registry=True, log=lambda *a: None)
-    return {"statuses": statuses, "facts_sha": _file_sha(facts_p),
-            "facts_bytes": facts_p.read_bytes()}
+    write_docs(doc, cov, facts_p)
+    return {"doc": doc, "coverage": cov, "facts_p": facts_p,
+            "facts_sha": _file_sha(facts_p), "facts_bytes": facts_p.read_bytes(),
+            "link_fallbacks": sorted({d["element"] for d in cov["debt"]
+                                      if d["kind"] == "offset_link_ordinal"})}
+
+
+def _run_pipelines(facts_p: Path, scratch: Path) -> dict:
+    """M0 pipeline on the assembled facts + the M1 laws bound to the header
+    facts file (morph_rollup/morph_batchdata stay the committed M1 facts —
+    these mutants don't touch them)."""
+    statuses = dict(pipeline.run("M0", str(facts_p), str(scratch / "results"),
+                                 str(scratch / "gen"), no_registry=True,
+                                 log=lambda *a: None))
+    statuses.update(mpipeline.run_m1(
+        "M1", None, str(scratch / "results_m1"), str(scratch / "gen_m1"),
+        no_registry=True, log=lambda *a: None, law_ids=set(M1_HEADER_LAWS),
+        facts_overrides={M1_HEADER_FACTS: facts_p}))
+    return statuses
 
 
 def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
@@ -126,7 +155,10 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
             try:
                 _node_modules(wt, morph)
                 _verify_shas(wt, spec["target"]["file_sha256"])
-                baseline_cache[commit] = _extract_and_run(wt, solc_p, work / "out" / "baseline")
+                scratch = work / "out" / "baseline"
+                run = _extract_and_run(wt, solc_p, scratch)
+                run["statuses"] = _run_pipelines(run["facts_p"], scratch)
+                baseline_cache[commit] = run
             finally:
                 _rm_worktree(morph, wt)
         return baseline_cache[commit]
@@ -158,22 +190,40 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                     continue
             try:
                 run = _extract_and_run(wt, solc_p, scratch)
-            except RuntimeError as e:
-                # solidity mutants: a failed solc compile is invalid, never detected
+            except Exception as e:
+                # solidity mutants: a failed solc compile (or unassemblable
+                # extraction) is invalid, never detected
                 rec.update({"valid": False, "detected": False, "label": "invalid",
                             "changed": [], "build_error": str(e)[:500],
                             "seconds": round(time.time() - t0, 3)})
                 results.append(rec)
                 continue
             base = baseline()
+            try:
+                statuses = _run_pipelines(run["facts_p"], scratch)
+            except Exception as e:
+                # the pipeline rejected the assembled facts: the mutant stays
+                # valid (it compiled) and counts as not detected; labelled by
+                # the frozen definitions on the facts comparison
+                label = ("extraction_gap" if run["facts_bytes"] == base["facts_bytes"]
+                         else "rule_gap")
+                rec.update({"valid": True, "detected": False, "label": label,
+                            "facts_sha256": run["facts_sha"], "changed": [],
+                            "pipeline_error": str(e).splitlines()[0][:500] if str(e) else repr(e),
+                            "link_fallbacks": run["link_fallbacks"],
+                            "seconds": round(time.time() - t0, 3)})
+                results.append(rec)
+                continue
             changed = [{"law": lid, "baseline": base["statuses"][lid], "mutant": st}
-                       for lid, st in run["statuses"].items() if st != base["statuses"][lid]]
+                       for lid, st in statuses.items() if st != base["statuses"][lid]]
             detected = bool(changed)
             label = (None if detected
                      else "extraction_gap" if run["facts_bytes"] == base["facts_bytes"]
                      else "rule_gap")
             rec.update({"valid": True, "detected": detected, "label": label,
+                        "detected_via": _detected_via(changed),
                         "facts_sha256": run["facts_sha"], "changed": changed,
+                        "link_fallbacks": run["link_fallbacks"],
                         "seconds": round(time.time() - t0, 3)})
             results.append(rec)
         finally:
@@ -188,6 +238,12 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
         "schema": "holon-mutation-report/0.1",
         "spec": str(spec_path), "target_commit": commit,
         "baseline_facts_sha256": baseline_cache.get(commit, {}).get("facts_sha"),
+        "m1_rollup_facts": "spec/M1/facts (hand; S1 extraction pending)",
+        "m1_header_laws": list(M1_HEADER_LAWS),
+        "detected_via_counts": {
+            "flip": sum(1 for r in detected if r.get("detected_via") == "flip"),
+            "unknown_only": sum(1 for r in detected if r.get("detected_via") == "unknown_only"),
+        },
         "mutants": results,
         "final": not pending,          # never final while any mutant is pending
         "pending": [r["id"] for r in pending],

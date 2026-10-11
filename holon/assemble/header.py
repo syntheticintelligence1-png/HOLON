@@ -14,7 +14,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
+import tempfile
 from pathlib import Path
 
 from ..frontends.solidity import layout_extract
@@ -27,6 +29,10 @@ GO_PKG = "batch.BatchHeaderBytes."
 GO_ENC_V0 = "batch.BatchHeaderV0.Bytes"
 GO_ENC_V1 = "batch.BatchHeaderV1.Bytes"
 GO_PRED = "batch.BatchHeaderBytes.validate"
+GO_ENC_V2_PRODUCER = "batch.BatchCache.createBatchHeaderWithSequencerSetHash"
+M1_HEADER_FACTS = "spec/M1/facts/morph_header_m1.json"
+# M1 laws whose facts file is the header document (inventory of laws/M1).
+M1_HEADER_LAWS = ("L_par_hdr_v2_composed",)
 
 # Functions a facts document must carry for the M0 law set, and where each
 # comes from. Everything not listed is descriptive and may be omitted.
@@ -107,9 +113,10 @@ def _go_field_offsets(getters: list[dict]) -> dict[str, list[int]]:
     return out
 
 
-def _go_encoder(enc: dict, offsets: dict[int, str], go_fields: dict[str, list[int]],
-                fields: list[dict], debt: list[dict]) -> dict:
-    """S3 encoder ops -> facts ops; Go field names resolved by wire offset.
+def _translate_ops(enc: dict, ops_in: list[dict], offsets: dict[int, str],
+                   go_fields: dict[str, list[int]], fields: list[dict],
+                   debt: list[dict]) -> list[dict]:
+    """S3 op list -> facts op list; Go field names resolved by wire offset.
 
     Link order for a src field: (1) the field's accessor wire offset, if it
     lands on a header field boundary; (2) the op's own write offset, if a
@@ -117,11 +124,11 @@ def _go_encoder(enc: dict, offsets: dict[int, str], go_fields: dict[str, list[in
     ordinal position in this encoder's op stream — its write order is the
     serialized field order, which matches the header's field order — keeping
     the fact modelable when a mutation shifts the boundaries."""
-    src_fields = [s["field"] for op in enc["ops"] for s in op["src"] if "field" in s]
+    src_fields = [s["field"] for op in ops_in for s in op["src"] if "field" in s]
     tail = fields[len(fields) - len(src_fields):] if len(src_fields) <= len(fields) else []
     ordinal = {name: tail[i]["name"] for i, name in enumerate(src_fields)} if tail else {}
     ops = []
-    for op in enc["ops"]:
+    for op in ops_in:
         src = []
         for s in op["src"]:
             if "field" in s:
@@ -158,13 +165,73 @@ def _go_encoder(enc: dict, offsets: dict[int, str], go_fields: dict[str, list[in
         if op.get("when"):
             o["when"] = op["when"]
         ops.append(o)
+    return ops
+
+
+def _go_encoder(enc: dict, offsets: dict[int, str], go_fields: dict[str, list[int]],
+                fields: list[dict], debt: list[dict], ops_in: list[dict] | None = None,
+                length: int | None = None) -> dict:
     return {
         "kind": "encoder", "from": "Header", "to": "Bytes", "lang": "go-bytes",
         "source": [{"file": enc["file"], "fn": enc["function"], "line": enc["line"]}],
         "memory_init": enc["memory_init"],
-        "length": enc["length"],
-        "ops": ops,
+        "length": length if length is not None else enc["length"],
+        "ops": _translate_ops(enc, ops_in if ops_in is not None else enc["ops"],
+                              offsets, go_fields, fields, debt),
     }
+
+
+def _call_key(dst_ref: str, encoders: dict) -> str | None:
+    """A `['call', ref]` dst names the callee in SSA form
+    `pkg/pkg.(pkg.Type).method`; map it to the encoders key `pkg.Type.method`."""
+    m = re.search(r"\(([^()]+)\)\.(\w+)$", dst_ref)
+    if not m:
+        return None
+    key = f"{m.group(1).split('/')[-1]}.{m.group(2)}"
+    return key if key in encoders else None
+
+
+def _go_composed_encoder(enc: dict, encoders: dict, offsets: dict[int, str],
+                         go_fields: dict[str, list[int]], fields: list[dict],
+                         debt: list[dict]) -> dict:
+    """Composite S3 encoder: ops write into `dst` buffers. The returned bytes
+    are the buffer a `['call', callee]` dst refers to — the callee's own
+    encoder ops, overlaid (in program order) by the writes targeted at it.
+    Writes to any other buffer are off-output (parameter construction): they
+    are debt, matching the callee's shared-input precondition."""
+    callee_key = None
+    overlay: list[dict] = []
+    for op in enc["ops"]:
+        dst = op.get("dst")
+        if isinstance(dst, (list, tuple)) and dst and dst[0] == "call":
+            k = _call_key(dst[1], encoders)
+            if k is None:
+                debt.append({"element": f"{enc['function']}:{op['site']['line']}",
+                             "kind": "unresolved_call",
+                             "reason": f"call dst {dst[1]} is not an extracted encoder"})
+                raise ValueError(f"{enc['function']}: unresolved call dst {dst[1]}")
+            if callee_key is None:
+                callee_key = k
+            elif callee_key != k:
+                debt.append({"element": f"{enc['function']}:{op['site']['line']}",
+                             "kind": "ambiguous_call",
+                             "reason": f"ops write into two call buffers {callee_key} and {k}"})
+                raise ValueError(f"{enc['function']}: multiple call dsts")
+            overlay.append(op)
+        else:
+            debt.append({"element": f"{enc['function']}:{op['site']['line']}",
+                         "kind": "off_output_write",
+                         "reason": f"op writes buffer {dst}, not the returned bytes "
+                                   f"(input construction; modelled via the field precondition)"})
+    if callee_key is None:
+        debt.append({"element": enc["function"], "kind": "no_output_buffer",
+                     "reason": "composite encoder has no ['call', ...] dst"})
+        raise ValueError(f"{enc['function']}: composite encoder with no call dst")
+    callee = encoders[callee_key]
+    merged = [{k: v for k, v in op.items() if k != "dst"}
+              for op in list(callee["ops"]) + overlay]
+    return _go_encoder(enc, offsets, go_fields, fields, debt,
+                       ops_in=merged, length=callee["length"])
 
 
 def _go_decoder(getters: list[dict], fields: list[dict], vmax: int,
@@ -214,33 +281,22 @@ def _target_commit(morph: Path) -> str:
     return r.stdout.strip() if r.returncode == 0 else "unknown"
 
 
-# files gofront.extract writes into the repo; assemble restores them so the
-# in-process call stays side-effect free
-_GO_WRITES = ("spec/M2/extracted/go_codecs.json",
-              "spec/M2/extracted/go_batchdata.json",
-              "spec/M2/coverage/go.json")
-
-
-def assemble(morph: Path, solc: Path | None = None) -> tuple[dict, dict]:
+def assemble(morph: Path, solc: Path | None = None,
+             out_dir: Path | None = None) -> tuple[dict, dict]:
     """(facts_doc, coverage_doc) for the header slice of `morph`.
+
+    The facts doc carries both the M0 surface and the M1 header surface
+    (enc_go_v2_producer, for the M1 laws bound to the header facts file).
+    `out_dir` receives gossa's extracted dumps; nothing tracked is written.
 
     Byte-deterministic for a fixed checkout + solc: both extractors are
     deterministic, and every merge here is order-stable.
     """
     morph = Path(morph)
-    root = Path(__file__).resolve().parents[2]
-    saved = {p: (root / p).read_bytes() if (root / p).exists() else None
-             for p in _GO_WRITES}
-    try:
-        s2doc, s2debt, _aux = layout_extract.extract(morph, solc or layout_extract.SOLC)
-        go = gofront.extract(morph)
-    finally:
-        for p, blob in saved.items():
-            fp = root / p
-            if blob is None:
-                fp.unlink(missing_ok=True)
-            else:
-                fp.write_bytes(blob)
+    go_dir = Path(out_dir) if out_dir is not None else Path(
+        tempfile.mkdtemp(prefix="holon-gossa-"))
+    s2doc, s2debt, _aux = layout_extract.extract(morph, solc or layout_extract.SOLC)
+    go = gofront.extract(morph, out_dir=go_dir)
     cc = go["codecs"]
     debt = [{"element": d["element"], "kind": d.get("kind", "debt"),
              "reason": d.get("reason", "")}
@@ -264,8 +320,17 @@ def assemble(morph: Path, solc: Path | None = None) -> tuple[dict, dict]:
         "rules": cc["predicates"][GO_PRED]["rules"],
     }
     functions["dec_go"] = _go_decoder(cc["decoders"]["getters"], fields, vmax, debt)
+    enc = cc["encoders"].get(GO_ENC_V2_PRODUCER)
+    if enc is not None:
+        functions["enc_go_v2_producer"] = _go_composed_encoder(
+            enc, cc["encoders"], offsets, go_fields, fields, debt)
+    else:
+        debt.append({"element": f"encoders[{GO_ENC_V2_PRODUCER}]",
+                     "kind": "missing_encoder",
+                     "reason": "S3 did not extract the composed v2 producer"})
     # deterministic key order matching the hand facts' convention
-    order = ["enc_sol", "enc_go_v0", "enc_go_v1", "ok_sol", "ok_go", "dec_go", "view"]
+    order = ["enc_sol", "enc_go_v0", "enc_go_v1", "enc_go_v2_producer",
+             "ok_sol", "ok_go", "dec_go", "view"]
     functions = {k: functions[k] for k in order if k in functions}
 
     doc = {

@@ -74,6 +74,13 @@ class TestAssembleHeader(unittest.TestCase):
         cls.statuses = pipeline.run("M0", str(cls.work / "facts.json"),
                                     str(cls.results), str(cls.gen),
                                     no_registry=True, log=lambda *a: None)
+        from holon import mpipeline
+        from holon.assemble.header import M1_HEADER_FACTS, M1_HEADER_LAWS
+        cls.m1_statuses = mpipeline.run_m1(
+            "M1", None, str(cls.work / "results_m1"), str(cls.work / "gen_m1"),
+            no_registry=True, log=lambda *a: None,
+            law_ids=set(M1_HEADER_LAWS),
+            facts_overrides={M1_HEADER_FACTS: cls.work / "facts.json"})
 
     @classmethod
     def tearDownClass(cls):
@@ -97,6 +104,18 @@ class TestAssembleHeader(unittest.TestCase):
         want = _statuses(ROOT / "results" / "M0")
         self.assertEqual(self.statuses, want)
 
+    def test_m1_header_laws_match_results_m1(self):
+        want = _statuses(ROOT / "results" / "M1")
+        for lid, st in self.m1_statuses.items():
+            self.assertEqual(st, want[lid], lid)
+
+    def test_baseline_no_link_fallbacks(self):
+        """The unmutated pinned checkout must link every Go src field by wire
+        offset: zero ordinal-position fallbacks in the baseline coverage."""
+        fallbacks = [d for d in self.cov["debt"]
+                     if d["kind"] == "offset_link_ordinal"]
+        self.assertEqual(fallbacks, [])
+
 
 @unittest.skipUnless(_available(), "needs morph @3e44e79 + go + solc + node_modules")
 class TestMutate(unittest.TestCase):
@@ -105,7 +124,7 @@ class TestMutate(unittest.TestCase):
         from holon.mutate.runner import run_mutants
         cls.work = Path(tempfile.mkdtemp(prefix="holon-muttest-", dir=Path.home()))
         out = cls.work / "report.json"
-        run_mutants(SPEC, MORPH, ["G03"], cls.work / "mut", _solc(), out)
+        run_mutants(SPEC, MORPH, ["G03", "S03"], cls.work / "mut", _solc(), out)
         cls.report = json.loads(out.read_text())
 
     def test_g03_detected_via_l_par_hdr_v1(self):
@@ -114,6 +133,16 @@ class TestMutate(unittest.TestCase):
         self.assertTrue(g03["detected"])
         changed = {c["law"] for c in g03["changed"]}
         self.assertIn("L_par_hdr_v1", changed)
+
+    def test_s03_width_mismatch_is_pipeline_error(self):
+        """S03's shl(184) makes the extracted batchIndex field wider than
+        put_uint64_be's op width: the pipeline must reject the facts
+        (check_op_width), the mutant stays valid and counts as not detected."""
+        (s03,) = [r for r in self.report["mutants"] if r["id"] == "S03"]
+        self.assertTrue(s03["valid"])
+        self.assertFalse(s03["detected"])
+        self.assertIn("pipeline_error", s03)
+        self.assertEqual(s03["label"], "rule_gap")
 
     def test_noop_mutant_is_extraction_gap(self):
         """A synthetic mutant whose replacement equals the original: the
