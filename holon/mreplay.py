@@ -35,7 +35,7 @@ WIDTH = 13
 CHUNK = 25
 LINE = re.compile(r"HOLON (\d+) (\d+) (ok|rev) ?(.*)")
 V2_SOL = re.compile(r"HOLON_V2 (0x[0-9a-fA-F]+)")
-V2_GO = re.compile(r"HOLON_V2_GO (0x[0-9a-fA-F]+)")
+V2_GO = re.compile(r"HOLON_V2_GO (\w+) (0x[0-9a-fA-F]+)")
 
 
 def _header_fields(facts: dict, hexs: str) -> dict:
@@ -51,13 +51,14 @@ def _header_fields(facts: dict, hexs: str) -> dict:
     return out
 
 
-def _par_v2_check(law: dict, sol_hex: str | None, go_hex: str | None) -> dict:
-    """ir/0.1 PAR law replay: both sides' bytes must equal the model's enc_go_v2_producer."""
+def _par_v2_check(law: dict, sol_hex: str | None, go_cases: dict | None) -> dict:
+    """ir/0.1 PAR law replay: both sides' bytes must equal the model's enc_go_v2_producer.
+    go_cases maps case name -> logged header hex (one per Go test case)."""
     fn = law["statement"]["claim"]["eq"][1]["call"]
     facts_path = str(ROOT / law["facts"])
     facts = F.load(facts_path)
     sides = {}
-    for name, hexs in (("solidity", sol_hex), ("go", go_hex)):
+    for name, hexs in (("solidity", sol_hex), ("go", None)):
         if hexs is None:
             sides[name] = {"status": "missing"}
             continue
@@ -65,11 +66,22 @@ def _par_v2_check(law: dict, sol_hex: str | None, go_hex: str | None) -> dict:
         model_out = eval_batch(fn, [fields], facts_path)["outputs"][0]
         sides[name] = {"status": "passed" if model_out == hexs.lower() or model_out == hexs else "failed",
                        "model": model_out, "real": hexs}
+    cases = {}
+    if go_cases:
+        for cname, hexs in sorted(go_cases.items()):
+            fields = _header_fields(facts, hexs)
+            model_out = eval_batch(fn, [fields], facts_path)["outputs"][0]
+            cases[cname] = {"status": "passed" if model_out in (hexs.lower(), hexs) else "failed",
+                            "model": model_out, "real": hexs}
+        sides["go"] = {"status": "passed" if cases and all(c["status"] == "passed" for c in cases.values()) else "failed",
+                       "cases": len(cases)}
+    else:
+        sides["go"] = {"status": "missing"}
     ok = all(s["status"] == "passed" for s in sides.values())
     obs = "; ".join(f"{n}: {'bytes == model' if s['status'] == 'passed' else s['status']}"
                     for n, s in sides.items())
     return {"status": "passed" if ok else "failed", "obstruction_reproduced": ok, "observed": obs,
-            "traces": []}
+            "go_cases": cases, "go_case_count": len(cases), "traces": []}
 
 
 # ---------------------------------------------------------------- traces
@@ -331,9 +343,9 @@ def replay_own_go(morph: Path, work: Path, results: Path) -> tuple[dict, str]:
     m = re.search(r"HOLON realistic (\w+) (.*)", out)
     if m:
         lines["realistic"] = ("passed" if m.group(1) == "true" else "failed", m.group(2))
-    m2 = V2_GO.search(out)
-    if m2:
-        lines["_v2_go"] = (m2.group(1), "")
+    v2 = {m2.group(1): m2.group(2) for m2 in V2_GO.finditer(out)}
+    if v2:
+        lines["_v2_go"] = (v2, "")
     return lines, f"(cd common && {' '.join(cmd)})  # exit {code}; {gv}"
 
 
@@ -428,8 +440,8 @@ def main_replay_m1(args) -> int:
     if par_laws and go_lines is None:
         go_lines, gcmd = replay_own_go(morph, work, results)
     for lid in par_laws:
-        go_hex = go_lines.get("_v2_go", (None,))[0] if go_lines else None
-        entry = _par_v2_check(laws[lid], real.get("v2_solidity"), go_hex)
+        go_cases = go_lines.get("_v2_go", (None,))[0] if go_lines else None
+        entry = _par_v2_check(laws[lid], real.get("v2_solidity"), go_cases)
         entry["command"] = f"forge test --match-contract HolonTraceReplay (test_v2_composed); {gcmd}"
         report["laws"][lid] = entry
     # refinement corpus

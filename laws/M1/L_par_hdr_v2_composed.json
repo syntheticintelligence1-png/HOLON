@@ -7,7 +7,7 @@
   "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
   "ir_version": "holon-ir/0.1",
   "law_id": "L_par_hdr_v2_composed",
-  "maps_to": "O11 (resolves L_par_hdr_v2 obstruction)",
+  "maps_to": "O2 (PAR-domain v2; resolves L_par_hdr_v2 at the producer level)",
   "milestone": "M1",
   "notes": "Post hoc (not preregistered in \u00a711.8): resolves the M0 obstruction L_par_hdr_v2 at the system level. The real v2 producer is BatchCache.createBatchHeaderWithSequencerSetHash (common/batch/batch_cache.go:1727-1731): BatchHeaderV1.Bytes() then h[0]=BatchHeaderVersion2, with BlobVersionedHash = aggregateBlobHashes(blobHashes) supplied by the caller. The claim is the L_par_hdr_v2 statement with the Go side replaced by that composed producer.",
   "predicted": "PROVED",
