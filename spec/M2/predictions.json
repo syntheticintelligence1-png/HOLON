@@ -12,30 +12,257 @@
           "claim": "Each record's model_assumptions is exactly the ledger entries whose introduced_by meets the cone of its frozen statement. Hand-derived from spec/ledger/assumptions.json and the statements: M0 encoder-parity laws reach enc_sol_at, an enc_go and Hdr; round-trip laws reach enc_sol_at, dec_go and Hdr but no enc_go; L_dom_hdr reaches only the byte-level validity checks. Every rollup law reaches run or step, hence every action; s0, mig_legacy, cost and perm are defined after run and are reached only from statements that name them. L_own_txspayload reaches no hash stand-in.",
           "check": "tests_m2/test_ledger.py::TestLedger::test_model_assumptions_match_prediction",
           "expected": {
-            "L_dom_hdr": ["A-hash"],
-            "L_par_hdr_ssvh": ["A-cache", "A-dirty", "A-hash", "A-version", "A-width"],
-            "L_par_hdr_v0": ["A-cache", "A-dirty", "A-hash", "A-version", "A-width"],
-            "L_par_hdr_v1": ["A-cache", "A-dirty", "A-hash", "A-version", "A-width"],
-            "L_par_hdr_v2": ["A-cache", "A-dirty", "A-hash", "A-version", "A-width"],
-            "L_rt_go_v0": ["A-dirty", "A-hash", "A-version", "A-width"],
-            "L_rt_go_v1": ["A-dirty", "A-hash", "A-version", "A-width"],
-            "L_rt_go_v2": ["A-dirty", "A-hash", "A-version", "A-width"],
-            "L_disch_delay_nofree": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_disch_delay_pay": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-disch-cost-units", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_disch_delay_prove": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-disch-cost-units", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_disch_delay_wait": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-disch-cost-units", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_disch_stale": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-principal-classes", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_disch_stale_commit": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_fact_Z": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_nat_eta2": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-legacy-pseudo-migration", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_own_txspayload": ["abs-go-heap", "abs-newbatchdata-cap0", "oracle-go-sizeclass-trunc512", "scope-batchdata-unmodelled"],
-            "L_sort_remaining": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_sym_omega": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_tag_BVH": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_undo_BD": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_undo_BVH": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_undo_CSR": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"],
-            "L_undo_cancel": ["CF-keccak-blobhashes", "CF-keccak-headers", "Hyp-Z0-kzg", "abs-absolute-index-arrays", "abs-nat-tokens", "abs-post-genesis-initial", "abs-window-shadow", "oracle-ISubmitter", "oracle-messenger", "oracle-verifier", "scope-rollup-coverage-debt"]
+            "L_dom_hdr": [
+              "A-hash"
+            ],
+            "L_par_hdr_ssvh": [
+              "A-cache",
+              "A-dirty",
+              "A-hash",
+              "A-version",
+              "A-width"
+            ],
+            "L_par_hdr_v0": [
+              "A-cache",
+              "A-dirty",
+              "A-hash",
+              "A-version",
+              "A-width"
+            ],
+            "L_par_hdr_v1": [
+              "A-cache",
+              "A-dirty",
+              "A-hash",
+              "A-version",
+              "A-width"
+            ],
+            "L_par_hdr_v2": [
+              "A-cache",
+              "A-dirty",
+              "A-hash",
+              "A-version",
+              "A-width"
+            ],
+            "L_rt_go_v0": [
+              "A-dirty",
+              "A-hash",
+              "A-version",
+              "A-width"
+            ],
+            "L_rt_go_v1": [
+              "A-dirty",
+              "A-hash",
+              "A-version",
+              "A-width"
+            ],
+            "L_rt_go_v2": [
+              "A-dirty",
+              "A-hash",
+              "A-version",
+              "A-width"
+            ],
+            "L_disch_delay_nofree": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_disch_delay_pay": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-disch-cost-units",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_disch_delay_prove": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-disch-cost-units",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_disch_delay_wait": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-disch-cost-units",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_disch_stale": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-principal-classes",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_disch_stale_commit": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_fact_Z": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_nat_eta2": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-legacy-pseudo-migration",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_own_txspayload": [
+              "abs-go-heap",
+              "abs-newbatchdata-cap0",
+              "oracle-go-sizeclass-trunc512",
+              "scope-batchdata-unmodelled"
+            ],
+            "L_sort_remaining": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_sym_omega": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_tag_BVH": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_undo_BD": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_undo_BVH": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_undo_CSR": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ],
+            "L_undo_cancel": [
+              "CF-keccak-blobhashes",
+              "CF-keccak-headers",
+              "Hyp-Z0-kzg",
+              "abs-absolute-index-arrays",
+              "abs-nat-tokens",
+              "abs-post-genesis-initial",
+              "abs-window-shadow",
+              "oracle-ISubmitter",
+              "oracle-messenger",
+              "oracle-verifier",
+              "scope-rollup-coverage-debt"
+            ]
           }
         },
         {
@@ -65,8 +292,34 @@
           "claim": "All 24 statuses unchanged: results/M0/summary.json and results/M1/summary.json are byte-identical.",
           "check": "tests_m2/test_records_v2.py::TestRecordsV2::test_statuses_unchanged",
           "expected": {
-            "M0": {"L_dom_hdr": "REFUTED", "L_par_hdr_ssvh": "REFUTED", "L_par_hdr_v0": "PROVED", "L_par_hdr_v1": "PROVED", "L_par_hdr_v2": "REFUTED", "L_rt_go_v0": "PROVED", "L_rt_go_v1": "PROVED", "L_rt_go_v2": "PROVED"},
-            "M1": {"L_disch_delay_nofree": "PROVED", "L_disch_delay_pay": "PROVED", "L_disch_delay_prove": "PROVED", "L_disch_delay_wait": "PROVED", "L_disch_stale": "PROVED", "L_disch_stale_commit": "PROVED", "L_fact_Z": "REFUTED", "L_nat_eta2": "REFUTED", "L_own_txspayload": "REFUTED", "L_sort_remaining": "REFUTED", "L_sym_omega": "REFUTED", "L_tag_BVH": "REFUTED", "L_undo_BD": "PROVED", "L_undo_BVH": "REFUTED", "L_undo_CSR": "PROVED", "L_undo_cancel": "REFUTED"}
+            "M0": {
+              "L_dom_hdr": "REFUTED",
+              "L_par_hdr_ssvh": "REFUTED",
+              "L_par_hdr_v0": "PROVED",
+              "L_par_hdr_v1": "PROVED",
+              "L_par_hdr_v2": "REFUTED",
+              "L_rt_go_v0": "PROVED",
+              "L_rt_go_v1": "PROVED",
+              "L_rt_go_v2": "PROVED"
+            },
+            "M1": {
+              "L_disch_delay_nofree": "PROVED",
+              "L_disch_delay_pay": "PROVED",
+              "L_disch_delay_prove": "PROVED",
+              "L_disch_delay_wait": "PROVED",
+              "L_disch_stale": "PROVED",
+              "L_disch_stale_commit": "PROVED",
+              "L_fact_Z": "REFUTED",
+              "L_nat_eta2": "REFUTED",
+              "L_own_txspayload": "REFUTED",
+              "L_sort_remaining": "REFUTED",
+              "L_sym_omega": "REFUTED",
+              "L_tag_BVH": "REFUTED",
+              "L_undo_BD": "PROVED",
+              "L_undo_BVH": "REFUTED",
+              "L_undo_CSR": "PROVED",
+              "L_undo_cancel": "REFUTED"
+            }
           }
         },
         {
@@ -80,7 +333,14 @@
           "check": "gate G1"
         }
       ],
-      "outcome_paths": ["results/M0/", "results/M1/", "replay/M0/report.json", "replay/M1/report.json", "gen/M0/", "gen/M1/"],
+      "outcome_paths": [
+        "results/M0/",
+        "results/M1/",
+        "replay/M0/report.json",
+        "replay/M1/report.json",
+        "gen/M0/",
+        "gen/M1/"
+      ],
       "tests": [
         "tests_m2/test_ledger.py",
         "tests_m2/test_records_v2.py",
@@ -88,6 +348,85 @@
         "tests_m2/test_ir02_schema.py",
         "tests_m2/test_prereg_order.py",
         "tests_m2/test_predictions_schema.py"
+      ],
+      "thresholds": {}
+    },
+    "I2": {
+      "title": "Semantic bindings and dependency index",
+      "plan": "docs/BUILD_PLAN.md#i2",
+      "prompt": "prompts/I2_bindings.md",
+      "predictions": [
+        {
+          "id": "I2-P1",
+          "claim": "In the kernel (BendTT) dependency graph, the laws whose cone contains step_finalizeBatch are exactly the 15 rollup laws: every rollup statement names run, obs or step, and all of them dispatch to every action; L_own_txspayload and every M0 law are outside.",
+          "check": "tests_m2/test_bindings.py::TestBindings::test_dependents_match_prediction",
+          "expected": {
+            "step_finalizeBatch": [
+              "L_disch_delay_nofree",
+              "L_disch_delay_pay",
+              "L_disch_delay_prove",
+              "L_disch_delay_wait",
+              "L_disch_stale",
+              "L_disch_stale_commit",
+              "L_fact_Z",
+              "L_nat_eta2",
+              "L_sort_remaining",
+              "L_sym_omega",
+              "L_tag_BVH",
+              "L_undo_BD",
+              "L_undo_BVH",
+              "L_undo_CSR",
+              "L_undo_cancel"
+            ]
+          }
+        },
+        {
+          "id": "I2-P2",
+          "claim": "The laws whose kernel cone contains b_tags_exact are exactly {L_tag_BVH} (only the ghost observer tags_ok calls it).",
+          "check": "tests_m2/test_bindings.py::TestBindings::test_dependents_match_prediction",
+          "expected": {
+            "b_tags_exact": [
+              "L_tag_BVH"
+            ]
+          }
+        },
+        {
+          "id": "I2-P3",
+          "claim": "The laws whose kernel cone contains the Go size-class lookup b_first_ge are exactly {L_own_txspayload}.",
+          "check": "tests_m2/test_bindings.py::TestBindings::test_dependents_match_prediction",
+          "expected": {
+            "b_first_ge": [
+              "L_own_txspayload"
+            ]
+          }
+        },
+        {
+          "id": "I2-P4",
+          "claim": "For all 24 laws, the kernel cone restricted to the model file's own definitions equals the I1 token cone stored in the record (no spurious token edge from a local spelled like a definition, no edge the token graph misses).",
+          "check": "tests_m2/test_bindings.py::TestBindings::test_kernel_cone_equals_token_cone"
+        },
+        {
+          "id": "I2-P5",
+          "claim": "Changing the body of b_tags_exact in a copy (its Nil case True -> False) makes G2 FAIL naming exactly L_tag_BVH; swapping two Nat arguments in step_finalizeBatch's call to exec_finalizeBatch makes G2 FAIL naming exactly the 15 rollup laws; renaming a local variable of b_tags_exact or adding a comment leaves G2 passing.",
+          "check": "tests_m2/test_bindings.py::TestBindingTamper"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I2-R1",
+          "claim": "All 24 statuses, statement hashes and generated .bend files unchanged; G1 and G2 pass on M0 and M1.",
+          "check": "gate G1, G2"
+        }
+      ],
+      "outcome_paths": [
+        "spec/bindings/",
+        "results/M0/",
+        "results/M1/",
+        "gen/M0/",
+        "gen/M1/"
+      ],
+      "tests": [
+        "tests_m2/test_bindings.py"
       ],
       "thresholds": {}
     }
