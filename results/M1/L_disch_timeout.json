@@ -1,0 +1,251 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_disch_timeout",
+    "laws": "gen/M1/L_disch_timeout/LAWS.bend",
+    "model": "gen/M1/model/rollup_sm.bend",
+    "proof": "gen/M1/L_disch_timeout/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 1,
+      "proof_generator": "reflection_reach",
+      "result": "rejected (SOME PROOFS FAIL)",
+      "seconds": 6.879605368999819
+    },
+    {
+      "exit_code": 0,
+      "refuter": "bounded_bfs",
+      "result": "counter-law checked",
+      "seconds": 0.2989421450001828
+    },
+    {
+      "kernel": "bendtt --verdict",
+      "result": "checked",
+      "seconds": 2.8529121480000867
+    }
+  ],
+  "bound": {
+    "K": 5,
+    "N": 3
+  },
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.2989421450001828
+  },
+  "facts_sha256": "6efc7842544ab8ffce20172243ad5a32f5acb2c4b948807ffa54961ee6fd4c6f",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_disch_timeout",
+  "model_checked": {
+    "reach": {
+      "cumulative": [
+        1,
+        7,
+        39,
+        224,
+        1308,
+        7554
+      ],
+      "method": "compiled_bend_reach_k",
+      "per_layer": [
+        1,
+        6,
+        32,
+        185,
+        1084,
+        6246
+      ]
+    }
+  },
+  "premises": [],
+  "reach_sizes": [
+    1,
+    6,
+    32,
+    185,
+    1084
+  ],
+  "replay": {
+    "status": "not_run"
+  },
+  "revert_tag_ids": {
+    "Pausable: not paused": 0,
+    "Pausable: paused": 1,
+    "already in challenge": 2,
+    "batch already challenged": 3,
+    "batch already committed": 4,
+    "batch already finalized": 5,
+    "batch already verified": 6,
+    "batch in challenge": 7,
+    "batch in challenge window": 8,
+    "batch not exist": 9,
+    "batch should be revert": 10,
+    "can only revert unFinalized batch": 11,
+    "cannot challenge batch outside the challenge window": 12,
+    "commitBatch requires no stored blob hash": 13,
+    "commitState must not carry blob": 14,
+    "count must be nonzero": 15,
+    "incorrect batch hash": 16,
+    "incorrect previous state root": 17,
+    "invalid submitter": 18,
+    "invalid timing": 19,
+    "invalid version": 20,
+    "l1msg delay": 21,
+    "message index out of range": 22,
+    "new state root is zero": 23,
+    "no stored blob hash for this batch": 24,
+    "only active submitter allowed": 25,
+    "panic: arithmetic underflow": 26,
+    "pending revert request": 27,
+    "previous state root is zero": 28,
+    "reverting must start from the ending": 29,
+    "start index mismatch": 30
+  },
+  "scope": "bounded",
+  "statement_hash": "sha256:c67ad17938d1576cfc9518f0604423b90f9a7af06f6d23c492185f337aaef29d",
+  "status": "REFUTED",
+  "timings": {
+    "counter_law_s": 0.2989421450001828,
+    "plain_proof_s": 6.879605368999819,
+    "witness_search_s": 1.5690425389998381
+  },
+  "triage": "finding",
+  "witness": {
+    "final_state": {
+      "batchChallenged": 1,
+      "blob": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "chal_challenger": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "chal_finished": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "chal_start": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "chal_success": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "committed": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "fin_ts": [
+        1,
+        3,
+        0,
+        0
+      ],
+      "finalized_root": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "hdr_num": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "hdr_prev": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "hdr_total": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "inChallenge": 1,
+      "lastCommitted": 1,
+      "lastFinalized": 0,
+      "now": 4,
+      "origin": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "paused": 0,
+      "q_enq": [
+        0,
+        0
+      ],
+      "q_len": 0,
+      "q_pending": 0,
+      "revertReqIndex": 0,
+      "state_root": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "submitter": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "submitter_active": 1
+    },
+    "forall_params": {},
+    "trace": [
+      {
+        "action": "commitBatch",
+        "outcome": "Ok",
+        "params": {
+          "numL1": 0,
+          "post": 1
+        }
+      },
+      {
+        "action": "challengeState",
+        "outcome": "Ok",
+        "params": {
+          "i": 1
+        }
+      },
+      {
+        "action": "tick",
+        "outcome": "Ok",
+        "params": {
+          "d": 1
+        }
+      },
+      {
+        "action": "tick",
+        "outcome": "Ok",
+        "params": {
+          "d": 2
+        }
+      }
+    ]
+  }
+}

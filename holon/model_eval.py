@@ -104,6 +104,7 @@ writeFileSync(process.argv[3],JSON.stringify(outs));
 """
 
 _cache: dict = {}
+_sm_cache: dict = {}
 
 
 def compile_model(facts_path=None, root=None) -> dict:
@@ -136,6 +137,66 @@ def compile_model(facts_path=None, root=None) -> dict:
     }
     _cache[key] = info
     return info
+
+
+SM_RUNNER_JS = """\
+import M from "./sm_model.mjs";
+import {readFileSync, writeFileSync} from "fs";
+const SCALARS = __SCALARS__;
+const ARRAYS = __ARRAYS__;
+function toList(a){return a.reduceRight((t,x)=>({$:"Con",head:x,tail:t}),{$:"Nil"});}
+function fromList(l){const o=[];while(l&&l.$==="Con"){o.push(Number(l.head));l=l.tail;}return o;}
+function stateCount(l){let n=0;while(l&&l.$==="Con"){n++;l=l.tail;}return n;}
+function inState(s){const o={$:"State"};for(const k of SCALARS)o[k]=BigInt(s[k]);for(const k of ARRAYS)o[k]=toList(s[k].map(BigInt));return o;}
+function outState(s){const o={};for(const k of SCALARS)o[k]=Number(s[k]);for(const k of ARRAYS)o[k]=fromList(s[k]);return o;}
+function outOutcome(o){if(o.$==="Ok")return {tag:"Ok",state:outState(o.state)};if(o.$==="Revert")return {tag:"Revert",id:Number(o.tag)};if(o.$==="Bound")return {tag:"Bound"};throw new Error("bad outcome "+JSON.stringify(o));}
+const jobs=JSON.parse(readFileSync(process.argv[2],"utf8"));
+const outs=jobs.map(j=>{
+  if(j.op==="init")return {state:outState(M.init_state())};
+  if(j.op==="reach")return {count:stateCount(M.reach_k(BigInt(j.depth)))};
+  const s=inState(j.state);
+  if(j.op==="check")return {value:M[j.fn](s)};
+  if(j.op==="check_assignment")return {value:M[j.fn](s,BigInt(j.index))};
+  if(j.op==="step")return outOutcome(M[j.action](s,...j.params.map(BigInt)));
+  throw new Error("bad op "+j.op);
+});
+writeFileSync(process.argv[3],JSON.stringify(outs));
+"""
+
+
+def compile_sm_model(source: str, state_fields: dict, root=None, cache_key="sm") -> dict:
+    """Compile a generated state-machine/check module and prepare its Node runner."""
+    root = Path(root) if root else ROOT
+    key = (cache_key, hashlib.sha256(source.encode()).hexdigest())
+    if key in _sm_cache:
+        return _sm_cache[key]
+    cfg = config(root)
+    bdir = root / "build" / "sm_model" / key[1][:16]
+    bdir.mkdir(parents=True, exist_ok=True)
+    src, art = bdir / "sm_model.bend", bdir / "sm_model.mjs"
+    src.write_text(source)
+    code, out, _ = run_bend([src, "-o", art], cfg=cfg)
+    if code != 0 or not art.exists():
+        raise RuntimeError(f"Bend state-machine compile failed: {out[:4000]}")
+    scalars = [name for name, kind in state_fields if kind == "scalar"]
+    arrays = [name for name, kind in state_fields if kind == "array"]
+    runner = SM_RUNNER_JS.replace("__SCALARS__", json.dumps(scalars)).replace("__ARRAYS__", json.dumps(arrays))
+    (bdir / "runner.mjs").write_text(runner)
+    info = {"dir": str(bdir), "artifact": str(art), "node": cfg.get("node", "node")}
+    _sm_cache[key] = info
+    return info
+
+
+def eval_sm_jobs(model: dict, jobs: list) -> list:
+    d = Path(model["dir"])
+    jf, of = d / "jobs.json", d / "out.json"
+    jf.write_text(json.dumps(jobs))
+    p = subprocess.run([model["node"], "--stack-size=65500", str(d / "runner.mjs"),
+                        str(jf), str(of)],
+                       capture_output=True, text=True, timeout=600)
+    if p.returncode != 0:
+        raise RuntimeError(f"state-machine model eval failed: {p.stderr[-2000:]}")
+    return json.loads(of.read_text())
 
 
 def _run_jobs(model: dict, jobs: list) -> list:

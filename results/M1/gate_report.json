@@ -1,0 +1,171 @@
+{
+  "bend_version": "2.0.36",
+  "canaries": [
+    {
+      "detected": true,
+      "detected_by": "L_nat_delay_frontier",
+      "id": "drop_req:addSubmitter:('body', 0)",
+      "kind": "drop_req",
+      "mutated_facts": "drop_req:addSubmitter:('body', 0)"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_par_hdr_v2_composed",
+      "id": "drop_req:challengeState:('body', 0)",
+      "kind": "drop_req",
+      "mutated_facts": "drop_req:challengeState:('body', 0)"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_par_hdr_v2_composed",
+      "id": "drop_req:challengeState:('body', 1)",
+      "kind": "drop_req",
+      "mutated_facts": "drop_req:challengeState:('body', 1)"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_nat_delay_frontier",
+      "id": "drop_req:challengeState:('body', 2)",
+      "kind": "drop_req",
+      "mutated_facts": "drop_req:challengeState:('body', 2)"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_par_hdr_v2_composed",
+      "id": "flip_cmp:addSubmitter:('body', 0, 'req', 'eq'):eq->ne",
+      "kind": "flip_cmp",
+      "mutated_facts": "flip_cmp:addSubmitter:('body', 0, 'req', 'eq'):eq->ne"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_disch_nonowner",
+      "id": "flip_cmp:challengeState:('body', 0, 'req', 'eq'):eq->ne",
+      "kind": "flip_cmp",
+      "mutated_facts": "flip_cmp:challengeState:('body', 0, 'req', 'eq'):eq->ne"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_disch_nonowner",
+      "id": "flip_cmp:challengeState:('body', 1, 'req', 'eq'):eq->ne",
+      "kind": "flip_cmp",
+      "mutated_facts": "flip_cmp:challengeState:('body', 1, 'req', 'eq'):eq->ne"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_disch_nonowner",
+      "id": "flip_cmp:challengeState:('body', 2, 'req', 'eq'):eq->ne",
+      "kind": "flip_cmp",
+      "mutated_facts": "flip_cmp:challengeState:('body', 2, 'req', 'eq'):eq->ne"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_par_hdr_v2_composed",
+      "id": "drop_set:addSubmitter:('body', 1)",
+      "kind": "drop_set",
+      "mutated_facts": "drop_set:addSubmitter:('body', 1)"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_inv_one_challenge",
+      "id": "drop_set:challengeState:('body', 8)",
+      "kind": "drop_set",
+      "mutated_facts": "drop_set:challengeState:('body', 8)"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_disch_nonowner",
+      "id": "drop_set:challengeState:('body', 9)",
+      "kind": "drop_set",
+      "mutated_facts": "drop_set:challengeState:('body', 9)"
+    },
+    {
+      "detected": true,
+      "detected_by": "L_par_hdr_v2_composed",
+      "id": "drop_set:challengeState:('body', 10)",
+      "kind": "drop_set",
+      "mutated_facts": "drop_set:challengeState:('body', 10)"
+    },
+    {
+      "counterexample": {
+        "h": {
+          "batchIndex": "0x0000000000000000",
+          "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "l1MessagePopped": "0x0000000000000000",
+          "lastBlockNumber": "0x0000000000000000",
+          "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "sequencerSetVerifyHash": "0x0100000000000000000000000000000000000000000000000000000000000000",
+          "totalL1MessagePopped": "0x0000000000000000",
+          "version": "0x02",
+          "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "detected": true,
+      "detected_by": "checker",
+      "id": "L_par_hdr_v2_composed:pin_const:1",
+      "kind": "pin_const",
+      "mutated_facts": "law-statement"
+    },
+    {
+      "counterexample": {
+        "h": {
+          "batchIndex": "0x0000000000000000",
+          "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "l1MessagePopped": "0x0000000000000000",
+          "lastBlockNumber": "0x0000000000000000",
+          "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "totalL1MessagePopped": "0x0000000000000000",
+          "version": "0x02",
+          "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "detected": true,
+      "detected_by": "checker",
+      "id": "L_par_hdr_v2_composed:swap_fn:2",
+      "kind": "swap_fn",
+      "mutated_facts": "law-statement"
+    }
+  ],
+  "checks": {
+    "G1": {
+      "detail": "20 .bend files and summary.json are byte-identical",
+      "passed": true
+    },
+    "G11": {
+      "detail": "9 laws: records present, LAWS.bend states exactly the expected law",
+      "passed": true
+    },
+    "G12": {
+      "detail": "6 PROVED/REFUTED SM records carry their N,K bounds",
+      "passed": true
+    },
+    "G2": {
+      "detail": "9 laws and facts match the registry",
+      "passed": true
+    },
+    "G3": {
+      "detail": "no escape hatches in generated .bend files",
+      "passed": true
+    },
+    "G4": {
+      "detail": "14 canaries (12 SM mutations) across 5 kinds; detected: 14/14; survivors: []",
+      "passed": true
+    },
+    "G5": {
+      "detail": "re-checked 7 proofs (L_disch_nonowner, L_disch_timeout, L_nat_delay_frontier, L_par_hdr_v2_composed, L_undo_commit_revert, L_undo_enabled, L_undo_pause)",
+      "passed": true
+    },
+    "GENV": {
+      "detail": "bend 2.0.36, no bunfig.toml/.env",
+      "passed": true
+    }
+  },
+  "milestone": "M1",
+  "passed": true
+}

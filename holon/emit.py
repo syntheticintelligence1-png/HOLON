@@ -13,6 +13,10 @@ from .gen_model import field_names
 
 MODEL_IMPORT = "../model/morph_header.bend"
 
+
+def _model_import(model_name=None):
+    return "../model/" + (model_name or "morph_header") + ".bend"
+
 _BINDER_TYPE = {"Header": "M.Hdr", "Bytes": "List<&2, U32>"}
 _EQ_FN = {"Bytes": "bytes_eq", "Bool": "bool_eq", "Fields": "fields_eq",
           "Maybe<Fields>": "maybe_fields_eq"}
@@ -113,10 +117,10 @@ def law_names(laws_file) -> list:
     return re.findall(r"^law\s+([A-Za-z0-9_.]+)\s*:", laws_file.read_text(), re.M)
 
 
-def emit_laws(law: dict, facts: dict) -> str:
+def emit_laws(law: dict, facts: dict, model_name=None) -> str:
     """LAWS.bend for the direct (for-all) form of a law."""
     pins = {v: _pin_name(law["law_id"], v) for v in pins_of(law)}
-    lines = ["import Base", f"import {MODEL_IMPORT} as M", ""]
+    lines = ["import Base", f"import {_model_import(model_name)} as M", ""]
     lines += _pin_defs(law, facts, pins_of(law))
     a, b = law["statement"]["claim"]["eq"]
     ct = _BEND_TYPE[_claim_type(law, facts)]
@@ -130,12 +134,12 @@ def emit_laws(law: dict, facts: dict) -> str:
     return "\n".join(lines)
 
 
-def emit_proof(law: dict, facts: dict) -> str:
+def emit_proof(law: dict, facts: dict, model_name=None) -> str:
     """PROOF.bend, proof class refl_after_open."""
     names = field_names(facts)
     binders = law["statement"]["forall"]
     args = ", ".join(b["name"] for b in binders)
-    lines = ["import Base", f"import {MODEL_IMPORT} as M", "import ./LAWS.bend as Laws", ""]
+    lines = ["import Base", f"import {_model_import(model_name)} as M", "import ./LAWS.bend as Laws", ""]
     lines.append(f"def Laws.{law['law_id'].lower()}({args}):")
     hdrs = [b["name"] for b in binders if b["type"] == "Header"]
     if hdrs:
@@ -148,10 +152,10 @@ def emit_proof(law: dict, facts: dict) -> str:
     return "\n".join(lines)
 
 
-def emit_counter_laws(law: dict, facts: dict, witness: dict) -> str:
+def emit_counter_laws(law: dict, facts: dict, witness: dict, model_name=None) -> str:
     """LAWS.bend for the exs counter-law cl_<law_id> (BEND_PRIMER 5.4)."""
     pins = {v: _pin_name(law["law_id"], v) for v in pins_of(law)}
-    lines = ["import Base", f"import {MODEL_IMPORT} as M", ""]
+    lines = ["import Base", f"import {_model_import(model_name)} as M", ""]
     lines += _pin_defs(law, facts, pins_of(law))
     a, b = law["statement"]["claim"]["eq"]
     ct = _BEND_TYPE[_claim_type(law, facts)]
@@ -180,7 +184,7 @@ def _witness_literal(btype: str, value, facts: dict) -> str:
     raise ValueError(btype)
 
 
-def emit_counter_proof(law: dict, facts: dict, witness: dict) -> str:
+def emit_counter_proof(law: dict, facts: dict, witness: dict, model_name=None) -> str:
     """PROOF.bend for the exs counter-law: (W, e => (%e : is_true(eq(_, L(W))); Unit{}))."""
     pins = {v: _pin_name(law["law_id"], v) for v in pins_of(law)}
     btypes = {b["name"]: b["type"] for b in law["statement"]["forall"]}
@@ -191,7 +195,7 @@ def emit_counter_proof(law: dict, facts: dict, witness: dict) -> str:
     eqfn = _EQ_FN[ct]
     lhs_w = _term_bend(a, pins, law["law_id"], at_witness=wlit, pin_mod="Laws.")
     wlit_str = ", ".join(wlit[b["name"]] for b in law["statement"]["forall"])
-    lines = ["import Base", f"import {MODEL_IMPORT} as M", "import ./LAWS.bend as Laws", ""]
+    lines = ["import Base", f"import {_model_import(model_name)} as M", "import ./LAWS.bend as Laws", ""]
     lines.append(f"def Laws.cl_{law['law_id'].lower()}():")
     lines.append(f"  ({wlit_str}, e => (%e : M.is_true(M.{eqfn}(_, {lhs_w}))")
     lines.append("  Unit{}))")

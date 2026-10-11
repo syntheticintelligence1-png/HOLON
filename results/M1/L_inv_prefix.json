@@ -1,0 +1,99 @@
+{
+  "artifacts": {
+    "law_name": "l_inv_prefix",
+    "laws": "gen/M1/L_inv_prefix/LAWS.bend",
+    "model": "gen/M1/model/rollup_sm.bend",
+    "proof": "gen/M1/L_inv_prefix/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "proof_generator": "reflection_reach",
+      "result": "proved",
+      "seconds": 2.313192812000125
+    },
+    {
+      "kernel": "bendtt --verdict",
+      "result": "kernel rejected the proof",
+      "seconds": 9.378514200000154
+    }
+  ],
+  "bound": {
+    "K": 3,
+    "N": 3,
+    "note": "kernel rejected the proof"
+  },
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 2.313192812000125
+  },
+  "facts_sha256": "6efc7842544ab8ffce20172243ad5a32f5acb2c4b948807ffa54961ee6fd4c6f",
+  "kernel": {
+    "name": "bend",
+    "verdict": "failed",
+    "version": "2.0.36"
+  },
+  "law_id": "L_inv_prefix",
+  "model_checked": {
+    "reach": {
+      "cumulative": [
+        1,
+        7,
+        39,
+        224
+      ],
+      "method": "compiled_bend_reach_k",
+      "per_layer": [
+        1,
+        6,
+        32,
+        185
+      ]
+    }
+  },
+  "premises": [],
+  "replay": {
+    "status": "not_run"
+  },
+  "revert_tag_ids": {
+    "Pausable: not paused": 0,
+    "Pausable: paused": 1,
+    "already in challenge": 2,
+    "batch already challenged": 3,
+    "batch already committed": 4,
+    "batch already finalized": 5,
+    "batch already verified": 6,
+    "batch in challenge": 7,
+    "batch in challenge window": 8,
+    "batch not exist": 9,
+    "batch should be revert": 10,
+    "can only revert unFinalized batch": 11,
+    "cannot challenge batch outside the challenge window": 12,
+    "commitBatch requires no stored blob hash": 13,
+    "commitState must not carry blob": 14,
+    "count must be nonzero": 15,
+    "incorrect batch hash": 16,
+    "incorrect previous state root": 17,
+    "invalid submitter": 18,
+    "invalid timing": 19,
+    "invalid version": 20,
+    "l1msg delay": 21,
+    "message index out of range": 22,
+    "new state root is zero": 23,
+    "no stored blob hash for this batch": 24,
+    "only active submitter allowed": 25,
+    "panic: arithmetic underflow": 26,
+    "pending revert request": 27,
+    "previous state root is zero": 28,
+    "reverting must start from the ending": 29,
+    "start index mismatch": 30
+  },
+  "scope": "bounded",
+  "statement_hash": "sha256:ad9d40c359a10c8437f9c45b3c6c271a14ec18ccd1bdc403b81c4f5ddbeed8b6",
+  "status": "UNKNOWN",
+  "timings": {
+    "plain_proof_s": 2.313192812000125
+  },
+  "triage": "none"
+}
