@@ -39,6 +39,7 @@ python -m unittest discover -s tests_m1 -t .        # HOLON_REPLAY=1 to include 
 | L_sym_omega | SYM-ω | REFUTED | **REFUTED**, replayed | [commitBatchWithProof(2), challenge(1)] vs the reverse order. After proving batch 1, batch 2 can be challenged in one order (f₂ reopened to t+W) and not in the other (O19/F5) |
 | L_own_txspayload | OWN | REFUTED, conditional | **REFUTED**, replayed on Go | Go `BatchData` (heap model, Go 1.24 growth oracle): append(8 B ctx), append(60 B ctx), `TxsPayloadV2`, append(8 B ctx). The held view's bytes 68.. are overwritten. Real Go: cap 80, first diff 68, exactly as modelled. The realistic case (three 60-byte contexts, 1-byte payloads) corrupts too: cap 256, first diff 180 (O36) |
 | L_disch_delay_prove | DISCH | *post hoc* | **PROVED** | third profile point (c_proof, 0), found by the strategy search (§2) |
+| L_par_hdr_v2_composed | PAR | *post hoc* | **PROVED**, dual-kernel; replayed on Solidity + Go | the M0 obstruction (O11): the system *composes* the v1 producer with a version patch — `BatchHeaderV1.Bytes()` then `h[0] = 2` (batch_cache.go:1727-1731). Facts `spec/M1/facts/morph_header_m1.json` add `enc_go_v2_producer`; the statement is laws/M0/L_par_hdr_v2 verbatim with only the Go-side call swapped, proved on both kernels, and replayed byte-for-byte: a real v2 `commitBatch` through the deployed Rollup, and the real `createBatchHeaderWithSequencerSetHash`, both equal to the compiled model's bytes |
 | L_nat_eta2 | NAT | *post hoc* (O15/N1) | **REFUTED**, replayed | legacy state with LFI < LCI; initialize2 writes CSR only at LCI; revert(1); recommit → "incorrect previous state root". Natively it succeeds. Replayed by emulating the pre-v2 storage (CSR slots zeroed) and calling the real `initialize2` |
 
 *Predictions:* `spec/M1/predictions.json`, transcribed from §11.8. *Records:* `results/M1/`. *Bend files:* `gen/M1/`. *Replay:* `replay/M1/report.json`.
@@ -82,7 +83,7 @@ python -m unittest discover -s tests_m1 -t .        # HOLON_REPLAY=1 to include 
 | `nat_split` / `evaluate` | DISCH profile points | Case split, or check a strategy by computation. |
 | `counter` | all REFUTED laws | The concrete witness, premises by computation, the two sides separated through the model's equality function. |
 
-**Kernels.** All 15 checked files also pass BendTT `--verdict` (0.5–1.2 s each).
+**Kernels.** All 16 checked files also pass BendTT `--verdict` (0.5–1.2 s each).
 
 ## 4. Refinement evidence (whitepaper §8.7, §12.1)
 
@@ -96,6 +97,13 @@ python -m unittest discover -s tests_m1 -t .        # HOLON_REPLAY=1 to include 
 
 **Corpora:**
 - **Witnesses.** Each REFUTED law is linearised into the traces its claim compares. All steps agree, and the obstruction reproduces on the real code (table in §1).
+
+
+**Composed-producer replay.** `L_par_hdr_v2_composed` is an ir/0.1 codec law carried into M1 on its own facts file; `holon replay --milestone M1` extends the harness with `test_v2_composed` (a real v2 `commitBatch`, codec-built header, `vm.blobhashes`: stored bytes start 0x02, carry zero sequencerSetVerifyHash, and equal the model's `enc_go_v2_producer` output) and `replay/M1/go/holon_v2_test.go` (the real `createBatchHeaderWithSequencerSetHash` on a `BatchCache`; 257 bytes, byte-identical to the model).
+
+**Independent oracle.** `tests_m1/test_m1_oracle.py` is a Python reimplementation of the rollup actions written from Rollup.sol and the L1 queue source — it does not read the facts, the model, or machine.mjs. Cross-checked against the compiled machine on 1,914 distinct states to depth 3 over the policy domain plus 300 fixed-seed random traces: outcome tags and all modelled registers agree, 0 disagreements.
+
+**Kernel mismatch, second case.** `replay/M1/kernel_mismatch/reach_set/` preserves a second `--verdict` divergence: a ~1.3k-element list of distinct 25-field records normalised in one term (upstream-reported reproducer from the devin work).
 - **Random corpus.** 300 seeded random traces, 2,432 steps. They mix successful and failing actions, perturbed indices and principals, and every revert path the policy reaches. Per action, model and real outcomes agree on all steps: commitBatch 874, wait 628, commitState 224, commitBatchWithProof 130, setPause 123, finalizeBatch 114, sendMessage 108, proveState 96, revertBatch 68, challengeState 67. There were **0 disagreements**.
 
 Earlier runs did fail. Both causes were harness defects, and both were fixed in the harness, not the model:

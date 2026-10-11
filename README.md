@@ -2,7 +2,7 @@
 
 **Status: M0 and M1 complete.**
 - **M0:** the factory loop on the Morph batch-header codecs.
-- **M1:** the Rollup state machine (UNDO, SORT, DISCH, FACT, SYM, NAT) plus the Go OWN aliasing law. 16 laws: 8 PROVED (unbounded, dual-kernel) and 8 REFUTED, every refutation replayed on the real code. Details are in `docs/M1_REPORT.md`; the architecture is in `docs/ARCHITECTURE.md`.
+- **M1:** the Rollup state machine (UNDO, SORT, DISCH, FACT, SYM, NAT) plus the Go OWN aliasing law. 17 laws: 9 PROVED (dual-kernel) and 8 REFUTED, every refutation replayed on the real code. Details are in `docs/M1_REPORT.md`; the architecture is in `docs/ARCHITECTURE.md`.
 
 M0 results:
 
