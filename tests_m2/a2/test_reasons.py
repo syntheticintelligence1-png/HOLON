@@ -37,8 +37,14 @@ class TestResolveReasons(unittest.TestCase):
         self.assertEqual(st["claim"]["eq"][0]["args"][1], {"nat": 12})
 
     def test_extracted_code(self):
+        """The extracted facts number reasons differently (and the numbering
+        shifts as extraction coverage grows), so the code must come from the
+        extracted table itself — and differ from the hand file's 12."""
+        code = int(next(k for k, v in EXTRACTED["reasons"].items()
+                        if v == "incorrect batch index"))
         st = ir.resolve_reasons(_rev_statement("incorrect batch index"), EXTRACTED)
-        self.assertEqual(st["claim"]["eq"][0]["args"][1], {"nat": 7})
+        self.assertEqual(st["claim"]["eq"][0]["args"][1], {"nat": code})
+        self.assertNotEqual(code, 12)
 
     def test_missing_raises_unsupported(self):
         with self.assertRaises(mlaws.Unsupported):

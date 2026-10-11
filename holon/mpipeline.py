@@ -315,9 +315,10 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             # {"reason": msg} terms resolve against THIS facts file's reasons
             # table (facts_overrides honoured via machine_for's facts path);
             # the record's hash/premises stay computed from the original law.
+            orig_hash = ir.statement_hash(law)
             law = ir.resolve_law_reasons(law, cm.facts)
             E = mlaws.Emitter(cm.m)
-            em = E.emit(law, imp, note=ir.statement_hash(law))
+            em = E.emit(law, imp, note=orig_hash)
             exists = any(b["q"] == "exists" for b in law["statement"]["binders"])
             witness = None
             if exists:
@@ -348,7 +349,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                                  "tried": s["tried"], "hit": s["witness"] is not None})
                 if s["witness"] is not None:
                     w = s["witness"]
-                    em2 = mlaws.Emitter(cm.m).emit(law, imp, counter=True, note=ir.statement_hash(law))
+                    em2 = mlaws.Emitter(cm.m).emit(law, imp, counter=True, note=orig_hash)
                     env = {n: mlaws.value_literal(cm.m, t, w[n]) for _, n, t in em2.binders}
                     lhs, _, ty = mlaws.Emitter(cm.m).prop(law["statement"]["claim"], env, {n: t for _, n, t in em2.binders})
                     text = mproofs.counter(em2, cm.m, imp, w, lhs, ty)

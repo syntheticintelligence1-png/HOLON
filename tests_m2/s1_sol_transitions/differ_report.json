@@ -9,7 +9,7 @@
   "extra": [
    {
     "item": {
-     "reason": 24,
+     "reason": 29,
      "require": [
       "&&",
       [
@@ -43,50 +43,6 @@
    {
     "item": {
      "require": [
-      "call",
-      "mem",
-      "who",
-      "chals"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "==",
-      "rri",
-      0
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "!",
-      "paused"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "<=",
-      "idx",
-      "lci"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
       ">",
       [
        "get",
@@ -106,7 +62,7 @@
     "reason": "hand guard has no extracted counterpart"
    }
   ],
-  "recovered_from_ast": 9,
+  "recovered_from_ast": 13,
   "spec_bound": 1
  },
  "commitBatch": {
@@ -114,7 +70,7 @@
    {
     "item": {
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 8,
+     "reason": 11,
      "require": [
       "<=",
       "parent",
@@ -127,39 +83,6 @@
    }
   ],
   "missing": [
-   {
-    "item": {
-     "require": [
-      "call",
-      "mem",
-      "who",
-      "active"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "==",
-      "rri",
-      0
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "!",
-      "paused"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
    {
     "item": {
      "let": [
@@ -270,7 +193,7 @@
     "reason": "hand write simplified relative to extracted semantics"
    }
   ],
-  "recovered_from_ast": 20,
+  "recovered_from_ast": 23,
   "spec_bound": 2
  },
  "commitBatchWithProof": {
@@ -278,7 +201,7 @@
    {
     "item": {
      "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)",
-     "reason": 6,
+     "reason": 9,
      "require": [
       ">",
       "next",
@@ -291,7 +214,7 @@
    },
    {
     "item": {
-     "reason": 7,
+     "reason": 10,
      "require": [
       "==",
       "parent",
@@ -305,7 +228,7 @@
    {
     "item": {
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 8,
+     "reason": 11,
      "require": [
       "<=",
       "parent",
@@ -318,7 +241,7 @@
    },
    {
     "item": {
-     "reason": 16,
+     "reason": 19,
      "require": [
       ">",
       "proof",
@@ -331,27 +254,6 @@
    }
   ],
   "missing": [
-   {
-    "item": {
-     "require": [
-      "==",
-      "rri",
-      0
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "!",
-      "paused"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
    {
     "item": {
      "require": [
@@ -485,7 +387,7 @@
     "reason": "hand write simplified relative to extracted semantics"
    }
   ],
-  "recovered_from_ast": 25,
+  "recovered_from_ast": 27,
   "spec_bound": 2
  },
  "commitState": {
@@ -493,7 +395,7 @@
    {
     "item": {
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 8,
+     "reason": 11,
      "require": [
       "<=",
       "parent",
@@ -506,39 +408,6 @@
    }
   ],
   "missing": [
-   {
-    "item": {
-     "require": [
-      "call",
-      "mem",
-      "who",
-      "active"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "==",
-      "rri",
-      0
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "!",
-      "paused"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
    {
     "item": {
      "win": [
@@ -583,54 +452,20 @@
     "reason": "hand write simplified relative to extracted semantics"
    }
   ],
-  "recovered_from_ast": 23,
+  "recovered_from_ast": 26,
   "spec_bound": 2
  },
  "finalizeBatch": {
   "extra": [],
-  "missing": [
-   {
-    "item": {
-     "require": [
-      "==",
-      "rri",
-      0
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "!",
-      "paused"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "win": [
-      "call",
-      "drop",
-      "win",
-      1
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand effect on 'win' has no extracted counterpart"
-   }
-  ],
-  "recovered_from_ast": 15,
+  "missing": [],
+  "recovered_from_ast": 18,
   "spec_bound": 2
  },
  "proveState": {
   "extra": [
    {
     "item": {
-     "reason": 16,
+     "reason": 19,
      "require": [
       "||",
       "timeout",
@@ -647,39 +482,6 @@
    }
   ],
   "missing": [
-   {
-    "item": {
-     "require": [
-      "==",
-      "rri",
-      0
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "!",
-      "paused"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      "call",
-      "mem",
-      "who",
-      "active"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
    {
     "item": {
      "require": [
@@ -713,18 +515,18 @@
       ]
      ]
     },
-    "kind": "not_extracted",
-    "reason": "hand effect on 'chs' has no extracted counterpart"
+    "kind": "hand_simplification",
+    "reason": "hand write simplified relative to extracted semantics"
    }
   ],
-  "recovered_from_ast": 9,
+  "recovered_from_ast": 12,
   "spec_bound": 0
  },
  "revertBatch": {
   "extra": [
    {
     "item": {
-     "reason": 11,
+     "reason": 14,
      "require": [
       "<=",
       1,
@@ -736,20 +538,8 @@
     "reason": "extracted guard/write not present in hand facts"
    }
   ],
-  "missing": [
-   {
-    "item": {
-     "require": [
-      "==",
-      "who",
-      "OWNER"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   }
-  ],
-  "recovered_from_ast": 7,
+  "missing": [],
+  "recovered_from_ast": 8,
   "spec_bound": 8
  },
  "sendMessage": {
@@ -763,24 +553,13 @@
   "missing": [
    {
     "item": {
-     "require": [
-      "==",
-      "who",
-      "OWNER"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
      "paused": "status"
     },
     "kind": "hand_simplification",
     "reason": "hand write simplified relative to extracted semantics"
    }
   ],
-  "recovered_from_ast": 4,
+  "recovered_from_ast": 5,
   "spec_bound": 0
  },
  "wait": {

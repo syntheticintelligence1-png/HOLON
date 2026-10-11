@@ -435,8 +435,7 @@ class Translator:
             return ("unmodelled", f"{base[1]}.{mem}")
         if isinstance(base, tuple) and base[0] == "abs_rec":
             _, f, k = base
-            ctor = self.spec["struct_ctors"].get(f["record"]) or next(
-                (v for v in self.spec["struct_ctors"].values() if v.get("record") == f["record"]), None)
+            ctor = self.ctor_of(f["record"])
             m = (ctor or {}).get("member_fields", {}).get(mem)
             if m is None:
                 self.add_debt(f"{self.src(n)} member {f['record']}.{mem}", "unmodelled_member", mem)
@@ -454,7 +453,7 @@ class Translator:
             return e
         if isinstance(base, tuple) and base[0] == "shadow":
             _, nm, f, k, fields = base
-            ctor = self.spec["struct_ctors"].get(f["record"])
+            ctor = self.ctor_of(f["record"])
             m = (ctor or {}).get("member_fields", {}).get(mem)
             if m is None:
                 self.add_debt(f"{self.src(n)} member {f['record']}.{mem}", "unmodelled_member", mem)
@@ -537,6 +536,12 @@ class Translator:
         if kind == "oracle_addr":
             return ("addr", name)
         return ("map", name)
+
+    def ctor_of(self, record):
+        """struct_ctors is keyed by Solidity struct name; resolve the model record
+        name (e.g. 'Ch') via its 'record' field."""
+        return self.spec["struct_ctors"].get(record) or next(
+            (v for v in self.spec["struct_ctors"].values() if v.get("record") == record), None)
 
     def _last_bound(self, e):
         c = canon(e)
@@ -872,11 +877,17 @@ class Translator:
             return self.post_hoist(e, node)
         return ("void", fkey[1])
 
+    def _modifier_debt(self, name, reason):
+        a = getattr(self, "action_spec", None) or {}
+        an = a.get("name") or (f"{self.cur_fn[0]}.{self.cur_fn[1]}" if self.cur_fn else "?")
+        self.add_debt(f"action:{an}.modifier:{name}", "abstracted_modifier", reason)
+
     def run_modifiers(self, fn):
         for mi in fn.get("modifiers", []):
             ref = mi.get("modifierName", {})
             name = ref.get("name") or mi.get("kind", "")
             if name in self.spec.get("modifiers_abstracted", []):
+                self._modifier_debt(name, "modifier body skipped: abstracted by spec")
                 continue
             mdef = None
             rid = ref.get("referencedDeclaration")
@@ -892,6 +903,7 @@ class Translator:
                         for m in u.find("ModifierDefinition", name=name):
                             mdef = m
             if mdef is None:
+                self._modifier_debt(name, "modifier definition not found in the AST")
                 continue
             for st in mdef.get("body", {}).get("statements", []):
                 self.S(st)
@@ -1264,7 +1276,7 @@ class Translator:
             if inner.get("nodeType") == "Identifier" and isinstance(self.env.get(inner["name"]), tuple) and self.env[inner["name"]][0] == "shadow":
                 sh = self.env[inner["name"]]
                 _, nm, f, k, fields = sh
-                ctor = self.spec["struct_ctors"].get(f["record"])
+                ctor = self.ctor_of(f["record"])
                 m = (ctor or {}).get("member_fields", {}).get(lhs["memberName"])
                 if m is None:
                     self.add_debt(f"{self.src(st)} write {inner['name']}.{lhs['memberName']}", "unmodelled_write", lhs["memberName"])
@@ -1289,7 +1301,7 @@ class Translator:
                     self.entry_write(name, k, ef, nv, conds)
                     return
                 if f["kind"] == "abs_map" and f.get("record"):
-                    ctor = self.spec["struct_ctors"].get(f["record"])
+                    ctor = self.ctor_of(f["record"])
                     m = (ctor or {}).get("member_fields", {}).get(mem)
                     if m is None:
                         self.add_debt(f"{self.src(st)} write {name}.{mem}", "unmodelled_write", mem)
@@ -1403,14 +1415,31 @@ class Translator:
                 return
             if f and f["kind"] == "batch_map":
                 # deleting batch entries at k: covered by the window drop when k == lfi
-                self.batch_delete(k)
+                self.batch_delete(k, st)
                 return
             self.add_debt(f"{self.src(st)} delete {name}", "unmodelled_write", f"delete {name}")
             return
         self.add_debt(f"{self.src(st)} delete", "unmodelled_write", "delete")
 
-    def batch_delete(self, k):
-        self.deleted_batch = k
+    def batch_delete(self, k, st):
+        """delete batch_map[k]: modelled as dropping the window's head entry when
+        k is the current lfi (an established lfi+1 == idx premise covers k == idx-1).
+        Subsequent deletes at the same head collapse into the one drop."""
+        if getattr(self, "win_dropped", False):
+            return
+        if self._is_window_head(k):
+            self.W("state", "win", list(self.conds), ["call", "drop", "win", 1])
+            self.win_dropped = True
+        else:
+            self.add_debt(f"{self.src(st)} delete batch entry", "unmodelled_write",
+                          f"batch entry delete away from the window head: {k!r}")
+
+    def _is_window_head(self, k):
+        if canon(k) == canon("lfi"):
+            return True
+        if canon(k) == canon(["-", "idx", 1]):
+            return normalize(["==", ["+", "lfi", 1], "idx"]) in self.established
+        return False
 
     def s_callstmt(self, st):
         r = self.X(st)
@@ -1549,7 +1578,7 @@ class Translator:
         self.add_debt(f"{self.src(node)} committedBatches cmp", "unmodelled_require", f"{op} {other!r}")
 
     def _is_hash(self, e):
-        return isinstance(e, tuple) and e[0] in ("hash",) or isinstance(e, str)
+        return isinstance(e, tuple) and e[0] in ("hash", "hash_tok") or isinstance(e, str)
 
     # ------------------------------------------------------------ walk entry
     def translate_fn(self, contract, name, env, local_names, expr_lets=None, conds=(),
