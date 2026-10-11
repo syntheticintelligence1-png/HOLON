@@ -1,0 +1,91 @@
+{
+  "agreement": "refound",
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.264
+    },
+    {
+      "engine": "qf_ufbv",
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.589
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.274
+    },
+    {
+      "engine": "grammar_fuzz",
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.61
+    }
+  ],
+  "difference": {
+    "lhs": true,
+    "rhs": false
+  },
+  "engines": {
+    "grammar_fuzz": {
+      "bound": "Bytes grammar: empty + versions [0, 1, 2, 3, 255] x lengths [0, 1, 2, 248, 249, 250, 256, 257, 258, 259] x (zeros, ones, counting, 2 random) + mutation tier, seed 20261011",
+      "counter_law": {
+        "exit_code": 0,
+        "law_name": "cl_l_dom_hdr",
+        "laws": "spec/M2/refuter/gen/M0/L_dom_hdr/grammar_fuzz/LAWS.bend",
+        "marker": "ALL PROOFS CHECK",
+        "proof": "spec/M2/refuter/gen/M0/L_dom_hdr/grammar_fuzz/PROOF.bend",
+        "verdict": "checked"
+      },
+      "hit": true,
+      "notes": [
+        "hit: version=0, len=250, zeros"
+      ],
+      "seed": 20261011,
+      "tried": 22,
+      "undefined": 0
+    },
+    "qf_ufbv": {
+      "answer": "sat",
+      "counter_law": {
+        "exit_code": 0,
+        "law_name": "cl_l_dom_hdr",
+        "laws": "spec/M2/refuter/gen/M0/L_dom_hdr/qf_ufbv/LAWS.bend",
+        "marker": "ALL PROOFS CHECK",
+        "proof": "spec/M2/refuter/gen/M0/L_dom_hdr/qf_ufbv/PROOF.bend",
+        "verdict": "checked"
+      },
+      "len_bound": 259,
+      "model_witness": {
+        "b": "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "replay": "differ",
+      "seconds": 0.008,
+      "solver": {
+        "logic": "QF_UFBV",
+        "name": "z3",
+        "version": "4.15.4"
+      }
+    }
+  },
+  "expected_status": "REFUTED",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "law_id": "L_dom_hdr",
+  "milestone": "M0",
+  "statement": "\u2200 b: Bytes. ok_sol(b) == ok_go(b)",
+  "statement_hash": "sha256:7e96f1ebf47573eec8de471393bb719992c5264ec5af270a361d39fe6b127535",
+  "status": "REFUTED",
+  "witness": {
+    "b": "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  }
+}
