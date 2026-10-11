@@ -328,7 +328,8 @@ def _state_pat(m: Machine) -> str:
 
 def _goal_for(m: Machine, act: dict, lhs_fn, rhs: str) -> str:
     ins = ", ".join(bname(n) for n, _ in act["inputs"])
-    return f"{{{lhs_fn(f'{ALIAS}.A_{act['name']}{{{ins}}}')} == {rhs} : Bool}}"
+    act_name = act["name"]
+    return f"{{{lhs_fn(f'{ALIAS}.A_{act_name}{{{ins}}}')} == {rhs} : Bool}}"
 
 
 def _ok_pat(m: Machine, act: dict) -> tuple[str, list]:
