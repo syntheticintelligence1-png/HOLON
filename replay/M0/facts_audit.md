@@ -40,6 +40,8 @@
 |---|---|---|
 | `enc_go_v0`: 249 zero bytes, byte 0 = 0, PutUint64 at 1/9/17, copy at 25…217 | `:212-235` `BatchHeaderV0.Bytes` | matches |
 | `enc_go_v1`: 257 zero bytes, byte 0 = **1**, same writes + PutUint64 at 249 | `:240-258` `BatchHeaderV1.Bytes` (`:245` `batchBytes[0] = BatchHeaderVersion1`, `:256` lastBlockNumber) | matches; no V2 encoder exists (only constants `:23`, `:27`) |
+
+> **Erratum (audit round 1, R1).** The claim "no V2 encoder exists" above is wrong: `createBatchHeaderWithSequencerSetHash` (batch_cache.go:1707-1736) builds a `BatchHeaderV1`, calls `Bytes()`, then patches `h[0] = BatchHeaderVersion2` at batch_cache.go:1729-1730. That composed producer is modelled by `enc_go_v2_producer` and proved in `L_par_hdr_v2_composed` (M1). The helper-level refutation stands; its protocol interpretation was wrong-scope.
 | cache precondition (`EncodedBytes` empty) | `:213-215`, `:241-243` | matches (OWN rule, later milestone: O37) |
 | `ok_go`: empty → error; v0 `== 249`; v1 `== 257`; v2 `== 257`; else error | `:37-58` `validate`, `:72-77` `Version` | matches |
 | getters at 0, 1, 9, 17, 25, 57, 89, 121, 153, 185, 217, 249 | `:79-191` | matches; `LastBlockNumber` errors for version 0 (`:184-191`), `BlobCommitHash` dispatches by version |

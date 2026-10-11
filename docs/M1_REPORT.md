@@ -117,6 +117,13 @@ Earlier runs did fail. Both causes were harness defects, and both were fixed in 
 - **Oracles.** ISubmitter and the verifier are oracles (stand-ins above). keccak over blob hashes (version 2) is an injective stand-in `agg`. Replay uses real keccak, and outcomes agreed.
 - **Index specialization.** Reads of per-batch registers above LCI go through the shadow only for `batchBlobVersionedHashes`. Every other read follows a guard that established `idx ≤ LCI`. This is documented per guard in the facts and exercised by the random corpus.
 - **Representative state for DISCH-delay.** The profile is computed at s*, a reachable representative of the guard class: one message, included, delay window passed, finalization pending. The profile is per state (Def 6.20), not global.
+- **DISCH profile scope (R4).** The delay laws establish **two achievable example points** (pay: cost 1 message, delay 0; wait: cost 0, delay Δ_fin) plus a **restricted immediate-call obstruction** (nofree: a bare commitBatch with any n reverts at s*) plus the post-hoc prove point. Minimality over the full principal strategy language is **not established**: no universal lower bound over admissible strategies is claimed.
+
+**Scope of `unbounded` (R3).** `scope: unbounded` in a result record means *unbounded in the closed generated model*: every state and trace of the machine, not unbounded refinement to Solidity, Go, or a deployed chain. The refinement evidence is the replay/refinement corpus (§4), whose oracle stand-ins are: honestly presented headers, Nat-token aggregation (`agg` stands in for keccak256 over blob hashes), the `proof == 1` verifier stand-in, and the ISubmitter stand-in (active set, DEP deposit, slash deactivates).
+
+### Audit round 1
+
+Remediation for [docs/audit/round1.md](audit/round1.md): the M0 `L_par_hdr_v2` helper refutation is now triaged `model_defect_path` (production producer patches byte 0; the system-level law is `L_par_hdr_v2_composed`, R1); `L_sym_omega` is `conditional` (no real-proof schedule, R3); `L_nat_eta2` is `known_limitation_historical` (R5); `L_own_txspayload` records the ≤512-byte growth-oracle validity bound (R6); UNDO/SORT replay findings are labelled with their owner prerequisite; the `batchInChallenge` citation is corrected to Rollup.sol:691-693 (R7). The schema's triage enum has no free-form value, so these labels are the first words of each record's `why`, with the closest enum value in `triage`.
 
 ## 6. Gate, canaries and mutation adequacy
 

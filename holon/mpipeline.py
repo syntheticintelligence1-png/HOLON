@@ -299,7 +299,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         rec = {"law_id": lid, "statement_hash": ir.statement_hash(law), "facts_sha256": facts_sha,
                "rule": law["rule"], "subform": law.get("subform"), "maps_to": law.get("maps_to"),
                "premises": [json.dumps(p["eq"], sort_keys=True) for p in law["statement"].get("assume", [])]
-               + ["CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"],
+               + list(cm.facts.get("abstractions", [])),
                "kernel": {"name": "bend", "version": kver, "verdict": "not_run"},
                "artifacts": {"laws": None, "proof": None, "model": relpath(model_src), "law_name": None},
                "checker": {"exit_code": None, "marker": "not_run"}, "witness": None, "difference": None,
