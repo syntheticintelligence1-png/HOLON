@@ -1,0 +1,48 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort3_remaining",
+  "milestone": "M3_sorts",
+  "rule": "SORT",
+  "subform": "realize",
+  "facts": "spec/M3/sorts/facts/morph_rollup.sorted.json",
+  "facts_sha256": "7b123b9af96266eed1ca17abfac5be910af95e58dc2bd497bc094ddb5fe53431",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "fn": "no_code",
+          "args": [
+            {
+              "obs": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            },
+            {
+              "nat": 16
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Compiled from the inferred obligation realize(Dur-) at action:commitBatch/guard[24] (Rollup.sol:360-364): W + cstart - t has sort Time - Time = signed Dur; its realization in uint256 needs the non-negativity premise, which the facts discharge only by the Panic(0x11) guard (reason 16). The obligation holds on every reachable trace iff no trace reverts with code 16. This is, by construction, the statement of M1 L_sort_remaining (tests_m3 asserts hash-equality of the statements modulo facts).",
+  "maps_to": "O27 (F4)",
+  "evidence": [
+    "E5"
+  ],
+  "predicted": "REFUTED"
+}

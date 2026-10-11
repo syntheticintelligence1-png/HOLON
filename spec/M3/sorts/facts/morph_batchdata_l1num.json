@@ -1,0 +1,37 @@
+{
+  "facts_version": "holon-facts/0.2",
+  "target": {"repo": "morph-l2/morph", "commit": "3e44e795586af3e11285b603ab642c67823add51",
+             "scope": "common/batch/batch_data.go BatchData.Append: the per-batch L1 message count l1TxNum is a uint16 accumulated over blocks (O28, SORT-width)"},
+  "extraction": {"method": "hand-written from the source at the pinned commit", "date": "2026-10-11",
+                 "note": "l1TxNum uint16 (batch_data.go:16) is incremented by uint16(len(l1TxHashes)) per appended block (batch_data.go:41) and serialized as 2 bytes into the data hash (batch_data.go:105-107). The header field l1MessagePopped is 8 bytes (facts/morph_header.json), so the realization width of the sum is 16 while its semantic sort is Cnt[msg] (unbounded)."},
+  "abstractions": ["blocks are abstracted to their L1 message count k = len(l1TxHashes); block contexts and tx payloads are not modelled",
+                   "k <= 65535 per block (the per-block count is itself a uint16 in node/derivation/batch_info.go:26), so one truncation per append suffices"],
+  "params": {},
+  "policy": "l1num",
+  "constants_doc": "U16 = 65536 is the modulus of the Go uint16 realization",
+  "types": {},
+  "state": [["l1num", "Nat", "BatchData.l1TxNum as realized: uint16 (mod 65536)"],
+            ["total", "Nat", "GHOST: the semantic count Σ len(l1TxHashes) (Cnt[msg], unbounded)"],
+            ["blocks", "Nat", "BatchData.blockNum"],
+            ["log", "List<Obs>", "observations"]],
+  "ghost_state": ["total"],
+  "initial": {"doc": "a fresh BatchData (zero value)", "l1num": 0, "total": 0, "blocks": 0, "log": []},
+  "principals": {"5": "sequencer (local Go call, no principal)"},
+  "reasons": {"1": "k exceeds the per-block uint16 count (batch_info.go:26)"},
+  "defs": {
+    "trunc16": {"params": [["x", "Nat"]], "type": "Nat", "body": ["?", ["<", "x", 65536], "x", ["-", "x", 65536]],
+                "src": "common/batch/batch_data.go:41 (uint16 addition wraps)", "doc": "x mod 65536 for x < 131072"}
+  },
+  "actions": [
+    {"name": "appendBlock", "src": "common/batch/batch_data.go:31-45", "principal": "sequencer",
+     "inputs": [["k", "Nat"]],
+     "guards": [{"require": ["<=", "k", 65535], "reason": 1, "src": "node/derivation/batch_info.go:26"}],
+     "effects": {"l1num": ["call", "trunc16", ["+", "l1num", "k"]], "total": ["+", "total", "k"], "blocks": ["+", "blocks", 1]}}
+  ],
+  "migrations": {},
+  "observers": {
+    "width_ok": {"params": [["s", "State"]], "type": "Bool", "body": ["==", "l1num", "total"],
+                 "doc": "SORT-width coercion premise (whitepaper 7.6/7.8): the uint16 realization of Σ n_l1 equals its semantic count"}
+  },
+  "coverage": {"modelled": ["BatchData.Append"], "not_modelled": ["BatchData.Encode", "BatchData.Hash (uses l1TxNum as 2 bytes)"]}
+}

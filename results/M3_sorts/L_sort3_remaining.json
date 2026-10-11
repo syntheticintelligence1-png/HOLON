@@ -1,0 +1,101 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_sort3_remaining",
+    "laws": "gen/M3_sorts/L_sort3_remaining/LAWS.bend",
+    "model": "gen/M3_sorts/model/morph_rollup_sorted.bend",
+    "proof": "gen/M3_sorts/L_sort3_remaining/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 11046
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.332
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.424
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.332
+  },
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "facts_sha256": "7b123b9af96266eed1ca17abfac5be910af95e58dc2bd497bc094ddb5fe53431",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_sort3_remaining",
+  "maps_to": "O27 (F4)",
+  "premises": [
+    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  ],
+  "replay": {
+    "detail": "last step on the real code: ('rev', 'panic:0x11') @ morph 3e44e795586a",
+    "status": "passed"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "statement_hash": "sha256:bee99c20436c9c5e68816e951129d4c7d3b1b1239342aa438571a8ecc5b2bc17",
+  "status": "REFUTED",
+  "subform": "realize",
+  "triage": "finding",
+  "witness": {
+    "p": [
+      {
+        "blobs": [
+          17
+        ],
+        "lbn": 1,
+        "n": 0,
+        "op": "commitBatch",
+        "parent": 0,
+        "post": 110,
+        "prev": 100,
+        "ver": 1,
+        "who": 2
+      },
+      {
+        "idx": 1,
+        "op": "challengeState",
+        "value": 1,
+        "who": 4
+      },
+      {
+        "dt": 11,
+        "op": "wait"
+      },
+      {
+        "blobs": [
+          27
+        ],
+        "lbn": 2,
+        "n": 0,
+        "op": "commitBatch",
+        "parent": 1,
+        "post": 123,
+        "prev": 110,
+        "ver": 1,
+        "who": 2
+      }
+    ]
+  }
+}

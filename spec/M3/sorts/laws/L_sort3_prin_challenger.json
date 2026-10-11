@@ -1,0 +1,43 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort3_prin_challenger",
+  "milestone": "M3_sorts",
+  "rule": "SORT",
+  "subform": "tag_writer",
+  "facts": "spec/M3/sorts/facts/morph_rollup.sorted.json",
+  "facts_sha256": "7b123b9af96266eed1ca17abfac5be910af95e58dc2bd497bc094ddb5fe53431",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "prin_ch_ok",
+          "of": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Compiled from tag_test Ch.c == 0 at action:challengeState/guard[8] and def open_ch: Ch.c has writer sort Prin[challenger]+Null (challengeState writes who; empty_ch writes Null). The sentinel test is sound iff no started challenge has challenger == Null. The writer who is only constrained by mem(who, chals); addChallenger (Rollup.sol:527-531, M3 facts extension) accepts address(0).",
+  "maps_to": "O20 (F5)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED"
+}

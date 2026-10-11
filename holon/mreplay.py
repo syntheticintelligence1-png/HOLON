@@ -24,6 +24,7 @@ import subprocess
 from pathlib import Path
 
 from . import facts as F
+from . import ir
 from .mpipeline import CompiledMachine, _act_val
 from .replay import _holon_lines, _run, _sol_deps, check_checkout, witness_sha256  # noqa: F401
 
@@ -36,6 +37,10 @@ LINE = re.compile(r"HOLON (\d+) (\d+) (ok|rev) ?(.*)")
 
 
 # ---------------------------------------------------------------- traces
+class NoHarness(ValueError):
+    """The witness starts from a state the Foundry harness cannot build: model-only pending replay."""
+
+
 def encode_step(a: dict) -> list[int]:
     op = OPS[a["op"]]
     w = [0] * WIDTH
@@ -129,6 +134,7 @@ def linearise(law: dict, w: dict) -> list[dict]:
                 assert inner.get("mig") == "legacy"
                 pre = state_of(inner["of"])
                 return pre + [{"op": "@legacy_eta2", "root": None}]
+            raise NoHarness(f"migration {t['mig']} (pre-upgrade storage) has no Foundry harness step")
         raise ValueError(t)
 
     def side(t) -> dict:
@@ -184,7 +190,9 @@ def random_corpus(cm: CompiledMachine, n: int, seed: int, length: tuple = (4, 12
         tr: list[dict] = []
         L = rng.randint(*length)
         for _ in range(L):
-            cands = policy_at(cm, tr)
+            cands = [c for c in policy_at(cm, tr) if c["op"] in OPS]   # only steps the harness can encode
+            if not cands:
+                break
             a = dict(rng.choice(cands))
             r = rng.random()
             if r < 0.1 and "who" in a:
@@ -297,7 +305,7 @@ def replay_own_go(morph: Path, work: Path, results: Path) -> tuple[dict, str]:
 def main_replay_m1(args) -> int:
     morph = Path(args.morph).resolve()
     milestone = args.milestone
-    reg = json.loads((ROOT / "laws" / milestone / "REGISTRY.json").read_text())
+    reg = json.loads((ir.laws_dir(milestone, ROOT) / "REGISTRY.json").read_text())
     facts_path = ROOT / reg["facts"]
     facts = F.load(facts_path)
     sha = check_checkout(morph, facts["target"]["commit"][:7])
@@ -305,19 +313,35 @@ def main_replay_m1(args) -> int:
     results = ROOT / "results" / milestone
     cm = CompiledMachine.build(facts_path)
     work = Path(args.work or ROOT / "build" / "replay_m1").resolve()
-    laws = {p.stem: json.loads(p.read_text()) for p in (ROOT / "laws" / milestone).glob("L_*.json")}
+    laws = {p.stem: json.loads(p.read_text()) for p in ir.laws_dir(milestone, ROOT).glob("L_*.json")}
     records = {p.stem: json.loads(p.read_text()) for p in results.glob("L_*.json")}
     # witness corpus
     plan = []
     go_laws = []
+    pending: dict[str, str] = {}   # model-only pending replay: why no harness step exists for the witness
+    ext_path = ir.laws_dir(milestone, ROOT).parent / "replay" / "evidence.json"
+    external = json.loads(ext_path.read_text()) if ext_path.exists() else {}
     for lid in sorted(records):
         r = records[lid]
         if r["status"] != "REFUTED":
             continue
+        if lid in external:
+            continue             # replayed by a harness recorded next to the law specs (checked against the witness below)
         if laws[lid]["facts"] != reg["facts"]:
-            go_laws.append(lid)  # Go-side machine (OWN): replayed through go test below
+            if F.load(ROOT / laws[lid]["facts"]).get("policy") == "batchdata":
+                go_laws.append(lid)  # Go-side machine (OWN): replayed through go test below
+            else:
+                pending[lid] = f"no replay harness for {laws[lid]['facts']}"
             continue
-        runs = linearise(laws[lid], r["witness"])
+        try:
+            runs = linearise(laws[lid], r["witness"])
+        except NoHarness as e:
+            pending[lid] = str(e)
+            continue
+        unknown = sorted({a["op"] for run in runs for a in run["trace"] if a["op"] not in OPS})
+        if unknown:
+            pending[lid] = f"no Foundry harness step for {unknown} (the witness needs a caller/role the harness cannot impersonate)"
+            continue
         fill_eta2_root(cm, runs)
         plan.append((lid, runs))
     corpus = random_corpus(cm, args.corpus, seed=20261011)
@@ -368,6 +392,17 @@ def main_replay_m1(args) -> int:
         entry["obstruction_reproduced"] = reproduced
         entry["observed"] = why
         report["laws"][lid] = entry
+        report["witness_sha256"][lid] = witness_sha256(records[lid]["witness"])
+    for lid, why in sorted(pending.items()):
+        report["laws"][lid] = {"status": "not_run", "obstruction_reproduced": False, "observed": "model-only pending replay: " + why, "traces": []}
+        report["witness_sha256"][lid] = witness_sha256(records[lid]["witness"])
+    for lid, ev in sorted(external.items()):
+        if lid not in records or records[lid]["status"] != "REFUTED":
+            continue
+        same = ev.get("witness") == records[lid]["witness"]
+        report["laws"][lid] = {"status": ev["status"] if same else "failed", "obstruction_reproduced": same and ev["status"] == "passed",
+                               "command": ev.get("command", ""), "observed": ev.get("observed", "") if same else "external evidence is for a different witness",
+                               "evidence": ev.get("files", []), "traces": []}
         report["witness_sha256"][lid] = witness_sha256(records[lid]["witness"])
     for lid in go_laws:
         lines, gcmd = replay_own_go(morph, work, results)

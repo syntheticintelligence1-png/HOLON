@@ -1,0 +1,89 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_sort3_prin_challenger",
+    "laws": "gen/M3_sorts/L_sort3_prin_challenger/LAWS.bend",
+    "model": "gen/M3_sorts/model/morph_rollup_sorted.bend",
+    "proof": "gen/M3_sorts/L_sort3_prin_challenger/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 4310
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.238
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.462
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.238
+  },
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "facts_sha256": "7b123b9af96266eed1ca17abfac5be910af95e58dc2bd497bc094ddb5fe53431",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_sort3_prin_challenger",
+  "maps_to": "O20 (F5)",
+  "premises": [
+    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  ],
+  "replay": {
+    "detail": "model-only pending replay: no Foundry harness step for ['addChallenger'] (the witness needs a caller/role the harness cannot impersonate) @ morph 3e44e795586a",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "statement_hash": "sha256:a60eaaaf66044c1e0bee64bcfd9ea6c32920ee9fb0f794f294fa230b68c1df69",
+  "status": "REFUTED",
+  "subform": "tag_writer",
+  "triage": "finding",
+  "witness": {
+    "p": [
+      {
+        "blobs": [
+          17
+        ],
+        "lbn": 1,
+        "n": 0,
+        "op": "commitBatch",
+        "parent": 0,
+        "post": 110,
+        "prev": 100,
+        "ver": 1,
+        "who": 2
+      },
+      {
+        "acct": 0,
+        "op": "addChallenger",
+        "who": 1
+      },
+      {
+        "idx": 1,
+        "op": "challengeState",
+        "value": 1,
+        "who": 0
+      }
+    ]
+  }
+}

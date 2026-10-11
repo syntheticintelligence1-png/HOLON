@@ -36,7 +36,13 @@ def main(argv=None) -> int:
     lay.add_argument("fn")
     lay.add_argument("version", type=int)
     lay.add_argument("--facts", default="facts/morph_header.json")
+    so = sub.add_parser("sorts", help="M3: infer sort assignments, generate sorted facts, Bend sort types and the M3 registry")
+    so.add_argument("--root")
     a = ap.parse_args(argv)
+    if a.cmd == "sorts":
+        from .sorts.pipeline import run_sorts
+        run_sorts(a.root)
+        return 0
     if a.cmd == "run":
         from .pipeline import main_run
         return main_run(a)
