@@ -1,0 +1,1853 @@
+{
+  "unit": "S6",
+  "spec": "M2_SPEC \u00a73 row S6, whitepaper \u00a78.7",
+  "chain": "ethereum-mainnet",
+  "rollup_proxy": "0x759894ced0e6af42c26668076ffa84d02e3cef60",
+  "window": {
+    "from_block": 26170498,
+    "to_block": 26170874
+  },
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "commits": [
+    {
+      "batch_index": 62074,
+      "tx": "0x43f0fbc5bbff6dee0663a8c54fdcf2b1cbcb641d3e5d7b3cfe9897d3c3e3da2b",
+      "block": 26170498,
+      "method": "commitBatch",
+      "checks": [
+        {
+          "check": "ok_sol",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "parent version=2 len=257"
+        },
+        {
+          "check": "ok_go",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        },
+        {
+          "check": "dec.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "dec.batchIndex",
+          "verdict": "agree",
+          "expected": 62073,
+          "got": 62073,
+          "detail": "presented parent index vs calldata batch index"
+        },
+        {
+          "check": "dec.postStateHash",
+          "verdict": "agree",
+          "expected": "0x5826e8b9dcf41c20a45056f06b992424a87e0ee945411ee38d4764e802fa0b06",
+          "got": "0x5826e8b9dcf41c20a45056f06b992424a87e0ee945411ee38d4764e802fa0b06",
+          "detail": "parent.postStateHash must equal input.prevStateRoot"
+        },
+        {
+          "check": "dec.blobVersionedHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0xc1148a75e97f907344e08ab622f7786a6827f83d238edcb8b41eca24b8d9f357",
+          "got": "0xc1148a75e97f907344e08ab622f7786a6827f83d238edcb8b41eca24b8d9f357",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.prevStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0x09db7a4080abaa661620dd1403b994c8398914cbcfbdea6ac46430870562df2d",
+          "got": "0x09db7a4080abaa661620dd1403b994c8398914cbcfbdea6ac46430870562df2d",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.postStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0x5826e8b9dcf41c20a45056f06b992424a87e0ee945411ee38d4764e802fa0b06",
+          "got": "0x5826e8b9dcf41c20a45056f06b992424a87e0ee945411ee38d4764e802fa0b06",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.tot_vs_entry",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "dec.lbn_vs_entry",
+          "verdict": "agree",
+          "expected": 28132638,
+          "got": 28132638
+        },
+        {
+          "check": "enc_sol_roundtrip",
+          "verdict": "agree",
+          "expected": "0x02000000000000f27900000000000000...",
+          "got": "0x02000000000000f27900000000000000...",
+          "detail": "len 257 vs 257"
+        },
+        {
+          "check": "enc_go_v1_tail_eq",
+          "verdict": "agree",
+          "expected": "v2 tail",
+          "got": "v1 tail",
+          "detail": "enc_go_v1 always writes version byte 1; Go v2 = v1 bytes with h[0]:=2 patch \u2014 encoder absent from model"
+        },
+        {
+          "check": "parent_batch_hash",
+          "verdict": "agree",
+          "expected": "0x2680ef8313b0e506c9fc45d86283227dbfc1975bdbf0fbc323da246ae07e5f7b",
+          "got": "0x2680ef8313b0e506c9fc45d86283227dbfc1975bdbf0fbc323da246ae07e5f7b",
+          "detail": "keccak(presented parent header) vs committedBatches[parent] at pre-state"
+        },
+        {
+          "check": "bvh_stored_vs_contract",
+          "verdict": "agree",
+          "expected": "0x091c4a1c51f31fa4daff61e28534452bbc572be2b6ca9594ef094e383175d8c8",
+          "got": "0x091c4a1c51f31fa4daff61e28534452bbc572be2b6ca9594ef094e383175d8c8",
+          "detail": "stored batchBlobVersionedHashes[idx] vs contract formula (v2: keccak(concat blobhashes), legacy: blobhash(0)||Z)"
+        },
+        {
+          "check": "outcome",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "model Ok; receipt.status=1"
+        },
+        {
+          "check": "post.lci",
+          "verdict": "agree",
+          "expected": 62074,
+          "got": 62074
+        },
+        {
+          "check": "post.lastCommittedBatchIndex",
+          "verdict": "agree",
+          "expected": 62074,
+          "got": 62074
+        },
+        {
+          "check": "post.csr",
+          "verdict": "agree",
+          "expected": 10304,
+          "got": 10304,
+          "detail": "entry.csr vs committedStateRoots[idx]"
+        },
+        {
+          "check": "post.csr_vs_input_post",
+          "verdict": "agree",
+          "expected": 10304,
+          "got": 10304,
+          "detail": "stored csr should equal calldata postStateRoot"
+        },
+        {
+          "check": "post.bvh",
+          "verdict": "agree",
+          "expected": 50006001,
+          "got": 50006001,
+          "detail": "entry.bvh vs d_blob_hash(ver,blobs) output"
+        },
+        {
+          "check": "post.hb_eq_bvh",
+          "verdict": "agree",
+          "expected": 50006001,
+          "got": 50006001,
+          "detail": "entry.hb written from same bvh"
+        },
+        {
+          "check": "post.bdo",
+          "verdict": "agree",
+          "expected": 1791737231,
+          "got": 1791737231
+        },
+        {
+          "check": "post.bdf",
+          "verdict": "agree",
+          "expected": 1791910031,
+          "got": 1791910031,
+          "detail": "model bdf=t+F+prt"
+        },
+        {
+          "check": "post.bdn",
+          "verdict": "agree",
+          "expected": 28133237,
+          "got": 28133237
+        },
+        {
+          "check": "post.bdn_vs_input_lbn",
+          "verdict": "agree",
+          "expected": 28133237,
+          "got": 28133237
+        },
+        {
+          "check": "post.bds",
+          "verdict": "agree",
+          "expected": 10009,
+          "got": 10009
+        },
+        {
+          "check": "post.ver",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.lbn",
+          "verdict": "agree",
+          "expected": 28133237,
+          "got": 28133237
+        },
+        {
+          "check": "post.n",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0
+        },
+        {
+          "check": "post.prev",
+          "verdict": "agree",
+          "expected": 10303,
+          "got": 10303
+        },
+        {
+          "check": "post.post",
+          "verdict": "agree",
+          "expected": 10304,
+          "got": 10304
+        },
+        {
+          "check": "post.tag",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.prt",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0,
+          "detail": "stored bdf-t-F=0 vs inch/W/cstart formula 0"
+        },
+        {
+          "check": "succ.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "succ.prevStateHash",
+          "verdict": "agree",
+          "expected": 10303,
+          "got": 10303,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.postStateHash",
+          "verdict": "agree",
+          "expected": 10304,
+          "got": 10304,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.tot",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "succ.lbn",
+          "verdict": "agree",
+          "expected": 28133237,
+          "got": 28133237
+        },
+        {
+          "check": "succ.batch_hash",
+          "verdict": "agree",
+          "expected": "0x4cba819b7f5e3096ac80554fcefd8fd3e5811ce1c41c5df5421c5de084ca68dd",
+          "got": "0x4cba819b7f5e3096ac80554fcefd8fd3e5811ce1c41c5df5421c5de084ca68dd",
+          "detail": "keccak(successor parent header) vs committedBatches[idx]"
+        },
+        {
+          "check": "inv.tags_ok",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        }
+      ],
+      "input": {
+        "version": 2,
+        "parent_header_len": 257,
+        "parent_version": 2,
+        "numL1Messages": 0,
+        "lastBlockNumber": 28133237,
+        "prevStateRoot": "0x5826e8b9dcf41c20a45056f06b992424a87e0ee945411ee38d4764e802fa0b06",
+        "postStateRoot": "0xace416c7d8a0278a0813dd79d3d2be7bbadd259855fdb2397b891cf354cff852",
+        "withdrawalRoot": "0xf831cd830c93fd235b5e58dedc535a33313ca19197a14515dab344467efd0539"
+      },
+      "model_outcome": "Ok",
+      "model_decision": {
+        "$": "D_commitBatch_Ok",
+        "bvh": 50006001,
+        "tag": 2,
+        "tot": 27691,
+        "prt": 0
+      },
+      "verdict": "agree",
+      "n_checks": 40
+    },
+    {
+      "batch_index": 62075,
+      "tx": "0x6bfa1d398d3c81a5c4949ecd54219250e9c9879a1931bd11ff508efe0908d2a0",
+      "block": 26170588,
+      "method": "commitBatch",
+      "checks": [
+        {
+          "check": "ok_sol",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "parent version=2 len=257"
+        },
+        {
+          "check": "ok_go",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        },
+        {
+          "check": "dec.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "dec.batchIndex",
+          "verdict": "agree",
+          "expected": 62074,
+          "got": 62074,
+          "detail": "presented parent index vs calldata batch index"
+        },
+        {
+          "check": "dec.postStateHash",
+          "verdict": "agree",
+          "expected": "0xace416c7d8a0278a0813dd79d3d2be7bbadd259855fdb2397b891cf354cff852",
+          "got": "0xace416c7d8a0278a0813dd79d3d2be7bbadd259855fdb2397b891cf354cff852",
+          "detail": "parent.postStateHash must equal input.prevStateRoot"
+        },
+        {
+          "check": "dec.blobVersionedHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0x091c4a1c51f31fa4daff61e28534452bbc572be2b6ca9594ef094e383175d8c8",
+          "got": "0x091c4a1c51f31fa4daff61e28534452bbc572be2b6ca9594ef094e383175d8c8",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.prevStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0x5826e8b9dcf41c20a45056f06b992424a87e0ee945411ee38d4764e802fa0b06",
+          "got": "0x5826e8b9dcf41c20a45056f06b992424a87e0ee945411ee38d4764e802fa0b06",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.postStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0xace416c7d8a0278a0813dd79d3d2be7bbadd259855fdb2397b891cf354cff852",
+          "got": "0xace416c7d8a0278a0813dd79d3d2be7bbadd259855fdb2397b891cf354cff852",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.tot_vs_entry",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "dec.lbn_vs_entry",
+          "verdict": "agree",
+          "expected": 28133237,
+          "got": 28133237
+        },
+        {
+          "check": "enc_sol_roundtrip",
+          "verdict": "agree",
+          "expected": "0x02000000000000f27a00000000000000...",
+          "got": "0x02000000000000f27a00000000000000...",
+          "detail": "len 257 vs 257"
+        },
+        {
+          "check": "enc_go_v1_tail_eq",
+          "verdict": "agree",
+          "expected": "v2 tail",
+          "got": "v1 tail",
+          "detail": "enc_go_v1 always writes version byte 1; Go v2 = v1 bytes with h[0]:=2 patch \u2014 encoder absent from model"
+        },
+        {
+          "check": "parent_batch_hash",
+          "verdict": "agree",
+          "expected": "0x4cba819b7f5e3096ac80554fcefd8fd3e5811ce1c41c5df5421c5de084ca68dd",
+          "got": "0x4cba819b7f5e3096ac80554fcefd8fd3e5811ce1c41c5df5421c5de084ca68dd",
+          "detail": "keccak(presented parent header) vs committedBatches[parent] at pre-state"
+        },
+        {
+          "check": "bvh_stored_vs_contract",
+          "verdict": "agree",
+          "expected": "0xf5afc93f238ebd665868bc090abfffd0f999bafd844f677c3d6de7616f2c6bc7",
+          "got": "0xf5afc93f238ebd665868bc090abfffd0f999bafd844f677c3d6de7616f2c6bc7",
+          "detail": "stored batchBlobVersionedHashes[idx] vs contract formula (v2: keccak(concat blobhashes), legacy: blobhash(0)||Z)"
+        },
+        {
+          "check": "outcome",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "model Ok; receipt.status=1"
+        },
+        {
+          "check": "post.lci",
+          "verdict": "agree",
+          "expected": 62075,
+          "got": 62075
+        },
+        {
+          "check": "post.lastCommittedBatchIndex",
+          "verdict": "agree",
+          "expected": 62075,
+          "got": 62075
+        },
+        {
+          "check": "post.csr",
+          "verdict": "agree",
+          "expected": 10307,
+          "got": 10307,
+          "detail": "entry.csr vs committedStateRoots[idx]"
+        },
+        {
+          "check": "post.csr_vs_input_post",
+          "verdict": "agree",
+          "expected": 10307,
+          "got": 10307,
+          "detail": "stored csr should equal calldata postStateRoot"
+        },
+        {
+          "check": "post.bvh",
+          "verdict": "agree",
+          "expected": 53102666,
+          "got": 53102666,
+          "detail": "entry.bvh vs d_blob_hash(ver,blobs) output"
+        },
+        {
+          "check": "post.hb_eq_bvh",
+          "verdict": "agree",
+          "expected": 53102666,
+          "got": 53102666,
+          "detail": "entry.hb written from same bvh"
+        },
+        {
+          "check": "post.bdo",
+          "verdict": "agree",
+          "expected": 1791738311,
+          "got": 1791738311
+        },
+        {
+          "check": "post.bdf",
+          "verdict": "agree",
+          "expected": 1791911111,
+          "got": 1791911111,
+          "detail": "model bdf=t+F+prt"
+        },
+        {
+          "check": "post.bdn",
+          "verdict": "agree",
+          "expected": 28133836,
+          "got": 28133836
+        },
+        {
+          "check": "post.bdn_vs_input_lbn",
+          "verdict": "agree",
+          "expected": 28133836,
+          "got": 28133836
+        },
+        {
+          "check": "post.bds",
+          "verdict": "agree",
+          "expected": 10009,
+          "got": 10009
+        },
+        {
+          "check": "post.ver",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.lbn",
+          "verdict": "agree",
+          "expected": 28133836,
+          "got": 28133836
+        },
+        {
+          "check": "post.n",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0
+        },
+        {
+          "check": "post.prev",
+          "verdict": "agree",
+          "expected": 10304,
+          "got": 10304
+        },
+        {
+          "check": "post.post",
+          "verdict": "agree",
+          "expected": 10307,
+          "got": 10307
+        },
+        {
+          "check": "post.tag",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.prt",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0,
+          "detail": "stored bdf-t-F=0 vs inch/W/cstart formula 0"
+        },
+        {
+          "check": "succ.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "succ.prevStateHash",
+          "verdict": "agree",
+          "expected": 10304,
+          "got": 10304,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.postStateHash",
+          "verdict": "agree",
+          "expected": 10307,
+          "got": 10307,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.tot",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "succ.lbn",
+          "verdict": "agree",
+          "expected": 28133836,
+          "got": 28133836
+        },
+        {
+          "check": "succ.batch_hash",
+          "verdict": "agree",
+          "expected": "0x4b07cfa58b4fbc9d61a1a006531d0c6493c64358a977a26e96a0e9269dbed594",
+          "got": "0x4b07cfa58b4fbc9d61a1a006531d0c6493c64358a977a26e96a0e9269dbed594",
+          "detail": "keccak(successor parent header) vs committedBatches[idx]"
+        },
+        {
+          "check": "inv.tags_ok",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        }
+      ],
+      "input": {
+        "version": 2,
+        "parent_header_len": 257,
+        "parent_version": 2,
+        "numL1Messages": 0,
+        "lastBlockNumber": 28133836,
+        "prevStateRoot": "0xace416c7d8a0278a0813dd79d3d2be7bbadd259855fdb2397b891cf354cff852",
+        "postStateRoot": "0xf72b2ca80f9d70a0c3b352e85fcffce48bba0708e83a35d765f89d80ba73a6ed",
+        "withdrawalRoot": "0xf831cd830c93fd235b5e58dedc535a33313ca19197a14515dab344467efd0539"
+      },
+      "model_outcome": "Ok",
+      "model_decision": {
+        "$": "D_commitBatch_Ok",
+        "bvh": 53102666,
+        "tag": 2,
+        "tot": 27691,
+        "prt": 0
+      },
+      "verdict": "agree",
+      "n_checks": 40
+    },
+    {
+      "batch_index": 62076,
+      "tx": "0xb7cd309e5ba4060f4df716a30df1e6befc022d4adfe56d2d565683e5de84eb83",
+      "block": 26170684,
+      "method": "commitBatch",
+      "checks": [
+        {
+          "check": "ok_sol",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "parent version=2 len=257"
+        },
+        {
+          "check": "ok_go",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        },
+        {
+          "check": "dec.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "dec.batchIndex",
+          "verdict": "agree",
+          "expected": 62075,
+          "got": 62075,
+          "detail": "presented parent index vs calldata batch index"
+        },
+        {
+          "check": "dec.postStateHash",
+          "verdict": "agree",
+          "expected": "0xf72b2ca80f9d70a0c3b352e85fcffce48bba0708e83a35d765f89d80ba73a6ed",
+          "got": "0xf72b2ca80f9d70a0c3b352e85fcffce48bba0708e83a35d765f89d80ba73a6ed",
+          "detail": "parent.postStateHash must equal input.prevStateRoot"
+        },
+        {
+          "check": "dec.blobVersionedHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0xf5afc93f238ebd665868bc090abfffd0f999bafd844f677c3d6de7616f2c6bc7",
+          "got": "0xf5afc93f238ebd665868bc090abfffd0f999bafd844f677c3d6de7616f2c6bc7",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.prevStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0xace416c7d8a0278a0813dd79d3d2be7bbadd259855fdb2397b891cf354cff852",
+          "got": "0xace416c7d8a0278a0813dd79d3d2be7bbadd259855fdb2397b891cf354cff852",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.postStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0xf72b2ca80f9d70a0c3b352e85fcffce48bba0708e83a35d765f89d80ba73a6ed",
+          "got": "0xf72b2ca80f9d70a0c3b352e85fcffce48bba0708e83a35d765f89d80ba73a6ed",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.tot_vs_entry",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "dec.lbn_vs_entry",
+          "verdict": "agree",
+          "expected": 28133836,
+          "got": 28133836
+        },
+        {
+          "check": "enc_sol_roundtrip",
+          "verdict": "agree",
+          "expected": "0x02000000000000f27b00000000000000...",
+          "got": "0x02000000000000f27b00000000000000...",
+          "detail": "len 257 vs 257"
+        },
+        {
+          "check": "enc_go_v1_tail_eq",
+          "verdict": "agree",
+          "expected": "v2 tail",
+          "got": "v1 tail",
+          "detail": "enc_go_v1 always writes version byte 1; Go v2 = v1 bytes with h[0]:=2 patch \u2014 encoder absent from model"
+        },
+        {
+          "check": "parent_batch_hash",
+          "verdict": "agree",
+          "expected": "0x4b07cfa58b4fbc9d61a1a006531d0c6493c64358a977a26e96a0e9269dbed594",
+          "got": "0x4b07cfa58b4fbc9d61a1a006531d0c6493c64358a977a26e96a0e9269dbed594",
+          "detail": "keccak(presented parent header) vs committedBatches[parent] at pre-state"
+        },
+        {
+          "check": "bvh_stored_vs_contract",
+          "verdict": "agree",
+          "expected": "0x10245b7e9da6b3276bf11c8e53c192e8da282735f66f2fa94f533d25f06ddc50",
+          "got": "0x10245b7e9da6b3276bf11c8e53c192e8da282735f66f2fa94f533d25f06ddc50",
+          "detail": "stored batchBlobVersionedHashes[idx] vs contract formula (v2: keccak(concat blobhashes), legacy: blobhash(0)||Z)"
+        },
+        {
+          "check": "outcome",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "model Ok; receipt.status=1"
+        },
+        {
+          "check": "post.lci",
+          "verdict": "agree",
+          "expected": 62076,
+          "got": 62076
+        },
+        {
+          "check": "post.lastCommittedBatchIndex",
+          "verdict": "agree",
+          "expected": 62076,
+          "got": 62076
+        },
+        {
+          "check": "post.csr",
+          "verdict": "agree",
+          "expected": 10310,
+          "got": 10310,
+          "detail": "entry.csr vs committedStateRoots[idx]"
+        },
+        {
+          "check": "post.csr_vs_input_post",
+          "verdict": "agree",
+          "expected": 10310,
+          "got": 10310,
+          "detail": "stored csr should equal calldata postStateRoot"
+        },
+        {
+          "check": "post.bvh",
+          "verdict": "agree",
+          "expected": 53133587,
+          "got": 53133587,
+          "detail": "entry.bvh vs d_blob_hash(ver,blobs) output"
+        },
+        {
+          "check": "post.hb_eq_bvh",
+          "verdict": "agree",
+          "expected": 53133587,
+          "got": 53133587,
+          "detail": "entry.hb written from same bvh"
+        },
+        {
+          "check": "post.bdo",
+          "verdict": "agree",
+          "expected": 1791739463,
+          "got": 1791739463
+        },
+        {
+          "check": "post.bdf",
+          "verdict": "agree",
+          "expected": 1791912263,
+          "got": 1791912263,
+          "detail": "model bdf=t+F+prt"
+        },
+        {
+          "check": "post.bdn",
+          "verdict": "agree",
+          "expected": 28134435,
+          "got": 28134435
+        },
+        {
+          "check": "post.bdn_vs_input_lbn",
+          "verdict": "agree",
+          "expected": 28134435,
+          "got": 28134435
+        },
+        {
+          "check": "post.bds",
+          "verdict": "agree",
+          "expected": 10009,
+          "got": 10009
+        },
+        {
+          "check": "post.ver",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.lbn",
+          "verdict": "agree",
+          "expected": 28134435,
+          "got": 28134435
+        },
+        {
+          "check": "post.n",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0
+        },
+        {
+          "check": "post.prev",
+          "verdict": "agree",
+          "expected": 10307,
+          "got": 10307
+        },
+        {
+          "check": "post.post",
+          "verdict": "agree",
+          "expected": 10310,
+          "got": 10310
+        },
+        {
+          "check": "post.tag",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.prt",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0,
+          "detail": "stored bdf-t-F=0 vs inch/W/cstart formula 0"
+        },
+        {
+          "check": "succ.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "succ.prevStateHash",
+          "verdict": "agree",
+          "expected": 10307,
+          "got": 10307,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.postStateHash",
+          "verdict": "agree",
+          "expected": 10310,
+          "got": 10310,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.tot",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "succ.lbn",
+          "verdict": "agree",
+          "expected": 28134435,
+          "got": 28134435
+        },
+        {
+          "check": "succ.batch_hash",
+          "verdict": "agree",
+          "expected": "0x1c08ecae3c1957652cdc674ac948f9ba360f7c3b180d05e603574e83b735aa30",
+          "got": "0x1c08ecae3c1957652cdc674ac948f9ba360f7c3b180d05e603574e83b735aa30",
+          "detail": "keccak(successor parent header) vs committedBatches[idx]"
+        },
+        {
+          "check": "inv.tags_ok",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        }
+      ],
+      "input": {
+        "version": 2,
+        "parent_header_len": 257,
+        "parent_version": 2,
+        "numL1Messages": 0,
+        "lastBlockNumber": 28134435,
+        "prevStateRoot": "0xf72b2ca80f9d70a0c3b352e85fcffce48bba0708e83a35d765f89d80ba73a6ed",
+        "postStateRoot": "0x07660b74446357f35ba2c9131d1e86d19394d8fc70b5fe313f5e7cf37a2615f7",
+        "withdrawalRoot": "0xf831cd830c93fd235b5e58dedc535a33313ca19197a14515dab344467efd0539"
+      },
+      "model_outcome": "Ok",
+      "model_decision": {
+        "$": "D_commitBatch_Ok",
+        "bvh": 53133587,
+        "tag": 2,
+        "tot": 27691,
+        "prt": 0
+      },
+      "verdict": "agree",
+      "n_checks": 40
+    },
+    {
+      "batch_index": 62077,
+      "tx": "0x2aec2342673f6f63e9f1e3ac3646d908b77382b394997b80b135b85383aab4d8",
+      "block": 26170777,
+      "method": "commitBatch",
+      "checks": [
+        {
+          "check": "ok_sol",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "parent version=2 len=257"
+        },
+        {
+          "check": "ok_go",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        },
+        {
+          "check": "dec.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "dec.batchIndex",
+          "verdict": "agree",
+          "expected": 62076,
+          "got": 62076,
+          "detail": "presented parent index vs calldata batch index"
+        },
+        {
+          "check": "dec.postStateHash",
+          "verdict": "agree",
+          "expected": "0x07660b74446357f35ba2c9131d1e86d19394d8fc70b5fe313f5e7cf37a2615f7",
+          "got": "0x07660b74446357f35ba2c9131d1e86d19394d8fc70b5fe313f5e7cf37a2615f7",
+          "detail": "parent.postStateHash must equal input.prevStateRoot"
+        },
+        {
+          "check": "dec.blobVersionedHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0x10245b7e9da6b3276bf11c8e53c192e8da282735f66f2fa94f533d25f06ddc50",
+          "got": "0x10245b7e9da6b3276bf11c8e53c192e8da282735f66f2fa94f533d25f06ddc50",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.prevStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0xf72b2ca80f9d70a0c3b352e85fcffce48bba0708e83a35d765f89d80ba73a6ed",
+          "got": "0xf72b2ca80f9d70a0c3b352e85fcffce48bba0708e83a35d765f89d80ba73a6ed",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.postStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0x07660b74446357f35ba2c9131d1e86d19394d8fc70b5fe313f5e7cf37a2615f7",
+          "got": "0x07660b74446357f35ba2c9131d1e86d19394d8fc70b5fe313f5e7cf37a2615f7",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.tot_vs_entry",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "dec.lbn_vs_entry",
+          "verdict": "agree",
+          "expected": 28134435,
+          "got": 28134435
+        },
+        {
+          "check": "enc_sol_roundtrip",
+          "verdict": "agree",
+          "expected": "0x02000000000000f27c00000000000000...",
+          "got": "0x02000000000000f27c00000000000000...",
+          "detail": "len 257 vs 257"
+        },
+        {
+          "check": "enc_go_v1_tail_eq",
+          "verdict": "agree",
+          "expected": "v2 tail",
+          "got": "v1 tail",
+          "detail": "enc_go_v1 always writes version byte 1; Go v2 = v1 bytes with h[0]:=2 patch \u2014 encoder absent from model"
+        },
+        {
+          "check": "parent_batch_hash",
+          "verdict": "agree",
+          "expected": "0x1c08ecae3c1957652cdc674ac948f9ba360f7c3b180d05e603574e83b735aa30",
+          "got": "0x1c08ecae3c1957652cdc674ac948f9ba360f7c3b180d05e603574e83b735aa30",
+          "detail": "keccak(presented parent header) vs committedBatches[parent] at pre-state"
+        },
+        {
+          "check": "bvh_stored_vs_contract",
+          "verdict": "agree",
+          "expected": "0x6c790cbf97c3767c1d1ad00769e65eeb88f070f78dfee47dc3b460e5fa6046ff",
+          "got": "0x6c790cbf97c3767c1d1ad00769e65eeb88f070f78dfee47dc3b460e5fa6046ff",
+          "detail": "stored batchBlobVersionedHashes[idx] vs contract formula (v2: keccak(concat blobhashes), legacy: blobhash(0)||Z)"
+        },
+        {
+          "check": "outcome",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "model Ok; receipt.status=1"
+        },
+        {
+          "check": "post.lci",
+          "verdict": "agree",
+          "expected": 62077,
+          "got": 62077
+        },
+        {
+          "check": "post.lastCommittedBatchIndex",
+          "verdict": "agree",
+          "expected": 62077,
+          "got": 62077
+        },
+        {
+          "check": "post.csr",
+          "verdict": "agree",
+          "expected": 10313,
+          "got": 10313,
+          "detail": "entry.csr vs committedStateRoots[idx]"
+        },
+        {
+          "check": "post.csr_vs_input_post",
+          "verdict": "agree",
+          "expected": 10313,
+          "got": 10313,
+          "detail": "stored csr should equal calldata postStateRoot"
+        },
+        {
+          "check": "post.bvh",
+          "verdict": "agree",
+          "expected": 53164517,
+          "got": 53164517,
+          "detail": "entry.bvh vs d_blob_hash(ver,blobs) output"
+        },
+        {
+          "check": "post.hb_eq_bvh",
+          "verdict": "agree",
+          "expected": 53164517,
+          "got": 53164517,
+          "detail": "entry.hb written from same bvh"
+        },
+        {
+          "check": "post.bdo",
+          "verdict": "agree",
+          "expected": 1791740579,
+          "got": 1791740579
+        },
+        {
+          "check": "post.bdf",
+          "verdict": "agree",
+          "expected": 1791913379,
+          "got": 1791913379,
+          "detail": "model bdf=t+F+prt"
+        },
+        {
+          "check": "post.bdn",
+          "verdict": "agree",
+          "expected": 28135034,
+          "got": 28135034
+        },
+        {
+          "check": "post.bdn_vs_input_lbn",
+          "verdict": "agree",
+          "expected": 28135034,
+          "got": 28135034
+        },
+        {
+          "check": "post.bds",
+          "verdict": "agree",
+          "expected": 10009,
+          "got": 10009
+        },
+        {
+          "check": "post.ver",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.lbn",
+          "verdict": "agree",
+          "expected": 28135034,
+          "got": 28135034
+        },
+        {
+          "check": "post.n",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0
+        },
+        {
+          "check": "post.prev",
+          "verdict": "agree",
+          "expected": 10310,
+          "got": 10310
+        },
+        {
+          "check": "post.post",
+          "verdict": "agree",
+          "expected": 10313,
+          "got": 10313
+        },
+        {
+          "check": "post.tag",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.prt",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0,
+          "detail": "stored bdf-t-F=0 vs inch/W/cstart formula 0"
+        },
+        {
+          "check": "succ.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "succ.prevStateHash",
+          "verdict": "agree",
+          "expected": 10310,
+          "got": 10310,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.postStateHash",
+          "verdict": "agree",
+          "expected": 10313,
+          "got": 10313,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.tot",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "succ.lbn",
+          "verdict": "agree",
+          "expected": 28135034,
+          "got": 28135034
+        },
+        {
+          "check": "succ.batch_hash",
+          "verdict": "agree",
+          "expected": "0xde5a2d9031487251723a8b1ec74cfa1242758721b01327252dd2a307080598c2",
+          "got": "0xde5a2d9031487251723a8b1ec74cfa1242758721b01327252dd2a307080598c2",
+          "detail": "keccak(successor parent header) vs committedBatches[idx]"
+        },
+        {
+          "check": "inv.tags_ok",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        }
+      ],
+      "input": {
+        "version": 2,
+        "parent_header_len": 257,
+        "parent_version": 2,
+        "numL1Messages": 0,
+        "lastBlockNumber": 28135034,
+        "prevStateRoot": "0x07660b74446357f35ba2c9131d1e86d19394d8fc70b5fe313f5e7cf37a2615f7",
+        "postStateRoot": "0x2339d6d662bb78620cbf1fc8873bbe3bda5d5bb58e9e6db0d99fd326f2eec612",
+        "withdrawalRoot": "0xf831cd830c93fd235b5e58dedc535a33313ca19197a14515dab344467efd0539"
+      },
+      "model_outcome": "Ok",
+      "model_decision": {
+        "$": "D_commitBatch_Ok",
+        "bvh": 53164517,
+        "tag": 2,
+        "tot": 27691,
+        "prt": 0
+      },
+      "verdict": "agree",
+      "n_checks": 40
+    },
+    {
+      "batch_index": 62078,
+      "tx": "0xe23473c21cbdf11e8aedc82ec5a9159a9252b19910bcf3c86d6cbd1f1ba063b1",
+      "block": 26170874,
+      "method": "commitBatch",
+      "checks": [
+        {
+          "check": "ok_sol",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "parent version=2 len=257"
+        },
+        {
+          "check": "ok_go",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        },
+        {
+          "check": "dec.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "dec.batchIndex",
+          "verdict": "agree",
+          "expected": 62077,
+          "got": 62077,
+          "detail": "presented parent index vs calldata batch index"
+        },
+        {
+          "check": "dec.postStateHash",
+          "verdict": "agree",
+          "expected": "0x2339d6d662bb78620cbf1fc8873bbe3bda5d5bb58e9e6db0d99fd326f2eec612",
+          "got": "0x2339d6d662bb78620cbf1fc8873bbe3bda5d5bb58e9e6db0d99fd326f2eec612",
+          "detail": "parent.postStateHash must equal input.prevStateRoot"
+        },
+        {
+          "check": "dec.blobVersionedHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0x6c790cbf97c3767c1d1ad00769e65eeb88f070f78dfee47dc3b460e5fa6046ff",
+          "got": "0x6c790cbf97c3767c1d1ad00769e65eeb88f070f78dfee47dc3b460e5fa6046ff",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.prevStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0x07660b74446357f35ba2c9131d1e86d19394d8fc70b5fe313f5e7cf37a2615f7",
+          "got": "0x07660b74446357f35ba2c9131d1e86d19394d8fc70b5fe313f5e7cf37a2615f7",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.postStateHash_vs_entry",
+          "verdict": "agree",
+          "expected": "0x2339d6d662bb78620cbf1fc8873bbe3bda5d5bb58e9e6db0d99fd326f2eec612",
+          "got": "0x2339d6d662bb78620cbf1fc8873bbe3bda5d5bb58e9e6db0d99fd326f2eec612",
+          "detail": "decoded parent header field vs stored entry value"
+        },
+        {
+          "check": "dec.tot_vs_entry",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "dec.lbn_vs_entry",
+          "verdict": "agree",
+          "expected": 28135034,
+          "got": 28135034
+        },
+        {
+          "check": "enc_sol_roundtrip",
+          "verdict": "agree",
+          "expected": "0x02000000000000f27d00000000000000...",
+          "got": "0x02000000000000f27d00000000000000...",
+          "detail": "len 257 vs 257"
+        },
+        {
+          "check": "enc_go_v1_tail_eq",
+          "verdict": "agree",
+          "expected": "v2 tail",
+          "got": "v1 tail",
+          "detail": "enc_go_v1 always writes version byte 1; Go v2 = v1 bytes with h[0]:=2 patch \u2014 encoder absent from model"
+        },
+        {
+          "check": "parent_batch_hash",
+          "verdict": "agree",
+          "expected": "0xde5a2d9031487251723a8b1ec74cfa1242758721b01327252dd2a307080598c2",
+          "got": "0xde5a2d9031487251723a8b1ec74cfa1242758721b01327252dd2a307080598c2",
+          "detail": "keccak(presented parent header) vs committedBatches[parent] at pre-state"
+        },
+        {
+          "check": "bvh_stored_vs_contract",
+          "verdict": "agree",
+          "expected": "0x2c21e68c0c0dd4d38c8aa4cd5b445a9db0fe7a65e9697f5421d3c331fb1c9762",
+          "got": "0x2c21e68c0c0dd4d38c8aa4cd5b445a9db0fe7a65e9697f5421d3c331fb1c9762",
+          "detail": "stored batchBlobVersionedHashes[idx] vs contract formula (v2: keccak(concat blobhashes), legacy: blobhash(0)||Z)"
+        },
+        {
+          "check": "outcome",
+          "verdict": "agree",
+          "expected": true,
+          "got": true,
+          "detail": "model Ok; receipt.status=1"
+        },
+        {
+          "check": "post.lci",
+          "verdict": "agree",
+          "expected": 62078,
+          "got": 62078
+        },
+        {
+          "check": "post.lastCommittedBatchIndex",
+          "verdict": "agree",
+          "expected": 62078,
+          "got": 62078
+        },
+        {
+          "check": "post.csr",
+          "verdict": "agree",
+          "expected": 10316,
+          "got": 10316,
+          "detail": "entry.csr vs committedStateRoots[idx]"
+        },
+        {
+          "check": "post.csr_vs_input_post",
+          "verdict": "agree",
+          "expected": 10316,
+          "got": 10316,
+          "detail": "stored csr should equal calldata postStateRoot"
+        },
+        {
+          "check": "post.bvh",
+          "verdict": "agree",
+          "expected": 53195456,
+          "got": 53195456,
+          "detail": "entry.bvh vs d_blob_hash(ver,blobs) output"
+        },
+        {
+          "check": "post.hb_eq_bvh",
+          "verdict": "agree",
+          "expected": 53195456,
+          "got": 53195456,
+          "detail": "entry.hb written from same bvh"
+        },
+        {
+          "check": "post.bdo",
+          "verdict": "agree",
+          "expected": 1791741743,
+          "got": 1791741743
+        },
+        {
+          "check": "post.bdf",
+          "verdict": "agree",
+          "expected": 1791914543,
+          "got": 1791914543,
+          "detail": "model bdf=t+F+prt"
+        },
+        {
+          "check": "post.bdn",
+          "verdict": "agree",
+          "expected": 28135633,
+          "got": 28135633
+        },
+        {
+          "check": "post.bdn_vs_input_lbn",
+          "verdict": "agree",
+          "expected": 28135633,
+          "got": 28135633
+        },
+        {
+          "check": "post.bds",
+          "verdict": "agree",
+          "expected": 10009,
+          "got": 10009
+        },
+        {
+          "check": "post.ver",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.lbn",
+          "verdict": "agree",
+          "expected": 28135633,
+          "got": 28135633
+        },
+        {
+          "check": "post.n",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0
+        },
+        {
+          "check": "post.prev",
+          "verdict": "agree",
+          "expected": 10313,
+          "got": 10313
+        },
+        {
+          "check": "post.post",
+          "verdict": "agree",
+          "expected": 10316,
+          "got": 10316
+        },
+        {
+          "check": "post.tag",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "post.prt",
+          "verdict": "agree",
+          "expected": 0,
+          "got": 0,
+          "detail": "stored bdf-t-F=0 vs inch/W/cstart formula 0"
+        },
+        {
+          "check": "succ.version",
+          "verdict": "agree",
+          "expected": 2,
+          "got": 2
+        },
+        {
+          "check": "succ.prevStateHash",
+          "verdict": "agree",
+          "expected": 10313,
+          "got": 10313,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.postStateHash",
+          "verdict": "agree",
+          "expected": 10316,
+          "got": 10316,
+          "detail": "successor's parent header field vs model new entry"
+        },
+        {
+          "check": "succ.tot",
+          "verdict": "agree",
+          "expected": 27691,
+          "got": 27691
+        },
+        {
+          "check": "succ.lbn",
+          "verdict": "agree",
+          "expected": 28135633,
+          "got": 28135633
+        },
+        {
+          "check": "succ.batch_hash",
+          "verdict": "agree",
+          "expected": "0x0be31cb7c8e353228bbd011525b913ccd19633ae68e068e852f80cf8791c1d3a",
+          "got": "0x0be31cb7c8e353228bbd011525b913ccd19633ae68e068e852f80cf8791c1d3a",
+          "detail": "keccak(successor parent header) vs committedBatches[idx]"
+        },
+        {
+          "check": "inv.tags_ok",
+          "verdict": "agree",
+          "expected": true,
+          "got": true
+        }
+      ],
+      "input": {
+        "version": 2,
+        "parent_header_len": 257,
+        "parent_version": 2,
+        "numL1Messages": 0,
+        "lastBlockNumber": 28135633,
+        "prevStateRoot": "0x2339d6d662bb78620cbf1fc8873bbe3bda5d5bb58e9e6db0d99fd326f2eec612",
+        "postStateRoot": "0x9d01074f0a2000a3902078b23de512d01a5e400941abbdfa43a19ea4bd2d7764",
+        "withdrawalRoot": "0xf831cd830c93fd235b5e58dedc535a33313ca19197a14515dab344467efd0539"
+      },
+      "model_outcome": "Ok",
+      "model_decision": {
+        "$": "D_commitBatch_Ok",
+        "bvh": 53195456,
+        "tag": 2,
+        "tot": 27691,
+        "prt": 0
+      },
+      "verdict": "agree",
+      "n_checks": 40
+    }
+  ],
+  "disagreements": [],
+  "coverage": [
+    {
+      "element": "facts/morph_header.json encoders",
+      "kind": "missing_encoder",
+      "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+    },
+    {
+      "element": "facts/morph_header.json encoders",
+      "kind": "missing_encoder",
+      "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+    },
+    {
+      "element": "facts/morph_header.json encoders",
+      "kind": "missing_encoder",
+      "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+    },
+    {
+      "element": "facts/morph_header.json encoders",
+      "kind": "missing_encoder",
+      "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+    },
+    {
+      "element": "facts/morph_header.json encoders",
+      "kind": "missing_encoder",
+      "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+    }
+  ],
+  "summary": {
+    "n_commits": 5,
+    "n_checks": 200,
+    "per_verdict": {
+      "agree": 200,
+      "extraction_defect": 0,
+      "real_defect": 0,
+      "oracle_mismatch": 0,
+      "coverage_debt": 0
+    },
+    "commit_verdicts": {
+      "62074": "agree",
+      "62075": "agree",
+      "62076": "agree",
+      "62077": "agree",
+      "62078": "agree"
+    },
+    "atoms": {
+      "0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "1": "0x0100000000000000000000000000000000000000000000000000000000000000",
+      "10000": "0x01dbce0a34793911979f14a4a90eb2316179030b06474f35286143739b56ab17",
+      "10001": "0xf4f36cfcdf3509a5df5c35bb1dbd630776d050892386f38c26a9288b154710a2",
+      "10002": "0x706e07416d142d26addb200bb27f77fc0a000cd2bfbb660926bee35f7ec96e66",
+      "10003": "0x0000000000000000000000000000000000000000",
+      "10004": "0xd8985c697f5a3e1cd3ccc7ebd5a83e3c345b6edc03373f1c8b5c13a7ef19e9ab",
+      "10005": "0x51824d6b3daf1db2363780fbfb0853b3b40e5b6066f1d2803b752da50e3fbd33",
+      "10006": "0x287181a1ced1658792e5d91035f3d349f3a3c9596de76f7028ed8b26c2acbb71",
+      "10007": "0xa07678f3e2f5f20c86e071fcae1e37dec5028703cfbe1b3ceded77ff7a994b5a",
+      "10008": "0xd9d1f02fb69448eacc6c39da039d12d7414c0b4865f7ba2fb011a8d09b2442e7",
+      "10009": "0x6ab0e960911b50f6d14f249782ac12ec3e7584a0",
+      "10010": "0xc9c3540ac52c905ca0cd495deeae862383cce272845330c4231b15623d13b92e",
+      "10011": "0x6f541ee8c330e6dc1bfb0a5580f3738e28b8f9253a2954825a8a7f6a9dbe3b20",
+      "10012": "0xecf82b14b76aaf9d675c62a2e3ed5c464cc12029490869f61cd5c3c0f258030d",
+      "10013": "0xb6b2b6c20465bdeac4a78e7f566a84fe074ed92654d59ce83867771dad38a5c2",
+      "10014": "0x1a1abb56035cf2b31c726d4d2e51888f3c68269581f6cd554d0e271d99246bf6",
+      "10015": "0xd15f121a6ba1ab090c8cd2709699afba75bff17aea65b3b21fd7a25e816a2be9",
+      "10016": "0xbec15974d5da92df77f452ee645f09b698a22b3382919df1c886d08f9733760e",
+      "10017": "0x157739800e6db89eacc42bbdb8ef5b452d38663c06c961367f3139dac760a18b",
+      "10018": "0x6d2a38186ed4230c53939fc2f91c797b3f94582c9dac8e1cd7bdebd97576e1f6",
+      "10019": "0xb49dd93f1ee0f0bf1d1312cebd24dbb55d0402d5bcef1135432845b3319743a3",
+      "10020": "0x40a44afc153446a0acd0aade0024eff74585f15e5305acd5aa5afe4568a283bc",
+      "10021": "0xafd2be8aabe90a9ff5262740186435fd87cbbe2e7fd5fcb7aeb8764095e53461",
+      "10022": "0xb69f311efa39389cc8432ad06a5a29576a652b8ae82f46da213fc31e480245b6",
+      "10023": "0xc27d8576cc80f6ec81ece9dd3b764a9c91c320f37d7cb7af7408a0c09e22fbd7",
+      "10024": "0x7ffe6eb2817cc6db03d46533eafbf68f5569b9493beda236861a0674902fb54a",
+      "10025": "0x6f7f3c6337d672cbcff6dc12f79141e0746442a298088dbc117bbcf786b3527d",
+      "10026": "0xb3b561ee1fa70003f6105a4fe1c0c0fc28e4f335f2ab5d4ffedb55d75a554855",
+      "10027": "0xbb709c7b8912b03d9bbd167bfcf0c9816121d266c9a23bc4329943becac4631f",
+      "10028": "0xaa40f71f211b57428d509fd7f6c7a1f876ac73055ac5ffb5dc506f3bdc202949",
+      "10029": "0xcbdf874dc3d19e20ff349158210a02fb994a90ff4627e33bc7d238095d4a0730",
+      "10030": "0xd8ce210cc4731b80f12295d980993a6a9f2edb1036ad8487e85ce86eb1c3006a",
+      "10031": "0x32f83233a42ff27733b739f5f0d329f850bdbc3810a9f481342d29cf786eede1",
+      "10032": "0x725ac383028933039739a1ce3b5f3ed121afbee1983ab664736d47ff1e40f67e",
+      "10033": "0x5452cae051443a7bbbf80b4b00e500feb19ef1e642c1c8e1a471ed9a6080ebeb",
+      "10034": "0xa4d9a591a17678109d963cbdad094ca8e7df452d9f5a1cc057413a405e9242cc",
+      "10035": "0x933bcc0e81cdc1ebfcee6b4403ee982e1e59e814ccc5b8725724cf30a1c8cb8c",
+      "10036": "0xc704fbedbd6220d3e798158e3fbdf5eb4bdc975052f9c756a53949527f0601d3",
+      "10037": "0x3ad73bad6e758f26b9d41a606409d2c4efb2c0053479fc62831493484245b63f",
+      "10038": "0xefc695ba51d47f74c0cb9aba7716fb8591cb2dfefe8f4fc3b25ea22432bb8340",
+      "10039": "0x1b2171c6076aa929ff5566f5cab9ddbb5172238f7852e168d1e432be6002880f",
+      "10040": "0xd24ada0b31ab0c464691c908507a29763a42e42d47bb4dfde4c5f034304c3070",
+      "10041": "0x86e051ede3b8b84480e5bf52b4bf0a03e1d212fd2e092fe6e11307a836806d58",
+      "10042": "0xdd8d8c6ecdcf820f54bf1e969ebdae675c1833db916b24178be3fa1f5a277474",
+      "10043": "0xbb65ad48723fe7ae7e4d511263b818e73c446ae04227df25de0a658968c941a3",
+      "10044": "0x9364a57a32df53fad59f91c9f789ab020a9b0f656ef7f048cc61c6a6638338d2",
+      "10045": "0x42e731297bb4c7cbcb4519a403b2c42b69dc8a696b1b2f2eed1465ac62e28765",
+      "10046": "0xbad9e966effd6d21f8d6b8285cd47749d0cf18b238111662fc792739e492c47c",
+      "10047": "0x4f04bcdee7a8b707db523ee574119cad3a9af1341171b76b0f7ee3004f0b6c00",
+      "10048": "0x6c0475aeda5966c8889f53b0799b84dc01cac126d89b8be5b19eae6ebefd0cd8",
+      "10049": "0x90795f1c17ab04c66d95b7e11fcad695fb381f1de1b4569d624188b80a1a3138",
+      "10050": "0xd82c6b9332b50011204ead7889f55c1073cc983d581b1d1f18ab5c724330050d",
+      "10051": "0x75041f9829b743d3ed7cefb658245ba1b7aca6976e04ea0ef58b82c822bc8c74",
+      "10052": "0x4e5a4f29e94c79452896a4d7b78db4831fc1b18d81febe65d26e5022ce0901bc",
+      "10053": "0x904079cca5985254706697c361698ba0638f07c17980d3461a214d57e8ce6bdd",
+      "10054": "0x2c9da66f3841f415fcea746076f290c6e7e030df5ee46f908c9b738268ca16a8",
+      "10055": "0x32baba34bb7989b70ae6876eab4f3363d70ada199b7b622f90a6a93dc742ca10",
+      "10056": "0x8f146461cbed6da460b716acf59f241c038354db2868c568797c725f9b3ca49d",
+      "10057": "0xa64c3c614de968b1f05b246349945dbe55855fe662c832ca87640654996566c3",
+      "10058": "0xf4b6380827ab895ae6867e77aac5753488d477369c62c5ea6340fc028f79424f",
+      "10059": "0xc4169d0a4b1e4a289319ba496fa64fcb8aae82b284767341c7680bd891bb3516",
+      "10060": "0x49f3db5c807d44e5e35262dfb4ab7b30a73c7d5d42c43caf93bcbc2d60683404",
+      "10061": "0x4662b7415afe1e65fd3218895aaacfdb2bf878b8f5644eaae48eba4af47b0b1d",
+      "10062": "0xe07806941d153938728094c0c9e55a4e0bdfefd945d0ea92b061b4c15637c9dc",
+      "10063": "0x521aabd5e3a79d58073b748070acc5d011859729f69a4dc67e383d58bee74409",
+      "10064": "0x059a71cbceeee6e866a40c97458d8e357b265bb2d0351ffe491d56485207c4ba",
+      "10065": "0x0c6bf5c0a2ef7f96c26f8ad64da9238fc673593c0be4d53f0d2108d3bfaa9c42",
+      "10066": "0xc7684783f808b3bfc544fc3caf2466e71129fe59bdf871ebe4f44f3ed88d504c",
+      "10067": "0x04084ef33faada17179fd71d054e8d8a1feee171c0610a500960d5627769357f",
+      "10068": "0x31aabb545db8a19e2b6a9ba2ebe6768b3219945c6ffca3bdeac6bf12032bf826",
+      "10069": "0x3b363a87029df9a9801cf24f185f2ed6ce6011db39f0602d667f480c1b2364a6",
+      "10070": "0x08901ed9c32402ce0ebfe679a391a709f888e8d949f3fafceb610f3cd08d7107",
+      "10071": "0xb1bdc2d0a7644a61e28846db689259761a56d1202a85f80812100631c6c0e1aa",
+      "10072": "0x2c0d547761ac3eeafd0d47a6caefb6a0253e09156c6faf4dfbe9d24bbbd52295",
+      "10073": "0xdd6af733150551e29ede3255bf7957803084ae53aa164a8f2f80b4c98d833553",
+      "10074": "0xb5226bc33c50db247e49ddf416d3f66f4212a94459f56c2cbb96e5b2f14bd6a8",
+      "10075": "0xd7943d5027f79d5aa19bccb1bde3ae2d11a23b12e0b43bbb6c4acfc7ab181b2f",
+      "10076": "0x55a2160996aa66391024b149e93b02970117773a23d137574ae184e7abe0f24f",
+      "10077": "0xf57838afe9aa3d7400f144d3e4c9afb854d653c2a2d8fd377993733103f3022f",
+      "10078": "0xf8e945c8bf58a758fd9d70011917d847072b3f04b95dda7788c625362d3bdc87",
+      "10079": "0xc0c82d378db65566682c109601d23ad21e71f0dc49d964b0eae392d02e33c794",
+      "10080": "0x053190da0b485da2f89dbcb10fee9d994672b02085acd5a569d396aaa73c4f4b",
+      "10081": "0x188d71d7105415c927d9ab1edab6c75176e7c9e729b13b2b6549174e49baa412",
+      "10082": "0xf3befb7295adaeddee96249432a36a9dcc13e3000e782517360b6ffd0ef1fc91",
+      "10083": "0x27db395a2aafd065c91f0f7de1e0eaedb66cbb9c238f72114fff5212fd61e483",
+      "10084": "0xb741b8fbfdb4490a717111464aeb1cca1db36246e61e9bbd7fde2b17be50343d",
+      "10085": "0xc4d5e0fc0dfb106f06572fd995b7054bafcb406c5f0c29e085b6e7e50a347218",
+      "10086": "0xcf49f14185bfd6cf11ac171036ee94076f10e90924760ec3c3aed7bb68a6cf23",
+      "10087": "0x5ad06736f7971543516276690c416cf6821c5549f441d07e18d69ce1c695abcc",
+      "10088": "0xf8ba482359800f7f696a3bd22991856e8ed5dc6c058516e0cf612d8c06fc5bc9",
+      "10089": "0x953ee3ff0418173598c8c23ac9b3d473b55957448e4ad64b0d78d279e49f416d",
+      "10090": "0xbc8f4b22649748ac3b31554276ab855a2f11d1c8225701cf51701117e1b71c07",
+      "10091": "0xb3fa12da17b00acd4a524bfb8e909647a1ad6bd225540080fea39a43557564ba",
+      "10092": "0x12f35da5cae84e17c304aa4f6bd5b54effaa5cce7b4ab0698a8fa38bb141c071",
+      "10093": "0xe5ed65418edb87221c94c1921d628c91b0a2b68ad8b6b012f8c8c01bc6236136",
+      "10094": "0x35dde199f3605daece1081fa3dba4994e2a11e22458f37a569dd62e807af0c2f",
+      "10095": "0x83ccdbf752dd829218b0533a1ab13b50a6fcd738a651b3a8cedd66e60cec973c",
+      "10096": "0xedaeea9ac357f1736e82ec746e41e828b12203687a650f9de43378c750c6c5bc",
+      "10097": "0x7f8a50c4cfc7f950e13bf29876259760958311c096b4482a93d4734095df6b66",
+      "10098": "0xa10ae0d567dd901e5640dcdfdb0bb429483c8a04ccf36eeefe01a51c8ecfab04",
+      "10099": "0x9724e6b840a3fe4d029b46b8349d6ed5048e6cbee0132cc66eda9dbe51460807",
+      "10100": "0xc6cfec1d9f0b8b4203c9707aba60fa9ad830380db492384cd241065b2465a66f",
+      "10101": "0x8518159f088187ebf76d6bd98587cdf92365701f1036963902ec2f5937aa5622",
+      "10102": "0x5ecdc97f43d4d88381f3160be753ec106dde518ff702c56e65b80df69d294b1e",
+      "10103": "0x193c5d97182f7ed24b419c5e1991a736dd8b05051787272d69f3bd34573de9cb",
+      "10104": "0x777ea6407b5e03e2707676623620e8f473015abe877e49890fecd57276bdf27e",
+      "10105": "0xd49b843a0338698302345787ef33bc3e87a07155a2fd442f37b0994d4be983b1",
+      "10106": "0xac75350053992f42c600ec62deac247c13bb082b65e49d7f05ba4b4578453e84",
+      "10107": "0xebf3a0733cf6292c213ec40077d5070773a53489a40e343da7cfb267d1046b69",
+      "10108": "0x9fa2c3762020fdbeaa8f68e68ca47634d1012c83731331200f406b57ac0d5bb3",
+      "10109": "0x58ceca937427471f12b417fc130d90f90badd8ded4ba6efdc4e6ed366fb27d01",
+      "10110": "0x0d24cf3dc21cc69092d34fbd850aca791198fc9956a57417355dec20140e29c8",
+      "10111": "0x22745bda91ad37a29bfd00be27a416d7a42417df177d90e39180a1b154288c08",
+      "10112": "0x43c35d9606835ed5be12c1dfb629736867aa9652a051eb9500f73d8e54326f2d",
+      "10113": "0xa343cc7767a99949e37b6665d3093d0aa8d82c341d5dbd28924d796a53ceaaee",
+      "10114": "0x1a3d919b318a87e007b66ba0273da6d31aa17046ba88f4925fd1f071f35314c9",
+      "10115": "0x21ea2d4b8f1ed3af93455efc3f62d8c882e62ced01651b3859560e703e1603c0",
+      "10116": "0xae06562f959692d697b76b5bacbe00e39a54223cd94f7b2e6dcb5e868d54a392",
+      "10117": "0x5e2c25348946c7171fb7aa2188c87aea8025080556d587e65b681d26ba0efac1",
+      "10118": "0x720e3a5466f75ecdee101f98c7ecc0a5a00130afaab547eedc43f795c651f760",
+      "10119": "0x245d5ab0c19a991f57dd7c9d35f27216432d2353ad275600a3f0cd5fb6c83d47",
+      "10120": "0x22b2466148c708a856e95ed1c0472bbc198adecb3d507ccc85787dabeafd5398",
+      "10121": "0x0a604abbb12f7ae2c934152e42f5c7d9dff3ac94051f9c5e4e52047bc2508b89",
+      "10122": "0x048ad8ba10a7fc26fbb857e076169f6dc59021fd00d5644e4726fb955b1780a5",
+      "10123": "0x687a7ce39903e66c3be0d75109557827291d74463bdd6bacc0c2e01dd177d624",
+      "10124": "0xca355fd5fbc77eefc79a5a3d9392c5f69e61afc9e768e912f7b02eb7f0ca607c",
+      "10125": "0x7ce844cc0d2b04100033d5ecb40b19d63f72c714a7fb95fbf1f840224708e536",
+      "10126": "0xed4109ec671c4c92e2ec0c96cb367bd9c0f4141dc6563d0d2218e9996bd161a6",
+      "10127": "0x958ee549eee0c2e78788ade02c30702499f97b14c4d4f0fad52fa1156f313e3b",
+      "10128": "0xf21709174fb706afd77293dde92a3eeaacf49cc14d76d4a44aedad23f48f26b3",
+      "10129": "0x17eeb2abac96587807aa26ec31d0f36a12c5bb6cabd84f59a5e4178d79d3156e",
+      "10130": "0x39e900d85e0dec4958ef58e5360d50a86b4f3a78543c9ebed97d8172a0dc48ff",
+      "10131": "0x945dddf1a5e01f15498c537ec44e9a84ff29c9328da16c79fbcbbc386ff2be2a",
+      "10132": "0xd5d7bc59e024373215284e857d5e73b1664129fc231f377ab02a9afe13e54c76",
+      "10133": "0x0fd3402874f253cca662a055674eda92dd14d9ad5e424794236ba2c57e198995",
+      "10134": "0xee66ce22cf471fc3a9109ce7da39bd6e54dc547b597c1fe7246e908b95112a12",
+      "10135": "0x5894d0f5a6ae3b0eb98278311b0e52aed98895d09279837e43495b9bd0141bcb",
+      "10136": "0xf8a5c8dba9d111036ceb8fdd4d5f77cb28f7d989091cc618fb16866cc7dfe6ba",
+      "10137": "0xf12da62f9bd6c24c44366c1716f2de13868555e4681e60dde0367548ffaf4cdd",
+      "10138": "0x87505f398a9fc0d784dca0c9baf4791084d80def8b5ae22b228ee625490ef9ba",
+      "10139": "0x0a3c74edddf0384b7f324fa63030ce96142c87b559c804e433dab80904881ca2",
+      "10140": "0x62a7c1511599039243c0e2aa99a902b09ebc22bb67328d3c21c1cc23cf37b3a1",
+      "10141": "0x91231879201d37a2acd47b4d8eeed535db4ba8715025317bacd54d1f48228414",
+      "10142": "0xc819db31b9552f3d8960d5f5b1bc57a5090e2ec93872a93d9bd7d83447bcda14",
+      "10143": "0xe1bf1159a85cd2bcd391720b2d7a47dcf5955c0c431d6b9687120ca0352fdc9c",
+      "10144": "0xcc6cda985d0f7377845835ed2a090cb37e352310e687187c3403b31760839d51",
+      "10145": "0x6f7af271b43be16ee6a3255c914774df2f261f4973475cc390637334d054d9fa",
+      "10146": "0x525421e40d28318765c41940dc14789ba6880362ca83b1b6cf78a20d2d2dea84",
+      "10147": "0x726d1555641656b007cd97c2a5e7df4d99e2f2700c8575c2c96e090b65f7c967",
+      "10148": "0xbf76812575bd12acdea55353773c8b5576e12887f2a754814e6f873adc0b03a8",
+      "10149": "0x50d4a82ea3ee0c71da3746b612b59b26d3a2b5430b017487180776659ccff043",
+      "10150": "0x0e42f3b9656d0052fbd89b07ac81f6d65dd8bb87aaf76d7a5926c390b54de119",
+      "10151": "0x70588a85eb7d08603143b0e55a2429de6a09a78b90059792820dbf6ffc8397be",
+      "10152": "0x3f8a348cfe22670850577ed2b7830b108495d8da86ec65739d0b8246cce26b97",
+      "10153": "0xd332d6cbcf3218a56c8efdcf913d349fe7e3c4686e3903e217317c78b96c8f21",
+      "10154": "0x44519a38ab5fc4665540d6c520bf2c9ce7285ea86aaa1c918fd45dc4962a065b",
+      "10155": "0xf93d97818caf35cf0d7ebacc365c5d5f17fd5c89ebce4c9079d63e42f5ba16d8",
+      "10156": "0x3a4db7d22a4ed842fd93736a06b5c34ae4e205a9f81c52ec74b801c66ffdfbc0",
+      "10157": "0x1be6b2a4c41ab203c0cf592d9c2fd1266bf8ef5eb4f65c85e59864985335ef73",
+      "10158": "0xf146a52889cd0f4c4065ccc568ecd7b25154d7cb8529355ddc6078244cc9092f",
+      "10159": "0x413f156a4d51d053fef2c8ea2bfa769666fd2d277167b3c730e6f29447aab63f",
+      "10160": "0xce6634e9dbc17900e781b7dc9f0952923c769e5de8d390a9507b33b16eb256d6",
+      "10161": "0xe3524d6d3a0ca68da756c22472a8957f7f687ff768fbb7460f94f25ffb2e1a70",
+      "10162": "0xa708426552cfdbadca7fb9d817f3d4159b68f3a3795c1bb2b706be79238295eb",
+      "10163": "0x356717949f5993e5c806630c371a9f810a4fc5f164157897206d0c9e855ba0ad",
+      "10164": "0x4fed8c4c53c04c5cac9b9ae39990e34f076a3e55bd242f3bfa4d73d683d4e174",
+      "10165": "0x4f98e7341363f38075826f5f2323fdcba717be030d395f84388b8a2056cf2a90",
+      "10166": "0x1d2fdbe0ca8425d099ad46dad086afebced3d5108365eeca60cc6bdfb3f1a98d",
+      "10167": "0x967b1d7f864bdd402810470b83d1b35b7485013d8c72300ccc282b981c1e277f",
+      "10168": "0x523ae5f638288d1f6d19d7e3d5640dd310e7ef32b18dde239d6251beb16b16fb",
+      "10169": "0xfa7bfcf2eb68fafeb0a8b6df18c7905fa6020c820540ee4819a59c6b19e73d27",
+      "10170": "0xf50c319cff712cad46e8b731634a8e5728cfbf84c094b85b0bf7e1497e080715",
+      "10171": "0x9669ab4c3953c656cedf99f1d726e369c4bc987541bb77aa75f7a0ff8127187e",
+      "10172": "0x13aaab901f48810267492f2836d71045592b57d1d87ca23435b354f6f35c8b00",
+      "10173": "0xce6f8640096ba4f626dd4b91a2399d0bdfb828c019ab265a1a72d31e222da0e7",
+      "10174": "0x38f507a655407842b8bd00da9266545af74000395daf14d16d540b2a33c81139",
+      "10175": "0x054de0989dc8f0af89528af04407ff46dd7fb052b5e4071ca278179fbab4f00a",
+      "10176": "0x978ddeb765ffe60badd2877f18192fcdd5959e2d04ebe4d88369742af029e190",
+      "10177": "0x805f25f441771802b9246bbc42405bd9dab6b2161d5eb548f92573dcad2f6785",
+      "10178": "0x4cc78baf19e37cdc46a777c9f155360f189a3af4edf23b72a3a63d08abe619e9",
+      "10179": "0x6a6da507ebab209e69793b29fc381b372469fbea1d1de5fbfb57d5fc36de5f72",
+      "10180": "0xf07bcbb4259a79fb0eef376b8842c72bc86b21ff674a94c0be26593c17264d3d",
+      "10181": "0x9398de1276c6f4d00ad32088c1361a248f194ee02351186b9b23a5629f330ee4",
+      "10182": "0x00d7345c3098f45df5d52d78260b6b63afc29c07544d7b3e8505c3342d2cde6b",
+      "10183": "0xbed3573cb1fd5683077a8d540eabfbb93b0733217ad6b065bfef4ae22b5f72c8",
+      "10184": "0x4f5159ebb4b3f304c18521437c6f58bb52b0c4394475d7d4f6e611a4ec980f9f",
+      "10185": "0xceb5c06fce8c74e8270cf66cf1bc86cc6c72caa4cbbd7d3920d96727bee4c715",
+      "10186": "0xdcf175e4810ee6534b6e20692c5025695241a73aec28660038023e0ebd6036a8",
+      "10187": "0x8553885da3bb9687263fb7a1aaa3e17ff16f80a10526839daa62856aadf328ce",
+      "10188": "0x544187409c5725e40adb7e3a598abd332b332070b01f7952d5669e567d38318a",
+      "10189": "0x1b45635fc935fbfef209b46b00d1a52f8a53e26f55126d47b5a95e166d91cfa7",
+      "10190": "0x25437928c2f532755158d8569469db56ef874bf0b0ae48da3ee40334428339ae",
+      "10191": "0xe54ce9ee2e281a1923d53ee74dc4582a7c898712d4a9454b283ceb88175eb8f3",
+      "10192": "0x3f6ab758e55475354d262f4d4a924d4fb9805f8038947b808e2f241a0431eaa1",
+      "10193": "0x4f4d9e59672362de1f15b33f6c15a7496840cf1f2951496fb5d050153976b6aa",
+      "10194": "0x7dd279c87ff9b0287d7853523a0df0e6cd0c2902b6870c7345d868b8c1f22029",
+      "10195": "0x8a12aea01aba10c36df78055e1ab5335211b1f2020145b0d779b4944293c2c3f",
+      "10196": "0x05f9c775ea6f8ab8029cb04c5b33ea970637c88a4bbe2a0aa5edabb3207bb956",
+      "10197": "0xb09153f7c5c934dcb215e4d482e39ec95701ad047973df091361aba66cf8137c",
+      "10198": "0xadfc18953aadbc3f885f9d28b9b90b30afe67db011e6488b27e5867a1a9fb1e1",
+      "10199": "0xc5b2e838c73b38ed8c9ebe194bf505b0233d2dc27dbef5442f1c9c8d9271ce7c",
+      "10200": "0x04341b6c35a77ad4dfef63eab9cdb191e407828d0248fd833a1d72d53c1ade1c",
+      "10201": "0x12540db80baaee8d89ddb6b634e1497892273b03edcc16f7aecbe6964efedbf8",
+      "10202": "0x748040f9c5137399259133d7f9d5052a2a83f54481252dff4b7513d98221ac8d",
+      "10203": "0x3273dce67aec24ef9e076dee8a727db6c329dbc5b45cc8b224de0c2a8668b32d",
+      "10204": "0xd423c4a19f8601c58a9648ac5fea3e3d384334615fd24dde1b840c4fbb747f0a",
+      "10205": "0x23e82548e57fbdf00f2836704348a74969f416108d895837dad55c790054f906",
+      "10206": "0x34f8ea05e496b1baa23afe7723242b54511e8961ff9d6a0b88a1df5256f9480a",
+      "10207": "0xb1fea29f82cd9f953d288a0a6de0d31fdbd7352d0ce40030ef8991f8f2dcb08a",
+      "10208": "0xbebdd1c5d0ab131ef07cda1ddc64e66d45e4f220d17bdea3e5e63428368216f6",
+      "10209": "0x11d0a3d8bc2136382b282c92380ce5900078ccbc6090a76c4e1d018a39209136",
+      "10210": "0xde53e8ee4de36be2024dde0d8668bcf5e6ac72776854be418f9926e14295536b",
+      "10211": "0x86fbd3b48540c160aedd893c1d9368fc54859880557b082eb52ff11553c1a29f",
+      "10212": "0x1153712439bd31cf185329900bd133afc1db4f2d996e15c12f1f6b9932a4f191",
+      "10213": "0x2b2f8ddce0a4f54cd6a205432089da49c0dcc93c4674a388bb59e75ada2e1dbd",
+      "10214": "0x3d4d57277ff053b2c3362afa246bc6197e2b3fa6a1f4fad696a071d7fb5c8b0e",
+      "10215": "0x3a13b0f9bb087b4980cb6cdc258ef1e0763abea73aa92ace03f2a183d33b6003",
+      "10216": "0xaeb0c9e067b7bf55477665584b71a9fdb988fce75b2394396adc984225c10f8e",
+      "10217": "0x93a2bcfa8c7f6ab1ddbce3fd127dfb3a4844ff68b9c7c7ad7419d6199f5a93e0",
+      "10218": "0x8de9e3c137913e8bac973357b1eb7402fb0c2dd58d1ac413f5825a35d327f471",
+      "10219": "0x1d7cf8a7dc4832dbbcce4679e61360e472302c22fcd084da79785a4519c675b6",
+      "10220": "0x89d050b18ae9b2b713c04d87f6bed6de67139e6910399f863bd1026b9a4cfd7c",
+      "10221": "0x145e9878ceea85c727beca88cac5d2e72eb7b39fb53aa12a4862606d0456954a",
+      "10222": "0x72f0e1d211a3ed36c112ff6c5c8b1c0c93a24769d300614c9b4194c454e394c8",
+      "10223": "0x9d1dd99e947b9d525bb4c0850afa129c509d298d0836a7316d105d8f78535827",
+      "10224": "0x80af16360a170b7179195fec09d80f4d4a54112b49ae84c030b81495d2a01e7b",
+      "10225": "0x98335b78ad2fa43721d22e6ddfe6a0319777cfba15a4b0f80b8260ad1d801bd1",
+      "10226": "0xa0acbf8cc0bd9d03ac6f46e00f714c7dd41807d350734d38e7af08527a4bc14f",
+      "10227": "0x08dabb5562de21324de156580c4ada11e71076609aaa7711fbbe139e174ec1b8",
+      "10228": "0x2ab1b877f3acad54ca66e5621b4ddb8b0a4c6c87200b5928fead5f60070a1557",
+      "10229": "0x4d2101311e195ee56ddd792786960c59478a23d94d993745dfbdf8080f48467c",
+      "10230": "0xdf5127a3563ef6c0f649f7de1daa09a29993ed20a4f78df767ce7d687de6e4a1",
+      "10231": "0x843b2728d3ce71cf850e9ec3d3151799efa126a4dc0ddf03389d1f52006c87ff",
+      "10232": "0x9184c1469f0e7f90b90e45aeb7bda8422e5f845ae27befb200d61341a0eed8cc",
+      "10233": "0x433843ffd5a54e885f3e89e099c3881bd00c849b99be7217e278f66196e14b01",
+      "10234": "0xaf44ad1f8b02fa0415d2c6777b8b4a3e37ff77c43f2c090e6c4e7e3d44a61a8d",
+      "10235": "0x5dc1f41ab436d926a333b5fa8ecfcec91129660320c0e8709100abc529936b44",
+      "10236": "0xdb704898007caa1cdab5a848249afe668f37a61524172b09b0cf98542091e6ab",
+      "10237": "0xd83a396d26b8ba91e7190d71972c003becbf7a4643490f85cce0bd4b345e71b7",
+      "10238": "0x467c9f53a4c2f7e4ee87673139e2755e57f695edd08bc2f430ef4dccc927620b",
+      "10239": "0xdb4b839c9401f212b7a3b7f219aaeed9682499646607f4baef6833b89d5266fa",
+      "10240": "0x7bacb8340cc5eac22c202e57ee02a6d9204937be671b21f9feac64c5ef8f3e2f",
+      "10241": "0x9970c53b211bbf63ecd418db720cd457bb9f1548dc7aaa8de878019cfa9a0dfa",
+      "10242": "0x18aae98a79a8fdf8654a39ec685abae490895d198a34f93972c721581883c72b",
+      "10243": "0x6e317ff7f430be4ebf6edd3ac921ed4fa4bd122417bacf6d964669222fa98edc",
+      "10244": "0x59a96a86cf9915e0f5a2f936fb1f9e629feba3f230b1c89f24647fa7a2ac470d",
+      "10245": "0xcbd54b6c5f07447cc5cdf287d284af4e127203cfbaf65d1a29c01c44cabf8ae3",
+      "10246": "0x88ea0d586d60fc5e1f23ddf49780c1cbf1ad1c13769fb5934505d6acb53e2fd8",
+      "10247": "0xe8fe8061a9984ae946bf17c1627d04627443a6bd357cef23a4354ee81377ee61",
+      "10248": "0xcf62b3d68f45bec3e686541067bd40f02166458f399f8514fb09ddb259fdad4a",
+      "10249": "0xc42e239a57ddda76a7774c6afe64bffa288a1ca99a459d25bfa7945e8bda7025",
+      "10250": "0x1d90fb178216e2050a50736a89b401e3b684fa669d21ed75d933c2db435b8b04",
+      "10251": "0x79b9552d28666faa994839202989d7831fba7941fe2897c946374297f093c904",
+      "10252": "0xa675d4f326eaf9ac7d9fd5eed639fdd56064556c104fdda16367d6b959c2974c",
+      "10253": "0x5498b9de566b2f14bbebc41e6581990547cd7d216036cd3ff5669a543bb327dd",
+      "10254": "0x0e08a5b7fa6904766e8dc91c3ab8ca4720ee32728d449d5778163c909c28170f",
+      "10255": "0x9cb3acdf74e561ead752160316ad975f607218c6a16cb6ccaa83527e435a8df9",
+      "10256": "0x096ee6f5b073c401f85c41311c8d81cf196a9e359b83df5c0ec08e24db7ae351",
+      "10257": "0x670a59e19089e793e664bb677ff0792f2ac03f26044aaab71683b4f53aba0b58",
+      "10258": "0x0582b0d4e373de6e829d7ffc212103a40c7a4ae8c598b239562c7cfab18a9fd4",
+      "10259": "0x437ea2a1fbe639a19dd0200b57bf1aa5a2e2db4ee4387ab3bffc94fa0c0939fa",
+      "10260": "0xc3f66240842f13416615b39bc8c936d96c880a7fed1780303cea98703de5da4f",
+      "10261": "0xe0443924470cff992f1bcd41c37e7d7f1c45e1f27852c9b704902e7906516da1",
+      "10262": "0x5e645038bd00a397ce92beb39c41eec232b889deadc32e360d7df824e66ae011",
+      "10263": "0x010842b40fd4f827c4a47fb855f2bb8da2470268600022e9e7652b605d3ea9e3",
+      "10264": "0xd9517105ff1375474341c1fece940f99dee074de9a297240d755177285ec2c93",
+      "10265": "0x7407ee542ec74cdb4ff2af50c543f6d3de08180f50454a2122dbd690cef05bd8",
+      "10266": "0x41d72437be773eae17b78e56e424e91d01e672497392e9229bb219135de4e944",
+      "10267": "0x3c5fb048994b0743f629807277f9521af2ce8a3c100eb236cb0c3feb1be3a1e6",
+      "10268": "0xf02f42768d5f64d84cd9a5608e231127b776a6e4183181df54cfe3da620e7e69",
+      "10269": "0x4a2779c3db2097befa1d31ca4ff571c0dcc1b57d653e485ea62b47f5c8e37d4e",
+      "10270": "0x6f104427dd0ef156ad0141a424c916b70cf418dff19991ca9823156d6d633002",
+      "10271": "0x9d871bf2fc33f7e57543ca3a3197347b031d28979980c050172530c917ccf4a0",
+      "10272": "0xd3ec78ddacc3c4354034a1f0a49657d9c1044228fafbbd5a7f411645e78a701a",
+      "10273": "0x8e7e747c0ea12e7b15a1e4325b2b917ba77e650a53187738878ac0eefa8afca6",
+      "10274": "0x8e19c4478036352086ed613db8f2d150c0671ee815b446e762cd2d11a310663d",
+      "10275": "0x612dd79c5ae71d444cf3ca07546a9cd9f8302f9d3e9e5da76c7a80149ac6b168",
+      "10276": "0xf4c2c81eb91361ab8cb89ede4efd007bdbab1e13e46e2c285e06e34327ee9637",
+      "10277": "0xe518807360127e61744e3f14beb74a269d3f9e426b95b4799733c5ab2bba12ec",
+      "10278": "0xc72240dd24e4317d3d712cba1fdc7ee4e1e40487dd8b671287763bb2fa74c282",
+      "10279": "0x830ee2769a22d5e5e4093aba0441bb4fbd16393fbf07eb0ab75ae3ca3885477c",
+      "10280": "0x89a7524c8efb612426aff966b9e94a9fbe86a5e802a936442dcbb2127a27e802",
+      "10281": "0xa4bcd7adc2a48d31ee56b2da35c4d27d9cc8884293e35fcc4162a1b1401b819e",
+      "10282": "0x8af39aa8466ab5d2701182aaf53dd75027dbf27d0e66894bdc268d2bafd26133",
+      "10283": "0x7883f4d17f8a3dfd206fde339f3d92627639989273cf29a5a454da1ec192646e",
+      "10284": "0x53e6740d2ecebe342563b11c5da2bd2ac0370a7b5dda81fe7528d8f37c3669b8",
+      "10285": "0x347d51691f022dae1a674973fa0985db8b9a61138125b26f9024c2a28317c52b",
+      "10286": "0x9249bd861f0e3269924515f8559767cb222454c4b72aa820278f2fd99ea99bff",
+      "10287": "0x36de09456c0d6326f8164dedd8bb89492758024fa46e2a1cd453b110126521a6",
+      "10288": "0xeb6b029cb300350dd5e7ec7936099bedbb5e393837ef9168d88e796969ff9937",
+      "10289": "0x7a2b00e505f1c57fa8806e7f0433fa56b78c1b7a0a41a410ef51b0f7b8b5c8a3",
+      "10290": "0xa7ea00867d7ae76c759c40ae2a9dc8150006cb1c8fbdebf2ed5b23e531f65cda",
+      "10291": "0xd61080b55b7a33417c7025421f01bcf0f96dfea02af817e177edd3279300b751",
+      "10292": "0x2401d3557f12fd884e68bbabbab92ae48fbdc4e5ba565b4c7ead735856ffa39c",
+      "10293": "0x893af036e36cc2ad419f131c61afc5becd83d8d976163087777e220411d132eb",
+      "10294": "0x03bbe175c3660f38cd53dfc74e2d4f489a9c5cc3c7eeb07bee947f009ead748f",
+      "10295": "0x0b095b7868171ea179eb9d6854f1a5757cc773451777a2bd4abec7e96dbcab89",
+      "10296": "0xde86f17acacade97ca132852caaba6f86a2b3a42cc788e18eb6ebc685df7be00",
+      "10297": "0x57415b72c5aca1093e9311d5647335a5678a7411b75a162445a52385f4d55421",
+      "10298": "0xe64b797b3289983416cbb4c234ed29899857d47f3006c60aeb879a85b973db31",
+      "10299": "0xced8a090a94e2d3a40cc1117fb79fc25bb336c983c4cc8a0573bd2d9c2839a35",
+      "10300": "0x640700ca45aac78620f6a26c2d1ee5f3267c782840b91656ad38fddbc90a0b60",
+      "10301": "0x09db7a4080abaa661620dd1403b994c8398914cbcfbdea6ac46430870562df2d",
+      "10302": "0xc1148a75e97f907344e08ab622f7786a6827f83d238edcb8b41eca24b8d9f357",
+      "10303": "0x5826e8b9dcf41c20a45056f06b992424a87e0ee945411ee38d4764e802fa0b06",
+      "10304": "0xace416c7d8a0278a0813dd79d3d2be7bbadd259855fdb2397b891cf354cff852",
+      "10305": "0x01488cc62d92bfd67dffd6e9d5ff061cfc26425427ae40e3a223b8e9485d26e1",
+      "10306": "0x091c4a1c51f31fa4daff61e28534452bbc572be2b6ca9594ef094e383175d8c8",
+      "10307": "0xf72b2ca80f9d70a0c3b352e85fcffce48bba0708e83a35d765f89d80ba73a6ed",
+      "10308": "0x01f88112087307b7eea32d8e95914b39f6805bb3c6751fcd0dfd38b859e55433",
+      "10309": "0xf5afc93f238ebd665868bc090abfffd0f999bafd844f677c3d6de7616f2c6bc7",
+      "10310": "0x07660b74446357f35ba2c9131d1e86d19394d8fc70b5fe313f5e7cf37a2615f7",
+      "10311": "0x0195cdc76b4aeace236f98a980f5356e0407b098d7f8f389507c3d32ba2235cf",
+      "10312": "0x10245b7e9da6b3276bf11c8e53c192e8da282735f66f2fa94f533d25f06ddc50",
+      "10313": "0x2339d6d662bb78620cbf1fc8873bbe3bda5d5bb58e9e6db0d99fd326f2eec612",
+      "10314": "0x01db2c53fdc7fa40b6a8cea80e30b2f7fbd24b93674949d6887c95dd90cc1b6c",
+      "10315": "0x6c790cbf97c3767c1d1ad00769e65eeb88f070f78dfee47dc3b460e5fa6046ff",
+      "10316": "0x9d01074f0a2000a3902078b23de512d01a5e400941abbdfa43a19ea4bd2d7764"
+    },
+    "coverage_items": [
+      {
+        "element": "facts/morph_header.json encoders",
+        "kind": "missing_encoder",
+        "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+      },
+      {
+        "element": "facts/morph_header.json encoders",
+        "kind": "missing_encoder",
+        "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+      },
+      {
+        "element": "facts/morph_header.json encoders",
+        "kind": "missing_encoder",
+        "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+      },
+      {
+        "element": "facts/morph_header.json encoders",
+        "kind": "missing_encoder",
+        "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+      },
+      {
+        "element": "facts/morph_header.json encoders",
+        "kind": "missing_encoder",
+        "reason": "no enc_go_v2: Go derives v2 bytes via V1.Bytes()+h[0]=2 patch; compared tail only"
+      }
+    ],
+    "notes": [
+      "atoms: 0=zero value, 1=ZERO_VERSIONED_HASH, >=10000 first-seen",
+      "hb field of entries = bvh atom (model convention: exec_commitBatch writes hb:=bvh)",
+      "fsr/chals reconstructed empty: never read on the commitBatch edge; recorded as reconstruction notes not coverage debt",
+      "enq prefix below qpend elided: d_enq_first reads only enq[qpend]"
+    ]
+  }
+}
