@@ -176,7 +176,7 @@
 | 10.4 | Proof engines | partial | Layout and UNDO done. DISCH narrow. No SYM or NAT engine. No intake for agent proofs. |
 | 10.5 | Refutation engines | partial | Enumeration over a hand-written policy. No SMT, fuzzing or GPU. Counter-law discipline done. |
 | 10.6–10.11 | Deadness, profiles, splits, concretization, ranking, complexity | missing or partial | See I27, I31, I32, I34, I40, I44, I47. |
-| 11 | Case study | partial | Hand count, which I4 replaces with a computed table: 13 of 37 obstructions have a law, 8 full (O1, O11, O15, O19, O22, O26, O27, O36) and 5 partial (O2, O12, O31, O32, O33). D1 and D5 done. D2 is claimed in `docs/M1_REPORT.md` but **no code checks it**. Appendix A: F4 and F6 fully; F5's O19 part (`L_sym_omega`) and F12.1/F12.2 (`L_dom_hdr`, `L_par_hdr_v2`) also reproduced and replayed. |
+| 11 | Case study | partial | Computed since I4 (`tools/casestudy.py`, `docs/CASESTUDY.md`), replacing the earlier hand count. Obstructions: 9 full, 4 partial, 24 none; 6 of the full ones have a law in the provisional `finding` bin (O2, O11, O12, O19, O26, O27). Discharged: 2 full (D2, D5), 1 partial (D1: `L_par_hdr_ssvh` shows it needs ssvh = 0). Appendix A: 1 full (F6), 6 partial. DISCH rows can be at most partial under the rule, which needs a replayed refutation. |
 | 12 | Remedies for L3, L7, L15, L21, L22 | missing | No evidenced-pair coverage, no rule admission, no UNKNOWN calibration, non-vacuity by name only, no drift trigger. |
 | 12, 13 | Metrics, evaluation protocol | missing | Only canary acceptance (0/37) is computed. No corpus, baselines, controls or ablations. |
 
