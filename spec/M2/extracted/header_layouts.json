@@ -1,0 +1,514 @@
+{
+  "facts_version": "holon-facts/0.1",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "scope": "BatchHeaderCodecV0/V1 stores, getters, loadAndValidate; Rollup._commitBatchWithBatchData header build, _loadBatchHeader dispatch"
+  },
+  "extraction": {
+    "method": "solc --ir-optimized (optimized Yul IR), automated",
+    "tool": {
+      "solc": "0.8.24+commit.e11b9ed9.Linux.g++",
+      "evm_version": "cancun"
+    },
+    "driver": {
+      "file": "HolonExtractDriver.sol",
+      "sha256": "d31861712ec846c647f1bc6675769ccdcdfd36d12c8be1dccd452fdfd63e64a2",
+      "purpose": "wraps internal library fns so they survive dead-code elimination"
+    },
+    "ir_sha256": {
+      "driver": "d4f57de1f2b011e7af7ae41519b3c2b7cb99f79c9b3daefab61678a65137c8d8",
+      "rollup": "66d1ad370d82c52516fbfe9ab3b4dd6d5acf4ed04ce0ac878cd04facdabb8890"
+    }
+  },
+  "types": {
+    "Byte": {
+      "kind": "byte"
+    },
+    "Bytes": {
+      "kind": "bytes"
+    },
+    "Bool": {
+      "kind": "bool"
+    },
+    "Fields": {
+      "kind": "list_of_bytes",
+      "doc": "decoded header fields in getter order"
+    },
+    "Header": {
+      "kind": "record",
+      "fields": [
+        {
+          "name": "version",
+          "width": 1
+        },
+        {
+          "name": "batchIndex",
+          "width": 8
+        },
+        {
+          "name": "l1MessagePopped",
+          "width": 8
+        },
+        {
+          "name": "totalL1MessagePopped",
+          "width": 8
+        },
+        {
+          "name": "dataHash",
+          "width": 32
+        },
+        {
+          "name": "blobVersionedHash",
+          "width": 32
+        },
+        {
+          "name": "prevStateHash",
+          "width": 32
+        },
+        {
+          "name": "postStateHash",
+          "width": 32
+        },
+        {
+          "name": "withdrawRootHash",
+          "width": 32
+        },
+        {
+          "name": "sequencerSetVerifyHash",
+          "width": 32
+        },
+        {
+          "name": "parentBatchHash",
+          "width": 32
+        },
+        {
+          "name": "lastBlockNumber",
+          "width": 8
+        }
+      ]
+    }
+  },
+  "functions": {
+    "enc_sol": {
+      "kind": "encoder",
+      "from": "Header",
+      "to": "Bytes",
+      "lang": "solidity-evm-memory",
+      "memory_init": "dirty",
+      "domain": {
+        "version_le": 2
+      },
+      "length_by_version": {
+        "0": 249,
+        "1": 257,
+        "2": 257
+      },
+      "ops": [
+        {
+          "op": "mstore8",
+          "offset": 0,
+          "code": "BatchHeaderCodecV0.storeVersion(_batchPtr, batchDataInput.version)",
+          "src": [
+            {
+              "field": "version"
+            }
+          ],
+          "field_width": 1
+        },
+        {
+          "op": "mstore",
+          "offset": 1,
+          "code": "_batchIndex",
+          "src": [
+            {
+              "field": "batchIndex"
+            },
+            {
+              "zeros": 24
+            }
+          ],
+          "field_width": 8
+        },
+        {
+          "op": "mstore",
+          "offset": 9,
+          "code": "BatchHeaderCodecV0.storeL1MessagePopped(_batchPtr, batchDataInput.numL1Messages)",
+          "src": [
+            {
+              "field": "l1MessagePopped"
+            },
+            {
+              "zeros": 24
+            }
+          ],
+          "field_width": 8
+        },
+        {
+          "op": "mstore",
+          "offset": 17,
+          "code": "_totalL1MessagesPoppedOverall",
+          "src": [
+            {
+              "field": "totalL1MessagePopped"
+            },
+            {
+              "zeros": 24
+            }
+          ],
+          "field_width": 8
+        },
+        {
+          "op": "mstore",
+          "offset": 25,
+          "code": "dataHash",
+          "src": [
+            {
+              "field": "dataHash"
+            }
+          ],
+          "field_width": 32
+        },
+        {
+          "op": "mstore",
+          "offset": 57,
+          "code": "blobVersionedHash",
+          "src": [
+            {
+              "field": "blobVersionedHash"
+            }
+          ],
+          "field_width": 32
+        },
+        {
+          "op": "mstore",
+          "offset": 89,
+          "code": "batchDataInput.prevStateRoot",
+          "src": [
+            {
+              "field": "prevStateHash"
+            }
+          ],
+          "field_width": 32
+        },
+        {
+          "op": "mstore",
+          "offset": 121,
+          "code": "batchDataInput.postStateRoot",
+          "src": [
+            {
+              "field": "postStateHash"
+            }
+          ],
+          "field_width": 32
+        },
+        {
+          "op": "mstore",
+          "offset": 153,
+          "code": "batchDataInput.withdrawalRoot",
+          "src": [
+            {
+              "field": "withdrawRootHash"
+            }
+          ],
+          "field_width": 32
+        },
+        {
+          "op": "mstore",
+          "offset": 185,
+          "code": "bytes32(0)",
+          "src": [
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            },
+            {
+              "zeros": 1
+            }
+          ]
+        },
+        {
+          "op": "mstore",
+          "offset": 217,
+          "code": "_parentBatchHash",
+          "src": [
+            {
+              "field": "parentBatchHash"
+            }
+          ],
+          "field_width": 32
+        },
+        {
+          "op": "mstore",
+          "offset": 249,
+          "code": "BatchHeaderCodecV1.storeLastBlockNumber(_batchPtr, batchDataInput.lastBlockNumber)",
+          "src": [
+            {
+              "field": "lastBlockNumber"
+            },
+            {
+              "zeros": 24
+            }
+          ],
+          "field_width": 8,
+          "when": {
+            "version_ge": 1
+          }
+        }
+      ]
+    },
+    "ok_sol": {
+      "kind": "predicate",
+      "from": "Bytes",
+      "to": "Bool",
+      "lang": "solidity",
+      "meaning": "true iff _loadBatchHeader(b) does not revert",
+      "rules": [
+        {
+          "if": "empty",
+          "then": false,
+          "code": "require(batchHeader.length > 0, \\\"Empty batch header\\\")"
+        },
+        {
+          "if": {
+            "version_in": [
+              0
+            ]
+          },
+          "then": {
+            "len_ge": 249
+          },
+          "code": "fun_loadAndValidate: {'len_ge': 249}"
+        },
+        {
+          "if": {
+            "version_in": [
+              1,
+              2
+            ]
+          },
+          "then": {
+            "len_eq": 257
+          },
+          "code": "fun_loadAndValidate_3498: {'len_eq': 257}"
+        },
+        {
+          "if": "otherwise",
+          "then": false,
+          "code": "revert"
+        }
+      ]
+    },
+    "dec_sol": {
+      "kind": "decoder",
+      "from": "Bytes",
+      "to": "Maybe<Fields>",
+      "lang": "solidity",
+      "meaning": "None unless ok_sol(b); else the codec getters in offset order",
+      "guard": "ok_sol",
+      "getters": [
+        {
+          "name": "version",
+          "offset": 0,
+          "width": 1,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "batchIndex",
+          "offset": 1,
+          "width": 8,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "l1MessagePopped",
+          "offset": 9,
+          "width": 8,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "totalL1MessagePopped",
+          "offset": 17,
+          "width": 8,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "dataHash",
+          "offset": 25,
+          "width": 32,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "blobVersionedHash",
+          "offset": 57,
+          "width": 32,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "prevStateHash",
+          "offset": 89,
+          "width": 32,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "postStateHash",
+          "offset": 121,
+          "width": 32,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "withdrawRootHash",
+          "offset": 153,
+          "width": 32,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "sequencerSetVerifyHash",
+          "offset": 185,
+          "width": 32,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "parentBatchHash",
+          "offset": 217,
+          "width": 32,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV0.sol"
+        },
+        {
+          "name": "lastBlockNumber",
+          "offset": 249,
+          "width": 8,
+          "code": "assembly {...",
+          "lib": "contracts/libraries/codec/BatchHeaderCodecV1.sol",
+          "when": {
+            "version_ge": 1
+          }
+        }
+      ]
+    },
+    "view": {
+      "kind": "projection",
+      "from": "Header",
+      "to": "Fields",
+      "meaning": "header fields in the extracted decoder's getter order",
+      "order": [
+        "version",
+        "batchIndex",
+        "l1MessagePopped",
+        "totalL1MessagePopped",
+        "dataHash",
+        "blobVersionedHash",
+        "prevStateHash",
+        "postStateHash",
+        "withdrawRootHash",
+        "sequencerSetVerifyHash",
+        "parentBatchHash",
+        "lastBlockNumber"
+      ],
+      "when": {
+        "lastBlockNumber": {
+          "version_ge": 1
+        }
+      }
+    }
+  }
+}

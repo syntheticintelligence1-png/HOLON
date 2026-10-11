@@ -1,0 +1,87 @@
+{
+ "agreement": {
+  "agree": 75,
+  "disagree": 0,
+  "explained": 0,
+  "unexplained": 0
+ },
+ "corpus": {
+  "boundary": 49,
+  "excluded": [
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 0,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:version=255"
+   },
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 1,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:version=254"
+   },
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 2,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:version=3"
+   },
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 3,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:version=255"
+   },
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 4,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:all-max"
+   }
+  ],
+  "grammar": 24,
+  "out_of_domain": 5,
+  "seed": 895788803,
+  "total": 75,
+  "witness": 2
+ },
+ "disagreements": [],
+ "edge": "m0_enc_sol",
+ "implementation": {
+  "code": "contracts/l1/rollup/Rollup.sol:_loadBatchHeader",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph"
+ },
+ "model": {
+  "call": "enc_sol",
+  "via": "hcall op 2"
+ },
+ "mutation_adequacy": {
+  "note": "mutation corpus is a different M2 unit",
+  "status": "not_run"
+ },
+ "record_version": "holon-refinement/1",
+ "replay": {
+  "command": "forge test --match-contract HolonRefine"
+ }
+}

@@ -12,7 +12,7 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.247
+      "seconds": 0.218
     },
     {
       "bound": "Header: 16 structured fills + 48 random (seed 20261010), premises pinned; unpinned version over [0, 1, 2]+1",
@@ -30,20 +30,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.283
+      "seconds": 0.257
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.626
+      "seconds": 0.499
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.283
+    "seconds": 0.257
   },
   "difference": {
     "lhs": "0x0200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -68,8 +68,7 @@
   "statement": "\u2200 h: Header. h.version == 0x02 \u2227 h.sequencerSetVerifyHash == 0x00*32 \u21d2 enc_sol(h) == enc_go_v1(h)",
   "statement_hash": "sha256:88c0b7734bbb1c3b4cc2f3127f4ee2c552789074f5f10d0286c03443ad037954",
   "status": "REFUTED",
-  "triage": "model_defect",
-  "triage_why": "model_defect_path: helper-level refutation holds, but the production producer createBatchHeader/createBatchHeaderWithSequencerSetHash patches byte 0 (batch_cache.go:1729-1730); the system-level law is L_par_hdr_v2_composed (PROVED); audit R1.",
+  "triage": "finding",
   "witness": {
     "h": {
       "batchIndex": "0x0000000000000000",

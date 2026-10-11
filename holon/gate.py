@@ -263,6 +263,9 @@ class Gate:
             laws = [l for l in ir.load_laws_any(self.m, self.root) if l["ir_version"] == "holon-ir/0.2"]
             recs = {k: v for k, v in self.records().items() if v}
             self.canaries = run_canaries(cm, laws, recs, tmp, self.cfg)
+            if self.m == "M3_sorts":
+                from .sorts.pipeline import frozen_sort_canaries
+                self.canaries += frozen_sort_canaries(self.root, tmp / "sorts", self.cfg)
             kinds = {c["kind"] for c in self.canaries}
             accepted = [c["id"] for c in self.canaries if not c["rejected"]]
             ok = len(self.canaries) >= MIN_CANARIES and len(kinds) >= 3 and not accepted

@@ -1,0 +1,499 @@
+{
+ "format": "holon-extracted/go-machine/0.1",
+ "extractor": "holon.frontends.go (gossa-dump/0.1)",
+ "machines": [
+  {
+   "type": "BatchData",
+   "types": {
+    "Sl": {
+     "doc": "Go slice header",
+     "fields": [
+      [
+       "b",
+       "Nat"
+      ],
+      [
+       "off",
+       "Nat"
+      ],
+      [
+       "len",
+       "Nat"
+      ],
+      [
+       "cap",
+       "Nat"
+      ]
+     ]
+    },
+    "Arr": {
+     "doc": "a backing array",
+     "fields": [
+      [
+       "cells",
+       "List<Nat>"
+      ]
+     ]
+    }
+   },
+   "state": [
+    [
+     "heap",
+     "List<Arr>",
+     "Go heap (backing arrays)"
+    ],
+    [
+     "blockContexts",
+     "Sl",
+     "BatchData.blockContexts"
+    ],
+    [
+     "txsPayload",
+     "Sl",
+     "BatchData.txsPayload"
+    ],
+    [
+     "view",
+     "Sl",
+     "the slice the last view-producing call returned"
+    ],
+    [
+     "snap",
+     "List<Nat>",
+     "GHOST: contents of the view when it was returned"
+    ],
+    [
+     "live",
+     "Bool",
+     "GHOST: a caller holds the view"
+    ],
+    [
+     "classes",
+     "List<Nat>",
+     "oracle: Go runtime size classes"
+    ],
+    [
+     "log",
+     "List<Obs>",
+     "observations"
+    ]
+   ],
+   "ghost_state": [
+    "snap",
+    "live"
+   ],
+   "initial": {
+    "heap": [
+     {
+      "cells": []
+     }
+    ],
+    "snap": [],
+    "live": false,
+    "classes": [
+     0,
+     8,
+     16,
+     24,
+     32,
+     48,
+     64,
+     80,
+     96,
+     112,
+     128,
+     144,
+     160,
+     176,
+     192,
+     208,
+     224,
+     240,
+     256,
+     288,
+     320,
+     352,
+     384,
+     416,
+     448,
+     480,
+     512
+    ],
+    "log": [],
+    "view": {
+     "b": 0,
+     "off": 0,
+     "len": 0,
+     "cap": 0
+    },
+    "blockContexts": {
+     "b": 0,
+     "off": 0,
+     "len": 0,
+     "cap": 0
+    },
+    "txsPayload": {
+     "b": 0,
+     "off": 0,
+     "len": 0,
+     "cap": 0
+    }
+   },
+   "actions": [
+    {
+     "name": "append",
+     "function": "BatchData.Append",
+     "src": "common/batch/batch_data.go:31-42",
+     "inputs": [
+      [
+       "blockContext",
+       "List<Nat>"
+      ],
+      [
+       "txsPayload",
+       "List<Nat>"
+      ]
+     ],
+     "guards": [
+      {
+       "let": "h1",
+       "expr": [
+        "call",
+        "go_append_heap",
+        "heap",
+        "blockContexts",
+        "blockContext",
+        "classes"
+       ],
+       "src": "common/batch/batch_data.go:35 append"
+      },
+      {
+       "let": "blockContexts'",
+       "expr": [
+        "call",
+        "go_append_slice",
+        "heap",
+        "blockContexts",
+        "blockContext",
+        "classes"
+       ],
+       "src": "common/batch/batch_data.go:35 append"
+      },
+      {
+       "let": "h2",
+       "expr": [
+        "call",
+        "go_append_heap",
+        "h1",
+        "txsPayload",
+        "txsPayload",
+        "classes"
+       ],
+       "src": "common/batch/batch_data.go:36 append"
+      },
+      {
+       "let": "txsPayload'",
+       "expr": [
+        "call",
+        "go_append_slice",
+        "h1",
+        "txsPayload",
+        "txsPayload",
+        "classes"
+       ],
+       "src": "common/batch/batch_data.go:36 append"
+      }
+     ],
+     "effects": {
+      "blockContexts": "blockContexts'",
+      "heap": "h2",
+      "txsPayload": "txsPayload'"
+     },
+     "dropped": [
+      {
+       "site": {
+        "file": "common/batch/batch_data.go",
+        "line": 39
+       },
+       "field": "l1TxHashes",
+       "reason": "append outside tracked cone",
+       "in_loop": true
+      }
+     ],
+     "complete": true,
+     "other_ops": [
+      {
+       "op": "field_store",
+       "field": "blockNum",
+       "src": {
+        "expr": "*cks.blockNum + 1"
+       },
+       "site": {
+        "file": "common/batch/batch_data.go",
+        "line": 37
+       }
+      },
+      {
+       "op": "field_store",
+       "field": "l1TxNum",
+       "src": {
+        "expr": "*cks.l1TxNum + len(l1TxHashes)"
+       },
+       "site": {
+        "file": "common/batch/batch_data.go",
+        "line": 41
+       }
+      }
+     ]
+    },
+    {
+     "name": "txsPayload",
+     "function": "BatchData.TxsPayload",
+     "src": "common/batch/batch_data.go:113-115",
+     "inputs": [],
+     "guards": [],
+     "effects": {
+      "view": "txsPayload",
+      "heap": "heap",
+      "snap": [
+       "call",
+       "go_read",
+       "heap",
+       "txsPayload"
+      ],
+      "live": true
+     },
+     "dropped": [],
+     "complete": true,
+     "other_ops": []
+    },
+    {
+     "name": "txsPayloadV2",
+     "function": "BatchData.TxsPayloadV2",
+     "src": "common/batch/batch_data.go:118-120",
+     "inputs": [],
+     "guards": [
+      {
+       "let": "r_txsPayload",
+       "expr": [
+        "call",
+        "go_read",
+        "heap",
+        "txsPayload"
+       ],
+       "src": "field load"
+      },
+      {
+       "let": "h1",
+       "expr": [
+        "call",
+        "go_append_heap",
+        "heap",
+        "blockContexts",
+        "r_txsPayload",
+        "classes"
+       ],
+       "src": "common/batch/batch_data.go:119 append"
+      },
+      {
+       "let": "v",
+       "expr": [
+        "call",
+        "go_append_slice",
+        "heap",
+        "blockContexts",
+        "r_txsPayload",
+        "classes"
+       ],
+       "src": "common/batch/batch_data.go:119 append"
+      }
+     ],
+     "effects": {
+      "view": "v",
+      "heap": "h1",
+      "snap": [
+       "call",
+       "go_read",
+       "h1",
+       "v"
+      ],
+      "live": true
+     },
+     "dropped": [],
+     "complete": true,
+     "other_ops": []
+    },
+    {
+     "name": "estimateCompressedSizeWithNewPayload",
+     "function": "BatchData.EstimateCompressedSizeWithNewPayload",
+     "src": "common/batch/batch_data.go:124-135",
+     "inputs": [
+      [
+       "txPayload",
+       "List<Nat>"
+      ]
+     ],
+     "guards": [
+      {
+       "let": "h1",
+       "expr": [
+        "call",
+        "go_append_heap",
+        "heap",
+        "txsPayload",
+        "txPayload",
+        "classes"
+       ],
+       "src": "common/batch/batch_data.go:126 append"
+      }
+     ],
+     "effects": {
+      "heap": "h1"
+     },
+     "dropped": [],
+     "complete": true,
+     "other_ops": []
+    }
+   ],
+   "observers": {
+    "view_intact": {
+     "params": [
+      [
+       "s",
+       "State"
+      ]
+     ],
+     "type": "Bool",
+     "body": [
+      "||",
+      [
+       "!",
+       "live"
+      ],
+      [
+       "call",
+       "eq_nats",
+       [
+        "call",
+        "go_read",
+        "heap",
+        "view"
+       ],
+       "snap"
+      ]
+     ],
+     "doc": "OWN-alias: while a caller holds the view, its contents are unchanged by writes not made through it"
+    }
+   },
+   "coverage_debt": [
+    {
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 39
+     },
+     "field": "l1TxHashes",
+     "reason": "append outside tracked cone",
+     "in_loop": true
+    },
+    {
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 64
+     },
+     "field": null,
+     "reason": "method IsEmpty not modelled (no append, no slice return)",
+     "in_loop": false
+    },
+    {
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 83
+     },
+     "field": null,
+     "reason": "method DataHashV2 not modelled (no append, no slice return)",
+     "in_loop": false
+    },
+    {
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 103
+     },
+     "field": null,
+     "reason": "method calculateHash not modelled (no append, no slice return)",
+     "in_loop": false
+    },
+    {
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 122
+     },
+     "field": null,
+     "reason": "method BlockNum not modelled (no append, no slice return)",
+     "in_loop": false
+    },
+    {
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 149
+     },
+     "field": null,
+     "reason": "method WillExceedCompressedSizeLimit not modelled (no append, no slice return)",
+     "in_loop": false
+    }
+   ]
+  }
+ ],
+ "coverage": {
+  "modelled": [
+   "BatchData.Append",
+   "BatchData.EstimateCompressedSizeWithNewPayload",
+   "BatchData.TxsPayload",
+   "BatchData.TxsPayloadV2"
+  ],
+  "debt": [
+   {
+    "element": "common/batch/batch_data.go:103 method BatchData.calculateHash",
+    "kind": "unmodelled_method",
+    "reason": "method calculateHash not modelled (no append, no slice return)"
+   },
+   {
+    "element": "common/batch/batch_data.go:122 method BatchData.BlockNum",
+    "kind": "unmodelled_method",
+    "reason": "method BlockNum not modelled (no append, no slice return)"
+   },
+   {
+    "element": "common/batch/batch_data.go:149 method BatchData.WillExceedCompressedSizeLimit",
+    "kind": "unmodelled_method",
+    "reason": "method WillExceedCompressedSizeLimit not modelled (no append, no slice return)"
+   },
+   {
+    "element": "common/batch/batch_data.go:39 append BatchData.l1TxHashes",
+    "kind": "dropped_append",
+    "reason": "append outside tracked cone (in loop)"
+   },
+   {
+    "element": "common/batch/batch_data.go:64 method BatchData.IsEmpty",
+    "kind": "unmodelled_method",
+    "reason": "method IsEmpty not modelled (no append, no slice return)"
+   },
+   {
+    "element": "common/batch/batch_data.go:83 method BatchData.DataHashV2",
+    "kind": "unmodelled_method",
+    "reason": "method DataHashV2 not modelled (no append, no slice return)"
+   }
+  ],
+  "candidates": [
+   "BatchData.DataHash (common/batch/batch_data.go:68)",
+   "BatchData.Encode (common/batch/batch_data.go:53)",
+   "BatchData.combinePayloads (common/batch/batch_data.go:137)"
+  ]
+ },
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "packages": [
+   "morph-l2/common/batch",
+   "morph-l2/node/types"
+  ]
+ }
+}

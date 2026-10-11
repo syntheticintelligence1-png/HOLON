@@ -1,0 +1,43 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort3_prin_submitter",
+  "milestone": "M3_sorts",
+  "rule": "SORT",
+  "subform": "union_read",
+  "facts": "spec/M3/sorts/facts/morph_rollup.sorted.json",
+  "facts_sha256": "26e3a06a4c40cbf1d9f4c45fc0e3840a3e2d169affe70ca57c9ae564539869d0",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "prin_bds_ok",
+          "of": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Compiled from union_read Entry.bds at action:proveState/effect:active: remove(bds, active) reads a Prin[submitter]+Null union as Prin[submitter]. Sound iff every committed batch (bdo != 0) names a non-Null submitter.",
+  "maps_to": "O20 (F5)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "UNKNOWN"
+}

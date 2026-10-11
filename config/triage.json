@@ -3,10 +3,6 @@
     "L_par_hdr_ssvh": {
       "triage": "intent_question",
       "why": "Solidity always commits sequencerSetVerifyHash = 0 while Go copies the struct field. This is a defect only if some Go producer sets a nonzero value, which is outside M0's scope: it surfaces the premise ssvh = 0 as an intent question for the Morph team."
-    },
-    "L_par_hdr_v2": {
-      "triage": "model_defect",
-      "why": "model_defect_path: helper-level refutation holds, but the production producer createBatchHeader/createBatchHeaderWithSequencerSetHash patches byte 0 (batch_cache.go:1729-1730); the system-level law is L_par_hdr_v2_composed (PROVED); audit R1."
     }
   },
   "M1": {
