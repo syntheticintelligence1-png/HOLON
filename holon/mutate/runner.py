@@ -292,6 +292,7 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                     first = (str(e).splitlines() or [repr(e)])[0]
                     rec.update({"valid": True, "detected": False,
                                 "label": "extraction_gap", "changed": [],
+                                "miss_cause": "pipeline_error",
                                 "pipeline_error": f"assemble: {first}"[:500],
                                 "link_fallbacks": [],
                                 "seconds": round(time.time() - t0, 3)})
@@ -305,6 +306,7 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                     label = ("extraction_gap" if run["facts_bytes"] == base["facts_bytes"]
                              else "rule_gap")
                     rec.update({"valid": True, "detected": False, "label": label,
+                                "miss_cause": "pipeline_error",
                                 "facts_sha256": run["facts_sha"], "changed": [],
                                 "pipeline_error": f"pipeline: {first}"[:500],
                                 "link_fallbacks": run["link_fallbacks"],
@@ -320,6 +322,7 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                          else "extraction_gap" if run["facts_bytes"] == base["facts_bytes"]
                          else "rule_gap")
                 rec.update({"valid": True, "detected": detected, "label": label,
+                            "miss_cause": None if detected else "no_status_change",
                             "detected_via": _detected_via(changed),
                             "facts_sha256": run["facts_sha"], "changed": changed,
                             "link_fallbacks": run["link_fallbacks"],
@@ -359,6 +362,7 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                 first = (str(e).splitlines() or [repr(e)])[0]
                 rec.update({"valid": True, "detected": False,
                             "label": "extraction_gap", "changed": [],
+                            "miss_cause": "pipeline_error",
                             "pipeline_error": f"assemble: {first}"[:500],
                             "link_fallbacks": [],
                             "seconds": round(time.time() - t0, 3)})
@@ -375,6 +379,7 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                          else "rule_gap")
                 first = (str(e).splitlines() or [repr(e)])[0]
                 rec.update({"valid": True, "detected": False, "label": label,
+                            "miss_cause": "pipeline_error",
                             "facts_sha256": run["facts_sha"], "changed": [],
                             "pipeline_error": f"pipeline: {first}"[:500],
                             "link_fallbacks": run["link_fallbacks"],
@@ -388,6 +393,7 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
                      else "extraction_gap" if run["facts_bytes"] == base["facts_bytes"]
                      else "rule_gap")
             rec.update({"valid": True, "detected": detected, "label": label,
+                        "miss_cause": None if detected else "no_status_change",
                         "detected_via": _detected_via(changed),
                         "facts_sha256": run["facts_sha"], "changed": changed,
                         "link_fallbacks": run["link_fallbacks"],
@@ -415,8 +421,21 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
     for lid, v in rvs.items():
         if not v["match"]:
             v.setdefault("reason", None)
+    counts = {
+        "total": len(results),
+        "valid": len(live) - sum(1 for r in live if r["valid"] is False),
+        "invalid": sum(1 for r in live if r["valid"] is False),
+        "equivalent": sum(1 for r in live if r.get("equivalent")),
+        "detected": len(detected),
+        "extraction_gap": sum(1 for r in live if r["label"] == "extraction_gap"),
+        "rule_gap": sum(1 for r in live if r["label"] == "rule_gap"),
+        "pending": len(pending),
+    }
     report = {
         "schema": "holon-mutation-report/0.1",
+        "score": score,
+        **({"provisional_header_score": score} if pending else {}),
+        "counts": counts,
         "spec": str(spec_path), "target_commit": commit,
         "baseline_facts_sha256": baseline_cache.get(commit, {}).get("facts_sha"),
         "rollup_baseline_facts_sha256": rb.get("facts_sha"),
@@ -434,7 +453,6 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
         "mutants": results,
         "final": not pending,          # never final while any mutant is pending
         "pending": [r["id"] for r in pending],
-        "provisional_header_score": score,
         "score_definition": spec["score"],
         "threshold": spec["threshold"],
         "equivalence_reclassifications": [],

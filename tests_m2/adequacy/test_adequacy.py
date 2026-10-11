@@ -222,6 +222,46 @@ class TestMutate(unittest.TestCase):
         self.assertFalse(r["detected"])
         self.assertEqual(r["label"], "extraction_gap")
 
+    def test_final_report_has_score_not_provisional(self):
+        """A final report (0 pending) emits 'score' and counts, never
+        'provisional_header_score'."""
+        rep = self.report
+        self.assertFalse(rep["pending"])
+        self.assertTrue(rep["final"])
+        self.assertIn("score", rep)
+        self.assertNotIn("provisional_header_score", rep)
+        for k in ("total", "valid", "invalid", "equivalent", "detected",
+                  "extraction_gap", "rule_gap", "pending"):
+            self.assertIn(k, rep["counts"])
+
+    def test_rollup_pipeline_error_miss_cause(self):
+        """A mutant whose extracted facts differ but whose pipeline run
+        raises is a miss with miss_cause 'pipeline_error' and label
+        'rule_gap' (facts differed, so not extraction_gap)."""
+        from unittest import mock
+        from holon.gen.machine import FactsError
+        from holon.mutate import runner
+        spec = json.loads(SPEC.read_text())
+        (r01,) = [m for m in spec["mutants"] if m["id"] == "R01"]
+        sp = self._rollup_spec(r01)
+        out = self.work / "rolluperr_report.json"
+
+        def fake(facts_p, scratch):
+            if "rollup-baseline" in str(scratch):
+                return {}          # baseline succeeds; the mutant raises
+            raise FactsError("synthetic reject")
+
+        with mock.patch.object(runner, "_run_rollup_pipeline",
+                               side_effect=fake):
+            runner.run_mutants(sp, MORPH, ["R01"], self.work / "rolluperr",
+                               _solc(), out)
+        (r,) = json.loads(out.read_text())["mutants"]
+        self.assertTrue(r["valid"])
+        self.assertFalse(r["detected"])
+        self.assertEqual(r["label"], "rule_gap")
+        self.assertEqual(r["miss_cause"], "pipeline_error")
+        self.assertTrue(r["pipeline_error"].startswith("pipeline: "))
+
     def test_rollup_pending_without_s1(self):
         """pending_extractor is derived: when S1 cannot be imported the
         Rollup mutants stay pending and final stays false."""
