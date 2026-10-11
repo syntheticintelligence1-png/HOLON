@@ -144,3 +144,16 @@ proxy, accept-all verifier; config F=2, P=2, D=3, genesis at t=1):
   `createBatchHeaderWithSequencerSetHash` on a hand-built BatchCache in
   `~/ext/morph_scratch` (test copied to `replay/M1/go/`) — same 257 bytes
   match. No divergences between model and real code.
+
+## Triage after replay (config/triage.json, set by the lead after reading replay/M1)
+
+| Law | Triage | Why |
+|---|---|---|
+| L_undo_commit_revert | intent_question | revert leaves blob hash / batch data / state root; commitState is the designed recommit path |
+| L_undo_enabled | intent_question | same residue; commitBatch blocked, commitState works |
+| L_undo_pause | finding | pause cancels the challenge but keeps the +proofWindow extension; re-challenge stacks it again (real Rollup: 5 -> 7) |
+| L_disch_nonowner | intent_question | revertReqIndex blocks all non-owner transitions until owner revertBatch |
+| L_disch_timeout | finding | after the proof window, only the submitter (self-slash) or the owner can close the challenge; commits revert with Panic(0x11) meanwhile |
+| L_nat_delay_frontier | intent_question | guard reads the finalized frontier; permissionless finalizeBatch lifts it |
+
+Caveat: the reach-reflection proofs use a fused per-layer fold for K<=3 (kernel limit, see bend/notes/verdict_mismatch/). Above K=3 the generator falls back to the reach_k form, which currently fails --verdict.

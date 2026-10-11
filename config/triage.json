@@ -4,5 +4,23 @@
       "triage": "intent_question",
       "why": "Solidity always writes sequencerSetVerifyHash = bytes32(0); Go copies the struct field. Whether Go producers ever set a nonzero value is an intent question, not a codec defect: batch_cache.go:1447-1462 (sealBatch) rejects nonzero sequencerSetVerifyHash for live batches; nonzero is allowed only for legacy replay at index <= legacyCutoverBatchIndex."
     }
+  },
+  "M1": {
+    "L_disch_nonowner": {
+      "triage": "intent_question",
+      "why": "After a challenger win, revertReqIndex blocks every non-owner transition until owner revertBatch (replayed). Owner-gated by design; liveness depends on the owner."
+    },
+    "L_nat_delay_frontier": {
+      "triage": "intent_question",
+      "why": "The delay guard reads the finalized frontier (pendingQueueIndex); 'l1msg delay' fires although all messages are committed, and permissionless finalizeBatch lifts it (replayed). A delay, not a freeze."
+    },
+    "L_undo_commit_revert": {
+      "triage": "intent_question",
+      "why": "revertBatch leaves batchBlobVersionedHashes/batchDataStore/committedStateRoots (replayed on real Rollup). commitState exists as the designed blob-less recommit path, so the residue looks intentional."
+    },
+    "L_undo_enabled": {
+      "triage": "intent_question",
+      "why": "commitBatch reverts 'commitBatch requires no stored blob hash' after a revert; commitState succeeds (replayed). Designed recommit path."
+    }
   }
 }
