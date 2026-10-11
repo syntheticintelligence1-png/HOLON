@@ -1,0 +1,117 @@
+{
+  "frontend": "assemble-header",
+  "target_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "items": [
+    {
+      "element": "batch.BatchCache.createBatchHeaderWithSequencerSetHash:1690",
+      "kind": "off_output_write",
+      "reason": "op writes buffer ('alloc', 5), not the returned bytes (input construction; modelled via the field precondition)"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:keccak256(_batchPtr, _headerLength)",
+      "kind": "edge",
+      "reason": "hash primitive is outside the byte-layout model; recorded as an edge fact"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:mstore(0x40, add(_batchPtr, _headerLength))",
+      "kind": "infrastructure",
+      "reason": "free-memory-pointer bump writes outside the tracked header buffer"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(_batchIndex == lastCommittedBatchIndex, \\\"incorrect batch index\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.postStateRoot != bytes32(0), \\\"new state root is zero\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.prevStateRoot != bytes32(0), \\\"previous state root is zer",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex + 1] == bytes32(0), \\\"batch already committ",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex] == _parentBatchHash, \\\"incorrect parent ba",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedStateRoots[_batchIndex] == batchDataInput.prevStateRoot, \\\"inco",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    }
+  ],
+  "assembler": "holon/assemble/header.py",
+  "consumed_keys": {
+    "types": "S2 header_layouts doc (types.Header.fields gives name+width, wire order)",
+    "functions.enc_sol": "S2 header_layouts doc",
+    "functions.ok_sol": "S2 header_layouts doc",
+    "functions.view": "S2 header_layouts doc",
+    "functions.enc_go_v0": "S3 go_codecs encoders[batch.BatchHeaderV0.Bytes].ops",
+    "functions.enc_go_v1": "S3 go_codecs encoders[batch.BatchHeaderV1.Bytes].ops",
+    "functions.ok_go": "S3 go_codecs predicates[batch.BatchHeaderBytes.validate].rules",
+    "functions.dec_go": "S3 go_codecs decoders.getters[batch.BatchHeaderBytes.*].accessors",
+    "facts_version/target/extraction": "literal version tag + commit from the checkout"
+  },
+  "omitted_descriptive": [
+    "types.Header.fields[].sol",
+    "types.Header.fields[].go",
+    "functions.*.meaning",
+    "functions.*.preconditions",
+    "assumptions (not consumed by the M0 pipeline)"
+  ],
+  "debt": [
+    {
+      "element": "batch.BatchCache.createBatchHeaderWithSequencerSetHash:1690",
+      "kind": "off_output_write",
+      "reason": "op writes buffer ('alloc', 5), not the returned bytes (input construction; modelled via the field precondition)"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:keccak256(_batchPtr, _headerLength)",
+      "kind": "edge",
+      "reason": "hash primitive is outside the byte-layout model; recorded as an edge fact"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:mstore(0x40, add(_batchPtr, _headerLength))",
+      "kind": "infrastructure",
+      "reason": "free-memory-pointer bump writes outside the tracked header buffer"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(_batchIndex == lastCommittedBatchIndex, \\\"incorrect batch index\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.postStateRoot != bytes32(0), \\\"new state root is zero\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.prevStateRoot != bytes32(0), \\\"previous state root is zer",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex + 1] == bytes32(0), \\\"batch already committ",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex] == _parentBatchHash, \\\"incorrect parent ba",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedStateRoots[_batchIndex] == batchDataInput.prevStateRoot, \\\"inco",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op"
+    }
+  ]
+}

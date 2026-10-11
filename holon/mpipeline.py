@@ -184,9 +184,12 @@ def _act_obj(m, t, ty_env, witness):
     raise ValueError(t)
 
 
-def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str | None, no_registry: bool, log=print) -> dict:
+def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str | None, no_registry: bool, log=print,
+           law_ids: set | None = None, facts_overrides: dict | None = None) -> dict:
     cfg = bend.config(ROOT)
     laws = ir.load_laws_any(milestone, ROOT)
+    if law_ids is not None:
+        laws = [l for l in laws if l["law_id"] in law_ids]
     reg = ir.load_registry(milestone, ROOT)
     primary = reg["facts"]
     override = Path(facts_path) if facts_path else None
@@ -194,6 +197,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
     gen = Path(gen_dir or ROOT / "gen" / milestone)
 
     def fpath_of(law: dict) -> Path:
+        if facts_overrides and law["facts"] in facts_overrides:
+            return Path(facts_overrides[law["facts"]])
         return override if (override and law["facts"] == primary) else ROOT / law["facts"]
     if no_registry:
         laws = [ir.rebind_facts(l, F.sha256_file(fpath_of(l))) for l in laws]

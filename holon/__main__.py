@@ -36,7 +36,40 @@ def main(argv=None) -> int:
     lay.add_argument("fn")
     lay.add_argument("version", type=int)
     lay.add_argument("--facts", default="facts/morph_header.json")
+    so = sub.add_parser("sorts", help="M3: infer sort assignments, generate sorted facts, Bend sort types and the M3 registry")
+    so.add_argument("--root")
+    ase = sub.add_parser("assemble", help="M2: assemble a facts document purely from the extractors")
+    ase.add_argument("--milestone", default="M0")
+    ase.add_argument("--morph", required=True)
+    ase.add_argument("--solc")
+    ase.add_argument("--out", required=True)
+    ase.add_argument("--coverage")
+    mu = sub.add_parser("mutate", help="M2 A1: apply spec mutants, re-extract, compare law statuses")
+    mu.add_argument("--mutants", default="spec/M2/mutants.json")
+    mu.add_argument("--morph", required=True)
+    mu.add_argument("--only")
+    mu.add_argument("--work")
+    mu.add_argument("--solc")
+    mu.add_argument("--out", default="replay/M2/mutation/report.json")
     a = ap.parse_args(argv)
+    if a.cmd == "sorts":
+        from .sorts.pipeline import run_sorts
+        run_sorts(a.root)
+        return 0
+    if a.cmd == "assemble":
+        from .assemble.header import assemble, write_docs
+        from pathlib import Path
+        doc, cov = assemble(Path(a.morph), Path(a.solc) if a.solc else None)
+        write_docs(doc, cov, Path(a.out),
+                   Path(a.coverage) if a.coverage else Path("spec/M2/coverage/assemble_header.json"))
+        print(f"wrote {a.out} ({len(doc['functions'])} functions)")
+        return 0
+    if a.cmd == "mutate":
+        from .mutate.runner import run_mutants
+        from pathlib import Path
+        return run_mutants(Path(a.mutants), Path(a.morph), a.only.split(",") if a.only else None,
+                           Path(a.work) if a.work else None,
+                           Path(a.solc) if a.solc else None, Path(a.out))
     if a.cmd == "run":
         from .pipeline import main_run
         return main_run(a)

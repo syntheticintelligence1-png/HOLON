@@ -249,7 +249,11 @@ def gen_predicate(facts: dict, fn: str) -> list[str]:
 
 # ---------------------------------------------------------------- decoders, projections
 def _when_const(when: dict | None) -> int:
-    return when["version_ge"] if when else 0
+    if not when:
+        return 0
+    if "version_ge" in when:
+        return when["version_ge"]
+    return max(when["version_in"])
 
 
 def gen_decoder(facts: dict, fn: str) -> list[str]:

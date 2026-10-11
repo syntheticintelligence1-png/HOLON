@@ -2,6 +2,7 @@
 // Untrusted heuristics (like a fuzzing dictionary): they only steer the search.
 export function policyOf(s, facts) {
   if (facts.policy === "batchdata") return batchdataPolicy(s);
+  if (facts.policy === "l1num") return [{ op: "appendBlock", k: 1 }, { op: "appendBlock", k: 65535 }];
 
   const lci = s.lfi + s.win.length - 1;
   const last = s.win[s.win.length - 1] || {};
@@ -20,7 +21,8 @@ export function policyOf(s, facts) {
   for (const n of ns) out.push({ op: "commitBatchWithProof", who: 5, ver: 1, parent: lci, n, lbn: lci + 1, prev: last.csr || 0, post: fresh, blobs: [blob], proof: 1 });
   if (lci > s.lfi) out.push({ op: "revertBatch", who: 1, idx: lci, count: 1 });
   if (lci > s.lfi + 1) out.push({ op: "revertBatch", who: 1, idx: s.lfi + 1, count: lci - s.lfi });
-  for (const idx of [...new Set([lci, s.lfi + 1])]) if (idx > s.lfi && idx <= lci) out.push({ op: "challengeState", who: 4, idx, value: 1 });
+  for (const idx of [...new Set([lci, s.lfi + 1])]) if (idx > s.lfi && idx <= lci) for (const who of s.chals) out.push({ op: "challengeState", who, idx, value: 1 });
+  for (const a of facts.policy_extra || []) out.push({ ...a });
   out.push({ op: "proveState", who: 2, idx: s.bc, proof: 1 });
   out.push({ op: "finalizeBatch", who: 5, idx: s.lfi + 1 });
   out.push({ op: "setPause", who: 1, status: !s.paused });

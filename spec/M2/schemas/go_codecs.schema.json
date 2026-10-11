@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "holon-extracted/go-codecs/0.1",
+  "title": "HOLON go-ssa codec extraction (S3)",
+  "type": "object",
+  "required": ["format", "target_commit", "frontend", "lang", "packages",
+               "encoders", "predicates", "decoders", "partiality",
+               "coverage"],
+  "properties": {
+    "format": {"const": "holon-extracted/go-codecs/0.1"},
+    "target_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "frontend": {"const": "go"},
+    "lang": {"const": "go"},
+    "packages": {"type": "array", "items": {"type": "string"}},
+    "encoders": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["kind", "lang", "function", "id", "file", "line",
+                     "pkg", "memory_init", "ops"],
+        "properties": {
+          "kind": {"const": "encoder"},
+          "lang": {"const": "go"},
+          "function": {"type": "string"},
+          "id": {"type": "string"},
+          "file": {"type": "string"},
+          "line": {"type": "integer"},
+          "pkg": {"type": "string"},
+          "memory_init": {"enum": ["zeros", "undefined"]},
+          "length": {"type": ["integer", "null"]},
+          "composite": {"type": "boolean"},
+          "ops": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["op", "src"],
+              "properties": {
+                "op": {"enum": ["set_byte", "copy", "put_uint16_be",
+                                "put_uint32_be", "put_uint64_be",
+                                "store_idx", "append", "field_store",
+                                "read"]},
+                "offset": {"type": ["integer", "null"]},
+                "src": {"type": "object"},
+                "code": {"type": "string"},
+                "byte": {"type": "boolean"},
+                "in_loop": {"type": "boolean"},
+                "dst": {"type": "array"},
+                "result": {"type": "array"},
+                "to_field": {"type": "string"},
+                "field": {"type": "string"}
+              }
+            }
+          },
+          "field_stores": {"type": "array", "items": {"type": "object"}}
+        }
+      }
+    },
+    "predicates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["kind", "function", "file", "line", "pkg", "rules"],
+        "properties": {
+          "kind": {"const": "predicate"},
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["if", "then"],
+              "properties": {"if": {}, "then": {}}
+            }
+          }
+        }
+      }
+    },
+    "decoders": {
+      "type": "object",
+      "required": ["getters"],
+      "properties": {
+        "getters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["function", "file", "line", "pkg",
+                         "accessors"],
+            "properties": {
+              "accessors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["accessor"],
+                  "properties": {
+                    "accessor": {"type": "string"},
+                    "offset": {"type": ["integer", "null"]},
+                    "width": {"type": ["integer", "null"]},
+                    "when": {"type": ["object", "null"]},
+                    "code": {"type": "string"}
+                  }
+                }
+              },
+              "guards": {"type": "array"}
+            }
+          }
+        }
+      }
+    },
+    "partiality": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "line", "function", "form", "bound"],
+        "properties": {
+          "form": {"enum": ["index", "index_addr", "slice", "lookup"]},
+          "bound": {"enum": ["const", "loop_index", "unverified"]},
+          "detail": {"type": "string"}
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["modelled", "debt"],
+      "properties": {
+        "modelled": {"type": "array", "items": {"type": "string"}},
+        "debt": {"type": "array", "items": {"type": "object",
+                 "required": ["element", "kind", "reason"]}},
+        "candidates": {"type": "array", "items": {"type": "object"}}
+      }
+    }
+  }
+}

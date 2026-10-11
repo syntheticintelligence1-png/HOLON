@@ -49,7 +49,7 @@ class TestM1Gate(unittest.TestCase):
             with self.subTest(canary=c["id"]):
                 self.assertTrue(c["rejected"])
                 ev = cm.evaluate(c["law"], c["counterexample"])
-                if c["kind"] == "negated":
+                if c.get("negated", c["kind"] == "negated"):
                     self.assertTrue(all(ev["premises"]) and all(ev["claims"]), "negated canary: the law holds here")
                 else:
                     self.assertTrue(all(ev["premises"]))

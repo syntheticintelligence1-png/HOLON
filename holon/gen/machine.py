@@ -331,6 +331,14 @@ class Machine:
             fixed[f"es_{field}"] = self.stypes[sf]
         if name in fixed:
             return f"b_{name}({', '.join(txt)})", fixed[name]
+        if name.startswith("pred_") and name[5:] in self.f.get("preds", {}):
+            spec = self.f["preds"][name[5:]]
+            need(2 + len(spec.get("params", [])))
+            return f"b_{name}({', '.join(txt)})", "Bool"
+        if name.startswith("map_") and name[4:] in self.f.get("maps", {}):
+            spec = self.f["maps"][name[4:]]
+            need(1 + len(spec.get("params", [])))
+            return f"b_{name}({', '.join(txt)})", ty[0]
         raise FactsError(f"unknown function {name}")
 
     # ------------------------------------------------------------ expressions
@@ -531,6 +539,66 @@ class Machine:
                 "          Bool.and(eq_bool(Nat.is_eq(ver, 2n), Nat.is_eq(tag, 2n)), b_tags_exact(t))", ""]
         out += ["def b_hdr_of(e: HEntry) -> List<&2, Nat>:", "  match e:", f"    case HEntry{{{epat}}}:",
                 "      [ver, tot, n, hb, prev, post, lbn]", ""]
+        return out
+
+    def gen_preds_maps(self) -> list[str]:
+        """Generic list folds declared in the facts (used by the sorted facts of holon.sorts):
+        preds: {name: {"elem": T, "params": [[n, t]..], "index": i, "body": Bool expr}}  all elements satisfy body
+        maps:  {name: {"elem": T, "params": [[n, t]..], "fields": {f: expr} | "body": expr}}  element-wise rewrite"""
+        out = []
+        for name, spec in self.f.get("preds", {}).items():
+            T = spec["elem"]
+            params = [tuple(x) for x in spec.get("params", [])]
+            idx = spec.get("index", "idx")
+            plist = "".join(f", +{bname(n)}: {bt(t)}" for n, t in params)
+            if T in self.types:
+                env = {**{f: t for f, t in self.types[T]}, idx: "Nat", **dict(params)}
+                body, ty = self.ex(spec["body"], env)
+                pat = ", ".join("+" + bname(f) for f, _ in self.types[T])
+                inner = [f"      match e:", f"        case H{T}{{{pat}}}:",
+                         f"          Bool.and({body}, b_pred_{name}_go(t, Nat.add({bname(idx)}, 1n){''.join(', ' + bname(n) for n, _ in params)}))"]
+                et = f"H{T}"
+            else:
+                env = {"x": T, idx: "Nat", **dict(params)}
+                body, ty = self.ex(spec["body"], env)
+                inner = [f"      Bool.and({body}, b_pred_{name}_go(t, Nat.add({bname(idx)}, 1n){''.join(', ' + bname(n) for n, _ in params)}))"]
+                et = bt(T)
+            if ty != "Bool":
+                raise FactsError(f"pred {name}: body is {ty}")
+            head = "Con{e, t}" if T in self.types else "Con{+x, t}"
+            out += [f"def b_pred_{name}_go(es: List<&2, {et}>, +{bname(idx)}: Nat{plist}) -> Bool:", "  match es:", "    case Nil{}:",
+                    "      True{}", f"    case {head}:"] + inner + [""]
+            cp = "".join(f", {bname(n)}: {bt(t)}" for n, t in params)
+            out += [f"def b_pred_{name}(es: List<&2, {et}>, {bname(idx)}: Nat{cp}) -> Bool:",
+                    f"  b_pred_{name}_go(es, {bname(idx)}{''.join(', ' + bname(n) for n, _ in params)})", ""]
+        for name, spec in self.f.get("maps", {}).items():
+            T = spec["elem"]
+            params = [tuple(x) for x in spec.get("params", [])]
+            plist = "".join(f", +{bname(n)}: {bt(t)}" for n, t in params)
+            rec = f"b_map_{name}(t{''.join(', ' + bname(n) for n, _ in params)})"
+            if T in self.types:
+                env = {**{f: t for f, t in self.types[T]}, **dict(params)}
+                vals = []
+                for f, t in self.types[T]:
+                    if f in spec.get("fields", {}):
+                        x, ty = self.ex(spec["fields"][f], env)
+                        if ty != t:
+                            raise FactsError(f"map {name}.{f}: {ty} vs {t}")
+                        vals.append(x)
+                    else:
+                        vals.append(bname(f))
+                pat = ", ".join("+" + bname(f) for f, _ in self.types[T])
+                inner = ["      match e:", f"        case H{T}{{{pat}}}:", f"          Con{{H{T}{{{', '.join(vals)}}}, {rec}}}"]
+                et, head = f"H{T}", "Con{e, t}"
+            else:
+                env = {"x": T, **dict(params)}
+                x, ty = self.ex(spec["body"], env)
+                if ty != T:
+                    raise FactsError(f"map {name}: {ty} vs {T}")
+                inner = [f"      Con{{{x}, {rec}}}"]
+                et, head = bt(T), "Con{+x, t}"
+            out += [f"def b_map_{name}(es: List<&2, {et}>{plist}) -> List<&2, {et}>:", "  match es:", "    case Nil{}:", "      Nil{}",
+                    f"    case {head}:"] + inner + [""]
         return out
 
     def gen_defs(self) -> list[str]:
@@ -799,6 +867,7 @@ class Machine:
         body += self.gen_types()
         body += self.gen_record_lib()
         body += self.gen_defs()
+        body += self.gen_preds_maps()
         acts = []
         for a in self.actions:
             acts += self.gen_action(a)
