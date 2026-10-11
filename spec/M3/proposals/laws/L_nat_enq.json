@@ -1,0 +1,109 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_nat_enq",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "NAT",
+  "subform": "native_equivalence",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "migration",
+      "name": "legacy_queue: messageEnqueueTime[k] == 0 for pre-upgrade k; eta_enq: no backfill",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:60",
+      "expect": "messageEnqueueTime",
+      "doc": "in-flight type: pending legacy messages"
+    },
+    {
+      "kind": "edge",
+      "name": "getFirstUnfinalizedMessageEnqueueTime treats enq == 0 as 'no pending message' and returns block.timestamp",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "expect": "messageEnqueueTime[pendingQueueIndex] != 0",
+      "doc": "the delay predicate reads the sentinel"
+    },
+    {
+      "kind": "guard",
+      "name": "delay guards on all three commit paths",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266",
+      "expect": "l1msg delay",
+      "doc": "consumer of the predicate"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    }
+  ],
+  "scope": {
+    "kind": "bounded(H)",
+    "domain": "queues holding messages enqueued before messageEnqueueTime existed"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "q",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "mig": "eta_enq",
+            "of": {
+              "mig": "legacy_queue",
+              "of": {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              },
+              "args": []
+            },
+            "args": []
+          }
+        },
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": "Native equivalence for eta_enq: a pending legacy message must trigger the delay guard exactly as a message the new code enqueued at the same time would. The sentinel makes legacy backlog invisible to the guard.",
+  "maps_to": "O16 (F7)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "p: legacy sendMessage at time t0; wait D+1: natively kappa holds and commitBatch(n=0) reverts 'l1msg delay'; migrated: enq == 0, predicate returns t, commitBatch(n=0) succeeds.",
+  "prediction_origin": "derived"
+}

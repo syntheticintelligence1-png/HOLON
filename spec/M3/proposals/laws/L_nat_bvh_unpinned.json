@@ -1,0 +1,102 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_nat_bvh_unpinned",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "NAT",
+  "subform": "native_equivalence",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "migration",
+      "name": "legacy_bvh: batchBlobVersionedHashes[i] == 0 for pre-upgrade i; eta_bvh: no backfill",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:106-108",
+      "expect": "batchBlobVersionedHashes",
+      "doc": "in-flight type: unpinned committed batches"
+    },
+    {
+      "kind": "guard",
+      "name": "commitBatch requires BVH[next] == 0; commitState requires != 0",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:261",
+      "expect": "requires no stored blob hash",
+      "doc": "the pin is absent for migrated batches"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    }
+  ],
+  "scope": {
+    "kind": "bounded(H)",
+    "domain": "batches committed before batchBlobVersionedHashes existed (BVH == 0), then reverted and recommitted"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "q",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "mig": "eta_bvh",
+            "of": {
+              "mig": "legacy_bvh",
+              "of": {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              },
+              "args": []
+            },
+            "args": []
+          }
+        },
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": "Benign naturality defect: after revert, a migrated batch is recommittable by commitBatch with a fresh blob (native batches are pinned, O11/O32). Recorded as a split that documents the difference; no sink.",
+  "maps_to": "O17 (new, benign)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED (benign)",
+  "witness_or_proof": "p: legacy commit(i); eta_bvh; q: revert(i); commitBatch(i, beta') succeeds migrated, reverts natively ('requires no stored blob hash').",
+  "prediction_origin": "derived"
+}

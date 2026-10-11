@@ -1,0 +1,142 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_init_cursor",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "PAR",
+  "subform": "init_invariant",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "action",
+      "name": "importGenesisBatch (owner)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:226-252",
+      "expect": "function importGenesisBatch",
+      "doc": "currently coverage debt; needs a pre-genesis initial state"
+    },
+    {
+      "kind": "guard",
+      "name": "checks l1MessagePopped == 0 but not totalL1MessagePopped",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:237",
+      "expect": "l1 message popped should be 0",
+      "doc": "the gap"
+    },
+    {
+      "kind": "register",
+      "name": "L1MessageQueue.pendingQueueIndex (P)",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:46",
+      "expect": "pendingQueueIndex",
+      "doc": "already modelled as qpend"
+    },
+    {
+      "kind": "register",
+      "name": "header totalL1MessagePopped field read by every later commit",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "expect": "getTotalL1MessagePopped",
+      "doc": "P = total(h_LFI) is the D4 invariant base case"
+    }
+  ],
+  "premises": [
+    {
+      "name": "CF_keccak_headers",
+      "kind": "collision_freedom",
+      "text": "CF(keccak256, S) for the finite set S of headers and presented headers in the trace (Cor 6.16); premise, never an axiom"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "the genesis import (pre-genesis initial state, owner action)"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "g",
+        "type": "Act"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "is_importGenesisBatch",
+            "args": [
+              {
+                "var": "g"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "runs_ok",
+            "args": [
+              {
+                "trace": [
+                  {
+                    "var": "g"
+                  }
+                ]
+              },
+              {
+                "s0": {
+                  "pre_genesis": true
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "total_of",
+          "args": [
+            {
+              "var": "g"
+            }
+          ]
+        },
+        {
+          "obsv": "qpend",
+          "of": {
+            "run": {
+              "trace": [
+                {
+                  "var": "g"
+                }
+              ]
+            },
+            "from": {
+              "s0": {
+                "pre_genesis": true
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": "D4 (P = total(h_LFI) <= T <= L) is proved for every transition given initialization; this law is the base case. The genesis header's totalL1MessagePopped is unconstrained, so the invariant can be false from block one.",
+  "maps_to": "O9 (F12.4)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "genesis header with totalL1MessagePopped = 5, queue empty (P = 0): import succeeds; the first commit reads total = 5 and _loadL1MessageHashes / popCrossDomainMessage start at index 5.",
+  "prediction_origin": "derived"
+}

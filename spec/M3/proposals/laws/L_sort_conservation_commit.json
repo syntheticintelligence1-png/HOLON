@@ -1,0 +1,101 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort_conservation_commit",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "SORT",
+  "subform": "conservation",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "carrier",
+      "name": "Rollup ETH balance and msg.value environment carrier",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:148",
+      "expect": "receive() external payable",
+      "doc": "receive also admits unaccounted value (D8 annotation)"
+    },
+    {
+      "kind": "action",
+      "name": "commitBatch is payable; msg.value is never read",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-257",
+      "expect": "external payable override onlyActiveSubmitter",
+      "doc": "inflow without a ledger entry"
+    },
+    {
+      "kind": "register",
+      "name": "accounted outflows: batchChallengeReward, proveRemaining",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:82-97",
+      "expect": "batchChallengeReward",
+      "doc": "ledger"
+    },
+    {
+      "kind": "action",
+      "name": "claimReward / claimProveRemaining / _transfer",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:672-678",
+      "expect": "function claimReward",
+      "doc": "outflows"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    }
+  ],
+  "scope": {
+    "kind": "bounded(H)",
+    "domain": "Rollup ETH balance versus the sum of challenge deposits held, batchChallengeReward and proveRemaining"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "balance",
+          "of": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "fn": "accounted_total",
+          "args": [
+            {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Conservation (§7.5): every inflow is accounted for. commitBatch{value: v} increases the balance with no register tracking v; the value is recoverable only through the owner's claimProveRemaining mis-accounting or is stuck.",
+  "maps_to": "O30 (F13)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "commitBatch with msg.value = 1 wei: balance = accounted_total + 1 afterwards.",
+  "prediction_origin": "derived"
+}

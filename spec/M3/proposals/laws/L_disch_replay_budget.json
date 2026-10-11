@@ -1,0 +1,151 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_disch_replay_budget",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "DISCH",
+  "subform": "blocked_invariant",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "register",
+      "name": "replayStates[h].times (uint128), maxReplayTimes",
+      "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:54-57",
+      "expect": "maxReplayTimes",
+      "doc": "guard registers"
+    },
+    {
+      "kind": "guard",
+      "name": "require(times < maxReplayTimes)",
+      "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:226",
+      "expect": "Exceed maximum replay times",
+      "doc": "kappa"
+    },
+    {
+      "kind": "edge",
+      "name": "times only increases, by anyone (replayMessage is permissionless)",
+      "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:228",
+      "expect": "_replayState.times += 1",
+      "doc": "Write*_X on times is monotone"
+    },
+    {
+      "kind": "action",
+      "name": "updateMaxReplayTimes onlyOwner",
+      "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:263-269",
+      "expect": "function updateMaxReplayTimes",
+      "doc": "the only write outside X"
+    },
+    {
+      "kind": "register",
+      "name": "__isL1MessageDropped is never written: dropping is not an alternative exit",
+      "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:45",
+      "expect": "__isL1MessageDropped",
+      "doc": "no discharge path for the sender"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "principal class X = everyone except the messenger owner; guard kappa = replayStates[h].times >= maxReplayTimes"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "State"
+      },
+      {
+        "q": "forall",
+        "name": "q",
+        "type": "Trace"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "reach",
+            "args": [
+              {
+                "var": "s"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "replay_exhausted",
+            "args": [
+              {
+                "var": "s"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "no_owner_action",
+            "args": [
+              {
+                "var": "q"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "replay_exhausted",
+          "args": [
+            {
+              "run": {
+                "var": "q"
+              },
+              "from": {
+                "var": "s"
+              }
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Thm 6.10 blocking theorem: Read(kappa) ∩ Write*_X = {times}, which X can only push further past the bound; Dep(Sat) = {maxReplayTimes} ∉ Write*_X. Third parties can spend the budget (replayMessage is permissionless), after which the sender is blocked until the owner acts. PROVED here means the blocking invariant holds, i.e. the finding stands.",
+  "maps_to": "O34 (F8)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "PROVED (blocking invariant)",
+  "witness_or_proof": "invariant replayStates[h].times >= maxReplayTimes preserved by every X-action and by time",
+  "prediction_origin": "derived"
+}

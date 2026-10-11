@@ -1,0 +1,93 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_sort_width_l1",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "SORT",
+  "subform": "width",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": null,
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "register",
+      "name": "BatchData.l1TxNum uint16, blockNum uint16",
+      "src": "common/batch/batch_data.go:16-17",
+      "expect": "l1TxNum       uint16",
+      "doc": "width-16 realization of Cnt[queue]"
+    },
+    {
+      "kind": "edge",
+      "name": "l1TxNum += uint16(len(l1TxHashes)) per block",
+      "src": "common/batch/batch_data.go:41",
+      "expect": "uint16(len(l1TxHashes))",
+      "doc": "truncating sum"
+    },
+    {
+      "kind": "edge",
+      "name": "per-block context numTxs/numL1Messages as uint16 casts",
+      "src": "common/batch/batch_cache.go:1846-1849",
+      "expect": "uint16(l1MsgNum)",
+      "doc": "second truncation site"
+    },
+    {
+      "kind": "register",
+      "name": "header L1MessagePopped is uint64 from totals",
+      "src": "common/batch/batch_cache.go:1705-1709",
+      "expect": "l1MessagePopped := bc.totalL1MessagePopped - parentBatchHeaderTotalL1",
+      "doc": "the two copies disagree after wrap"
+    },
+    {
+      "kind": "carrier",
+      "name": "on-chain numL1Messages is uint16",
+      "src": "contracts/contracts/l1/rollup/IRollup.sol:20",
+      "expect": "uint16 numL1Messages",
+      "doc": "the ABI cannot carry >= 65536"
+    }
+  ],
+  "premises": [],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "BatchData accumulators (Nat semantics vs uint16 realization)"
+  },
+  "statement": {
+    "forall": [
+      {
+        "name": "bd",
+        "type": "BatchData"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "call": "l1TxNum",
+          "args": [
+            {
+              "var": "bd"
+            }
+          ]
+        },
+        {
+          "call": "count_l1_hashes",
+          "args": [
+            {
+              "var": "bd"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Width obligation (§7.6): Σ n_l1 over the batch is realized in 16 bits in two places while the header field is 64-bit. Reach: anyone grows the queue; the sequencer includes messages per block.",
+  "maps_to": "O28 (F12.7)",
+  "evidence": [
+    "E4"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "bd with 65536 L1 message hashes across its blocks: l1TxNum == 0, count_l1_hashes == 65536; header L1MessagePopped = 65536 while dataHash was computed with l1TxNum = 0.",
+  "prediction_origin": "derived"
+}

@@ -1,0 +1,144 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_par_est_fastpath",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "PAR",
+  "subform": "branch_equality",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": null,
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "edge",
+      "name": "fast path in EstimateCompressedSizeWithNewPayload",
+      "src": "common/batch/batch_data.go:127",
+      "expect": "len(blobBytes) <= limit",
+      "doc": "returns 'fits' without compressing"
+    },
+    {
+      "kind": "edge",
+      "name": "fast path in WillExceedCompressedSizeLimit",
+      "src": "common/batch/batch_data.go:153",
+      "expect": "len(combinedBytes) <= limit",
+      "doc": "same assumption"
+    },
+    {
+      "kind": "edge",
+      "name": "sealing checks the compressed length against capacity and errors when it does not fit",
+      "src": "common/batch/batch_cache.go:1616-1628",
+      "expect": "exceeds capacity",
+      "doc": "the branch the estimator must agree with"
+    },
+    {
+      "kind": "oracle",
+      "name": "zstd compressor",
+      "src": "common/codec/zstd",
+      "expect": "",
+      "doc": "HypZstd_nonexpanding is testable against the real compressor (A4)"
+    }
+  ],
+  "premises": [
+    {
+      "name": "HypZstd",
+      "kind": "oracle",
+      "text": "zstd.CompressBatchBytes as an oracle; the law splits on HypZstd_nonexpanding (|c(x)| <= |x| for all x). zstd frames add a header and block headers, so the hypothesis is expected false on incompressible input near the limit"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "fast path `if len(bytes) <= limit return false` of both estimators"
+  },
+  "statement": {
+    "forall": [
+      {
+        "name": "x",
+        "type": "Bytes"
+      },
+      {
+        "name": "k",
+        "type": "Nat"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "call": "le",
+            "args": [
+              {
+                "call": "len",
+                "args": [
+                  {
+                    "var": "x"
+                  }
+                ]
+              },
+              {
+                "call": "mul",
+                "args": [
+                  {
+                    "var": "k"
+                  },
+                  {
+                    "bytes": "126976"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "call": "le",
+          "args": [
+            {
+              "call": "len",
+              "args": [
+                {
+                  "call": "zstd",
+                  "args": [
+                    {
+                      "var": "x"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "call": "mul",
+              "args": [
+                {
+                  "var": "k"
+                },
+                {
+                  "bytes": "126976"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Branch-equality between the estimator's fast path and the sealing path's actual compressed length. Stated parametric in the compressor; status is SPLIT until HypZstd_nonexpanding is tested.",
+  "maps_to": "O5 (F9)",
+  "evidence": [
+    "E4"
+  ],
+  "predicted": "REFUTED (conditional on not HypZstd_nonexpanding)",
+  "witness_or_proof": "incompressible x with len(x) = k*126976 - 1: fast path says fit, zstd(x) is longer than x by the frame overhead, sealing fails.",
+  "prediction_origin": "derived"
+}

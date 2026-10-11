@@ -1,0 +1,223 @@
+{
+  "milestone": "M3",
+  "status": "proposal: preregistered before any M3 model, generator or proof exists; not frozen",
+  "source": "whitepaper §11.8 lists predictions only for M0/M1 laws; none of the laws below has a §11.8 row, so every prediction is derived from the §11.3 obstruction table and the cited source and is marked origin = derived",
+  "laws": [
+    {
+      "law_id": "L_dom_router",
+      "rule": "PAR",
+      "maps_to": "O3 (F14)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "commitBatch with version v for which latestVerifier[v].verifier == address(0) (e.g. v = 0 after only v1/v2 verifiers were registered), then challengeState; proveState reverts in getVerifier / in the call to address(0); after W the challenger wins by timeout.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_tot_retrieve",
+      "rule": "PAR",
+      "maps_to": "O4 (F3)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "blob with blob[3968*32] != 0 and canonical elements 0..3967: common/blob returns an error, common/batch panics (index 126976 out of range for length 126976).",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_par_est_contexts",
+      "rule": "PAR",
+      "maps_to": "O5 (F9)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "bd with len(blockContexts) > 0 and payload sized so that len(tx)+len(txsPayload) <= k*126976 < len(ctx)+len(tx)+len(txsPayload): estimate says fit, will_exceed says exceed.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_par_est_fastpath",
+      "rule": "PAR",
+      "maps_to": "O5 (F9)",
+      "predicted": "REFUTED (conditional on not HypZstd_nonexpanding)",
+      "witness_or_proof": "incompressible x with len(x) = k*126976 - 1: fast path says fit, zstd(x) is longer than x by the frame overhead, sealing fails.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_par_datahash_legacy",
+      "rule": "PAR",
+      "maps_to": "O6 (F12.6)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "any bd with blockNum >= 1: the legacy preimage (58-byte context prefixes) differs from the on-chain preimage (8+2 bytes), so the hashes differ except on a keccak collision (excluded by CF).",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_par_lbn_cycle",
+      "rule": "PAR",
+      "maps_to": "O7 (F11b,c)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "payload whose contexts carry numbers parent.lbn+5 .. parent.lbn+5+count-1 with header lbn = parent.lbn+count: derivation accepts; derived first block != parent.lbn+1 and last != lbn.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_par_l1count",
+      "rule": "PAR",
+      "maps_to": "F11 (L1 counts discarded); no O row",
+      "predicted": "REFUTED",
+      "witness_or_proof": "payload contexts with Σ l1MsgNum = n+1 under a header with numL1Messages = n: both accepted; finalizeBatch pops n, derivation consumed n+1.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_cons_trailing",
+      "rule": "PAR",
+      "maps_to": "O8 (F11a)",
+      "predicted": "SPLIT on HypC (UNKNOWN until the oracle hypothesis is tested)",
+      "witness_or_proof": "x = valid txs || 0x00; y = x || garbage: derive_txs equal; circuit_accepts(y) depends on HypC.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_init_cursor",
+      "rule": "PAR",
+      "maps_to": "O9 (F12.4)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "genesis header with totalL1MessagePopped = 5, queue empty (P = 0): import succeeds; the first commit reads total = 5 and _loadL1MessageHashes / popCrossDomainMessage start at index 5.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_intent_docs",
+      "rule": "intent",
+      "maps_to": "O10 (F12.8)",
+      "predicted": "INTENT_QUESTION (not a theorem; no PROVED/REFUTED outcome)",
+      "witness_or_proof": "n/a",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_nat_cutover_slash",
+      "rule": "NAT",
+      "maps_to": "O13 (F10)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "p: legacy commit(i) by S (staked only in the old registry); eta4; q: challengeState(i); wait W; proveState(i) timeout -> slash(S) returns 0; natively the same q slashes S's stake.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_nat_cutover_defend",
+      "rule": "NAT",
+      "maps_to": "O14 (N4)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "p: legacy commit(i) by S; eta4; q: challengeState(i); proveState(i) by S reverts 'only active submitter allowed' after migration, succeeds natively.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_nat_enq",
+      "rule": "NAT",
+      "maps_to": "O16 (F7)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "p: legacy sendMessage at time t0; wait D+1: natively kappa holds and commitBatch(n=0) reverts 'l1msg delay'; migrated: enq == 0, predicate returns t, commitBatch(n=0) succeeds.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_sym_tau_enq",
+      "rule": "SYM",
+      "maps_to": "O21 (F7)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "s with pendingQueueIndex < length and enq[P] = 0: lhs = t + d (sentinel branch), rhs = t + d only if enq[P] + d == t + d, i.e. never for legacy entries.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_nat_bvh_unpinned",
+      "rule": "NAT",
+      "maps_to": "O17 (new, benign)",
+      "predicted": "REFUTED (benign)",
+      "witness_or_proof": "p: legacy commit(i); eta_bvh; q: revert(i); commitBatch(i, beta') succeeds migrated, reverts natively ('requires no stored blob hash').",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_nat_eta34",
+      "rule": "NAT",
+      "maps_to": "O18 (A15)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "p = [] ; eta4 alone: D = 0; eta3;eta4: D = 1. Observable: commitBatch(n = 0) with a pending message reverts 'l1msg delay' only in the first.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_sym_pi_zero",
+      "rule": "SYM",
+      "maps_to": "O20 (F5)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "commitBatchWithProof(i); challengeState(j != i) (f_i += W); challengeState(i) once the first challenge resolves; wait W; proveState(i) -> timeout -> slash(address(0)) == 0.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_fact_pih_lbn",
+      "rule": "FACT",
+      "maps_to": "O23 (F11d)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "h, h2 differing only in parentBatchHash (bytes 217..249): identical public input, distinct parents.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_fact_v0_ctx",
+      "rule": "FACT",
+      "maps_to": "O24 (F11f)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "tx, tx2 with equal header and blob, calldata contexts differing in a block timestamp or gas limit: equal commitments, different derived blocks.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_sort_bearer_recommit",
+      "rule": "SORT",
+      "maps_to": "O25 (N3)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "commitBatch(i) by S1 with blob beta; revertBatch(i); commitState(i) by S2: chooser = S1, bearer = S2.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_sort_width_l1",
+      "rule": "SORT",
+      "maps_to": "O28 (F12.7)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "bd with 65536 L1 message hashes across its blocks: l1TxNum == 0, count_l1_hashes == 65536; header L1MessagePopped = 65536 while dataHash was computed with l1TxNum = 0.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_sort_payer_replay",
+      "rule": "SORT",
+      "maps_to": "O29 (F8)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "replayMessage by caller C (not whitelisted) for origin O (whitelisted): fee = 0 although payer = C; symmetrically a whitelisted C pays the full fee for a non-whitelisted O.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_sort_conservation_commit",
+      "rule": "SORT",
+      "maps_to": "O30 (F13)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "commitBatch with msg.value = 1 wei: balance = accounted_total + 1 afterwards.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_disch_replay_budget",
+      "rule": "DISCH",
+      "maps_to": "O34 (F8)",
+      "predicted": "PROVED (blocking invariant)",
+      "witness_or_proof": "invariant replayStates[h].times >= maxReplayTimes preserved by every X-action and by time",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_disch_challenge_gas",
+      "rule": "DISCH",
+      "maps_to": "O35 (F1)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "s with LCI - LFI = k* + 1 reachable by k*+1 commits within one finalization period F: cost_challenge(s) > G.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_own_hdr_cache",
+      "rule": "OWN",
+      "maps_to": "O37 (F12.3)",
+      "predicted": "REFUTED",
+      "witness_or_proof": "any h with empty EncodedBytes: after h.Bytes(), h.EncodedBytes is still empty.",
+      "origin": "derived"
+    },
+    {
+      "law_id": "L_sort_version_monotone",
+      "rule": "SORT",
+      "maps_to": "F12 (downgrade); no O row, adjacent to O26",
+      "predicted": "REFUTED",
+      "witness_or_proof": "parent header version 2; commitBatch with version 0 succeeds (header length 249, lbn absent).",
+      "origin": "derived"
+    }
+  ]
+}

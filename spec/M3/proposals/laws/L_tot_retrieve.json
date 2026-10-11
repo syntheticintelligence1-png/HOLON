@@ -1,0 +1,86 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_tot_retrieve",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "PAR",
+  "subform": "totality",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "facts/morph_header.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "carrier",
+      "name": "Blob = [4096*32]byte with element high byte at i*32",
+      "src": "common/batch/blob.go:17",
+      "expect": "MaxBlobBytesSize = 4096 * 31",
+      "doc": "interface carrier of the derivation pipeline"
+    },
+    {
+      "kind": "edge",
+      "name": "common/batch.RetrieveBlobBytes (error path indexes data[i*32])",
+      "src": "common/batch/blob.go:45-54",
+      "expect": "data[i*32]",
+      "doc": "data has length 126976, so data[i*32] is out of range for i >= 3968: Go runtime panic instead of an error"
+    },
+    {
+      "kind": "edge",
+      "name": "common/blob.RetrieveBlobBytes (parallel implementation, indexes blob[i*32])",
+      "src": "common/blob/payload.go:43-52",
+      "expect": "blob[i*32], i)",
+      "doc": "the correct twin; the two paths must agree in definedness"
+    },
+    {
+      "kind": "consumer",
+      "name": "derivation ParseBatch calls the common/batch twin",
+      "src": "node/derivation/batch_info.go:116",
+      "expect": "commonbatch.RetrieveBlobBytes",
+      "doc": "the panicking implementation is the one on the node path"
+    }
+  ],
+  "premises": [],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "all 4096x32-byte blobs (R^ext: anything a blob transaction can carry)"
+  },
+  "statement": {
+    "forall": [
+      {
+        "name": "b",
+        "type": "Blob"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "call": "ok_retrieve_batch",
+          "args": [
+            {
+              "var": "b"
+            }
+          ]
+        },
+        {
+          "call": "ok_retrieve_blob",
+          "args": [
+            {
+              "var": "b"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Totality / parallel-path law over two implementations of the same edge. ok_* is 'returns (value or error) without a runtime panic'. With O11 (BVH pin) a reverted batch that carried a non-canonical blob is re-derived forever.",
+  "maps_to": "O4 (F3)",
+  "evidence": [
+    "E3"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "blob with blob[3968*32] != 0 and canonical elements 0..3967: common/blob returns an error, common/batch panics (index 126976 out of range for length 126976).",
+  "prediction_origin": "derived"
+}

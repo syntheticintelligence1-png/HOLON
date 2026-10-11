@@ -1,0 +1,110 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_cons_trailing",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "PAR",
+  "subform": "consumer_agreement",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": null,
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "consumer",
+      "name": "DecodeTxsFromBytes stops at type byte 0x00; trailing bytes ignored",
+      "src": "common/batch/blob.go:131-133",
+      "expect": "if typeByte == 0",
+      "doc": "node consumer is tolerant"
+    },
+    {
+      "kind": "consumer",
+      "name": "ParseBatch passes the remainder of the stream to the decoder",
+      "src": "node/derivation/batch_info.go:201",
+      "expect": "DecodeTxsFromBytes(txsData)",
+      "doc": "entry point"
+    },
+    {
+      "kind": "oracle",
+      "name": "circuit payload semantics",
+      "src": "external: morph zk circuit (not in this checkout)",
+      "expect": "",
+      "doc": "HypC needs the circuit source or a differential test"
+    }
+  ],
+  "premises": [
+    {
+      "name": "HypC",
+      "kind": "oracle",
+      "text": "the zk circuit's acceptance predicate on the decompressed payload is an oracle predicate HypC; the law is parametric in it and splits: PROVED if the circuit stops at the 0x00 terminator like the node, REFUTED if it hashes the whole payload"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "decompressed tx payloads"
+  },
+  "statement": {
+    "forall": [
+      {
+        "name": "x",
+        "type": "Bytes"
+      },
+      {
+        "name": "y",
+        "type": "Bytes"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "call": "derive_txs",
+            "args": [
+              {
+                "var": "x"
+              }
+            ]
+          },
+          {
+            "call": "derive_txs",
+            "args": [
+              {
+                "var": "y"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "call": "circuit_accepts",
+          "args": [
+            {
+              "var": "x"
+            }
+          ]
+        },
+        {
+          "call": "circuit_accepts",
+          "args": [
+            {
+              "var": "y"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Two consumers of one committed payload (node derivation, circuit) must agree on which payloads mean the same blocks. The node's lossy fragment (trailing bytes after 0x00) is enumerated from evidence (Prop 6.11).",
+  "maps_to": "O8 (F11a)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "SPLIT on HypC (UNKNOWN until the oracle hypothesis is tested)",
+  "witness_or_proof": "x = valid txs || 0x00; y = x || garbage: derive_txs equal; circuit_accepts(y) depends on HypC.",
+  "prediction_origin": "derived"
+}

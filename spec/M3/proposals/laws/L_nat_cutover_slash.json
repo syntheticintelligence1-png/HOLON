@@ -1,0 +1,142 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_nat_cutover_slash",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "NAT",
+  "subform": "native_equivalence",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "migration",
+      "name": "eta4 = initialize4(newSubmitter, cutover): swaps submitterContract",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:209-219",
+      "expect": "function initialize4",
+      "doc": "in-flight types: batches committed under the old registry"
+    },
+    {
+      "kind": "action",
+      "name": "_challengerWin -> ISubmitter.slash(batchDataStore[i].submitter)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:803-809",
+      "expect": "ISubmitter(submitterContract).slash(submitter)",
+      "doc": "accounting is coverage debt in M1"
+    },
+    {
+      "kind": "edge",
+      "name": "Submitter.slash: reward = stakeOf[submitter] * pct / 100; 0 when unstaked",
+      "src": "contracts/contracts/l1/rollup/Submitter.sol:146-159",
+      "expect": "function slash",
+      "doc": "vacuous for addresses with no stake in the new registry"
+    },
+    {
+      "kind": "register",
+      "name": "BatchData.submitter recorded at commit",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371",
+      "expect": "submitter",
+      "doc": "the principal slashed"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    },
+    {
+      "name": "HypSub",
+      "kind": "oracle",
+      "text": "the new Submitter contract's stake table is an environment carrier: a legacy submitter has stakeOf == 0 there unless it re-stakes"
+    }
+  ],
+  "scope": {
+    "kind": "bounded(H)",
+    "domain": "traces q that challenge an in-flight legacy batch and reach _challengerWin"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "q",
+        "type": "Trace"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "in_flight_legacy",
+            "args": [
+              {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {
+                    "pre_cutover": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "mig": "eta4",
+            "of": {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {
+                  "pre_cutover": true
+                }
+              }
+            },
+            "args": []
+          }
+        },
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": "Naturality of eta4 for the slash edge: a legacy batch migrated across the cutover must be slashed like a batch the new code committed natively (bond at risk). Natively, onlyActiveSubmitter guarantees stake >= minimumStake in the new registry; migrated batches carry no such guarantee.",
+  "maps_to": "O13 (F10)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "p: legacy commit(i) by S (staked only in the old registry); eta4; q: challengeState(i); wait W; proveState(i) timeout -> slash(S) returns 0; natively the same q slashes S's stake.",
+  "prediction_origin": "derived"
+}
