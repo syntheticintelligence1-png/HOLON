@@ -94,10 +94,12 @@ def _checkout_head(morph: Path) -> str | None:
 def check(morph: Path, commit: str | None | _FactsTarget = FACTS_TARGET) -> dict:
     """Compare compute() with ZERO_VERSIONED_HASH (Rollup.sol) and EmptyVersionedHash (payload.go).
 
-    `commit` defaults to the facts' target commit. Unless `commit` is explicitly None, a morph
-    directory that is a git checkout must have HEAD equal to `commit`; otherwise the status is
-    "mismatch" and the actual HEAD is reported as "checkout_commit". A constant that is not found
-    has value None and makes the status "mismatch".
+    `commit` defaults to the facts' target commit. Unless `commit` is explicitly None, the morph
+    directory must be a git checkout whose HEAD is `commit` and whose two source files carry no
+    uncommitted change; otherwise the status is "mismatch", with the actual HEAD (None when the
+    directory is not a checkout) as "checkout_commit", and "dirty" when the files are modified.
+    Only commit=None (a fixture, not a claim about the target) skips that. A constant that is not
+    found has value None and makes the status "mismatch".
     """
     morph = Path(morph)
     if isinstance(commit, _FactsTarget):
@@ -107,11 +109,18 @@ def check(morph: Path, commit: str | None | _FactsTarget = FACTS_TARGET) -> dict
     go = _find(morph, GO_PATH, GO_RE)
     ok = sol["value"] == want and go["value"] == want
     rec = {"computed": want, "solidity": sol, "go": go, "morph_commit": commit}
-    if commit is not None and (morph / ".git").exists():
-        head = _checkout_head(morph)
+    if commit is not None:
+        head = _checkout_head(morph) if (morph / ".git").exists() else None
         if head != commit:
             rec["checkout_commit"] = head
             ok = False
+        else:
+            import subprocess
+            p = subprocess.run(["git", "-C", str(morph), "status", "--porcelain", "--", SOL_PATH, GO_PATH],
+                               capture_output=True, text=True, env={**__import__("os").environ, "GIT_OPTIONAL_LOCKS": "0"})
+            if p.returncode != 0 or p.stdout.strip():
+                rec["dirty"] = p.stdout.strip() or p.stderr.strip()[:200]
+                ok = False
     rec["status"] = "checked" if ok else "mismatch"
     return rec
 

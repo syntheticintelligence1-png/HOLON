@@ -115,6 +115,7 @@ The list below is the original text, corrected where it was wrong.
   - The constant is at Rollup.sol:25, not :24.
   - The original text said the value was "oracle-checked". No code in the repo performed that check. The value was recomputed by hand on 2026-10-11 and matches.
   - A checked test arrives with I3 (`docs/BUILD_PLAN.md`).
+  - **Update (I3, 2026-10-11).** `holon/oracles/zero_blob.py` now computes the value and compares it with both constants on a clean checkout at the target commit. The result, `checked`, is in `results/M2/hypotheses.json`.
 - **Oracles.** ISubmitter and the verifier are oracles (stand-ins above). keccak over blob hashes (version 2) is an injective stand-in `agg`. Replay uses real keccak, and outcomes agreed.
 - **Index specialization.** Reads of per-batch registers above LCI go through the shadow only for `batchBlobVersionedHashes`. Every other read follows a guard that established `idx ≤ LCI`. This is documented per guard in the facts and exercised by the random corpus.
 - **Representative state for DISCH-delay.** The profile is computed at s*, a reachable representative of the guard class: one message, included, delay window passed, finalization pending. The profile is per state (Def 6.20), not global.

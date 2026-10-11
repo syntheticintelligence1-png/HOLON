@@ -88,9 +88,29 @@ def _check(d: Path, name: str, laws_text: str, proof_text: str, cfg: dict) -> tu
 
 
 # ---------------------------------------------------------------- holon-ir/0.2
+DEFAULTS = {"Trace": [], "Nat": 0, "Bool": False}
+
+
+def _vars(t) -> set[str]:
+    if isinstance(t, dict):
+        return ({t["var"]} if "var" in t else set()) | set().union(*(_vars(v) for v in t.values()))
+    if isinstance(t, list):
+        return set().union(*(_vars(v) for v in t)) if t else set()
+    return set()
+
+
+def free_binders(law: dict) -> list[dict]:
+    """Binders no premise mentions and whose type has a default value: any value inhabits them."""
+    used = _vars(law["statement"].get("assume", []))
+    return [b for b in law["statement"]["binders"] if b["name"] not in used and b["type"] in DEFAULTS]
+
+
 def search_law(law: dict) -> dict:
-    """The parent with its claim replaced, so any refutation the search finds satisfies the premises."""
+    """The parent with its claim replaced, so any refutation the search finds satisfies the premises;
+    binders no premise mentions are left out of the search (they get default values)."""
     s = copy.deepcopy(law)
+    free = {b["name"] for b in free_binders(law)}
+    s["statement"]["binders"] = [b for b in s["statement"]["binders"] if b["name"] not in free]
     states = [b["name"] for b in s["statement"]["binders"] if b["type"] == "State"]
     if len(states) >= 2:
         s["statement"]["claim"] = {"eq": [{"var": states[0]}, {"var": states[1]}]}
@@ -108,32 +128,58 @@ def inhabitant_ir(law: dict) -> dict:
                           "claim": {"all": prem} if len(prem) > 1 else prem[0]}}
 
 
-def _inhabit_02(law: dict, root: Path, out_dir: Path, cfg: dict, cm, out: dict) -> dict:
+MODEL_IMPORT = "../../model/{}.bend"   # an inhabitant lives in <gen>/<law>/nonvac/, the model in <gen>/model/
+
+
+def texts_02(law: dict, machine, model_stem: str, witness: dict) -> tuple[str, str, str]:
+    """(law name, LAWS.bend, PROOF.bend) of a holon-ir/0.2 inhabitant: a pure function of the frozen
+    IR, the model and the witness, so G11V can regenerate and compare both files."""
     from .gen import mlaws, mproofs
+    imp = MODEL_IMPORT.format(model_stem)
+    em = mlaws.Emitter(machine).emit(inhabitant_ir(law), imp,
+                                     note=f"non-vacuity of {law['law_id']} ({ir.statement_hash(law)})")
+    proof = mproofs.evaluate(em, machine, imp, witness)
+    if proof is None:
+        raise ValueError("no evaluation proof for the inhabitant")
+    return em.name, em.text, proof
+
+
+def degenerate(cm, law: dict, witness: dict) -> bool | None:
+    """True when the first two state binders are equal, decided on the compiled model."""
+    states = [b["name"] for b in law["statement"]["binders"] if b["type"] == "State"]
+    if len(states) < 2:
+        return None
+    sl = search_law(law)
+    ev = cm.evaluate(sl, {b["name"]: witness[b["name"]] for b in sl["statement"]["binders"]})
+    return bool(ev["claims"][0])
+
+
+def _inhabit_02(law: dict, root: Path, out_dir: Path, cfg: dict, cm, out: dict) -> dict:
+    from .gen import mlaws
     if any(b["q"] != "forall" for b in law["statement"]["binders"]):
         return {**out, "bound": "not attempted: only universal laws with premises need an inhabitant"}
-    r = cm.explore(search_law(law))
+    sl = search_law(law)
+    r = cm.explore(sl, {"noPerturb": True})  # first: only reachable states (run(p, s0))
+    first = r.get("bound")
+    if r.get("witness") is None:
+        r = cm.explore(sl)                    # then constructed states too (recorded as unreachable)
     w = r.get("witness")
     if w is None:
         return {**out, "bound": r.get("bound") or "no assignment satisfying the premises in the searched space"}
-    syn = inhabitant_ir(law)
-    imp = f"../../model/{Path(cm.source).stem}.bend"
+    w = {**w, **{b["name"]: DEFAULTS[b["type"]] for b in free_binders(law)}}
     try:
-        em = mlaws.Emitter(cm.m).emit(syn, imp, note=f"non-vacuity of {law['law_id']} ({ir.statement_hash(law)})")
-    except mlaws.Unsupported as e:
-        return {**out, "bound": f"inhabitant inexpressible: {e}"}
-    proof = mproofs.evaluate(em, cm.m, imp, w)
-    if proof is None:
-        return {**out, "bound": "no evaluation proof for the inhabitant"}
-    ok, why = _check(out_dir / NV, em.name, em.text, proof, cfg)
+        name, laws_text, proof = texts_02(law, cm.m, Path(cm.source).stem, w)
+    except (mlaws.Unsupported, ValueError) as e:
+        return {**out, "witness": w, "bound": f"inhabitant inexpressible: {e}"}
+    ok, why = _check(out_dir / NV, name, laws_text, proof, cfg)
     if not ok:
         shutil.rmtree(out_dir / NV, ignore_errors=True)
         return {**out, "witness": w, "bound": why}
     states = [b["name"] for b in law["statement"]["binders"] if b["type"] == "State"]
+    reach = all(set(w[x]) == {"run"} for x in states) if states else None
+    note = r.get("bound") if reach is not False else f"no reachable inhabitant within ({first}); constructed states"
     return {**out, "status": "inhabited", "law": _rel(out_dir / NV / "LAWS.bend", root), "witness": w,
-            "reachable": all(set(w[s]) == {"run"} for s in states) if states else None,
-            "degenerate": (w[states[0]] == w[states[1]]) if len(states) >= 2 else None,
-            "bound": r.get("bound")}
+            "reachable": reach, "degenerate": degenerate(cm, law, w), "bound": note}
 
 
 # ---------------------------------------------------------------- holon-ir/0.1
@@ -150,36 +196,47 @@ def pins_of(law: dict) -> dict[tuple[str, str], str] | None:
     return pins
 
 
-def _inhabit_01(law: dict, m: str, root: Path, out_dir: Path, cfg: dict, out: dict) -> dict:
+def pin_witness(law: dict, facts: dict) -> dict:
+    widths = F.widths(facts)
+    pins = pins_of(law)
+    return {b["name"]: {f["name"]: pins.get((b["name"], f["name"]), "0x" + "00" * widths[f["name"]])
+                        for f in F.header_fields(facts)} for b in law["statement"]["forall"]}
+
+
+def texts_01(law: dict, facts: dict, model_stem: str, witness: dict) -> tuple[str, str, str]:
+    """(law name, LAWS.bend, PROOF.bend) of a holon-ir/0.1 inhabitant (pins through the getters)."""
     from .gen import proofs as PG
-    from .model_eval import model_name
-    fpath = root / ir.load_registry(m, root).get("facts", "facts/morph_header.json")
-    facts = F.load(fpath)
     binders = law["statement"]["forall"]
     pins = pins_of(law)
-    if pins is None or any(b["type"] != "Header" for b in binders):
-        return {**out, "bound": "premise form not supported by the holon-ir/0.1 inhabitant generator"}
-    widths = F.widths(facts)
-    w = {b["name"]: {f["name"]: pins.get((b["name"], f["name"]), "0x" + "00" * widths[f["name"]])
-                     for f in F.header_fields(facts)} for b in binders}
     name = law_name(law["law_id"])
+    imp = MODEL_IMPORT.format(model_stem)
     lines = [f"# GENERATED by holon.inhabit: non-vacuity inhabitant of {law['law_id']} ({ir.statement_hash(law)}).",
-             "import Base", f"import ../../model/{model_name(fpath)}.bend as M", "", f"law {name}:"]
+             "import Base", f"import {imp} as M", "", f"law {name}:"]
     lines += [f"  exs {b['name']}: M.Hdr" for b in binders]
     props = []
     for (v, f), hexv in sorted(pins.items()):
         bs = ", ".join(str(x) for x in bytes.fromhex(hexv[2:]))
         props.append(f"{{M.get_{f}({v}) == [{bs}] : List<&2, U32>}}")
     lines += [f"  exs c{i}: {p}" for i, p in enumerate(props[:-1])] + [f"  {props[-1]}"]
-    laws_text = "\n".join(lines) + "\n"
-    parts = [PG.literal("Header", w[b["name"]], facts) for b in binders] + ["{==}"] * len(props)
+    parts = [PG.literal("Header", witness[b["name"]], facts) for b in binders] + ["{==}"] * len(props)
     tup = parts[-1]
     for p in reversed(parts[:-1]):
         tup = f"({p}, {tup})"
     proof = "\n".join(["# GENERATED by holon.inhabit; accepted only if Bend checks it.", "import Base",
-                       f"import ../../model/{model_name(fpath)}.bend as M", "import ./LAWS.bend as Laws", "",
+                       f"import {imp} as M", "import ./LAWS.bend as Laws", "",
                        "# class evaluate: the pin header, then every premise by computation",
                        f"def Laws.{name}():", f"  {tup}"]) + "\n"
+    return name, "\n".join(lines) + "\n", proof
+
+
+def _inhabit_01(law: dict, m: str, root: Path, out_dir: Path, cfg: dict, out: dict) -> dict:
+    from .model_eval import model_name
+    fpath = root / ir.load_registry(m, root).get("facts", "facts/morph_header.json")
+    facts = F.load(fpath)
+    if pins_of(law) is None or any(b["type"] != "Header" for b in law["statement"]["forall"]):
+        return {**out, "bound": "premise form not supported by the holon-ir/0.1 inhabitant generator"}
+    w = pin_witness(law, facts)
+    name, laws_text, proof = texts_01(law, facts, model_name(fpath), w)
     ok, why = _check(out_dir / NV, name, laws_text, proof, cfg)
     if not ok:
         shutil.rmtree(out_dir / NV, ignore_errors=True)
@@ -189,12 +246,29 @@ def _inhabit_01(law: dict, m: str, root: Path, out_dir: Path, cfg: dict, out: di
 
 
 # ---------------------------------------------------------------- G11V
+def _body(text: str) -> str:
+    return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#")).strip() + "\n"
+
+
+def expected_texts(law: dict, m: str, root: Path, rec: dict) -> tuple[str, str, str]:
+    """The inhabitant files G11V expects, regenerated from the frozen IR and the recorded witness."""
+    root = Path(root)
+    model = Path(rec["artifacts"]["model"]).stem
+    if law["ir_version"] == "holon-ir/0.1":
+        fpath = root / ir.load_registry(m, root).get("facts", "facts/morph_header.json")
+        return texts_01(law, F.load(fpath), model, rec["non_vacuity"]["witness"])
+    from .gen.machine import Machine
+    return texts_02(law, Machine(F.load(root / law["facts"])), model, rec["non_vacuity"]["witness"])
+
+
 def premise_mismatch(law: dict, m: str, root: Path, laws_text: str) -> str | None:
-    """None when the inhabitant states exactly the parent's premises, else why not."""
+    """None when the inhabitant's premises are exactly the parent's (comments ignored), else why not.
+    A coarse check kept for the tests; G11V compares whole regenerated files."""
+    text = _body(laws_text)
     name = law_name(law["law_id"])
-    if _LAW.findall(laws_text) != [name]:
-        return f"states {_LAW.findall(laws_text)}, expected [{name}]"
-    body = laws_text[laws_text.index(f"law {name}:"):]
+    if _LAW.findall(text) != [name]:
+        return f"states {_LAW.findall(text)}, expected [{name}]"
+    body = text[text.index(f"law {name}:"):]
     if law["ir_version"] == "holon-ir/0.1":
         got = {(v, f): "0x" + bytes(int(x) for x in bs.split(",") if x.strip()).hex()
                for f, v, bs in _GETTER.findall(body)}
@@ -208,6 +282,9 @@ def premise_mismatch(law: dict, m: str, root: Path, laws_text: str) -> str | Non
 
 def g11v(gate) -> tuple[bool, str]:
     """Gate check G11V over a Gate instance (holon.gate)."""
+    from .mpipeline import CompiledMachine
+    machines: dict = {}
+    dual = bend.verdict_enabled(gate.cfg)
     bad, n_inh, n_cw = [], 0, 0
     for law in ir.load_laws_any(gate.m, gate.root):
         lid = law["law_id"]
@@ -235,24 +312,49 @@ def g11v(gate) -> tuple[bool, str]:
         if nv.get("status") != "inhabited":
             bad.append(f"{lid}: premised PROVED law without an inhabitant ({nv.get('bound')})")
             continue
-        p = Path(nv["law"])
-        p = p if p.is_absolute() else gate.root / p
-        if not p.exists() or not (p.parent / "PROOF.bend").exists():
-            bad.append(f"{lid}: inhabitant files missing")
+        d = gate.root / "gen" / gate.m / lid / NV
+        files = sorted(f.name for f in d.iterdir()) if d.is_dir() else []
+        if files != ["LAWS.bend", "PROOF.bend"]:
+            bad.append(f"{lid}: inhabitant directory holds {files}, expected exactly LAWS.bend and PROOF.bend")
             continue
-        why = premise_mismatch(law, gate.m, gate.root, p.read_text())
-        if why:
-            bad.append(f"{lid}: inhabitant {why}")
+        try:
+            name, want_laws, want_proof = expected_texts(law, gate.m, gate.root, rec)
+        except Exception as e:  # noqa: BLE001
+            bad.append(f"{lid}: inhabitant cannot be regenerated from its IR and witness: {e}")
             continue
-        r = bend.check(p.parent / "PROOF.bend", gate.cfg)
+        laws_text, proof_text = (d / "LAWS.bend").read_text(), (d / "PROOF.bend").read_text()
+        if _body(laws_text) != _body(want_laws):
+            bad.append(f"{lid}: inhabitant LAWS.bend is not the one generated from the parent's IR")
+            continue
+        if _body(proof_text) != _body(want_proof):
+            bad.append(f"{lid}: inhabitant PROOF.bend is not the evaluation proof of the recorded witness")
+            continue
+        if bend.escape_hatches(laws_text + proof_text):
+            bad.append(f"{lid}: inhabitant uses an escape hatch")
+            continue
+        states = [b["name"] for b in law["statement"].get("binders", []) if b["type"] == "State"]
+        if states:
+            if nv.get("reachable") is not True:
+                bad.append(f"{lid}: inhabitant states are not all reachable (run(p, s0))")
+                continue
+            if len(states) >= 2:
+                fp = gate.root / law["facts"]
+                if fp not in machines:
+                    machines[fp] = CompiledMachine.build(fp, gate.cfg)
+                if degenerate(machines[fp], law, nv["witness"]) is not False:
+                    bad.append(f"{lid}: inhabitant is degenerate (its two states are equal)")
+                    continue
+        r = bend.check(d / "PROOF.bend", gate.cfg)
         if not r.ok:
             bad.append(f"{lid}: inhabitant rejected by bend: {r.first_line}")
             continue
-        if bend.verdict_enabled(gate.cfg):
-            v = bend.check_verdict(p.parent / "PROOF.bend", gate.cfg)
+        if dual:
+            v = bend.check_verdict(d / "PROOF.bend", gate.cfg)
             if not v.ok:
                 bad.append(f"{lid}: inhabitant rejected by BendTT: {v.first_line}")
                 continue
         n_inh += 1
-    return (not bad, f"{n_inh} premised PROVED laws inhabited (dual-checked), {n_cw} premised REFUTED laws inhabited "
+    kernels = "dual-checked" if dual else "single-kernel: BendTT unavailable"
+    return (not bad, f"{n_inh} premised PROVED laws inhabited ({kernels}; regenerated from the IR and witness; "
+                     f"reachable and non-degenerate where states are involved), {n_cw} premised REFUTED laws inhabited "
                      "by their counter-law witnesses" if not bad else "; ".join(bad))

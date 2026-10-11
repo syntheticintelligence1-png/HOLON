@@ -102,7 +102,7 @@
           "id": "Hyp-Z0-kzg",
           "kind": "hypothesis",
           "source": "spec/M1/facts/morph_rollup.json#/params/Z",
-          "text": "Token Z stands for ZERO_VERSIONED_HASH (Rollup.sol:25), assumed equal to the KZG versioned hash of the all-zero blob, 0x01 || sha256(0xc0 || 0^47)[1:] (D2, whitepaper §11.6). The facts' constants_doc cites Rollup.sol:24 and says the value is oracle-checked by holon; no code in the repo performed that check before I3. Not the compression hypothesis HypZ of §8.5. laws/M1/L_fact_Z.json's notes repeat the wrong text (\"HypZ ... oracle-checked\", CF as a premise); the frozen-statement file is left untouched in I1 (its notes are not hashed) and corrected with the statement lifecycle (I10).",
+          "text": "Token Z stands for ZERO_VERSIONED_HASH (Rollup.sol:25), assumed equal to the KZG versioned hash of the all-zero blob, 0x01 || sha256(0xc0 || 0^47)[1:] (D2, whitepaper §11.6). The facts' constants_doc cites Rollup.sol:24 and says the value is oracle-checked by holon; no code in the repo performed that check before I3. Since I3 it is checked by holon/oracles/zero_blob.py against Rollup.sol:25 and common/blob/payload.go:22 (results/M2/hypotheses.json, status checked). Not the compression hypothesis HypZ of §8.5. laws/M1/L_fact_Z.json's notes repeat the wrong text (\"HypZ ... oracle-checked\", CF as a premise); the frozen-statement file is left untouched in I1 (its notes are not hashed) and corrected with the statement lifecycle (I10).",
           "introduced_by": ["d_blob_hash"]
         },
         {

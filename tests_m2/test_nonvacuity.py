@@ -123,6 +123,8 @@ class TestNonVacuity(unittest.TestCase):
             nv = I.inhabit(law, "M1", ROOT, out, cfg, cm=cm, rec=rec)
             self.assertEqual(nv["status"], "unknown")
             self.assertTrue(nv["bound"])
+            self.assertIsNone(nv["witness"], "unknown because no assignment satisfies the premises")
+            self.assertFalse(nv["bound"].startswith("bend rejected"), nv["bound"])
             self.assertFalse((out / "nonvac" / "PROOF.bend").exists())
         finally:
             shutil.rmtree(out, ignore_errors=True)

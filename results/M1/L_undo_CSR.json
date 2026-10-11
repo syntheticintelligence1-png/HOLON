@@ -11,20 +11,20 @@
       "generator": "noninterference",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.294
+      "seconds": 0.566
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.505
+      "seconds": 0.713
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.294
+    "seconds": 0.566
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -256,65 +256,62 @@
     "degenerate": false,
     "law": "gen/M1/L_undo_CSR/nonvac/LAWS.bend",
     "parent_statement_hash": "sha256:495a29ac6d11b350f95c4edc18fd0b7d9193c2f6a2f4b7e7a1d68156c221cf6b",
-    "reachable": false,
+    "reachable": true,
     "status": "inhabited",
     "witness": {
       "s1": {
-        "run": []
+        "run": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          },
+          {
+            "count": 1,
+            "idx": 1,
+            "op": "revertBatch",
+            "who": 1
+          },
+          {
+            "op": "sendMessage",
+            "who": 5
+          }
+        ]
       },
       "s2": {
-        "state": {
-          "$": "HSt",
-          "D": 20,
-          "F": 40,
-          "W": 10,
-          "active": [
-            2,
-            3
-          ],
-          "bc": 0,
-          "chals": [
-            4
-          ],
-          "chs": [],
-          "enq": [],
-          "fsr": [
-            100
-          ],
-          "inch": false,
-          "lfi": 0,
-          "log": [],
-          "paused": false,
-          "qlen": 0,
-          "qpend": 0,
-          "rri": 0,
-          "s_bd": [],
-          "s_bvh": [],
-          "s_csr": [
-            1
-          ],
-          "s_tag": [],
-          "t": 10,
-          "win": [
-            {
-              "$": "HEntry",
-              "bdf": 10,
-              "bdn": 0,
-              "bdo": 10,
-              "bds": 0,
-              "bvh": 1,
-              "csr": 100,
-              "hb": 1,
-              "lbn": 0,
-              "n": 0,
-              "post": 100,
-              "prev": 0,
-              "tag": 1,
-              "tot": 0,
-              "ver": 0
-            }
-          ]
-        }
+        "run": [
+          {
+            "op": "sendMessage",
+            "who": 5
+          },
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 111,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          },
+          {
+            "count": 1,
+            "idx": 1,
+            "op": "revertBatch",
+            "who": 1
+          }
+        ]
       },
       "tr": []
     }

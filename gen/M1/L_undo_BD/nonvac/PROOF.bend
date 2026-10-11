@@ -5,4 +5,4 @@ import ./LAWS.bend as Laws
 
 # class evaluate: witnesses (if any), then every conjunct by computation
 def Laws.nv_l_undo_bd():
-  (Nil{}, (M.run(Nil{}, M.s0()), (M.HSt{10n, 0n, False{}, 0n, 0n, False{}, 10n, 40n, 20n, 0n, 0n, Nil{}, [2n, 3n], [4n], [100n], Nil{}, [M.HEntry{0n, 0n, 0n, 1n, 0n, 100n, 0n, 100n, 1n, 1n, 10n, 10n, 0n, 0n}], Nil{}, [M.HBD{0n, 0n, 0n, 0n}], Nil{}, Nil{}, Nil{}}, {==})))
+  (Nil{}, (M.run([M.A_wait{21n}, M.A_commitBatch{2n, 1n, 0n, 0n, 1n, 100n, 111n, [17n]}, M.A_revertBatch{1n, 1n, 1n}], M.s0()), (M.run([M.A_wait{21n}, M.A_commitBatchWithProof{5n, 1n, 0n, 0n, 1n, 100n, 111n, [17n], 1n}, M.A_revertBatch{1n, 1n, 1n}], M.s0()), {==})))

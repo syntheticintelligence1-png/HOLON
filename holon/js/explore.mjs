@@ -159,12 +159,17 @@ function candidates(b, env) {
     return [...xs].sort((x, y) => x - y).map((n) => ({ ty: "Nat", v: BigInt(n), raw: n }));
   }
   if (b.type === "State") {
-    // premise-directed: s2 differs from an assigned s1 only in the fields a proj premise erases
+    // premise-directed: s2 agrees with an assigned s1 outside the fields a proj premise erases.
+    // Reachable states with the same projection come first (run(p, s0)); constructed perturbations
+    // of s1 only after them.
     for (const p of assume) {
       const [l, r] = p.eq;
       if (l.proj && r.proj && r.of.var === b.name && l.of.var && env[l.of.var]) {
         const base = dec(env[l.of.var].v);
-        return perturb(base, l.proj).map((st) => ({ ty: "State", v: enc(st), raw: { state: st } }));
+        const same = (prefixesByProj(l.proj).get(projKey(base, l.proj)) || [])
+          .map((q) => ({ ty: "State", v: q.state, raw: { run: q.trace } }));
+        if (B.noPerturb) return same;  // reachable pairs only (a first pass that prefers run(p, s0) witnesses)
+        return [...same, ...perturb(base, l.proj).map((st) => ({ ty: "State", v: enc(st), raw: { state: st } }))];
       }
     }
     // a prefix state is reachable: report it as the trace from s0 that reaches it (run(p, s0))
@@ -185,6 +190,19 @@ function zeroOf(ty) {
   const o = { $: "H" + ty };
   for (const [fn, ft] of rec.fields) o[fn] = zeroOf(ft);
   return o;
+}
+
+// the state with the erased fields removed, as a canonical key
+function projKey(st, fields) { const c = { ...st }; for (const f of fields) delete c[f]; return key(c); }
+const BY_PROJ = new Map();
+function prefixesByProj(fields) {
+  const k = fields.join(",");
+  if (!BY_PROJ.has(k)) {
+    const m = new Map();
+    for (const q of prefixes()) { const pk = projKey(dec(q.state), fields); if (!m.has(pk)) m.set(pk, []); m.get(pk).push(q); }
+    BY_PROJ.set(k, m);
+  }
+  return BY_PROJ.get(k);
 }
 
 function perturb(st, fields) {

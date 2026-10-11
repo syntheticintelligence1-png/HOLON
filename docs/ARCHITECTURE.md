@@ -11,7 +11,7 @@ laws/M0/*.json (frozen IR) ──holon.gen.laws──▶ gen/M0/<law>/LAWS.bend 
                  if Bend rejects: holon.refute (search on compiled model) ─▶ counter-law (exs, witness literal)
 Bend 2 (bend2) ─▶ PROVED / REFUTED / UNKNOWN ─▶ BendTT --verdict (Lean-proven kernel) ─▶ results/M0/*.json
 holon replay: witnesses ─▶ real Go (go test) + real Solidity (forge, harness inherits Rollup) ─▶ replay/M0/report.json
-holon gate:  GENV → G2 → G1 → G5 → G3 → G11 → G6 → G9 → G7 → G4 (canaries) ─▶ results/M0/gate_report.json
+holon gate:  GENV → G2 → G1 → G5 → G3 → G11 → G11V → G6 → G9 → G7 → G4 (canaries) ─▶ results/M0/gate_report.json
 ```
 
 | Whitepaper | Code | Notes |
@@ -26,7 +26,9 @@ holon gate:  GENV → G2 → G1 → G5 → G3 → G11 → G6 → G9 → G7 → G
 | §8.6 three outcomes, result records | `holon/pipeline.py`, `holon/records.py`, `schemas/result_record.schema.json`, `spec/schemas/result_record_v2.schema.json` | Records carry the statement hash, facts hash, premises, scope, kernel and verdict, artifacts, attempts, triage and replay. Since I1, records also carry the v2 fields of §4b. |
 | §8.7 refinement evidence by replay | `holon/replay.py`, `replay/M0/` | Go and Solidity harnesses read the witnesses from the records. A replay counts for a record only if the witness hash matches. |
 | §8.8 trusting the kernel | `holon/bend.py`, gate G4/G7 | Canaries (must be rejected for a *semantic* reason), a pinned version, and a Bun-config tamper guard. BendTT `--verdict` re-checks bend2's elaboration of the same file. It shares the front end, so dual-checked results are class `I1-shared`, not the independent `I2` of §8.8. A Lean re-proof is I9. |
-| §9.3 gate | `holon/gate.py` | GENV, G1, G2, G3, G4, G5, G6, G7, G9, G11. G6 binds REFUTED records to the committed replay report; the replays themselves run through `holon replay` and `tests/test_50_replay.py`. G8 (coverage) arrives with extraction (M2) and G10 with the intent lane (M5). Since I1, the G11 name check is not a non-vacuity check: G11V (I3) is. |
+| §9.3 gate | `holon/gate.py` | GENV, G1, G2, G3, G4, G5, G6, G7, G9, G11, G11V. G6 binds REFUTED records to the committed replay report; the replays themselves run through `holon replay` and `tests/test_50_replay.py`. G8 (coverage) arrives with extraction (M2) and G10 with the intent lane (M5). G11 checks only law names; non-vacuity is G11V (I3, `holon/inhabit.py`): every PROVED law that has premises has a dual-checked inhabitant. The inhabitant is regenerated from the parent's IR and the recorded witness, and must be reachable and non-degenerate where states are involved. |
+| §8.8 checker pin (I3) | `holon/bend.py fingerprint()`, GENV, `holon/checker_upgrade.py` | Pinned in `config/holon.json`. The fingerprint hashes the resolved checkout's HEAD, every `.ts`, `.lean` and `.bend` file under `bend2/`, and bun. GENV refuses a mismatch, an unresolvable override, a global bunfig, a `BENDTT` override, or a quarantine. Bend runs without `BUN_OPTIONS` and with `BEND_NO_TELEMETRY=1`. An accepted canary writes `results/quarantine.json`, an agent-writable tripwire. G5 enforces a per-file time budget. `python -m holon checker-upgrade` reports every record diff under a candidate checker. |
+| §11.6 D2 (I3) | `holon/oracles/zero_blob.py`, `results/M2/hypotheses.json` | `0x01 ‖ sha256(0xc0 ‖ 0^47)[1:]` equals ZERO_VERSIONED_HASH (Rollup.sol:25) and EmptyVersionedHash (common/blob/payload.go:22), checked on a clean checkout at the target commit. |
 | §9.4 statement freezing | `FROZEN.sha256`, `tools/freeze.py`, G2 | Provers and generators have no write path to `laws/`. |
 
 ## 2. M0 status: exit criteria (whitepaper §15.2)
