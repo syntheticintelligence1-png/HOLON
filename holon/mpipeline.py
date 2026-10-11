@@ -312,6 +312,10 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         status, em, r = "UNKNOWN", None, None
         bound = None
         try:
+            # {"reason": msg} terms resolve against THIS facts file's reasons
+            # table (facts_overrides honoured via machine_for's facts path);
+            # the record's hash/premises stay computed from the original law.
+            law = ir.resolve_law_reasons(law, cm.facts)
             E = mlaws.Emitter(cm.m)
             em = E.emit(law, imp, note=ir.statement_hash(law))
             exists = any(b["q"] == "exists" for b in law["statement"]["binders"])

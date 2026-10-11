@@ -1,0 +1,77 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_a2_pr_timeout_blocks_commit",
+    "laws": "gen/A2/L_a2_pr_timeout_blocks_commit/LAWS.bend",
+    "model": "gen/A2/model/morph_rollup.bend",
+    "proof": "gen/A2/L_a2_pr_timeout_blocks_commit/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : True{}\n- observed : False{}\nLocation: Laws.l_a2_pr_timeout_blocks_commit\n7 | def Laws.l_a2_pr_timeout_blocks_commit():\n8>|   {==}\n  |   ^^^^\n9 |",
+      "exit_code": 1,
+      "generator": "evaluate",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "seconds": 0.158
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 1
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.194
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.298
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.194
+  },
+  "difference": {
+    "lhs": true,
+    "rhs": false
+  },
+  "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_a2_pr_timeout_blocks_commit",
+  "maps_to": null,
+  "premises": [
+    "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+    "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+    "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+    "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+    "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+    "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+    "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+    "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
+  ],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "GUARD",
+  "scope": "unbounded",
+  "statement_hash": "sha256:524c48ca0c77789199c2b83eb31d7df82329e8c0687cf3061de5172449b722fd",
+  "status": "REFUTED",
+  "subform": "scenario",
+  "triage": "finding",
+  "witness": {}
+}

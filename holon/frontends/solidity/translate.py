@@ -632,6 +632,10 @@ class Translator:
                 key = f"{cname}.{mem}" if cname else None
                 return self.call_contract(key, cname, None, n["arguments"], n)
             if inner.get("nodeType") == "Identifier":
+                f = self.fam(inner["name"])
+                if f and f["kind"] == "queue" and mem == "push":
+                    self.W("state", "qlen", list(self.conds), ["+", "qlen", 1])
+                    return ("void", "push")
                 lib = self.spec.get("contract_ifaces", {}).get(inner["name"], inner["name"])
                 return self.call_named(f"{lib}.{mem}", n["arguments"], n)
             obj = self.X(inner)
