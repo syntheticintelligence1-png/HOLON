@@ -58,16 +58,13 @@ def build_env(a):
     return env
 
 
-def translate_action(world, spec, a, reasons, call_guards):
-    """Translate one action; returns action dict."""
-    if "declared" in a:
-        d = a["declared"]
-        return {"name": a["name"], "principal": d.get("principal", a.get("principal")), "src": d.get("src", a.get("src")), "inputs": a.get("inputs", d.get("inputs")), "guards": d.get("guards", []), "effects": d.get("effects", {})}
+def init_tr(world, spec, a, reasons, call_guards):
     contract, fname = a.get("fn") or a["synth_fn"]
     tr = Translator(world, spec)
     tr.reasons = reasons
     tr.call_guards = call_guards
     tr.action_spec = a
+    tr.fact_inputs = {n for n, _ in a.get("inputs", [])}
     tr.def_calls = {}
     tr.conds = []
     tr.input_map = build_env(a)
@@ -78,23 +75,33 @@ def translate_action(world, spec, a, reasons, call_guards):
     tr.cur_fn = (contract, fname)
     tr.established = []
     tr.subst = {}
-    tr.expr_let_table = {}
-    for el in a.get("expr_lets", []):
-        key = canon(el["expr"])
-        tr.expr_let_table[key] = (el["name"] if isinstance(el["name"], list) else [el["name"]])
+    tr.let_names = {k: list(v) for k, v in a.get("let_names", {}).items()}
+    tr.hoist_used = {}
+    tr.hoist_bound = {}
+    tr.hoist_policy = dict(spec.get("hoist_policy", {}))
+    tr.in_require_arg = 0
+    tr.self_idx_alias = None
+    tr.let_values = {}
+    tr.guard_prov = []
+    tr.write_prov = []
+    tr.entry_prov = {}
     tr.new_idx = a.get("entry_at")
+    return tr, contract, fname
 
+
+def translate_action(world, spec, a, reasons, call_guards):
+    """Translate one action; returns (action dict, translator)."""
+    tr, contract, fname = init_tr(world, spec, a, reasons, call_guards)
     fn = tr.find_fn(contract, fname)
     if fn is None:
         raise RuntimeError(f"{contract}.{fname} not found")
-    tr.blob_indices = tr.scan_blobs(fn)
-    tr.run_modifiers(fn)
+    tr.blob_indices = tr.scan_blobs(tr.world.units[fn["__file"]].node)
     for st in fn.get("body", {}).get("statements", []):
         tr.S(st)
     tr._drain_pending()
     guards = tr.guards
     writes = tr.writes
-    effects = compose_effects(tr, writes)
+    effects, effects_prov = compose_effects(tr, writes)
     out = {"name": a["name"], "principal": a.get("principal") or principal_of(fn, spec),
            "src": a["src"], "inputs": a["inputs"], "guards": guards, "effects": effects}
     if a.get("note"):
@@ -105,6 +112,7 @@ def translate_action(world, spec, a, reasons, call_guards):
     for s, i in tr.reasons.items():
         reasons.setdefault(s, i)
     tr.all_debt = getattr(tr, "debt", [])
+    tr.effects_prov = effects_prov
     return out, tr
 
 
@@ -141,24 +149,28 @@ def _merge_ch(merge_state, k, conds, rec, tr):
 
 
 def compose_effects(tr, writes):
-    """Fold collected writes into final effects dict (emission order)."""
+    """Fold collected writes into final effects dict; also reports per-field provenance."""
     eff = {}
+    eprov = {}          # field -> 'ast'|'spec'
+    field_prov = {}     # field -> [provs of contributing writes]
 
     def cur(f):
         return eff.get(f, f)
 
     merges = {}
     merge_order = []
-    for w in writes:
+    for w, wp in zip(writes, tr.write_prov + ["ast"] * (len(writes) - len(tr.write_prov))):
         kind = w[0]
         if kind == "state":
             _, f, conds, v = w
+            field_prov.setdefault(f, []).append(wp)
             e = v
             if conds:
                 e = simplify(["?", AND(*conds), v, cur(f)])
             eff[f] = simplify(e) if isinstance(e, list) else e
         elif kind == "ch_rec":
             _, f, k, conds, rec = w
+            field_prov.setdefault("chs", []).append(wp)
             key = canon(k)
             if key not in merges:
                 merge_order.append((key, k))
@@ -174,18 +186,24 @@ def compose_effects(tr, writes):
             eff["chs"] = ["call", "set_ch", "chs", k, ["with", "Ch", st.get("nm", "ch"), st["fields"]]]
     # materialize a constructed window entry
     a = tr.action_spec
-    if a.get("entry_template") and tr.new_entry is not None:
-        entry = dict(a["entry_template"])
-        entry.update(tr.new_entry)
-        entry.update(a.get("entry_overrides", {}))
+    if tr.new_entry is not None:
+        entry = dict(tr.new_entry)
         for f in ENTRY_FIELDS:
-            if f not in (tr.new_entry or {}) and f not in a.get("entry_overrides", {}):
+            if f not in entry:
+                entry[f] = 0
+                tr.entry_prov[f] = "spec"
                 tr.debt.append({"element": f"entry.{f} ({a['name']})", "kind": "entry_field_default",
-                                "reason": "written inside abstracted internals (_storeBatchData/_commitBatchWithBatchData); spec-declared"})
-        eff["win"] = ["call", "snoc", "win", ["mk", "Entry", {f: entry[f] for f in ENTRY_FIELDS if f in entry}]]
+                                "reason": "no AST write reached this Entry field; emitted as 0"})
+        field_prov.setdefault("win", []).append(
+            "spec" if any(v == "spec" for v in tr.entry_prov.values()) else "ast")
+        eff["win"] = ["call", "snoc", "win", ["mk", "Entry", {f: entry[f] for f in ENTRY_FIELDS}]]
         for s in ("s_csr", "s_bd", "s_bvh", "s_tag"):
             eff[s] = ["call", "tail", s]
-    return eff
+            field_prov.setdefault(s, []).append("ast")
+    for f in eff:
+        ps = field_prov.get(f, [])
+        eprov[f] = "spec" if "spec" in ps else "ast"
+    return eff, eprov
 
 
 def extract(world, spec, out_path=None, cov_path=None):
@@ -194,6 +212,8 @@ def extract(world, spec, out_path=None, cov_path=None):
 
     # ---- defs: scaffold + extracted-from-source helpers
     defs = scaffold_defs(spec)
+    defs_prov = {k: "spec" for k in defs}
+    def_debt = []
     for dname, d in spec["defs_from"].items():
         cname, fname = d["fn"]
         tr = Translator(world, spec)
@@ -202,6 +222,16 @@ def extract(world, spec, out_path=None, cov_path=None):
         tr.action_spec = {}
         tr.def_calls = {}
         tr.conds = []
+        tr.let_names = {k: list(v) for k, v in d.get("let_names", {}).items()}
+        tr.hoist_used = {}
+        tr.hoist_bound = {}
+        tr.hoist_policy = {}
+        tr.in_require_arg = 0
+        tr.self_idx_alias = None
+        tr.let_values = {}
+        tr.guard_prov = []
+        tr.write_prov = []
+        tr.entry_prov = {}
         fn0 = tr.find_fn(cname, fname)
         sol_names = [p["name"] for p in fn0.get("parameters", {}).get("parameters", [])] if fn0 else []
         amap = d.get("arg_map", {})
@@ -210,7 +240,6 @@ def extract(world, spec, out_path=None, cov_path=None):
             tr.input_map.setdefault(p, p)
         tr.input_names = set(tr.input_map)
         tr.local_names = {}
-        tr.expr_let_table = {}
         tr.pending_notes = []
         tr.pending = []
         tr.cur_fn = (cname, fname)
@@ -218,16 +247,35 @@ def extract(world, spec, out_path=None, cov_path=None):
         tr.subst = {}
         tr.new_idx = None
         fn = tr.find_fn(cname, fname)
-        tr.blob_indices = tr.scan_blobs(fn)
+        tr.blob_indices = tr.scan_blobs(tr.world.units[fn["__file"]].node)
+        for rp in fn0.get("returnParameters", {}).get("parameters", []):
+            tr.env[rp["name"]] = ("unbound", rp["name"])
         # defs: translate body, collect ret + call-site guards
         guards_before = len(tr.guards)
         for st in fn.get("body", {}).get("statements", []):
             tr.S(st)
+        tr._drain_pending()
         body = None
         if tr.ret:
             body = tr.ret[-1][1]
             for conds, val in reversed(tr.ret[:-1]):
                 body = simplify(["?", AND(*conds), val, body])
+        if body is None:
+            # named return variables: functions that assign their return var instead
+            # of using `return` (e.g. _computeBlobVersionedHash in asm blocks)
+            rnames = [p_["name"] for p_ in fn0.get("returnParameters", {}).get("parameters", [])]
+            if len(rnames) == 1 and rnames[0] in tr.env:
+                v = tr.env[rnames[0]]
+                if isinstance(v, list):
+                    v = tr.rewrite_lets(v)
+                body = v if not isinstance(v, tuple) else None
+        if body is None and d.get("body") is not None:
+            body = d["body"]
+            defs_prov[dname] = "spec"
+            def_debt.append({"element": f"defs.{dname}.body", "kind": "spec_bound",
+                             "reason": "no faithful AST derivation (named return / abstracted internals); spec-declared explicit value"})
+        else:
+            defs_prov.setdefault(dname, "ast")
         # guards emitted during def translation belong to call sites (params substituted there)
         call_guards[(cname, fname)] = {
             "params": [p[0] for p in d["params"]],
@@ -235,24 +283,83 @@ def extract(world, spec, out_path=None, cov_path=None):
                 {"expr": g["require"], "reason": [k for k, v in tr.reasons.items() if v == g["reason"]][0] if tr.reasons else g["reason"], "src": g["src"], **({"site": g["site"]} if "site" in g else {})}
                 for g in tr.guards[guards_before:] if "require" in g]}
         defs[dname] = {"params": d["params"], "type": d["type"], "body": body, "src": None}
-        tr._drain_pending()
 
     # ---- actions
     actions = []
-    all_debt = list(spec.get("coverage_items", []))
+    prov = {}
+    all_debt = list(spec.get("coverage_items", [])) + def_debt
     seen_debt = {(i["element"], i["kind"]) for i in all_debt}
+
+    def add_debt_item(element, kind, reason, src=None):
+        k = (element, kind)
+        if k in seen_debt:
+            return
+        seen_debt.add(k)
+        it = {"element": element, "kind": kind, "reason": reason}
+        if src:
+            it["src"] = src
+        all_debt.append(it)
+
+    # top-level sections copied from the spec -> labelled spec_bound
+    for sec in ("params", "constants_doc", "principals", "abstractions", "types",
+                "state", "ghost_state", "shadow", "initial"):
+        prov[sec] = "spec"
+        add_debt_item(f"facts.{sec}", "spec_bound",
+                      "model vocabulary declared in the spec, not derivable from the AST",
+                      src=f"spec:{sec}")
+    for sec in ("observers", "disch", "consumers", "coverage"):
+        prov[sec] = "spec"
+        add_debt_item(f"facts.{sec}", "spec_bound",
+                      "cross-cutting model section has no source counterpart", src=f"spec:{sec}")
+    for h in spec.get("handlers", {}):
+        add_debt_item(f"handler:{h}", "spec_bound",
+                      "abstracted call handled by spec rule (emitted guards/writes are spec-provided)")
+    for st in spec.get("sites", []):
+        add_debt_item(f"site:{st.get('site')}", "spec_bound",
+                      "evaluator site label declared in spec")
+    for gname in ("ghost_tag",):
+        for a in spec["actions"]:
+            if gname in a:
+                add_debt_item(f"action:{a['name']}:{gname}", "spec_bound",
+                              "ghost tag twin has no source expression")
     for a in spec["actions"]:
         if "declared" in a:
             d = a["declared"]
             actions.append({"name": a["name"], "principal": d.get("principal"), "src": d.get("src"), "inputs": d.get("inputs", []), "guards": d.get("guards", []), "effects": d.get("effects", {})})
+            prov[f"actions.{a['name']}"] = "spec"
+            add_debt_item(f"action:{a['name']}", "spec_bound", "declared action; no AST source")
             continue
         out, tr = translate_action(world, spec, a, reasons, call_guards)
         actions.append(out)
+        nm = a["name"]
+        gspec = any(p == "spec" for p in tr.guard_prov)
+        espec = any(p == "spec" for p in tr.effects_prov.values())
+        prov[f"actions.{nm}.guards"] = "spec" if gspec else "ast"
+        prov[f"actions.{nm}.effects"] = "spec" if espec else "ast"
+        prov[f"actions.{nm}.entry"] = "spec" if "spec" in tr.entry_prov.values() else ("ast" if tr.entry_prov else "ast")
+        for i, p_ in enumerate(tr.guard_prov):
+            if p_ == "spec":
+                g = tr.guards[i]
+                el = f"action:{nm}.guards[{i}]"
+                add_debt_item(el, "spec_bound", "spec-provided guard (handler, ghost or oracle rule), not AST-derived", src=g.get("src"))
+        for f, p_ in tr.effects_prov.items():
+            if p_ == "spec":
+                add_debt_item(f"action:{nm}.effects.{f}", "spec_bound", "spec-provided effect (handler or oracle rule), not AST-derived")
         for it in tr.all_debt:
             k = (it["element"], it["kind"])
             if k not in seen_debt:
                 seen_debt.add(k)
                 all_debt.append(it)
+
+    prov["facts_version"] = "spec"
+    prov["target"] = "spec"
+    prov["extraction"] = "spec"
+    prov["reasons"] = "ast"
+    prov["defs"] = "spec" if "spec" in defs_prov.values() else "ast"
+    for dn, dp in defs_prov.items():
+        prov[f"defs.{dn}"] = dp
+    prov["migrations"] = "spec"
+    add_debt_item("facts.migrations", "spec_bound", "declared environment actions; no source", src="spec:migrations_declared")
 
     facts = {
         "facts_version": spec["facts_version"],
@@ -275,6 +382,7 @@ def extract(world, spec, out_path=None, cov_path=None):
         "disch": spec["disch"],
         "consumers": spec["consumers"],
         "coverage": spec["coverage"],
+        "provenance": prov,
     }
     cov = {"frontend": spec["frontend_name"], "target_commit": spec["target"]["commit"],
            "items": sorted(all_debt, key=lambda i: i["element"])}

@@ -326,46 +326,40 @@
   "5": "anyone"
  },
  "reasons": {
-  "1": "only active submitter allowed",
-  "2": "pending revert request",
-  "3": "Pausable: paused",
-  "4": "commitBatch requires no stored blob hash",
-  "5": "l1msg delay",
-  "6": "V2 requires at least 1 blob",
-  "7": "legacy batches support exactly 1 blob",
-  "8": "invalid version",
-  "9": "previous state root is zero",
-  "10": "new state root is zero",
-  "11": "batch already committed",
-  "12": "incorrect batch index",
-  "13": "incorrect parent batch hash",
-  "14": "incorrect previous state root",
-  "15": "message index out of range",
-  "16": "panic:0x11",
-  "17": "commitState must not carry blob",
-  "18": "no stored blob hash for this batch",
-  "19": "invalid timing",
-  "20": "must not carry blob when using stored blob hash",
-  "21": "incorrect batch hash",
-  "22": "Invalid batch proof",
-  "23": "invalid proof",
-  "24": "Ownable: caller is not the owner",
-  "25": "count must be nonzero",
-  "26": "reverting must start from the ending",
-  "27": "can only revert unFinalized batch",
-  "28": "only challenger allowed",
-  "29": "already in challenge",
-  "30": "batch already finalized",
-  "31": "batch not exist",
-  "32": "batch already challenged",
-  "33": "cannot challenge batch outside the challenge window",
-  "34": "insufficient value",
-  "35": "batch in challenge",
-  "36": "batch should be revert",
-  "37": "batch in challenge window",
-  "38": "batch already verified",
-  "39": "start index mismatch",
-  "40": "Pausable: not paused"
+  "1": "commitBatch requires no stored blob hash",
+  "2": "l1msg delay",
+  "3": "invalid version",
+  "4": "previous state root is zero",
+  "5": "new state root is zero",
+  "6": "batch already committed",
+  "7": "incorrect batch index",
+  "8": "incorrect parent batch hash",
+  "9": "incorrect previous state root",
+  "10": "message index out of range",
+  "11": "panic:0x11",
+  "12": "commitState must not carry blob",
+  "13": "no stored blob hash for this batch",
+  "14": "invalid timing",
+  "15": "must not carry blob when using stored blob hash",
+  "16": "Invalid batch proof",
+  "17": "invalid proof",
+  "18": "count must be nonzero",
+  "19": "incorrect batch hash",
+  "20": "reverting must start from the ending",
+  "21": "can only revert unFinalized batch",
+  "22": "already in challenge",
+  "23": "batch already finalized",
+  "24": "batch not exist",
+  "25": "batch already challenged",
+  "26": "cannot challenge batch outside the challenge window",
+  "27": "insufficient value",
+  "28": "batch in challenge",
+  "29": "batch should be revert",
+  "30": "batch in challenge window",
+  "31": "batch already verified",
+  "32": "start index mismatch",
+  "33": "Pausable: paused",
+  "34": "Pausable: not paused"
  },
  "defs": {
   "lci": {
@@ -726,7 +720,39 @@
     ]
    ],
    "type": "Nat",
-   "body": null,
+   "body": [
+    "?",
+    [
+     "==",
+     "ver",
+     2
+    ],
+    [
+     "call",
+     "agg",
+     "blobs"
+    ],
+    [
+     "?",
+     [
+      "==",
+      [
+       "call",
+       "nth",
+       "blobs",
+       0
+      ],
+      0
+     ],
+     "Z",
+     [
+      "call",
+      "nth",
+      "blobs",
+      0
+     ]
+    ]
+   ],
    "src": null
   }
  },
@@ -771,33 +797,6 @@
    ],
    "guards": [
     {
-     "require": [
-      "call",
-      "mem",
-      "who",
-      "active"
-     ],
-     "reason": 1,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
-    },
-    {
-     "require": [
-      "==",
-      "rri",
-      0
-     ],
-     "reason": 2,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
-    },
-    {
-     "require": [
-      "!",
-      "paused"
-     ],
-     "reason": 3,
-     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
-    },
-    {
      "let": "next",
      "expr": [
       "+",
@@ -819,8 +818,20 @@
       ],
       0
      ],
-     "reason": 4,
+     "reason": 1,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:261"
+    },
+    {
+     "let": "ef",
+     "expr": [
+      "call",
+      "enq_first",
+      "qpend",
+      "qlen",
+      "enq",
+      "t"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:263"
     },
     {
      "require": [
@@ -829,14 +840,7 @@
        ">=",
        [
         "+",
-        [
-         "call",
-         "enq_first",
-         "qpend",
-         "qlen",
-         "enq",
-         "t"
-        ],
+        "ef",
         "D"
        ],
        "t"
@@ -847,51 +851,8 @@
        0
       ]
      ],
-     "reason": 5,
+     "reason": 2,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:265"
-    },
-    {
-     "require": [
-      "||",
-      [
-       "!=",
-       "ver",
-       2
-      ],
-      [
-       ">",
-       [
-        "call",
-        "blob_count",
-        "blobs"
-       ],
-       0
-      ]
-     ],
-     "reason": 6,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
-    },
-    {
-     "require": [
-      "||",
-      [
-       "==",
-       "ver",
-       2
-      ],
-      [
-       "==",
-       [
-        "call",
-        "nth",
-        "blobs",
-        1
-       ],
-       0
-      ]
-     ],
-     "reason": 7,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
     },
     {
      "let": "bvh",
@@ -922,7 +883,7 @@
       "ver",
       2
      ],
-     "reason": 8,
+     "reason": 3,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
     },
     {
@@ -931,7 +892,7 @@
       "prev",
       0
      ],
-     "reason": 9,
+     "reason": 4,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
     },
     {
@@ -940,23 +901,8 @@
       "post",
       0
      ],
-     "reason": 10,
+     "reason": 5,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
-    },
-    {
-     "require": [
-      ">",
-      "next",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
-     ],
-     "reason": 11,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
-     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
     },
     {
      "let": "lci",
@@ -965,7 +911,18 @@
       "lci",
       "lfi",
       "win"
-     ]
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+    },
+    {
+     "require": [
+      ">",
+      "next",
+      "lci"
+     ],
+     "reason": 6,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
+     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
     },
     {
      "require": [
@@ -973,7 +930,7 @@
       "parent",
       "lci"
      ],
-     "reason": 12,
+     "reason": 7,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
     },
     {
@@ -982,7 +939,7 @@
       "parent",
       "lci"
      ],
-     "reason": 13,
+     "reason": 8,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:313",
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
     },
@@ -1002,7 +959,7 @@
       ],
       "prev"
      ],
-     "reason": 14,
+     "reason": 9,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
     },
     {
@@ -1030,18 +987,23 @@
       ],
       "qlen"
      ],
-     "reason": 15,
+     "reason": 10,
      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
      "note": "_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length"
     },
     {
-     "let": "tot",
+     "let": "cstart",
      "expr": [
-      "+",
-      "tot",
-      "n"
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "bc"
+      ],
+      "s"
      ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:325"
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
     },
     {
      "require": [
@@ -1056,21 +1018,37 @@
        [
         "+",
         "W",
-        [
-         "get",
-         [
-          "call",
-          "nth_ch",
-          "chs",
-          "bc"
-         ],
-         "s"
-        ]
+        "cstart"
        ]
       ]
      ],
-     "reason": 16,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+     "reason": 11,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+     "site": {
+      "rule": "SORT",
+      "kind": "realize",
+      "expr": "W + cstart - t",
+      "sort": "Dur(signed) realized in uint256"
+     },
+     "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)"
+    },
+    {
+     "let": "prt",
+     "expr": [
+      "?",
+      "inch",
+      [
+       "-",
+       [
+        "+",
+        "W",
+        "cstart"
+       ],
+       "t"
+      ],
+      0
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:361"
     }
    ],
    "effects": {
@@ -1083,7 +1061,11 @@
       "Entry",
       {
        "ver": "ver",
-       "tot": "tot",
+       "tot": [
+        "+",
+        "tot",
+        "n"
+       ],
        "n": "n",
        "hb": "bvh",
        "prev": "prev",
@@ -1109,24 +1091,7 @@
          "t",
          "F"
         ],
-        [
-         "-",
-         [
-          "+",
-          "W",
-          [
-           "get",
-           [
-            "call",
-            "nth_ch",
-            "chs",
-            "bc"
-           ],
-           "s"
-          ]
-         ],
-         "t"
-        ]
+        "prt"
        ],
        "bdn": "lbn",
        "bds": "who"
@@ -1195,39 +1160,21 @@
    ],
    "guards": [
     {
-     "require": [
-      "call",
-      "mem",
-      "who",
-      "active"
-     ],
-     "reason": 1,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
-    },
-    {
-     "require": [
-      "==",
-      "rri",
-      0
-     ],
-     "reason": 2,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
-    },
-    {
-     "require": [
-      "!",
-      "paused"
-     ],
-     "reason": 3,
-     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
-    },
-    {
      "let": "b0",
      "expr": [
       "call",
       "nth",
       "blobs",
       0
+     ]
+    },
+    {
+     "let": "b1",
+     "expr": [
+      "call",
+      "nth",
+      "blobs",
+      1
      ]
     },
     {
@@ -1241,7 +1188,7 @@
       ],
       0
      ],
-     "reason": 17,
+     "reason": 12,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:276"
     },
     {
@@ -1266,8 +1213,20 @@
       ],
       0
      ],
-     "reason": 18,
+     "reason": 13,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:279"
+    },
+    {
+     "let": "ef",
+     "expr": [
+      "call",
+      "enq_first",
+      "qpend",
+      "qlen",
+      "enq",
+      "t"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:281"
     },
     {
      "require": [
@@ -1276,14 +1235,7 @@
        ">=",
        [
         "+",
-        [
-         "call",
-         "enq_first",
-         "qpend",
-         "qlen",
-         "enq",
-         "t"
-        ],
+        "ef",
         "D"
        ],
        "t"
@@ -1294,7 +1246,7 @@
        0
       ]
      ],
-     "reason": 5,
+     "reason": 2,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:283"
     },
     {
@@ -1303,7 +1255,7 @@
       "ver",
       2
      ],
-     "reason": 8,
+     "reason": 3,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
     },
     {
@@ -1312,7 +1264,7 @@
       "prev",
       0
      ],
-     "reason": 9,
+     "reason": 4,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
     },
     {
@@ -1321,23 +1273,8 @@
       "post",
       0
      ],
-     "reason": 10,
+     "reason": 5,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
-    },
-    {
-     "require": [
-      ">",
-      "next",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
-     ],
-     "reason": 11,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
-     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
     },
     {
      "let": "lci",
@@ -1346,7 +1283,18 @@
       "lci",
       "lfi",
       "win"
-     ]
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+    },
+    {
+     "require": [
+      ">",
+      "next",
+      "lci"
+     ],
+     "reason": 6,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
+     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
     },
     {
      "require": [
@@ -1354,7 +1302,7 @@
       "parent",
       "lci"
      ],
-     "reason": 12,
+     "reason": 7,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
     },
     {
@@ -1363,7 +1311,7 @@
       "parent",
       "lci"
      ],
-     "reason": 13,
+     "reason": 8,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:313",
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
     },
@@ -1383,7 +1331,7 @@
       ],
       "prev"
      ],
-     "reason": 14,
+     "reason": 9,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
     },
     {
@@ -1411,18 +1359,45 @@
       ],
       "qlen"
      ],
-     "reason": 15,
+     "reason": 10,
      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
      "note": "_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length"
     },
     {
-     "let": "tot",
+     "let": "bvh",
      "expr": [
-      "+",
-      "tot",
-      "n"
+      "call",
+      "bvh_at",
+      "lfi",
+      "win",
+      "s_bvh",
+      "next"
+     ]
+    },
+    {
+     "let": "tag",
+     "expr": [
+      "call",
+      "tag_at",
+      "lfi",
+      "win",
+      "s_tag",
+      "next"
+     ]
+    },
+    {
+     "let": "cstart",
+     "expr": [
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "bc"
+      ],
+      "s"
      ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:325"
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
     },
     {
      "require": [
@@ -1437,21 +1412,37 @@
        [
         "+",
         "W",
-        [
-         "get",
-         [
-          "call",
-          "nth_ch",
-          "chs",
-          "bc"
-         ],
-         "s"
-        ]
+        "cstart"
        ]
       ]
      ],
-     "reason": 16,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+     "reason": 11,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+     "site": {
+      "rule": "SORT",
+      "kind": "realize",
+      "expr": "W + cstart - t",
+      "sort": "Dur(signed) realized in uint256"
+     },
+     "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)"
+    },
+    {
+     "let": "prt",
+     "expr": [
+      "?",
+      "inch",
+      [
+       "-",
+       [
+        "+",
+        "W",
+        "cstart"
+       ],
+       "t"
+      ],
+      0
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:361"
     }
    ],
    "effects": {
@@ -1464,29 +1455,26 @@
       "Entry",
       {
        "ver": "ver",
-       "tot": "tot",
-       "n": "n",
-       "hb": [
-        "call",
-        "bvh_at",
-        "lfi",
-        "win",
-        "s_bvh",
-        "next"
+       "tot": [
+        "+",
+        "tot",
+        "n"
        ],
+       "n": "n",
+       "hb": "bvh",
        "prev": "prev",
        "post": "post",
        "lbn": "lbn",
        "csr": "post",
-       "bvh": [
+       "bvh": "bvh",
+       "tag": [
         "call",
-        "bvh_at",
+        "tag_at",
         "lfi",
         "win",
-        "s_bvh",
+        "s_tag",
         "next"
        ],
-       "tag": "tag",
        "bdo": "t",
        "bdf": [
         "+",
@@ -1495,24 +1483,7 @@
          "t",
          "F"
         ],
-        [
-         "-",
-         [
-          "+",
-          "W",
-          [
-           "get",
-           [
-            "call",
-            "nth_ch",
-            "chs",
-            "bc"
-           ],
-           "s"
-          ]
-         ],
-         "t"
-        ]
+        "prt"
        ],
        "bdn": "lbn",
        "bds": "who"
@@ -1585,30 +1556,14 @@
    ],
    "guards": [
     {
-     "require": [
-      "==",
-      "rri",
-      0
-     ],
-     "reason": 2,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
-    },
-    {
-     "require": [
-      "!",
-      "paused"
-     ],
-     "reason": 3,
-     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
-    },
-    {
      "let": "lci0",
      "expr": [
       "call",
       "lci",
       "lfi",
       "win"
-     ]
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:389"
     },
     {
      "let": "rd",
@@ -1619,15 +1574,11 @@
        [
         "get",
         [
-         "get",
-         [
-          "call",
-          "w",
-          "lfi",
-          "win",
-          "lci0"
-         ],
-         null
+         "call",
+         "w",
+         "lfi",
+         "win",
+         "lci0"
         ],
         "bdo"
        ],
@@ -1638,19 +1589,24 @@
      "src": "contracts/contracts/l1/rollup/Rollup.sol:389"
     },
     {
+     "let": "ef",
+     "expr": [
+      "call",
+      "enq_first",
+      "qpend",
+      "qlen",
+      "enq",
+      "t"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:393"
+    },
+    {
      "let": "qd",
      "expr": [
       "<",
       [
        "+",
-       [
-        "call",
-        "enq_first",
-        "qpend",
-        "qlen",
-        "enq",
-        "t"
-       ],
+       "ef",
        "D"
       ],
       "t"
@@ -1671,7 +1627,7 @@
        0
       ]
      ],
-     "reason": 5,
+     "reason": 2,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:398"
     },
     {
@@ -1680,7 +1636,7 @@
       "rd",
       "qd"
      ],
-     "reason": 19,
+     "reason": 14,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:400"
     },
     {
@@ -1693,6 +1649,17 @@
      "src": "contracts/contracts/l1/rollup/Rollup.sol:403"
     },
     {
+     "let": "stored",
+     "expr": [
+      "call",
+      "bvh_at",
+      "lfi",
+      "win",
+      "s_bvh",
+      "next"
+     ]
+    },
+    {
      "let": "b0",
      "expr": [
       "call",
@@ -1702,18 +1669,20 @@
      ]
     },
     {
+     "let": "b1",
+     "expr": [
+      "call",
+      "nth",
+      "blobs",
+      1
+     ]
+    },
+    {
      "require": [
       "||",
       [
        "==",
-       [
-        "call",
-        "bvh_at",
-        "lfi",
-        "win",
-        "s_bvh",
-        "next"
-       ],
+       "stored",
        0
       ],
       [
@@ -1727,75 +1696,8 @@
        0
       ]
      ],
-     "reason": 20,
+     "reason": 15,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:406"
-    },
-    {
-     "require": [
-      "||",
-      [
-       "!=",
-       [
-        "call",
-        "bvh_at",
-        "lfi",
-        "win",
-        "s_bvh",
-        "next"
-       ],
-       0
-      ],
-      [
-       "!=",
-       "ver",
-       2
-      ],
-      [
-       ">",
-       [
-        "call",
-        "blob_count",
-        "blobs"
-       ],
-       0
-      ]
-     ],
-     "reason": 6,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
-    },
-    {
-     "require": [
-      "||",
-      [
-       "!=",
-       [
-        "call",
-        "bvh_at",
-        "lfi",
-        "win",
-        "s_bvh",
-        "next"
-       ],
-       0
-      ],
-      [
-       "==",
-       "ver",
-       2
-      ],
-      [
-       "==",
-       [
-        "call",
-        "nth",
-        "blobs",
-        1
-       ],
-       0
-      ]
-     ],
-     "reason": 7,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
     },
     {
      "let": "bvh",
@@ -1803,14 +1705,7 @@
       "?",
       [
        "!=",
-       [
-        "call",
-        "bvh_at",
-        "lfi",
-        "win",
-        "s_bvh",
-        "next"
-       ],
+       "stored",
        0
       ],
       [
@@ -1831,12 +1726,41 @@
      "src": "contracts/contracts/l1/rollup/Rollup.sol:405-408"
     },
     {
+     "let": "tag",
+     "expr": [
+      "?",
+      [
+       "!=",
+       "stored",
+       0
+      ],
+      [
+       "call",
+       "tag_at",
+       "lfi",
+       "win",
+       "s_tag",
+       "next"
+      ],
+      [
+       "?",
+       [
+        "==",
+        "ver",
+        2
+       ],
+       2,
+       1
+      ]
+     ]
+    },
+    {
      "require": [
       "<=",
       "ver",
       2
      ],
-     "reason": 8,
+     "reason": 3,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
     },
     {
@@ -1845,7 +1769,7 @@
       "prev",
       0
      ],
-     "reason": 9,
+     "reason": 4,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
     },
     {
@@ -1854,7 +1778,7 @@
       "post",
       0
      ],
-     "reason": 10,
+     "reason": 5,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
     },
     {
@@ -1863,7 +1787,7 @@
       "next",
       "lci0"
      ],
-     "reason": 11,
+     "reason": 6,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
      "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
     },
@@ -1873,7 +1797,7 @@
       "parent",
       "lci0"
      ],
-     "reason": 12,
+     "reason": 7,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
     },
     {
@@ -1882,7 +1806,7 @@
       "parent",
       "lci0"
      ],
-     "reason": 13,
+     "reason": 8,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:313",
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
     },
@@ -1902,7 +1826,7 @@
       ],
       "prev"
      ],
-     "reason": 14,
+     "reason": 9,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
     },
     {
@@ -1930,18 +1854,23 @@
       ],
       "qlen"
      ],
-     "reason": 15,
+     "reason": 10,
      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
      "note": "_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length"
     },
     {
-     "let": "tot",
+     "let": "cstart",
      "expr": [
-      "+",
-      "tot",
-      "n"
+      "get",
+      [
+       "call",
+       "nth_ch",
+       "chs",
+       "bc"
+      ],
+      "s"
      ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:325"
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
     },
     {
      "require": [
@@ -1956,31 +1885,37 @@
        [
         "+",
         "W",
-        [
-         "get",
-         [
-          "call",
-          "nth_ch",
-          "chs",
-          "bc"
-         ],
-         "s"
-        ]
+        "cstart"
        ]
       ]
      ],
-     "reason": 16,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+     "reason": 11,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+     "site": {
+      "rule": "SORT",
+      "kind": "realize",
+      "expr": "W + cstart - t",
+      "sort": "Dur(signed) realized in uint256"
+     },
+     "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)"
     },
     {
-     "require": [
-      "<=",
-      "idx",
-      "lci0"
+     "let": "prt",
+     "expr": [
+      "?",
+      "inch",
+      [
+       "-",
+       [
+        "+",
+        "W",
+        "cstart"
+       ],
+       "t"
+      ],
+      0
      ],
-     "reason": 21,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:418",
-     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:361"
     },
     {
      "require": [
@@ -1988,23 +1923,8 @@
       "proof",
       0
      ],
-     "reason": 22,
+     "reason": 16,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
-    },
-    {
-     "let": "v_blobHashInput",
-     "expr": [
-      "get",
-      [
-       "call",
-       "w",
-       "lfi",
-       "win",
-       "idx"
-      ],
-      "hb"
-     ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:765"
     },
     {
      "require": [
@@ -2012,7 +1932,7 @@
       "proof",
       1
      ],
-     "reason": 23,
+     "reason": 17,
      "src": "oracle: IRollupVerifier.verifyAggregateProof"
     }
    ],
@@ -2026,7 +1946,11 @@
       "Entry",
       {
        "ver": "ver",
-       "tot": "tot",
+       "tot": [
+        "+",
+        "tot",
+        "n"
+       ],
        "n": "n",
        "hb": "bvh",
        "prev": "prev",
@@ -2061,7 +1985,15 @@
         ]
        ],
        "bdo": "t",
-       "bdf": "t",
+       "bdf": [
+        "+",
+        [
+         "+",
+         "t",
+         "F"
+        ],
+        "prt"
+       ],
        "bdn": "lbn",
        "bds": 0
       }
@@ -2110,34 +2042,30 @@
    "guards": [
     {
      "require": [
-      "==",
-      "OWNER",
-      "who"
-     ],
-     "reason": 24,
-     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
-    },
-    {
-     "require": [
       ">",
       "count",
       0
      ],
-     "reason": 25,
+     "reason": 18,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:431"
+    },
+    {
+     "let": "lci",
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:436"
     },
     {
      "require": [
       "<=",
       "idx",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
+      "lci"
      ],
-     "reason": 21,
+     "reason": 19,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:436",
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
     },
@@ -2149,14 +2077,9 @@
        "idx",
        "count"
       ],
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
+      "lci"
      ],
-     "reason": 26,
+     "reason": 20,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:439",
      "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)"
     },
@@ -2166,7 +2089,7 @@
       "idx",
       "lfi"
      ],
-     "reason": 27,
+     "reason": 21,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:441"
     },
     {
@@ -2175,7 +2098,7 @@
       1,
       "idx"
      ],
-     "reason": 16,
+     "reason": 11,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:443"
     },
     {
@@ -2310,37 +2233,10 @@
    "guards": [
     {
      "require": [
-      "call",
-      "mem",
-      "who",
-      "chals"
-     ],
-     "reason": 28,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:126"
-    },
-    {
-     "require": [
-      "==",
-      "rri",
-      0
-     ],
-     "reason": 2,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
-    },
-    {
-     "require": [
-      "!",
-      "paused"
-     ],
-     "reason": 3,
-     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
-    },
-    {
-     "require": [
       "!",
       "inch"
      ],
-     "reason": 29,
+     "reason": 22,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:475"
     },
     {
@@ -2349,8 +2245,18 @@
       "lfi",
       "idx"
      ],
-     "reason": 30,
+     "reason": 23,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:476"
+    },
+    {
+     "let": "lci",
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:477"
     },
     {
      "require": [
@@ -2360,28 +2266,23 @@
        [
         "get",
         [
-         "get",
-         [
-          "call",
-          "w",
-          "lfi",
-          "win",
-          "idx"
-         ],
-         null
+         "call",
+         "w",
+         "lfi",
+         "win",
+         "idx"
         ],
         "bdo"
        ],
        0
       ],
       [
-       "commit_cmp",
-       "!=",
+       ">=",
        "idx",
-       0
+       "lfi"
       ]
      ],
-     "reason": 31,
+     "reason": 24,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:478"
     },
     {
@@ -2399,7 +2300,7 @@
       ],
       0
      ],
-     "reason": 32,
+     "reason": 25,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:479"
     },
     {
@@ -2408,21 +2309,17 @@
       [
        "get",
        [
-        "get",
-        [
-         "call",
-         "w",
-         "lfi",
-         "win",
-         "idx"
-        ],
-        null
+        "call",
+        "w",
+        "lfi",
+        "win",
+        "idx"
        ],
        "bdf"
       ],
       "t"
      ],
-     "reason": 33,
+     "reason": 26,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:481"
     },
     {
@@ -2431,7 +2328,7 @@
       "value",
       "DEP"
      ],
-     "reason": 34,
+     "reason": 27,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:483"
     }
    ],
@@ -2488,44 +2385,22 @@
    ],
    "guards": [
     {
-     "require": [
-      "==",
-      "rri",
-      0
-     ],
-     "reason": 2,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
-    },
-    {
-     "require": [
-      "!",
-      "paused"
-     ],
-     "reason": 3,
-     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
-    },
-    {
-     "require": [
+     "let": "lci",
+     "expr": [
       "call",
-      "mem",
-      "who",
-      "active"
+      "lci",
+      "lfi",
+      "win"
      ],
-     "reason": 1,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:603"
     },
     {
      "require": [
       "<=",
       "idx",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
+      "lci"
      ],
-     "reason": 21,
+     "reason": 19,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:603",
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
     },
@@ -2536,51 +2411,55 @@
       "chs",
       "idx"
      ],
-     "reason": 35,
+     "reason": 28,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:606"
+    },
+    {
+     "let": "ch",
+     "expr": [
+      "call",
+      "nth_ch",
+      "chs",
+      "idx"
+     ],
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:613"
     },
     {
      "let": "vchallenger",
      "expr": [
       "get",
-      [
-       "call",
-       "nth_ch",
-       "chs",
-       "idx"
-      ],
+      "ch",
       "c"
      ],
      "src": "contracts/contracts/l1/rollup/Rollup.sol:805"
     },
     {
+     "let": "timeout",
+     "expr": [
+      "<=",
+      [
+       "+",
+       [
+        "get",
+        "ch",
+        "s"
+       ],
+       "W"
+      ],
+      "t"
+     ]
+    },
+    {
      "require": [
       "||",
-      [
-       "<=",
-       [
-        "+",
-        [
-         "get",
-         [
-          "call",
-          "nth_ch",
-          "chs",
-          "idx"
-         ],
-         "s"
-        ],
-        "W"
-       ],
-       "t"
-      ],
+      "timeout",
       [
        ">",
        "proof",
        0
       ]
      ],
-     "reason": 22,
+     "reason": 16,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
     },
     {
@@ -2601,43 +2480,21 @@
     {
      "require": [
       "||",
-      [
-       "<=",
-       [
-        "+",
-        [
-         "get",
-         [
-          "call",
-          "nth_ch",
-          "chs",
-          "idx"
-         ],
-         "s"
-        ],
-        "W"
-       ],
-       "t"
-      ],
+      "timeout",
       [
        "==",
        "proof",
        1
       ]
      ],
-     "reason": 23,
+     "reason": 17,
      "src": "oracle: IRollupVerifier.verifyAggregateProof"
     },
     {
      "let": "vchallengeDeposit",
      "expr": [
       "get",
-      [
-       "call",
-       "nth_ch",
-       "chs",
-       "idx"
-      ],
+      "ch",
       "d"
      ],
      "src": "contracts/contracts/l1/rollup/Rollup.sol:792"
@@ -2653,12 +2510,7 @@
        "+",
        [
         "get",
-        [
-         "call",
-         "nth_ch",
-         "chs",
-         "idx"
-        ],
+        "ch",
         "s"
        ],
        "W"
@@ -2676,12 +2528,7 @@
        "+",
        [
         "get",
-        [
-         "call",
-         "nth_ch",
-         "chs",
-         "idx"
-        ],
+        "ch",
         "s"
        ],
        "W"
@@ -2694,15 +2541,11 @@
       [
        "get",
        [
-        "get",
-        [
-         "call",
-         "w",
-         "lfi",
-         "win",
-         "idx"
-        ],
-        null
+        "call",
+        "w",
+        "lfi",
+        "win",
+        "idx"
        ],
        "bds"
       ],
@@ -2729,34 +2572,22 @@
    ],
    "guards": [
     {
-     "require": [
-      "==",
-      "rri",
-      0
+     "let": "lci",
+     "expr": [
+      "call",
+      "lci",
+      "lfi",
+      "win"
      ],
-     "reason": 2,
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
-    },
-    {
-     "require": [
-      "!",
-      "paused"
-     ],
-     "reason": 3,
-     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:629"
     },
     {
      "require": [
       "<=",
       "idx",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
+      "lci"
      ],
-     "reason": 21,
+     "reason": 19,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:629",
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI"
     },
@@ -2768,28 +2599,23 @@
        [
         "get",
         [
-         "get",
-         [
-          "call",
-          "w",
-          "lfi",
-          "win",
-          "idx"
-         ],
-         null
+         "call",
+         "w",
+         "lfi",
+         "win",
+         "idx"
         ],
         "bdo"
        ],
        0
       ],
       [
-       "commit_cmp",
-       "!=",
+       ">=",
        "idx",
-       0
+       "lfi"
       ]
      ],
-     "reason": 31,
+     "reason": 24,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:630"
     },
     {
@@ -2802,7 +2628,7 @@
        "idx"
       ]
      ],
-     "reason": 35,
+     "reason": 28,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:631"
     },
     {
@@ -2819,7 +2645,7 @@
        "w"
       ]
      ],
-     "reason": 36,
+     "reason": 29,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:632"
     },
     {
@@ -2828,21 +2654,17 @@
       [
        "get",
        [
-        "get",
-        [
-         "call",
-         "w",
-         "lfi",
-         "win",
-         "idx"
-        ],
-        null
+        "call",
+        "w",
+        "lfi",
+        "win",
+        "idx"
        ],
        "bdf"
       ],
       "t"
      ],
-     "reason": 37,
+     "reason": 30,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:633"
     },
     {
@@ -2851,7 +2673,7 @@
       1,
       "idx"
      ],
-     "reason": 16,
+     "reason": 11,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:636"
     },
     {
@@ -2879,7 +2701,7 @@
        "prev"
       ]
      ],
-     "reason": 14,
+     "reason": 9,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:635"
     },
     {
@@ -2893,7 +2715,7 @@
       ],
       0
      ],
-     "reason": 38,
+     "reason": 31,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:640"
     },
     {
@@ -2906,22 +2728,8 @@
       ],
       "idx"
      ],
-     "reason": 12,
+     "reason": 7,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:643"
-    },
-    {
-     "let": "btot",
-     "expr": [
-      "get",
-      [
-       "call",
-       "w",
-       "lfi",
-       "win",
-       "idx"
-      ],
-      "tot"
-     ]
     },
     {
      "let": "bn",
@@ -2935,6 +2743,20 @@
        "idx"
       ],
       "n"
+     ]
+    },
+    {
+     "let": "btot",
+     "expr": [
+      "get",
+      [
+       "call",
+       "w",
+       "lfi",
+       "win",
+       "idx"
+      ],
+      "tot"
      ]
     },
     {
@@ -2955,7 +2777,7 @@
        ]
       ]
      ],
-     "reason": 39,
+     "reason": 32,
      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325",
      "note": "popCrossDomainMessage(startIndex,_) requires pendingQueueIndex == startIndex, under l1MessagePopped > 0"
     }
@@ -3023,15 +2845,6 @@
    "guards": [
     {
      "require": [
-      "==",
-      "OWNER",
-      "who"
-     ],
-     "reason": 24,
-     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
-    },
-    {
-     "require": [
       "||",
       [
        "!",
@@ -3042,7 +2855,7 @@
        "paused"
       ]
      ],
-     "reason": 3,
+     "reason": 33,
      "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
     },
     {
@@ -3051,7 +2864,7 @@
       "status",
       "paused"
      ],
-     "reason": 40,
+     "reason": 34,
      "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84"
     }
    ],
@@ -3308,5 +3121,62 @@
    "dataHash contents",
    "proveCommittedBatchState (view)"
   ]
+ },
+ "provenance": {
+  "params": "spec",
+  "constants_doc": "spec",
+  "principals": "spec",
+  "abstractions": "spec",
+  "types": "spec",
+  "state": "spec",
+  "ghost_state": "spec",
+  "shadow": "spec",
+  "initial": "spec",
+  "observers": "spec",
+  "disch": "spec",
+  "consumers": "spec",
+  "coverage": "spec",
+  "actions.commitBatch.guards": "spec",
+  "actions.commitBatch.effects": "spec",
+  "actions.commitBatch.entry": "spec",
+  "actions.commitState.guards": "spec",
+  "actions.commitState.effects": "spec",
+  "actions.commitState.entry": "spec",
+  "actions.commitBatchWithProof.guards": "spec",
+  "actions.commitBatchWithProof.effects": "spec",
+  "actions.commitBatchWithProof.entry": "spec",
+  "actions.revertBatch.guards": "ast",
+  "actions.revertBatch.effects": "spec",
+  "actions.revertBatch.entry": "ast",
+  "actions.challengeState.guards": "ast",
+  "actions.challengeState.effects": "spec",
+  "actions.challengeState.entry": "ast",
+  "actions.proveState.guards": "ast",
+  "actions.proveState.effects": "ast",
+  "actions.proveState.entry": "ast",
+  "actions.finalizeBatch.guards": "spec",
+  "actions.finalizeBatch.effects": "spec",
+  "actions.finalizeBatch.entry": "ast",
+  "actions.setPause.guards": "ast",
+  "actions.setPause.effects": "ast",
+  "actions.setPause.entry": "ast",
+  "actions.sendMessage.guards": "ast",
+  "actions.sendMessage.effects": "ast",
+  "actions.sendMessage.entry": "ast",
+  "actions.wait": "spec",
+  "facts_version": "spec",
+  "target": "spec",
+  "extraction": "spec",
+  "reasons": "ast",
+  "defs": "spec",
+  "defs.lci": "spec",
+  "defs.in_win": "spec",
+  "defs.w": "spec",
+  "defs.bvh_at": "spec",
+  "defs.tag_at": "spec",
+  "defs.enq_first": "ast",
+  "defs.open_ch": "ast",
+  "defs.blob_hash": "ast",
+  "migrations": "spec"
  }
 }
