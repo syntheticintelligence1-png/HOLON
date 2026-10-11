@@ -44,6 +44,8 @@ def when_ok(when: dict | None, version: int) -> bool:
         return True
     if set(when) == {"version_ge"}:
         return version >= when["version_ge"]
+    if set(when) == {"version_in"}:
+        return version in when["version_in"]
     raise ValueError(f"unsupported when-condition {when}")
 
 

@@ -163,6 +163,12 @@ def _put_chain(fn: str, f: dict, w: dict, version: int | None, init: str) -> lis
         if version is None and op.get("when"):
             raise ValueError(f"{fn}: version-conditional op in a version-independent encoder")
         cells = F.src_cells(op["src"], w)
+        # a fixed-width op writes exactly its width: slice a src field that is
+        # wider, pad a narrower one with UNDEF (extracted layouts may disagree
+        # with the op width under mutation)
+        want = F.OP_WIDTH.get(op["op"])
+        if want is not None:
+            cells = (cells + [["const", F.UNDEF]] * want)[:want]
         F.check_op_width(fn, op, len(cells))
         lines.append(f"# {op.get('code', op['op'])}".replace("?", ""))
         lines.append(f"m{i + 1} = put(m{i}, {op['offset']}n, {_list([_cell(c) for c in cells])})")
@@ -249,7 +255,11 @@ def gen_predicate(facts: dict, fn: str) -> list[str]:
 
 # ---------------------------------------------------------------- decoders, projections
 def _when_const(when: dict | None) -> int:
-    return when["version_ge"] if when else 0
+    if not when:
+        return 0
+    if "version_ge" in when:
+        return when["version_ge"]
+    return max(when["version_in"])
 
 
 def gen_decoder(facts: dict, fn: str) -> list[str]:
