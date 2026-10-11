@@ -1,0 +1,141 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort_payer_replay",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "SORT",
+  "subform": "payer_bearer",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "action",
+      "name": "replayMessage(_from, .., _newGasLimit, _refundAddress) payable, callable by anyone",
+      "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:175-183",
+      "expect": "function replayMessage",
+      "doc": "not modelled in M1"
+    },
+    {
+      "kind": "edge",
+      "name": "fee = estimateCrossDomainMessageFee(_from, gas): waiver keyed on the original sender",
+      "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:198",
+      "expect": "estimateCrossDomainMessageFee(_from",
+      "doc": "waiver key"
+    },
+    {
+      "kind": "guard",
+      "name": "msg.value >= fee: the caller pays",
+      "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:201",
+      "expect": "Insufficient msg.value for fee",
+      "doc": "payer"
+    },
+    {
+      "kind": "edge",
+      "name": "estimateCrossDomainMessageFee waives for whitelisted _sender",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:113-119",
+      "expect": "isSenderAllowed(_sender)",
+      "doc": "oracle"
+    }
+  ],
+  "premises": [
+    {
+      "name": "HypW",
+      "kind": "oracle",
+      "text": "IWhitelist.isSenderAllowed as an oracle predicate on principals"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "L1CrossDomainMessenger.replayMessage"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "a",
+        "type": "Act"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "is_replayMessage",
+            "args": [
+              {
+                "var": "a"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "runs_ok",
+            "args": [
+              {
+                "trace": [
+                  {
+                    "var": "a"
+                  }
+                ]
+              },
+              {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "waiver_key",
+          "args": [
+            {
+              "var": "a"
+            }
+          ]
+        },
+        {
+          "fn": "payer",
+          "args": [
+            {
+              "var": "a"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Payer/bearer rule (§7.5): a fee waiver must be keyed by the principal that bears the cost. Here the waiver follows the origin while the replaying caller pays.",
+  "maps_to": "O29 (F8)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "replayMessage by caller C (not whitelisted) for origin O (whitelisted): fee = 0 although payer = C; symmetrically a whitelisted C pays the full fee for a non-whitelisted O.",
+  "prediction_origin": "derived"
+}

@@ -1,0 +1,135 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_nat_cutover_defend",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "NAT",
+  "subform": "native_equivalence",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "migration",
+      "name": "eta4",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:209-219",
+      "expect": "function initialize4",
+      "doc": "as above"
+    },
+    {
+      "kind": "guard",
+      "name": "proveState is onlyActiveSubmitter (new registry)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:598",
+      "expect": "onlyActiveSubmitter",
+      "doc": "legacy committer cannot defend"
+    },
+    {
+      "kind": "edge",
+      "name": "Submitter.isActive",
+      "src": "contracts/contracts/l1/rollup/Submitter.sol:70-72",
+      "expect": "function isActive",
+      "doc": "registered && !withdrawing && stake >= min"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    },
+    {
+      "name": "HypSub",
+      "kind": "oracle",
+      "text": "new Submitter.isActive(legacy committer) == false until the committer is re-added and re-staked"
+    }
+  ],
+  "scope": {
+    "kind": "bounded(H)",
+    "domain": "traces q in which the legacy committer calls proveState on its own in-flight batch"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "q",
+        "type": "Trace"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "in_flight_legacy",
+            "args": [
+              {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {
+                    "pre_cutover": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "mig": "eta4",
+            "of": {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {
+                  "pre_cutover": true
+                }
+              }
+            },
+            "args": []
+          }
+        },
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": "Naturality of eta4 for the defend edge: the committer of an in-flight batch must still be able to prove it. After the cutover only members of the new registry can; if none acts within W the batch is reverted by timeout.",
+  "maps_to": "O14 (N4)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "p: legacy commit(i) by S; eta4; q: challengeState(i); proveState(i) by S reverts 'only active submitter allowed' after migration, succeeds natively.",
+  "prediction_origin": "derived"
+}

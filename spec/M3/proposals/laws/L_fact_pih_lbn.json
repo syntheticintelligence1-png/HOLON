@@ -1,0 +1,115 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_fact_pih_lbn",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "FACT",
+  "subform": "kernel_containment",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "facts/morph_header.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "edge",
+      "name": "public input = keccak(chainId, prev, post, withdrawRoot, ssvh, dataHash, blobHashInput)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:767-777",
+      "expect": "_publicInputHash = keccak256",
+      "doc": "lastBlockNumber (byte 249..257), parentBatchHash and batchIndex are absent"
+    },
+    {
+      "kind": "register",
+      "name": "header lastBlockNumber",
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:45-49",
+      "expect": "getLastBlockNumber",
+      "doc": "the field outside the kernel"
+    },
+    {
+      "kind": "edge",
+      "name": "dataHash does bind the committed lbn but not the parent's",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:871",
+      "expect": "_lastBlockNumber",
+      "doc": "the batch's own lbn enters via dataHash; the parent's does not"
+    }
+  ],
+  "premises": [
+    {
+      "name": "CF_keccak_headers",
+      "kind": "collision_freedom",
+      "text": "CF(keccak256, S) for the finite set S of headers and presented headers in the trace (Cor 6.16); premise, never an axiom"
+    },
+    {
+      "name": "HypV",
+      "kind": "oracle",
+      "text": "verifier soundness relative to the public input: a proof accepted for pih is accepted for every header with the same pih"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "257-byte v1/v2 headers"
+  },
+  "statement": {
+    "forall": [
+      {
+        "name": "h",
+        "type": "Header"
+      },
+      {
+        "name": "h2",
+        "type": "Header"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "call": "public_input",
+            "args": [
+              {
+                "var": "h"
+              }
+            ]
+          },
+          {
+            "call": "public_input",
+            "args": [
+              {
+                "var": "h2"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "call": "lbn_parent_idx",
+          "args": [
+            {
+              "var": "h"
+            }
+          ]
+        },
+        {
+          "call": "lbn_parent_idx",
+          "args": [
+            {
+              "var": "h2"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "FACT (Thm 6.8): the proof's public input m must determine the consumed facts c = (parent lbn, parent hash, index); ker(m) ⊄ ker(c), so a proof for one batch position verifies at another with equal roots and data.",
+  "maps_to": "O23 (F11d)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "h, h2 differing only in parentBatchHash (bytes 217..249): identical public input, distinct parents.",
+  "prediction_origin": "derived"
+}

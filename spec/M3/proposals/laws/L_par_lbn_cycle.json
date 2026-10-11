@@ -1,0 +1,222 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_par_lbn_cycle",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "PAR",
+  "subform": "cycle",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "register",
+      "name": "header lastBlockNumber (v1/v2) and batchDataStore.blockNumber",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:354",
+      "expect": "storeLastBlockNumber",
+      "doc": "on-chain copy of lbn, never compared with the payload"
+    },
+    {
+      "kind": "consumer",
+      "name": "derivation blockCount = lbn - parent.lbn (or lbn - start + 1)",
+      "src": "node/derivation/batch_info.go:146-160",
+      "expect": "blockCount = batch.LastBlockNumber - parentBatchBlock",
+      "doc": "count only; no check that the decoded contexts end at lbn"
+    },
+    {
+      "kind": "consumer",
+      "name": "first/last block numbers are read from the contexts, not checked",
+      "src": "node/derivation/batch_info.go:214-219",
+      "expect": "bi.lastBlockNumber = block.Number",
+      "doc": "the cycle is left open"
+    },
+    {
+      "kind": "carrier",
+      "name": "60-byte block context (number at [0:8])",
+      "src": "common/batch/batch_cache.go:1826-1852",
+      "expect": "PutUint64(blsBytes[:8]",
+      "doc": "payload-side copy of the block number"
+    }
+  ],
+  "premises": [
+    {
+      "name": "CF_keccak_headers",
+      "kind": "collision_freedom",
+      "text": "CF(keccak256, S) for the finite set S of headers and presented headers in the trace (Cor 6.16); premise, never an axiom"
+    },
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "commits with version >= 1 (header carries lastBlockNumber) whose payload the node derives"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "a",
+        "type": "Act"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "is_commit_any",
+            "args": [
+              {
+                "var": "a"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "runs_ok",
+            "args": [
+              {
+                "trace": [
+                  {
+                    "var": "a"
+                  }
+                ]
+              },
+              {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "derive_ok",
+            "args": [
+              {
+                "fn": "payload_of",
+                "args": [
+                  {
+                    "var": "a"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "fn": "last_block_of",
+              "args": [
+                {
+                  "fn": "derive",
+                  "args": [
+                    {
+                      "fn": "payload_of",
+                      "args": [
+                        {
+                          "var": "a"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fn": "lbn_of",
+              "args": [
+                {
+                  "var": "a"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "fn": "first_block_of",
+              "args": [
+                {
+                  "fn": "derive",
+                  "args": [
+                    {
+                      "fn": "payload_of",
+                      "args": [
+                        {
+                          "var": "a"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "plus": [
+                {
+                  "fn": "lbn_parent",
+                  "args": [
+                    {
+                      "run": {
+                        "var": "p"
+                      },
+                      "from": {
+                        "s0": {}
+                      }
+                    }
+                  ]
+                },
+                {
+                  "nat": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Fundamental cycle header.lbn -> blockCount -> contexts[last].number -> header.lbn has no closing check in derivation (Thm 6.4: one check per cycle suffices).",
+  "maps_to": "O7 (F11b,c)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "payload whose contexts carry numbers parent.lbn+5 .. parent.lbn+5+count-1 with header lbn = parent.lbn+count: derivation accepts; derived first block != parent.lbn+1 and last != lbn.",
+  "prediction_origin": "derived"
+}

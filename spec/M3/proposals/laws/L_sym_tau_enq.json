@@ -1,0 +1,122 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sym_tau_enq",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "SYM",
+  "subform": "time_equivariance",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "register",
+      "name": "messageEnqueueTime with 0 as 'unset'",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:60",
+      "expect": "messageEnqueueTime",
+      "doc": "Time + {0} is an untagged union Time + Unit"
+    },
+    {
+      "kind": "edge",
+      "name": "sentinel test enq != 0",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:262",
+      "expect": "!= 0",
+      "doc": "equivariance breaks exactly at the sentinel"
+    },
+    {
+      "kind": "sort",
+      "name": "Time-sorted registers for the shift action",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371",
+      "expect": "block.timestamp",
+      "doc": "SYM-tau needs the sort table"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "time-shift family tau_d acting on t and on every Time-sorted register (enq entries, startTime, origin/finalize timestamps)"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "State"
+      },
+      {
+        "q": "forall",
+        "name": "d",
+        "type": "Nat"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "reach",
+            "args": [
+              {
+                "var": "s"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "first_unfinalized_enq",
+          "args": [
+            {
+              "fn": "shift_time",
+              "args": [
+                {
+                  "var": "s"
+                },
+                {
+                  "var": "d"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "plus": [
+            {
+              "fn": "first_unfinalized_enq",
+              "args": [
+                {
+                  "var": "s"
+                }
+              ]
+            },
+            {
+              "var": "d"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "SYM-tau: the predicate should commute with a uniform time shift. The sentinel 0 is a fixed point of the shift, so a genuinely enqueued message at time 0 (or any legacy message) is misread as absent.",
+  "maps_to": "O21 (F7)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "s with pendingQueueIndex < length and enq[P] = 0: lhs = t + d (sentinel branch), rhs = t + d only if enq[P] + d == t + d, i.e. never for legacy entries.",
+  "prediction_origin": "derived"
+}

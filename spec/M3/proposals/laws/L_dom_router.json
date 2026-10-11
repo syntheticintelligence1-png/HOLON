@@ -1,0 +1,175 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_dom_router",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "PAR",
+  "subform": "domain_coherence",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "register",
+      "name": "latestVerifier[version], legacyVerifiers[version]",
+      "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:62-65",
+      "expect": "latestVerifier",
+      "doc": "router tables"
+    },
+    {
+      "kind": "edge",
+      "name": "getVerifier(version, batchIndex)",
+      "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:98-123",
+      "expect": "function getVerifier",
+      "doc": "returns latestVerifier[v].verifier (address(0) for an unregistered version, :100-122) or reverts ErrorVerifierNotFound (:117-118)"
+    },
+    {
+      "kind": "action",
+      "name": "updateVerifier(version, startBatchIndex, verifier)",
+      "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:148-167",
+      "expect": "function updateVerifier",
+      "doc": "owner-only growth of the router domain"
+    },
+    {
+      "kind": "guard",
+      "name": "commit admits any version <= 2 without consulting the router",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:293",
+      "expect": "invalid version",
+      "doc": "the only version check on the commit paths"
+    },
+    {
+      "kind": "edge",
+      "name": "_verifyProof -> verifyAggregateProof(version, batchIndex, ..)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+      "expect": "verifyAggregateProof",
+      "doc": "where the router is first consulted (proveState / commitBatchWithProof)"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    },
+    {
+      "name": "HypV",
+      "kind": "oracle",
+      "text": "IZkEvmVerifier.verifyBatch is an oracle: the law is parametric in it and only asks whether the router resolves an address with code"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "every successful commitBatch/commitState/commitBatchWithProof; router = MultipleVersionRollupVerifier.getVerifier(version, batchIndex)"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "a",
+        "type": "Act"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "is_commit_any",
+            "args": [
+              {
+                "var": "a"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "runs_ok",
+            "args": [
+              {
+                "trace": [
+                  {
+                    "var": "a"
+                  }
+                ]
+              },
+              {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "router_defined",
+          "args": [
+            {
+              "fn": "ver_of",
+              "args": [
+                {
+                  "var": "a"
+                }
+              ]
+            },
+            {
+              "fn": "idx_of",
+              "args": [
+                {
+                  "run": {
+                    "trace": [
+                      {
+                        "var": "a"
+                      }
+                    ]
+                  },
+                  "from": {
+                    "run": {
+                      "var": "p"
+                    },
+                    "from": {
+                      "s0": {}
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Domain coherence between the commit path (accepts (version, index)) and the proof path (router must resolve the same pair). A committed batch whose pair is outside the router domain can be challenged but never defended: proveState reverts at the router, the timeout branch slashes the submitter (:613-616).",
+  "maps_to": "O3 (F14)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "commitBatch with version v for which latestVerifier[v].verifier == address(0) (e.g. v = 0 after only v1/v2 verifiers were registered), then challengeState; proveState reverts in getVerifier / in the call to address(0); after W the challenger wins by timeout.",
+  "prediction_origin": "derived"
+}

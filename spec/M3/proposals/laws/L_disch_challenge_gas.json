@@ -1,0 +1,130 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_disch_challenge_gas",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "DISCH",
+  "subform": "bounded_cost",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "cost",
+      "name": "challengeState loop over LFI+1..LCI: one SSTORE per batch",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:489-493",
+      "expect": "for (uint256 i = lastFinalizedBatchIndex + 1",
+      "doc": "cost term linear in the backlog"
+    },
+    {
+      "kind": "param",
+      "name": "gas ceiling G as an environment carrier (§3.8 cost-indexed enabled set)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:471-474",
+      "expect": "function challengeState",
+      "doc": "En_G"
+    },
+    {
+      "kind": "edge",
+      "name": "backlog grows by commits (submitter class) and shrinks only by finalizeBatch after F",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-644",
+      "expect": "function finalizeBatch",
+      "doc": "Write*_challenger cannot reduce LCI - LFI except by waiting for windows"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    },
+    {
+      "name": "HypGas",
+      "kind": "oracle",
+      "text": "EVM gas costs as an affine cost model cost_challenge(s) = c0 + c1 * (LCI(s) - LFI(s)); c0, c1 measured on the pinned contract"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "challenger class; G = block gas limit (environment parameter)"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "State"
+      },
+      {
+        "q": "forall",
+        "name": "G",
+        "type": "Nat"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "reach",
+            "args": [
+              {
+                "var": "s"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "challengeable_exists",
+            "args": [
+              {
+                "var": "s"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "le",
+          "args": [
+            {
+              "fn": "cost_challenge",
+              "args": [
+                {
+                  "var": "s"
+                }
+              ]
+            },
+            {
+              "var": "G"
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Discharge profile for the challenge guard under a gas ceiling: the cost of the only challenger action is controlled by the challenged class (commits), and the challenger's write closure cannot shrink it. Unbounded cost law; refutation is the backlog size k* = (G - c0)/c1 at which challengeState becomes infeasible (safety: an invalid batch finalizes unchallenged).",
+  "maps_to": "O35 (F1)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "s with LCI - LFI = k* + 1 reachable by k*+1 commits within one finalization period F: cost_challenge(s) > G.",
+  "prediction_origin": "derived"
+}

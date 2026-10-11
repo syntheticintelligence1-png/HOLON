@@ -1,0 +1,138 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort_bearer_recommit",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "SORT",
+  "subform": "payer_bearer",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "register",
+      "name": "ghost: chooser[i] = sender of the commit that first wrote BVH[i]",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:359",
+      "expect": "batchBlobVersionedHashes[_batchIndex] = blobVersionedHash",
+      "doc": "needs a ghost register (Prop 6.19 style)"
+    },
+    {
+      "kind": "register",
+      "name": "bearer: BatchData.submitter written at every (re)commit",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:370",
+      "expect": "submitter",
+      "doc": "slashed principal"
+    },
+    {
+      "kind": "action",
+      "name": "commitState reuses the pinned BVH under a new submitter",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:285",
+      "expect": "batchBlobVersionedHashes[_nextBatchIndex]",
+      "doc": "bearer != chooser"
+    },
+    {
+      "kind": "action",
+      "name": "_challengerWin slashes the bearer",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:806",
+      "expect": "slash(submitter)",
+      "doc": "sink"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    }
+  ],
+  "scope": {
+    "kind": "bounded(H)",
+    "domain": "every committed batch; bearer = batchDataStore[i].submitter, chooser = the principal whose commit fixed batchBlobVersionedHashes[i]"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "i",
+        "type": "Nat"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "committed",
+            "args": [
+              {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              },
+              {
+                "var": "i"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "bearer",
+          "args": [
+            {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            },
+            {
+              "var": "i"
+            }
+          ]
+        },
+        {
+          "fn": "chooser",
+          "args": [
+            {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            },
+            {
+              "var": "i"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Payer/bearer coherence (§7.5): the bond at risk must be borne by the principal who chose the content. After revert, S2 recommits S1's pinned blob and bears S2's bond.",
+  "maps_to": "O25 (N3)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "commitBatch(i) by S1 with blob beta; revertBatch(i); commitState(i) by S2: chooser = S1, bearer = S2.",
+  "prediction_origin": "derived"
+}
