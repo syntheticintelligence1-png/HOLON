@@ -59,7 +59,9 @@ class Gate:
         self.checks: dict[str, dict] = {}
         self.canaries: list[dict] = []
         self.bend_version = "not_run"
-        self.facts_path = self.root / "facts" / "morph_header.json"
+        reg = ir.load_registry(milestone, self.root)
+        self.facts_path = self.root / reg.get("facts", "facts/morph_header.json")
+        self.irv = ir.ir_version_of(milestone, self.root)
         self.results = self.root / "results" / milestone
         self.gen = self.root / "gen" / milestone
         self.check_outputs: list[str] = []
@@ -67,7 +69,7 @@ class Gate:
     # ------------------------------------------------------------ helpers
     def records(self) -> dict[str, dict]:
         out = {}
-        for law in ir.load_laws(self.m, self.root):
+        for law in ir.load_laws_any(self.m, self.root):
             p = self.results / f"{law['law_id']}.json"
             out[law["law_id"]] = _load(p) if p.exists() else None
         return out
@@ -98,7 +100,7 @@ class Gate:
 
     def g2(self) -> None:
         try:
-            laws = ir.load_laws(self.m, self.root)
+            laws = ir.load_laws_any(self.m, self.root)
             reg = ir.load_registry(self.m, self.root)
             fsha = F.sha256_file(self.facts_path)
             bad = [l["law_id"] for l in laws if reg["statements"].get(l["law_id"]) != ir.statement_hash(l)]
@@ -228,7 +230,28 @@ class Gate:
             out.append(("negated", lid, copy.deepcopy(law)))
         return out
 
+    def g4_machine(self) -> None:
+        from .mcanary import run_canaries
+        from .mpipeline import CompiledMachine
+        tmp = Path(tempfile.mkdtemp(prefix="holon-gate-g4m-"))
+        try:
+            cm = CompiledMachine.build(self.facts_path, self.cfg)
+            laws = ir.load_laws_any(self.m, self.root)
+            recs = {k: v for k, v in self.records().items() if v}
+            self.canaries = run_canaries(cm, laws, recs, tmp, self.cfg)
+            kinds = {c["kind"] for c in self.canaries}
+            accepted = [c["id"] for c in self.canaries if not c["rejected"]]
+            ok = len(self.canaries) >= MIN_CANARIES and len(kinds) >= 3 and not accepted
+            self.checks["G4"] = _res(ok, f"{len(self.canaries)} canaries of kinds {sorted(kinds)}, all rejected" if ok
+                                     else f"{len(self.canaries)} canaries, kinds {sorted(kinds)}, ACCEPTED: {accepted}")
+        except Exception as e:  # noqa: BLE001
+            self.checks["G4"] = _res(False, f"error: {e}")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def g4(self) -> None:
+        if self.irv == "holon-ir/0.2":
+            return self.g4_machine()
         try:
             facts = F.load(self.facts_path)
             model = CompiledModel.build(self.facts_path, cfg=self.cfg)

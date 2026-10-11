@@ -1,0 +1,111 @@
+{
+  "milestone": "M1",
+  "source": "HOLON v2 whitepaper §11.8 (preregistered before mechanization, by the human author); transcribed to law ids. Laws marked post_hoc were added during M1 and are NOT preregistered.",
+  "statuses": [
+    "PROVED",
+    "REFUTED",
+    "UNKNOWN"
+  ],
+  "laws": [
+    {
+      "law_id": "L_undo_CSR",
+      "status": "PROVED",
+      "whitepaper_row": "L_undo_CSR, L_undo_BD | UNDO | PROVED | Relation 'equal outside {CSR_i, BD_i}'"
+    },
+    {
+      "law_id": "L_undo_BD",
+      "status": "PROVED",
+      "whitepaper_row": "L_undo_CSR, L_undo_BD | UNDO | PROVED"
+    },
+    {
+      "law_id": "L_undo_BVH",
+      "status": "REFUTED",
+      "triage": "finding",
+      "whitepaper_row": "commit(i, β); revert(i); commitBatch(i, β′) reverts in one run, succeeds in the other",
+      "witness_constraints": {
+        "continuation_differs": true
+      }
+    },
+    {
+      "law_id": "L_undo_cancel",
+      "status": "REFUTED",
+      "triage": "finding",
+      "whitepaper_row": "challenge(k); pause: f_j retains +W"
+    },
+    {
+      "law_id": "L_sort_remaining",
+      "status": "REFUTED",
+      "triage": "finding",
+      "whitepaper_row": "inChallenge, t = s + W + 1",
+      "witness_constraints": {
+        "last_reason": "panic:0x11"
+      }
+    },
+    {
+      "law_id": "L_tag_BVH",
+      "status": "REFUTED",
+      "triage": "finding",
+      "whitepaper_row": "commit v2; revert; commitState v1 (either direction of the version swap is the same obstruction O26)"
+    },
+    {
+      "law_id": "L_disch_delay_nofree",
+      "status": "PROVED",
+      "whitepaper_row": "L_disch_delay | Profile {(c_msg, 0), (0, Δ_fin)}: (0,0) is not a profile point"
+    },
+    {
+      "law_id": "L_disch_delay_pay",
+      "status": "PROVED",
+      "whitepaper_row": "L_disch_delay: strategy program (c_msg, 0)"
+    },
+    {
+      "law_id": "L_disch_delay_wait",
+      "status": "PROVED",
+      "whitepaper_row": "L_disch_delay: strategy program (0, Δ_fin)"
+    },
+    {
+      "law_id": "L_disch_stale",
+      "status": "PROVED",
+      "whitepaper_row": "L_disch_stale | Blocked for permissionless committers | invariant inChallenge ∧ t > s + W, preserved by those committers and by time"
+    },
+    {
+      "law_id": "L_disch_stale_commit",
+      "status": "PROVED",
+      "whitepaper_row": "L_disch_stale: the blocked committers cannot commit"
+    },
+    {
+      "law_id": "L_fact_Z",
+      "status": "REFUTED",
+      "triage": "finding",
+      "whitepaper_row": "Two transactions differing only in sidecar presence, with equal CB"
+    },
+    {
+      "law_id": "L_sym_omega",
+      "status": "REFUTED",
+      "triage": "finding",
+      "whitepaper_row": "L_sym_ω(zk, challenge): order swap leaves f_i open in one order, closed in the other"
+    },
+    {
+      "law_id": "L_disch_delay_prove",
+      "status": "PROVED",
+      "post_hoc": true,
+      "note": "third, dominated profile point found by the strategy search"
+    },
+    {
+      "law_id": "L_nat_eta2",
+      "status": "REFUTED",
+      "triage": "finding",
+      "post_hoc": true,
+      "note": "O15 / N1 (whitepaper §11.4); not in the §11.8 table"
+    }
+  ],
+  "not_in_M1": [
+    {
+      "whitepaper_row": "L_own_txspayload | OWN | REFUTED, conditional",
+      "why": "Go heap aliasing; not part of the Rollup state-machine slice (whitepaper §15.2 M1 register list). See docs/M1_REPORT.md."
+    },
+    {
+      "whitepaper_row": "L_par_hdr_* / L_dom_v0",
+      "why": "M0"
+    }
+  ]
+}

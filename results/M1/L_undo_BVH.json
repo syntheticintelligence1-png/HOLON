@@ -18,22 +18,34 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.299
+      "seconds": 0.326
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.466
+      "seconds": 0.526
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.299
+    "seconds": 0.326
   },
-  "difference": null,
+  "difference": {
+    "lhs": [
+      {
+        "$": "O_Rev",
+        "code": 4
+      }
+    ],
+    "rhs": [
+      {
+        "$": "O_Ok"
+      }
+    ]
+  },
   "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
   "kernel": {
     "name": "bend",
@@ -49,8 +61,8 @@
     "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
   ],
   "replay": {
-    "detail": "no replay report entry",
-    "status": "not_run"
+    "detail": "continuation outcomes on the real code: ['rev commitBatch requires no stored blob hash'] vs ['ok'] @ morph 3e44e795586a",
+    "status": "passed"
   },
   "rule": "UNDO",
   "scope": "unbounded",

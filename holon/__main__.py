@@ -31,6 +31,7 @@ def main(argv=None) -> int:
     rp.add_argument("--forge")
     rp.add_argument("--solc", help="path to a solc 0.8.24 binary (forge --use)")
     rp.add_argument("--work")
+    rp.add_argument("--corpus", type=int, default=60, help="M1: random refinement traces")
     lay = sub.add_parser("layout", help="print the symbolic byte layout of an encoder")
     lay.add_argument("fn")
     lay.add_argument("version", type=int)

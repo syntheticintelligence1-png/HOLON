@@ -1,0 +1,662 @@
+{
+  "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
+  "harness_mismatch": false,
+  "laws": {
+    "L_fact_Z": {
+      "observed": "committedBatches after c1 / c2: ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') / ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') (different blob sidecars)",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": [
+        {
+          "agree": 1,
+          "disagree": [],
+          "label": "c1",
+          "real": [
+            "ok"
+          ],
+          "trace": [
+            {
+              "blobs": [],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        },
+        {
+          "agree": 1,
+          "disagree": [],
+          "label": "c2",
+          "real": [
+            "ok"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                1
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        }
+      ]
+    },
+    "L_nat_eta2": {
+      "observed": "continuation outcomes on the real code: ['ok', 'rev incorrect previous state root'] vs ['ok', 'ok']",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": [
+        {
+          "agree": 4,
+          "disagree": [],
+          "label": "lhs",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "rev incorrect previous state root"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "op": "@legacy_eta2",
+              "root": 110
+            },
+            {
+              "count": 1,
+              "idx": 1,
+              "op": "revertBatch",
+              "who": 1
+            },
+            {
+              "blobs": [],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitState",
+              "parent": 0,
+              "post": 111,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        },
+        {
+          "agree": 3,
+          "disagree": [],
+          "label": "rhs",
+          "real": [
+            "ok",
+            "ok",
+            "ok"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "count": 1,
+              "idx": 1,
+              "op": "revertBatch",
+              "who": 1
+            },
+            {
+              "blobs": [],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitState",
+              "parent": 0,
+              "post": 111,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        }
+      ]
+    },
+    "L_sort_remaining": {
+      "observed": "last step on the real code: ('rev', 'panic:0x11')",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": [
+        {
+          "agree": 4,
+          "disagree": [],
+          "label": "trace",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "rev panic:0x11"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 11,
+              "op": "wait"
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 1,
+              "post": 123,
+              "prev": 110,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        }
+      ]
+    },
+    "L_sym_omega": {
+      "observed": "continuation outcomes on the real code: ['ok', 'ok'] vs ['ok', 'rev cannot challenge batch outside the challenge window']",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": [
+        {
+          "agree": 6,
+          "disagree": [],
+          "label": "lhs",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "ok"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "dt": 21,
+              "op": "wait"
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatchWithProof",
+              "parent": 1,
+              "post": 122,
+              "prev": 110,
+              "proof": 1,
+              "ver": 1,
+              "who": 5
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "idx": 1,
+              "op": "proveState",
+              "proof": 1,
+              "who": 2
+            },
+            {
+              "idx": 2,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            }
+          ]
+        },
+        {
+          "agree": 6,
+          "disagree": [],
+          "label": "rhs",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "rev cannot challenge batch outside the challenge window"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "dt": 21,
+              "op": "wait"
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatchWithProof",
+              "parent": 1,
+              "post": 122,
+              "prev": 110,
+              "proof": 1,
+              "ver": 1,
+              "who": 5
+            },
+            {
+              "idx": 1,
+              "op": "proveState",
+              "proof": 1,
+              "who": 2
+            },
+            {
+              "idx": 2,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            }
+          ]
+        }
+      ]
+    },
+    "L_tag_BVH": {
+      "observed": "the real contract accepts the whole trace (the ghost-tag violation is invisible on chain by design)",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": [
+        {
+          "agree": 3,
+          "disagree": [],
+          "label": "trace",
+          "real": [
+            "ok",
+            "ok",
+            "ok"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "count": 1,
+              "idx": 1,
+              "op": "revertBatch",
+              "who": 1
+            },
+            {
+              "blobs": [],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitState",
+              "parent": 0,
+              "post": 112,
+              "prev": 100,
+              "ver": 2,
+              "who": 2
+            }
+          ]
+        }
+      ]
+    },
+    "L_undo_BVH": {
+      "observed": "continuation outcomes on the real code: ['rev commitBatch requires no stored blob hash'] vs ['ok']",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": [
+        {
+          "agree": 3,
+          "disagree": [],
+          "label": "lhs",
+          "real": [
+            "ok",
+            "ok",
+            "rev commitBatch requires no stored blob hash"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "count": 1,
+              "idx": 1,
+              "op": "revertBatch",
+              "who": 1
+            },
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        },
+        {
+          "agree": 1,
+          "disagree": [],
+          "label": "rhs",
+          "real": [
+            "ok"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        }
+      ]
+    },
+    "L_undo_cancel": {
+      "observed": "continuation outcomes on the real code: ['ok', 'ok', 'ok'] vs ['ok', 'ok', 'rev cannot challenge batch outside the challenge window']",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": [
+        {
+          "agree": 7,
+          "disagree": [],
+          "label": "lhs",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "ok"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 1,
+              "post": 121,
+              "prev": 110,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "op": "setPause",
+              "status": true,
+              "who": 1
+            },
+            {
+              "op": "setPause",
+              "status": false,
+              "who": 1
+            },
+            {
+              "dt": 40,
+              "op": "wait"
+            },
+            {
+              "idx": 2,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            }
+          ]
+        },
+        {
+          "agree": 6,
+          "disagree": [],
+          "label": "rhs",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "rev cannot challenge batch outside the challenge window"
+          ],
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 1,
+              "post": 121,
+              "prev": 110,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "op": "setPause",
+              "status": true,
+              "who": 1
+            },
+            {
+              "op": "setPause",
+              "status": false,
+              "who": 1
+            },
+            {
+              "dt": 40,
+              "op": "wait"
+            },
+            {
+              "idx": 2,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "refinement": {
+    "disagreements": [],
+    "n_disagreements": 0,
+    "per_action": {
+      "challengeState": {
+        "agree": 67,
+        "disagree": 0
+      },
+      "commitBatch": {
+        "agree": 874,
+        "disagree": 0
+      },
+      "commitBatchWithProof": {
+        "agree": 130,
+        "disagree": 0
+      },
+      "commitState": {
+        "agree": 224,
+        "disagree": 0
+      },
+      "finalizeBatch": {
+        "agree": 114,
+        "disagree": 0
+      },
+      "proveState": {
+        "agree": 96,
+        "disagree": 0
+      },
+      "revertBatch": {
+        "agree": 68,
+        "disagree": 0
+      },
+      "sendMessage": {
+        "agree": 108,
+        "disagree": 0
+      },
+      "setPause": {
+        "agree": 123,
+        "disagree": 0
+      },
+      "wait": {
+        "agree": 628,
+        "disagree": 0
+      }
+    },
+    "seed": 20261011,
+    "steps": 2432,
+    "traces": 300
+  },
+  "witness_sha256": {
+    "L_fact_Z": "bb676259f3c0b78c8867027595552193b2a5c262dacf6dfe9e39116e63633072",
+    "L_nat_eta2": "1eb685ab9ceb749cb27b3e6e38f8b5c5b6a384646ed7c99b1adf7f236953b08d",
+    "L_sort_remaining": "865e720cc26246ed9b385b422a22065dd247a19980eade6643b5529a3bbcc23a",
+    "L_sym_omega": "f9e7391243d243af9f844c6d3c99c32aefd68d21071566d00ed0ad38442db4e8",
+    "L_tag_BVH": "ccd20d33b5ea817e77e04d1a3b7706d222bcf22be6b7de4c9d8100daf39e6199",
+    "L_undo_BVH": "ea9bf332fc313f2bae1d49a04128041df0ede4b85de0572fd525ed2df8b74008",
+    "L_undo_cancel": "e1da4f943f9867c64144fd57723e4e1b9ac6e9a00031841f0a20a6e5d9d5ab1c"
+  }
+}

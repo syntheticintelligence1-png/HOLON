@@ -682,6 +682,8 @@ class Machine:
         if ty in self.types:
             return f"H{ty}{{" + ", ".join(self.literal(ft, v.get(fn, False if ft == 'Bool' else 0)) for fn, ft in self.types[ty]) + "}"
         if ty == "Obs":
+            if isinstance(v, dict):
+                return "O_Ok{}" if v["$"] == "O_Ok" else f"O_Rev{{{int(v['code'])}n}}"
             return "O_Ok{}" if v == "ok" else f"O_Rev{{{int(v)}n}}"
         raise FactsError(f"no literal for {ty}")
 

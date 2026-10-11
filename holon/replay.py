@@ -158,6 +158,8 @@ def replay_status(report: dict | None, lid: str, witness: dict | None) -> dict:
     e = report["laws"][lid]
     if report.get("witness_sha256", {}).get(lid) != witness_sha256(witness):
         return {"status": "not_run", "detail": "replay report is for a different witness"}
+    if "status" in e:  # M1 trace replay: one verdict per law
+        return {"status": e["status"], "detail": f"{e.get('observed', '')} @ morph {report['morph_commit'][:12]}"[:500]}
     sides = {s: e[s]["status"] for s in ("go", "solidity") if s in e}
     if "failed" in sides.values():
         status = "failed"
@@ -192,6 +194,10 @@ def stamp_records(milestone: str, results: Path, report: dict) -> list[str]:
 
 
 def main_replay(args) -> int:
+    from . import ir as _ir
+    if _ir.ir_version_of(args.milestone, ROOT) == "holon-ir/0.2":
+        from .mreplay import main_replay_m1
+        return main_replay_m1(args)
     morph = Path(args.morph).resolve()
     facts = F.load(ROOT / "facts" / "morph_header.json")
     sha = check_checkout(morph, facts["target"]["commit"])

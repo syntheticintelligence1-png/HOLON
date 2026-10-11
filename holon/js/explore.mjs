@@ -23,6 +23,7 @@ function enc(v) {
   if (typeof v === "number") return BigInt(v);
   if (typeof v === "boolean") return v;
   if (Array.isArray(v)) return toList(v.map(enc));
+  if (v && typeof v === "object" && "$" in v) { const o = { $: v.$ }; for (const [k, x] of Object.entries(v)) if (k !== "$") o[k] = enc(x); return o; }
   throw new Error("enc " + JSON.stringify(v));
 }
 function dec(x) {
@@ -45,39 +46,8 @@ const runJ = (tr, s) => tr.reduce((st, a) => stepJ(a, st), s);
 const lastOk = (s) => M.last_ok(s);
 
 // ---------------------------------------------------------------- policy (search heuristics, untrusted)
-function policy(sj) {
-  const s = dec(sj);
-  const lci = s.lfi + s.win.length - 1;
-  const last = s.win[s.win.length - 1] || {};
-  const fresh = 100 + 10 * (lci + 1) + (s.log.length % 7);
-  const blob = 7 + 10 * (lci + 1);
-  const room = Math.max(0, s.qlen - (last.tot || 0));
-  const ns = room > 0 ? [0, 1] : [0];
-  const P = facts.params;
-  const out = [];
-  for (const ver of [1, 2, 0]) for (const n of ns) {
-    const blobsList = ver === 2 ? [[blob]] : [[blob], [], [P.Z]];
-    for (const blobs of blobsList)
-      out.push({ op: "commitBatch", who: 2, ver, parent: lci, n, lbn: lci + 1, prev: last.csr || 0, post: fresh, blobs });
-  }
-  for (const ver of [1, 2]) out.push({ op: "commitState", who: 2, ver, parent: lci, n: 0, lbn: lci + 1, prev: last.csr || 0, post: fresh, blobs: [] });
-  for (const n of ns) out.push({ op: "commitBatchWithProof", who: 5, ver: 1, parent: lci, n, lbn: lci + 1, prev: last.csr || 0, post: fresh, blobs: [blob], proof: 1 });
-  if (lci > s.lfi) out.push({ op: "revertBatch", who: 1, idx: lci, count: 1 });
-  if (lci > s.lfi + 1) out.push({ op: "revertBatch", who: 1, idx: s.lfi + 1, count: lci - s.lfi });
-  for (const idx of [...new Set([lci, s.lfi + 1])]) if (idx > s.lfi && idx <= lci) out.push({ op: "challengeState", who: 4, idx, value: 1 });
-  out.push({ op: "proveState", who: 2, idx: s.bc, proof: 1 });
-  out.push({ op: "finalizeBatch", who: 5, idx: s.lfi + 1 });
-  out.push({ op: "setPause", who: 1, status: !s.paused });
-  out.push({ op: "sendMessage", who: 5 });
-  // time abstraction: wait exactly until the next relevant deadline (finalization, proof window, delay guard)
-  const dts = new Set([1, s.W, s.W + 1, s.F, s.D + 1]);
-  for (const e of s.win) if (e.bdf >= s.t) { dts.add(e.bdf - s.t); dts.add(e.bdf - s.t + 1); }
-  const ch = s.chs[s.bc]; if (ch && s.inch) for (const d of [ch.s + s.W - s.t, ch.s + s.W - s.t + 1]) if (d > 0) dts.add(d);
-  if (s.qpend < s.qlen) { const d = s.enq[s.qpend] + s.D + 1 - s.t; if (d > 0) dts.add(d); }
-  dts.delete(0);
-  for (const dt of [...dts].sort((x, y) => x - y)) out.push({ op: "wait", dt });
-  return out;
-}
+import { policyOf } from "./policy_lib.mjs";
+const policy = (sj) => policyOf(dec(sj), facts);
 
 // reachable prefixes: BFS over successful actions, deduplicated by state (log excluded)
 function stateKey(sj) { const s = dec(sj); delete s.log; return key(s); }
@@ -146,7 +116,11 @@ function tryHolds(p, env) { try { return holds(p, env); } catch (e) { if (e inst
 // ---------------------------------------------------------------- binder enumeration
 const st = law.statement;
 const binders = st.binders;
-const forall = binders.filter((b) => b.q === "forall");
+// enumerate states and prefixes first, then actions and numbers, then continuation traces
+const rank = (b) => (b.type === "State" || (b.type === "Trace" && (JSON.stringify(law.statement).includes(JSON.stringify({ run: { var: b.name }, from: { s0: {} } }))
+  || JSON.stringify(law.statement).includes(JSON.stringify({ obs: { var: b.name }, from: { s0: {} } }))))) ? 0
+  : b.type === "Act" ? 1 : b.type === "Nat" ? 2 : 3;
+const forall = binders.filter((b) => b.q === "forall").map((b, i) => [b, i]).sort((x, y) => rank(x[0]) - rank(y[0]) || x[1] - y[1]).map((x) => x[0]);
 const assume = st.assume || [];
 const claims = st.claim.all || [st.claim];
 const mentions = (t, v) => JSON.stringify(t).includes(JSON.stringify({ var: v }));
@@ -156,6 +130,7 @@ const isObsPrefixVar = (v) => JSON.stringify(st).includes(JSON.stringify({ obs: 
 const isObsSuffix = (v) => claims.length === 1 && claims[0].eq.every((s) => s.obs && JSON.stringify(s.obs) === JSON.stringify({ var: v }));
 
 function baseState(env) {
+  for (const b of forall) if (b.type === "State" && env[b.name]) return env[b.name].v;
   for (const b of forall) if (b.type === "Trace" && isPrefixVar(b.name) && env[b.name]) return M.run(env[b.name].v, s0);
   return s0;
 }
@@ -179,9 +154,32 @@ function candidates(b, env) {
     }
     return [...xs].sort((x, y) => x - y).map((n) => ({ ty: "Nat", v: BigInt(n), raw: n }));
   }
-  if (b.type === "State") return prefixes().slice(0, 400).map((p) => ({ ty: "State", v: p.state, raw: { run: p.trace } }));
+  if (b.type === "State") {
+    // premise-directed: s2 differs from an assigned s1 only in the fields a proj premise erases
+    for (const p of assume) {
+      const [l, r] = p.eq;
+      if (l.proj && r.proj && r.of.var === b.name && l.of.var && env[l.of.var]) {
+        const base = dec(env[l.of.var].v);
+        return perturb(base, l.proj).map((st) => ({ ty: "State", v: enc(st), raw: { state: st } }));
+      }
+    }
+    return prefixes().map((p) => ({ ty: "State", v: p.state, raw: { state: dec(p.state) } }));
+  }
   if (b.type === "Trace") return suffixes(baseState(env)).map((tr) => ({ ty: "Trace", v: toList(tr.map(mkAct)), raw: tr }));
   return [];
+}
+
+function perturb(st, fields) {
+  const out = [];
+  for (const f of fields) {
+    const v = st[f];
+    const alts = typeof v === "number" ? [v + 1, v + 5, Math.max(0, v - 1)]
+      : typeof v === "boolean" ? [!v]
+      : Array.isArray(v) ? (v.length && typeof v[0] === "object" ? [[], v.slice(1)] : [[], [1], [7], [1, ...v], v.slice(1)])
+      : [];
+    for (const a of alts) { const c = JSON.parse(JSON.stringify(st)); c[f] = a; if (key(c) !== key(st)) out.push(c); }
+  }
+  return out;
 }
 
 function suffixes(sj) {
@@ -276,6 +274,20 @@ function strategies() {
     frontier = next.slice(0, 20000);
   }
   return null;
+}
+if (req.evaluate) {
+  // evaluate a law at a given assignment: {"premises": [bool], "claims": [bool]}
+  const env = {};
+  for (const b of binders) {
+    const w = req.evaluate[b.name];
+    if (b.type === "Trace") env[b.name] = { ty: "Trace", v: toList(w.map(mkAct)) };
+    else if (b.type === "Act") env[b.name] = { ty: "Act", v: mkAct(w) };
+    else if (b.type === "Nat") env[b.name] = { ty: "Nat", v: BigInt(w) };
+    else if (b.type === "Bool") env[b.name] = { ty: "Bool", v: w };
+    else if (b.type === "State") env[b.name] = { ty: "State", v: w.run ? runJ(w.run, s0) : enc(w.state) };
+  }
+  process.stdout.write(JSON.stringify({ premises: assume.map((p) => holds(p, env)), claims: claims.map((c) => holds(c, env)) }));
+  process.exit(0);
 }
 let witness = null;
 if (binders.some((b) => b.q === "exists")) { witness = strategies(); notes.push("exists law: strategy search"); }

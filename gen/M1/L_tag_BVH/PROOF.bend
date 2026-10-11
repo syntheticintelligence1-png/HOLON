@@ -3,7 +3,7 @@ import Base
 import ../model/morph_rollup.bend as M
 import ./LAWS.bend as Laws
 
-# class counter: concrete witness, premises by computation, sides separated by the model's equality
+# class counter: concrete witness, premises by computation, sides separated by an equality function
 def Laws.cl_l_tag_bvh():
   ([M.A_commitBatch{2n, 1n, 0n, 0n, 1n, 100n, 110n, [17n]}, M.A_revertBatch{1n, 1n, 1n}, M.A_commitState{2n, 2n, 0n, 0n, 1n, 100n, 112n, Nil{}}], e => (%e : M.is_true(M.eq_bool(_, M.tags_ok(M.run([M.A_commitBatch{2n, 1n, 0n, 0n, 1n, 100n, 110n, [17n]}, M.A_revertBatch{1n, 1n, 1n}, M.A_commitState{2n, 2n, 0n, 0n, 1n, 100n, 112n, Nil{}}], M.s0()))))
   Unit{}))

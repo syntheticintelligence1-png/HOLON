@@ -35,6 +35,7 @@ _MODEL_FN = re.compile(r"(?<![\w.])(d_\w+|g_\w+|b_\w+|with_\w+|dec_\w+|decide_\w
 def q(t: str) -> str:
     """Qualify generated model types and functions with the model alias."""
     t = re.sub(r"(?<![\w.])H([A-Z]\w*)", rf"{ALIAS}.H\1", t)
+    t = re.sub(r"(?<![\w.])(O_Ok|O_Rev|A_\w+|D_\w+)\{", rf"{ALIAS}.\1{{", t)
     return _MODEL_FN.sub(rf"{ALIAS}.\1(", t)
 
 
@@ -247,12 +248,15 @@ def value_literal(m: Machine, ty: str, v) -> str:
     if ty == "Bool":
         return "True{}" if v else "False{}"
     if ty == "Act":
-        return q(m.act_literal(v)).replace("A_", f"{ALIAS}.A_")
+        return q(m.act_literal(v))
     if ty == "Trace":
         items = [value_literal(m, "Act", a) for a in v]
         return "[" + ", ".join(items) + "]" if items else "Nil{}"
     if ty == "State":
-        if set(v) != {"run"}:
-            raise Unsupported("state witnesses are given as a trace from the initial state")
-        return f"{ALIAS}.run({value_literal(m, 'Trace', v['run'])}, {ALIAS}.s0())"
+        if set(v) == {"run"}:
+            return f"{ALIAS}.run({value_literal(m, 'Trace', v['run'])}, {ALIAS}.s0())"
+        if set(v) == {"state"}:
+            st = v["state"]
+            return q(f"HSt{{{', '.join(m.literal(t, st[n]) for n, t in m.state)}}}")
+        raise Unsupported("state witnesses are a trace from the initial state or a full state")
     raise Unsupported(f"no witness literal for {ty}")

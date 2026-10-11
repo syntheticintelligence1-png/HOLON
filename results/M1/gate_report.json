@@ -1,0 +1,4415 @@
+{
+  "bend_version": "2.0.36",
+  "canaries": [
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "n": 0
+      },
+      "id": "CANARY_negated_0_L_disch_delay_nofree",
+      "kind": "negated",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_0_L_disch_delay_nofree",
+        "maps_to": "O33 (F7 reconciled)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "n",
+              "q": "forall",
+              "type": "Nat"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 1
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          },
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 21
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "commitBatch",
+                      "args": {
+                        "blobs": {
+                          "nats": [
+                            8
+                          ]
+                        },
+                        "lbn": {
+                          "nat": 2
+                        },
+                        "n": {
+                          "var": "n"
+                        },
+                        "parent": {
+                          "nat": 1
+                        },
+                        "post": {
+                          "nat": 102
+                        },
+                        "prev": {
+                          "nat": 101
+                        },
+                        "ver": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "profile_point"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_disch_delay_nofree"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "st": [
+          {
+            "op": "sendMessage",
+            "who": 5
+          },
+          {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 1,
+            "op": "commitBatch",
+            "parent": 1,
+            "post": 124,
+            "prev": 101,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_pin_const_0_L_disch_delay_pay",
+      "kind": "pin_const",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_0_L_disch_delay_pay",
+        "maps_to": "O33 (F7 reconciled)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "st",
+              "q": "exists",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "all": [
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      },
+                      {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "fn": "runs_ok"
+                  },
+                  {
+                    "bool": true
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "obsv": "lci_of",
+                    "of": {
+                      "from": {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "run": {
+                        "var": "st"
+                      }
+                    }
+                  },
+                  {
+                    "nat": 2
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "cost"
+                  },
+                  {
+                    "nat": 2
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "elapsed"
+                  },
+                  {
+                    "nat": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "profile_point"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_disch_delay_pay"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "st": [
+          {
+            "op": "sendMessage",
+            "who": 5
+          },
+          {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 1,
+            "op": "commitBatch",
+            "parent": 1,
+            "post": 124,
+            "prev": 101,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_pin_const_1_L_disch_delay_pay",
+      "kind": "pin_const",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_1_L_disch_delay_pay",
+        "maps_to": "O33 (F7 reconciled)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "st",
+              "q": "exists",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "all": [
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      },
+                      {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "fn": "runs_ok"
+                  },
+                  {
+                    "bool": true
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "obsv": "lci_of",
+                    "of": {
+                      "from": {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "run": {
+                        "var": "st"
+                      }
+                    }
+                  },
+                  {
+                    "nat": 2
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "cost"
+                  },
+                  {
+                    "nat": 1
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "elapsed"
+                  },
+                  {
+                    "nat": 1
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "profile_point"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_disch_delay_pay"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "st": [
+          {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 0,
+            "op": "commitBatchWithProof",
+            "parent": 1,
+            "post": 123,
+            "prev": 101,
+            "proof": 1,
+            "ver": 1,
+            "who": 5
+          }
+        ]
+      },
+      "id": "CANARY_pin_const_2_L_disch_delay_prove",
+      "kind": "pin_const",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_2_L_disch_delay_prove",
+        "maps_to": "O33 (F7 reconciled)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "st",
+              "q": "exists",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "all": [
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      },
+                      {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "fn": "runs_ok"
+                  },
+                  {
+                    "bool": true
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "obsv": "lci_of",
+                    "of": {
+                      "from": {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "run": {
+                        "var": "st"
+                      }
+                    }
+                  },
+                  {
+                    "nat": 2
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "cost"
+                  },
+                  {
+                    "nat": 1001
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "elapsed"
+                  },
+                  {
+                    "nat": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "profile_point"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_disch_delay_prove"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "st": [
+          {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 0,
+            "op": "commitBatchWithProof",
+            "parent": 1,
+            "post": 123,
+            "prev": 101,
+            "proof": 1,
+            "ver": 1,
+            "who": 5
+          }
+        ]
+      },
+      "id": "CANARY_pin_const_3_L_disch_delay_prove",
+      "kind": "pin_const",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_3_L_disch_delay_prove",
+        "maps_to": "O33 (F7 reconciled)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "st",
+              "q": "exists",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "all": [
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      },
+                      {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "fn": "runs_ok"
+                  },
+                  {
+                    "bool": true
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "obsv": "lci_of",
+                    "of": {
+                      "from": {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "run": {
+                        "var": "st"
+                      }
+                    }
+                  },
+                  {
+                    "nat": 2
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "cost"
+                  },
+                  {
+                    "nat": 1000
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "elapsed"
+                  },
+                  {
+                    "nat": 1
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "profile_point"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_disch_delay_prove"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "st": [
+          {
+            "dt": 19,
+            "op": "wait"
+          },
+          {
+            "idx": 1,
+            "op": "finalizeBatch",
+            "who": 5
+          },
+          {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 1,
+            "post": 125,
+            "prev": 101,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_pin_const_4_L_disch_delay_wait",
+      "kind": "pin_const",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_4_L_disch_delay_wait",
+        "maps_to": "O33 (F7 reconciled)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "st",
+              "q": "exists",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "all": [
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      },
+                      {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "fn": "runs_ok"
+                  },
+                  {
+                    "bool": true
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "obsv": "lci_of",
+                    "of": {
+                      "from": {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "run": {
+                        "var": "st"
+                      }
+                    }
+                  },
+                  {
+                    "nat": 2
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "cost"
+                  },
+                  {
+                    "nat": 1
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "elapsed"
+                  },
+                  {
+                    "nat": 19
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "profile_point"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_disch_delay_wait"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "st": [
+          {
+            "dt": 19,
+            "op": "wait"
+          },
+          {
+            "idx": 1,
+            "op": "finalizeBatch",
+            "who": 5
+          },
+          {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 1,
+            "post": 125,
+            "prev": 101,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_pin_const_5_L_disch_delay_wait",
+      "kind": "pin_const",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_5_L_disch_delay_wait",
+        "maps_to": "O33 (F7 reconciled)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "st",
+              "q": "exists",
+              "type": "Trace"
+            }
+          ],
+          "claim": {
+            "all": [
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      },
+                      {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "fn": "runs_ok"
+                  },
+                  {
+                    "bool": true
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "obsv": "lci_of",
+                    "of": {
+                      "from": {
+                        "from": {
+                          "s0": {}
+                        },
+                        "run": {
+                          "trace": [
+                            {
+                              "act": "sendMessage",
+                              "args": {
+                                "who": {
+                                  "nat": 5
+                                }
+                              }
+                            },
+                            {
+                              "act": "commitBatch",
+                              "args": {
+                                "blobs": {
+                                  "nats": [
+                                    7
+                                  ]
+                                },
+                                "lbn": {
+                                  "nat": 1
+                                },
+                                "n": {
+                                  "nat": 1
+                                },
+                                "parent": {
+                                  "nat": 0
+                                },
+                                "post": {
+                                  "nat": 101
+                                },
+                                "prev": {
+                                  "nat": 100
+                                },
+                                "ver": {
+                                  "nat": 1
+                                },
+                                "who": {
+                                  "nat": 2
+                                }
+                              }
+                            },
+                            {
+                              "act": "wait",
+                              "args": {
+                                "dt": {
+                                  "nat": 21
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "run": {
+                        "var": "st"
+                      }
+                    }
+                  },
+                  {
+                    "nat": 2
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "cost"
+                  },
+                  {
+                    "nat": 0
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "args": [
+                      {
+                        "var": "st"
+                      }
+                    ],
+                    "fn": "elapsed"
+                  },
+                  {
+                    "nat": 20
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "profile_point"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_disch_delay_wait"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [
+              1
+            ],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_0_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_0_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "s_bvh"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "s_bvh"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_bvh"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_bvh"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              },
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [
+              {
+                "$": "HBD",
+                "f": 50,
+                "n": 1,
+                "o": 10,
+                "s": 2
+              }
+            ],
+            "s_bvh": [
+              17
+            ],
+            "s_csr": [
+              110
+            ],
+            "s_tag": [
+              1
+            ],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              },
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [
+              {
+                "$": "HBD",
+                "f": 50,
+                "n": 1,
+                "o": 10,
+                "s": 2
+              }
+            ],
+            "s_bvh": [
+              17
+            ],
+            "s_csr": [
+              110
+            ],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitState",
+            "parent": 0,
+            "post": 112,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_1_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_1_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "s_tag"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "s_tag"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_tag"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_tag"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 11,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_2_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_2_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "t"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "t"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "t"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "t"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": true,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_3_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_3_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "paused"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "paused"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "paused"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "paused"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": true,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "op": "setPause",
+            "status": true,
+            "who": 1
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_4_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_4_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "inch"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "inch"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "inch"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "inch"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [
+              10
+            ],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 1,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [
+              10
+            ],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 1,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 111,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_5_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_5_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "qlen"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "qlen"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "qlen"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "qlen"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "run": []
+        },
+        "s2": {
+          "run": []
+        },
+        "tr": []
+      },
+      "id": "CANARY_negated_1_L_undo_BD",
+      "kind": "negated",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_1_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "s_bd"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "s_bd"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_bd"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_bd"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [
+              1
+            ],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_6_L_undo_CSR",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_6_L_undo_CSR",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "s_bvh"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "s_bvh"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_bvh"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_bvh"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_CSR"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              },
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [
+              {
+                "$": "HBD",
+                "f": 50,
+                "n": 1,
+                "o": 10,
+                "s": 2
+              }
+            ],
+            "s_bvh": [
+              17
+            ],
+            "s_csr": [
+              110
+            ],
+            "s_tag": [
+              1
+            ],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              },
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [
+              {
+                "$": "HBD",
+                "f": 50,
+                "n": 1,
+                "o": 10,
+                "s": 2
+              }
+            ],
+            "s_bvh": [
+              17
+            ],
+            "s_csr": [
+              110
+            ],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitState",
+            "parent": 0,
+            "post": 112,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_7_L_undo_CSR",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_7_L_undo_CSR",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "s_tag"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "s_tag"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_tag"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_tag"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_CSR"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 11,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_8_L_undo_CSR",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_8_L_undo_CSR",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "t"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "t"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "t"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "t"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_CSR"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": true,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_9_L_undo_CSR",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_9_L_undo_CSR",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "paused"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "paused"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "paused"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "paused"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_CSR"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": true,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "op": "setPause",
+            "status": true,
+            "who": 1
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_10_L_undo_CSR",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_10_L_undo_CSR",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "inch"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "inch"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "inch"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "inch"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_CSR"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [
+              10
+            ],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 1,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [
+              10
+            ],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 1,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 111,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_11_L_undo_CSR",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_11_L_undo_CSR",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "qlen"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "qlen"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "qlen"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "qlen"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_CSR"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "run": []
+        },
+        "s2": {
+          "run": []
+        },
+        "tr": []
+      },
+      "id": "CANARY_negated_2_L_undo_CSR",
+      "kind": "negated",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_2_L_undo_CSR",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "s_csr"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "s_csr"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_csr"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_csr"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_undo_CSR"
+    }
+  ],
+  "checks": {
+    "G1": {
+      "detail": "31 generated .bend files identical, summary identical",
+      "passed": true
+    },
+    "G11": {
+      "detail": "every law has a record and a non-vacuous LAWS.bend",
+      "passed": true
+    },
+    "G2": {
+      "detail": "all statement hashes match the registry",
+      "passed": true
+    },
+    "G3": {
+      "detail": "no escape hatches",
+      "passed": true
+    },
+    "G4": {
+      "detail": "21 canaries of kinds ['erase_live', 'negated', 'pin_const'], all rejected",
+      "passed": true
+    },
+    "G5": {
+      "detail": "15 proofs re-checked from scratch",
+      "passed": true
+    },
+    "G7": {
+      "detail": "dual-kernel: 15 proofs re-checked by BendTT (--verdict)",
+      "passed": true
+    },
+    "GENV": {
+      "detail": "bend 2.0.36, pinned 2.0.36",
+      "passed": true
+    }
+  },
+  "milestone": "M1",
+  "passed": true
+}

@@ -4,5 +4,15 @@
       "triage": "intent_question",
       "why": "Solidity always commits sequencerSetVerifyHash = 0 while Go copies the struct field. This is a defect only if some Go producer sets a nonzero value, which is outside M0's scope: it surfaces the premise ssvh = 0 as an intent question for the Morph team."
     }
+  },
+  "M1": {
+    "L_nat_eta2": {
+      "triage": "finding",
+      "why": "Latent and historical: affects only a chain upgraded through reinitializer(2) while LFI < LCI and later reverted into (LFI, LCI]."
+    },
+    "L_tag_BVH": {
+      "triage": "finding",
+      "why": "Ghost-tag exactness fails: a recommit can change the version while reusing a blob field of the other sort (F6 / O26)."
+    }
   }
 }

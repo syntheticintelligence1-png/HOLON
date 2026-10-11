@@ -137,10 +137,60 @@ def nat_split(em: EmittedM, m: Machine, model_import: str, depth: int = 1) -> st
     return "\n".join(_imports(model_import) + lines) + "\n"
 
 
+def _eq_defs(m: Machine, view: str, erased: list) -> tuple[list[str], str]:
+    """Structural equality over a View (untrusted helper: a wrong one only makes Bend reject)."""
+    out = []
+
+    def eqf(t: str) -> str:
+        if t == "Nat":
+            return "Nat.is_eq"
+        if t == "Bool":
+            return f"{ALIAS}.eq_bool"
+        if t == "Obs":
+            return f"{ALIAS}.eq_obs"
+        if t.startswith("List<"):
+            et = t[5:-1]
+            name = f"peq_list_{et.replace('<', '_').replace('>', '')}"
+            if not any(l.startswith(f"def {name}(") for l in out):
+                inner = eqf(et)
+                bt_ = q(bt(t))
+                out.extend([f"def {name}(xs: {bt_}, ys: {bt_}) -> Bool:", "  match xs ys:", "    case Nil{} Nil{}:", "      True{}",
+                            "    case Nil{} Con{h, t}:", "      False{}", "    case Con{h, t} Nil{}:", "      False{}",
+                            "    case Con{x, xt} Con{y, yt}:", f"      Bool.and({inner}(x, y), {name}(xt, yt))", ""])
+            return name
+        fields = m.types[t]
+        name = f"peq_{t}"
+        if not any(l.startswith(f"def {name}(") for l in out):
+            subs = [eqf(ft) for _, ft in fields]
+            conj = "True{}"
+            for (fn, _), e in reversed(list(zip(fields, subs))):
+                conj = f"Bool.and({e}(a_{fn}, b_{fn}), {conj})"
+            pa = ", ".join(f"a_{fn}" for fn, _ in fields)
+            pb = ", ".join(f"b_{fn}" for fn, _ in fields)
+            out.extend([f"def {name}(a: {ALIAS}.H{t}, b: {ALIAS}.H{t}) -> Bool:", "  match a b:",
+                        f"    case {ALIAS}.H{t}{{{pa}}} {ALIAS}.H{t}{{{pb}}}:", f"      {conj}", ""])
+        return name
+    kept = [(n, t) for n, t in m.state if n not in erased]
+    subs = [eqf(t) for _, t in kept]
+    conj = "True{}"
+    for (n, _), e in reversed(list(zip(kept, subs))):
+        conj = f"Bool.and({e}(a_{n}, b_{n}), {conj})"
+    pa = ", ".join(f"a_{n}" for n, _ in kept)
+    pb = ", ".join(f"b_{n}" for n, _ in kept)
+    out.extend([f"def peq_view(a: Laws.{view}, b: Laws.{view}) -> Bool:", "  match a b:",
+                f"    case Laws.{view}{{{pa}}} Laws.{view}{{{pb}}}:", f"      {conj}", ""])
+    return out, "peq_view"
+
+
 def counter(em: EmittedM, m: Machine, model_import: str, witness: dict, lhs_at: str, ty: str) -> str:
     """lhs_at: the claim's left side re-emitted at the witness (Bend text)."""
     eqfn = {"Obs": f"{ALIAS}.eq_obs_list", "Bool": f"{ALIAS}.eq_bool", "Nat": "Nat.is_eq",
             "List<Nat>": f"{ALIAS}.eq_list_nat"}.get(ty)
+    import re as _re
+    lhs_at = _re.sub(r"(?<![\w.])proj_V_", "Laws.proj_V_", lhs_at)  # statement helpers live in LAWS.bend
+    helpers: list[str] = []
+    if eqfn is None and ty in em.views:
+        helpers, eqfn = _eq_defs(m, ty, em.views[ty])
     if eqfn is None:
         raise Unsupported(f"no equality function for {ty}")
     parts = [value_literal(m, t, witness[n]) for _, n, t in em.binders] + ["{==}"] * len(em.assume)
@@ -148,8 +198,8 @@ def counter(em: EmittedM, m: Machine, model_import: str, witness: dict, lhs_at: 
     tup = refute
     for p in reversed(parts):
         tup = f"({p}, {tup})"
-    lines = ["# class counter: concrete witness, premises by computation, sides separated by the model's equality",
-             f"def Laws.{em.name}():", f"  {tup}"]
+    lines = helpers + ["# class counter: concrete witness, premises by computation, sides separated by an equality function",
+                       f"def Laws.{em.name}():", f"  {tup}"]
     return "\n".join(_imports(model_import) + lines) + "\n"
 
 

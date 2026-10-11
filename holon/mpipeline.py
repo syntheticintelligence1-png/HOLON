@@ -58,6 +58,15 @@ class CompiledMachine:
             stamp.write_text(h)
         return cls(src, art, facts, m)
 
+    def evaluate(self, law: dict, assignment: dict) -> dict:
+        """Premises and claims of a law at one assignment, on the compiled model."""
+        p = subprocess.run(["node", str(EXPLORE)], input=json.dumps({"module": str(self.artifact), "facts": self.facts,
+                                                                     "law": law, "evaluate": assignment}),
+                           capture_output=True, text=True, timeout=600)
+        if p.returncode != 0:
+            raise RuntimeError(f"evaluate failed: {p.stderr[-2000:]}")
+        return json.loads(p.stdout)
+
     def explore(self, law: dict, budget: dict | None = None) -> dict:
         p = subprocess.run(["node", str(EXPLORE)], input=json.dumps({"module": str(self.artifact), "facts": self.facts,
                                                                      "law": law, "budget": budget or {}}),
@@ -92,9 +101,7 @@ def witness_difference(cm: CompiledMachine, law: dict, witness: dict) -> dict | 
         # IR term -> machine.mjs expression, with witness values substituted
         if "var" in t:
             n = t["var"]
-            ty = ty_env[n]
-            v = witness[n]
-            return _value_js(cm.m, ty, v)
+            return _value_js(cm.m, ty_env[n], witness[n])
         if "nat" in t:
             return {"val": t["nat"]}
         if "bool" in t:
@@ -112,7 +119,17 @@ def witness_difference(cm: CompiledMachine, law: dict, witness: dict) -> dict | 
         if "trace" in t:
             return {"val": [_act_obj(cm.m, a, ty_env, witness) for a in t["trace"]]}
         if "cat" in t:
-            raise ValueError("cat")
+            a, b = to_js(t["cat"][0], ty_env), to_js(t["cat"][1], ty_env)
+            if "val" not in a or "val" not in b:
+                raise ValueError("cat of non-literal traces")
+            return {"val": a["val"] + b["val"]}
+        if "act" in t:
+            return {"val": _act_obj(cm.m, t, ty_env, witness)}
+        if "plus" in t:
+            x, y = to_js(t["plus"][0], ty_env), to_js(t["plus"][1], ty_env)
+            if "val" not in x or "val" not in y:
+                raise ValueError("plus of computed terms")
+            return {"val": x["val"] + y["val"]}
         if "obsv" in t:
             return {"fn": t["obsv"], "args": [to_js(t["of"], ty_env)]}
         if "mig" in t:
@@ -140,6 +157,8 @@ def _value_js(m: Machine, ty: str, v):
     if ty == "Trace":
         return {"val": [_act_val(m, a) for a in v]}
     if ty == "State":
+        if "state" in v:
+            return {"val": v["state"]}
         return {"fn": "run", "args": [{"val": [_act_val(m, a) for a in v["run"]]}, {"fn": "s0", "args": []}]}
     raise ValueError(ty)
 

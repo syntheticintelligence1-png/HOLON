@@ -3,7 +3,7 @@ import Base
 import ../model/morph_rollup.bend as M
 import ./LAWS.bend as Laws
 
-# class counter: concrete witness, premises by computation, sides separated by the model's equality
+# class counter: concrete witness, premises by computation, sides separated by an equality function
 def Laws.cl_l_fact_z():
   (Nil{}, (M.A_commitBatch{2n, 1n, 0n, 0n, 1n, 100n, 110n, Nil{}}, (M.A_commitBatch{2n, 1n, 0n, 0n, 1n, 100n, 110n, [1n]}, ({==}, ({==}, ({==}, ({==}, ({==}, e => (%e : M.is_true(M.eq_list_nat(_, M.blobs_of(M.A_commitBatch{2n, 1n, 0n, 0n, 1n, 100n, 110n, Nil{}})))
   Unit{})))))))))

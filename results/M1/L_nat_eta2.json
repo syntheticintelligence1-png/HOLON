@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.309
+      "seconds": 0.379
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.518
+      "seconds": 0.634
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.309
+    "seconds": 0.379
   },
   "difference": {
     "lhs": [
@@ -64,8 +64,8 @@
     "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
   ],
   "replay": {
-    "detail": "no replay report entry",
-    "status": "not_run"
+    "detail": "continuation outcomes on the real code: ['ok', 'rev incorrect previous state root'] vs ['ok', 'ok'] @ morph 3e44e795586a",
+    "status": "passed"
   },
   "rule": "NAT",
   "scope": "unbounded",
@@ -73,6 +73,7 @@
   "status": "REFUTED",
   "subform": "native_equivalence",
   "triage": "finding",
+  "triage_why": "Latent and historical: affects only a chain upgraded through reinitializer(2) while LFI < LCI and later reverted into (LFI, LCI].",
   "witness": {
     "p": [
       {

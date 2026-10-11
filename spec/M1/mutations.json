@@ -1,0 +1,108 @@
+{
+  "milestone": "M1",
+  "purpose": "Mutation adequacy (auditor A1): plant a realistic bug in the rollup facts, rerun the whole M1 pipeline, require the outcomes to move as predicted.",
+  "mutations": [
+    {
+      "id": "MUT1_revert_clears_bvh",
+      "story": "revertBatch also clears batchBlobVersionedHashes (the fix for F2)",
+      "edit": {
+        "pointer": "/actions/3/effects/s_bvh",
+        "value": [
+          "call",
+          "concat",
+          [
+            "call",
+            "zeros_like",
+            [
+              "call",
+              "es_bvh",
+              "moved"
+            ]
+          ],
+          "s_bvh"
+        ]
+      },
+      "expect": {
+        "L_undo_BVH": [
+          "UNKNOWN",
+          "PROVED"
+        ],
+        "L_tag_BVH": [
+          "UNKNOWN",
+          "PROVED"
+        ],
+        "L_undo_CSR": [
+          "PROVED"
+        ],
+        "L_fact_Z": [
+          "REFUTED"
+        ]
+      }
+    },
+    {
+      "id": "MUT2_cwp_no_underflow_check",
+      "story": "commitBatchWithProof computes proveRemainingTime with saturating arithmetic (no Panic)",
+      "edit": {
+        "pointer": "/actions/2/guards/27/require",
+        "value": true
+      },
+      "expect": {
+        "L_disch_stale_commit": [
+          "REFUTED"
+        ],
+        "L_disch_stale": [
+          "PROVED"
+        ],
+        "L_sort_remaining": [
+          "REFUTED"
+        ]
+      }
+    },
+    {
+      "id": "MUT3_challenge_no_extension",
+      "story": "challengeState does not extend the other batches' finalization",
+      "edit": {
+        "pointer": "/actions/4/effects/win",
+        "value": "win"
+      },
+      "expect": {
+        "L_undo_cancel": [
+          "UNKNOWN",
+          "PROVED"
+        ],
+        "L_sym_omega": [
+          "UNKNOWN",
+          "PROVED"
+        ],
+        "L_undo_BVH": [
+          "REFUTED"
+        ]
+      }
+    },
+    {
+      "id": "MUT4_commit_reads_csr_residue",
+      "story": "commitBatch's first storage check reads a committedStateRoots residue instead of the blob hash",
+      "edit": {
+        "pointer": "/actions/0/guards/4/require",
+        "value": [
+          "==",
+          [
+            "call",
+            "nth",
+            "s_csr",
+            0
+          ],
+          0
+        ]
+      },
+      "expect": {
+        "L_undo_CSR": [
+          "REFUTED"
+        ],
+        "L_undo_BD": [
+          "PROVED"
+        ]
+      }
+    }
+  ]
+}
