@@ -1,0 +1,2006 @@
+{
+  "abi_bindings": [
+    {
+      "binding_abi_entries": 78,
+      "binding_abi_sha256": "0x43751fca6f46e71fad6ae842e5fe966cb6b4e93c23b8af62f8ca43dc7a6a87b2",
+      "contract": "Rollup",
+      "events": {
+        "binding_only": [],
+        "deployed_only": [],
+        "indexed_flags_differ": [],
+        "shared": [
+          "ChallengeRes(uint256,address,string)",
+          "ChallengeRewardClaim(address,uint256)",
+          "ChallengeState(uint64,address,uint256)",
+          "CommitBatch(uint256,bytes32)",
+          "FinalizeBatch(uint256,bytes32,bytes32,bytes32)",
+          "Initialized(uint8)",
+          "OwnershipTransferred(address,address)",
+          "Paused(address)",
+          "ProveRemainingClaimed(address,uint256)",
+          "RevertBatch(uint256,bytes32)",
+          "SubmitterContractUpdated(address,address,uint256)",
+          "Unpaused(address)",
+          "UpdateChallenger(address,bool)",
+          "UpdateFinalizationPeriodSeconds(uint256,uint256)",
+          "UpdateProofRewardPercent(uint256,uint256)",
+          "UpdateProofWindow(uint256,uint256)",
+          "UpdateRollupDelayPeriod(uint256,uint256)",
+          "UpdateVerifier(address,address)"
+        ]
+      },
+      "functions": {
+        "binding_only": [],
+        "deployed_only": [],
+        "indexed_flags_differ": [],
+        "shared": [
+          "LAYER_2_CHAIN_ID()",
+          "__maxNumTxInChunk()",
+          "addChallenger(address)",
+          "batchBlobVersionedHashes(uint256)",
+          "batchChallengeReward(address)",
+          "batchChallenged()",
+          "batchChallengedSuccess(uint256)",
+          "batchDataStore(uint256)",
+          "batchExist(uint256)",
+          "batchInChallenge(uint256)",
+          "batchInsideChallengeWindow(uint256)",
+          "challengeState(uint64,bytes32)",
+          "challenges(uint256)",
+          "claimProveRemaining(address)",
+          "claimReward(address)",
+          "commitBatch((uint8,bytes,uint64,uint16,bytes32,bytes32,bytes32))",
+          "commitBatchWithProof((uint8,bytes,uint64,uint16,bytes32,bytes32,bytes32),bytes,bytes)",
+          "commitState((uint8,bytes,uint64,uint16,bytes32,bytes32,bytes32))",
+          "committedBatches(uint256)",
+          "committedStateRoots(uint256)",
+          "finalizationPeriodSeconds()",
+          "finalizeBatch(bytes)",
+          "finalizedStateRoots(uint256)",
+          "importGenesisBatch(bytes)",
+          "inChallenge()",
+          "initialize(address,address,address,uint256,uint256,uint256)",
+          "initialize2(bytes32)",
+          "initialize3(uint256)",
+          "initialize4(address,uint256)",
+          "isBatchFinalized(uint256)",
+          "isChallenger(address)",
+          "lastCommittedBatchIndex()",
+          "lastFinalizedBatchIndex()",
+          "legacyCutoverBatchIndex()",
+          "messageQueue()",
+          "owner()",
+          "paused()",
+          "proofRewardPercent()",
+          "proofWindow()",
+          "proveCommittedBatchState(bytes,bytes)",
+          "proveRemaining()",
+          "proveState(bytes,bytes)",
+          "removeChallenger(address)",
+          "renounceOwnership()",
+          "revertBatch(bytes,uint256)",
+          "revertReqIndex()",
+          "rollupDelayPeriod()",
+          "setPause(bool)",
+          "submitterContract()",
+          "transferOwnership(address)",
+          "updateFinalizePeriodSeconds(uint256)",
+          "updateProofWindow(uint256)",
+          "updateRewardPercentage(uint256)",
+          "updateRollupDelayPeriod(uint256)",
+          "updateVerifier(address)",
+          "verifier()",
+          "withdrawalRoots(bytes32)"
+        ]
+      },
+      "go_event_symbols": [
+        "Caller",
+        "CallerRaw",
+        "CallerSession",
+        "ChallengeRes",
+        "ChallengeResIterator",
+        "ChallengeRewardClaim",
+        "ChallengeRewardClaimIterator",
+        "ChallengeState",
+        "ChallengeStateIterator",
+        "CommitBatch",
+        "CommitBatchIterator",
+        "Filterer",
+        "FinalizeBatch",
+        "FinalizeBatchIterator",
+        "Initialized",
+        "InitializedIterator",
+        "OwnershipTransferred",
+        "OwnershipTransferredIterator",
+        "Paused",
+        "PausedIterator",
+        "ProveRemainingClaimed",
+        "ProveRemainingClaimedIterator",
+        "Raw",
+        "RevertBatch",
+        "RevertBatchIterator",
+        "Session",
+        "SubmitterContractUpdated",
+        "SubmitterContractUpdatedIterator",
+        "Transactor",
+        "TransactorRaw",
+        "TransactorSession",
+        "Unpaused",
+        "UnpausedIterator",
+        "UpdateChallenger",
+        "UpdateChallengerIterator",
+        "UpdateFinalizationPeriodSeconds",
+        "UpdateFinalizationPeriodSecondsIterator",
+        "UpdateProofRewardPercent",
+        "UpdateProofRewardPercentIterator",
+        "UpdateProofWindow",
+        "UpdateProofWindowIterator",
+        "UpdateRollupDelayPeriod",
+        "UpdateRollupDelayPeriodIterator",
+        "UpdateVerifier",
+        "UpdateVerifierIterator"
+      ],
+      "go_file": "bindings/bindings/rollup.go",
+      "linked": true,
+      "reference": {
+        "abi_entries": 78,
+        "abi_sha256": "0xa7173f0e2df57d12168574ab0f7fa0933969d6d1b56cdf5bc6109446b194b70e",
+        "abi_source": "sourcify",
+        "address": "0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d",
+        "kind": "deployed_impl"
+      }
+    },
+    {
+      "binding_abi_entries": 37,
+      "binding_abi_sha256": "0x4347b15752b03dd8acbf109b121a007a89865b3814addc9e02250db6573c47cc",
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "events": {
+        "binding_only": [],
+        "deployed_only": [],
+        "indexed_flags_differ": [],
+        "shared": [
+          "DequeueTransaction(uint256,uint256)",
+          "Initialized(uint8)",
+          "OwnershipTransferred(address,address)",
+          "QueueTransaction(address,address,uint256,uint64,uint256,bytes)",
+          "UpdateEnforcedTxGateway(address,address)",
+          "UpdateGasOracle(address,address)",
+          "UpdateL2BaseFee(uint256,uint256)",
+          "UpdateMaxGasLimit(uint256,uint256)",
+          "UpdateWhitelistChecker(address,address)"
+        ]
+      },
+      "functions": {
+        "binding_only": [],
+        "deployed_only": [],
+        "indexed_flags_differ": [],
+        "shared": [
+          "ENFORCED_TX_GATEWAAY()",
+          "MESSENGER()",
+          "ROLLUP_CONTRACT()",
+          "appendCrossDomainMessage(address,uint256,bytes)",
+          "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+          "calculateIntrinsicGasFee(bytes)",
+          "computeTransactionHash(address,uint256,uint256,address,uint256,bytes)",
+          "estimateCrossDomainMessageFee(address,uint256)",
+          "getCrossDomainMessage(uint256)",
+          "getFirstUnfinalizedMessageEnqueueTime()",
+          "getMessageEnqueueTimestamp(uint256)",
+          "initialize(uint256,address)",
+          "l2BaseFee()",
+          "maxGasLimit()",
+          "messageEnqueueTime(uint256)",
+          "messageQueue(uint256)",
+          "nextCrossDomainMessageIndex()",
+          "owner()",
+          "pendingQueueIndex()",
+          "popCrossDomainMessage(uint256,uint256)",
+          "renounceOwnership()",
+          "setL2BaseFee(uint256)",
+          "transferOwnership(address)",
+          "updateMaxGasLimit(uint256)",
+          "updateWhitelistChecker(address)",
+          "whitelistChecker()"
+        ]
+      },
+      "go_event_symbols": [
+        "Caller",
+        "CallerRaw",
+        "CallerSession",
+        "DequeueTransaction",
+        "DequeueTransactionIterator",
+        "Filterer",
+        "Initialized",
+        "InitializedIterator",
+        "OwnershipTransferred",
+        "OwnershipTransferredIterator",
+        "QueueTransaction",
+        "QueueTransactionIterator",
+        "Raw",
+        "Session",
+        "Transactor",
+        "TransactorRaw",
+        "TransactorSession",
+        "UpdateEnforcedTxGateway",
+        "UpdateEnforcedTxGatewayIterator",
+        "UpdateGasOracle",
+        "UpdateGasOracleIterator",
+        "UpdateL2BaseFee",
+        "UpdateL2BaseFeeIterator",
+        "UpdateMaxGasLimit",
+        "UpdateMaxGasLimitIterator",
+        "UpdateWhitelistChecker",
+        "UpdateWhitelistCheckerIterator"
+      ],
+      "go_file": "bindings/bindings/l1messagequeuewithgaspriceoracle.go",
+      "linked": true,
+      "reference": {
+        "abi_entries": 37,
+        "abi_sha256": "0x4347b15752b03dd8acbf109b121a007a89865b3814addc9e02250db6573c47cc",
+        "abi_source": "sourcify",
+        "address": "0xf3b7724334cb0adbc49cac90e166af99c07be6aa",
+        "kind": "deployed_impl"
+      }
+    }
+  ],
+  "bindings_inventory": [
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/centralization_cleanup_test.go"
+    },
+    {
+      "abi_entries": 25,
+      "bin_present": true,
+      "contract": "Distribute",
+      "file": "bindings/bindings/distribute.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/distribute_more.go"
+    },
+    {
+      "abi_entries": 21,
+      "bin_present": true,
+      "contract": "EnforcedTxGateway",
+      "file": "bindings/bindings/enforcedtxgateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/enforcedtxgateway_more.go"
+    },
+    {
+      "abi_entries": 14,
+      "bin_present": false,
+      "contract": "ERC20",
+      "file": "bindings/bindings/erc20.go"
+    },
+    {
+      "abi_entries": 45,
+      "bin_present": true,
+      "contract": "FiatTokenV1",
+      "file": "bindings/bindings/fiattokenv1.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/fiattokenv1_more.go"
+    },
+    {
+      "abi_entries": 42,
+      "bin_present": true,
+      "contract": "GasPriceOracle",
+      "file": "bindings/bindings/gaspriceoracle.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/gaspriceoracle_more.go"
+    },
+    {
+      "abi_entries": 29,
+      "bin_present": true,
+      "contract": "Gov",
+      "file": "bindings/bindings/gov.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/gov_more.go"
+    },
+    {
+      "abi_entries": 40,
+      "bin_present": true,
+      "contract": "L1CrossDomainMessenger",
+      "file": "bindings/bindings/l1crossdomainmessenger.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1crossdomainmessenger_more.go"
+    },
+    {
+      "abi_entries": 22,
+      "bin_present": true,
+      "contract": "L1CustomERC20Gateway",
+      "file": "bindings/bindings/l1customerc20gateway.go"
+    },
+    {
+      "abi_entries": 29,
+      "bin_present": true,
+      "contract": "L1ERC1155Gateway",
+      "file": "bindings/bindings/l1erc1155gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1erc1155gateway_more.go"
+    },
+    {
+      "abi_entries": 17,
+      "bin_present": false,
+      "contract": "L1ERC20Gateway",
+      "file": "bindings/bindings/l1erc20gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1erc20gateway_more.go"
+    },
+    {
+      "abi_entries": 27,
+      "bin_present": true,
+      "contract": "L1ERC721Gateway",
+      "file": "bindings/bindings/l1erc721gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1erc721gateway_more.go"
+    },
+    {
+      "abi_entries": 18,
+      "bin_present": true,
+      "contract": "L1ETHGateway",
+      "file": "bindings/bindings/l1ethgateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1ethgateway_more.go"
+    },
+    {
+      "abi_entries": 34,
+      "bin_present": true,
+      "contract": "L1GatewayRouter",
+      "file": "bindings/bindings/l1gatewayrouter.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1gatewayrouter_more.go"
+    },
+    {
+      "abi_entries": 58,
+      "bin_present": true,
+      "contract": "L1LidoGateway",
+      "file": "bindings/bindings/l1lidogateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1lidogateway_more.go"
+    },
+    {
+      "abi_entries": 37,
+      "bin_present": true,
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "file": "bindings/bindings/l1messagequeuewithgaspriceoracle.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1messagequeuewithgaspriceoracle_more.go"
+    },
+    {
+      "abi_entries": 22,
+      "bin_present": true,
+      "contract": "L1ReverseCustomGateway",
+      "file": "bindings/bindings/l1reversecustomgateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1reversecustomgateway_more.go"
+    },
+    {
+      "abi_entries": 14,
+      "bin_present": true,
+      "contract": "L1Sequencer",
+      "file": "bindings/bindings/l1sequencer.go"
+    },
+    {
+      "abi_entries": 21,
+      "bin_present": true,
+      "contract": "L1StandardERC20Gateway",
+      "file": "bindings/bindings/l1standarderc20gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1standarderc20gateway_more.go"
+    },
+    {
+      "abi_entries": 29,
+      "bin_present": true,
+      "contract": "L1USDCGateway",
+      "file": "bindings/bindings/l1usdcgateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1usdcgateway_more.go"
+    },
+    {
+      "abi_entries": 22,
+      "bin_present": true,
+      "contract": "L1WETHGateway",
+      "file": "bindings/bindings/l1wethgateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l1wethgateway_more.go"
+    },
+    {
+      "abi_entries": 28,
+      "bin_present": true,
+      "contract": "L2CrossDomainMessenger",
+      "file": "bindings/bindings/l2crossdomainmessenger.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2crossdomainmessenger_more.go"
+    },
+    {
+      "abi_entries": 21,
+      "bin_present": true,
+      "contract": "L2CustomERC20Gateway",
+      "file": "bindings/bindings/l2customerc20gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2customerc20gateway_more.go"
+    },
+    {
+      "abi_entries": 26,
+      "bin_present": true,
+      "contract": "L2ERC1155Gateway",
+      "file": "bindings/bindings/l2erc1155gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2erc1155gateway_more.go"
+    },
+    {
+      "abi_entries": 16,
+      "bin_present": false,
+      "contract": "L2ERC20Gateway",
+      "file": "bindings/bindings/l2erc20gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2erc20gateway_more.go"
+    },
+    {
+      "abi_entries": 24,
+      "bin_present": true,
+      "contract": "L2ERC721Gateway",
+      "file": "bindings/bindings/l2erc721gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2erc721gateway_more.go"
+    },
+    {
+      "abi_entries": 16,
+      "bin_present": true,
+      "contract": "L2ETHGateway",
+      "file": "bindings/bindings/l2ethgateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2ethgateway_more.go"
+    },
+    {
+      "abi_entries": 33,
+      "bin_present": true,
+      "contract": "L2GatewayRouter",
+      "file": "bindings/bindings/l2gatewayrouter.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2gatewayrouter_more.go"
+    },
+    {
+      "abi_entries": 57,
+      "bin_present": true,
+      "contract": "L2LidoGateway",
+      "file": "bindings/bindings/l2lidogateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2lidogateway_more.go"
+    },
+    {
+      "abi_entries": 21,
+      "bin_present": true,
+      "contract": "L2ReverseCustomGateway",
+      "file": "bindings/bindings/l2reversecustomgateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2reversecustomgateway_more.go"
+    },
+    {
+      "abi_entries": 53,
+      "bin_present": true,
+      "contract": "L2Staking",
+      "file": "bindings/bindings/l2staking.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2staking_more.go"
+    },
+    {
+      "abi_entries": 19,
+      "bin_present": true,
+      "contract": "L2StandardERC20Gateway",
+      "file": "bindings/bindings/l2standarderc20gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2standarderc20gateway_more.go"
+    },
+    {
+      "abi_entries": 53,
+      "bin_present": true,
+      "contract": "L2TokenRegistry",
+      "file": "bindings/bindings/l2tokenregistry.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2tokenregistry_more.go"
+    },
+    {
+      "abi_entries": 8,
+      "bin_present": true,
+      "contract": "L2ToL1MessagePasser",
+      "file": "bindings/bindings/l2tol1messagepasser.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2tol1messagepasser_more.go"
+    },
+    {
+      "abi_entries": 29,
+      "bin_present": true,
+      "contract": "L2TxFeeVault",
+      "file": "bindings/bindings/l2txfeevault.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2txfeevault_more.go"
+    },
+    {
+      "abi_entries": 27,
+      "bin_present": true,
+      "contract": "L2USDCGateway",
+      "file": "bindings/bindings/l2usdcgateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2usdcgateway_more.go"
+    },
+    {
+      "abi_entries": 21,
+      "bin_present": true,
+      "contract": "L2WETHGateway",
+      "file": "bindings/bindings/l2wethgateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2wethgateway_more.go"
+    },
+    {
+      "abi_entries": 24,
+      "bin_present": true,
+      "contract": "L2WithdrawLockERC20Gateway",
+      "file": "bindings/bindings/l2withdrawlockerc20gateway.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2withdrawlockerc20gateway_more.go"
+    },
+    {
+      "abi_entries": 27,
+      "bin_present": true,
+      "contract": "L2WstETHToken",
+      "file": "bindings/bindings/l2wstethtoken.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/l2wstethtoken_more.go"
+    },
+    {
+      "abi_entries": 26,
+      "bin_present": true,
+      "contract": "MorphStandardERC20",
+      "file": "bindings/bindings/morphstandarderc20.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/morphstandarderc20_more.go"
+    },
+    {
+      "abi_entries": 9,
+      "bin_present": true,
+      "contract": "MorphStandardERC20Factory",
+      "file": "bindings/bindings/morphstandarderc20factory.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/morphstandarderc20factory_more.go"
+    },
+    {
+      "abi_entries": 32,
+      "bin_present": true,
+      "contract": "MorphToken",
+      "file": "bindings/bindings/morphtoken.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/morphtoken_more.go"
+    },
+    {
+      "abi_entries": 18,
+      "bin_present": true,
+      "contract": "MultipleVersionRollupVerifier",
+      "file": "bindings/bindings/multipleversionrollupverifier.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/multipleversionrollupverifier_more.go"
+    },
+    {
+      "abi_entries": 9,
+      "bin_present": true,
+      "contract": "ProxyAdmin",
+      "file": "bindings/bindings/proxyadmin.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/proxyadmin_more.go"
+    },
+    {
+      "abi_entries": 31,
+      "bin_present": true,
+      "contract": "Record",
+      "file": "bindings/bindings/record.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/record_more.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/registry.go"
+    },
+    {
+      "abi_entries": 78,
+      "bin_present": true,
+      "contract": "Rollup",
+      "file": "bindings/bindings/rollup.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/rollup_more.go"
+    },
+    {
+      "abi_entries": 29,
+      "bin_present": true,
+      "contract": "Sequencer",
+      "file": "bindings/bindings/sequencer.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/sequencer_more.go"
+    },
+    {
+      "abi_entries": 37,
+      "bin_present": true,
+      "contract": "Submitter",
+      "file": "bindings/bindings/submitter.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/submitter_more.go"
+    },
+    {
+      "abi_entries": 6,
+      "bin_present": true,
+      "contract": "TransparentUpgradeableProxy",
+      "file": "bindings/bindings/transparentupgradeableproxy.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/transparentupgradeableproxy_more.go"
+    },
+    {
+      "abi_entries": 8,
+      "bin_present": true,
+      "contract": "Whitelist",
+      "file": "bindings/bindings/whitelist.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/whitelist_more.go"
+    },
+    {
+      "abi_entries": 26,
+      "bin_present": true,
+      "contract": "WrappedEther",
+      "file": "bindings/bindings/wrappedether.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/wrappedether_more.go"
+    },
+    {
+      "abi_entries": 14,
+      "bin_present": true,
+      "contract": "ZkEvmVerifierV1",
+      "file": "bindings/bindings/zkevmverifierv1.go"
+    },
+    {
+      "abi_entries": 0,
+      "bin_present": false,
+      "contract": null,
+      "file": "bindings/bindings/zkevmverifierv1_more.go"
+    }
+  ],
+  "constants": [
+    {
+      "doc": "byte length of a v0 batch header (fact: enc.len)",
+      "go": [
+        {
+          "code": "expectedLengthV0 = 249",
+          "file": "common/batch/batch_header.go",
+          "line": 17,
+          "symbol": "expectedLengthV0",
+          "value": 249
+        }
+      ],
+      "id": "batch_header_v0_length",
+      "linked": true,
+      "solidity": [
+        {
+          "code": "uint256 internal constant BATCH_HEADER_LENGTH = 249;",
+          "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "line": 24,
+          "symbol": "BATCH_HEADER_LENGTH",
+          "value": 249
+        }
+      ],
+      "value": 249
+    },
+    {
+      "doc": "byte length of a v1 batch header (adds lastBlockNumber)",
+      "go": [
+        {
+          "code": "expectedLengthV1 = 257",
+          "file": "common/batch/batch_header.go",
+          "line": 18,
+          "symbol": "expectedLengthV1",
+          "value": 257
+        }
+      ],
+      "id": "batch_header_v1_length",
+      "linked": true,
+      "solidity": [
+        {
+          "code": "uint256 internal constant BATCH_HEADER_LENGTH = 257;",
+          "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+          "line": 27,
+          "symbol": "BATCH_HEADER_LENGTH",
+          "value": 257
+        }
+      ],
+      "value": 257
+    },
+    {
+      "doc": "byte length of a v2 batch header (reuses the v1 wire format; the 32-byte field at offset 57 becomes an aggregate hash)",
+      "go": [
+        {
+          "code": "expectedLengthV2 = 257",
+          "file": "common/batch/batch_header.go",
+          "line": 23,
+          "symbol": "expectedLengthV2",
+          "value": 257
+        }
+      ],
+      "id": "batch_header_v2_length",
+      "linked": true,
+      "note": "v2 has no dedicated codec library; the contract decodes v2 headers through the v1 codec (257 bytes) and interprets offset 57 differently",
+      "solidity": [
+        {
+          "code": "uint256 internal constant BATCH_HEADER_LENGTH = 257;",
+          "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+          "line": 27,
+          "symbol": "BATCH_HEADER_LENGTH",
+          "value": 257
+        }
+      ],
+      "value": 257
+    },
+    {
+      "doc": "largest batch header version accepted on-chain",
+      "go": [
+        {
+          "code": "BatchHeaderVersion2 = 2",
+          "file": "common/batch/batch_header.go",
+          "line": 27,
+          "symbol": "BatchHeaderVersion2",
+          "value": 2
+        }
+      ],
+      "id": "batch_header_max_version",
+      "linked": true,
+      "solidity": [
+        {
+          "code": "require(batchDataInput.version <= 2, \"invalid version\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 293,
+          "symbol": "version<=2 check",
+          "value": 2
+        }
+      ],
+      "value": 2
+    },
+    {
+      "doc": "versioned hash of the all-zero blob: 0x01 || sha256(0xc0 || 0^47)[1:]",
+      "go": [
+        {
+          "code": "var EmptyVersionedHash = common.HexToHash(\"0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014\")",
+          "file": "common/blob/payload.go",
+          "line": 22,
+          "symbol": "EmptyVersionedHash",
+          "value": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+        }
+      ],
+      "id": "zero_versioned_hash",
+      "linked": true,
+      "solidity": [
+        {
+          "code": "bytes32 internal constant ZERO_VERSIONED_HASH = 0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 25,
+          "symbol": "ZERO_VERSIONED_HASH",
+          "value": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+        }
+      ],
+      "value": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+    },
+    {
+      "doc": "EIP-4844 blob payload capacity: 4096 field elements x 31 bytes",
+      "expression": "4096 * 31",
+      "go": [
+        {
+          "code": "const MaxBlobBytesSize = 4096 * 31",
+          "file": "common/batch/blob.go",
+          "line": 17,
+          "symbol": "MaxBlobBytesSize",
+          "value": "4096 * 31"
+        },
+        {
+          "code": "const MaxBlobBytesSize = 4096 * 31",
+          "file": "common/blob/payload.go",
+          "line": 13,
+          "symbol": "MaxBlobBytesSize",
+          "value": "4096 * 31"
+        }
+      ],
+      "id": "blob_payload_bytes",
+      "linked": "one_sided",
+      "reason": "payload capacity is only meaningful off-chain; on-chain the contract sees blobhash commitments, not blob bytes",
+      "solidity": [],
+      "value": 126976
+    },
+    {
+      "doc": "per-transaction blob ceiling used when re-sealing replayed batches",
+      "go": [
+        {
+          "code": "const replayProtocolMaxBlobs = 6",
+          "file": "common/batch/batch_cache.go",
+          "line": 99,
+          "symbol": "replayProtocolMaxBlobs",
+          "value": 6
+        }
+      ],
+      "id": "replay_protocol_max_blobs",
+      "linked": "one_sided",
+      "reason": "replay-time protocol cap; the contract bounds blobs per commit through calldata/blobhash presence, not this constant",
+      "solidity": [],
+      "value": 6
+    },
+    {
+      "doc": "the contract writes a constant zero into the sequencerSetVerifyHash field at offset 185 (fact: enc_sol zero-write; the M0 equality law was refuted because Go copies the producer's field)",
+      "go": [
+        {
+          "code": "copy(batchBytes[185:], b.SequencerSetVerifyHash[:])",
+          "file": "common/batch/batch_header.go",
+          "line": 226,
+          "symbol": "SequencerSetVerifyHash copy",
+          "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ],
+      "id": "sequencer_set_verify_hash_write",
+      "linked": "asymmetric",
+      "note": "Solidity emits the constant bytes32(0); Go copies the header field. The agreement condition (producer writes zero) is an M0 refutation witness, recorded here as an asymmetric link rather than an equality.",
+      "solidity": [
+        {
+          "code": "BatchHeaderCodecV0.storeSequencerSetVerifyHash(_batchPtr, bytes32(0));",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 351,
+          "symbol": "bytes32(0) write",
+          "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ],
+      "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "event_schemas": [
+    {
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "go_binding": {
+        "helpers": [
+          "FilterDequeueTransaction",
+          "ParseDequeueTransaction",
+          "WatchDequeueTransaction"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "startIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "count",
+          "type": "uint256"
+        }
+      ],
+      "name": "DequeueTransaction",
+      "signature": "DequeueTransaction(uint256,uint256)",
+      "topic0": "0x3d48b97f20730c965868963266b0d25d8abe3f06babb60fc3b2b80c9e8907f26"
+    },
+    {
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "go_binding": {
+        "helpers": [
+          "FilterInitialized",
+          "ParseInitialized",
+          "WatchInitialized"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "version",
+          "type": "uint8"
+        }
+      ],
+      "name": "Initialized",
+      "signature": "Initialized(uint8)",
+      "topic0": "0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498"
+    },
+    {
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "go_binding": {
+        "helpers": [
+          "FilterOwnershipTransferred",
+          "ParseOwnershipTransferred",
+          "WatchOwnershipTransferred"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "signature": "OwnershipTransferred(address,address)",
+      "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0"
+    },
+    {
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "go_binding": {
+        "helpers": [
+          "FilterQueueTransaction",
+          "ParseQueueTransaction",
+          "WatchQueueTransaction"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "target",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "queueIndex",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "name": "gasLimit",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "QueueTransaction",
+      "signature": "QueueTransaction(address,address,uint256,uint64,uint256,bytes)",
+      "topic0": "0x69cfcb8e6d4192b8aba9902243912587f37e550d75c1fa801491fce26717f37e"
+    },
+    {
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateEnforcedTxGateway",
+          "ParseUpdateEnforcedTxGateway",
+          "WatchUpdateEnforcedTxGateway"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_oldGateway",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_newGateway",
+          "type": "address"
+        }
+      ],
+      "name": "UpdateEnforcedTxGateway",
+      "signature": "UpdateEnforcedTxGateway(address,address)",
+      "topic0": "0x5fd1d27c789fb50eafa108fba89345986a66d9d0aba85d48adee09f5e3307bbd"
+    },
+    {
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateGasOracle",
+          "ParseUpdateGasOracle",
+          "WatchUpdateGasOracle"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_oldGasOracle",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_newGasOracle",
+          "type": "address"
+        }
+      ],
+      "name": "UpdateGasOracle",
+      "signature": "UpdateGasOracle(address,address)",
+      "topic0": "0x9ed5ec28f252b3e7f62f1ace8e54c5ebabf4c61cc2a7c33a806365b2ff7ecc5e"
+    },
+    {
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateL2BaseFee",
+          "ParseUpdateL2BaseFee",
+          "WatchUpdateL2BaseFee"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "oldL2BaseFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "newL2BaseFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateL2BaseFee",
+      "signature": "UpdateL2BaseFee(uint256,uint256)",
+      "topic0": "0xc5271ba80b67178cc31f04a3755325121400925878dc608432b6fcaead366329"
+    },
+    {
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateMaxGasLimit",
+          "ParseUpdateMaxGasLimit",
+          "UpdateMaxGasLimit",
+          "WatchUpdateMaxGasLimit"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_oldMaxGasLimit",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_newMaxGasLimit",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateMaxGasLimit",
+      "signature": "UpdateMaxGasLimit(uint256,uint256)",
+      "topic0": "0xa030881e03ff723954dd0d35500564afab9603555d09d4456a32436f2b2373c5"
+    },
+    {
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateWhitelistChecker",
+          "ParseUpdateWhitelistChecker",
+          "UpdateWhitelistChecker",
+          "WatchUpdateWhitelistChecker"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_oldWhitelistChecker",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_newWhitelistChecker",
+          "type": "address"
+        }
+      ],
+      "name": "UpdateWhitelistChecker",
+      "signature": "UpdateWhitelistChecker(address,address)",
+      "topic0": "0xf91b2a410a89d46f14ee984a57e6d7892c217f116905371180998e20cef237e5"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterChallengeRes",
+          "ParseChallengeRes",
+          "WatchChallengeRes"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "batchIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "winner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "res",
+          "type": "string"
+        }
+      ],
+      "name": "ChallengeRes",
+      "signature": "ChallengeRes(uint256,address,string)",
+      "topic0": "0xe70d3820e244d5f71d1a6395db24f3460e8dca966edc1fd3625b6292880a877a"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterChallengeRewardClaim",
+          "ParseChallengeRewardClaim",
+          "WatchChallengeRewardClaim"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ChallengeRewardClaim",
+      "signature": "ChallengeRewardClaim(address,uint256)",
+      "topic0": "0x9c25fa83f414ed363c8d39c98fb3e17567b3431cede71eb062c49d2a63ce247a"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "ChallengeState",
+          "FilterChallengeState",
+          "ParseChallengeState",
+          "WatchChallengeState"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "batchIndex",
+          "type": "uint64"
+        },
+        {
+          "indexed": true,
+          "name": "challenger",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "challengeDeposit",
+          "type": "uint256"
+        }
+      ],
+      "name": "ChallengeState",
+      "signature": "ChallengeState(uint64,address,uint256)",
+      "topic0": "0x3a6ea19df25b49e7624e313ce7c1ab23984238e93727260db56a81735b1b9976"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "CommitBatch",
+          "FilterCommitBatch",
+          "ParseCommitBatch",
+          "WatchCommitBatch"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "batchIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "batchHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "CommitBatch",
+      "signature": "CommitBatch(uint256,bytes32)",
+      "topic0": "0x2c32d4ae151744d0bf0b9464a3e897a1d17ed2f1af71f7c9a75f12ce0d28238f"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterFinalizeBatch",
+          "FinalizeBatch",
+          "ParseFinalizeBatch",
+          "WatchFinalizeBatch"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "batchIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "batchHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "stateRoot",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "withdrawRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "FinalizeBatch",
+      "signature": "FinalizeBatch(uint256,bytes32,bytes32,bytes32)",
+      "topic0": "0x26ba82f907317eedc97d0cbef23de76a43dd6edb563bdb6e9407645b950a7a2d"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterInitialized",
+          "ParseInitialized",
+          "WatchInitialized"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "version",
+          "type": "uint8"
+        }
+      ],
+      "name": "Initialized",
+      "signature": "Initialized(uint8)",
+      "topic0": "0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterOwnershipTransferred",
+          "ParseOwnershipTransferred",
+          "WatchOwnershipTransferred"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "signature": "OwnershipTransferred(address,address)",
+      "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterPaused",
+          "ParsePaused",
+          "Paused",
+          "WatchPaused"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Paused",
+      "signature": "Paused(address)",
+      "topic0": "0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterProveRemainingClaimed",
+          "ParseProveRemainingClaimed",
+          "WatchProveRemainingClaimed"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ProveRemainingClaimed",
+      "signature": "ProveRemainingClaimed(address,uint256)",
+      "topic0": "0xb1b2058a6969e2d25e47bcaebe8ae21c29a23b2752429315b75e2f4f285f3d87"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterRevertBatch",
+          "ParseRevertBatch",
+          "RevertBatch",
+          "WatchRevertBatch"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "batchIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "batchHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "RevertBatch",
+      "signature": "RevertBatch(uint256,bytes32)",
+      "topic0": "0x00cae2739091badfd91c373f0a16cede691e0cd25bb80cff77dd5caeb4710146"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterSubmitterContractUpdated",
+          "ParseSubmitterContractUpdated",
+          "WatchSubmitterContractUpdated"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "oldAddr",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newAddr",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "legacyCutoverBatchIndex",
+          "type": "uint256"
+        }
+      ],
+      "name": "SubmitterContractUpdated",
+      "signature": "SubmitterContractUpdated(address,address,uint256)",
+      "topic0": "0xaf9f8e4eb71b2fdd1ed3defb8e321359a8984ca774246d3d749837b98873a935"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterUnpaused",
+          "ParseUnpaused",
+          "WatchUnpaused"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Unpaused",
+      "signature": "Unpaused(address)",
+      "topic0": "0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateChallenger",
+          "ParseUpdateChallenger",
+          "WatchUpdateChallenger"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "status",
+          "type": "bool"
+        }
+      ],
+      "name": "UpdateChallenger",
+      "signature": "UpdateChallenger(address,bool)",
+      "topic0": "0x7feb653c7b1f0d23daeed494225b3f28851cdc8973fcc653866d9b6e205fc009"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateFinalizationPeriodSeconds",
+          "ParseUpdateFinalizationPeriodSeconds",
+          "WatchUpdateFinalizationPeriodSeconds"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "oldPeriod",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "newPeriod",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateFinalizationPeriodSeconds",
+      "signature": "UpdateFinalizationPeriodSeconds(uint256,uint256)",
+      "topic0": "0xa577f4223f91f74e2dad65bbb8c30807587ae95d0d34288057bb3ec0d398a437"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateProofRewardPercent",
+          "ParseUpdateProofRewardPercent",
+          "WatchUpdateProofRewardPercent"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "oldPercent",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "newPercent",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateProofRewardPercent",
+      "signature": "UpdateProofRewardPercent(uint256,uint256)",
+      "topic0": "0xfb81bce17f015797e11949d3c332e2bf9453faf68f728447426803138f2b0223"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateProofWindow",
+          "ParseUpdateProofWindow",
+          "UpdateProofWindow",
+          "WatchUpdateProofWindow"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "oldWindow",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "newWindow",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateProofWindow",
+      "signature": "UpdateProofWindow(uint256,uint256)",
+      "topic0": "0x1e3a2094feb4b696dd3d7caea38ad2f41dbdcac3fa3943c7a693aff8a64b0a61"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateRollupDelayPeriod",
+          "ParseUpdateRollupDelayPeriod",
+          "UpdateRollupDelayPeriod",
+          "WatchUpdateRollupDelayPeriod"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "oldPeriod",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "newPeriod",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateRollupDelayPeriod",
+      "signature": "UpdateRollupDelayPeriod(uint256,uint256)",
+      "topic0": "0x624e47dc9fb8f8cfeaf4ead4710277cc1757136cfa885e465514cf6d510f0ad1"
+    },
+    {
+      "contract": "Rollup",
+      "go_binding": {
+        "helpers": [
+          "FilterUpdateVerifier",
+          "ParseUpdateVerifier",
+          "UpdateVerifier",
+          "WatchUpdateVerifier"
+        ],
+        "in_embedded_abi": true
+      },
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "oldVerifier",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newVerifier",
+          "type": "address"
+        }
+      ],
+      "name": "UpdateVerifier",
+      "signature": "UpdateVerifier(address,address)",
+      "topic0": "0x728af3d16a5760405e27a082c98ab272e9f0a1d02f0085d41532a26093aedd96"
+    }
+  ],
+  "schema": "holon.links/v1",
+  "target": {
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "repo": "morph-l2/morph"
+  },
+  "wire_layout": [
+    {
+      "go": {
+        "code": "batchBytes[0] = BatchHeaderVersion0",
+        "file": "common/batch/batch_header.go",
+        "line": 217,
+        "offset": 0
+      },
+      "linked": true,
+      "name": "version",
+      "offset": 0,
+      "solidity": {
+        "code": "mstore8(batchPtr, _version)",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 133,
+        "offset": 0
+      },
+      "width": 1
+    },
+    {
+      "go": {
+        "code": "binary.BigEndian.PutUint64(batchBytes[1:], b.BatchIndex)",
+        "file": "common/batch/batch_header.go",
+        "line": 218,
+        "offset": 1
+      },
+      "linked": true,
+      "name": "batchIndex",
+      "offset": 1,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 1), shl(192, _batchIndex))",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 144,
+        "offset": 1
+      },
+      "width": 8
+    },
+    {
+      "go": {
+        "code": "binary.BigEndian.PutUint64(batchBytes[9:], b.L1MessagePopped)",
+        "file": "common/batch/batch_header.go",
+        "line": 219,
+        "offset": 9
+      },
+      "linked": true,
+      "name": "l1MessagePopped",
+      "offset": 9,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 9), shl(192, _l1MessagePopped))",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 155,
+        "offset": 9
+      },
+      "width": 8
+    },
+    {
+      "go": {
+        "code": "binary.BigEndian.PutUint64(batchBytes[17:], b.TotalL1MessagePopped)",
+        "file": "common/batch/batch_header.go",
+        "line": 220,
+        "offset": 17
+      },
+      "linked": true,
+      "name": "totalL1MessagePopped",
+      "offset": 17,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 17), shl(192, _totalL1MessagePopped))",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 166,
+        "offset": 17
+      },
+      "width": 8
+    },
+    {
+      "go": {
+        "code": "copy(batchBytes[25:], b.DataHash[:])",
+        "file": "common/batch/batch_header.go",
+        "line": 221,
+        "offset": 25
+      },
+      "linked": true,
+      "name": "dataHash",
+      "offset": 25,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 25), _dataHash)",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 175,
+        "offset": 25
+      },
+      "width": 32
+    },
+    {
+      "go": {
+        "code": "copy(batchBytes[57:], b.BlobVersionedHash[:])",
+        "file": "common/batch/batch_header.go",
+        "line": 222,
+        "offset": 57
+      },
+      "linked": true,
+      "name": "blobVersionedHash",
+      "offset": 57,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 57), _blobVersionedHash)",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 184,
+        "offset": 57
+      },
+      "width": 32
+    },
+    {
+      "go": {
+        "code": "copy(batchBytes[89:], b.PrevStateRoot[:])",
+        "file": "common/batch/batch_header.go",
+        "line": 223,
+        "offset": 89
+      },
+      "linked": true,
+      "name": "prevStateRoot",
+      "offset": 89,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 89), _prevStateHash)",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 193,
+        "offset": 89
+      },
+      "width": 32
+    },
+    {
+      "go": {
+        "code": "copy(batchBytes[121:], b.PostStateRoot[:])",
+        "file": "common/batch/batch_header.go",
+        "line": 224,
+        "offset": 121
+      },
+      "linked": true,
+      "name": "postStateRoot",
+      "offset": 121,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 121), _postStateHash)",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 202,
+        "offset": 121
+      },
+      "width": 32
+    },
+    {
+      "go": {
+        "code": "copy(batchBytes[153:], b.WithdrawalRoot[:])",
+        "file": "common/batch/batch_header.go",
+        "line": 225,
+        "offset": 153
+      },
+      "linked": true,
+      "name": "withdrawalRoot",
+      "offset": 153,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 153), _withdrawRootHash)",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 211,
+        "offset": 153
+      },
+      "width": 32
+    },
+    {
+      "go": {
+        "code": "copy(batchBytes[185:], b.SequencerSetVerifyHash[:])",
+        "file": "common/batch/batch_header.go",
+        "line": 226,
+        "offset": 185
+      },
+      "linked": true,
+      "name": "sequencerSetVerifyHash",
+      "offset": 185,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 185), _sequencerSetVerifyHash)",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 220,
+        "offset": 185
+      },
+      "width": 32
+    },
+    {
+      "go": {
+        "code": "copy(batchBytes[217:], b.ParentBatchHash[:])",
+        "file": "common/batch/batch_header.go",
+        "line": 227,
+        "offset": 217
+      },
+      "linked": true,
+      "name": "parentBatchHash",
+      "offset": 217,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 217), _parentBatchHash)",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "line": 229,
+        "offset": 217
+      },
+      "width": 32
+    },
+    {
+      "go": {
+        "code": "binary.BigEndian.PutUint64(batchBytes[249:], b.LastBlockNumber)",
+        "file": "common/batch/batch_header.go",
+        "line": 256,
+        "offset": 249
+      },
+      "linked": true,
+      "name": "lastBlockNumber",
+      "offset": 249,
+      "solidity": {
+        "code": "mstore(add(batchPtr, 249), shl(192, _lastBlockNumber))",
+        "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+        "line": 56,
+        "offset": 249
+      },
+      "width": 8
+    }
+  ]
+}
