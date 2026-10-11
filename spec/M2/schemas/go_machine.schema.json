@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "holon-extracted/go-machine/0.1",
+  "title": "HOLON go-ssa ownership/state-machine extraction (S3)",
+  "type": "object",
+  "required": ["format", "target_commit", "frontend", "lang", "machines",
+               "coverage"],
+  "properties": {
+    "format": {"const": "holon-extracted/go-machine/0.1"},
+    "target_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "frontend": {"const": "go"},
+    "lang": {"const": "go"},
+    "machines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "state", "ghost_state", "initial",
+                     "actions", "observers"],
+        "properties": {
+          "type": {"type": "string"},
+          "pkg": {"type": "string"},
+          "ctor": {"type": ["string", "null"]},
+          "state": {
+            "type": "array",
+            "items": {
+              "type": "array", "prefixItems": [
+                {"type": "string"},
+                {"type": "string", "pattern": "^(Sl|Arr|Nat|List<Nat>)$"},
+                {"type": "string"}
+              ], "minItems": 3, "maxItems": 3
+            }
+          },
+          "ghost_state": {"type": "array",
+                          "items": {"type": "string"}},
+          "initial": {"type": "object"},
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "function", "src", "inputs", "guards",
+                           "effects", "complete"],
+              "properties": {
+                "name": {"type": "string"},
+                "function": {"type": "string"},
+                "src": {"type": "string",
+                        "pattern": "^.+:\\d+-\\d+$"},
+                "inputs": {"type": "array",
+                           "items": {"type": "array"}},
+                "guards": {
+                  "type": "array",
+                  "items": {"type": "object",
+                            "required": ["let", "expr"]}
+                },
+                "effects": {"type": "object"},
+                "dropped": {"type": "array"},
+                "complete": {"type": "boolean"}
+              }
+            }
+          },
+          "observers": {"type": "object"}
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["modelled", "debt"],
+      "properties": {
+        "modelled": {"type": "array", "items": {"type": "string"}},
+        "debt": {"type": "array", "items": {"type": "object",
+                 "required": ["element", "kind", "reason"]}},
+        "candidates": {"type": "array", "items": {"type": "object"}}
+      }
+    }
+  }
+}
