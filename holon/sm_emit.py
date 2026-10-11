@@ -364,11 +364,33 @@ def emit_laws(law: dict, facts: dict, counter_trace=None) -> str:
         lines.extend([f"def check_{lid}(+s: M.State) -> Bool:"])
         lines.append("  " + _combine([f"check_{lid}_assignment(s, {i}n)" for i in range(len(branches))]))
         lines.append("")
-        lines.extend([f"def all_states_{lid}(states: List<&2, M.State>) -> Bool:",
-                      "  match states:", "    case Nil{}:", "      True{}", "    case Con{state, rest}:",
-                      f"      Bool.and(check_{lid}(state), all_states_{lid}(rest))", ""])
         k = int(stmt["bound"]["K"])
-        lines.extend([f"law {lid}:", f"  {{all_states_{lid}(M.reach_k({k}n)) == True{{}} : Bool}}", ""])
+        lines.extend([f"def check_frontier_{lid}(states: List<&2, M.State>) -> Bool:",
+                      "  match states:", "    case Nil{}:", "      True{}", "    case Con{+state, +rest}:",
+                      f"      Bool.and(check_{lid}(state), check_frontier_{lid}(rest))", ""])
+        if k <= 3:
+            # Fold the check over each expanded frontier layer instead of
+            # materializing the deduplicated reach_k list: every state
+            # reachable in <= K Ok steps is checked (duplicates are checked
+            # more than once, which does not change a universal claim). The
+            # BendTT kernel cannot validate the ~1.3k-record deduplicated
+            # reach_k term; this fold stays kernel-valid. Above K=3 the
+            # undeduplicated expansion is too large for the plain checker,
+            # so the all_states/reach_k form is used instead.
+            lines.extend([f"def check_reach_{lid}(k: Nat, +frontier: List<&2, M.State>) -> Bool:",
+                          "  match k:", "    case 0n:",
+                          f"      check_frontier_{lid}(frontier)",
+                          "    case 1n+p:",
+                          f"      Bool.and(check_frontier_{lid}(frontier),",
+                          f"        check_reach_{lid}(p, M.expand_all(frontier)))", ""])
+            lines.extend([f"law {lid}:",
+                          f"  {{check_reach_{lid}({k}n, [M.init_state()]) == True{{}} : Bool}}", ""])
+        else:
+            lines.extend([f"def all_states_{lid}(states: List<&2, M.State>) -> Bool:",
+                          "  match states:", "    case Nil{}:", "      True{}", "    case Con{state, rest}:",
+                          f"      Bool.and(check_{lid}(state), all_states_{lid}(rest))", ""])
+            lines.extend([f"law {lid}:",
+                          f"  {{all_states_{lid}(M.reach_k({k}n)) == True{{}} : Bool}}", ""])
     else:
         trace_lines, _ = _trace_defs(facts, law)
         branch_lines, branches = _param_branches(law, facts)
