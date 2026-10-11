@@ -1,0 +1,103 @@
+{
+  "laws": {
+    "L_disch_nonowner": {
+      "go": {
+        "observed": "replay is a state-transition trace over deployed L1 contracts; no Go-side counter-law exists for this law",
+        "status": "not_applicable"
+      },
+      "solidity": {
+        "command": "forge test --match-path test/M1Harness.t.sol -vv --match-test test_disch_nonowner (forge 1.8.5, solc 0.8.24, harness replay/M1/solidity/Harness.t.sol on real Rollup+ERC1967Proxy, real L1MessageQueueWithGasPriceOracle+proxy, real Submitter+proxy, accept-all verifier)",
+        "observed": "trace commitBatch -> challengeState(1) -> warp(3) -> proveState(h1) all succeeded; proveState timed out (start 1 + proofWindow 2 <= 3), challenger won, revertReqIndex=1 and the submitter was slashed. Then commitBatch on a re-staked active submitter, commitState, commitBatchWithProof, challengeState, proveState and finalizeBatch all reverted \"pending revert request\"; owner revertBatch(h1,1) cleared it. The slashed submitter itself is blocked earlier by \"only active submitter allowed\" (also asserted).",
+        "status": "passed"
+      }
+    },
+    "L_disch_timeout": {
+      "go": {
+        "observed": "replay is a state-transition trace over deployed L1 contracts; no Go-side counter-law exists for this law",
+        "status": "not_applicable"
+      },
+      "solidity": {
+        "command": "forge test --match-path test/M1Harness.t.sol -vv --match-test test_disch_timeout",
+        "observed": "trace commitBatch -> challengeState(1) -> warp(5) all succeeded; inChallenge still true past the proof window. commitBatch reverted Panic(0x11) (proveRemainingTime = proofWindow + start - now underflows); commitBatchWithProof reverted Panic(0x11) as well (rollupDelay gate passes: origin 1 + delay 3 < 5); challengeState reverted \"already in challenge\". setPause(true) by the owner cleared the challenge with no slash — submitter.isActive stayed true, inChallenge false.",
+        "status": "passed"
+      }
+    },
+    "L_inv_one_challenge": {
+      "go": {
+        "observed": "law is PROVED (bounded, verdict=checked): no refuting witness exists to replay",
+        "status": "not_applicable"
+      },
+      "solidity": {
+        "observed": "law is PROVED (bounded, verdict=checked): no refuting witness exists to replay",
+        "status": "not_applicable"
+      }
+    },
+    "L_inv_prefix": {
+      "go": {
+        "observed": "law is PROVED (bounded, verdict=checked): no refuting witness exists to replay",
+        "status": "not_applicable"
+      },
+      "solidity": {
+        "observed": "law is PROVED (bounded, verdict=checked): no refuting witness exists to replay",
+        "status": "not_applicable"
+      }
+    },
+    "L_nat_delay_frontier": {
+      "go": {
+        "observed": "replay is a state-transition trace over deployed L1 contracts; no Go-side counter-law exists for this law",
+        "status": "not_applicable"
+      },
+      "solidity": {
+        "command": "forge test --match-path test/M1Harness.t.sol -vv --match-test test_nat_delay_frontier",
+        "observed": "trace enqueue(appendCrossDomainMessage via MESSENGER at t=1) -> commitBatch(numL1=1) -> warp(5) all succeeded; committedBatches(1) matched the reconstructed header hash. commitBatch(numL1=0) reverted \"l1msg delay\" (enqueueTime 1 + rollupDelayPeriod 3 < 5). Permissionless finalizeBatch(h1) then popped the message (lastFinalizedBatchIndex=1) and the next commitBatch(numL1=0) succeeded — a delay, not a freeze.",
+        "status": "passed"
+      }
+    },
+    "L_par_hdr_v2_composed": {
+      "go": {
+        "command": "cd morph_scratch && go test ./common/batch/ -run TestCreateBatchHeaderV2Producer -v (go1.24, test file replay/M1/go/holon_m1_replay_test.go)",
+        "observed": "real producer createBatchHeaderWithSequencerSetHash (batch_cache.go:1684-1731) driven on a hand-built BatchCache: byte0==2, sequencerSetVerifyHash==0, and the 257 bytes equal the model's enc_go_v2_producer output evaluated via holon/model_eval on the same field values (blobVersionedHash = aggregateBlobHashes([EmptyVersionedHash]), parentBatchHash = keccak of a real BatchHeaderV0.Bytes())",
+        "status": "passed"
+      },
+      "solidity": {
+        "command": "forge test --match-path test/M1Harness.t.sol -vv --match-test test_v2_composed_header",
+        "observed": "vm.blobhashes([0x..b10b]); commitBatch(version=2) succeeded; committedBatches(1) == keccak256 of the reconstructed 257-byte header; byte0==2, sequencerSetVerifyHash field==0; the committed header bytes equal enc_go_v2_producer(header) evaluated on the compiled Bend model for the same field values (byte-for-byte match)",
+        "status": "passed"
+      }
+    },
+    "L_undo_commit_revert": {
+      "go": {
+        "observed": "replay is a state-transition trace over deployed L1 contracts; no Go-side counter-law exists for this law",
+        "status": "not_applicable"
+      },
+      "solidity": {
+        "command": "forge test --match-path test/M1Harness.t.sol -vv --match-test test_undo_commit_revert_and_enabled",
+        "observed": "commitBatch succeeded; owner revertBatch(h1,1) succeeded and committedBatches(1) was cleared, but batchBlobVersionedHashes(1) != 0 and batchDataStore(1) (originTimestamp, finalizeTimestamp) and committedStateRoots(1) all retained residue — the claim's undoed-state equality fails on real storage exactly as the model witness predicts.",
+        "status": "passed"
+      }
+    },
+    "L_undo_enabled": {
+      "go": {
+        "observed": "replay is a state-transition trace over deployed L1 contracts; no Go-side counter-law exists for this law",
+        "status": "not_applicable"
+      },
+      "solidity": {
+        "command": "forge test --match-path test/M1Harness.t.sol -vv --match-test test_undo_commit_revert_and_enabled",
+        "observed": "after revertBatch(1,1), commitBatch reverted \"commitBatch requires no stored blob hash\" (the model's Revert(tag) step), while commitState on the same input succeeded and recommitted batch 1 (lastCommittedBatchIndex=1) — commitBatch is not enabled after a revert, commitState is.",
+        "status": "passed"
+      }
+    },
+    "L_undo_pause": {
+      "go": {
+        "observed": "replay is a state-transition trace over deployed L1 contracts; no Go-side counter-law exists for this law",
+        "status": "not_applicable"
+      },
+      "solidity": {
+        "command": "forge test --match-path test/M1Harness.t.sol -vv --match-test test_undo_pause",
+        "observed": "commitBatch x2 succeeded; challengeState(1) at t=1 extended batch 2's finalizeTimestamp from 3 to 5 (+proofWindow); setPause(true) deleted the challenge (inChallenge=false), setPause(false) left batch 2's finalizeTimestamp at 5 — the +proofWindow residue the claim forbids. Extra observation (repeat part of the prediction): challenging batch 1 again succeeded and extended batch 2 a second time to 7.",
+        "status": "passed"
+      }
+    }
+  },
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51"
+}
