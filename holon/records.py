@@ -11,9 +11,19 @@ I16, coverage: I19). A pending field holds "pending:I<n>", never a made-up value
 
 The cone of a law is the set of generated model definitions its frozen statement reaches:
 the `M.<name>` references of the emitted statement (a type for a constructor), closed
-over references between definitions. model_assumptions are the spec/ledger entries whose
-introducing definitions meet the cone. A facts bundle the ledger does not know is an
-error: a record never silently carries no assumptions.
+over references between definitions. The references are textual tokens, so a local
+variable spelled like a definition adds a spurious edge: the cone over-approximates,
+which can only add assumptions, never hide one. (I2 replaces the token graph with the
+generators' own definition index.)
+
+model_assumptions are the spec/ledger entries whose introducing definitions meet the cone.
+Which bundle applies (resolve_bundle):
+  * exact: the facts sha256 has a ledger bundle; the only match the v2 schema accepts;
+  * derived: a run over facts derived from a registered file (the planted mutations of
+    `holon run --no-registry --facts ...`, which the frozen tests/test_31 requires to
+    succeed) uses that file's bundle, flagged in the record, and only if every definition
+    in the cone is still classified by it; otherwise LedgerError;
+  * anything else (no registered base, or a base the ledger does not know): LedgerError.
 """
 from __future__ import annotations
 
@@ -28,7 +38,8 @@ ROOT = Path(__file__).resolve().parents[1]
 LEDGER = Path("spec") / "ledger" / "assumptions.json"
 RECORD_VERSION = "holon-record/0.2"
 
-# Generators whose source determines the emitted Bend (bound into each record).
+# Entry modules of the generators whose source determines the emitted Bend. generator_sha256
+# hashes these and every holon module they import, transitively (generator_files).
 GENERATORS = {
     "holon-ir/0.1": ["holon/gen/model.py", "holon/gen/laws.py", "holon/gen/proofs.py"],
     "holon-ir/0.2": ["holon/gen/machine.py", "holon/gen/mlaws.py", "holon/gen/mproofs.py"],
@@ -121,6 +132,33 @@ def ir_roots_text(law: dict) -> str:
             for v in t:
                 walk(v)
     walk(law["statement"])
+    st = law["statement"]
+    # types the emitters print: binder types, and the types of term kinds
+    types01 = {"Header": "Hdr"}
+    types02 = {"State": "HSt", "Trace": "HAct", "Act": "HAct"}
+    for b in st.get("forall", []):
+        if b["type"] in types01:
+            names.add(types01[b["type"]])
+    for b in st.get("binders", []):
+        if b["type"] in types02:
+            names.add(types02[b["type"]])
+
+    def kinds(t):
+        if isinstance(t, dict):
+            if "field" in t:
+                names.update({"Hdr", f"get_{t['field']}"})
+            if "proj" in t:
+                names.add("HSt")
+            if "act" in t:
+                names.add("HAct")
+            if "obs" in t:
+                names.add("HObs")
+            for v in t.values():
+                kinds(v)
+        elif isinstance(t, list):
+            for v in t:
+                kinds(v)
+    kinds(st)
     return " ".join(f"M.{n}" for n in sorted(names))
 
 
@@ -142,18 +180,23 @@ def bundle(facts_sha256: str, root: Path | str = ROOT) -> dict:
                       "before building records over it")
 
 
-def resolve_bundle(facts_sha256: str, base_facts: str | None, root: Path | str = ROOT) -> tuple[dict, str]:
-    """The ledger bundle for a record: an exact facts match, or else, for a run over facts derived
-    from a registered file (the planted mutations of --no-registry runs), the bundle of that
-    registered file, flagged "derived" in the record. Committed records must match exactly (the
-    v2 schema accepts only "exact", so G9 rejects anything else). No match at all is an error."""
+def resolve_bundle(facts_sha256: str, base_facts: str | None, root: Path | str = ROOT,
+                   model_text: str | None = None, cone_set: set[str] | None = None) -> tuple[dict, str]:
+    """(bundle, "exact" | "derived"); see the module docstring. LedgerError when neither applies."""
     try:
         return bundle(facts_sha256, root), "exact"
     except LedgerError:
         same = [b for b in load_ledger(root)["bundles"] if base_facts and b["facts"] == base_facts]
         if len(same) != 1:
-            raise
-        return same[0], "derived"
+            raise LedgerError(f"no ledger bundle for facts {facts_sha256} and no registered base bundle "
+                              f"({base_facts!r}): add its model assumptions to {LEDGER}") from None
+        b = same[0]
+        if model_text is not None:
+            loose = sorted(set(unclassified(b["facts_sha256"], model_text, root)) & set(cone_set or ()))
+            if loose:
+                raise LedgerError(f"derived facts for {base_facts}: definitions {loose} in the cone are not "
+                                  f"classified by its ledger bundle, so its assumptions may not apply")
+        return b, "derived"
 
 
 def _meets(entry: dict, cone_set: set[str]) -> bool:
@@ -182,9 +225,47 @@ def sha256_file(p: Path) -> str:
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
+def _holon_imports(rel: str, root: Path) -> set[str]:
+    """Repo-relative paths of the holon modules a module imports (relative and absolute forms)."""
+    import ast
+    path = root / rel
+    pkg = Path(rel).parent.parts
+    out = set()
+    for n in ast.walk(ast.parse(path.read_text())):
+        mods = []
+        if isinstance(n, ast.ImportFrom):
+            if n.level:
+                base = list(pkg[:len(pkg) - (n.level - 1)])
+            elif (n.module or "").split(".")[0] == "holon":
+                base = []
+            else:
+                continue
+            parts = base + ((n.module or "").split(".") if n.module else [])
+            mods.append(parts)
+            mods += [parts + [a.name] for a in n.names]  # `from . import facts`
+        elif isinstance(n, ast.Import):
+            mods += [a.name.split(".") for a in n.names if a.name.split(".")[0] == "holon"]
+        for parts in mods:
+            for cand in (Path(*parts).with_suffix(".py"), Path(*parts) / "__init__.py"):
+                if parts and (root / cand).is_file():
+                    out.add(cand.as_posix())
+    return out
+
+
+def generator_files(ir_version: str, root: Path | str = ROOT) -> list[str]:
+    root = Path(root)
+    seen, todo = set(), list(GENERATORS[ir_version])
+    while todo:
+        rel = todo.pop()
+        if rel not in seen:
+            seen.add(rel)
+            todo.extend(sorted(_holon_imports(rel, root) - seen))
+    return sorted(seen)
+
+
 def generator_sha256(ir_version: str, root: Path | str = ROOT) -> str:
     h = hashlib.sha256()
-    for rel in GENERATORS[ir_version]:
+    for rel in generator_files(ir_version, root):
         h.update(rel.encode() + b"\0" + (Path(root) / rel).read_bytes() + b"\0")
     return h.hexdigest()
 
@@ -230,21 +311,23 @@ def independence_class(rec: dict) -> str:
 
 
 def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_facts: str | None,
-              root: Path | str = ROOT) -> dict:
+              compiled_path: Path | None, root: Path | str = ROOT) -> dict:
     """The v2 fields of a finished record (status, kernel, bound and replay already set).
 
-    base_facts is the registered facts file (repo-relative) the run's facts stand for."""
+    base_facts is the registered facts file (repo-relative) the run's facts stand for;
+    compiled_path is the compiled model the refuter executed."""
     model_text = Path(model_path).read_text()
     c = cone(statement_text, model_text)
     refuted = rec["status"] == "REFUTED"
-    b, match = resolve_bundle(rec["facts_sha256"], base_facts, root)
+    b, match = resolve_bundle(rec["facts_sha256"], base_facts, root, model_text, set(c))
     return {
         "record_version": RECORD_VERSION,
         "model_sha256": sha256_file(model_path),
+        "compiled_sha256": sha256_file(compiled_path) if compiled_path else None,
         "generator_sha256": generator_sha256(law["ir_version"], root),
         "cone": c,
         "ledger_match": match,
-        "model_assumptions": sorted(e["id"] for e in b["entries"] if _meets(e, set(c))),
+        "model_assumptions": model_assumptions(b["facts_sha256"], set(c), root),
         "scope_v2": scope_v2(law, rec),
         "kernels": kernels(rec),
         "independence_class": independence_class(rec),

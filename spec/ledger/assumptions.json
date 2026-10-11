@@ -54,7 +54,7 @@
         },
         {
           "defs": ["ok_go_at", "ok_go", "dec_go_fields_at", "dec_go_fields", "dec_go_sel", "dec_go", "enc_sol", "ok_sol_at", "ok_sol"],
-          "why": "transcribed from the facts functions (source lines in the facts); fidelity is measured by replay, not assumed"
+          "why": "transcribed from the facts functions, which were checked by hand against morph 3e44e79 (replay/M0/facts_audit.md); ok_go and ok_sol are replayed on the L_dom_hdr witness only; fidelity of enc_sol and the dec_go defs is not measured yet (refinement_refs, I16; Solidity commit-path replays, I4)"
         }
       ]
     },
@@ -102,7 +102,7 @@
           "id": "Hyp-Z0-kzg",
           "kind": "hypothesis",
           "source": "spec/M1/facts/morph_rollup.json#/params/Z",
-          "text": "Token Z stands for ZERO_VERSIONED_HASH (Rollup.sol:25), assumed equal to the KZG versioned hash of the all-zero blob, 0x01 || sha256(0xc0 || 0^47)[1:] (D2, whitepaper §11.6). The facts' constants_doc cites Rollup.sol:24 and says the value is oracle-checked by holon; no code in the repo performed that check before I3. Not the compression hypothesis HypZ of §8.5.",
+          "text": "Token Z stands for ZERO_VERSIONED_HASH (Rollup.sol:25), assumed equal to the KZG versioned hash of the all-zero blob, 0x01 || sha256(0xc0 || 0^47)[1:] (D2, whitepaper §11.6). The facts' constants_doc cites Rollup.sol:24 and says the value is oracle-checked by holon; no code in the repo performed that check before I3. Not the compression hypothesis HypZ of §8.5. laws/M1/L_fact_Z.json's notes repeat the wrong text (\"HypZ ... oracle-checked\", CF as a premise); the frozen-statement file is left untouched in I1 (its notes are not hashed) and corrected with the statement lifecycle (I10).",
           "introduced_by": ["d_blob_hash"]
         },
         {
@@ -180,8 +180,12 @@
           "why": "ghost observer (Prop 6.19): reads only the ghost tags and adds no behaviour"
         },
         {
-          "defs": ["dec_*", "decide_*", "exec_*", "step_*", "step", "run", "mig_eta2"],
-          "why": "guard and effect chains transcribed from the facts actions and migrations with source lines; fidelity is measured by the replay corpus (300 traces, 0 disagreements), not assumed"
+          "defs": ["dec_*", "decide_*", "exec_*", "step_*", "step", "run"],
+          "why": "guard and effect chains transcribed from the facts actions with source lines; each modelled action is exercised by the replay corpus against the real contract (300 traces, 2432 steps, 0 disagreements, replay/M1/report.json); step_wait is the environment's time move, compared through the timestamps it sets"
+        },
+        {
+          "defs": ["mig_eta2"],
+          "why": "transcribed from initialize2 (Rollup.sol:188-195); exercised only by the L_nat_eta2 witness traces through the real initialize2, not by the random corpus"
         },
         {
           "defs": ["clear_log", "log_of", "obs", "ok_head", "last_ok", "all_ok", "runs_ok", "no_code", "eq_obs", "eq_obs_list", "is_commitBatch", "is_commitState", "is_commitBatchWithProof", "is_revertBatch", "is_challengeState", "is_proveState", "is_finalizeBatch", "is_setPause", "is_sendMessage", "is_wait", "elapsed", "blobs_of", "lci_of", "csr_last", "kappa", "tags_ok", "new_hdr"],

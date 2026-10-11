@@ -1,8 +1,11 @@
 """Shared helpers for the M2 acceptance tests.
 
-The cone computation here is deliberately independent of holon/: it reads the generated
-model and the generated LAWS.bend files with regular expressions, so a bug in
-holon.records cannot make the tests agree with it.
+The cone computation here does not import holon/. It reads the generated model and the
+generated LAWS.bend files (holon.records reads the emitted statement instead). It is not
+an independent algorithm, though: holon/records.py uses the same token-and-closure
+approach, so a flaw shared by both (for example a local variable spelled like a
+definition) passes unnoticed. I2 builds the cone from the generators' own definition
+index, which makes the two computations genuinely different.
 """
 from __future__ import annotations
 

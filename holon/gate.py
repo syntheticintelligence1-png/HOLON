@@ -24,6 +24,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -125,8 +126,10 @@ class Gate:
         return out
 
     def g6(self) -> None:
+        """REFUTED records bound to the committed replay report (G6). Never raises: a malformed
+        record or report is a failure with a reason."""
         from .replay import load_report, witness_sha256
-        bad, n, model_only = [], 0, 0
+        bad, n, model_only = [], 0, []
         try:
             report = load_report(self.m, self.root)
         except Exception as e:  # noqa: BLE001
@@ -134,24 +137,43 @@ class Gate:
             bad.append(f"replay report unreadable: {e}")
         targets = self.target_commits()
         refuted = {lid: rec for lid, rec in self.records().items() if rec and rec.get("status") == "REFUTED"}
-        if report is None and refuted and not bad:
-            bad.append(f"no replay report for {len(refuted)} REFUTED records")
-        if report is not None:
-            commit = report.get("morph_commit", "")
-            hashes = report.get("witness_sha256", {})
-            for lid in sorted(set(hashes) - set(refuted)):
-                bad.append(f"{lid}: the replay report lists a witness for a law that is not REFUTED")
+        if report is None:
+            if refuted and not bad:
+                bad.append(f"no replay report for {len(refuted)} REFUTED records")
+        elif not isinstance(report, dict):
+            bad.append("replay report is not an object")
+        else:
+            commit = report.get("morph_commit")
+            hashes = report.get("witness_sha256")
+            laws = report.get("laws")
+            if not isinstance(commit, str) or re.fullmatch(r"[0-9a-f]{40}", commit) is None:
+                bad.append(f"replay report morph_commit {commit!r} is not a full 40-hex commit")
+                commit = ""
+            if not isinstance(hashes, dict) or not isinstance(laws, dict):
+                bad.append("replay report lacks witness_sha256 / laws objects")
+                hashes, laws = {}, {}
+            if report.get("harness_mismatch"):
+                bad.append("replay report records a harness mismatch (the harness disagreed with the real code's "
+                           "own commitment check)")
+            ref = report.get("refinement")
+            if isinstance(ref, dict) and ref.get("n_disagreements", 0):
+                bad.append(f"replay report records {ref.get('n_disagreements')} refinement disagreements")
+            for lid in sorted((set(hashes) | set(laws)) - set(refuted)):
+                bad.append(f"{lid}: the replay report lists a law that is not REFUTED")
             for lid, rec in sorted(refuted.items()):
                 n += 1
-                if rec.get("replay", {}).get("status") != "passed":
-                    bad.append(f"{lid}: record replay status is {rec.get('replay', {}).get('status')!r}, not passed")
-                want = targets.get(rec["facts_sha256"], "")
-                if not want or not commit.startswith(want):
+                rp = rec.get("replay")
+                if not isinstance(rp, dict) or rp.get("status") != "passed":
+                    bad.append(f"{lid}: record replay status is {rp.get('status') if isinstance(rp, dict) else rp!r}, "
+                               "not passed")
+                    rp = rp if isinstance(rp, dict) else {}
+                want = targets.get(rec.get("facts_sha256"), "")
+                if not isinstance(want, str) or not want or not commit.startswith(want):
                     bad.append(f"{lid}: report is for morph {commit[:12] or '?'}, facts target {want or '?'}")
                 if hashes.get(lid) != witness_sha256(rec.get("witness")):
                     bad.append(f"{lid}: witness sha256 differs from the replay report")
-                entry = report.get("laws", {}).get(lid)
-                if entry is None:
+                entry = laws.get(lid)
+                if not isinstance(entry, dict):
                     bad.append(f"{lid}: not in the replay report")
                     continue
                 sides = {"_": entry} if "status" in entry else {k: v for k, v in entry.items() if isinstance(v, dict)}
@@ -163,11 +185,14 @@ class Gate:
                         if not str(v.get("observed", "")).startswith(MODEL_ONLY):
                             bad.append(f"{lid}: {side} side not replayed and not labelled '{MODEL_ONLY}'")
                         else:
-                            model_only += 1
+                            model_only.append(f"{lid}/{side}")
+                            if MODEL_ONLY not in str(rp.get("detail", "")):
+                                bad.append(f"{lid}: record says replay passed without saying its {side} side is "
+                                           f"{MODEL_ONLY}")
                     elif st != "passed":
                         bad.append(f"{lid}: {side} side replay {st!r}")
-        self.checks["G6"] = _res(not bad, f"{n} REFUTED records bound to passed replays ({model_only} sides "
-                                          f"{MODEL_ONLY})" if not bad else "; ".join(bad))
+        self.checks["G6"] = _res(not bad, f"{n} REFUTED records bound to passed replays; {MODEL_ONLY}: "
+                                          f"{', '.join(model_only) or 'none'}" if not bad else "; ".join(bad))
 
     def g9(self) -> None:
         from . import schema
@@ -246,10 +271,12 @@ class Gate:
             a, b = bends(self.gen), bends(tmp / "gen")
             diff = sorted(k for k in set(a) | set(b) if a.get(k) != b.get(k))
             sa = self.results / "summary.json"
-            same_summary = sa.exists() and _load(sa) == _load(tmp / "results" / "summary.json")
+            same_summary = sa.exists() and sa.read_bytes() == (tmp / "results" / "summary.json").read_bytes()
             ra = self.norm_records(self.results, self.gen)
             rb = self.norm_records(tmp / "results", tmp / "gen")
-            rdiff = sorted(k for k in set(ra) | set(rb) if ra.get(k) != rb.get(k))
+            # canonical bytes, not ==: 1, 1.0 and true must not compare equal
+            rdiff = sorted(k for k in set(ra) | set(rb)
+                           if (k in ra) != (k in rb) or ir.canonical_json(ra[k]) != ir.canonical_json(rb[k]))
             ok = not diff and same_summary and bool(a) and not rdiff and bool(ra)
             self.checks["G1"] = _res(ok, f"{len(a)} generated .bend files identical, summary identical, "
                                          f"{len(ra)} records identical" if ok else
@@ -259,6 +286,11 @@ class Gate:
             self.checks["G1"] = _res(False, f"error: {e}")
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def recheck_outputs(self) -> None:
+        for _, _, d in self.checked_dirs():
+            if (d / "PROOF.bend").exists():
+                self.check_outputs.append(bend.check(d / "PROOF.bend", self.cfg).out)
 
     def g5(self) -> None:
         bad, n = [], 0
@@ -446,9 +478,14 @@ class Gate:
         os.environ["HOLON_BUILD_DIR"] = str(build)
         try:
             if self.genv():
+                if "G3" in order and "G5" not in order:
+                    self.recheck_outputs()  # G3 reads the checker's own output; get it without recording G5
                 for g in ["G2", "G1", "G5", "G3", "G11", "G6", "G9", "G7", "G4"]:
                     if g in order:
-                        steps[g]()
+                        try:
+                            steps[g]()
+                        except Exception as e:  # noqa: BLE001  (a crash is a failed check, and the report is written)
+                            self.checks[g] = _res(False, f"error: {type(e).__name__}: {e}")
             else:
                 for g in order[1:]:
                     self.checks[g] = _res(False, "skipped: unsafe environment" if bend.unsafe_env_files(self.root)
@@ -471,10 +508,14 @@ def main_gate(args) -> int:
     root = Path(args.root or ROOT).resolve()
     report_path = Path(args.report) if args.report else root / "results" / args.milestone / "gate_report.json"
     only = [c.strip() for c in args.checks.split(",") if c.strip()] if getattr(args, "checks", None) else None
+    if only and not args.report:
+        print("--checks writes a partial report: give --report (the committed results/<m>/gate_report.json is "
+              "only ever written by a full run)", file=sys.stderr)
+        return 2
     rep = Gate(args.milestone, root).run(only)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(rep, indent=2, sort_keys=True) + "\n")
     for g, c in rep["checks"].items():
         print(f"{g:5s} {'PASS' if c['passed'] else 'FAIL'}  {c['detail']}")
-    print("GATE", "PASSED" if rep["passed"] else "FAILED")
+    print("GATE", ("PASSED" if rep["passed"] else "FAILED") + (" (partial)" if rep.get("partial") else ""))
     return 0 if rep["passed"] else 1

@@ -172,7 +172,12 @@ def replay_status(report: dict | None, lid: str, witness: dict | None) -> dict:
         status = "not_applicable"
     else:
         status = "not_run"
-    detail = "; ".join(f"{s}: {v}" for s, v in sorted(sides.items())) + f" @ morph {report['morph_commit'][:12]}"
+    def shown(side: str, v: str) -> str:
+        # a side not replayed yet must say so in the record too, not only in the report
+        if v == "not_applicable" and str(e[side].get("observed", "")).startswith("model-only pending replay"):
+            return "model-only pending replay"
+        return v
+    detail = "; ".join(f"{s}: {shown(s, v)}" for s, v in sorted(sides.items())) + f" @ morph {report['morph_commit'][:12]}"
     return {"status": status, "detail": detail}
 
 

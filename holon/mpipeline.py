@@ -309,7 +309,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                                  "marker": v.marker, "seconds": v.seconds})
         rec["status"] = status
         rec["attempts"] = attempts
-        rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], ROOT))
+        rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT))
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:22s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")

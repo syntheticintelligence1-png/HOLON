@@ -197,7 +197,8 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
         rec["status"] = status
         rec["attempts"] = attempts
         rec.update(records.v2_fields(law, rec, statement_text(law, facts, model_import), model_src,
-                                     ir.load_registry(milestone, ROOT).get("facts", "facts/morph_header.json"), ROOT))
+                                     ir.load_registry(milestone, ROOT).get("facts", "facts/morph_header.json"),
+                                     compiled.artifact, ROOT))
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:16s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")

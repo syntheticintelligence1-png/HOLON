@@ -11,7 +11,7 @@ laws/M0/*.json (frozen IR) ──holon.gen.laws──▶ gen/M0/<law>/LAWS.bend 
                  if Bend rejects: holon.refute (search on compiled model) ─▶ counter-law (exs, witness literal)
 Bend 2 (bend2) ─▶ PROVED / REFUTED / UNKNOWN ─▶ BendTT --verdict (Lean-proven kernel) ─▶ results/M0/*.json
 holon replay: witnesses ─▶ real Go (go test) + real Solidity (forge, harness inherits Rollup) ─▶ replay/M0/report.json
-holon gate:  GENV → G2 → G1 → G5 → G3 → G11 → G7 → G4 (canaries) ─▶ results/M0/gate_report.json
+holon gate:  GENV → G2 → G1 → G5 → G3 → G11 → G6 → G9 → G7 → G4 (canaries) ─▶ results/M0/gate_report.json
 ```
 
 | Whitepaper | Code | Notes |
@@ -23,10 +23,10 @@ holon gate:  GENV → G2 → G1 → G5 → G3 → G11 → G7 → G4 (canaries) �
 | §8.4 law schemas, §8.5 hypothesis discipline | `holon/gen/laws.py` | PAR only in M0. Premises are pinned, never dropped; an inexpressible premise raises `Unsupported`, giving UNKNOWN. No axioms exist anywhere. |
 | §10.4 proof generators per class | `holon/gen/proofs.py` | `open_refl` (proof by computation), `version_split` (case split on the version byte with a lemma), `counter` (refutation). |
 | §10.5 refutation engines | `holon/refute.py` | Deterministic boundary-value and fixed-seed search, evaluated on the compiled Bend model, never in Python. Every intermediate subterm must be defined. |
-| §8.6 three outcomes, result records | `holon/pipeline.py`, `schemas/result_record.schema.json` | Records carry the statement hash, facts hash, premises, scope, kernel and verdict, artifacts, attempts, triage and replay. |
+| §8.6 three outcomes, result records | `holon/pipeline.py`, `holon/records.py`, `schemas/result_record.schema.json`, `spec/schemas/result_record_v2.schema.json` | Records carry the statement hash, facts hash, premises, scope, kernel and verdict, artifacts, attempts, triage and replay. Since I1, records also carry the v2 fields of §4b. |
 | §8.7 refinement evidence by replay | `holon/replay.py`, `replay/M0/` | Go and Solidity harnesses read the witnesses from the records. A replay counts for a record only if the witness hash matches. |
-| §8.8 trusting the kernel | `holon/bend.py`, gate G4/G7 | Canaries (must be rejected for a *semantic* reason), BendTT second kernel, pinned version, Bun-config tamper guard. |
-| §9.3 gate | `holon/gate.py` | G1, G2, G3, G4, G5, G7, G11, GENV. G6 is covered by `holon replay` plus `tests/test_50_replay.py`. G8–G10 arrive with extraction (M2) and the intent lane (M5). |
+| §8.8 trusting the kernel | `holon/bend.py`, gate G4/G7 | Canaries (must be rejected for a *semantic* reason), a pinned version, and a Bun-config tamper guard. BendTT `--verdict` re-checks bend2's elaboration of the same file. It shares the front end, so dual-checked results are class `I1-shared`, not the independent `I2` of §8.8. A Lean re-proof is I9. |
+| §9.3 gate | `holon/gate.py` | GENV, G1, G2, G3, G4, G5, G6, G7, G9, G11. G6 binds REFUTED records to the committed replay report; the replays themselves run through `holon replay` and `tests/test_50_replay.py`. G8 (coverage) arrives with extraction (M2) and G10 with the intent lane (M5). Since I1, the G11 name check is not a non-vacuity check: G11V (I3) is. |
 | §9.4 statement freezing | `FROZEN.sha256`, `tools/freeze.py`, G2 | Provers and generators have no write path to `laws/`. |
 
 ## 2. M0 status: exit criteria (whitepaper §15.2)
@@ -36,7 +36,7 @@ holon gate:  GENV → G2 → G1 → G5 → G3 → G11 → G7 → G4 (canaries) �
 | v0 and v1 PROVED | `L_par_hdr_v0` and `L_par_hdr_v1` PROVED (`open_refl`), plus `L_rt_go_v{0,1,2}` PROVED |
 | v2 and the domain law REFUTED with the predicted witnesses | `L_par_hdr_v2`: zero header, version 2, byte 0 is 2 vs 1. `L_dom_hdr`: 250 zero bytes, Solidity true / Go false. Also `L_par_hdr_ssvh` REFUTED, first difference at 185, triaged as an intent question. |
 | All canaries rejected | 16 canaries (pin_const, swap_fn, negated), all rejected with an expected/observed mismatch |
-| One law dual-kernel | **All 8** re-checked by BendTT `--verdict` (Lean-proven kernel) |
+| One law dual-kernel | **All 8** re-checked by BendTT `--verdict` (a Lean-proven kernel). BendTT shares bend2's front end, so this is the `I1-shared` class, not an independent second kernel. The frozen M0 spec allowed the substitution; the Lean re-proof is I9 (`docs/BUILD_PLAN.md`). |
 | Witnesses replay on the real code | Go: all 3 REFUTED witnesses replay at morph `3e44e79`. Solidity: `L_dom_hdr` replays through the real `Rollup._loadBatchHeader`. The commit-path replays (v2 byte 0, ssvh) need deployment wiring and belong to M1. |
 | Mutation adequacy (A1 in miniature) | All 4 planted bugs move outcomes as predicted. MUT3 reaches **PROVED** (case-split proof), not just UNKNOWN. |
 | Predictions vs. outcomes | 8/8 preregistered outcomes matched on the first mechanized run |

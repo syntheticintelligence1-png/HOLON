@@ -37,12 +37,22 @@
    - `tests`: the acceptance tests for the iteration. They are committed in the prereg commit, red.
    - `thresholds`, where the iteration has any.
 2. **Prereg commit.** It contains only that key, the sidecar inputs the predictions depend on, the acceptance tests and `prompts/I<n>_<slug>.md`. Push it before implementation starts, so the remote timeline shows the order.
+   - **Instruments are inputs.** A schema, oracle or other instrument that decides a prediction goes into the prereg commit as a sidecar input. Otherwise the claim is listed as a regression or a construction check, never as a prediction.
+   - **Why this rule exists.** In I1, the v2 record schema and the IR 0.2 schema were written after the prereg. So I1-P5, and the schema halves of I1-P3 and I1-P4, are construction checks and do not count toward prediction accuracy.
 3. **Check.** `python -m holon audit prereg --milestone <M>` (added in I1) checks, using read-only `git log` and `git show`:
    - the order of the prereg commit and the outcome-path commits;
    - per-key immutability: each key's value at HEAD equals its value in the commit that introduced it;
    - every acceptance-test function present at the prereg commit is unchanged at HEAD. New tests may be added. A test that must be fixed gets an entry in append-only `spec/<M>/amendments.jsonl` and is reported under Surprises.
 4. **It is not a gate check.** The gate runs on `copy_repo` trees, which have no `.git` (`tests/_util.py`). `tests_m2/test_prereg_order.py` runs the tool on the real checkout and **fails, never skips**, when `.git` or the history is missing.
-5. **Residual risk, stated plainly.** Local runs made before the prereg commit cannot be detected. The tool, the predictions file and the tests are agent-writable until the human freezes them (Q1), so the protocol is self-certified until then.
+5. **Residual risk, stated plainly.**
+   - Local runs made before the prereg commit cannot be detected.
+   - The tool, the predictions file and the tests are agent-writable until the human freezes them (Q1), so the protocol is self-certified until then.
+   - **What the tool enforces.** The prereg commit changes no outcome path, and every later outcome-path commit descends from it.
+   - **What it misses: earlier commits.** Outcome-path commits that are ancestors of the prereg commit are not attributed to any iteration. An outcome committed before its prereg passes, just like an unrecorded local run.
+   - **It trusts the local `.git`.** The authoritative audit is a run on a fresh clone of the pushed remote.
+   - **Sidecar inputs can change.** They are not immutable after the prereg; changes are reported as notes.
+   - **Amendments are broad.** An amendment licenses every later change to what it names.
+   - **New code can interfere.** Newly added test modules or helpers can still monkeypatch the suite at import time.
 6. **Predictions are never edited.** A miss is reported under Surprises.
 
 ### 0.2 Session protocol
