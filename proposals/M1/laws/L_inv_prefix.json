@@ -1,0 +1,115 @@
+{
+  "evidence": [
+    "E1"
+  ],
+  "facts": "proposals/M1/facts/rollup_sm.json",
+  "facts_sha256": "6efc7842544ab8ffce20172243ad5a32f5acb2c4b948807ffa54961ee6fd4c6f",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_inv_prefix",
+  "milestone": "M1",
+  "notes": "Committed batches form a gap-free prefix that contains the finalized prefix; finalized roots are nonzero.",
+  "rule": "FACT",
+  "statement": {
+    "bound": {
+      "K": 3,
+      "N": "facts.config.N"
+    },
+    "claim": {
+      "and": [
+        {
+          "le": [
+            {
+              "st": [
+                "s",
+                "lastFinalized"
+              ]
+            },
+            {
+              "st": [
+                "s",
+                "lastCommitted"
+              ]
+            }
+          ]
+        },
+        {
+          "body": {
+            "iff": [
+              {
+                "ne": [
+                  {
+                    "arr": [
+                      "s",
+                      "committed",
+                      {
+                        "var": "j"
+                      }
+                    ]
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              },
+              {
+                "le": [
+                  {
+                    "var": "j"
+                  },
+                  {
+                    "st": [
+                      "s",
+                      "lastCommitted"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "forall_idx": "j",
+          "range": "0..N"
+        },
+        {
+          "body": {
+            "implies": [
+              {
+                "le": [
+                  {
+                    "var": "j"
+                  },
+                  {
+                    "st": [
+                      "s",
+                      "lastFinalized"
+                    ]
+                  }
+                ]
+              },
+              {
+                "ne": [
+                  {
+                    "arr": [
+                      "s",
+                      "finalized_root",
+                      {
+                        "var": "j"
+                      }
+                    ]
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "forall_idx": "j",
+          "range": "0..N"
+        }
+      ]
+    },
+    "forall_reach": "s",
+    "kind": "sm"
+  },
+  "subform": "invariant"
+}

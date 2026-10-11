@@ -1,0 +1,100 @@
+{
+  "evidence": [
+    "E1"
+  ],
+  "facts": "proposals/M1/facts/rollup_sm.json",
+  "facts_sha256": "6efc7842544ab8ffce20172243ad5a32f5acb2c4b948807ffa54961ee6fd4c6f",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_undo_pause",
+  "milestone": "M1",
+  "notes": "A challenge cancelled by setPause(true) followed by setPause(false) leaves no residue on finalize timestamps or challenge state.",
+  "rule": "UNDO",
+  "statement": {
+    "bound": {
+      "K": 5,
+      "N": "facts.config.N"
+    },
+    "claim": {
+      "and": [
+        {
+          "arr_eq": [
+            "s",
+            "s3",
+            "fin_ts"
+          ]
+        },
+        {
+          "arr_eq": [
+            "s",
+            "s3",
+            "chal_challenger"
+          ]
+        },
+        {
+          "arr_eq": [
+            "s",
+            "s3",
+            "chal_start"
+          ]
+        },
+        {
+          "eq": [
+            {
+              "st": [
+                "s",
+                "inChallenge"
+              ]
+            },
+            {
+              "st": [
+                "s3",
+                "inChallenge"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "forall_params": [
+      {
+        "domain": "1..N",
+        "name": "i"
+      }
+    ],
+    "forall_reach": "s",
+    "kind": "sm",
+    "steps": [
+      {
+        "act": "challengeState",
+        "bind": "s1",
+        "from": "s",
+        "params": {
+          "i": {
+            "var": "i"
+          }
+        }
+      },
+      {
+        "act": "setPause",
+        "bind": "s2",
+        "from": "s1",
+        "params": {
+          "b": {
+            "c": 1
+          }
+        }
+      },
+      {
+        "act": "setPause",
+        "bind": "s3",
+        "from": "s2",
+        "params": {
+          "b": {
+            "c": 0
+          }
+        }
+      }
+    ]
+  },
+  "subform": "emergency_cancel"
+}

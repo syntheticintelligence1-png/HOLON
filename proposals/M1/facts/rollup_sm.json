@@ -1,0 +1,3701 @@
+{
+  "actions": {
+    "addSubmitter": {
+      "body": [
+        {
+          "code": "\"invalid submitter\"",
+          "file": "contracts/contracts/l1/rollup/Submitter.sol",
+          "line": 77,
+          "req": {
+            "eq": [
+              {
+                "s": "submitter_active"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "invalid submitter"
+        },
+        {
+          "code": "registered[submitter] = true;",
+          "file": "contracts/contracts/l1/rollup/Submitter.sol",
+          "line": 79,
+          "set": {
+            "s": "submitter_active"
+          },
+          "to": {
+            "c": 1
+          }
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/Submitter.sol",
+      "fn_line_code": "function addSubmitter(",
+      "line": 74,
+      "params": {},
+      "role": "owner"
+    },
+    "challengeState": {
+      "body": [
+        {
+          "code": "require(revertReqIndex == 0, \"pending revert request\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 132,
+          "req": {
+            "eq": [
+              {
+                "s": "revertReqIndex"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "pending revert request"
+        },
+        {
+          "code": "whenNotPaused",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 474,
+          "req": {
+            "eq": [
+              {
+                "s": "paused"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "Pausable: paused"
+        },
+        {
+          "code": "require(!inChallenge, \"already in challenge\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 475,
+          "req": {
+            "eq": [
+              {
+                "s": "inChallenge"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "already in challenge"
+        },
+        {
+          "code": "require(lastFinalizedBatchIndex < batchIndex, \"batch already finalized\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 476,
+          "req": {
+            "lt": [
+              {
+                "s": "lastFinalized"
+              },
+              {
+                "p": "i"
+              }
+            ]
+          },
+          "tag": "batch already finalized"
+        },
+        {
+          "code": "require(committedBatches[batchIndex] == _batchHash, \"incorrect batch hash\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 477,
+          "req": {
+            "ne": [
+              {
+                "a": "committed",
+                "i": {
+                  "p": "i"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "incorrect batch hash"
+        },
+        {
+          "code": "require(batchExist(batchIndex), \"batch not exist\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 478,
+          "req": {
+            "and": [
+              {
+                "gt": [
+                  {
+                    "a": "origin",
+                    "i": {
+                      "p": "i"
+                    }
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              },
+              {
+                "ne": [
+                  {
+                    "a": "committed",
+                    "i": {
+                      "p": "i"
+                    }
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "tag": "batch not exist"
+        },
+        {
+          "code": "require(challenges[batchIndex].challenger == address(0), \"batch already challenged\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 479,
+          "req": {
+            "eq": [
+              {
+                "a": "chal_challenger",
+                "i": {
+                  "p": "i"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "batch already challenged"
+        },
+        {
+          "code": "require(batchInsideChallengeWindow(batchIndex), \"cannot challenge batch outside the challenge window\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 481,
+          "req": {
+            "gt": [
+              {
+                "a": "fin_ts",
+                "i": {
+                  "p": "i"
+                }
+              },
+              {
+                "s": "now"
+              }
+            ]
+          },
+          "tag": "cannot challenge batch outside the challenge window"
+        },
+        {
+          "code": "batchChallenged = batchIndex;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 485,
+          "set": {
+            "s": "batchChallenged"
+          },
+          "to": {
+            "p": "i"
+          }
+        },
+        {
+          "code": "challenges[batchIndex] = BatchChallenge(batchIndex, _msgSender(), msg.value, block.timestamp, false, false);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 486,
+          "set": {
+            "a": "chal_challenger",
+            "i": {
+              "p": "i"
+            }
+          },
+          "to": {
+            "c": 1
+          }
+        },
+        {
+          "code": "challenges[batchIndex] = BatchChallenge(batchIndex, _msgSender(), msg.value, block.timestamp, false, false);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 486,
+          "set": {
+            "a": "chal_start",
+            "i": {
+              "p": "i"
+            }
+          },
+          "to": {
+            "s": "now"
+          }
+        },
+        {
+          "code": "challenges[batchIndex] = BatchChallenge(batchIndex, _msgSender(), msg.value, block.timestamp, false, false);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 486,
+          "set": {
+            "a": "chal_finished",
+            "i": {
+              "p": "i"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "challenges[batchIndex] = BatchChallenge(batchIndex, _msgSender(), msg.value, block.timestamp, false, false);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 486,
+          "set": {
+            "a": "chal_success",
+            "i": {
+              "p": "i"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "body": [
+            {
+              "code": "if (i != batchIndex) {",
+              "else": [],
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "if": {
+                "ne": [
+                  {
+                    "var": "j"
+                  },
+                  {
+                    "p": "i"
+                  }
+                ]
+              },
+              "line": 490,
+              "then": [
+                {
+                  "code": "batchDataStore[i].finalizeTimestamp += proofWindow;",
+                  "file": "contracts/contracts/l1/rollup/Rollup.sol",
+                  "line": 491,
+                  "set": {
+                    "a": "fin_ts",
+                    "i": {
+                      "var": "j"
+                    }
+                  },
+                  "to": {
+                    "add": [
+                      {
+                        "a": "fin_ts",
+                        "i": {
+                          "var": "j"
+                        }
+                      },
+                      {
+                        "k": "P"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "code": "for (uint256 i = lastFinalizedBatchIndex + 1; i <= lastCommittedBatchIndex; i++) {",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "for": "j",
+          "from": {
+            "add": [
+              {
+                "s": "lastFinalized"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          "line": 489,
+          "to_incl": {
+            "s": "lastCommitted"
+          }
+        },
+        {
+          "code": "inChallenge = true;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 495,
+          "set": {
+            "s": "inChallenge"
+          },
+          "to": {
+            "c": 1
+          }
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "fn_line_code": "function challengeState(",
+      "line": 471,
+      "params": {
+        "i": "1..N"
+      },
+      "role": "challenger"
+    },
+    "commitBatch": {
+      "body": [
+        {
+          "code": "require(ISubmitter(submitterContract).isActive(_msgSender()), \"only active submitter allowed\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 120,
+          "req": {
+            "eq": [
+              {
+                "s": "submitter_active"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          "tag": "only active submitter allowed"
+        },
+        {
+          "code": "require(revertReqIndex == 0, \"pending revert request\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 132,
+          "req": {
+            "eq": [
+              {
+                "s": "revertReqIndex"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "pending revert request"
+        },
+        {
+          "code": "whenNotPaused",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 257,
+          "req": {
+            "eq": [
+              {
+                "s": "paused"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "Pausable: paused"
+        },
+        {
+          "code": "require(batchBlobVersionedHashes[_nextBatchIndex] == bytes32(0), \"commitBatch requires no stored blob hash\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 261,
+          "req": {
+            "eq": [
+              {
+                "a": "blob",
+                "i": {
+                  "add": [
+                    {
+                      "s": "lastCommitted"
+                    },
+                    {
+                      "c": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "commitBatch requires no stored blob hash"
+        },
+        {
+          "code": "IL1MessageQueue(messageQueue).getFirstUnfinalizedMessageEnqueueTime() + rollupDelayPeriod < block.timestamp",
+          "else": [],
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "if": {
+            "lt": [
+              {
+                "add": [
+                  {
+                    "code": "if (pendingQueueIndex < messageQueue.length && messageEnqueueTime[pendingQueueIndex] != 0)",
+                    "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+                    "ite": [
+                      {
+                        "and": [
+                          {
+                            "lt": [
+                              {
+                                "s": "q_pending"
+                              },
+                              {
+                                "s": "q_len"
+                              }
+                            ]
+                          },
+                          {
+                            "ne": [
+                              {
+                                "a": "q_enq",
+                                "i": {
+                                  "s": "q_pending"
+                                }
+                              },
+                              {
+                                "c": 0
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "a": "q_enq",
+                        "i": {
+                          "s": "q_pending"
+                        }
+                      },
+                      {
+                        "s": "now"
+                      }
+                    ],
+                    "line": 262
+                  },
+                  {
+                    "k": "D"
+                  }
+                ]
+              },
+              {
+                "s": "now"
+              }
+            ]
+          },
+          "line": 263,
+          "then": [
+            {
+              "code": "require(batchDataInput.numL1Messages > 0, \"l1msg delay\");",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 265,
+              "req": {
+                "gt": [
+                  {
+                    "p": "numL1"
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              },
+              "tag": "l1msg delay"
+            }
+          ]
+        },
+        {
+          "code": "require(batchDataInput.version <= 2, \"invalid version\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 293,
+          "req": {
+            "le": [
+              {
+                "c": 1
+              },
+              {
+                "c": 2
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "invalid version"
+        },
+        {
+          "code": "require(batchDataInput.prevStateRoot != bytes32(0), \"previous state root is zero\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 294,
+          "req": {
+            "ne": [
+              {
+                "a": "state_root",
+                "i": {
+                  "s": "lastCommitted"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "previous state root is zero"
+        },
+        {
+          "code": "require(batchDataInput.postStateRoot != bytes32(0), \"new state root is zero\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 295,
+          "req": {
+            "ne": [
+              {
+                "p": "post"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "new state root is zero"
+        },
+        {
+          "code": "require(committedBatches[_batchIndex + 1] == bytes32(0), \"batch already committed\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 311,
+          "req": {
+            "eq": [
+              {
+                "a": "committed",
+                "i": {
+                  "add": [
+                    {
+                      "s": "lastCommitted"
+                    },
+                    {
+                      "c": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "batch already committed"
+        },
+        {
+          "code": "require(_queueIndex < messageQueue.length, \"message index out of range\");",
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "line": 108,
+          "req": {
+            "le": [
+              {
+                "add": [
+                  {
+                    "a": "hdr_total",
+                    "i": {
+                      "s": "lastCommitted"
+                    }
+                  },
+                  {
+                    "p": "numL1"
+                  }
+                ]
+              },
+              {
+                "s": "q_len"
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "message index out of range"
+        },
+        {
+          "bound": {
+            "add": [
+              {
+                "s": "lastCommitted"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          "code": "_batchIndex := add(_batchIndex, 1) // increase batch index",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 328,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol"
+        },
+        {
+          "code": "committedBatches[_batchIndex] = BatchHeaderCodecV0.computeBatchHash(_batchPtr, _headerLength);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 357,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "committed",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "c": 1
+          }
+        },
+        {
+          "code": "committedStateRoots[_batchIndex] = batchDataInput.postStateRoot;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 358,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "state_root",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "p": "post"
+          }
+        },
+        {
+          "code": "BatchHeaderCodecV0.storePrevStateHash(_batchPtr, batchDataInput.prevStateRoot);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 348,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "hdr_prev",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "a": "state_root",
+            "i": {
+              "s": "lastCommitted"
+            }
+          }
+        },
+        {
+          "code": "BatchHeaderCodecV0.storeL1MessagePopped(_batchPtr, batchDataInput.numL1Messages);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 344,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "hdr_num",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "p": "numL1"
+          }
+        },
+        {
+          "code": "BatchHeaderCodecV0.storeTotalL1MessagePopped(_batchPtr, _totalL1MessagesPoppedOverall);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 345,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "hdr_total",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "add": [
+              {
+                "a": "hdr_total",
+                "i": {
+                  "s": "lastCommitted"
+                }
+              },
+              {
+                "p": "numL1"
+              }
+            ]
+          }
+        },
+        {
+          "code": "batchBlobVersionedHashes[_batchIndex] = blobVersionedHash;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 359,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "blob",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "c": 1
+          }
+        },
+        {
+          "be": {
+            "ite": [
+              {
+                "eq": [
+                  {
+                    "s": "inChallenge"
+                  },
+                  {
+                    "c": 1
+                  }
+                ]
+              },
+              {
+                "subc": [
+                  {
+                    "add": [
+                      {
+                        "k": "P"
+                      },
+                      {
+                        "a": "chal_start",
+                        "i": {
+                          "s": "batchChallenged"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s": "now"
+                  }
+                ],
+                "tag": "panic: arithmetic underflow"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "code": "proveRemainingTime = proofWindow + challenges[batchChallenged].startTime - block.timestamp;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "let": "prove_remaining",
+          "line": 363,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol"
+        },
+        {
+          "code": "batchDataStore[_batchIndex] = BatchData(",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 366,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "origin",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "s": "now"
+          }
+        },
+        {
+          "code": "block.timestamp + finalizationPeriodSeconds + proveRemainingTime,",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 368,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "fin_ts",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "add": [
+              {
+                "add": [
+                  {
+                    "s": "now"
+                  },
+                  {
+                    "k": "F"
+                  }
+                ]
+              },
+              {
+                "var": "prove_remaining"
+              }
+            ]
+          }
+        },
+        {
+          "code": "batchDataStore[_batchIndex] = BatchData(",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 366,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "submitter",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "c": 1
+          }
+        },
+        {
+          "code": "lastCommittedBatchIndex = _batchIndex;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 373,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "s": "lastCommitted"
+          },
+          "to": {
+            "add": [
+              {
+                "s": "lastCommitted"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "fn_line_code": "function commitBatch(",
+      "line": 255,
+      "params": {
+        "numL1": [
+          0,
+          1
+        ],
+        "post": [
+          1,
+          2
+        ]
+      },
+      "role": "submitter"
+    },
+    "commitBatchWithProof": {
+      "body": [
+        {
+          "code": "require(revertReqIndex == 0, \"pending revert request\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 132,
+          "req": {
+            "eq": [
+              {
+                "s": "revertReqIndex"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "pending revert request"
+        },
+        {
+          "code": "whenNotPaused",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 386,
+          "req": {
+            "eq": [
+              {
+                "s": "paused"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "Pausable: paused"
+        },
+        {
+          "be": {
+            "lt": [
+              {
+                "add": [
+                  {
+                    "a": "origin",
+                    "i": {
+                      "s": "lastCommitted"
+                    }
+                  },
+                  {
+                    "k": "D"
+                  }
+                ]
+              },
+              {
+                "s": "now"
+              }
+            ]
+          },
+          "code": "bool rollupDelay = batchDataStore[lastCommittedBatchIndex].originTimestamp + rollupDelayPeriod <",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "let": "rollup_delay",
+          "line": 389
+        },
+        {
+          "be": {
+            "lt": [
+              {
+                "add": [
+                  {
+                    "code": "if (pendingQueueIndex < messageQueue.length && messageEnqueueTime[pendingQueueIndex] != 0)",
+                    "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+                    "ite": [
+                      {
+                        "and": [
+                          {
+                            "lt": [
+                              {
+                                "s": "q_pending"
+                              },
+                              {
+                                "s": "q_len"
+                              }
+                            ]
+                          },
+                          {
+                            "ne": [
+                              {
+                                "a": "q_enq",
+                                "i": {
+                                  "s": "q_pending"
+                                }
+                              },
+                              {
+                                "c": 0
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "a": "q_enq",
+                        "i": {
+                          "s": "q_pending"
+                        }
+                      },
+                      {
+                        "s": "now"
+                      }
+                    ],
+                    "line": 262
+                  },
+                  {
+                    "k": "D"
+                  }
+                ]
+              },
+              {
+                "s": "now"
+              }
+            ]
+          },
+          "code": "bool l1MsgQueueDelayed = IL1MessageQueue(messageQueue).getFirstUnfinalizedMessageEnqueueTime() +",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "let": "l1_delayed",
+          "line": 393
+        },
+        {
+          "code": "if (!rollupDelay && l1MsgQueueDelayed) {",
+          "else": [],
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "if": {
+            "and": [
+              {
+                "not": {
+                  "var": "rollup_delay"
+                }
+              },
+              {
+                "var": "l1_delayed"
+              }
+            ]
+          },
+          "line": 397,
+          "then": [
+            {
+              "code": "require(batchDataInput.numL1Messages > 0, \"l1msg delay\");",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 398,
+              "req": {
+                "gt": [
+                  {
+                    "p": "numL1"
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              },
+              "tag": "l1msg delay"
+            }
+          ]
+        },
+        {
+          "code": "require(rollupDelay || l1MsgQueueDelayed, \"invalid timing\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 400,
+          "req": {
+            "or": [
+              {
+                "var": "rollup_delay"
+              },
+              {
+                "var": "l1_delayed"
+              }
+            ]
+          },
+          "tag": "invalid timing"
+        },
+        {
+          "code": "require(batchDataInput.version <= 2, \"invalid version\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 293,
+          "req": {
+            "le": [
+              {
+                "c": 1
+              },
+              {
+                "c": 2
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "invalid version"
+        },
+        {
+          "code": "require(batchDataInput.prevStateRoot != bytes32(0), \"previous state root is zero\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 294,
+          "req": {
+            "ne": [
+              {
+                "a": "state_root",
+                "i": {
+                  "s": "lastCommitted"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "previous state root is zero"
+        },
+        {
+          "code": "require(batchDataInput.postStateRoot != bytes32(0), \"new state root is zero\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 295,
+          "req": {
+            "ne": [
+              {
+                "p": "post"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "new state root is zero"
+        },
+        {
+          "code": "require(committedBatches[_batchIndex + 1] == bytes32(0), \"batch already committed\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 311,
+          "req": {
+            "eq": [
+              {
+                "a": "committed",
+                "i": {
+                  "add": [
+                    {
+                      "s": "lastCommitted"
+                    },
+                    {
+                      "c": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "batch already committed"
+        },
+        {
+          "code": "require(_queueIndex < messageQueue.length, \"message index out of range\");",
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "line": 108,
+          "req": {
+            "le": [
+              {
+                "add": [
+                  {
+                    "a": "hdr_total",
+                    "i": {
+                      "s": "lastCommitted"
+                    }
+                  },
+                  {
+                    "p": "numL1"
+                  }
+                ]
+              },
+              {
+                "s": "q_len"
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "message index out of range"
+        },
+        {
+          "bound": {
+            "add": [
+              {
+                "s": "lastCommitted"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          "code": "_batchIndex := add(_batchIndex, 1) // increase batch index",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 328,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol"
+        },
+        {
+          "code": "committedBatches[_batchIndex] = BatchHeaderCodecV0.computeBatchHash(_batchPtr, _headerLength);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 357,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "committed",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "c": 1
+          }
+        },
+        {
+          "code": "committedStateRoots[_batchIndex] = batchDataInput.postStateRoot;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 358,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "state_root",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "p": "post"
+          }
+        },
+        {
+          "code": "BatchHeaderCodecV0.storePrevStateHash(_batchPtr, batchDataInput.prevStateRoot);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 348,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "hdr_prev",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "a": "state_root",
+            "i": {
+              "s": "lastCommitted"
+            }
+          }
+        },
+        {
+          "code": "BatchHeaderCodecV0.storeL1MessagePopped(_batchPtr, batchDataInput.numL1Messages);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 344,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "hdr_num",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "p": "numL1"
+          }
+        },
+        {
+          "code": "BatchHeaderCodecV0.storeTotalL1MessagePopped(_batchPtr, _totalL1MessagesPoppedOverall);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 345,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "hdr_total",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "add": [
+              {
+                "a": "hdr_total",
+                "i": {
+                  "s": "lastCommitted"
+                }
+              },
+              {
+                "p": "numL1"
+              }
+            ]
+          }
+        },
+        {
+          "code": "batchBlobVersionedHashes[_batchIndex] = blobVersionedHash;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 359,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "blob",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "ite": [
+              {
+                "ne": [
+                  {
+                    "a": "blob",
+                    "i": {
+                      "add": [
+                        {
+                          "s": "lastCommitted"
+                        },
+                        {
+                          "c": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              },
+              {
+                "a": "blob",
+                "i": {
+                  "add": [
+                    {
+                      "s": "lastCommitted"
+                    },
+                    {
+                      "c": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        },
+        {
+          "be": {
+            "ite": [
+              {
+                "eq": [
+                  {
+                    "s": "inChallenge"
+                  },
+                  {
+                    "c": 1
+                  }
+                ]
+              },
+              {
+                "subc": [
+                  {
+                    "add": [
+                      {
+                        "k": "P"
+                      },
+                      {
+                        "a": "chal_start",
+                        "i": {
+                          "s": "batchChallenged"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s": "now"
+                  }
+                ],
+                "tag": "panic: arithmetic underflow"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "code": "proveRemainingTime = proofWindow + challenges[batchChallenged].startTime - block.timestamp;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "let": "prove_remaining",
+          "line": 363,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol"
+        },
+        {
+          "code": "batchDataStore[_batchIndex] = BatchData(",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 366,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "origin",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "s": "now"
+          }
+        },
+        {
+          "code": "block.timestamp + finalizationPeriodSeconds + proveRemainingTime,",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 368,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "fin_ts",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "add": [
+              {
+                "add": [
+                  {
+                    "s": "now"
+                  },
+                  {
+                    "k": "F"
+                  }
+                ]
+              },
+              {
+                "var": "prove_remaining"
+              }
+            ]
+          }
+        },
+        {
+          "code": "batchDataStore[_batchIndex] = BatchData(",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 366,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "submitter",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "lastCommittedBatchIndex = _batchIndex;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 373,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "s": "lastCommitted"
+          },
+          "to": {
+            "add": [
+              {
+                "s": "lastCommitted"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        },
+        {
+          "code": "batchDataStore[_batchIndex].finalizeTimestamp = block.timestamp;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 421,
+          "set": {
+            "a": "fin_ts",
+            "i": {
+              "s": "lastCommitted"
+            }
+          },
+          "to": {
+            "s": "now"
+          }
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "fn_line_code": "function commitBatchWithProof(",
+      "line": 382,
+      "params": {
+        "numL1": [
+          0,
+          1
+        ],
+        "post": [
+          1,
+          2
+        ]
+      },
+      "role": "anyone"
+    },
+    "commitState": {
+      "body": [
+        {
+          "code": "require(ISubmitter(submitterContract).isActive(_msgSender()), \"only active submitter allowed\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 120,
+          "req": {
+            "eq": [
+              {
+                "s": "submitter_active"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          "tag": "only active submitter allowed"
+        },
+        {
+          "code": "require(revertReqIndex == 0, \"pending revert request\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 132,
+          "req": {
+            "eq": [
+              {
+                "s": "revertReqIndex"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "pending revert request"
+        },
+        {
+          "code": "whenNotPaused",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 275,
+          "req": {
+            "eq": [
+              {
+                "s": "paused"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "Pausable: paused"
+        },
+        {
+          "code": "require(blobhash(0) == bytes32(0), \"commitState must not carry blob\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 276,
+          "req": {
+            "eq": [
+              {
+                "c": 0
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "commitState must not carry blob"
+        },
+        {
+          "code": "require(batchBlobVersionedHashes[_nextBatchIndex] != bytes32(0), \"no stored blob hash for this batch\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 279,
+          "req": {
+            "ne": [
+              {
+                "a": "blob",
+                "i": {
+                  "add": [
+                    {
+                      "s": "lastCommitted"
+                    },
+                    {
+                      "c": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "no stored blob hash for this batch"
+        },
+        {
+          "code": "IL1MessageQueue(messageQueue).getFirstUnfinalizedMessageEnqueueTime() + rollupDelayPeriod < block.timestamp",
+          "else": [],
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "if": {
+            "lt": [
+              {
+                "add": [
+                  {
+                    "code": "if (pendingQueueIndex < messageQueue.length && messageEnqueueTime[pendingQueueIndex] != 0)",
+                    "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+                    "ite": [
+                      {
+                        "and": [
+                          {
+                            "lt": [
+                              {
+                                "s": "q_pending"
+                              },
+                              {
+                                "s": "q_len"
+                              }
+                            ]
+                          },
+                          {
+                            "ne": [
+                              {
+                                "a": "q_enq",
+                                "i": {
+                                  "s": "q_pending"
+                                }
+                              },
+                              {
+                                "c": 0
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "a": "q_enq",
+                        "i": {
+                          "s": "q_pending"
+                        }
+                      },
+                      {
+                        "s": "now"
+                      }
+                    ],
+                    "line": 262
+                  },
+                  {
+                    "k": "D"
+                  }
+                ]
+              },
+              {
+                "s": "now"
+              }
+            ]
+          },
+          "line": 281,
+          "then": [
+            {
+              "code": "require(batchDataInput.numL1Messages > 0, \"l1msg delay\");",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 283,
+              "req": {
+                "gt": [
+                  {
+                    "p": "numL1"
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              },
+              "tag": "l1msg delay"
+            }
+          ]
+        },
+        {
+          "code": "require(batchDataInput.version <= 2, \"invalid version\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 293,
+          "req": {
+            "le": [
+              {
+                "c": 1
+              },
+              {
+                "c": 2
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "invalid version"
+        },
+        {
+          "code": "require(batchDataInput.prevStateRoot != bytes32(0), \"previous state root is zero\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 294,
+          "req": {
+            "ne": [
+              {
+                "a": "state_root",
+                "i": {
+                  "s": "lastCommitted"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "previous state root is zero"
+        },
+        {
+          "code": "require(batchDataInput.postStateRoot != bytes32(0), \"new state root is zero\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 295,
+          "req": {
+            "ne": [
+              {
+                "p": "post"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "new state root is zero"
+        },
+        {
+          "code": "require(committedBatches[_batchIndex + 1] == bytes32(0), \"batch already committed\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 311,
+          "req": {
+            "eq": [
+              {
+                "a": "committed",
+                "i": {
+                  "add": [
+                    {
+                      "s": "lastCommitted"
+                    },
+                    {
+                      "c": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "batch already committed"
+        },
+        {
+          "code": "require(_queueIndex < messageQueue.length, \"message index out of range\");",
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "line": 108,
+          "req": {
+            "le": [
+              {
+                "add": [
+                  {
+                    "a": "hdr_total",
+                    "i": {
+                      "s": "lastCommitted"
+                    }
+                  },
+                  {
+                    "p": "numL1"
+                  }
+                ]
+              },
+              {
+                "s": "q_len"
+              }
+            ]
+          },
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "tag": "message index out of range"
+        },
+        {
+          "bound": {
+            "add": [
+              {
+                "s": "lastCommitted"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          "code": "_batchIndex := add(_batchIndex, 1) // increase batch index",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 328,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol"
+        },
+        {
+          "code": "committedBatches[_batchIndex] = BatchHeaderCodecV0.computeBatchHash(_batchPtr, _headerLength);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 357,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "committed",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "c": 1
+          }
+        },
+        {
+          "code": "committedStateRoots[_batchIndex] = batchDataInput.postStateRoot;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 358,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "state_root",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "p": "post"
+          }
+        },
+        {
+          "code": "BatchHeaderCodecV0.storePrevStateHash(_batchPtr, batchDataInput.prevStateRoot);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 348,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "hdr_prev",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "a": "state_root",
+            "i": {
+              "s": "lastCommitted"
+            }
+          }
+        },
+        {
+          "code": "BatchHeaderCodecV0.storeL1MessagePopped(_batchPtr, batchDataInput.numL1Messages);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 344,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "hdr_num",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "p": "numL1"
+          }
+        },
+        {
+          "code": "BatchHeaderCodecV0.storeTotalL1MessagePopped(_batchPtr, _totalL1MessagesPoppedOverall);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 345,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "hdr_total",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "add": [
+              {
+                "a": "hdr_total",
+                "i": {
+                  "s": "lastCommitted"
+                }
+              },
+              {
+                "p": "numL1"
+              }
+            ]
+          }
+        },
+        {
+          "code": "batchBlobVersionedHashes[_batchIndex] = blobVersionedHash;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 359,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "blob",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "a": "blob",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          }
+        },
+        {
+          "be": {
+            "ite": [
+              {
+                "eq": [
+                  {
+                    "s": "inChallenge"
+                  },
+                  {
+                    "c": 1
+                  }
+                ]
+              },
+              {
+                "subc": [
+                  {
+                    "add": [
+                      {
+                        "k": "P"
+                      },
+                      {
+                        "a": "chal_start",
+                        "i": {
+                          "s": "batchChallenged"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s": "now"
+                  }
+                ],
+                "tag": "panic: arithmetic underflow"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "code": "proveRemainingTime = proofWindow + challenges[batchChallenged].startTime - block.timestamp;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "let": "prove_remaining",
+          "line": 363,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol"
+        },
+        {
+          "code": "batchDataStore[_batchIndex] = BatchData(",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 366,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "origin",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "s": "now"
+          }
+        },
+        {
+          "code": "block.timestamp + finalizationPeriodSeconds + proveRemainingTime,",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 368,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "fin_ts",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "add": [
+              {
+                "add": [
+                  {
+                    "s": "now"
+                  },
+                  {
+                    "k": "F"
+                  }
+                ]
+              },
+              {
+                "var": "prove_remaining"
+              }
+            ]
+          }
+        },
+        {
+          "code": "batchDataStore[_batchIndex] = BatchData(",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 366,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "a": "submitter",
+            "i": {
+              "add": [
+                {
+                  "s": "lastCommitted"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          },
+          "to": {
+            "c": 1
+          }
+        },
+        {
+          "code": "lastCommittedBatchIndex = _batchIndex;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 373,
+          "scope": "function _commitBatchWithBatchData(",
+          "scope_file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "s": "lastCommitted"
+          },
+          "to": {
+            "add": [
+              {
+                "s": "lastCommitted"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "fn_line_code": "function commitState(",
+      "line": 273,
+      "params": {
+        "numL1": [
+          0,
+          1
+        ],
+        "post": [
+          1,
+          2
+        ]
+      },
+      "role": "submitter"
+    },
+    "enqueue": {
+      "body": [
+        {
+          "bound_q": {
+            "s": "q_len"
+          },
+          "code": "uint256 _queueIndex = messageQueue.length;",
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "line": 374
+        },
+        {
+          "code": "messageEnqueueTime[_queueIndex] = block.timestamp;",
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "line": 377,
+          "set": {
+            "a": "q_enq",
+            "i": {
+              "s": "q_len"
+            }
+          },
+          "to": {
+            "s": "now"
+          }
+        },
+        {
+          "code": "messageQueue.push(_hash);",
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "line": 376,
+          "set": {
+            "s": "q_len"
+          },
+          "to": {
+            "add": [
+              {
+                "s": "q_len"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+      "fn_line_code": "function _queueTransaction(",
+      "line": 366,
+      "params": {},
+      "role": "env"
+    },
+    "finalizeBatch": {
+      "body": [
+        {
+          "be": {
+            "add": [
+              {
+                "s": "lastFinalized"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          "code": "require(lastFinalizedBatchIndex + 1 == _batchIndex, \"incorrect batch index\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "let": "i",
+          "line": 643
+        },
+        {
+          "code": "require(revertReqIndex == 0, \"pending revert request\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 132,
+          "req": {
+            "eq": [
+              {
+                "s": "revertReqIndex"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "pending revert request"
+        },
+        {
+          "code": "whenNotPaused",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 625,
+          "req": {
+            "eq": [
+              {
+                "s": "paused"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "Pausable: paused"
+        },
+        {
+          "code": "require(committedBatches[_batchIndex] == _batchHash, \"incorrect batch hash\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 629,
+          "req": {
+            "ne": [
+              {
+                "a": "committed",
+                "i": {
+                  "var": "i"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "incorrect batch hash"
+        },
+        {
+          "code": "require(batchExist(_batchIndex), \"batch not exist\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 630,
+          "req": {
+            "and": [
+              {
+                "gt": [
+                  {
+                    "a": "origin",
+                    "i": {
+                      "var": "i"
+                    }
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              },
+              {
+                "ne": [
+                  {
+                    "a": "committed",
+                    "i": {
+                      "var": "i"
+                    }
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "tag": "batch not exist"
+        },
+        {
+          "code": "require(!batchInChallenge(_batchIndex), \"batch in challenge\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 631,
+          "req": {
+            "not": {
+              "and": [
+                {
+                  "ne": [
+                    {
+                      "a": "chal_challenger",
+                      "i": {
+                        "var": "i"
+                      }
+                    },
+                    {
+                      "c": 0
+                    }
+                  ]
+                },
+                {
+                  "eq": [
+                    {
+                      "a": "chal_finished",
+                      "i": {
+                        "var": "i"
+                      }
+                    },
+                    {
+                      "c": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "tag": "batch in challenge"
+        },
+        {
+          "code": "require(!batchChallengedSuccess(_batchIndex), \"batch should be revert\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 632,
+          "req": {
+            "eq": [
+              {
+                "a": "chal_success",
+                "i": {
+                  "var": "i"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "batch should be revert"
+        },
+        {
+          "code": "require(!batchInsideChallengeWindow(_batchIndex), \"batch in challenge window\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 633,
+          "req": {
+            "not": {
+              "gt": [
+                {
+                  "a": "fin_ts",
+                  "i": {
+                    "var": "i"
+                  }
+                },
+                {
+                  "s": "now"
+                }
+              ]
+            }
+          },
+          "tag": "batch in challenge window"
+        },
+        {
+          "code": "\"incorrect previous state root\"",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 637,
+          "req": {
+            "eq": [
+              {
+                "a": "finalized_root",
+                "i": {
+                  "subc": [
+                    {
+                      "var": "i"
+                    },
+                    {
+                      "c": 1
+                    }
+                  ],
+                  "tag": "panic: arithmetic underflow"
+                }
+              },
+              {
+                "a": "hdr_prev",
+                "i": {
+                  "var": "i"
+                }
+              }
+            ]
+          },
+          "tag": "incorrect previous state root"
+        },
+        {
+          "code": "require(finalizedStateRoots[_batchIndex] == bytes32(0), \"batch already verified\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 640,
+          "req": {
+            "eq": [
+              {
+                "a": "finalized_root",
+                "i": {
+                  "var": "i"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "batch already verified"
+        },
+        {
+          "code": "lastFinalizedBatchIndex = _batchIndex;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 644,
+          "set": {
+            "s": "lastFinalized"
+          },
+          "to": {
+            "var": "i"
+          }
+        },
+        {
+          "code": "finalizedStateRoots[_batchIndex] = BatchHeaderCodecV0.getPostStateHash(memPtr);",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 649,
+          "set": {
+            "a": "finalized_root",
+            "i": {
+              "var": "i"
+            }
+          },
+          "to": {
+            "a": "state_root",
+            "i": {
+              "var": "i"
+            }
+          }
+        },
+        {
+          "code": "if (l1MessagePopped == 0) return;",
+          "else": [],
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "if": {
+            "gt": [
+              {
+                "a": "hdr_num",
+                "i": {
+                  "var": "i"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "line": 740,
+          "then": [
+            {
+              "code": "require(pendingQueueIndex == _startIndex, \"start index mismatch\");",
+              "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+              "line": 325,
+              "req": {
+                "eq": [
+                  {
+                    "s": "q_pending"
+                  },
+                  {
+                    "subc": [
+                      {
+                        "a": "hdr_total",
+                        "i": {
+                          "var": "i"
+                        }
+                      },
+                      {
+                        "a": "hdr_num",
+                        "i": {
+                          "var": "i"
+                        }
+                      }
+                    ],
+                    "tag": "panic: arithmetic underflow"
+                  }
+                ]
+              },
+              "tag": "start index mismatch"
+            },
+            {
+              "code": "pendingQueueIndex = _startIndex + _count;",
+              "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+              "line": 328,
+              "set": {
+                "s": "q_pending"
+              },
+              "to": {
+                "a": "hdr_total",
+                "i": {
+                  "var": "i"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "code": "delete batchDataStore[_batchIndex - 1];",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 657,
+          "set": {
+            "a": "origin",
+            "i": {
+              "subc": [
+                {
+                  "var": "i"
+                },
+                {
+                  "c": 1
+                }
+              ],
+              "tag": "panic: arithmetic underflow"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "delete batchDataStore[_batchIndex - 1];",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 657,
+          "set": {
+            "a": "fin_ts",
+            "i": {
+              "subc": [
+                {
+                  "var": "i"
+                },
+                {
+                  "c": 1
+                }
+              ],
+              "tag": "panic: arithmetic underflow"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "delete batchDataStore[_batchIndex - 1];",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 657,
+          "set": {
+            "a": "submitter",
+            "i": {
+              "subc": [
+                {
+                  "var": "i"
+                },
+                {
+                  "c": 1
+                }
+              ],
+              "tag": "panic: arithmetic underflow"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "delete committedStateRoots[_batchIndex - 1];",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 658,
+          "set": {
+            "a": "state_root",
+            "i": {
+              "subc": [
+                {
+                  "var": "i"
+                },
+                {
+                  "c": 1
+                }
+              ],
+              "tag": "panic: arithmetic underflow"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "delete batchBlobVersionedHashes[_batchIndex - 1];",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 659,
+          "set": {
+            "a": "blob",
+            "i": {
+              "subc": [
+                {
+                  "var": "i"
+                },
+                {
+                  "c": 1
+                }
+              ],
+              "tag": "panic: arithmetic underflow"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "delete challenges[_batchIndex - 1];",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 660,
+          "set": {
+            "a": "chal_challenger",
+            "i": {
+              "subc": [
+                {
+                  "var": "i"
+                },
+                {
+                  "c": 1
+                }
+              ],
+              "tag": "panic: arithmetic underflow"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "delete challenges[_batchIndex - 1];",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 660,
+          "set": {
+            "a": "chal_finished",
+            "i": {
+              "subc": [
+                {
+                  "var": "i"
+                },
+                {
+                  "c": 1
+                }
+              ],
+              "tag": "panic: arithmetic underflow"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "delete challenges[_batchIndex - 1];",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 660,
+          "set": {
+            "a": "chal_success",
+            "i": {
+              "subc": [
+                {
+                  "var": "i"
+                },
+                {
+                  "c": 1
+                }
+              ],
+              "tag": "panic: arithmetic underflow"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "delete challenges[_batchIndex - 1];",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 660,
+          "set": {
+            "a": "chal_start",
+            "i": {
+              "subc": [
+                {
+                  "var": "i"
+                },
+                {
+                  "c": 1
+                }
+              ],
+              "tag": "panic: arithmetic underflow"
+            }
+          },
+          "to": {
+            "c": 0
+          }
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "fn_line_code": "function finalizeBatch(",
+      "line": 625,
+      "params": {},
+      "role": "anyone"
+    },
+    "proveState": {
+      "body": [
+        {
+          "code": "require(revertReqIndex == 0, \"pending revert request\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 132,
+          "req": {
+            "eq": [
+              {
+                "s": "revertReqIndex"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "pending revert request"
+        },
+        {
+          "code": "whenNotPaused",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 598,
+          "req": {
+            "eq": [
+              {
+                "s": "paused"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "Pausable: paused"
+        },
+        {
+          "code": "require(ISubmitter(submitterContract).isActive(_msgSender()), \"only active submitter allowed\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 120,
+          "req": {
+            "eq": [
+              {
+                "s": "submitter_active"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          "tag": "only active submitter allowed"
+        },
+        {
+          "code": "require(committedBatches[_batchIndex] == _batchHash, \"incorrect batch hash\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 603,
+          "req": {
+            "ne": [
+              {
+                "a": "committed",
+                "i": {
+                  "p": "i"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "incorrect batch hash"
+        },
+        {
+          "code": "require(batchInChallenge(_batchIndex), \"batch in challenge\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 606,
+          "req": {
+            "and": [
+              {
+                "ne": [
+                  {
+                    "a": "chal_challenger",
+                    "i": {
+                      "p": "i"
+                    }
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "a": "chal_finished",
+                    "i": {
+                      "p": "i"
+                    }
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "tag": "batch in challenge"
+        },
+        {
+          "code": "challenges[_batchIndex].finished = true;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 609,
+          "set": {
+            "a": "chal_finished",
+            "i": {
+              "p": "i"
+            }
+          },
+          "to": {
+            "c": 1
+          }
+        },
+        {
+          "code": "inChallenge = false;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 610,
+          "set": {
+            "s": "inChallenge"
+          },
+          "to": {
+            "c": 0
+          }
+        },
+        {
+          "code": "if (challenges[_batchIndex].startTime + proofWindow <= block.timestamp) {",
+          "else": [],
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "if": {
+            "le": [
+              {
+                "add": [
+                  {
+                    "a": "chal_start",
+                    "i": {
+                      "p": "i"
+                    }
+                  },
+                  {
+                    "k": "P"
+                  }
+                ]
+              },
+              {
+                "s": "now"
+              }
+            ]
+          },
+          "line": 613,
+          "then": [
+            {
+              "code": "challenges[_batchIndex].challengeSuccess = true;",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 615,
+              "set": {
+                "a": "chal_success",
+                "i": {
+                  "p": "i"
+                }
+              },
+              "to": {
+                "c": 1
+              }
+            },
+            {
+              "code": "revertReqIndex = batchIndex;",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 804,
+              "set": {
+                "s": "revertReqIndex"
+              },
+              "to": {
+                "p": "i"
+              }
+            },
+            {
+              "code": "if (submitter == address(0)) return 0;",
+              "else": [],
+              "file": "contracts/contracts/l1/rollup/Submitter.sol",
+              "if": {
+                "eq": [
+                  {
+                    "a": "submitter",
+                    "i": {
+                      "p": "i"
+                    }
+                  },
+                  {
+                    "c": 1
+                  }
+                ]
+              },
+              "line": 147,
+              "then": [
+                {
+                  "code": "registered[submitter] = false;",
+                  "file": "contracts/contracts/l1/rollup/Submitter.sol",
+                  "line": 150,
+                  "scope": "function slash(",
+                  "scope_file": "contracts/contracts/l1/rollup/Submitter.sol",
+                  "set": {
+                    "s": "submitter_active"
+                  },
+                  "to": {
+                    "c": 0
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "fn_line_code": "function proveState(",
+      "line": 595,
+      "params": {
+        "i": "1..N"
+      },
+      "role": "submitter"
+    },
+    "revertBatch": {
+      "body": [
+        {
+          "code": "require(_count > 0, \"count must be nonzero\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 431,
+          "req": {
+            "gt": [
+              {
+                "p": "count"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "count must be nonzero"
+        },
+        {
+          "code": "require(committedBatches[_batchIndex] == _batchHash, \"incorrect batch hash\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 436,
+          "req": {
+            "ne": [
+              {
+                "a": "committed",
+                "i": {
+                  "p": "idx"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "incorrect batch hash"
+        },
+        {
+          "code": "require(committedBatches[_batchIndex + _count] == bytes32(0), \"reverting must start from the ending\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 439,
+          "req": {
+            "eq": [
+              {
+                "a": "committed",
+                "i": {
+                  "add": [
+                    {
+                      "p": "idx"
+                    },
+                    {
+                      "p": "count"
+                    }
+                  ]
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          "tag": "reverting must start from the ending"
+        },
+        {
+          "code": "require(_batchIndex > lastFinalizedBatchIndex, \"can only revert unFinalized batch\");",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 441,
+          "req": {
+            "gt": [
+              {
+                "p": "idx"
+              },
+              {
+                "s": "lastFinalized"
+              }
+            ]
+          },
+          "tag": "can only revert unFinalized batch"
+        },
+        {
+          "code": "lastCommittedBatchIndex = _batchIndex - 1;",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "line": 443,
+          "set": {
+            "s": "lastCommitted"
+          },
+          "to": {
+            "subc": [
+              {
+                "p": "idx"
+              },
+              {
+                "c": 1
+              }
+            ],
+            "tag": "panic: arithmetic underflow"
+          }
+        },
+        {
+          "body": [
+            {
+              "code": "committedBatches[_batchIndex] = bytes32(0);",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 447,
+              "set": {
+                "a": "committed",
+                "i": {
+                  "var": "j"
+                }
+              },
+              "to": {
+                "c": 0
+              }
+            },
+            {
+              "code": "if (batchInChallenge(_batchIndex)) {",
+              "else": [],
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "if": {
+                "and": [
+                  {
+                    "ne": [
+                      {
+                        "a": "chal_challenger",
+                        "i": {
+                          "var": "j"
+                        }
+                      },
+                      {
+                        "c": 0
+                      }
+                    ]
+                  },
+                  {
+                    "eq": [
+                      {
+                        "a": "chal_finished",
+                        "i": {
+                          "var": "j"
+                        }
+                      },
+                      {
+                        "c": 0
+                      }
+                    ]
+                  }
+                ]
+              },
+              "line": 449,
+              "then": [
+                {
+                  "code": "inChallenge = false;",
+                  "file": "contracts/contracts/l1/rollup/Rollup.sol",
+                  "line": 451,
+                  "set": {
+                    "s": "inChallenge"
+                  },
+                  "to": {
+                    "c": 0
+                  }
+                }
+              ]
+            },
+            {
+              "code": "delete challenges[_batchIndex];",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 453,
+              "set": {
+                "a": "chal_challenger",
+                "i": {
+                  "var": "j"
+                }
+              },
+              "to": {
+                "c": 0
+              }
+            },
+            {
+              "code": "delete challenges[_batchIndex];",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 453,
+              "set": {
+                "a": "chal_finished",
+                "i": {
+                  "var": "j"
+                }
+              },
+              "to": {
+                "c": 0
+              }
+            },
+            {
+              "code": "delete challenges[_batchIndex];",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 453,
+              "set": {
+                "a": "chal_success",
+                "i": {
+                  "var": "j"
+                }
+              },
+              "to": {
+                "c": 0
+              }
+            },
+            {
+              "code": "delete challenges[_batchIndex];",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 453,
+              "set": {
+                "a": "chal_start",
+                "i": {
+                  "var": "j"
+                }
+              },
+              "to": {
+                "c": 0
+              }
+            },
+            {
+              "code": "if (revertReqIndex > 0 && _batchIndex == revertReqIndex) {",
+              "else": [],
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "if": {
+                "and": [
+                  {
+                    "gt": [
+                      {
+                        "s": "revertReqIndex"
+                      },
+                      {
+                        "c": 0
+                      }
+                    ]
+                  },
+                  {
+                    "eq": [
+                      {
+                        "var": "j"
+                      },
+                      {
+                        "s": "revertReqIndex"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "line": 455,
+              "then": [
+                {
+                  "code": "revertReqIndex = 0;",
+                  "file": "contracts/contracts/l1/rollup/Rollup.sol",
+                  "line": 456,
+                  "set": {
+                    "s": "revertReqIndex"
+                  },
+                  "to": {
+                    "c": 0
+                  }
+                }
+              ]
+            }
+          ],
+          "code": "while (_count > 0) {",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "for": "j",
+          "from": {
+            "p": "idx"
+          },
+          "line": 444,
+          "to_incl": {
+            "add": [
+              {
+                "p": "idx"
+              },
+              {
+                "subc": [
+                  {
+                    "p": "count"
+                  },
+                  {
+                    "c": 1
+                  }
+                ],
+                "tag": "panic: arithmetic underflow"
+              }
+            ]
+          },
+          "while": {
+            "ne": [
+              {
+                "a": "committed",
+                "i": {
+                  "var": "j"
+                }
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "fn_line_code": "function revertBatch(",
+      "line": 430,
+      "params": {
+        "count": "1..N",
+        "idx": "1..N"
+      },
+      "role": "owner"
+    },
+    "setPause": {
+      "body": [
+        {
+          "code": "if (_status) {",
+          "else": [
+            {
+              "code": "_unpause();",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 585,
+              "req": {
+                "eq": [
+                  {
+                    "s": "paused"
+                  },
+                  {
+                    "c": 1
+                  }
+                ]
+              },
+              "tag": "Pausable: not paused"
+            },
+            {
+              "code": "_unpause();",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 585,
+              "set": {
+                "s": "paused"
+              },
+              "to": {
+                "c": 0
+              }
+            }
+          ],
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "if": {
+            "eq": [
+              {
+                "p": "b"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          "line": 574,
+          "then": [
+            {
+              "code": "_pause();",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 575,
+              "req": {
+                "eq": [
+                  {
+                    "s": "paused"
+                  },
+                  {
+                    "c": 0
+                  }
+                ]
+              },
+              "tag": "Pausable: paused"
+            },
+            {
+              "code": "_pause();",
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "line": 575,
+              "set": {
+                "s": "paused"
+              },
+              "to": {
+                "c": 1
+              }
+            },
+            {
+              "code": "if (inChallenge) {",
+              "else": [],
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "if": {
+                "eq": [
+                  {
+                    "s": "inChallenge"
+                  },
+                  {
+                    "c": 1
+                  }
+                ]
+              },
+              "line": 577,
+              "then": [
+                {
+                  "code": "delete challenges[batchChallenged];",
+                  "file": "contracts/contracts/l1/rollup/Rollup.sol",
+                  "line": 580,
+                  "set": {
+                    "a": "chal_challenger",
+                    "i": {
+                      "s": "batchChallenged"
+                    }
+                  },
+                  "to": {
+                    "c": 0
+                  }
+                },
+                {
+                  "code": "delete challenges[batchChallenged];",
+                  "file": "contracts/contracts/l1/rollup/Rollup.sol",
+                  "line": 580,
+                  "set": {
+                    "a": "chal_finished",
+                    "i": {
+                      "s": "batchChallenged"
+                    }
+                  },
+                  "to": {
+                    "c": 0
+                  }
+                },
+                {
+                  "code": "delete challenges[batchChallenged];",
+                  "file": "contracts/contracts/l1/rollup/Rollup.sol",
+                  "line": 580,
+                  "set": {
+                    "a": "chal_success",
+                    "i": {
+                      "s": "batchChallenged"
+                    }
+                  },
+                  "to": {
+                    "c": 0
+                  }
+                },
+                {
+                  "code": "delete challenges[batchChallenged];",
+                  "file": "contracts/contracts/l1/rollup/Rollup.sol",
+                  "line": 580,
+                  "set": {
+                    "a": "chal_start",
+                    "i": {
+                      "s": "batchChallenged"
+                    }
+                  },
+                  "to": {
+                    "c": 0
+                  }
+                },
+                {
+                  "code": "inChallenge = false;",
+                  "file": "contracts/contracts/l1/rollup/Rollup.sol",
+                  "line": 581,
+                  "set": {
+                    "s": "inChallenge"
+                  },
+                  "to": {
+                    "c": 0
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "fn_line_code": "function setPause(",
+      "line": 573,
+      "params": {
+        "b": [
+          0,
+          1
+        ]
+      },
+      "role": "owner"
+    },
+    "tick": {
+      "body": [
+        {
+          "bound_t": {
+            "add": [
+              {
+                "s": "now"
+              },
+              {
+                "p": "d"
+              }
+            ]
+          }
+        },
+        {
+          "code": "block.timestamp advances",
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "set": {
+            "s": "now"
+          },
+          "to": {
+            "add": [
+              {
+                "s": "now"
+              },
+              {
+                "p": "d"
+              }
+            ]
+          }
+        }
+      ],
+      "params": {
+        "d": [
+          1,
+          2
+        ]
+      },
+      "role": "env"
+    }
+  },
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Honest headers: every header-hash check `committedBatches[i] == hash` is modelled as committed[i] != 0. A caller passing a wrong header always reverts, so such calls add no states."
+    },
+    {
+      "id": "A2",
+      "text": "commit* parent = lastCommitted. Any other parent reverts at `_batchIndex == lastCommittedBatchIndex` or earlier."
+    },
+    {
+      "id": "A3",
+      "text": "finalizeBatch index = lastFinalized + 1. Other indices revert at `lastFinalizedBatchIndex + 1 == _batchIndex` or earlier."
+    },
+    {
+      "id": "A4",
+      "text": "Proofs submitted to proveState / commitBatchWithProof are valid (mock verifier). Invalid proofs revert."
+    },
+    {
+      "id": "A5",
+      "text": "Deposits, rewards, stakes and slash amounts are omitted. slash is modelled only as deactivating the submitter of record (submitter==1). addSubmitter abstracts re-registration plus re-staking."
+    },
+    {
+      "id": "A6",
+      "text": "commitBatch always attaches one blob at version 1, so blob hash token = 1. commitState carries no blob. Versions and the v2 blob aggregation are covered by the PAR laws."
+    },
+    {
+      "id": "A7",
+      "text": "Hashes and roots are tokens: committed in {0,1}, post state root in {1,2}, and 0 means bytes32(0)."
+    },
+    {
+      "id": "A8",
+      "text": "block.timestamp starts at 1 (genesis) and only tick advances it. enqueue uses the current timestamp."
+    }
+  ],
+  "config": {
+    "D": 3,
+    "F": 2,
+    "N": 3,
+    "P": 2,
+    "Q": 2,
+    "T": 12
+  },
+  "dsl": {
+    "outcome": "Ok{State} | Revert{tag} | Bound",
+    "props": "eq ne lt le gt and or not | var (a let bound to a prop)",
+    "stmts": "req (false -> Revert(tag), state unchanged) | set | let | if | for var from..to_incl [while] (to_incl clipped to N) | bound/bound_q/bound_t (index beyond N / Q / T -> Bound, the trace is outside the model)",
+    "terms": "c:const | s:scalar | a:array[i] (reads beyond the bound give 0) | p:param | k:config | var:let/loop var | add | subc (checked; underflow -> Revert(tag)) | ite:[prop,t,e]"
+  },
+  "extraction": "hand-written (M1); line numbers resolved from `code` by proposals/M1/author_facts.py",
+  "facts_version": "holon-facts/0.2-sm",
+  "init": {
+    "arrays": {
+      "blob": {
+        "0": 1
+      },
+      "committed": {
+        "0": 1
+      },
+      "fin_ts": {
+        "0": 1
+      },
+      "finalized_root": {
+        "0": 1
+      },
+      "origin": {
+        "0": 1
+      },
+      "state_root": {
+        "0": 1
+      }
+    },
+    "code": "importGenesisBatch at now=1 (Rollup.sol)",
+    "now": 1,
+    "submitter_active": 1
+  },
+  "roles": {
+    "anyone": "permissionless",
+    "challenger": "onlyChallenger (single challenger C)",
+    "env": "time and L1 message enqueue",
+    "owner": "onlyOwner",
+    "submitter": "onlyActiveSubmitter (single submitter S)"
+  },
+  "state": {
+    "arrays_N": [
+      "committed",
+      "state_root",
+      "hdr_prev",
+      "hdr_num",
+      "hdr_total",
+      "blob",
+      "origin",
+      "fin_ts",
+      "submitter",
+      "chal_challenger",
+      "chal_finished",
+      "chal_success",
+      "chal_start",
+      "finalized_root"
+    ],
+    "arrays_Q": [
+      "q_enq"
+    ],
+    "scalars": [
+      "lastCommitted",
+      "lastFinalized",
+      "inChallenge",
+      "batchChallenged",
+      "revertReqIndex",
+      "paused",
+      "submitter_active",
+      "q_len",
+      "q_pending",
+      "now"
+    ]
+  },
+  "target": {
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "repo": "morph-l2/morph"
+  }
+}

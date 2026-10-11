@@ -1,0 +1,84 @@
+{
+  "evidence": [
+    "E1"
+  ],
+  "facts": "proposals/M1/facts/rollup_sm.json",
+  "facts_sha256": "6efc7842544ab8ffce20172243ad5a32f5acb2c4b948807ffa54961ee6fd4c6f",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_undo_enabled",
+  "milestone": "M1",
+  "notes": "After commitBatch then revertBatch, commitBatch (with a fresh blob) is enabled iff it was enabled before.",
+  "rule": "UNDO",
+  "statement": {
+    "bound": {
+      "K": 5,
+      "N": "facts.config.N"
+    },
+    "claim": {
+      "iff": [
+        {
+          "enabled": {
+            "act": "commitBatch",
+            "from": "s"
+          }
+        },
+        {
+          "enabled": {
+            "act": "commitBatch",
+            "from": "s2"
+          }
+        }
+      ]
+    },
+    "forall_params": [
+      {
+        "domain": [
+          0,
+          1
+        ],
+        "name": "n"
+      },
+      {
+        "domain": [
+          1,
+          2
+        ],
+        "name": "r"
+      }
+    ],
+    "forall_reach": "s",
+    "kind": "sm",
+    "steps": [
+      {
+        "act": "commitBatch",
+        "bind": "s1",
+        "from": "s",
+        "params": {
+          "numL1": {
+            "var": "n"
+          },
+          "post": {
+            "var": "r"
+          }
+        }
+      },
+      {
+        "act": "revertBatch",
+        "bind": "s2",
+        "from": "s1",
+        "params": {
+          "count": {
+            "c": 1
+          },
+          "idx": {
+            "st": [
+              "s1",
+              "lastCommitted"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "subform": "inverse_pair_observational"
+}

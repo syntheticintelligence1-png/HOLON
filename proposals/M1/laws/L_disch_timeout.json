@@ -1,0 +1,90 @@
+{
+  "evidence": [
+    "E1"
+  ],
+  "facts": "proposals/M1/facts/rollup_sm.json",
+  "facts_sha256": "6efc7842544ab8ffce20172243ad5a32f5acb2c4b948807ffa54961ee6fd4c6f",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_disch_timeout",
+  "milestone": "M1",
+  "notes": "Once a challenge's proof window has passed, parties other than the submitter and the owner can close it within J steps.",
+  "rule": "DISCH",
+  "statement": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "st": [
+              "s",
+              "inChallenge"
+            ]
+          },
+          {
+            "c": 1
+          }
+        ]
+      },
+      {
+        "lt": [
+          {
+            "add": [
+              {
+                "arr": [
+                  "s",
+                  "chal_start",
+                  {
+                    "st": [
+                      "s",
+                      "batchChallenged"
+                    ]
+                  }
+                ]
+              },
+              {
+                "k": "P"
+              }
+            ]
+          },
+          {
+            "st": [
+              "s",
+              "now"
+            ]
+          }
+        ]
+      }
+    ],
+    "bound": {
+      "K": 5,
+      "N": "facts.config.N"
+    },
+    "claim": {
+      "reach_within": {
+        "J": 3,
+        "from": "s",
+        "goal": {
+          "eq": [
+            {
+              "st": [
+                "t",
+                "inChallenge"
+              ]
+            },
+            {
+              "c": 0
+            }
+          ]
+        },
+        "goal_state": "t",
+        "roles": [
+          "challenger",
+          "anyone",
+          "env"
+        ]
+      }
+    },
+    "forall_reach": "s",
+    "kind": "sm"
+  },
+  "subform": "obligation_discharge"
+}

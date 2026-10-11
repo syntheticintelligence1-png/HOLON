@@ -1,0 +1,79 @@
+{
+  "evidence": [
+    "E1"
+  ],
+  "facts": "proposals/M1/facts/rollup_sm.json",
+  "facts_sha256": "6efc7842544ab8ffce20172243ad5a32f5acb2c4b948807ffa54961ee6fd4c6f",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_nat_delay_frontier",
+  "milestone": "M1",
+  "notes": "If every enqueued L1 message is already included in a committed batch, the delay guard does not force numL1Messages > 0.",
+  "rule": "NAT",
+  "statement": {
+    "assume": [
+      {
+        "lt": [
+          {
+            "c": 0
+          },
+          {
+            "st": [
+              "s",
+              "q_len"
+            ]
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "arr": [
+              "s",
+              "hdr_total",
+              {
+                "st": [
+                  "s",
+                  "lastCommitted"
+                ]
+              }
+            ]
+          },
+          {
+            "st": [
+              "s",
+              "q_len"
+            ]
+          }
+        ]
+      }
+    ],
+    "bound": {
+      "K": 5,
+      "N": "facts.config.N"
+    },
+    "claim": {
+      "ne": [
+        {
+          "outcome_tag": {
+            "act": "commitBatch",
+            "from": "s",
+            "params": {
+              "numL1": {
+                "c": 0
+              },
+              "post": {
+                "c": 1
+              }
+            }
+          }
+        },
+        {
+          "tag": "l1msg delay"
+        }
+      ]
+    },
+    "forall_reach": "s",
+    "kind": "sm"
+  },
+  "subform": "frontier_commutation"
+}

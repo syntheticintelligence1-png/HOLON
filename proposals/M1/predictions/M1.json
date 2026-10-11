@@ -1,0 +1,73 @@
+{
+  "laws": [
+    {
+      "explanation": "revertBatch zeroes committedBatches and challenges only; batchBlobVersionedHashes, batchDataStore and committedStateRoots stay.",
+      "law_id": "L_undo_commit_revert",
+      "status": "REFUTED",
+      "triage": "intent_question",
+      "witness_example": {
+        "act": "commitBatch",
+        "residue": [
+          "blob[1]",
+          "origin[1]",
+          "fin_ts[1]",
+          "state_root[1]",
+          "hdr_*[1]",
+          "submitter[1]"
+        ],
+        "trace": "init"
+      }
+    },
+    {
+      "explanation": "The residual blob hash makes commitBatch revert with 'commitBatch requires no stored blob hash'; commitState is the designed recommit path.",
+      "law_id": "L_undo_enabled",
+      "status": "REFUTED",
+      "triage": "intent_question"
+    },
+    {
+      "explanation": "setPause(true) deletes the challenge but keeps the +proofWindow added to every other unfinalized batch's finalizeTimestamp; the batch can then be re-challenged and the extension repeats.",
+      "law_id": "L_undo_pause",
+      "status": "REFUTED",
+      "triage": "finding_candidate"
+    },
+    {
+      "explanation": "_challengerWin sets revertReqIndex; nonReqRevert blocks every non-owner state transition; only revertBatch (onlyOwner) clears it.",
+      "law_id": "L_disch_nonowner",
+      "status": "REFUTED",
+      "triage": "intent_question"
+    },
+    {
+      "explanation": "proveState is onlyActiveSubmitter; commits revert on proveRemainingTime underflow; challengeState is blocked by inChallenge. Only the submitter (self-slashing) or the owner can close a timed-out challenge.",
+      "law_id": "L_disch_timeout",
+      "status": "REFUTED",
+      "triage": "finding_candidate"
+    },
+    {
+      "explanation": "getFirstUnfinalizedMessageEnqueueTime reads pendingQueueIndex, advanced only by finalizeBatch. A delay until permissionless finalization, not a freeze.",
+      "law_id": "L_nat_delay_frontier",
+      "status": "REFUTED",
+      "triage": "intent_question"
+    },
+    {
+      "bound_note": "PROVED relative to N and K only",
+      "law_id": "L_inv_prefix",
+      "status": "PROVED"
+    },
+    {
+      "bound_note": "PROVED relative to N and K only",
+      "law_id": "L_inv_one_challenge",
+      "status": "PROVED"
+    },
+    {
+      "law_id": "L_par_hdr_v2_composed",
+      "status": "PROVED"
+    }
+  ],
+  "milestone": "M1",
+  "preregistered": "before any mechanized M1 run (commit order is the evidence)",
+  "statuses": [
+    "PROVED",
+    "REFUTED",
+    "UNKNOWN"
+  ]
+}

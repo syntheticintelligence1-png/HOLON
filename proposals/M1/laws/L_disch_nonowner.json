@@ -1,0 +1,62 @@
+{
+  "evidence": [
+    "E1"
+  ],
+  "facts": "proposals/M1/facts/rollup_sm.json",
+  "facts_sha256": "6efc7842544ab8ffce20172243ad5a32f5acb2c4b948807ffa54961ee6fd4c6f",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_disch_nonowner",
+  "milestone": "M1",
+  "notes": "A pending revert request (set by a successful challenge) can be discharged by non-owner actions within J steps.",
+  "rule": "DISCH",
+  "statement": {
+    "assume": [
+      {
+        "ne": [
+          {
+            "st": [
+              "s",
+              "revertReqIndex"
+            ]
+          },
+          {
+            "c": 0
+          }
+        ]
+      }
+    ],
+    "bound": {
+      "K": 5,
+      "N": "facts.config.N"
+    },
+    "claim": {
+      "reach_within": {
+        "J": 3,
+        "from": "s",
+        "goal": {
+          "eq": [
+            {
+              "st": [
+                "t",
+                "revertReqIndex"
+              ]
+            },
+            {
+              "c": 0
+            }
+          ]
+        },
+        "goal_state": "t",
+        "roles": [
+          "submitter",
+          "challenger",
+          "anyone",
+          "env"
+        ]
+      }
+    },
+    "forall_reach": "s",
+    "kind": "sm"
+  },
+  "subform": "obligation_discharge"
+}

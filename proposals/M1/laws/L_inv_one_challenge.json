@@ -1,0 +1,143 @@
+{
+  "evidence": [
+    "E1"
+  ],
+  "facts": "proposals/M1/facts/rollup_sm.json",
+  "facts_sha256": "6efc7842544ab8ffce20172243ad5a32f5acb2c4b948807ffa54961ee6fd4c6f",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_inv_one_challenge",
+  "milestone": "M1",
+  "notes": "inChallenge holds exactly when batchChallenged is in challenge, and no other batch is.",
+  "rule": "FACT",
+  "statement": {
+    "bound": {
+      "K": 3,
+      "N": "facts.config.N"
+    },
+    "claim": {
+      "and": [
+        {
+          "iff": [
+            {
+              "eq": [
+                {
+                  "st": [
+                    "s",
+                    "inChallenge"
+                  ]
+                },
+                {
+                  "c": 1
+                }
+              ]
+            },
+            {
+              "and": [
+                {
+                  "ne": [
+                    {
+                      "arr": [
+                        "s",
+                        "chal_challenger",
+                        {
+                          "st": [
+                            "s",
+                            "batchChallenged"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "c": 0
+                    }
+                  ]
+                },
+                {
+                  "eq": [
+                    {
+                      "arr": [
+                        "s",
+                        "chal_finished",
+                        {
+                          "st": [
+                            "s",
+                            "batchChallenged"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "c": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "body": {
+            "implies": [
+              {
+                "ne": [
+                  {
+                    "var": "j"
+                  },
+                  {
+                    "st": [
+                      "s",
+                      "batchChallenged"
+                    ]
+                  }
+                ]
+              },
+              {
+                "not": {
+                  "and": [
+                    {
+                      "ne": [
+                        {
+                          "arr": [
+                            "s",
+                            "chal_challenger",
+                            {
+                              "var": "j"
+                            }
+                          ]
+                        },
+                        {
+                          "c": 0
+                        }
+                      ]
+                    },
+                    {
+                      "eq": [
+                        {
+                          "arr": [
+                            "s",
+                            "chal_finished",
+                            {
+                              "var": "j"
+                            }
+                          ]
+                        },
+                        {
+                          "c": 0
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "forall_idx": "j",
+          "range": "0..N"
+        }
+      ]
+    },
+    "forall_reach": "s",
+    "kind": "sm"
+  },
+  "subform": "invariant"
+}
