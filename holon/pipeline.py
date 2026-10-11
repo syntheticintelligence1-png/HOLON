@@ -87,15 +87,16 @@ def prove(law: dict, facts: dict, d: Path, model_import: str, cfg: dict, attempt
     return em, None
 
 
-def refute_law(law: dict, facts: dict, d: Path, model_import: str, cfg: dict, model: CompiledModel,
-               attempts: list):
-    s = refute.search(law, facts, model)
-    attempts.append({"kind": "refute", "engine": "compiled-model search", "bound": s.bound, "tried": s.tried,
-                     "undefined": s.undefined, "hit": s.witness is not None, "notes": s.notes})
-    if s.witness is None:
-        return None, None, s
+def check_counter(law: dict, facts: dict, d: Path, model_import: str, cfg: dict, witness: dict,
+                  attempts: list):
+    """The counter-law/--verdict acceptance path for one concrete witness.
+
+    Any engine (model search, QF_UFBV solver, grammar fuzzer) ends here: the witness is
+    re-encoded as a counter-law and only counts if Bend accepts it. (The --verdict leg is
+    run by the caller, as in `run`.) Returns (em, r) on acceptance, else (None, None).
+    """
     em = LG.emit(law, facts, model_import, counter=True, header_note=ir.statement_hash(law))
-    text = PG.counter(em, facts, model_import, s.witness)
+    text = PG.counter(em, facts, model_import, witness)
     shutil.rmtree(d, ignore_errors=True)
     d.mkdir(parents=True)
     (d / "LAWS.bend").write_text(em.text)
@@ -104,7 +105,18 @@ def refute_law(law: dict, facts: dict, d: Path, model_import: str, cfg: dict, mo
     ok = r.ok and law_names(em.text) == [em.name] and not bend.escape_hatches(text + em.text)
     attempts.append({"kind": "counter-law", "generator": "counter", "exit_code": r.code, "marker": r.marker,
                      "seconds": r.seconds, **({} if ok else {"error": _first_error(r.out)})})
-    return (em, r, s) if ok else (None, None, s)
+    return (em, r) if ok else (None, None)
+
+
+def refute_law(law: dict, facts: dict, d: Path, model_import: str, cfg: dict, model: CompiledModel,
+               attempts: list):
+    s = refute.search(law, facts, model)
+    attempts.append({"kind": "refute", "engine": "compiled-model search", "bound": s.bound, "tried": s.tried,
+                     "undefined": s.undefined, "hit": s.witness is not None, "notes": s.notes})
+    if s.witness is None:
+        return None, None, s
+    em, r = check_counter(law, facts, d, model_import, cfg, s.witness, attempts)
+    return (em, r, s) if r is not None else (None, None, s)
 
 
 def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = None,
