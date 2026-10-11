@@ -39,7 +39,11 @@ function mkAct(a) {
   for (const [n] of spec.inputs) o[n] = enc(a[n]);
   return o;
 }
-const key = (v) => JSON.stringify(v);
+// equality by canonical form: object keys sorted, so a value's key order (model field order, or the sorted
+// order of a witness read back from JSON) never decides an equation
+const canon = (v) => (Array.isArray(v) ? v.map(canon)
+  : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v);
+const key = (v) => JSON.stringify(canon(v), (_, x) => (typeof x === "bigint" ? `${x}n` : x));
 const s0 = M.s0();
 const stepJ = (a, s) => M.step(mkAct(a), s);
 const runJ = (tr, s) => tr.reduce((st, a) => stepJ(a, st), s);
