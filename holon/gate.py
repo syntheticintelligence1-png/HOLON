@@ -216,8 +216,14 @@ class Gate:
             report = None
             bad.append(f"replay report unreadable: {e}")
         targets = self.target_commits()
-        refuted = {lid: rec for lid, rec in self.records().items() if rec and rec.get("status") == "REFUTED"}
+        recs = self.records()
+        for lid, rec in sorted(recs.items()):
+            if rec is not None and not isinstance(rec, dict):
+                bad.append(f"{lid}: the result record is not an object")
+        recs = {lid: rec for lid, rec in recs.items() if isinstance(rec, dict)}
+        refuted = {lid: rec for lid, rec in recs.items() if rec.get("status") == "REFUTED"}
         claimed = self.claimed_sides()
+        laws_ir = {law["law_id"]: law for law in ir.load_laws_any(self.m, self.root)}
         if report is None:
             if refuted and not bad:
                 bad.append(f"no replay report for {len(refuted)} REFUTED records")
@@ -257,45 +263,70 @@ class Gate:
                 if not isinstance(entry, dict):
                     bad.append(f"{lid}: not in the replay report")
                     continue
-                bad += self.g6_strict(lid, rec, rp, entry, claimed.get(lid), model_only)
+                try:
+                    bad += self.g6_strict(lid, rec, rp, entry, claimed.get(lid), model_only, laws_ir[lid])
+                except Exception as e:  # noqa: BLE001  (a malformed entry fails G6 with a reason)
+                    bad.append(f"{lid}: replay entry could not be checked: {type(e).__name__}: {e}")
             bad += self.g6_toolchain(report)
-        for lid, rec in sorted(self.records().items()):
-            if rec and rec.get("status") != "REFUTED" and (rec.get("witness_provenance") is not None
+        for lid, rec in sorted(recs.items()):
+            if rec.get("status") != "REFUTED" and (rec.get("witness_provenance") is not None
                                                           or rec.get("filter_bin") is not None):
                 bad.append(f"{lid}: a {rec.get('status')} record carries witness_provenance / filter_bin")
         self.checks["G6"] = _res(not bad, f"{n} REFUTED records bound to passed replays with strict sides, provenance "
                                           f"and recomputed filter bins; {MODEL_ONLY}: {', '.join(model_only) or 'none'}"
                                  if not bad else "; ".join(bad))
 
-    def g6_strict(self, lid: str, rec: dict, rp: dict, entry: dict, claimed: set | None, model_only: list) -> list[str]:
-        """I4: every claimed side present and well-formed; the record's provenance and bin equal the
-        filter recomputed from the report. Never reads git and never runs a tool."""
+    def g6_strict(self, lid: str, rec: dict, rp: dict, entry: dict, claimed: set | None, model_only: list,
+                  law: dict) -> list[str]:
+        """I4 (strict, after the I4 review). Every claimed side present and well-formed; each side's
+        provenance is the one the IR implies; each side's obstruction_observed and status agree with
+        what its logged evidence shows (holon.evidence, the rule the replay applies); M1 traces are the
+        ones the witness linearises to; the record's provenance and bin equal the filter recomputed
+        from the report. Never reads git and never runs a tool."""
+        from . import evidence as E
         from . import filter as FL
         bad: list[str] = []
-        m1 = "sides" in entry
-        if m1 and not isinstance(entry.get("sides"), dict):
-            return [f"{lid}: replay entry 'sides' is not an object"]
-        if not m1:
+        m1 = self.irv == "holon-ir/0.2"
+        if m1:
+            if not isinstance(entry.get("sides"), dict):
+                return [f"{lid}: M1 replay entry has no 'sides' object"]
+            if not isinstance(entry.get("traces"), list):
+                bad.append(f"{lid}: M1 replay entry has no traces")
+        else:
+            if "sides" in entry:
+                bad.append(f"{lid}: M0 replay entry must hold sides only, not a 'sides' object")
             junk = sorted(k for k, v in entry.items() if not isinstance(v, dict))
             if junk:
                 bad.append(f"{lid}: M0 replay entry holds non-side keys {junk}")
-        ss = FL.sides(entry)
+        raw = entry["sides"] if m1 else {k: v for k, v in entry.items() if k != "sides"}
+        for side, v in sorted(raw.items()):
+            if not isinstance(v, dict):
+                bad.append(f"{lid}: {side} side is not an object")
+        ss = {k: v for k, v in raw.items() if isinstance(v, dict)}
         if not ss:
             return bad + [f"{lid}: replay entry has no side"]
-        if claimed is not None and set(ss) != claimed:
-            bad.append(f"{lid}: replay sides {sorted(ss)} differ from the sides its witness claims {sorted(claimed)} "
-                       f"(missing: {sorted(claimed - set(ss)) or 'none'})")
+        if claimed is not None and set(raw) != claimed:
+            bad.append(f"{lid}: replay sides {sorted(raw)} differ from the sides its witness claims {sorted(claimed)} "
+                       f"(missing: {sorted(claimed - set(raw)) or 'none'})")
+        witness = rec.get("witness")
+        hfacts = F.load(self.facts_path) if not m1 else None
+        rfacts = F.load(self.facts_path) if m1 else None
         for side, v in sorted(ss.items()):
             st = v.get("status")
             if st not in FL.STATUSES:
                 bad.append(f"{lid}: {side} side status {st!r}")
                 continue
-            if not isinstance(v.get("obstruction_observed"), bool):
+            obs = v.get("obstruction_observed")
+            if not isinstance(obs, bool):
                 bad.append(f"{lid}: {side} side obstruction_observed is not a boolean")
-            elif v["obstruction_observed"] and st != "passed":
+            elif obs and st != "passed":
                 bad.append(f"{lid}: {side} side observed the obstruction without passing")
-            if v.get("provenance") not in FL.PROVENANCE:
-                bad.append(f"{lid}: {side} side provenance {v.get('provenance')!r} is not one of {list(FL.PROVENANCE)}")
+            pv = v.get("provenance")
+            if not isinstance(pv, str) or pv not in FL.PROVENANCE:
+                bad.append(f"{lid}: {side} side provenance {pv!r} is not one of {list(FL.PROVENANCE)}")
+            elif pv != E.expected_provenance(law, side):
+                bad.append(f"{lid}: {side} side provenance {pv!r}, but the IR implies "
+                           f"{E.expected_provenance(law, side)!r}")
             if not isinstance(v.get("observed"), str) or not v.get("observed"):
                 bad.append(f"{lid}: {side} side records nothing observed")
             if st in ("passed", "failed") and (not isinstance(v.get("command"), str) or not v.get("command")):
@@ -307,13 +338,32 @@ class Gate:
                     model_only.append(f"{lid}/{side}")
                     if MODEL_ONLY not in str(rp.get("detail", "")):
                         bad.append(f"{lid}: record says replay passed without saying its {side} side is {MODEL_ONLY}")
-            elif st != "passed":
+                continue
+            if st != "passed":
                 bad.append(f"{lid}: {side} side replay {st!r}")
+            if not isinstance(obs, bool):
+                continue
+            verdict, why = E.verdict(law, side, v, entry, witness, hfacts, rfacts)
+            if verdict == E.CONTRADICTION and st == "passed":
+                bad.append(f"{lid}: {side} side passed, but its evidence contradicts the model: {why}")
+            elif verdict == E.OBSERVED and st == "passed" and not obs:
+                bad.append(f"{lid}: {side} side evidence shows the obstruction but obstruction_observed is false")
+            elif verdict == E.NOT_OBSERVED and obs:
+                bad.append(f"{lid}: {side} side claims the obstruction, but its evidence does not show it: {why}")
+            elif verdict is None and obs != (st == "passed"):
+                bad.append(f"{lid}: {side} side obstruction_observed must equal its pass (its harness compares "
+                           f"the real output with the witness)")
         if m1:
-            if (entry.get("status") == "passed") != all(v.get("status") == "passed" for v in ss.values()):
-                bad.append(f"{lid}: law-level replay status {entry.get('status')!r} is not the conjunction of its sides")
-            if entry.get("obstruction_reproduced") is not all(v.get("obstruction_observed") is True for v in ss.values()):
+            want_status = ("passed" if all(s.get("status") == "passed" or
+                                           (s.get("status") == "not_applicable" and
+                                            str(s.get("observed", "")).startswith(MODEL_ONLY)) for s in ss.values())
+                           and any(s.get("status") == "passed" for s in ss.values()) else "failed")
+            if entry.get("status") != want_status:
+                bad.append(f"{lid}: law-level replay status {entry.get('status')!r}, but its sides give {want_status!r}")
+            if entry.get("obstruction_reproduced") is not all(s.get("obstruction_observed") is True for s in ss.values()):
                 bad.append(f"{lid}: obstruction_reproduced is not the conjunction of its sides")
+            if "solidity" in ss and isinstance(witness, dict):
+                bad += self.g6_traces(lid, law, witness, entry)
         want_wp, want_bin = FL.provenance_of(ss), FL.bin_of(ss)
         if rec.get("witness_provenance") != want_wp:
             bad.append(f"{lid}: record witness_provenance {rec.get('witness_provenance')!r} != {want_wp!r} from the report")
@@ -321,9 +371,24 @@ class Gate:
             bad.append(f"{lid}: record filter_bin {rec.get('filter_bin')!r} != {want_bin!r} recomputed from the report")
         return bad
 
+    def g6_traces(self, lid: str, law: dict, witness: dict, entry: dict) -> list[str]:
+        """The traces an M1 entry replayed are the ones the record's witness linearises to (the
+        @legacy_eta2 root, which the replay fills from the model, aside)."""
+        from .mreplay import linearise
+
+        def norm(tr):
+            return [{**a, "root": None} if str(a.get("op", "")).startswith("@") else a for a in tr]
+        try:
+            want = [(r["label"], norm(r["trace"]), r["split"]) for r in linearise(law, witness)]
+        except Exception as e:  # noqa: BLE001
+            return [f"{lid}: the witness does not linearise: {type(e).__name__}: {e}"]
+        got = [(t.get("label"), norm(t.get("trace") or []), t.get("split")) for t in entry.get("traces", [])
+               if isinstance(t, dict)]
+        return [] if got == want else [f"{lid}: the replayed traces are not the ones the witness linearises to"]
+
     def g6_toolchain(self, report: dict) -> list[str]:
         """The report's toolchain hashes equal the pins in config/holon.json replay."""
-        from .replay import PIN_KEYS
+        from .replay import GO_PIN, PIN_KEYS
         pins = self.cfg.get("replay") or {}
         tc = report.get("toolchain")
         if not isinstance(tc, dict):
@@ -335,6 +400,11 @@ class Gate:
                 bad.append(f"config/holon.json replay.{k} is not a sha256 pin")
             elif tc.get(k) != pin:
                 bad.append(f"replay report toolchain {k} {tc.get(k)!r} != config pin {pin}")
+        gp = pins.get(GO_PIN)
+        if not isinstance(gp, str) or not gp.startswith("go version "):
+            bad.append(f"config/holon.json replay.{GO_PIN} is not a `go version` pin")
+        elif tc.get(GO_PIN) != gp:
+            bad.append(f"replay report toolchain {GO_PIN} {tc.get(GO_PIN)!r} != config pin {gp!r}")
         return bad
 
     def g9(self) -> None:

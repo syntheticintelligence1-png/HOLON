@@ -39,6 +39,7 @@ from pathlib import Path
 
 from . import facts as F
 from . import ir
+from .evidence import expected_provenance
 
 ROOT = Path(__file__).resolve().parents[1]
 HOLON_LINE = re.compile(r"HOLON (\S+) (passed|failed) (.*)")
@@ -86,11 +87,24 @@ def _holon_lines(out: str) -> dict[str, tuple[str, str]]:
     return {m.group(1): (m.group(2), m.group(3).strip()) for m in HOLON_LINE.finditer(out)}
 
 
+REPLAYED_TREES = ("contracts", "common", "bindings", "node")
+
+
 def check_checkout(morph: Path, commit: str) -> str:
+    """The checkout must be at exactly the facts' full commit, with no uncommitted change in the trees
+    the replays copy: the report attests that commit's code ran."""
     code, out = _run(["git", "rev-parse", "HEAD"], morph)
     sha = out.strip()
-    if code != 0 or not sha.startswith(commit):
-        raise SystemExit(f"{morph} is at {sha or '?'}, expected {commit}")
+    full = commit
+    if len(commit) < 40:  # the frozen M0 facts record a 7-character prefix: resolve it in the checkout
+        c2, o2 = _run(["git", "rev-parse", "--verify", "--quiet", f"{commit}^{{commit}}"], morph)
+        full = o2.strip() if c2 == 0 else ""
+    if code != 0 or len(full) != 40 or sha != full:
+        raise SystemExit(f"{morph} is at {sha or '?'}, expected the commit {commit} ({full or 'unresolved'})")
+    code, out = _run(["git", "status", "--porcelain", "--untracked-files=no", "--", *REPLAYED_TREES], morph,
+                     {"GIT_OPTIONAL_LOCKS": "0"})
+    if code != 0 or out.strip():
+        raise SystemExit(f"{morph} has uncommitted changes in the replayed trees: {out.strip()[:500]}")
     return sha
 
 
@@ -159,6 +173,11 @@ def _sol_deps(proj: Path, nm_src: Path | None = None) -> None:
 
 
 PIN_KEYS = ("forge_sha256", "solc_sha256", "sol_deps_sha256")
+GO_PIN = "go_version"  # `go version` output: Go sides (and Go's append growth) depend on it
+
+
+def go_version() -> str:
+    return subprocess.run(["go", "version"], capture_output=True, text=True).stdout.strip()
 
 
 def toolchain(args, root: Path | None = None) -> dict:
@@ -175,7 +194,8 @@ def toolchain(args, root: Path | None = None) -> dict:
         raise SystemExit(f"solc not found ({solc!r}); set config replay.solc or pass --solc")
     deps = Path(cfg.get("sol_deps") or DEFAULT_SOL_DEPS)
     nm = ensure_sol_deps(deps)
-    got = {"forge_sha256": file_sha256(forge), "solc_sha256": file_sha256(solc), "sol_deps_sha256": tree_sha256(nm)}
+    got = {"forge_sha256": file_sha256(forge), "solc_sha256": file_sha256(solc), "sol_deps_sha256": tree_sha256(nm),
+           GO_PIN: go_version()}
     if getattr(args, "write_pins", False):
         p = root / "config" / "holon.json"
         doc = json.loads(p.read_text())
@@ -184,7 +204,7 @@ def toolchain(args, root: Path | None = None) -> dict:
         p.write_text(json.dumps(doc, indent=2) + "\n")
         print(f"wrote replay pins to {p}: {got}")
     else:
-        for k in PIN_KEYS:
+        for k in (*PIN_KEYS, GO_PIN):
             if cfg.get(k) != got[k]:
                 raise SystemExit(f"config/holon.json replay.{k} is {cfg.get(k)!r} but the toolchain gives {got[k]}; "
                                  "refusing to replay with an unpinned toolchain (--write-pins records new pins)")
@@ -244,6 +264,9 @@ def build_report(morph_sha: str, records: dict, laws: dict, go: tuple | None, so
             st, obs = (lines or {}).get(lid, ("failed", f"no result for {plan['go']}"))
             entry["go"] = _side(st, obs, command, "library_api")
         kind = solidity_kind(laws[lid])
+        if kind != COMMIT_PATH and expected_provenance(laws[lid], "solidity") != "internal_harness":
+            raise ValueError(f"{lid}: the HolonReplay.t.sol harness reaches internal functions; the IR says "
+                             f"{expected_provenance(laws[lid], 'solidity')}")
         if kind == COMMIT_PATH:
             entry["solidity"] = (commit or {}).get(lid) or _side("not_run", "commit path not run", "", "public_schedule")
         elif sol is None:
@@ -255,7 +278,7 @@ def build_report(morph_sha: str, records: dict, laws: dict, go: tuple | None, so
         out[lid] = entry
     rep = {"morph_commit": morph_sha, "laws": out, "witness_sha256": shas}
     if tc is not None:
-        rep["toolchain"] = {k: tc[k] for k in PIN_KEYS} | ({"go_version": tc["go_version"]} if tc.get("go_version") else {})
+        rep["toolchain"] = {k: tc[k] for k in (*PIN_KEYS, GO_PIN)}
     return rep
 
 
@@ -329,8 +352,6 @@ def main_replay(args) -> int:
     records = {p.stem: json.loads(p.read_text()) for p in results.glob("L_*.json")}
     laws = {p.stem: json.loads(p.read_text()) for p in (ROOT / "laws" / args.milestone).glob("L_*.json")}
     go = replay_go(morph, work, results) if shutil.which("go") else None
-    if go is not None:
-        tc["go_version"] = subprocess.run(["go", "version"], capture_output=True, text=True).stdout.strip()
     sol = replay_solidity(morph, work, results, tc["forge"], tc["solc"])
     commit = m0_commit_sides(morph, work / "commit", records, laws, facts, tc)
     report = build_report(sha, records, laws, go, sol, commit, tc)
@@ -343,6 +364,10 @@ def main_replay(args) -> int:
                                         for s, v in sorted(e.items())))
     print(f"wrote {out.relative_to(ROOT)}; updated records: {changed or 'none'}")
     bad = [lid for lid, e in report["laws"].items() if any(v["status"] == "failed" for v in e.values())]
+    unseen = [lid for lid, e in report["laws"].items()
+              if lid not in bad and not all(v["obstruction_observed"] for v in e.values())]
     if bad:
         print(f"MODEL DEFECT: witnesses that do not replay: {bad}")
-    return 1 if bad else 0
+    if unseen:
+        print(f"NOT REPRODUCED: the obstruction did not show on every side: {unseen}")
+    return 1 if bad or unseen else 0

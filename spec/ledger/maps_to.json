@@ -1,22 +1,41 @@
 {
-  "doc": "Case-study mapping sidecar (BUILD_PLAN I4). Frozen M0 law IR cannot gain the maps_to field, so this file maps each M0 law to the whitepaper §11 ids it bears on, and each checked hypothesis (results/M2/hypotheses.json) to the §11.6 obligation it discharges. M1 laws carry maps_to in their own IR. An empty list means the law is outside the §11 catalog; tools/casestudy.py lists such laws under laws_outside. Written at the I4 prereg, before the coverage table exists.",
+  "doc": "Case-study mapping sidecar (BUILD_PLAN I4). Frozen M0 law IR cannot gain the maps_to field, so this file maps each M0 law to the whitepaper §11 ids it bears on, and each checked hypothesis (results/M2/hypotheses.json) to the §11.6 obligation it discharges. M1 laws carry maps_to in their own IR. An empty list means the law is outside the §11 catalog; tools/casestudy.py lists such laws under laws_outside. Written at the I4 prereg, before the coverage table existed (the M0 outcomes were already known then). Changed after the I4 review: L_par_hdr_ssvh now maps to D1, as its own note always said it bears on D1 (reported in docs/iterations/I4.md).",
   "M0": {
-    "L_dom_hdr": ["O1"],
-    "L_par_hdr_ssvh": [],
-    "L_par_hdr_v0": ["D1"],
-    "L_par_hdr_v1": ["D1"],
-    "L_par_hdr_v2": ["O2"],
-    "L_rt_go_v0": ["D1"],
-    "L_rt_go_v1": ["D1"],
-    "L_rt_go_v2": ["D1"]
+    "L_dom_hdr": [
+      "O1"
+    ],
+    "L_par_hdr_ssvh": [
+      "D1"
+    ],
+    "L_par_hdr_v0": [
+      "D1"
+    ],
+    "L_par_hdr_v1": [
+      "D1"
+    ],
+    "L_par_hdr_v2": [
+      "O2"
+    ],
+    "L_rt_go_v0": [
+      "D1"
+    ],
+    "L_rt_go_v1": [
+      "D1"
+    ],
+    "L_rt_go_v2": [
+      "D1"
+    ]
   },
   "hypotheses": {
-    "Hyp-Z0-kzg": ["D2"]
+    "Hyp-Z0-kzg": [
+      "D2"
+    ]
   },
   "notes": {
-    "L_par_hdr_ssvh": "Not a §11 row. It surfaces a premise of D1: the Solidity commit path always writes sequencerSetVerifyHash = 0, so D1's 'Solidity ≡ Go except byte 0' holds only for ssvh = 0 (L_par_hdr_v0 and L_par_hdr_v1 carry that premise). Listed as outside the catalog rather than counted against or for D1.",
+    "L_par_hdr_ssvh": "Bears on D1: the Solidity commit path always writes sequencerSetVerifyHash = 0, while Go BatchHeaderV1.Bytes encodes the field, and the pinned Go legacy-replay path can produce a non-zero one (common/batch/batch_cache.go:1447-1472). So D1's 'Solidity ≡ Go except byte 0' holds only under ssvh = 0, the premise L_par_hdr_v0 and L_par_hdr_v1 carry. Mapped to D1, this REFUTED law makes D1 partial under the coverage rule.",
     "L_rt_go_v0": "Go getters recover every field of the header Solidity commits: the decoding half of D1.",
     "L_rt_go_v1": "As L_rt_go_v0, version 1.",
-    "L_rt_go_v2": "As L_rt_go_v0, version 2 (D1 names v0/v1 layouts; v2 reuses the v1 wire format)."
+    "L_rt_go_v2": "As L_rt_go_v0, version 2 (D1 names v0/v1 layouts; v2 reuses the v1 wire format).",
+    "L_par_hdr_v2": "Reproduces O2 against Go's BatchHeaderV1.Bytes, which hard-codes byte 0 = 1. At the pinned commit the Go batch producer does build version-2 headers, by patching byte 0 of BatchHeaderV1.Bytes() and storing the aggregate at [57:89] (common/batch/batch_cache.go:1727-1731), so O2's 'no v2 encoder' clause no longer holds there; the law's comparison is with the v1 encoder only."
   }
 }

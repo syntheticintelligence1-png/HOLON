@@ -20,11 +20,7 @@ from __future__ import annotations
 PROVENANCE = ("public_schedule", "internal_harness", "emulated_storage", "library_api")
 BINS = ("finding", "model_defect", "pending")
 STATUSES = ("passed", "failed", "not_applicable", "not_run")
-BLOCKING = frozenset({"internal_harness", "emulated_storage"})
-
-# IR 0.2 subforms whose obstruction shows only where an off-chain consumer reads what the chain
-# committed. Their witnesses carry a Go consumer side next to the on-chain trace replay.
-CONSUMER_SUBFORMS = frozenset({"ghost_tag", "kernel_containment"})
+BLOCKING = ("internal_harness", "emulated_storage")
 
 
 def sides(entry: dict) -> dict[str, dict]:
@@ -42,7 +38,7 @@ def sides(entry: dict) -> dict[str, dict]:
 def bin_of(ss: dict[str, dict]) -> str:
     if not ss:
         return "pending"
-    vals = list(ss.values())
+    vals = [s if isinstance(s, dict) else {} for s in ss.values()]
     if any(s.get("status") == "failed" for s in vals):
         return "model_defect"
     if (all(s.get("status") == "passed" and s.get("obstruction_observed") is True for s in vals)
@@ -53,25 +49,13 @@ def bin_of(ss: dict[str, dict]) -> str:
 
 
 def provenance_of(ss: dict[str, dict]) -> dict[str, str | None]:
-    return {k: s.get("provenance") for k, s in sorted(ss.items())}
+    return {k: (s.get("provenance") if isinstance(s, dict) else None) for k, s in sorted(ss.items())}
 
 
 def claimed_sides(law: dict, registry_facts: str | None) -> set[str]:
-    """The replay sides a REFUTED law's witness claims, from its IR, never from its id.
-
-    holon-ir/0.1 (M0 header codec): every refutation compares a Solidity and a Go reading of the
-    same bytes, so both sides. holon-ir/0.2: a law over the registry's own facts is a trace on the
-    deployed Rollup (solidity), plus a Go consumer for the subforms in CONSUMER_SUBFORMS. A law over
-    other facts (the Go BatchData machine) is a Go side.
-    """
-    if law.get("ir_version") == "holon-ir/0.1":
-        return {"go", "solidity"}
-    if registry_facts is not None and law.get("facts") != registry_facts:
-        return {"go"}
-    out = {"solidity"}
-    if law.get("subform") in CONSUMER_SUBFORMS:
-        out.add("go_consumer")
-    return out
+    """The replay sides a REFUTED law's witness claims, from its hashed IR (holon.evidence)."""
+    from .evidence import claimed_sides as _claimed
+    return _claimed(law, registry_facts)
 
 
 def record_fields(report: dict | None, lid: str, witness, witness_sha256) -> tuple[dict, str]:

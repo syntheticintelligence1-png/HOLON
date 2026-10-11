@@ -3,18 +3,23 @@
   "harness_mismatch": false,
   "laws": {
     "L_fact_Z": {
-      "observed": "go_consumer: ParseBatch on the same parent header: c1 (0 all-zero blobs) -> error: blobs length can not be zero; c2 (1 all-zero blob) -> error: decompress batch bytes error:morph da zstd decode: invalid frame; the all-zero blob's versioned hash is 0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014 (= ZERO_VERSIONED_HASH); outcomes differ; solidity: committedBatches after c1 / c2: ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') / ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') (different blob sidecars)",
-      "obstruction_reproduced": true,
+      "observed": "go_consumer: ParseBatch on the parent header (batch index 0 as Go reads it): c1 (0 all-zero blobs) -> error: blobs length can not be zero; c2 (1 all-zero blob) -> error: decompress batch bytes error:morph da zstd decode: invalid frame; the all-zero blob's versioned hash is 0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014 (= ZERO_VERSIONED_HASH). derivation rejected both batches (messages: 'error: blobs length can not be zero' vs 'error: decompress batch bytes error:morph da zstd decode: invalid frame'); no divergence in what derivation does; solidity: committedBatches is equal after the two commits",
+      "obstruction_reproduced": false,
       "sides": {
         "go_consumer": {
           "command": "(cd node && GOTOOLCHAIN=local HOLON_CONSUMER=holon_consumer.json go test ./derivation -run '^TestHolonFactZ$' -v -count=1)  # exit 0; go version go1.24.7 linux/amd64",
           "input_parent_header": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "observed": "ParseBatch on the same parent header: c1 (0 all-zero blobs) -> error: blobs length can not be zero; c2 (1 all-zero blob) -> error: decompress batch bytes error:morph da zstd decode: invalid frame; the all-zero blob's versioned hash is 0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014 (= ZERO_VERSIONED_HASH); outcomes differ",
-          "obstruction_observed": true,
+          "observed": "ParseBatch on the parent header (batch index 0 as Go reads it): c1 (0 all-zero blobs) -> error: blobs length can not be zero; c2 (1 all-zero blob) -> error: decompress batch bytes error:morph da zstd decode: invalid frame; the all-zero blob's versioned hash is 0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014 (= ZERO_VERSIONED_HASH). derivation rejected both batches (messages: 'error: blobs length can not be zero' vs 'error: decompress batch bytes error:morph da zstd decode: invalid frame'); no divergence in what derivation does",
+          "obstruction_observed": false,
+          "outcome_class": {
+            "c1": "rejected",
+            "c2": "rejected"
+          },
           "outcomes": {
             "c1": "error: blobs length can not be zero",
             "c2": "error: decompress batch bytes error:morph da zstd decode: invalid frame"
           },
+          "parent_index": 0,
           "provenance": "library_api",
           "sidecar_blobs": {
             "c1": 0,
@@ -29,9 +34,11 @@
             "c1": "0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe",
             "c2": "0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe"
           },
-          "observed": "committedBatches after c1 / c2: ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') / ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') (different blob sidecars)",
+          "observed": "committedBatches is equal after the two commits",
           "obstruction_observed": true,
+          "parent_committed_hash": "0x6d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a6",
           "parent_header": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "parent_index": 0,
           "provenance": "public_schedule",
           "status": "passed"
         }
@@ -87,12 +94,12 @@
       ]
     },
     "L_nat_eta2": {
-      "observed": "continuation outcomes on the real code: ['ok', 'rev incorrect previous state root'] vs ['ok', 'ok']",
+      "observed": "the continuations' real outcomes differ",
       "obstruction_reproduced": true,
       "sides": {
         "solidity": {
           "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
-          "observed": "continuation outcomes on the real code: ['ok', 'rev incorrect previous state root'] vs ['ok', 'ok']",
+          "observed": "the continuations' real outcomes differ",
           "obstruction_observed": true,
           "provenance": "emulated_storage",
           "status": "passed"
@@ -210,12 +217,12 @@
       "traces": []
     },
     "L_sort_remaining": {
-      "observed": "last step on the real code: ('rev', 'panic:0x11')",
+      "observed": "the last step reverts with 'panic:0x11'",
       "obstruction_reproduced": true,
       "sides": {
         "solidity": {
           "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
-          "observed": "last step on the real code: ('rev', 'panic:0x11')",
+          "observed": "the last step reverts with 'panic:0x11'",
           "obstruction_observed": true,
           "provenance": "public_schedule",
           "status": "passed"
@@ -276,12 +283,12 @@
       ]
     },
     "L_sym_omega": {
-      "observed": "continuation outcomes on the real code: ['ok', 'ok'] vs ['ok', 'rev cannot challenge batch outside the challenge window']",
+      "observed": "the continuations' real outcomes differ",
       "obstruction_reproduced": true,
       "sides": {
         "solidity": {
           "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
-          "observed": "continuation outcomes on the real code: ['ok', 'ok'] vs ['ok', 'rev cannot challenge batch outside the challenge window']",
+          "observed": "the continuations' real outcomes differ",
           "obstruction_observed": true,
           "provenance": "public_schedule",
           "status": "passed"
@@ -422,7 +429,7 @@
       ]
     },
     "L_tag_BVH": {
-      "observed": "go_consumer: BatchHeaderBytes reads version 2 and BlobCommitHash() = header[57:89] = 0x0100000000000000000000000000000000000000000000000000000000000011 (the stored v1 versioned hash); aggregateBlobHashes([stored_vh]) = 0xdb6c86c99192f3e4b015de59bf2f50daeb2f83b1502f560a0e1df38b9fa4d9a8, which differs from the field a version-2 consumer checks; solidity: the real contract accepts the whole trace; the version-2 header committed at index 1 carries at [57:89] the blob hash 0x0100000000000000000000000000000000000000000000000000000000000011 that the version-1 commit stored (keccak256(header) == committedBatches)",
+      "observed": "go_consumer: Go reads the version-1 header's blob hash 0x0100000000000000000000000000000000000000000000000000000000000011 and the version-2 header's BlobCommitHash() 0x0100000000000000000000000000000000000000000000000000000000000011; aggregateBlobHashes([stored_vh]) = 0xdb6c86c99192f3e4b015de59bf2f50daeb2f83b1502f560a0e1df38b9fa4d9a8. Go returns the v1-stored hash for the v2 header, and the v2 aggregate over it differs. The comparison is HOLON's; no Morph consumer decision is exercised; solidity: the version-2 header carries at [57:89] the blob hash the version-1 commit stored",
       "obstruction_reproduced": true,
       "sides": {
         "go_consumer": {
@@ -430,21 +437,27 @@
           "blob_commit_hash": "0x0100000000000000000000000000000000000000000000000000000000000011",
           "command": "(cd common && GOTOOLCHAIN=local HOLON_CONSUMER=holon_consumer.json go test ./batch -run '^TestHolonTagBVH$' -v -count=1)  # exit 0; go version go1.24.7 linux/amd64",
           "input_header": "0x02000000000000000100000000000000000000000000000000e979da4b80d60a17ce56fa19278c6f3a7e1b43359fb8a8ea46d0264de7d653ab010000000000000000000000000000000000000000000000000000000000001100000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a60000000000000001",
-          "observed": "BatchHeaderBytes reads version 2 and BlobCommitHash() = header[57:89] = 0x0100000000000000000000000000000000000000000000000000000000000011 (the stored v1 versioned hash); aggregateBlobHashes([stored_vh]) = 0xdb6c86c99192f3e4b015de59bf2f50daeb2f83b1502f560a0e1df38b9fa4d9a8, which differs from the field a version-2 consumer checks",
+          "input_v1_header": "0x01000000000000000100000000000000000000000000000000e979da4b80d60a17ce56fa19278c6f3a7e1b43359fb8a8ea46d0264de7d653ab01000000000000000000000000000000000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000006e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a60000000000000001",
+          "observed": "Go reads the version-1 header's blob hash 0x0100000000000000000000000000000000000000000000000000000000000011 and the version-2 header's BlobCommitHash() 0x0100000000000000000000000000000000000000000000000000000000000011; aggregateBlobHashes([stored_vh]) = 0xdb6c86c99192f3e4b015de59bf2f50daeb2f83b1502f560a0e1df38b9fa4d9a8. Go returns the v1-stored hash for the v2 header, and the v2 aggregate over it differs. The comparison is HOLON's; no Morph consumer decision is exercised",
           "obstruction_observed": true,
           "provenance": "library_api",
-          "status": "passed"
+          "status": "passed",
+          "v1_blob_commit_hash": "0x0100000000000000000000000000000000000000000000000000000000000011",
+          "v1_version": 1,
+          "version": 2
         },
         "solidity": {
           "batch_index": 1,
           "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
           "committed_hash": "0x3c3b5dfaff0035813ed0d7479e50e5e590bbb11e756b8961db6ab4560962d44a",
           "header": "0x02000000000000000100000000000000000000000000000000e979da4b80d60a17ce56fa19278c6f3a7e1b43359fb8a8ea46d0264de7d653ab010000000000000000000000000000000000000000000000000000000000001100000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a60000000000000001",
-          "observed": "the real contract accepts the whole trace; the version-2 header committed at index 1 carries at [57:89] the blob hash 0x0100000000000000000000000000000000000000000000000000000000000011 that the version-1 commit stored (keccak256(header) == committedBatches)",
+          "observed": "the version-2 header carries at [57:89] the blob hash the version-1 commit stored",
           "obstruction_observed": true,
           "provenance": "public_schedule",
           "status": "passed",
-          "stored_vh": "0x0100000000000000000000000000000000000000000000000000000000000011"
+          "stored_vh": "0x0100000000000000000000000000000000000000000000000000000000000011",
+          "v1_committed_hash": "0xdb0df2b6beafa8c8154d3aa8351d7b1087a2ced0d93ea019945645168f7d5599",
+          "v1_header": "0x01000000000000000100000000000000000000000000000000e979da4b80d60a17ce56fa19278c6f3a7e1b43359fb8a8ea46d0264de7d653ab01000000000000000000000000000000000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000006e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a60000000000000001"
         }
       },
       "status": "passed",
@@ -495,12 +508,12 @@
       ]
     },
     "L_undo_BVH": {
-      "observed": "continuation outcomes on the real code: ['rev commitBatch requires no stored blob hash'] vs ['ok']",
+      "observed": "the continuations' real outcomes differ",
       "obstruction_reproduced": true,
       "sides": {
         "solidity": {
           "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
-          "observed": "continuation outcomes on the real code: ['rev commitBatch requires no stored blob hash'] vs ['ok']",
+          "observed": "the continuations' real outcomes differ",
           "obstruction_observed": true,
           "provenance": "public_schedule",
           "status": "passed"
@@ -580,12 +593,12 @@
       ]
     },
     "L_undo_cancel": {
-      "observed": "continuation outcomes on the real code: ['ok', 'ok', 'ok'] vs ['ok', 'ok', 'rev cannot challenge batch outside the challenge window']",
+      "observed": "the continuations' real outcomes differ",
       "obstruction_reproduced": true,
       "sides": {
         "solidity": {
           "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
-          "observed": "continuation outcomes on the real code: ['ok', 'ok', 'ok'] vs ['ok', 'ok', 'rev cannot challenge batch outside the challenge window']",
+          "observed": "the continuations' real outcomes differ",
           "obstruction_observed": true,
           "provenance": "public_schedule",
           "status": "passed"

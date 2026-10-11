@@ -32,6 +32,7 @@ from pathlib import Path
 
 from . import facts as F
 from .mpipeline import CompiledMachine, _act_val
+from .evidence import MODEL_ONLY, OBSERVED, own_go
 from .replay import _holon_lines, _run, _sol_deps, check_checkout, witness_sha256  # noqa: F401
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -229,12 +230,13 @@ def run_forge(morph: Path, work: Path, traces: list[list[dict]], facts: dict, fo
     headers the harness logged: (trace, step or "g") -> {index, header, committed, bvh, mismatch}."""
     proj = work / "solidity"
     proj.mkdir(parents=True, exist_ok=True)
-    if not (proj / "contracts").exists():
-        shutil.copytree(morph / "contracts" / "contracts", proj / "contracts")
-        for d in ("mock", "test"):
-            shutil.rmtree(proj / "contracts" / d, ignore_errors=True)
-        for f in ("foundry.toml", "remappings.txt"):
-            shutil.copy(morph / "contracts" / f, proj / f)
+    # always a fresh copy of the pinned checkout: a stale scratch copy must never be compiled
+    shutil.rmtree(proj / "contracts", ignore_errors=True)
+    shutil.copytree(morph / "contracts" / "contracts", proj / "contracts")
+    for d in ("mock", "test"):
+        shutil.rmtree(proj / "contracts" / d, ignore_errors=True)
+    for f in ("foundry.toml", "remappings.txt"):
+        shutil.copy(morph / "contracts" / f, proj / f)
     _sol_deps(proj)
     (proj / "test").mkdir(exist_ok=True)
     shutil.copy(ROOT / "replay" / "M1" / "solidity" / "HolonTraceReplay.t.sol", proj / "test")
@@ -313,39 +315,6 @@ def replay_own_go(morph: Path, work: Path, results: Path) -> tuple[dict, str]:
 
 
 # ---------------------------------------------------------------- M0 on the commit path
-def _hexb(h: str) -> bytes:
-    return bytes.fromhex(h[2:] if h.startswith("0x") else h)
-
-
-def _pins(law: dict) -> dict[str, bytes]:
-    """The header fields an M0 law pins in its premises (field == bytes)."""
-    out = {}
-    for prem in law["statement"].get("assume", []):
-        a, b = prem["eq"]
-        f, v = (a, b) if "field" in a else (b, a)
-        out[f["field"]] = _hexb(v["bytes"])
-    return out
-
-
-def _cell(cell: list, fields: dict[str, bytes]):
-    if cell[0] == "const":
-        return cell[1]
-    if cell[0] == "field" and cell[1] in fields:
-        return fields[cell[1]][cell[2]]
-    return None
-
-
-def _ranges(xs: list[int]) -> str:
-    out, i = [], 0
-    while i < len(xs):
-        j = i
-        while j + 1 < len(xs) and xs[j + 1] == xs[j] + 1:
-            j += 1
-        out.append(str(xs[i]) if i == j else f"{xs[i]}..{xs[j]}")
-        i = j + 1
-    return ", ".join(out)
-
-
 def m0_commit_trace(rfacts: dict, version: int) -> list[dict]:
     """A one-step trace from s0: an active sequencer commits batch 1 at `version`, with one blob
     (version 2 requires at least one)."""
@@ -358,13 +327,13 @@ def m0_commit_trace(rfacts: dict, version: int) -> list[dict]:
 def m0_commit_sides(morph: Path, work: Path, records: dict, laws: dict, hfacts: dict, tc: dict) -> dict[str, dict]:
     """Solidity sides of the M0 codec witnesses whose claim compares enc_sol with a Go encoder.
 
-    The cells to observe come from the law, not from its id: the positions where the model's enc_sol
-    and the Go encoder of the claim give different bytes on the witness. On the committed header,
-    each such cell must hold what the model's enc_sol writes there, evaluated on the fields the law
-    pins (a constant cell is its constant). The M1 harness deploys the real Rollup, runs the
-    witness's version as a commit from s0, and logs the header it rebuilt; keccak256 of that header
-    must equal committedBatches(index), read on chain (the harness logs a mismatch otherwise)."""
-    from . import layout as L
+    The cells to observe come from the law, not from its id (holon.evidence.m0_expected_cells): the
+    positions where the model's enc_sol and the claim's Go encoder give different bytes on the
+    witness, each holding what enc_sol writes there under the law's pins. The M1 harness deploys the
+    real Rollup, runs the witness's version as a commit from s0 and logs the header it rebuilt;
+    keccak256 of that header must equal committedBatches(index), read on chain. A committed header
+    that contradicts the model's cells is a model defect (status failed), not an unobserved obstruction."""
+    from .evidence import CONTRADICTION, OBSERVED, m0_commit, m0_expected_cells, ranges
     from .replay import COMMIT_PATH, solidity_kind
     targets = [lid for lid in sorted(records)
                if records[lid].get("status") == "REFUTED" and solidity_kind(laws[lid]) == COMMIT_PATH]
@@ -376,14 +345,8 @@ def m0_commit_sides(morph: Path, work: Path, records: dict, laws: dict, hfacts: 
     cm = CompiledMachine.build(facts_path)
     plans = []
     for lid in targets:
-        law = laws[lid]
-        fields = {k: _hexb(v) for k, v in records[lid]["witness"]["h"].items()}
-        version = fields["version"][0]
-        go_fn = next(x["call"] for x in law["statement"]["claim"]["eq"] if x["call"] != "enc_sol")
-        sol, go = L.layout(hfacts, "enc_sol", version), L.layout(hfacts, go_fn, version)
-        diff = [i for i, (a, b) in enumerate(zip(sol, go)) if _cell(a, fields) != _cell(b, fields)]
-        pins = _pins(law)
-        plans.append((lid, m0_commit_trace(rfacts, version), {i: _cell(sol[i], pins) for i in diff}, version, go_fn))
+        expect, go_fn, version = m0_expected_cells(laws[lid], records[lid]["witness"], hfacts)
+        plans.append((lid, m0_commit_trace(rfacts, version), expect, version, go_fn))
     traces = [tr for _, tr, _, _, _ in plans]
     models = model_logs(cm, traces)
     hdrs: dict = {}
@@ -393,109 +356,124 @@ def m0_commit_sides(morph: Path, work: Path, records: dict, laws: dict, hfacts: 
         _, dis = compare(rfacts, models[tid], real, tid, tr)
         h = hdrs.get((tid, "0"))
         step = real.get((tid, 0))
-        passed = not dis and bool(step) and step[0] == "ok" and h is not None and not h["mismatch"]
-        side = {"status": "passed" if passed else "failed", "provenance": "public_schedule", "command": command,
-                "trace": tr}
-        if h is None:
-            side.update(obstruction_observed=False,
-                        observed=f"commitBatch(version {version}) from s0: {step}; no header logged")
-            out[lid] = side
-            continue
-        hb = _hexb(h["header"])
-        cells = sorted(expect)
-        seen = bool(cells) and all(expect[i] is not None and i < len(hb) and hb[i] == expect[i] for i in cells)
-        shown = "0x" + bytes(hb[i] for i in cells if i < len(hb)).hex()
-        side.update(header=h["header"], batch_index=h["index"], committed_hash=h["committed"],
-                    checked_cells=_ranges(cells), obstruction_observed=passed and seen,
-                    observed=(f"commitBatch(version {version}, 1 blob) from s0 on the deployed Rollup: "
-                              f"{step[0] if step else 'missing'}; committed header bytes {_ranges(cells)} = {shown}, "
-                              f"{'as' if seen else 'NOT as'} the model's enc_sol writes them ({go_fn} differs there on "
-                              f"the witness); keccak256(header) {'!=' if h['mismatch'] else '=='} "
-                              f"committedBatches({h['index']})"))
+        agree = not dis and bool(step) and step[0] == "ok"
+        side = {"provenance": "public_schedule", "command": command, "trace": tr}
+        if h is not None:
+            side.update(header=h["header"], batch_index=h["index"], committed_hash=h["committed"],
+                        checked_cells=ranges(sorted(expect)))
+        verdict, why = m0_commit(side, laws[lid], records[lid]["witness"], hfacts)
+        side["status"] = "passed" if agree and verdict != CONTRADICTION else "failed"
+        side["obstruction_observed"] = side["status"] == "passed" and verdict == OBSERVED
+        hb = _hexb(h["header"]) if h else b""
+        shown = "0x" + bytes(hb[i] for i in sorted(expect) if i < len(hb)).hex() if h else "none"
+        side["observed"] = (f"commitBatch(version {version}, 1 blob) from s0 on the deployed Rollup: "
+                            f"{step[0] if step else 'missing'}; committed header bytes {ranges(sorted(expect))} = "
+                            f"{shown}. {why}")
         out[lid] = side
     return out
 
 
 # ---------------------------------------------------------------- M1
+def _hexb(h: str) -> bytes:
+    return bytes.fromhex(h[2:] if h.startswith("0x") else h)
+
+
 def _bytes32(n: int) -> str:
     return "0x" + int(n).to_bytes(32, "big").hex()
 
 
-def _solidity_side(kind: str, outs: list, real: dict, facts: dict, hdrs: dict, runs: list, command: str) -> dict:
-    """The on-chain side of one M1 witness: agreement with the model, and what the real code showed."""
+def _header_before(hdrs: dict, tid: int, last_step: int, index: int) -> dict | None:
+    """The header logged in trace `tid` for batch `index` before step `last_step` (the latest one),
+    or the genesis header when index 0 has no later log."""
+    logs = sorted((int(si), v) for (t, si), v in hdrs.items() if t == tid and si != "g" and int(si) < last_step
+                  and v["index"] == index)
+    if logs:
+        return logs[-1][1]
+    g = hdrs.get((tid, "g"))
+    return g if g and index == 0 else None
+
+
+def _solidity_side(law: dict, outs: list, real: dict, facts: dict, hdrs: dict, runs: list, command: str) -> dict:
+    """The on-chain side of one M1 witness. status: the real code agreed with the model on every step
+    and the logged evidence contradicts no value the witness predicts; obstruction_observed: what
+    holon.evidence reads from the logged evidence (the rule G6 re-applies)."""
+    from . import evidence as E
+    kind = E.claim_kind(law)
     all_agree = all(not d for _, _, d, _, _ in outs) and all(real.get((t, i)) is not None
                                                             for r, _, _, _, t in outs for i in range(len(r["trace"])))
-    side = {"status": "passed" if all_agree else "failed", "command": command,
-            "provenance": "emulated_storage" if any(a["op"].startswith("@") for r in runs for a in r["trace"])
-            else "public_schedule"}
-    seen, why = False, ""
-    if kind == "differ":
-        (ra, _, _, _, ta), (rb, _, _, _, tb) = outs
-        qa = [real.get((ta, i)) for i in range(ra["split"], len(ra["trace"]))]
-        qb = [real.get((tb, i)) for i in range(rb["split"], len(rb["trace"]))]
-        sa = [x[0] + (" " + x[1] if x and x[0] == "rev" else "") for x in qa if x]
-        sb = [x[0] + (" " + x[1] if x and x[0] == "rev" else "") for x in qb if x]
-        seen = sa != sb
-        why = f"continuation outcomes on the real code: {sa} vs {sb}"
-    elif kind == "symptom":
-        (r0, _, _, _, t0), = outs
-        last = real.get((t0, len(r0["trace"]) - 1))
-        want = facts["reasons"][str(r0["symptom"][1])]
-        seen = bool(last) and last[0] == "rev" and last[1] == want
-        why = f"last step on the real code: {last}"
-    elif kind == "accepted":
-        # ghost tag: a commit of version >= 2 whose blob field is the hash a version < 2 commit stored
+    side = {"command": command, "provenance": E.expected_provenance(law, "solidity")}
+    if kind == "accepted":
+        # ghost tag: the last commit's header, and the header whose commit stored its blob hash
         (r0, _, _, _, t0), = outs
         logs = sorted(((int(si), v) for (tid, si), v in hdrs.items() if tid == t0 and si != "g"), key=lambda x: x[0])
         last = logs[-1][1] if logs else None
-        first = next((v for _, v in logs if last and v["index"] == last["index"]), None)
-        if last and first:
-            hl, hf = _hexb(last["header"]), _hexb(first["header"])
-            seen = (hl[0] >= 2 and hf[0] < 2 and hl[57:89] == hf[57:89] == _hexb(last["bvh"])
-                    and not last["mismatch"] and not first["mismatch"])
+        first = next((v for _, v in logs if last and v["index"] == last["index"] and v is not last), None)
+        if last:
             side.update(header=last["header"], committed_hash=last["committed"], stored_vh=last["bvh"],
                         batch_index=last["index"])
-            why = (f"the real contract accepts the whole trace; the version-{hl[0]} header committed at index "
-                   f"{last['index']} carries at [57:89] the blob hash {last['bvh']} that the version-{hf[0]} commit "
-                   f"stored (keccak256(header) {'!=' if last['mismatch'] else '=='} committedBatches)")
-        else:
-            why = "the real contract did not commit the ghost-tagged header"
+        if first:
+            side.update(v1_header=first["header"], v1_committed_hash=first["committed"])
     elif kind == "same_commitment":
         (r1, _, _, _, t1), (r2, _, _, _, t2) = outs
         h1, h2 = real.get((t1, len(r1["trace"]) - 1)), real.get((t2, len(r2["trace"]) - 1))
-        seen = bool(h1 and h2) and h1[0] == h2[0] == "ok" and h1[1] == h2[1]
-        g = hdrs.get((t1, "g"))
-        side.update(committed_hash={"c1": h1[1] if h1 and h1[0] == "ok" else None,
-                                    "c2": h2[1] if h2 and h2[0] == "ok" else None},
-                    parent_header=g["header"] if g else None)
-        why = f"committedBatches after c1 / c2: {h1} / {h2} (different blob sidecars)"
-    side["obstruction_observed"] = side["status"] == "passed" and seen
-    side["observed"] = why
+        side["committed_hash"] = {"c1": h1[1] if h1 and h1[0] == "ok" else None,
+                                  "c2": h2[1] if h2 and h2[0] == "ok" else None}
+        pidx = r1["trace"][-1]["parent"]
+        p1 = _header_before(hdrs, t1, len(r1["trace"]) - 1, pidx)
+        p2 = _header_before(hdrs, t2, len(r2["trace"]) - 1, r2["trace"][-1]["parent"])
+        same_parent = bool(p1 and p2) and p1["header"] == p2["header"]
+        side.update(parent_index=pidx, parent_header=p1["header"] if same_parent else None,
+                    parent_committed_hash=p1["committed"] if same_parent else None)
+    verdict, why = E.verdict(law, "solidity", side, {"traces": [
+        {"label": r["label"], "split": r["split"],
+         "real": [("ok" if real.get((t, i), ("?",))[0] == "ok" else "rev " + real.get((t, i), ("", "?"))[1])
+                  for i in range(len(r["trace"]))]} for r, _, _, _, t in outs]}, None, None, facts)
+    side["status"] = "passed" if all_agree and verdict != E.CONTRADICTION else "failed"
+    side["obstruction_observed"] = side["status"] == "passed" and verdict == E.OBSERVED
+    side["observed"] = why if all_agree else f"{why}; the real code disagrees with the model on some step"
     return side
 
 
+def _model_only(why: str) -> dict:
+    return {"status": "not_applicable", "provenance": "library_api", "obstruction_observed": False, "command": "",
+            "observed": f"model-only pending replay: {why}"}
+
+
 def _consumer_side(law: dict, runs: list, sol: dict, morph: Path, work: Path) -> dict:
+    """The Go consumer side of a law whose claim needs one (holon.evidence.CONSUMER_KINDS). A consumer
+    that cannot run is labelled model-only pending replay, never relabelled as replayed."""
     from . import consumers
-    if law["subform"] == "ghost_tag":
-        if not sol.get("header"):
-            return {"status": "not_run", "provenance": "library_api", "obstruction_observed": False, "command": "",
-                    "observed": "no committed header from the chain replay to feed the consumer"}
-        return consumers.tag_bvh_side(morph, work, sol["header"], sol["stored_vh"])
-    if law["subform"] == "kernel_containment":
+    from .evidence import claim_kind
+    kind = claim_kind(law)
+    if kind == "accepted":
+        if not (sol.get("header") and sol.get("v1_header")):
+            return _model_only("the chain replay logged no ghost-tagged header pair to feed the consumer")
+        side = consumers.tag_bvh_side(morph, work, sol["header"], sol["stored_vh"], sol["v1_header"])
+    elif kind == "same_commitment":
         commits = {}
         for r in runs:
             a = r["trace"][-1]
             if any(b != 1 for b in a["blobs"]):  # blob id 1 is the all-zero blob (versioned hash Z)
-                return {"status": "not_run", "provenance": "library_api", "obstruction_observed": False,
-                        "command": "", "observed": f"{r['label']}: blob ids {a['blobs']} are not the zero blob"}
+                return _model_only(f"{r['label']}: blob ids {a['blobs']} are not the all-zero blob")
             commits[r["label"]] = {"version": a["ver"], "last_block_number": a["lbn"], "num_l1_messages": a["n"],
                                    "prev_state_root": _bytes32(a["prev"]), "post_state_root": _bytes32(a["post"]),
                                    "withdraw_root": _bytes32(0), "blobs": len(a["blobs"])}
         if not sol.get("parent_header"):
-            return {"status": "not_run", "provenance": "library_api", "obstruction_observed": False, "command": "",
-                    "observed": "no parent header from the chain replay to feed the consumer"}
-        return consumers.fact_z_side(morph, work, sol["parent_header"], commits)
-    raise ValueError(f"{law['law_id']}: no consumer for subform {law['subform']}")
+            return _model_only("no common parent header from the chain replay to feed the consumer")
+        side = consumers.fact_z_side(morph, work, sol["parent_header"], commits, sol.get("parent_index"))
+    else:
+        raise ValueError(f"{law['law_id']}: no consumer for claim kind {kind}")
+    if side["status"] == "not_run":
+        return _model_only(side["observed"])
+    return side
+
+
+def _law_status(sides: dict) -> str:
+    """passed iff every side passed or is labelled model-only pending replay, and one side passed."""
+    vals = list(sides.values())
+    ok = all(s["status"] == "passed" or (s["status"] == "not_applicable" and s["observed"].startswith(MODEL_ONLY))
+             for s in vals)
+    return "passed" if ok and any(s["status"] == "passed" for s in vals) else "failed"
 
 
 def main_replay_m1(args) -> int:
@@ -506,7 +484,7 @@ def main_replay_m1(args) -> int:
     reg = json.loads((ROOT / "laws" / milestone / "REGISTRY.json").read_text())
     facts_path = ROOT / reg["facts"]
     facts = F.load(facts_path)
-    sha = check_checkout(morph, facts["target"]["commit"][:7])
+    sha = check_checkout(morph, facts["target"]["commit"])
     tc = toolchain(args)
     work = Path(args.work or ROOT / "build" / "replay_m1").resolve()
     shutil.rmtree(work / "go", ignore_errors=True)
@@ -548,11 +526,11 @@ def main_replay_m1(args) -> int:
                                     "real": [("ok" if real.get((tid, i), ("?",))[0] == "ok" else "rev " + real.get((tid, i), ("", "?"))[1])
                                              for i in range(len(run["trace"]))]})
             tid += 1
-        sides = {"solidity": _solidity_side(runs[0]["kind"], outs, real, facts, hdrs, runs, command)}
+        sides = {"solidity": _solidity_side(laws[lid], outs, real, facts, hdrs, runs, command)}
         if "go_consumer" in claimed_sides(laws[lid], reg["facts"]):
             sides["go_consumer"] = _consumer_side(laws[lid], runs, sides["solidity"], morph, work / "consumers")
         entry["sides"] = sides
-        entry["status"] = "passed" if all(s["status"] == "passed" for s in sides.values()) else "failed"
+        entry["status"] = _law_status(sides)
         entry["obstruction_reproduced"] = all(s["obstruction_observed"] for s in sides.values())
         entry["observed"] = "; ".join(f"{k}: {s['observed']}" for k, s in sorted(sides.items())) if len(sides) > 1 \
             else sides["solidity"]["observed"]
@@ -564,8 +542,8 @@ def main_replay_m1(args) -> int:
         realistic = lines.get("realistic")
         obs = obs + (f"; realistic 60-byte contexts: {realistic[0]} ({realistic[1]})" if realistic else "")
         # the Go harness prints changed=true when the held view's bytes changed across Append
-        side = {"status": st, "provenance": "library_api", "command": gcmd, "observed": obs,
-                "obstruction_observed": st == "passed" and "changed=true" in obs}
+        side = {"status": st, "provenance": "library_api", "command": gcmd, "observed": obs}
+        side["obstruction_observed"] = st == "passed" and own_go(side)[0] == OBSERVED
         report["laws"][lid] = {"status": st, "obstruction_reproduced": side["obstruction_observed"], "command": gcmd,
                                "observed": obs, "traces": [], "sides": {"go": side}}
         report["witness_sha256"][lid] = witness_sha256(records[lid]["witness"])
@@ -593,8 +571,18 @@ def main_replay_m1(args) -> int:
                           for k, s in sorted(e["sides"].items())))
     rf = report["refinement"]
     print(f"refinement corpus: {rf['traces']} traces, {rf['steps']} steps, {rf['n_disagreements']} disagreements")
-    bad = [l for l, e in report["laws"].items() if e["status"] != "passed" or not e["obstruction_reproduced"]]
+    defects = [l for l, e in report["laws"].items() if e["status"] != "passed"]
+    unseen = [l for l, e in report["laws"].items() if e["status"] == "passed" and not e["obstruction_reproduced"]]
+    bad = defects + unseen
+    model_only = [f"{l}/{k}" for l, e in report["laws"].items() for k, s in e["sides"].items()
+                  if s["status"] == "not_applicable"]
+    if model_only:
+        print(f"model-only pending replay: {model_only}")
+    if defects or rf["n_disagreements"] or report["harness_mismatch"]:
+        print(f"MODEL DEFECT: {defects}; refinement disagreements: {rf['n_disagreements']}; "
+              f"harness mismatch: {report['harness_mismatch']}")
+    if unseen:
+        print(f"NOT REPRODUCED (replay agrees with the model, but the obstruction did not show on every side): {unseen}")
     if bad or rf["n_disagreements"] or report["harness_mismatch"]:
-        print(f"MODEL DEFECT / NOT REPRODUCED: {bad}; refinement disagreements: {rf['n_disagreements']}")
         return 1
     return 0

@@ -20,8 +20,10 @@ values Go printed, never from a model or an oracle:
   failed   the real code contradicts the chain replay's reading (a model defect);
   not_run  the input was malformed or the toolchain / build broke (observed says which).
 
-Only a passed side may observe the obstruction. Side objects are deterministic: hex is lower-case
-and 0x-prefixed, and no value carries a timestamp or an absolute path.
+Whether a passed side observed the obstruction is holon.evidence's call (tag_consumer, fact_consumer),
+the same rule G6 re-applies; a contradiction it finds makes the side failed. Only a passed side may
+observe the obstruction. Side objects are deterministic: hex is lower-case and 0x-prefixed, and no
+value carries a timestamp or an absolute path.
 """
 from __future__ import annotations
 
@@ -32,6 +34,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from . import evidence as E
 from .oracles.zero_blob import compute as zero_versioned_hash
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,12 +48,14 @@ COMMIT_FIELDS = ("version", "last_block_number", "num_l1_messages", "prev_state_
 HASH_FIELDS = ("prev_state_root", "post_state_root", "withdraw_root")
 NO_BUN_CONFIG = shutil.ignore_patterns(".env", ".env.*", "bunfig.toml")
 
-TAG_OK = re.compile(r"^HOLON L_tag_BVH version=(\d+) blob_commit_hash=(0x[0-9a-f]{64}) aggregate=(0x[0-9a-f]{64}) "
-                    r"differ=(true|false)$", re.M)
+TAG_OK = re.compile(r"^HOLON L_tag_BVH version=(\d+) blob_commit_hash=(0x[0-9a-f]{64}) v1_version=(\d+) "
+                    r"v1_blob_commit_hash=(0x[0-9a-f]{64}) aggregate=(0x[0-9a-f]{64})$", re.M)
 TAG_ERR = re.compile(r"^HOLON L_tag_BVH error (\w+): (\".*\")$", re.M)
 FZ_VH = re.compile(r"^HOLON L_fact_Z zero_blob_vh (0x[0-9a-f]{64})$", re.M)
 FZ_OUT = re.compile(r"^HOLON L_fact_Z (\w+) sidecar_blobs=(\d+) outcome=(\".*\")$", re.M)
 FZ_ERR = re.compile(r"^HOLON L_fact_Z error (\w+): (\".*\")$", re.M)
+FZ_PARENT = re.compile(r"^HOLON L_fact_Z parent index=(\d+) total_l1=(\d+) version=(\d+)$", re.M)
+FZ_PARENT_ERR = re.compile(r"^HOLON L_fact_Z parent_error (\".*\")$", re.M)
 
 
 # ---------------------------------------------------------------- helpers
@@ -133,21 +138,25 @@ def _go_run(go: str, morph: Path, ws: Path, module: str, pkg: str, test: str) ->
 
 
 # ---------------------------------------------------------------- L_tag_BVH
-def tag_bvh_side(morph: Path, work: Path, header: str, stored_vh: str, go: str | None = None) -> dict:
-    """The go_consumer side of L_tag_BVH: common/batch reads the committed version-2 header.
+def tag_bvh_side(morph: Path, work: Path, header: str, stored_vh: str, v1_header: str,
+                 go: str | None = None) -> dict:
+    """The go_consumer side of L_tag_BVH: common/batch reads the two headers committed at one index.
 
-    `header` is the 257-byte header the real Rollup committed, `stored_vh` the v1 blob versioned
-    hash stored for that batch index (both 0x hex). The scratch workspace is `work`/tag_bvh.
+    `header` is the 257-byte version-2 header commitState committed, `v1_header` the header whose
+    version-1 commit stored the blob hash, `stored_vh` that stored hash (all 0x hex). The scratch
+    workspace is `work`/tag_bvh.
     """
-    hb, vb = _hexbytes(header), _hexbytes(stored_vh)
+    hb, h1, vb = _hexbytes(header), _hexbytes(v1_header), _hexbytes(stored_vh)
     side = {"status": "not_run", "provenance": PROVENANCE, "obstruction_observed": False, "observed": "",
             "command": "", "input_header": _hex(hb) if hb is not None else header,
-            "blob_commit_hash": None, "aggregate": None}
-    if hb is None or vb is None or len(vb) != 32:
-        side["observed"] = "not run: the input header / stored_vh is not 0x hex (stored_vh must be 32 bytes)"
+            "input_v1_header": _hex(h1) if h1 is not None else v1_header,
+            "version": None, "blob_commit_hash": None, "v1_version": None, "v1_blob_commit_hash": None,
+            "aggregate": None}
+    if hb is None or h1 is None or vb is None or len(vb) != 32:
+        side["observed"] = "not run: an input header / stored_vh is not 0x hex (stored_vh must be 32 bytes)"
         return side
-    if len(hb) != 257:
-        side["observed"] = f"not run: the input header is {len(hb)} bytes, not a 257-byte version-1/2 header"
+    if len(hb) != 257 or len(h1) != 257:
+        side["observed"] = f"not run: the input headers are {len(hb)} and {len(h1)} bytes, not 257-byte v1/v2 headers"
         return side
     gobin = _go_binary(go)
     if gobin is None:
@@ -158,14 +167,14 @@ def tag_bvh_side(morph: Path, work: Path, header: str, stored_vh: str, go: str |
         _workspace(morph, ws, ("bindings", "common"))
         shutil.copy(GO_SRC / "holon_consumer_test.go", ws / "common" / "batch")
         (ws / "common" / "batch" / INPUT).write_text(
-            json.dumps({"header": _hex(hb), "stored_vh": _hex(vb)}, indent=2, sort_keys=True) + "\n")
+            json.dumps({"header": _hex(hb), "stored_vh": _hex(vb), "v1_header": _hex(h1)}, indent=2, sort_keys=True)
+            + "\n")
         out, done, side["command"] = _go_run(gobin, morph, ws, "common", "batch", "TestHolonTagBVH")
     except (OSError, subprocess.SubprocessError) as e:
         side["observed"] = f"not run: the scratch workspace or go toolchain failed ({type(e).__name__})"
         return side
 
     oks, errs = TAG_OK.findall(out), TAG_ERR.findall(out)
-    field, vh = _hex(hb[57:89]), _hex(vb)
     if len(oks) + len(errs) != 1:
         side["observed"] = (f"not run: go test printed {len(oks) + len(errs)} HOLON L_tag_BVH lines "
                             f"({done}): {_tail(out)}")
@@ -176,29 +185,17 @@ def tag_bvh_side(morph: Path, work: Path, header: str, stored_vh: str, go: str |
             side["observed"] = f"not run: the Go test could not read its input: {msg}"
         else:
             side["status"] = "failed"
-            side["observed"] = (f"{stage}() returned an error on the committed 257-byte header (byte 0 = {hb[0]}): {msg}; "
-                                f"the chain replay reads it as a version-2 header with blob field {field}")
+            side["observed"] = (f"{stage}() returned an error on a committed 257-byte header: {msg}; the chain "
+                                f"replay committed versions {h1[0]} and {hb[0]} at this index")
         return side
-
-    version, bch, agg, go_differ = int(oks[0][0]), oks[0][1], oks[0][2], oks[0][3] == "true"
-    side["blob_commit_hash"], side["aggregate"] = bch, agg
-    differ = agg != bch
-    same_vh = "the stored v1 versioned hash" if field == vh else f"NOT the stored v1 versioned hash {vh}"
-    if version != 2 or bch != field:
-        side["status"] = "failed"
-        side["observed"] = (f"BatchHeaderBytes reads version {version} and BlobCommitHash() {bch}, but the chain "
-                            f"replay committed a version-2 header whose blob field header[57:89] is {field}")
-    elif go_differ != differ:
-        side["status"] = "failed"
-        side["observed"] = f"Go's differ flag ({str(go_differ).lower()}) disagrees with its printed values ({bch} vs {agg})"
-    else:
-        side["status"] = "passed"
-        # the obstruction: the field a version-2 consumer checks is the stored v1 versioned hash, and the
-        # aggregate it recomputes from that hash differs from it
-        side["obstruction_observed"] = differ and field == vh
-        side["observed"] = (f"BatchHeaderBytes reads version 2 and BlobCommitHash() = header[57:89] = {bch} "
-                            f"({same_vh}); aggregateBlobHashes([stored_vh]) = {agg}, which "
-                            f"{'differs from' if differ else 'equals'} the field a version-2 consumer checks")
+    v, bch, v1v, v1bch, agg = oks[0]
+    side.update(version=int(v), blob_commit_hash=bch, v1_version=int(v1v), v1_blob_commit_hash=v1bch, aggregate=agg)
+    verdict, why = E.tag_consumer(side, {"header": _hex(hb), "v1_header": _hex(h1)})
+    side["status"] = "failed" if verdict == E.CONTRADICTION else "passed"
+    side["obstruction_observed"] = side["status"] == "passed" and verdict == E.OBSERVED
+    side["observed"] = (f"Go reads the version-{v1v} header's blob hash {v1bch} and the version-{v} header's "
+                        f"BlobCommitHash() {bch}; aggregateBlobHashes([stored_vh]) = {agg}. {why}. The comparison is "
+                        f"HOLON's; no Morph consumer decision is exercised")
     return side
 
 
@@ -225,10 +222,12 @@ def _commit_input(label: str, c) -> tuple[dict | None, str]:
     return out, ""
 
 
-def fact_z_side(morph: Path, work: Path, parent_header: str, commits: dict, go: str | None = None) -> dict:
+def fact_z_side(morph: Path, work: Path, parent_header: str, commits: dict, parent_index: int | None = None,
+                go: str | None = None) -> dict:
     """The go_consumer side of L_fact_Z: node/derivation ParseBatch on the two equal-commitment commits.
 
-    `parent_header` is the header the chain replay committed on (0x hex); `commits` maps each label
+    `parent_header` is the header the chain replay committed on (0x hex), `parent_index` its batch
+    index on chain; `commits` maps each label
     ("c1", "c2") to {version, last_block_number, num_l1_messages, prev_state_root, post_state_root,
     withdraw_root, blobs}, where `blobs` is the number of all-zero blobs the commit carried. The
     scratch workspace is `work`/fact_z.
@@ -237,7 +236,7 @@ def fact_z_side(morph: Path, work: Path, parent_header: str, commits: dict, go: 
     labels = sorted(commits) if isinstance(commits, dict) else []
     side = {"status": "not_run", "provenance": PROVENANCE, "obstruction_observed": False, "observed": "",
             "command": "", "input_parent_header": _hex(pb) if pb is not None else parent_header,
-            "sidecar_blobs": {}, "outcomes": {}, "zero_blob_vh": None}
+            "parent_index": None, "sidecar_blobs": {}, "outcomes": {}, "outcome_class": {}, "zero_blob_vh": None}
     if pb is None:
         side["observed"] = "not run: the parent header is not 0x hex"
         return side
@@ -291,14 +290,29 @@ def fact_z_side(morph: Path, work: Path, parent_header: str, commits: dict, go: 
         side["observed"] = f"not run: the Go test built sidecars {side['sidecar_blobs']}, not the {asked} the commits carried"
         return side
     zvh = zero_versioned_hash()
+    side["outcome_class"] = {lb: E.outcome_class(side["outcomes"][lb]) for lb in labels}
     desc = "; ".join(f"{lb} ({asked[lb]} all-zero blob{'' if asked[lb] == 1 else 's'}) -> {side['outcomes'][lb]}"
                      for lb in labels)
+    perr, pok = FZ_PARENT_ERR.findall(out), FZ_PARENT.findall(out)
+    if perr or len(pok) != 1:
+        side["status"] = "failed"
+        side["observed"] = (f"Go cannot read the parent header the chain replay committed on "
+                            f"({json.loads(perr[0]) if perr else 'no parent line'}); ParseBatch: {desc}")
+        return side
+    side["parent_index"] = int(pok[0][0])
     if any(asked.values()) and side["zero_blob_vh"] != zvh:
         side["status"] = "failed"
         side["observed"] = (f"the all-zero blob's KZG versioned hash in Go is {side['zero_blob_vh']}, not "
                             f"ZERO_VERSIONED_HASH {zvh}, so the blob commits are not the ones the chain replay "
                             f"committed; ParseBatch on the same parent header: {desc}")
         return side
+    verdict, why = E.fact_consumer(side, {"parent_header": _hex(pb), "parent_index": parent_index})
+    side["status"] = "failed" if verdict == E.CONTRADICTION else "passed"
+    side["obstruction_observed"] = side["status"] == "passed" and verdict == E.OBSERVED
+    side["observed"] = (f"ParseBatch on the parent header (batch index {side['parent_index']} as Go reads it): {desc}; "
+                        f"the all-zero blob's versioned hash is {side['zero_blob_vh']} "
+                        f"({'=' if side['zero_blob_vh'] == zvh else '!='} ZERO_VERSIONED_HASH). {why}")
+    return side
     differ = len(set(side["outcomes"].values())) > 1
     side["status"] = "passed"
     side["obstruction_observed"] = differ

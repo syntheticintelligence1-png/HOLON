@@ -14,6 +14,7 @@
 // "panic: <value>"). It also logs the KZG versioned hash of the all-zero blob it built:
 //
 //	HOLON L_fact_Z zero_blob_vh 0x..
+//	HOLON L_fact_Z parent index=<n> total_l1=<n> version=<n>   (or: HOLON L_fact_Z parent_error <json msg>)
 //	HOLON L_fact_Z <label> sidecar_blobs=<n> outcome=<json-quoted outcome>
 //	HOLON L_fact_Z error <stage>: <json-quoted message>      (the harness could not build its input)
 //
@@ -25,6 +26,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -35,6 +37,8 @@ import (
 	eth "github.com/morph-l2/go-ethereum/core/types"
 	"github.com/morph-l2/go-ethereum/crypto/kzg4844"
 	geth "github.com/morph-l2/go-ethereum/eth"
+
+	commonbatch "morph-l2/common/batch"
 )
 
 type holonFactZCommit struct {
@@ -99,6 +103,17 @@ func TestHolonFactZ(t *testing.T) {
 	}
 	vh := kzg4844.CalcBlobHashV1(sha256.New(), &commit)
 	fmt.Printf("HOLON L_fact_Z zero_blob_vh %s\n", hexutil.Encode(vh[:]))
+
+	// The parent header as Go reads it: ParseBatch decodes the same fields first.
+	ph := commonbatch.BatchHeaderBytes(in.ParentHeader)
+	pIndex, err1 := ph.BatchIndex()
+	pTotal, err2 := ph.TotalL1MessagePopped()
+	pVersion, err3 := ph.Version()
+	if err := errors.Join(err1, err2, err3); err != nil {
+		fmt.Printf("HOLON L_fact_Z parent_error %s\n", holonFactZQuote(err.Error()))
+	} else {
+		fmt.Printf("HOLON L_fact_Z parent index=%d total_l1=%d version=%d\n", pIndex, pTotal, pVersion)
+	}
 
 	labels := make([]string, 0, len(in.Commits))
 	for l := range in.Commits {

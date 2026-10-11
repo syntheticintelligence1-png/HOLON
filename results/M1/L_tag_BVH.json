@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.336
+      "seconds": 0.306
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.52
+      "seconds": 0.464
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.336
+    "seconds": 0.306
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -279,7 +279,7 @@
   "record_version": "holon-record/0.2",
   "refinement_refs": "pending:I16",
   "replay": {
-    "detail": "go_consumer: BatchHeaderBytes reads version 2 and BlobCommitHash() = header[57:89] = 0x0100000000000000000000000000000000000000000000000000000000000011 (the stored v1 versioned hash); aggregateBlobHashes([stored_vh]) = 0xdb6c86c99192f3e4b015de59bf2f50daeb2f83b1502f560a0e1df38b9fa4d9a8, which differs from the field a version-2 consumer checks; solidity: the real contract accepts the whole trace; the version-2 header committed at index 1 carries at [57:89] the blob hash 0x0100000000000000000000000",
+    "detail": "go_consumer: Go reads the version-1 header's blob hash 0x0100000000000000000000000000000000000000000000000000000000000011 and the version-2 header's BlobCommitHash() 0x0100000000000000000000000000000000000000000000000000000000000011; aggregateBlobHashes([stored_vh]) = 0xdb6c86c99192f3e4b015de59bf2f50daeb2f83b1502f560a0e1df38b9fa4d9a8. Go returns the v1-stored hash for the v2 header, and the v2 aggregate over it differs. The comparison is HOLON's; no Morph consumer decision is exercised; solidity",
     "status": "passed"
   },
   "rule": "SORT",

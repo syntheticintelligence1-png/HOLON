@@ -80,11 +80,16 @@ class TestGateCatchesTampering(unittest.TestCase):
         def edit(repo):
             f = repo / "replay" / "M0" / "report.json"
             d = load_json(f)
-            d["laws"]["L_par_hdr_v2"]["solidity"]["status"] = "not_applicable"
-            d["laws"]["L_par_hdr_v2"]["solidity"]["observed"] = "needs a full commitBatch deployment: M1"
+            d["laws"]["L_par_hdr_v2"]["solidity"].update(status="not_applicable", obstruction_observed=False,
+                                                         observed="needs a full commitBatch deployment: M1")
             write_json(f, d)
+            r = repo / "results" / "M0" / "L_par_hdr_v2.json"
+            rec = load_json(r)
+            rec["filter_bin"] = "pending"
+            write_json(r, rec)
         rep = self.tampered("M0", "G6", edit)
         self.assertIn("L_par_hdr_v2", rep["checks"]["G6"]["detail"])
+        self.assertIn("not labelled 'model-only pending replay'", rep["checks"]["G6"]["detail"])
 
     def test_failed_replay_in_record_fails_g6(self):
         def edit(repo):
