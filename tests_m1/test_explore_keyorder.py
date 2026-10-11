@@ -47,13 +47,7 @@ class TestExploreKeyOrder(unittest.TestCase):
         return cls._machines[fp]
 
     def _result(self, law, cm):
-        try:
-            out = cm.explore(law)
-        except RuntimeError:
-            # The explorer crashing identically on every serialization is
-            # still a consistent outcome (e.g. laws the pipeline never
-            # searches because a proof generator answers first).
-            return {"error": True}
+        out = cm.explore(law)
         return {k: out.get(k) for k in ("witness", "difference", "tried")}
 
     def test_key_order_invariance(self):
