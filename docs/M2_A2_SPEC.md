@@ -80,3 +80,15 @@ recorded here.
    so the law is `UNKNOWN` on that file; that is honest extraction debt.
 4. **Fix 2 (extraction, before freezing).** S1 must extract the queue-length write, or record
    it as debt.
+
+## Held-out mutant sampler (preregistered before the law freeze)
+
+`spec/M2/A2/sample_mutants.py` builds the pool mechanically from Rollup.sol at the target
+commit. It covers the in-scope Rollup functions and modifiers, uses four operators
+(require_delete, statement_delete, cmp_flip and neg_drop), and excludes every A1 site
+(file+line). At this commit the pool has 93 candidates.
+
+30 mutants are drawn with `random.Random(int(seed, 16))`, where seed = sha256 over the sorted
+`statement_hash` values in the frozen `laws/A2/REGISTRY.json`. Neither the sampler nor the pool
+may change after the freeze. The A1 apply, detection, validity and equivalence rules in
+`spec/M2/mutants.json` apply unchanged.
