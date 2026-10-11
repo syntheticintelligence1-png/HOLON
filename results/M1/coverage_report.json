@@ -1,0 +1,3647 @@
+{
+  "coverage_debt": [
+    {
+      "element": "Append l1TxHashes / counters",
+      "source": "spec/M1/facts/morph_batchdata.json"
+    },
+    {
+      "element": "DataHash",
+      "source": "spec/M1/facts/morph_batchdata.json"
+    },
+    {
+      "element": "DataHashV2",
+      "source": "spec/M1/facts/morph_batchdata.json"
+    },
+    {
+      "element": "Encode",
+      "source": "spec/M1/facts/morph_batchdata.json"
+    },
+    {
+      "element": "EstimateCompressedSizeWithNewPayload",
+      "source": "spec/M1/facts/morph_batchdata.json"
+    },
+    {
+      "element": "combinePayloads",
+      "source": "spec/M1/facts/morph_batchdata.json"
+    },
+    {
+      "element": "_defenderWin/_challengerWin accounting",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "addChallenger",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "claimProveRemaining",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "claimReward",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "dataHash contents",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "importGenesisBatch",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "initialize",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "initialize3",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "initialize4",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "proveCommittedBatchState (view)",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "removeChallenger",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "updateFinalizePeriodSeconds",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "updateProofWindow",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "updateRewardPercentage",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "updateRollupDelayPeriod",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "updateVerifier",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "withdrawalRoots",
+      "source": "spec/M1/facts/morph_rollup.json"
+    },
+    {
+      "element": "batch.BatchCache.createBatchHeaderWithSequencerSetHash:1690",
+      "kind": "off_output_write",
+      "reason": "op writes buffer ('alloc', 5), not the returned bytes (input construction; modelled via the field precondition)",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:keccak256(_batchPtr, _headerLength)",
+      "kind": "edge",
+      "reason": "hash primitive is outside the byte-layout model; recorded as an edge fact",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:mstore(0x40, add(_batchPtr, _headerLength))",
+      "kind": "infrastructure",
+      "reason": "free-memory-pointer bump writes outside the tracked header buffer",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(_batchIndex == lastCommittedBatchIndex, \\\"incorrect batch index\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.postStateRoot != bytes32(0), \\\"new state root is zero\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.prevStateRoot != bytes32(0), \\\"previous state root is zer",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex + 1] == bytes32(0), \\\"batch already committ",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex] == _parentBatchHash, \\\"incorrect parent ba",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedStateRoots[_batchIndex] == batchDataInput.prevStateRoot, \\\"inco",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "common/batch/batch_cache.go:127 func literal NewBatchCache$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_cache.go:131 func literal NewBatchCache$2",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_cache.go:666 func literal initAndSyncFromRollupLocked$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:103 method BatchData.calculateHash",
+      "kind": "unmodelled_method",
+      "reason": "method calculateHash not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:122 method BatchData.BlockNum",
+      "kind": "unmodelled_method",
+      "reason": "method BlockNum not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:149 method BatchData.WillExceedCompressedSizeLimit",
+      "kind": "unmodelled_method",
+      "reason": "method WillExceedCompressedSizeLimit not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:39 append BatchData.l1TxHashes",
+      "kind": "dropped_append",
+      "reason": "append outside tracked cone (in loop)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:64 method BatchData.IsEmpty",
+      "kind": "unmodelled_method",
+      "reason": "method IsEmpty not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:83 method BatchData.DataHashV2",
+      "kind": "unmodelled_method",
+      "reason": "method DataHashV2 not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_query.go:59 func literal getLastFinalizeBatchHeaderFromRollupByIndex$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_storage.go:435 func literal indicesSnapshotWith$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_storage.go:473 func literal loadBatchIndices$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:114 func literal NewL2Block$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:133 func literal NewL2BlockV2$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:154 func literal NewSafeL2Block$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:172 func literal BlockNumber$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:190 func literal HeaderByNumber$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:209 func literal BlockByNumber$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:228 func literal CallContract$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:246 func literal CodeAt$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:264 func literal SetBlockTags$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:321 func literal AssembleL2BlockV2$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:78 func literal AssembleL2Block$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:96 func literal ValidateL2Block$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "chain:0x542675e90e269f20ecbb9e0095d4751ac155b530 selector 0x134008d3",
+      "kind": "unresolved_selector",
+      "reason": "ProxyAdmin-owner aggregate/forwarder contract; embedded upgrade calls are recovered by selector scan, but the wrapper's own function signature is unidentified",
+      "source": "spec/M2/coverage/link.json"
+    },
+    {
+      "element": "chain:0x9e2fb684935a32ced121972f23bd0e4634377ca2->0xac3c379d772f3520b34690d32ba14510ab36c3fb",
+      "kind": "unverified_source",
+      "reason": "unverified implementation source: 0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "source": "spec/M2/coverage/link.json"
+    },
+    {
+      "element": "chain:0xb2f539aede77df4cd1d427d046bbbbd8db4cbaaf->0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "kind": "unverified_source",
+      "reason": "unverified implementation source: 0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "source": "spec/M2/coverage/link.json"
+    },
+    {
+      "element": "M1:L_disch_delay_nofree",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_delay_pay",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_delay_prove",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_delay_wait",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_stale",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_stale_commit",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_fact_Z",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_nat_eta2",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_own_txspayload",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_sort_remaining",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_sym_omega",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_tag_BVH",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_undo_BD",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_undo_BVH",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_undo_CSR",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_undo_cancel",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:keccak256(_batchPtr, _headerLength)",
+      "kind": "edge",
+      "reason": "hash primitive is outside the byte-layout model; recorded as an edge fact",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:mstore(0x40, add(_batchPtr, _headerLength))",
+      "kind": "infrastructure",
+      "reason": "free-memory-pointer bump writes outside the tracked header buffer",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(_batchIndex == lastCommittedBatchIndex, \\\"incorrect batch index\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.postStateRoot != bytes32(0), \\\"new state root is zero\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.prevStateRoot != bytes32(0), \\\"previous state root is zer",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex + 1] == bytes32(0), \\\"batch already committ",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex] == _parentBatchHash, \\\"incorrect parent ba",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedStateRoots[_batchIndex] == batchDataInput.prevStateRoot, \\\"inco",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    }
+  ],
+  "facts": {
+    "spec/M1/facts/morph_batchdata.json": {
+      "actions": {
+        "append": {
+          "direct": [],
+          "quantified": [
+            "L_own_txspayload"
+          ],
+          "registers": [
+            "classes",
+            "ctx",
+            "heap",
+            "txp"
+          ]
+        },
+        "txsPayloadV2": {
+          "direct": [],
+          "quantified": [
+            "L_own_txspayload"
+          ],
+          "registers": [
+            "classes",
+            "ctx",
+            "heap",
+            "live",
+            "snap",
+            "txp",
+            "view"
+          ]
+        }
+      },
+      "kind": "machine",
+      "registers": {
+        "classes": {
+          "how": {
+            "L_own_txspayload": [
+              "quantified:action:append",
+              "quantified:action:txsPayloadV2"
+            ]
+          },
+          "laws": [
+            "L_own_txspayload"
+          ]
+        },
+        "ctx": {
+          "how": {
+            "L_own_txspayload": [
+              "quantified:action:append",
+              "quantified:action:txsPayloadV2"
+            ]
+          },
+          "laws": [
+            "L_own_txspayload"
+          ]
+        },
+        "heap": {
+          "how": {
+            "L_own_txspayload": [
+              "obsv:view_intact",
+              "quantified:action:append",
+              "quantified:action:txsPayloadV2"
+            ]
+          },
+          "laws": [
+            "L_own_txspayload"
+          ]
+        },
+        "live": {
+          "how": {
+            "L_own_txspayload": [
+              "obsv:view_intact",
+              "quantified:action:txsPayloadV2"
+            ]
+          },
+          "laws": [
+            "L_own_txspayload"
+          ]
+        },
+        "log": {
+          "how": {},
+          "laws": []
+        },
+        "snap": {
+          "how": {
+            "L_own_txspayload": [
+              "obsv:view_intact",
+              "quantified:action:txsPayloadV2"
+            ]
+          },
+          "laws": [
+            "L_own_txspayload"
+          ]
+        },
+        "txp": {
+          "how": {
+            "L_own_txspayload": [
+              "quantified:action:append",
+              "quantified:action:txsPayloadV2"
+            ]
+          },
+          "laws": [
+            "L_own_txspayload"
+          ]
+        },
+        "view": {
+          "how": {
+            "L_own_txspayload": [
+              "obsv:view_intact",
+              "quantified:action:txsPayloadV2"
+            ]
+          },
+          "laws": [
+            "L_own_txspayload"
+          ]
+        }
+      },
+      "uncovered": []
+    },
+    "spec/M1/facts/morph_header_m1.json": {
+      "functions": {
+        "dec_go": {
+          "laws": []
+        },
+        "enc_go_v0": {
+          "laws": []
+        },
+        "enc_go_v1": {
+          "laws": []
+        },
+        "enc_go_v2_producer": {
+          "laws": [
+            "L_par_hdr_v2_composed"
+          ]
+        },
+        "enc_sol": {
+          "laws": [
+            "L_par_hdr_v2_composed"
+          ]
+        },
+        "ok_go": {
+          "laws": []
+        },
+        "ok_sol": {
+          "laws": []
+        },
+        "view": {
+          "laws": []
+        }
+      },
+      "kind": "codec",
+      "uncovered": [
+        "function dec_go",
+        "function enc_go_v0",
+        "function enc_go_v1",
+        "function ok_go",
+        "function ok_sol",
+        "function view"
+      ]
+    },
+    "spec/M1/facts/morph_rollup.json": {
+      "actions": {
+        "challengeState": {
+          "direct": [
+            "L_sym_omega",
+            "L_undo_cancel"
+          ],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "W",
+            "bc",
+            "chals",
+            "chs",
+            "inch",
+            "lfi",
+            "paused",
+            "rri",
+            "t",
+            "win"
+          ]
+        },
+        "commitBatch": {
+          "direct": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_fact_Z",
+            "L_undo_BVH"
+          ],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "D",
+            "F",
+            "W",
+            "active",
+            "bc",
+            "chs",
+            "enq",
+            "inch",
+            "lfi",
+            "paused",
+            "qlen",
+            "qpend",
+            "rri",
+            "s_bd",
+            "s_bvh",
+            "s_csr",
+            "s_tag",
+            "t",
+            "win"
+          ]
+        },
+        "commitBatchWithProof": {
+          "direct": [
+            "L_disch_stale_commit",
+            "L_sym_omega"
+          ],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "D",
+            "W",
+            "bc",
+            "chs",
+            "enq",
+            "inch",
+            "lfi",
+            "paused",
+            "qlen",
+            "qpend",
+            "rri",
+            "s_bd",
+            "s_bvh",
+            "s_csr",
+            "s_tag",
+            "t",
+            "win"
+          ]
+        },
+        "commitState": {
+          "direct": [],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "D",
+            "F",
+            "W",
+            "active",
+            "bc",
+            "chs",
+            "enq",
+            "inch",
+            "lfi",
+            "paused",
+            "qlen",
+            "qpend",
+            "rri",
+            "s_bd",
+            "s_bvh",
+            "s_csr",
+            "s_tag",
+            "t",
+            "win"
+          ]
+        },
+        "finalizeBatch": {
+          "direct": [],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "chs",
+            "fsr",
+            "lfi",
+            "paused",
+            "qpend",
+            "rri",
+            "t",
+            "win"
+          ]
+        },
+        "proveState": {
+          "direct": [],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "W",
+            "active",
+            "chs",
+            "inch",
+            "lfi",
+            "paused",
+            "rri",
+            "t",
+            "win"
+          ]
+        },
+        "revertBatch": {
+          "direct": [
+            "L_undo_BVH"
+          ],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "chs",
+            "inch",
+            "lfi",
+            "rri",
+            "s_bd",
+            "s_bvh",
+            "s_csr",
+            "s_tag",
+            "win"
+          ]
+        },
+        "sendMessage": {
+          "direct": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait"
+          ],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "enq",
+            "qlen",
+            "t"
+          ]
+        },
+        "setPause": {
+          "direct": [
+            "L_undo_cancel"
+          ],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "bc",
+            "chs",
+            "inch",
+            "paused"
+          ]
+        },
+        "wait": {
+          "direct": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait"
+          ],
+          "quantified": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ],
+          "registers": [
+            "t"
+          ]
+        }
+      },
+      "kind": "machine",
+      "registers": {
+        "D": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_sym_omega": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_undo_BD": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "F": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_disch_stale_commit": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_sym_omega": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_undo_BD": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "W": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_disch_stale": [
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "active": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_disch_stale_commit": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_sym_omega": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_undo_BD": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitState",
+              "quantified:action:proveState"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "bc": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_disch_stale": [
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "action:setPause",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:setPause"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "chals": {
+          "how": {
+            "L_disch_delay_pay": [
+              "quantified:action:challengeState"
+            ],
+            "L_disch_delay_prove": [
+              "quantified:action:challengeState"
+            ],
+            "L_disch_delay_wait": [
+              "quantified:action:challengeState"
+            ],
+            "L_disch_stale": [
+              "quantified:action:challengeState"
+            ],
+            "L_disch_stale_commit": [
+              "quantified:action:challengeState"
+            ],
+            "L_fact_Z": [
+              "quantified:action:challengeState"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:challengeState"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "quantified:action:challengeState"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:challengeState"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState"
+            ],
+            "L_undo_BVH": [
+              "quantified:action:challengeState"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "quantified:action:challengeState"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "chs": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_disch_stale": [
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "action:revertBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "action:setPause",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "enq": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_sym_omega": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_undo_BD": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "fsr": {
+          "how": {
+            "L_disch_delay_pay": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_disch_delay_prove": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_disch_delay_wait": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_disch_stale": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_disch_stale_commit": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_fact_Z": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_sym_omega": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_undo_BD": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_undo_BVH": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:finalizeBatch"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:finalizeBatch"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "inch": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_disch_stale": [
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "action:revertBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "action:setPause",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch",
+              "quantified:action:setPause"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "lfi": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "obsv:lci_of",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "obsv:lci_of",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "obsv:lci_of",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "action:revertBatch",
+              "obsv:lci_of",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "log": {
+          "how": {},
+          "laws": []
+        },
+        "paused": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_disch_stale": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "action:setPause",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:setPause"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "qlen": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_sym_omega": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_undo_BD": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:sendMessage"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "qpend": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_sym_omega": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_undo_BD": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "rri": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "action:revertBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "s_bd": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sym_omega": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BD": [
+              "proj",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "action:revertBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "s_bvh": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sym_omega": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BD": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "action:revertBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "s_csr": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_nat_eta2": [
+              "mig:legacy",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sym_omega": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BD": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "action:revertBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_CSR": [
+              "proj",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "s_tag": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sym_omega": [
+              "action:commitBatchWithProof",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BD": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "action:revertBatch",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_cancel": [
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:revertBatch"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "t": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "action:wait"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "action:wait",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "action:wait",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "action:sendMessage",
+              "action:wait",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_disch_stale": [
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "obsv:kappa",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_nat_eta2": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_tag_BVH": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:sendMessage",
+              "quantified:action:wait"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        },
+        "win": {
+          "how": {
+            "L_disch_delay_nofree": [
+              "action:commitBatch"
+            ],
+            "L_disch_delay_pay": [
+              "action:commitBatch",
+              "obsv:lci_of",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_prove": [
+              "action:commitBatch",
+              "obsv:lci_of",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_delay_wait": [
+              "action:commitBatch",
+              "obsv:lci_of",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_disch_stale_commit": [
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_fact_Z": [
+              "action:commitBatch",
+              "obsv:new_hdr",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_nat_eta2": [
+              "mig:eta2",
+              "mig:legacy",
+              "obsv:csr_last",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sort_remaining": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_sym_omega": [
+              "action:challengeState",
+              "action:commitBatchWithProof",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_tag_BVH": [
+              "obsv:tags_ok",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BD": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_BVH": [
+              "action:commitBatch",
+              "action:revertBatch",
+              "obsv:lci_of",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_CSR": [
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ],
+            "L_undo_cancel": [
+              "action:challengeState",
+              "quantified:action:challengeState",
+              "quantified:action:commitBatch",
+              "quantified:action:commitBatchWithProof",
+              "quantified:action:commitState",
+              "quantified:action:finalizeBatch",
+              "quantified:action:proveState",
+              "quantified:action:revertBatch"
+            ]
+          },
+          "laws": [
+            "L_disch_delay_nofree",
+            "L_disch_delay_pay",
+            "L_disch_delay_prove",
+            "L_disch_delay_wait",
+            "L_disch_stale",
+            "L_disch_stale_commit",
+            "L_fact_Z",
+            "L_nat_eta2",
+            "L_sort_remaining",
+            "L_sym_omega",
+            "L_tag_BVH",
+            "L_undo_BD",
+            "L_undo_BVH",
+            "L_undo_CSR",
+            "L_undo_cancel"
+          ]
+        }
+      },
+      "uncovered": []
+    }
+  },
+  "milestone": "M1",
+  "uncovered": [
+    "spec/M1/facts/morph_header_m1.json: function dec_go",
+    "spec/M1/facts/morph_header_m1.json: function enc_go_v0",
+    "spec/M1/facts/morph_header_m1.json: function enc_go_v1",
+    "spec/M1/facts/morph_header_m1.json: function ok_go",
+    "spec/M1/facts/morph_header_m1.json: function ok_sol",
+    "spec/M1/facts/morph_header_m1.json: function view"
+  ]
+}

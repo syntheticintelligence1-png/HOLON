@@ -29,6 +29,48 @@ class Search:
     notes: list = field(default_factory=list)
 
 
+# ---------------------------------------------------------------- input domain
+def called_domains(law: dict, facts: dict) -> list:
+    """(binder, version_le) for each Header arg of a domain-restricted call in the claim."""
+
+    def walk(t):
+        if "call" in t:
+            f = facts["functions"].get(t["call"], {})
+            dom = f.get("domain", {})
+            if "version_le" in dom:
+                for a in t["args"]:
+                    if "var" in a:
+                        yield a["var"], int(dom["version_le"])
+            for a in t["args"]:
+                yield from walk(a)
+
+    return list(set(x for side in law["statement"]["claim"]["eq"] for x in walk(side)))
+
+
+def in_domain(law: dict, facts: dict, witness: dict, pins_map: dict) -> bool:
+    """Skip candidates that take a called function outside its stated domain.
+
+    Restored from the M0 `_in_domain` (it checked exactly this before the search was
+    batched): a candidate whose version exceeds a called encoder's `domain.version_le`
+    makes that call revert, so its side is undefined and cannot be a witness. The M2
+    engines in holon.refute_engines filter on the same domain instead of duplicating it.
+    """
+    for var, vmax in called_domains(law, facts):
+        if var not in witness:
+            continue
+        pins = pins_map.get(var, {})
+        if "version" in pins:
+            pv = pins["version"]
+            v = bytes.fromhex(pv[2:])[0] if isinstance(pv, str) else pv[0]
+        elif isinstance(witness[var], dict) and "version" in witness[var]:
+            v = bytes.fromhex(witness[var]["version"][2:])[0]
+        else:
+            continue
+        if v > vmax:
+            return False
+    return True
+
+
 # ---------------------------------------------------------------- candidate spaces
 def version_constants(facts: dict) -> list[int]:
     ks = {0}

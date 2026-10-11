@@ -1,0 +1,589 @@
+{
+ "frontend": "solidity_transitions",
+ "target_commit": "3e44e795586af3e11285b603ab642c67823add51",
+ "items": [
+  {
+   "element": "action:challengeState.effects.win",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:commitBatch.effects.win",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:commitBatch.guards[15]",
+   "kind": "spec_bound",
+   "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+   "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
+  },
+  {
+   "element": "action:commitBatch.guards[5]",
+   "kind": "spec_bound",
+   "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:commitBatch:ghost_tag",
+   "kind": "spec_bound",
+   "reason": "ghost tag twin has no source expression"
+  },
+  {
+   "element": "action:commitBatchWithProof.effects.win",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:commitBatchWithProof.guards[12]",
+   "kind": "spec_bound",
+   "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:commitBatchWithProof.guards[21]",
+   "kind": "spec_bound",
+   "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+   "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
+  },
+  {
+   "element": "action:commitBatchWithProof:ghost_tag",
+   "kind": "spec_bound",
+   "reason": "ghost tag twin has no source expression"
+  },
+  {
+   "element": "action:commitState.effects.win",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:commitState.guards[16]",
+   "kind": "spec_bound",
+   "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+   "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
+  },
+  {
+   "element": "action:commitState.guards[18]",
+   "kind": "spec_bound",
+   "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:commitState:ghost_tag",
+   "kind": "spec_bound",
+   "reason": "ghost tag twin has no source expression"
+  },
+  {
+   "element": "action:finalizeBatch.effects.qpend",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:finalizeBatch.guards[12]",
+   "kind": "spec_bound",
+   "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+   "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325"
+  },
+  {
+   "element": "action:revertBatch.effects.chs",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:revertBatch.effects.inch",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:revertBatch.effects.rri",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:revertBatch.effects.s_bd",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:revertBatch.effects.s_bvh",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:revertBatch.effects.s_csr",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:revertBatch.effects.s_tag",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:revertBatch.effects.win",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:wait",
+   "kind": "spec_bound",
+   "reason": "declared action; no AST source"
+  },
+  {
+   "element": "batch entry bdf write at 'idx'",
+   "kind": "unmodelled_write",
+   "reason": "batchDataStore[k].bdf outside entry construction"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:102 func nextCrossDomainMessageIndex",
+   "kind": "unmodelled_fn",
+   "reason": "view; no transition effect"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:107 func getCrossDomainMessage",
+   "kind": "unmodelled_value",
+   "reason": "message hash payload not modelled; its index range require is lifted by the caller loop guard"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:113 func estimateCrossDomainMessageFee",
+   "kind": "unmodelled_fn",
+   "reason": "fee estimation not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:122 func calculateIntrinsicGasFee",
+   "kind": "unmodelled_value",
+   "reason": "intrinsic gas computation not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:130 func computeTransactionHash",
+   "kind": "unmodelled_value",
+   "reason": "queue entry hash contents not modelled (queue is length-only)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:270 func getMessageEnqueueTimestamp",
+   "kind": "unmodelled_fn",
+   "reason": "view; not on a modelled transition path"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:270 func popCrossDomainMessage require _count <= 256",
+   "kind": "subsumed_require",
+   "reason": "the 256-chunk loop bounds count <= 256 by construction"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:280 func setL2BaseFee",
+   "kind": "unmodelled_fn",
+   "reason": "fee accounting not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288 func appendCrossDomainMessage",
+   "kind": "folded_fn",
+   "reason": "modelled via _queueTransaction as sendMessage (onlyMessenger -> principal)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:305 func appendEnforcedTransaction",
+   "kind": "unmodelled_fn",
+   "reason": "enforced-tx gateway path not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:322 func popCrossDomainMessage require _msgSender == ROLLUP_CONTRACT",
+   "kind": "subsumed_require",
+   "reason": "internal call from finalizeBatch; caller identity is the contract"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:341 func updateMaxGasLimit",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:351 func updateWhitelistChecker",
+   "kind": "unmodelled_fn",
+   "reason": "whitelist admin"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:375 computeTransactionHash",
+   "kind": "unmodelled_value",
+   "reason": "computeTransactionHash"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:376 call IL1MessageQueue.push",
+   "kind": "unmodelled_call",
+   "reason": "call IL1MessageQueue.push not translated"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:383 func _validateGasLimit",
+   "kind": "unmodelled_fn",
+   "reason": "gas-limit accounting not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:90 storage __droppedMessageBitmap",
+   "kind": "unmodelled_storage",
+   "reason": "dropped-message bitmap not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:91 func initialize",
+   "kind": "unmodelled_fn",
+   "reason": "initializer; deployment wiring not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:91 storage __skippedMessageBitmap",
+   "kind": "unmodelled_storage",
+   "reason": "skipped-message bitmap not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:91 storage l2BaseFee",
+   "kind": "unmodelled_storage",
+   "reason": "fee accounting not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:141 func initialize",
+   "kind": "unmodelled_fn",
+   "reason": "initializer; deployment wiring not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:197 func initialize3",
+   "kind": "unmodelled_fn",
+   "reason": "upgrade initializer; admin bookkeeping"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:205 func initialize4",
+   "kind": "unmodelled_fn",
+   "reason": "upgrade initializer; admin bookkeeping"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:226 func importGenesisBatch",
+   "kind": "unmodelled_fn",
+   "reason": "genesis bootstrap; the initial state is post-genesis"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:313 require incorrect parent batch hash",
+   "kind": "subsumed_require",
+   "reason": "honest-header premise: presented parent header's hash matches committedBatches[parent] by CF"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:318 call _commitBatch",
+   "kind": "unmodelled_value",
+   "reason": "dataHash contents not modelled (the memory pipeline reduces to the queue range guard)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:340 write headerLength",
+   "kind": "unmodelled_value",
+   "reason": "V0/V1 header-length choice affects header bytes only, not modelled fields"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:357 call BatchHeaderCodecV0.computeBatchHash",
+   "kind": "unmodelled_call",
+   "reason": "call BatchHeaderCodecV0.computeBatchHash not translated"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:417 require incorrect batch header",
+   "kind": "subsumed_require",
+   "reason": "honest-header premise: presented header carries the just-committed index LCI"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:418 require incorrect batch hash",
+   "kind": "unbound_guard",
+   "reason": "guard dropped: name(s) ['idx'] have no bound model value (decoded from opaque header bytes or unmodelled locals)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:419 require incorrect batch hash",
+   "kind": "subsumed_require",
+   "reason": "honest-header premise"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:444 revert loop refunds",
+   "kind": "unmodelled_write",
+   "reason": "batchChallengeReward += challengeDeposit inside the loop is reward accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:447 write batchChallengeReward",
+   "kind": "unmodelled_write",
+   "reason": "challenge deposit refunds inside the revert loop are reward accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:477 committedBatches cmp",
+   "kind": "unmodelled_require",
+   "reason": "== ('hash_tok', 'self')"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:499 func updateProofWindow",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:508 func updateFinalizePeriodSeconds",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:517 func updateRollupDelayPeriod",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:526 func addChallenger",
+   "kind": "unmodelled_fn",
+   "reason": "challenger admin"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:540 func removeChallenger",
+   "kind": "unmodelled_fn",
+   "reason": "challenger admin"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:554 func updateVerifier",
+   "kind": "unmodelled_fn",
+   "reason": "verifier admin"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:563 func updateRewardPercentage",
+   "kind": "unmodelled_fn",
+   "reason": "parameter update (admin)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:578 write batchChallengeReward",
+   "kind": "unmodelled_write",
+   "reason": "reward/deposit accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:579 write batchChallengeReward",
+   "kind": "unmodelled_write",
+   "reason": "challenge deposit refund on pause is reward accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:609 write challenges.finished",
+   "kind": "unmodelled_write",
+   "reason": "finished"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:615 write challenges.challengeSuccess",
+   "kind": "unmodelled_write",
+   "reason": "challengeSuccess"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:648 BatchHeaderCodecV0.getWithdrawRootHash",
+   "kind": "unmodelled_value",
+   "reason": "header field BatchHeaderCodecV0.getWithdrawRootHash not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:648 map withdrawalRoots",
+   "kind": "unmodelled_write",
+   "reason": "withdrawalRoots not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:648 write withdrawalRoots",
+   "kind": "unmodelled_write",
+   "reason": "withdrawal roots"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:673 func claimReward",
+   "kind": "unmodelled_fn",
+   "reason": "reward/deposit accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:674 func claimProveRemaining",
+   "kind": "unmodelled_fn",
+   "reason": "reward/deposit accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:714 func proveCommittedBatchState",
+   "kind": "unmodelled_fn",
+   "reason": "view wrapper of _verifyProof; no writes"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:726 func _getProxyAdmin",
+   "kind": "unmodelled_fn",
+   "reason": "EIP-1967 admin slot not modelled"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:756 func _verifyProof keccak public-input hash",
+   "kind": "unmodelled_value",
+   "reason": "the public input hash is oracle-side; the verifier decision is the proof==1 oracle"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:765 let v_blobHashInput",
+   "kind": "unbound_value",
+   "reason": "let dropped: name(s) ['idx'] have no bound model value"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:793 func _defenderWin",
+   "kind": "unmodelled_write",
+   "reason": "proveRemaining += and batchChallengeReward += are reward accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:793 storage proofRewardPercent",
+   "kind": "unmodelled_read",
+   "reason": "reward/deposit accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:794 write proveRemaining",
+   "kind": "unmodelled_write",
+   "reason": "reward/deposit accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:795 write batchChallengeReward",
+   "kind": "unmodelled_write",
+   "reason": "reward/deposit accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:806 ISubmitter.slash",
+   "kind": "unmodelled_value",
+   "reason": "slash deactivates the submitter; the returned reward feeds unmodelled accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:806 func _challengerWin",
+   "kind": "unmodelled_write",
+   "reason": "batchChallengeReward += is reward accounting (slash's active-set effect IS modelled)"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:807 write batchChallengeReward",
+   "kind": "unmodelled_write",
+   "reason": "reward/deposit accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:812 func _transfer",
+   "kind": "unmodelled_fn",
+   "reason": "ETH transfer; only reachable from reward claims"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:819 func _getBatchVersion",
+   "kind": "abstracted_fn",
+   "reason": "version extraction is part of the header-load abstraction"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:836 func _loadBatchHeader",
+   "kind": "abstracted_fn",
+   "reason": "header byte decoding and validation are the honest-header premise; a presented header is the stored header of the index it names"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:870 asm blob collect",
+   "kind": "abstracted_asm",
+   "reason": "the blobhash-collection loop is modelled as blob_count blobs / agg blobs"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:870 assembly",
+   "kind": "abstracted_asm",
+   "reason": "asm statements outside the translated subset"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:882 assembly",
+   "kind": "abstracted_asm",
+   "reason": "asm statements outside the translated subset"
+  },
+  {
+   "element": "facts.abstractions",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:abstractions"
+  },
+  {
+   "element": "facts.constants_doc",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:constants_doc"
+  },
+  {
+   "element": "facts.consumers",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:consumers"
+  },
+  {
+   "element": "facts.coverage",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:coverage"
+  },
+  {
+   "element": "facts.disch",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:disch"
+  },
+  {
+   "element": "facts.ghost_state",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:ghost_state"
+  },
+  {
+   "element": "facts.initial",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:initial"
+  },
+  {
+   "element": "facts.migrations",
+   "kind": "spec_bound",
+   "reason": "declared environment actions; no source",
+   "src": "spec:migrations_declared"
+  },
+  {
+   "element": "facts.observers",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:observers"
+  },
+  {
+   "element": "facts.params",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:params"
+  },
+  {
+   "element": "facts.principals",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:principals"
+  },
+  {
+   "element": "facts.shadow",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:shadow"
+  },
+  {
+   "element": "facts.state",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:state"
+  },
+  {
+   "element": "facts.types",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:types"
+  },
+  {
+   "element": "handler:_commitBatch",
+   "kind": "spec_bound",
+   "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)"
+  },
+  {
+   "element": "handler:_loadL1MessageHashes",
+   "kind": "spec_bound",
+   "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)"
+  },
+  {
+   "element": "handler:_popL1Messages",
+   "kind": "spec_bound",
+   "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)"
+  },
+  {
+   "element": "handler:assembly",
+   "kind": "spec_bound",
+   "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)"
+  },
+  {
+   "element": "handler:computeTransactionHash",
+   "kind": "spec_bound",
+   "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)"
+  },
+  {
+   "element": "handler:keccak256",
+   "kind": "spec_bound",
+   "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)"
+  },
+  {
+   "element": "site:{'rule': 'SORT', 'kind': 'realize', 'expr': 'W + cstart - t', 'sort': 'Dur(signed) realized in uint256'}",
+   "kind": "spec_bound",
+   "reason": "evaluator site label declared in spec"
+  }
+ ]
+}

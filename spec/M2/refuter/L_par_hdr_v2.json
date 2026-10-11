@@ -1,0 +1,117 @@
+{
+  "agreement": "refound",
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.34
+    },
+    {
+      "engine": "qf_ufbv",
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.713
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.359
+    },
+    {
+      "engine": "grammar_fuzz",
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.731
+    }
+  ],
+  "difference": {
+    "lhs": "0x0200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "rhs": "0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "engines": {
+    "grammar_fuzz": {
+      "bound": "Header grammar: 29 fills + 96 random + mutation tier (2 cells), versions at [0, 1, 2, 3, 255], seed 20261011",
+      "counter_law": {
+        "exit_code": 0,
+        "law_name": "cl_l_par_hdr_v2",
+        "laws": "spec/M2/refuter/gen/M0/L_par_hdr_v2/grammar_fuzz/LAWS.bend",
+        "marker": "ALL PROOFS CHECK",
+        "proof": "spec/M2/refuter/gen/M0/L_par_hdr_v2/grammar_fuzz/PROOF.bend",
+        "verdict": "checked"
+      },
+      "hit": true,
+      "notes": [
+        "hit: zeros"
+      ],
+      "seed": 20261011,
+      "tried": 1,
+      "undefined": 0
+    },
+    "qf_ufbv": {
+      "answer": "sat",
+      "counter_law": {
+        "exit_code": 0,
+        "law_name": "cl_l_par_hdr_v2",
+        "laws": "spec/M2/refuter/gen/M0/L_par_hdr_v2/qf_ufbv/LAWS.bend",
+        "marker": "ALL PROOFS CHECK",
+        "proof": "spec/M2/refuter/gen/M0/L_par_hdr_v2/qf_ufbv/PROOF.bend",
+        "verdict": "checked"
+      },
+      "len_bound": 259,
+      "model_witness": {
+        "h": {
+          "batchIndex": "0x0000000000000000",
+          "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "l1MessagePopped": "0x0000000000000000",
+          "lastBlockNumber": "0x0000000000000000",
+          "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "totalL1MessagePopped": "0x0000000000000000",
+          "version": "0x02",
+          "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "replay": "differ",
+      "seconds": 0.006,
+      "solver": {
+        "logic": "QF_UFBV",
+        "name": "z3",
+        "version": "4.15.4"
+      }
+    }
+  },
+  "expected_status": "REFUTED",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "law_id": "L_par_hdr_v2",
+  "milestone": "M0",
+  "statement": "\u2200 h: Header. h.version == 0x02 \u2227 h.sequencerSetVerifyHash == 0x00*32 \u21d2 enc_sol(h) == enc_go_v1(h)",
+  "statement_hash": "sha256:88c0b7734bbb1c3b4cc2f3127f4ee2c552789074f5f10d0286c03443ad037954",
+  "status": "REFUTED",
+  "witness": {
+    "h": {
+      "batchIndex": "0x0000000000000000",
+      "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "l1MessagePopped": "0x0000000000000000",
+      "lastBlockNumber": "0x0000000000000000",
+      "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "totalL1MessagePopped": "0x0000000000000000",
+      "version": "0x02",
+      "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  }
+}
