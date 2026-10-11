@@ -1,13 +1,22 @@
 """`holon gate`: regenerate and re-check everything from scratch (whitepaper §9.3, M0_SPEC §7).
 
-Order: GENV, G2, G1, G3, G5, G11, G7, G4. The report is always written; exit 0 iff passed.
+Order: GENV, G2, G1, G3, G5, G11, G7, G4 (machine milestones add G6, G8, G9 and the
+inhabitance G11; the presence check keeps its honest name G11_names). The report
+is always written; exit 0 iff passed.
 
   GENV  no bunfig.toml / .env under root (else Bend is never invoked), pinned bend version
   G2    statement hashes match REGISTRY.json; registry lists exactly laws/<m>; facts hash
   G1    regeneration into a temp dir is byte-identical (gen/**/*.bend, summary.json)
   G3    no escape hatches in generated Bend; the checker reports no TODO / unsafe reliance
   G5    every PROVED/REFUTED PROOF.bend re-checks: exit 0 and ALL PROOFS CHECK
-  G11   every law has a record; every checked LAWS.bend states exactly its expected law
+  G6    (M1+) REFUTED records have replay evidence bound to their witness sha256,
+        or are explicitly 'model-only pending replay'
+  G8    (M1+) coverage report: each facts action and register and the laws touching it
+  G9    (M1+) records complete and consistent: hashes recomputed from law and facts files
+  G11   every law has a record; every checked LAWS.bend states exactly its expected law;
+        on machine milestones (holon.gate_records) it is premise inhabitance (audit R2):
+        every PROVED law with assumptions shows a concrete model point where all
+        premises hold, found by searching the compiled model
   G7    second kernel: BendTT (--verdict) re-checks every proof, or the run is labelled
         single-kernel when Lean is unavailable
   G4    >= 10 canaries of >= 3 kinds (pin_const, swap_fn, negated), all rejected, each for a
@@ -348,20 +357,28 @@ class Gate:
             self.checks["G4"] = _res(False, f"error: {e}")
 
     # ------------------------------------------------------------ driver
+    def _order(self) -> list[str]:
+        from .gate_records import RECORD_GATE_MILESTONES, RECORD_ORDER
+        return RECORD_ORDER if self.m in RECORD_GATE_MILESTONES else CHECK_ORDER
+
     def run(self) -> dict:
+        from .gate_records import RECORD_GATE_MILESTONES, record_gates
+        order = self._order()
         if self.genv():
             self.g2()
             self.g1()
             self.g5()
             self.g3()
             self.g11()
+            if self.m in RECORD_GATE_MILESTONES:
+                record_gates(self)
             self.g7()
             self.g4()
         else:
-            for g in CHECK_ORDER[1:]:
+            for g in order[1:]:
                 self.checks[g] = _res(False, "skipped: unsafe environment" if bend.unsafe_env_files(self.root)
                                       else "skipped: bend unavailable or not the pinned version")
-        checks = {g: self.checks[g] for g in CHECK_ORDER}
+        checks = {g: self.checks[g] for g in order}
         return {"milestone": self.m, "passed": all(c["passed"] for c in checks.values()),
                 "bend_version": self.bend_version, "checks": checks, "canaries": self.canaries}
 

@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON result record v2 (M2, whitepaper section 8.6)",
+  "description": "Superset of the frozen v1 record (schemas/result_record.schema.json). Adds the orthogonal v2 fields: per-kernel checker versions and verdict results, model hash, witness sha256, replay evidence pointer, refinement records, independence class, coverage debt, and the SPLIT status. Produced by holon.records_v2.convert; the v1 records are read, never rewritten.",
+  "type": "object",
+  "required": [
+    "record_version",
+    "law_id",
+    "statement_hash",
+    "facts_sha256",
+    "model_sha256",
+    "status",
+    "scope",
+    "premises",
+    "kernels",
+    "independence_class",
+    "artifacts",
+    "checker",
+    "triage",
+    "witness_sha256",
+    "replay",
+    "refinement",
+    "coverage_debt"
+  ],
+  "properties": {
+    "record_version": {
+      "const": 2
+    },
+    "law_id": {
+      "type": "string"
+    },
+    "statement_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "IR statement hash; identity of the frozen claim"
+    },
+    "facts_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "model_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 of the generated model source the claim was checked against (artifacts.model); null only when no model artifact exists"
+    },
+    "status": {
+      "enum": [
+        "PROVED",
+        "REFUTED",
+        "SPLIT",
+        "UNKNOWN"
+      ],
+      "description": "SPLIT (section 8.6): the law decomposed into proved and refuted parts; reserved, not produced by the v1->v2 converter"
+    },
+    "scope": {
+      "enum": [
+        "unbounded",
+        "bounded"
+      ],
+      "description": "unbounded = every state and trace of the closed generated model (not unbounded refinement to the real code)"
+    },
+    "bound": {
+      "type": ["string", "null"],
+      "description": "required when scope = bounded or status = UNKNOWN: what was searched"
+    },
+    "premises": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "human-readable premises; every assume clause of the law plus any oracle/cryptographic premise"
+    },
+    "independence_class": {
+      "enum": ["I1", "I2"],
+      "description": "I2 = two independent kernels agree on the certificate (bend2 plus BendTT); I1 = single kernel"
+    },
+    "kernels": {
+      "type": "array",
+      "minItems": 1,
+      "description": "checker versions and verdict-kernel results, one entry per kernel that ran (or was supposed to run)",
+      "items": {
+        "type": "object",
+        "required": ["name", "version", "role", "result"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "kernel identity, e.g. bend2 or bendtt (Lean-proven)"
+          },
+          "version": {
+            "type": ["string", "null"],
+            "description": "checker/toolchain version; null when the kernel never ran"
+          },
+          "role": {
+            "enum": ["primary", "verdict"]
+          },
+          "result": {
+            "enum": [
+              "ALL PROOFS CHECK",
+              "SOME PROOFS FAIL",
+              "checked",
+              "failed",
+              "not_run"
+            ]
+          },
+          "seconds": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "required": [
+        "laws",
+        "proof"
+      ],
+      "properties": {
+        "laws": {
+          "type": ["string", "null"]
+        },
+        "proof": {
+          "type": ["string", "null"]
+        },
+        "model": {
+          "type": "string"
+        },
+        "law_name": {
+          "type": ["string", "null"],
+          "description": "Bend law name inside LAWS.bend (law_id lowercased, 'cl_' prefix for counter-laws)"
+        }
+      }
+    },
+    "checker": {
+      "type": "object",
+      "required": [
+        "exit_code",
+        "marker"
+      ],
+      "properties": {
+        "exit_code": {
+          "type": ["integer", "null"]
+        },
+        "marker": {
+          "enum": [
+            "ALL PROOFS CHECK",
+            "SOME PROOFS FAIL",
+            "not_run"
+          ]
+        },
+        "seconds": {
+          "type": "number"
+        }
+      }
+    },
+    "witness": {
+      "type": ["object", "null"],
+      "description": "REFUTED only: binder name -> value (Header as field->hex, Bytes as hex, machine binders as model values)"
+    },
+    "witness_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 of the canonical-JSON witness (holon.replay.witness_sha256); binds replay evidence and G6 to this exact witness; null iff no witness"
+    },
+    "difference": {
+      "type": ["object", "null"],
+      "description": "REFUTED only: lhs and rhs values at the witness (canonical JSON form)"
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "what was tried, in order (proof generators, refuter budgets)"
+    },
+    "triage": {
+      "enum": [
+        "finding",
+        "intent_question",
+        "model_defect",
+        "none"
+      ]
+    },
+    "triage_why": {
+      "type": "string"
+    },
+    "replay": {
+      "type": "object",
+      "required": [
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not_run",
+            "passed",
+            "failed",
+            "not_applicable",
+            "model_only_pending_replay"
+          ],
+          "description": "model_only_pending_replay: the G6 escape; requires evidence=null and a detail starting with 'model-only pending replay'"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": ["object", "null"],
+          "required": ["report", "entry", "witness_sha256"],
+          "properties": {
+            "report": {
+              "type": "string",
+              "description": "path of the replay report the evidence lives in, e.g. replay/M1/report.json"
+            },
+            "entry": {
+              "type": "string",
+              "description": "pointer inside the report, e.g. laws.L_undo_BVH"
+            },
+            "witness_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "the witness hash the report ran; must equal this record's witness_sha256"
+            }
+          }
+        }
+      }
+    },
+    "refinement": {
+      "type": "array",
+      "description": "refinement records of the edges the law uses (section 8.6, 8.7): agreement counts on the real code",
+      "items": {
+        "type": "object",
+        "required": ["source"],
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "pointer to the evidence, e.g. replay/M1/report.json#refinement"
+          },
+          "edge": {
+            "type": "string",
+            "description": "the carrier edge or action this record is about, when per-edge data exists"
+          },
+          "steps": { "type": ["integer", "null"] },
+          "traces": { "type": ["integer", "null"] },
+          "n_disagreements": { "type": ["integer", "null"] },
+          "per_action": { "type": ["object", "null"] }
+        }
+      }
+    },
+    "coverage_debt": {
+      "type": "array",
+      "description": "coverage-debt items bounding this record's scope: elements of the target the model deliberately does not map (facts coverage.debt)",
+      "items": {
+        "type": "object",
+        "required": ["element", "source"],
+        "properties": {
+          "element": { "type": "string" },
+          "kind": { "type": "string" },
+          "reason": { "type": "string" },
+          "source": { "type": "string", "description": "where the debt was declared" }
+        }
+      }
+    },
+    "inhabitant": {
+      "type": ["object", "null"],
+      "description": "G11 evidence, when the gate has searched for it: a concrete model point where every premise is true",
+      "properties": {
+        "point": { "type": "object" },
+        "premises": {
+          "type": "array",
+          "items": { "type": "boolean" }
+        },
+        "bound": { "type": "string" }
+      }
+    },
+    "maps_to": { "type": ["string", "null"] },
+    "rule": { "type": "string" },
+    "subform": { "type": ["string", "null"] },
+    "statement": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "REFUTED"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "witness",
+          "difference",
+          "witness_sha256"
+        ],
+        "properties": {
+          "witness": {
+            "type": "object"
+          },
+          "difference": {
+            "type": "object"
+          },
+          "witness_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "UNKNOWN"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "bound",
+          "attempts"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "replay": {
+            "properties": {
+              "status": { "const": "model_only_pending_replay" }
+            },
+            "required": ["status"]
+          }
+        },
+        "required": ["replay"]
+      },
+      "then": {
+        "properties": {
+          "replay": {
+            "properties": {
+              "evidence": { "type": "null" },
+              "detail": { "pattern": "^model-only pending replay" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
