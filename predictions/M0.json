@@ -1,0 +1,84 @@
+{
+  "milestone": "M0",
+  "preregistered": "2026-10-10, before any mechanized run",
+  "statuses": [
+    "PROVED",
+    "REFUTED",
+    "UNKNOWN"
+  ],
+  "laws": [
+    {
+      "law_id": "L_par_hdr_v0",
+      "status": "PROVED",
+      "maps_to": "D1 (whitepaper v2 \u00a711.6)"
+    },
+    {
+      "law_id": "L_par_hdr_v1",
+      "status": "PROVED",
+      "maps_to": "D1"
+    },
+    {
+      "law_id": "L_par_hdr_v2",
+      "status": "REFUTED",
+      "triage": "finding",
+      "maps_to": "O2 / F12.2",
+      "witness_constraints": {
+        "first_difference": {
+          "index": 0,
+          "lhs": 2,
+          "rhs": 1
+        }
+      },
+      "witness_example": {
+        "h": "version=0x02, every other field zero"
+      },
+      "explanation": "Go has no version-2 encoder; BatchHeaderV1.Bytes hard-codes byte 0 = 1, while Solidity commits byte 0 = 2."
+    },
+    {
+      "law_id": "L_par_hdr_ssvh",
+      "status": "REFUTED",
+      "triage": "intent_question",
+      "maps_to": "surfaced premise (not in whitepaper tables)",
+      "witness_constraints": {
+        "first_difference": {
+          "index_range": [
+            185,
+            217
+          ]
+        }
+      },
+      "explanation": "Solidity always writes sequencerSetVerifyHash = 0; Go copies the struct field. Not a defect unless some Go producer sets a nonzero value (outside M0). Report as an intent question, not a finding."
+    },
+    {
+      "law_id": "L_dom_hdr",
+      "status": "REFUTED",
+      "triage": "finding",
+      "maps_to": "O1 / F12.1",
+      "witness_constraints": {
+        "lhs": true,
+        "rhs": false,
+        "version_byte": 0,
+        "length_gt": 249
+      },
+      "witness_example": {
+        "b": "250 zero bytes"
+      },
+      "explanation": "Solidity accepts any version-0 header of length >= 249; Go requires exactly 249."
+    },
+    {
+      "law_id": "L_rt_go_v0",
+      "status": "PROVED",
+      "maps_to": "certified absent (relative to the model)"
+    },
+    {
+      "law_id": "L_rt_go_v1",
+      "status": "PROVED",
+      "maps_to": "certified absent (relative to the model)"
+    },
+    {
+      "law_id": "L_rt_go_v2",
+      "status": "PROVED",
+      "maps_to": "certified absent: the version-2 problem is the missing encoder, not the decoder"
+    }
+  ]
+}

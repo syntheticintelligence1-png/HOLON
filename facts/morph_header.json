@@ -1,0 +1,806 @@
+{
+  "facts_version": "holon-facts/0.1",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e79",
+    "scope": "batch header codecs (Solidity commit-path encoder + header loader; Go common/batch encoders + validate + getters)"
+  },
+  "extraction": {
+    "method": "hand-written from the audit bundle",
+    "date": "2026-10-10",
+    "line_note": "'bundle_lines' are line numbers in the audit bundle file, not in the repo; locate code by file + function."
+  },
+  "types": {
+    "Byte": {
+      "kind": "byte"
+    },
+    "Bytes": {
+      "kind": "bytes"
+    },
+    "Bool": {
+      "kind": "bool"
+    },
+    "Fields": {
+      "kind": "list_of_bytes",
+      "doc": "decoded header fields in getter order"
+    },
+    "Header": {
+      "kind": "record",
+      "fields": [
+        {
+          "name": "version",
+          "width": 1,
+          "sol": "uint8 version (calldata BatchDataInput.version)",
+          "go": "\u2014"
+        },
+        {
+          "name": "batchIndex",
+          "width": 8,
+          "sol": "uint256 _batchIndex (stored as shl(192, x))",
+          "go": "BatchIndex uint64"
+        },
+        {
+          "name": "l1MessagePopped",
+          "width": 8,
+          "sol": "batchDataInput.numL1Messages",
+          "go": "L1MessagePopped uint64"
+        },
+        {
+          "name": "totalL1MessagePopped",
+          "width": 8,
+          "sol": "_totalL1MessagesPoppedOverall",
+          "go": "TotalL1MessagePopped uint64"
+        },
+        {
+          "name": "dataHash",
+          "width": 32,
+          "sol": "dataHash",
+          "go": "DataHash common.Hash"
+        },
+        {
+          "name": "blobVersionedHash",
+          "width": 32,
+          "sol": "blobVersionedHash (V2: keccak of all blob hashes)",
+          "go": "BlobVersionedHash common.Hash"
+        },
+        {
+          "name": "prevStateHash",
+          "width": 32,
+          "sol": "batchDataInput.prevStateRoot",
+          "go": "PrevStateRoot common.Hash"
+        },
+        {
+          "name": "postStateHash",
+          "width": 32,
+          "sol": "batchDataInput.postStateRoot",
+          "go": "PostStateRoot common.Hash"
+        },
+        {
+          "name": "withdrawRootHash",
+          "width": 32,
+          "sol": "batchDataInput.withdrawalRoot",
+          "go": "WithdrawalRoot common.Hash"
+        },
+        {
+          "name": "sequencerSetVerifyHash",
+          "width": 32,
+          "sol": "bytes32(0) constant in Rollup",
+          "go": "SequencerSetVerifyHash common.Hash"
+        },
+        {
+          "name": "parentBatchHash",
+          "width": 32,
+          "sol": "_parentBatchHash",
+          "go": "ParentBatchHash common.Hash"
+        },
+        {
+          "name": "lastBlockNumber",
+          "width": 8,
+          "sol": "batchDataInput.lastBlockNumber (V1+ only)",
+          "go": "LastBlockNumber uint64 (V1 struct only)"
+        }
+      ]
+    }
+  },
+  "functions": {
+    "enc_sol": {
+      "kind": "encoder",
+      "from": "Header",
+      "to": "Bytes",
+      "lang": "solidity-evm-memory",
+      "source": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "fn": "_commitBatchWithBatchData (header build block)",
+          "bundle_lines": "343-370"
+        },
+        {
+          "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "fn": "store*",
+          "bundle_lines": "1264-1364"
+        },
+        {
+          "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+          "fn": "storeLastBlockNumber",
+          "bundle_lines": "1434-1438"
+        }
+      ],
+      "memory_init": "dirty",
+      "domain": {
+        "version_le": 2,
+        "code": "Rollup.sol: require(batchDataInput.version <= 2, \"invalid version\")"
+      },
+      "length_by_version": {
+        "0": 249,
+        "1": 257,
+        "2": 257
+      },
+      "length_code": "_headerLength = 249; if (version >= 1) _headerLength = 257; hash = keccak256(batchPtr, _headerLength)",
+      "ops": [
+        {
+          "op": "mstore8",
+          "offset": 0,
+          "src": [
+            {
+              "field": "version"
+            }
+          ],
+          "code": "BatchHeaderCodecV0.storeVersion: mstore8(batchPtr, _version)"
+        },
+        {
+          "op": "mstore",
+          "offset": 1,
+          "src": [
+            {
+              "field": "batchIndex"
+            },
+            {
+              "zeros": 24
+            }
+          ],
+          "code": "storeBatchIndex: mstore(add(batchPtr, 1), shl(192, _batchIndex))"
+        },
+        {
+          "op": "mstore",
+          "offset": 9,
+          "src": [
+            {
+              "field": "l1MessagePopped"
+            },
+            {
+              "zeros": 24
+            }
+          ],
+          "code": "storeL1MessagePopped: mstore(add(batchPtr, 9), shl(192, x))"
+        },
+        {
+          "op": "mstore",
+          "offset": 17,
+          "src": [
+            {
+              "field": "totalL1MessagePopped"
+            },
+            {
+              "zeros": 24
+            }
+          ],
+          "code": "storeTotalL1MessagePopped: mstore(add(batchPtr, 17), shl(192, x))"
+        },
+        {
+          "op": "mstore",
+          "offset": 25,
+          "src": [
+            {
+              "field": "dataHash"
+            }
+          ],
+          "code": "storeDataHash: mstore(add(batchPtr, 25), _dataHash)"
+        },
+        {
+          "op": "mstore",
+          "offset": 57,
+          "src": [
+            {
+              "field": "blobVersionedHash"
+            }
+          ],
+          "code": "storeBlobVersionedHash: mstore(add(batchPtr, 57), x)"
+        },
+        {
+          "op": "mstore",
+          "offset": 89,
+          "src": [
+            {
+              "field": "prevStateHash"
+            }
+          ],
+          "code": "storePrevStateHash: mstore(add(batchPtr, 89), x)"
+        },
+        {
+          "op": "mstore",
+          "offset": 121,
+          "src": [
+            {
+              "field": "postStateHash"
+            }
+          ],
+          "code": "storePostStateHash: mstore(add(batchPtr, 121), x)"
+        },
+        {
+          "op": "mstore",
+          "offset": 153,
+          "src": [
+            {
+              "field": "withdrawRootHash"
+            }
+          ],
+          "code": "storeWithdrawRootHash: mstore(add(batchPtr, 153), x)"
+        },
+        {
+          "op": "mstore",
+          "offset": 185,
+          "src": [
+            {
+              "zeros": 32
+            }
+          ],
+          "code": "storeSequencerSetVerifyHash(_batchPtr, bytes32(0)) -- constant zero, input field ignored"
+        },
+        {
+          "op": "mstore",
+          "offset": 217,
+          "src": [
+            {
+              "field": "parentBatchHash"
+            }
+          ],
+          "code": "storeParentBatchHash: mstore(add(batchPtr, 217), x)"
+        },
+        {
+          "op": "mstore",
+          "offset": 249,
+          "src": [
+            {
+              "field": "lastBlockNumber"
+            },
+            {
+              "zeros": 24
+            }
+          ],
+          "when": {
+            "version_ge": 1
+          },
+          "code": "if (version >= 1) BatchHeaderCodecV1.storeLastBlockNumber: mstore(add(batchPtr, 249), shl(192, x))"
+        }
+      ]
+    },
+    "enc_go_v0": {
+      "kind": "encoder",
+      "from": "Header",
+      "to": "Bytes",
+      "lang": "go-bytes",
+      "source": [
+        {
+          "file": "common/batch/batch_header.go",
+          "fn": "BatchHeaderV0.Bytes",
+          "bundle_lines": "2803-2821"
+        }
+      ],
+      "memory_init": "zeros",
+      "length": 249,
+      "preconditions": [
+        "EncodedBytes cache is empty (len == 0); otherwise Bytes() returns the cache verbatim (OWN rule, later milestone)"
+      ],
+      "ops": [
+        {
+          "op": "set_byte",
+          "offset": 0,
+          "src": [
+            {
+              "const": 0
+            }
+          ],
+          "code": "batchBytes[0] = BatchHeaderVersion0"
+        },
+        {
+          "op": "put_uint64_be",
+          "offset": 1,
+          "src": [
+            {
+              "field": "batchIndex"
+            }
+          ],
+          "code": "binary.BigEndian.PutUint64(batchBytes[1:], b.BatchIndex)"
+        },
+        {
+          "op": "put_uint64_be",
+          "offset": 9,
+          "src": [
+            {
+              "field": "l1MessagePopped"
+            }
+          ],
+          "code": "PutUint64(batchBytes[9:], b.L1MessagePopped)"
+        },
+        {
+          "op": "put_uint64_be",
+          "offset": 17,
+          "src": [
+            {
+              "field": "totalL1MessagePopped"
+            }
+          ],
+          "code": "PutUint64(batchBytes[17:], b.TotalL1MessagePopped)"
+        },
+        {
+          "op": "copy",
+          "offset": 25,
+          "src": [
+            {
+              "field": "dataHash"
+            }
+          ],
+          "code": "copy(batchBytes[25:], b.DataHash[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 57,
+          "src": [
+            {
+              "field": "blobVersionedHash"
+            }
+          ],
+          "code": "copy(batchBytes[57:], b.BlobVersionedHash[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 89,
+          "src": [
+            {
+              "field": "prevStateHash"
+            }
+          ],
+          "code": "copy(batchBytes[89:], b.PrevStateRoot[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 121,
+          "src": [
+            {
+              "field": "postStateHash"
+            }
+          ],
+          "code": "copy(batchBytes[121:], b.PostStateRoot[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 153,
+          "src": [
+            {
+              "field": "withdrawRootHash"
+            }
+          ],
+          "code": "copy(batchBytes[153:], b.WithdrawalRoot[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 185,
+          "src": [
+            {
+              "field": "sequencerSetVerifyHash"
+            }
+          ],
+          "code": "copy(batchBytes[185:], b.SequencerSetVerifyHash[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 217,
+          "src": [
+            {
+              "field": "parentBatchHash"
+            }
+          ],
+          "code": "copy(batchBytes[217:], b.ParentBatchHash[:])"
+        }
+      ]
+    },
+    "enc_go_v1": {
+      "kind": "encoder",
+      "from": "Header",
+      "to": "Bytes",
+      "lang": "go-bytes",
+      "source": [
+        {
+          "file": "common/batch/batch_header.go",
+          "fn": "BatchHeaderV1.Bytes",
+          "bundle_lines": "2831-2851"
+        }
+      ],
+      "memory_init": "zeros",
+      "length": 257,
+      "preconditions": [
+        "EncodedBytes cache is empty (len == 0)"
+      ],
+      "notes": "No Go encoder exists for version 2 in the bundle; V2 'reuses the V1 wire format' per the Go comment at expectedLengthV2.",
+      "ops": [
+        {
+          "op": "set_byte",
+          "offset": 0,
+          "src": [
+            {
+              "const": 1
+            }
+          ],
+          "code": "batchBytes[0] = BatchHeaderVersion1"
+        },
+        {
+          "op": "put_uint64_be",
+          "offset": 1,
+          "src": [
+            {
+              "field": "batchIndex"
+            }
+          ],
+          "code": "binary.BigEndian.PutUint64(batchBytes[1:], b.BatchIndex)"
+        },
+        {
+          "op": "put_uint64_be",
+          "offset": 9,
+          "src": [
+            {
+              "field": "l1MessagePopped"
+            }
+          ],
+          "code": "PutUint64(batchBytes[9:], b.L1MessagePopped)"
+        },
+        {
+          "op": "put_uint64_be",
+          "offset": 17,
+          "src": [
+            {
+              "field": "totalL1MessagePopped"
+            }
+          ],
+          "code": "PutUint64(batchBytes[17:], b.TotalL1MessagePopped)"
+        },
+        {
+          "op": "copy",
+          "offset": 25,
+          "src": [
+            {
+              "field": "dataHash"
+            }
+          ],
+          "code": "copy(batchBytes[25:], b.DataHash[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 57,
+          "src": [
+            {
+              "field": "blobVersionedHash"
+            }
+          ],
+          "code": "copy(batchBytes[57:], b.BlobVersionedHash[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 89,
+          "src": [
+            {
+              "field": "prevStateHash"
+            }
+          ],
+          "code": "copy(batchBytes[89:], b.PrevStateRoot[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 121,
+          "src": [
+            {
+              "field": "postStateHash"
+            }
+          ],
+          "code": "copy(batchBytes[121:], b.PostStateRoot[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 153,
+          "src": [
+            {
+              "field": "withdrawRootHash"
+            }
+          ],
+          "code": "copy(batchBytes[153:], b.WithdrawalRoot[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 185,
+          "src": [
+            {
+              "field": "sequencerSetVerifyHash"
+            }
+          ],
+          "code": "copy(batchBytes[185:], b.SequencerSetVerifyHash[:])"
+        },
+        {
+          "op": "copy",
+          "offset": 217,
+          "src": [
+            {
+              "field": "parentBatchHash"
+            }
+          ],
+          "code": "copy(batchBytes[217:], b.ParentBatchHash[:])"
+        },
+        {
+          "op": "put_uint64_be",
+          "offset": 249,
+          "src": [
+            {
+              "field": "lastBlockNumber"
+            }
+          ],
+          "code": "PutUint64(batchBytes[249:], b.LastBlockNumber)"
+        }
+      ]
+    },
+    "ok_sol": {
+      "kind": "predicate",
+      "from": "Bytes",
+      "to": "Bool",
+      "lang": "solidity",
+      "source": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "fn": "_getBatchVersion + _loadBatchHeader",
+          "bundle_lines": "837-863"
+        },
+        {
+          "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "fn": "loadAndValidate",
+          "bundle_lines": "1163-1172"
+        },
+        {
+          "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+          "fn": "loadAndValidate",
+          "bundle_lines": "1413-1422"
+        }
+      ],
+      "meaning": "true iff _loadBatchHeader(b) does not revert",
+      "rules": [
+        {
+          "if": "empty",
+          "then": false,
+          "code": "require(batchHeader.length > 0, \"Empty batch header\")"
+        },
+        {
+          "if": {
+            "version_in": [
+              0
+            ]
+          },
+          "then": {
+            "len_ge": 249
+          },
+          "code": "V0.loadAndValidate: require(length >= 249)"
+        },
+        {
+          "if": {
+            "version_in": [
+              1,
+              2
+            ]
+          },
+          "then": {
+            "len_eq": 257
+          },
+          "code": "V1.loadAndValidate: require(length == 257)"
+        },
+        {
+          "if": "otherwise",
+          "then": false,
+          "code": "revert(\"Unsupported batch version\")"
+        }
+      ]
+    },
+    "ok_go": {
+      "kind": "predicate",
+      "from": "Bytes",
+      "to": "Bool",
+      "lang": "go",
+      "source": [
+        {
+          "file": "common/batch/batch_header.go",
+          "fn": "BatchHeaderBytes.validate + Version",
+          "bundle_lines": "2628-2668"
+        }
+      ],
+      "meaning": "true iff validate() returns nil",
+      "rules": [
+        {
+          "if": "empty",
+          "then": false,
+          "code": "Version(): ErrEmptyBatchHeaderBytes"
+        },
+        {
+          "if": {
+            "version_in": [
+              0
+            ]
+          },
+          "then": {
+            "len_eq": 249
+          },
+          "code": "len(b) != expectedLengthV0 -> error"
+        },
+        {
+          "if": {
+            "version_in": [
+              1
+            ]
+          },
+          "then": {
+            "len_eq": 257
+          },
+          "code": "len(b) != expectedLengthV1 -> error"
+        },
+        {
+          "if": {
+            "version_in": [
+              2
+            ]
+          },
+          "then": {
+            "len_eq": 257
+          },
+          "code": "len(b) != expectedLengthV2 -> error"
+        },
+        {
+          "if": "otherwise",
+          "then": false,
+          "code": "ErrInvalidBatchHeaderVersion"
+        }
+      ]
+    },
+    "dec_go": {
+      "kind": "decoder",
+      "from": "Bytes",
+      "to": "Maybe<Fields>",
+      "lang": "go",
+      "source": [
+        {
+          "file": "common/batch/batch_header.go",
+          "fn": "BatchHeaderBytes getters",
+          "bundle_lines": "2670-2784"
+        }
+      ],
+      "meaning": "None if validate() fails, else Some(list of getter results in this order); lastBlockNumber only when version >= 1",
+      "guard": "ok_go",
+      "getters": [
+        {
+          "name": "version",
+          "offset": 0,
+          "width": 1,
+          "code": "Version(): b[0]"
+        },
+        {
+          "name": "batchIndex",
+          "offset": 1,
+          "width": 8,
+          "code": "BatchIndex(): BigEndian.Uint64(b[1:9])"
+        },
+        {
+          "name": "l1MessagePopped",
+          "offset": 9,
+          "width": 8,
+          "code": "L1MessagePopped(): b[9:17]"
+        },
+        {
+          "name": "totalL1MessagePopped",
+          "offset": 17,
+          "width": 8,
+          "code": "TotalL1MessagePopped(): b[17:25]"
+        },
+        {
+          "name": "dataHash",
+          "offset": 25,
+          "width": 32,
+          "code": "DataHash(): b[25:57]"
+        },
+        {
+          "name": "blobVersionedHash",
+          "offset": 57,
+          "width": 32,
+          "code": "BlobCommitHash(): b[57:89] (BlobVersionedHash for v<2, BlobHashesHash for v>=2)"
+        },
+        {
+          "name": "prevStateHash",
+          "offset": 89,
+          "width": 32,
+          "code": "PrevStateRoot(): b[89:121]"
+        },
+        {
+          "name": "postStateHash",
+          "offset": 121,
+          "width": 32,
+          "code": "PostStateRoot(): b[121:153]"
+        },
+        {
+          "name": "withdrawRootHash",
+          "offset": 153,
+          "width": 32,
+          "code": "WithdrawalRoot(): b[153:185]"
+        },
+        {
+          "name": "sequencerSetVerifyHash",
+          "offset": 185,
+          "width": 32,
+          "code": "SequencerSetVerifyHash(): b[185:217]"
+        },
+        {
+          "name": "parentBatchHash",
+          "offset": 217,
+          "width": 32,
+          "code": "ParentBatchHash(): b[217:249]"
+        },
+        {
+          "name": "lastBlockNumber",
+          "offset": 249,
+          "width": 8,
+          "when": {
+            "version_ge": 1
+          },
+          "code": "LastBlockNumber(): errors for version < 1, else b[249:257]"
+        }
+      ]
+    },
+    "view": {
+      "kind": "projection",
+      "from": "Header",
+      "to": "Fields",
+      "meaning": "the fields a correct decoder should recover from a header: header fields in dec_go getter order; lastBlockNumber included iff version >= 1",
+      "order": [
+        "version",
+        "batchIndex",
+        "l1MessagePopped",
+        "totalL1MessagePopped",
+        "dataHash",
+        "blobVersionedHash",
+        "prevStateHash",
+        "postStateHash",
+        "withdrawRootHash",
+        "sequencerSetVerifyHash",
+        "parentBatchHash",
+        "lastBlockNumber"
+      ],
+      "when": {
+        "lastBlockNumber": {
+          "version_ge": 1
+        }
+      }
+    }
+  },
+  "assumptions": [
+    {
+      "id": "A-width",
+      "text": "batchIndex, l1MessagePopped, totalL1MessagePopped and lastBlockNumber are < 2^64; Solidity stores shl(192, x) of a uint256, so larger values would be truncated. Modelled as 8-byte fields (SORT width obligation, later milestone)."
+    },
+    {
+      "id": "A-version",
+      "text": "version fits in one byte; Solidity guard requires version <= 2."
+    },
+    {
+      "id": "A-cache",
+      "text": "Go encoders are modelled with an empty EncodedBytes cache."
+    },
+    {
+      "id": "A-dirty",
+      "text": "Solidity encodes into memory at the free pointer whose prior contents are unknown; the model marks unwritten bytes UNKNOWN (outside the byte range) so any unwritten byte in the output is detectable."
+    },
+    {
+      "id": "A-hash",
+      "text": "M0 compares header bytes, not hashes; no hash premises are needed in M0."
+    }
+  ]
+}

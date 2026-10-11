@@ -1,0 +1,14 @@
+import Base
+
+# A law and its proof by induction (from `bend guide`).
+law add_zero:
+  for x: Nat
+  {Nat.add(x, 0n) == x : Nat}
+
+def add_zero(x):
+  match x:
+    case 0n:
+      {==}
+    case 1n+p:
+      %add_zero(p) : {1n+Nat.add(p, 0n) == 1n+_ : Nat}
+      {==}
