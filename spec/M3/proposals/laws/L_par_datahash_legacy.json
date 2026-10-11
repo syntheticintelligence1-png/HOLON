@@ -1,0 +1,113 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_par_datahash_legacy",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "PAR",
+  "subform": "recompute",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "facts/morph_header.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "edge",
+      "name": "Go legacy DataHash = keccak(ctx[i*60:i*60+58] for each block || l1TxHashes)",
+      "src": "common/batch/batch_data.go:68-79",
+      "expect": "i*60+58",
+      "doc": "legacy formula"
+    },
+    {
+      "kind": "edge",
+      "name": "Go DataHashV2/calculateHash = keccak(height(8) || l1TxNum(2) || l1TxHashes)",
+      "src": "common/batch/batch_data.go:103-111",
+      "expect": "8+2+len(cks.l1TxHashes)",
+      "doc": "matches the on-chain formula"
+    },
+    {
+      "kind": "edge",
+      "name": "on-chain _commitBatch: keccak(lastBlockNumber(8) || numL1Messages(2) || message hashes)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:871-883",
+      "expect": "shl(192, _lastBlockNumber)",
+      "doc": "the only on-chain data hash; used for every version"
+    },
+    {
+      "kind": "edge",
+      "name": "legacy sealing path selects DataHash()",
+      "src": "common/batch/batch_cache.go:1674",
+      "expect": "bc.batchData.DataHash()",
+      "doc": "fallback when not isBatchUpgraded"
+    }
+  ],
+  "premises": [
+    {
+      "name": "CF_keccak_headers",
+      "kind": "collision_freedom",
+      "text": "CF(keccak256, S) for the finite set S of headers and presented headers in the trace (Cor 6.16); premise, never an axiom"
+    }
+  ],
+  "scope": {
+    "kind": "unbounded",
+    "domain": "batches sealed on the legacy (non-upgraded) path"
+  },
+  "statement": {
+    "forall": [
+      {
+        "name": "bd",
+        "type": "BatchData"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "call": "datahash_go_legacy",
+          "args": [
+            {
+              "var": "bd"
+            }
+          ]
+        },
+        {
+          "call": "datahash_sol",
+          "args": [
+            {
+              "call": "lbn",
+              "args": [
+                {
+                  "var": "bd"
+                }
+              ]
+            },
+            {
+              "call": "n_l1",
+              "args": [
+                {
+                  "var": "bd"
+                }
+              ]
+            },
+            {
+              "call": "l1_hashes",
+              "args": [
+                {
+                  "var": "bd"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "E4 recompute: the on-chain commit recomputes dataHash from (lbn, n, hashes) and stores it in the header; a Go header built with the legacy formula cannot match committedBatches.",
+  "maps_to": "O6 (F12.6)",
+  "evidence": [
+    "E4"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "any bd with blockNum >= 1: the legacy preimage (58-byte context prefixes) differs from the on-chain preimage (8+2 bytes), so the hashes differ except on a keccak collision (excluded by CF).",
+  "prediction_origin": "derived"
+}

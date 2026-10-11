@@ -1,0 +1,75 @@
+{
+  "ir_version": "holon-ir/0.2-intent",
+  "law_id": "L_intent_docs",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "intent",
+  "subform": "intent_question",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": null,
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "intent",
+      "name": "doc clauses as source spans",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:106-112",
+      "expect": "Preserved across revertBatch",
+      "doc": "intent contracts need a span table (whitepaper §5.9-5.10)"
+    }
+  ],
+  "premises": [],
+  "scope": {
+    "kind": "intent_lane",
+    "domain": "documentation clauses adjacent to the batch lifecycle (weak evidence E6)"
+  },
+  "statement": {
+    "intent_questions": [
+      {
+        "id": "I1",
+        "doc": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:14",
+        "says": "blobVersionedHash: the versioned hash of the blob with this batch's data",
+        "code": "contracts/contracts/l1/rollup/Rollup.sol:762-765",
+        "does": "for version 2 the same field holds keccak256 of all blob hashes"
+      },
+      {
+        "id": "I2",
+        "doc": "contracts/contracts/l1/rollup/Rollup.sol:888-891",
+        "says": "extra blobs are ignored by this hash but would still be delivered to L2 derivation, which concatenates all blobs",
+        "code": "contracts/contracts/l1/rollup/Rollup.sol:915",
+        "does": "legacy path requires blobhash(1) == 0, so the documented hazard is now guarded; the comment is stale"
+      },
+      {
+        "id": "I3",
+        "doc": "contracts/contracts/l1/rollup/Rollup.sol:111",
+        "says": "legacyCutoverBatchIndex is an audit marker; transition safety relies on the cutover runbook",
+        "code": "contracts/contracts/l1/rollup/Rollup.sol:216",
+        "does": "written once in initialize4 and never read: no code enforces the cutover (see L_nat_cutover_slash, L_nat_cutover_defend)"
+      },
+      {
+        "id": "I4",
+        "doc": "common/batch/batch_header.go:107-110",
+        "says": "BlobVersionedHash is only meaningful for V0/V1",
+        "code": "contracts/contracts/l1/rollup/Rollup.sol:285",
+        "does": "commitState reuses the stored field under a caller-chosen version (O26/L_tag_BVH)"
+      },
+      {
+        "id": "I5",
+        "doc": "contracts/contracts/l1/rollup/Rollup.sol:380-381",
+        "says": "permissionless submission when sequencers are offline or censoring",
+        "code": "contracts/contracts/l1/rollup/Rollup.sol:389-400",
+        "does": "entry needs rollupDelay OR queue delay; with D = 0 (L_nat_eta34) both hold at once"
+      }
+    ]
+  },
+  "notes": "Weak evidence (E6) yields intent questions, not defects (Def 4.5). Each question needs human adjudication into an intent contract (proved weaker law) or a documentation fix; none is a theorem.",
+  "maps_to": "O10 (F12.8)",
+  "evidence": [
+    "E6"
+  ],
+  "predicted": "INTENT_QUESTION (not a theorem; no PROVED/REFUTED outcome)",
+  "witness_or_proof": "n/a",
+  "prediction_origin": "derived"
+}

@@ -1,0 +1,138 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sym_pi_zero",
+  "milestone": "M3",
+  "status": "proposal",
+  "rule": "SYM",
+  "subform": "principal_split",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": null,
+  "facts_needed": [
+    {
+      "kind": "register",
+      "name": "submitter = address(0) recorded for proof-backed commits",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:411",
+      "expect": "address(0), _blobVersionedHash",
+      "doc": "implicit role"
+    },
+    {
+      "kind": "edge",
+      "name": "Submitter.slash(address(0)) returns 0",
+      "src": "contracts/contracts/l1/rollup/Submitter.sol:147",
+      "expect": "if (submitter == address(0)) return 0",
+      "doc": "vacuous slash"
+    },
+    {
+      "kind": "action",
+      "name": "challengeState extends other batches' windows by W (reopens the proof-backed batch, O19)",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:489-493",
+      "expect": "finalizeTimestamp += proofWindow",
+      "doc": "how a proof-backed batch becomes challengeable again"
+    },
+    {
+      "kind": "action",
+      "name": "proveState timeout branch -> _challengerWin",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:613-616",
+      "expect": "Timeout",
+      "doc": "sink"
+    }
+  ],
+  "premises": [
+    {
+      "name": "Reach",
+      "kind": "reachability",
+      "text": "states are reachable from the post-genesis initial state by the modelled actions and time progress (whitepaper L2)"
+    },
+    {
+      "name": "HypSub",
+      "kind": "oracle",
+      "text": "Submitter.slash semantics as an environment edge"
+    }
+  ],
+  "scope": {
+    "kind": "bounded(H)",
+    "domain": "every batch whose challenge ends in challengerWin"
+  },
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "i",
+        "type": "Nat"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "challenge_success",
+            "args": [
+              {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              },
+              {
+                "var": "i"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "gt",
+          "args": [
+            {
+              "fn": "slashed_amount",
+              "args": [
+                {
+                  "run": {
+                    "var": "p"
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                },
+                {
+                  "var": "i"
+                }
+              ]
+            },
+            {
+              "nat": 0
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "SYM-pi: the principal family must be equivariant across submitters; address(0) is a distinguished role with no bond. The law is the split: every slashed batch has a bonded submitter.",
+  "maps_to": "O20 (F5)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED",
+  "witness_or_proof": "commitBatchWithProof(i); challengeState(j != i) (f_i += W); challengeState(i) once the first challenge resolves; wait W; proveState(i) -> timeout -> slash(address(0)) == 0.",
+  "prediction_origin": "derived"
+}
