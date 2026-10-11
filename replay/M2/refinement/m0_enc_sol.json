@@ -1,0 +1,89 @@
+{
+ "agreement": {
+  "agree": 75,
+  "disagree": 5,
+  "unexplained": 0
+ },
+ "corpus": {
+  "boundary": 54,
+  "grammar": 24,
+  "seed": 895788803,
+  "total": 80,
+  "witness": 2
+ },
+ "disagreements": [
+  {
+   "class": "extraction_defect",
+   "input_id": 26,
+   "model": "1 bytes",
+   "note": "real loader rejected model-encoded header",
+   "real": [
+    "rev",
+    "batch header length too small"
+   ],
+   "src": "boundary:version=255"
+  },
+  {
+   "class": "extraction_defect",
+   "input_id": 27,
+   "model": "1 bytes",
+   "note": "real loader rejected model-encoded header",
+   "real": [
+    "rev",
+    "batch header length too small"
+   ],
+   "src": "boundary:version=254"
+  },
+  {
+   "class": "extraction_defect",
+   "input_id": 75,
+   "model": "1 bytes",
+   "note": "real loader rejected model-encoded header",
+   "real": [
+    "rev",
+    "batch header length too small"
+   ],
+   "src": "boundary:version=3"
+  },
+  {
+   "class": "extraction_defect",
+   "input_id": 76,
+   "model": "1 bytes",
+   "note": "real loader rejected model-encoded header",
+   "real": [
+    "rev",
+    "batch header length too small"
+   ],
+   "src": "boundary:version=255"
+  },
+  {
+   "class": "extraction_defect",
+   "input_id": 77,
+   "model": "1 bytes",
+   "note": "real loader rejected model-encoded header",
+   "real": [
+    "rev",
+    "batch header length too small"
+   ],
+   "src": "boundary:all-max"
+  }
+ ],
+ "edge": "m0_enc_sol",
+ "implementation": {
+  "code": "contracts/l1/rollup/Rollup.sol:_loadBatchHeader",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph"
+ },
+ "model": {
+  "call": "enc_sol",
+  "via": "hcall op 2"
+ },
+ "mutation_adequacy": {
+  "note": "mutation corpus is a different M2 unit",
+  "status": "not_run"
+ },
+ "record_version": "holon-refinement/1",
+ "replay": {
+  "command": "forge test --match-contract HolonRefine"
+ }
+}
