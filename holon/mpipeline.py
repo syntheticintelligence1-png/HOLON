@@ -21,7 +21,10 @@ from pathlib import Path
 from . import bend, ir
 from . import facts as F
 from .gen import mlaws, mproofs
+from .gen import model as G
 from .gen.machine import Machine
+from .model_eval import CompiledModel, model_name as header_model_name
+from . import pipeline as _par
 from .replay import replay_status, load_report
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -219,18 +222,84 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             src.write_text(cm_.source.read_text())
             machines[fp] = (cm_, src, f"../model/{model_name(fp)}.bend", F.sha256_file(fp))
         return machines[fp]
+    # ir/0.1 PAR laws (e.g. header-codec laws carried into an ir/0.2 milestone)
+    # run through the M0 pipeline machinery against their own facts.
+    par_models: dict = {}
+
+    def par_model_for(law: dict):
+        fp = fpath_of(law)
+        if fp not in par_models:
+            facts = F.load(fp)
+            compiled = CompiledModel.build(fp, cfg=cfg)
+            name = header_model_name(fp)
+            src = gen / "model" / f"{name}.bend"
+            src.write_text(G.generate(facts, F.sha256_file(fp)))
+            par_models[fp] = (compiled, src, f"../model/{name}.bend", F.sha256_file(fp), facts)
+        return par_models[fp]
     out_dir.mkdir(parents=True, exist_ok=True)
 
     summary = {}
     for law in laws:
         lid = law["law_id"]
+        if law["ir_version"] != "holon-ir/0.2":
+            # ir/0.1 PAR law: M0 pipeline machinery on its own facts file.
+            compiled, model_src, imp, facts_sha, facts = par_model_for(law)
+            d = gen / lid
+            attempts = []
+            rec = {"law_id": lid, "statement_hash": ir.statement_hash(law), "facts_sha256": facts_sha,
+                   "rule": law["rule"], "subform": law.get("subform"), "maps_to": law.get("maps_to"),
+                   "statement": ir.render_statement(law), "premises": ir.premises(law),
+                   "kernel": {"name": "bend", "version": kver, "verdict": "not_run"},
+                   "artifacts": {"laws": None, "proof": None, "model": relpath(model_src), "law_name": None},
+                   "checker": {"exit_code": None, "marker": "not_run"}, "witness": None, "difference": None,
+                   "triage": "none", "replay": {"status": "not_run", "detail": "not replayed"}}
+            status, em, r = "UNKNOWN", None, None
+            try:
+                em, r = _par.prove(law, facts, d, imp, cfg, attempts)
+                if r is not None:
+                    status = "PROVED"
+                else:
+                    em, r, s = _par.refute_law(law, facts, d, imp, cfg, compiled, attempts)
+                    if r is not None:
+                        status = "REFUTED"
+                        rec["witness"], rec["difference"] = s.witness, s.difference
+                        rec["replay"] = replay_status(report, lid, s.witness)
+                        t = triage.get(lid, {})
+                        rec["triage"] = t.get("triage", "finding")
+                        if t.get("why"):
+                            rec["triage_why"] = t["why"]
+                    else:
+                        rec["bound"] = s.bound
+            except _par.LG.Unsupported as e:
+                attempts.append({"kind": "emit", "error": f"unsupported statement form: {e}"})
+                rec["bound"] = "not searched: the emitter cannot express this statement faithfully"
+            if status == "UNKNOWN":
+                shutil.rmtree(d, ignore_errors=True)
+                rec["bound"] = rec.get("bound") or "no witness in the searched space"
+                rec["scope"] = "bounded"
+            else:
+                rec["scope"] = "unbounded"
+                rec["artifacts"].update({"laws": relpath(d / "LAWS.bend"), "proof": relpath(d / "PROOF.bend"),
+                                         "law_name": em.name})
+                rec["checker"] = {"exit_code": r.code, "marker": r.marker, "seconds": r.seconds}
+                if verdict:
+                    v = bend.check_verdict(d / "PROOF.bend", cfg)
+                    rec["kernel"]["verdict"] = "checked" if v.ok else "failed"
+                    attempts.append({"kind": "verdict", "kernel": "BendTT (Lean-proven)", "exit_code": v.code,
+                                     "marker": v.marker, "seconds": v.seconds})
+            rec["status"] = status
+            rec["attempts"] = attempts
+            (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
+            summary[lid] = status
+            log(f"{lid:22s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")
+            continue
         cm, model_src, imp, facts_sha = machine_for(law)
         d = gen / lid
         attempts: list = []
         rec = {"law_id": lid, "statement_hash": ir.statement_hash(law), "facts_sha256": facts_sha,
                "rule": law["rule"], "subform": law.get("subform"), "maps_to": law.get("maps_to"),
                "premises": [json.dumps(p["eq"], sort_keys=True) for p in law["statement"].get("assume", [])]
-               + ["CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"],
+               + list(cm.facts.get("abstractions", [])),
                "kernel": {"name": "bend", "version": kver, "verdict": "not_run"},
                "artifacts": {"laws": None, "proof": None, "model": relpath(model_src), "law_name": None},
                "checker": {"exit_code": None, "marker": "not_run"}, "witness": None, "difference": None,

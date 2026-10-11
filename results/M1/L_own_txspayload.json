@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.251
+      "seconds": 0.12
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 6.565
+      "seconds": 3.157
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.251
+    "seconds": 0.12
   },
   "difference": {
     "lhs": false,
@@ -46,10 +46,13 @@
   "law_id": "L_own_txspayload",
   "maps_to": "O36 (F9 sub-item)",
   "premises": [
-    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+    "Go heap: a list of backing arrays (byte values as Nat). A slice is (backing, offset, len, cap); append writes in place when len + k <= cap, else allocates a new backing array.",
+    "Oracle (Go 1.24 runtime, runtime/slice.go nextslicecap + roundupsize for noscan byte slices): new capacity = smallest size class >= nextslicecap(newLen, oldCap). The class table (runtime/sizeclasses.go class_to_size) is in the state, truncated to classes <= 512 bytes: larger allocations are out of scope (the model then uses the exact requested capacity, which is wrong for real Go). The search policy keeps every slice below 512 bytes.",
+    "NewBatchData's make([]byte, 0) slices have capacity 0 and no backing array (backing index 0 is never written while cap = 0).",
+    "l1TxHashes, blockNum and l1TxNum are not modelled (no aliasing relevant to TxsPayloadV2)."
   ],
   "replay": {
-    "detail": "view held across Append: len=70 cap(blockContexts)=80 changed=true first-diff=68 (Go go version go1.24.7 linux/amd64); realistic 60-byte contexts: passed (len=183 cap(blockContexts)=256 first-diff=180) @ morph 3e44e795586a",
+    "detail": "view held across Append: len=70 cap(blockContexts)=80 changed=true first-diff=68 (Go go version go1.24.6 linux/amd64); realistic 60-byte contexts: passed (len=183 cap(blockContexts)=256 first-diff=180) @ morph 3e44e795586a",
     "status": "passed"
   },
   "rule": "OWN",
@@ -58,7 +61,7 @@
   "status": "REFUTED",
   "subform": "alias",
   "triage": "finding",
-  "triage_why": "Conditional (whitepaper O36): corrupts a TxsPayloadV2 result only if a caller holds it across a later Append; the in-repo callers (batch_cache.go:1581, verify_local.go:186) consume it immediately.",
+  "triage_why": "Conditional (whitepaper O36): corrupts a TxsPayloadV2 result only if a caller holds it across a later Append; the in-repo callers (batch_cache.go:1581, verify_local.go:186) consume it immediately. Native validity bound: the Go growth oracle matches the runtime only for allocations <=512 bytes (Go 1.24 size-class table); outside that the facts fallback is wrong (513->576); audit R6.",
   "witness": {
     "p": [
       {
