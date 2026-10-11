@@ -12,6 +12,7 @@ M2 is done when both of these hold:
 2. **Mutation adequacy ≥ 0.80** (A1, §9.5, §12.1). Over the non-equivalent mutants of the in-scope code, at least 80% must surface as an obstruction after re-extraction. Every miss is labelled as an extraction gap or a rule gap.
    - **In-scope code:** the header codecs plus the M1 Rollup slice.
    - **Mutant set:** frozen in `spec/M2/mutants.json` before the run.
+     Frozen 2026-10-11 with 45 mutants (14 Go codec, 11 Solidity codec/loader, 20 Rollup slice), sha256 `d08ec99d1806b0ed9c6b81d78de48978022fac617d7a07a3d89ab8e6a5163672`. The file defines how mutants are applied, the detection rule, miss labels and the evidence needed to call a mutant equivalent.
 
 These thresholds are preregistered: if they are missed, the result is reported, never relaxed.
 

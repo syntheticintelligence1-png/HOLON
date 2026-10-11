@@ -1,0 +1,430 @@
+{
+ "milestone": "M2",
+ "threshold": 0.8,
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "file_sha256": {
+   "common/batch/batch_header.go": "621a71a23a3b28bb482941929c397609d49390764a090a8a1bc130ef7d3b8b95",
+   "contracts/contracts/l1/rollup/Rollup.sol": "134b0f2dc5356af913c0a12c0a2febe29360b053a5acae57bdda575a2fb832b8",
+   "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol": "e35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+   "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol": "bd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d"
+  }
+ },
+ "in_scope": "header codecs (Go common/batch/batch_header.go; Solidity BatchHeaderCodecV0/V1, Rollup._loadBatchHeader) and the M1 Rollup slice (commitBatch, commitState, commitBatchWithProof, revertBatch, challengeState, proveState, finalizeBatch, setPause, batchInChallenge, batchInsideChallengeWindow)",
+ "apply": "On a clean checkout at target.commit (file_sha256 must match), replace line `line` of `file`, after asserting its stripped text equals `original`, with the original leading whitespace followed by `replacement`; an empty replacement deletes the statement (the line becomes blank). Exactly one mutant per run.",
+ "detected": "Run re-extraction (M2 frontends) and the full M0+M1 law pipeline on the mutated checkout, and the same pipeline on the unmutated checkout as baseline. A mutant is detected iff at least one law's status (PROVED/REFUTED/UNKNOWN) differs from that baseline. A compile failure of the mutated target counts as invalid and is reported, never as detected.",
+ "miss_labels": {
+  "extraction_gap": "extracted facts are byte-identical to the baseline extraction",
+  "rule_gap": "extracted facts differ but no law status changes"
+ },
+ "equivalence": "All mutants are preregistered non-equivalent. A mutant may be reclassified as equivalent only with recorded evidence: identical compiled output (solc bytecode / go build object) or a kernel-checked equivalence over the modelled domain. Reclassifications are listed in the report and never silent.",
+ "score": "detected / (non-equivalent and valid mutants); compare to threshold; misses reported with labels; threshold is never relaxed.",
+ "mutants": [
+  {
+   "id": "G01",
+   "file": "common/batch/batch_header.go",
+   "line": 44,
+   "original": "if len(b) != expectedLengthV0 {",
+   "replacement": "if len(b) < expectedLengthV0 {",
+   "operator": "relational",
+   "equivalent": false
+  },
+  {
+   "id": "G02",
+   "file": "common/batch/batch_header.go",
+   "line": 17,
+   "original": "expectedLengthV0 = 249",
+   "replacement": "expectedLengthV0 = 250",
+   "operator": "constant",
+   "equivalent": false
+  },
+  {
+   "id": "G03",
+   "file": "common/batch/batch_header.go",
+   "line": 245,
+   "original": "batchBytes[0] = BatchHeaderVersion1",
+   "replacement": "batchBytes[0] = BatchHeaderVersion2",
+   "operator": "constant",
+   "equivalent": false
+  },
+  {
+   "id": "G04",
+   "file": "common/batch/batch_header.go",
+   "line": 218,
+   "original": "binary.BigEndian.PutUint64(batchBytes[1:], b.BatchIndex)",
+   "replacement": "binary.BigEndian.PutUint64(batchBytes[2:], b.BatchIndex)",
+   "operator": "offset",
+   "equivalent": false
+  },
+  {
+   "id": "G05",
+   "file": "common/batch/batch_header.go",
+   "line": 221,
+   "original": "copy(batchBytes[25:], b.DataHash[:])",
+   "replacement": "copy(batchBytes[26:], b.DataHash[:])",
+   "operator": "offset",
+   "equivalent": false
+  },
+  {
+   "id": "G06",
+   "file": "common/batch/batch_header.go",
+   "line": 227,
+   "original": "copy(batchBytes[217:], b.ParentBatchHash[:])",
+   "replacement": "",
+   "operator": "statement_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "G07",
+   "file": "common/batch/batch_header.go",
+   "line": 256,
+   "original": "binary.BigEndian.PutUint64(batchBytes[249:], b.LastBlockNumber)",
+   "replacement": "",
+   "operator": "statement_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "G08",
+   "file": "common/batch/batch_header.go",
+   "line": 83,
+   "original": "return binary.BigEndian.Uint64(b[1:9]), nil",
+   "replacement": "return binary.BigEndian.Uint64(b[2:10]), nil",
+   "operator": "offset",
+   "equivalent": false
+  },
+  {
+   "id": "G09",
+   "file": "common/batch/batch_header.go",
+   "line": 192,
+   "original": "return binary.BigEndian.Uint64(b[249:257]), nil",
+   "replacement": "return binary.BigEndian.Uint64(b[248:256]), nil",
+   "operator": "offset",
+   "equivalent": false
+  },
+  {
+   "id": "G10",
+   "file": "common/batch/batch_header.go",
+   "line": 189,
+   "original": "if version < 1 {",
+   "replacement": "if version < 2 {",
+   "operator": "constant",
+   "equivalent": false
+  },
+  {
+   "id": "G11",
+   "file": "common/batch/batch_header.go",
+   "line": 52,
+   "original": "if len(b) != expectedLengthV2 {",
+   "replacement": "if len(b) != expectedLengthV0 {",
+   "operator": "constant",
+   "equivalent": false
+  },
+  {
+   "id": "G12",
+   "file": "common/batch/batch_header.go",
+   "line": 226,
+   "original": "copy(batchBytes[185:], b.SequencerSetVerifyHash[:])",
+   "replacement": "",
+   "operator": "statement_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "G13",
+   "file": "common/batch/batch_header.go",
+   "line": 220,
+   "original": "binary.BigEndian.PutUint64(batchBytes[17:], b.TotalL1MessagePopped)",
+   "replacement": "binary.BigEndian.PutUint64(batchBytes[17:], b.L1MessagePopped)",
+   "operator": "field_swap",
+   "equivalent": false
+  },
+  {
+   "id": "G14",
+   "file": "common/batch/batch_header.go",
+   "line": 116,
+   "original": "if version >= BatchHeaderVersion2 {",
+   "replacement": "if version > BatchHeaderVersion2 {",
+   "operator": "relational",
+   "equivalent": false
+  },
+  {
+   "id": "S01",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "line": 32,
+   "original": "require(length >= BATCH_HEADER_LENGTH, \"batch header length too small\");",
+   "replacement": "require(length == BATCH_HEADER_LENGTH, \"batch header length too small\");",
+   "operator": "relational",
+   "equivalent": false
+  },
+  {
+   "id": "S02",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+   "line": 35,
+   "original": "require(length == BATCH_HEADER_LENGTH, \"batch header length is incorrect\");",
+   "replacement": "require(length >= BATCH_HEADER_LENGTH, \"batch header length is incorrect\");",
+   "operator": "relational",
+   "equivalent": false
+  },
+  {
+   "id": "S03",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "line": 144,
+   "original": "mstore(add(batchPtr, 1), shl(192, _batchIndex))",
+   "replacement": "mstore(add(batchPtr, 1), shl(184, _batchIndex))",
+   "operator": "shift",
+   "equivalent": false
+  },
+  {
+   "id": "S04",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "line": 175,
+   "original": "mstore(add(batchPtr, 25), _dataHash)",
+   "replacement": "mstore(add(batchPtr, 24), _dataHash)",
+   "operator": "offset",
+   "equivalent": false
+  },
+  {
+   "id": "S05",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "line": 229,
+   "original": "mstore(add(batchPtr, 217), _parentBatchHash)",
+   "replacement": "mstore(add(batchPtr, 216), _parentBatchHash)",
+   "operator": "offset",
+   "equivalent": false
+  },
+  {
+   "id": "S06",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+   "line": 56,
+   "original": "mstore(add(batchPtr, 249), shl(192, _lastBlockNumber))",
+   "replacement": "mstore(add(batchPtr, 250), shl(192, _lastBlockNumber))",
+   "operator": "offset",
+   "equivalent": false
+  },
+  {
+   "id": "S07",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "line": 55,
+   "original": "_batchIndex := shr(192, mload(add(batchPtr, 1)))",
+   "replacement": "_batchIndex := shr(184, mload(add(batchPtr, 1)))",
+   "operator": "shift",
+   "equivalent": false
+  },
+  {
+   "id": "S08",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "line": 46,
+   "original": "_version := shr(248, mload(batchPtr))",
+   "replacement": "_version := shr(240, mload(batchPtr))",
+   "operator": "shift",
+   "equivalent": false
+  },
+  {
+   "id": "S09",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "line": 220,
+   "original": "mstore(add(batchPtr, 185), _sequencerSetVerifyHash)",
+   "replacement": "mstore(add(batchPtr, 186), _sequencerSetVerifyHash)",
+   "operator": "offset",
+   "equivalent": false
+  },
+  {
+   "id": "S10",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 840,
+   "original": "} else if (_version == 1 || _version == 2) {",
+   "replacement": "} else if (_version == 1) {",
+   "operator": "condition_drop",
+   "equivalent": false
+  },
+  {
+   "id": "S11",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "line": 242,
+   "original": "_batchHash := keccak256(batchPtr, length)",
+   "replacement": "_batchHash := keccak256(batchPtr, 249)",
+   "operator": "constant",
+   "equivalent": false
+  },
+  {
+   "id": "R01",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 363,
+   "original": "proveRemainingTime = proofWindow + challenges[batchChallenged].startTime - block.timestamp;",
+   "replacement": "proveRemainingTime = proofWindow + challenges[batchChallenged].startTime;",
+   "operator": "arith_drop",
+   "equivalent": false
+  },
+  {
+   "id": "R02",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 368,
+   "original": "block.timestamp + finalizationPeriodSeconds + proveRemainingTime,",
+   "replacement": "block.timestamp + finalizationPeriodSeconds,",
+   "operator": "arith_drop",
+   "equivalent": false
+  },
+  {
+   "id": "R03",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 476,
+   "original": "require(lastFinalizedBatchIndex < batchIndex, \"batch already finalized\");",
+   "replacement": "require(lastFinalizedBatchIndex <= batchIndex, \"batch already finalized\");",
+   "operator": "relational",
+   "equivalent": false
+  },
+  {
+   "id": "R04",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 475,
+   "original": "require(!inChallenge, \"already in challenge\");",
+   "replacement": "",
+   "operator": "guard_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "R05",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 490,
+   "original": "if (i != batchIndex) {",
+   "replacement": "if (true) {",
+   "operator": "condition_drop",
+   "equivalent": false
+  },
+  {
+   "id": "R06",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 491,
+   "original": "batchDataStore[i].finalizeTimestamp += proofWindow;",
+   "replacement": "batchDataStore[i].finalizeTimestamp += 0;",
+   "operator": "arith_drop",
+   "equivalent": false
+  },
+  {
+   "id": "R07",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 441,
+   "original": "require(_batchIndex > lastFinalizedBatchIndex, \"can only revert unFinalized batch\");",
+   "replacement": "require(_batchIndex >= lastFinalizedBatchIndex, \"can only revert unFinalized batch\");",
+   "operator": "relational",
+   "equivalent": false
+  },
+  {
+   "id": "R08",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 443,
+   "original": "lastCommittedBatchIndex = _batchIndex - 1;",
+   "replacement": "lastCommittedBatchIndex = _batchIndex;",
+   "operator": "arith_drop",
+   "equivalent": false
+  },
+  {
+   "id": "R09",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 451,
+   "original": "inChallenge = false;",
+   "replacement": "",
+   "operator": "statement_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "R10",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 581,
+   "original": "inChallenge = false;",
+   "replacement": "",
+   "operator": "statement_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "R11",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 610,
+   "original": "inChallenge = false;",
+   "replacement": "",
+   "operator": "statement_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "R12",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 643,
+   "original": "require(lastFinalizedBatchIndex + 1 == _batchIndex, \"incorrect batch index\");",
+   "replacement": "require(lastFinalizedBatchIndex < _batchIndex, \"incorrect batch index\");",
+   "operator": "relational",
+   "equivalent": false
+  },
+  {
+   "id": "R13",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 633,
+   "original": "require(!batchInsideChallengeWindow(_batchIndex), \"batch in challenge window\");",
+   "replacement": "",
+   "operator": "guard_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "R14",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 631,
+   "original": "require(!batchInChallenge(_batchIndex), \"batch in challenge\");",
+   "replacement": "",
+   "operator": "guard_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "R15",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 261,
+   "original": "require(batchBlobVersionedHashes[_nextBatchIndex] == bytes32(0), \"commitBatch requires no stored blob hash\");",
+   "replacement": "",
+   "operator": "guard_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "R16",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 312,
+   "original": "require(_batchIndex == lastCommittedBatchIndex, \"incorrect batch index\");",
+   "replacement": "",
+   "operator": "guard_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "R17",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 710,
+   "original": "return batchDataStore[batchIndex].finalizeTimestamp > block.timestamp;",
+   "replacement": "return batchDataStore[batchIndex].finalizeTimestamp >= block.timestamp;",
+   "operator": "relational",
+   "equivalent": false
+  },
+  {
+   "id": "R18",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 421,
+   "original": "batchDataStore[_batchIndex].finalizeTimestamp = block.timestamp;",
+   "replacement": "",
+   "operator": "statement_deletion",
+   "equivalent": false
+  },
+  {
+   "id": "R19",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 400,
+   "original": "require(rollupDelay || l1MsgQueueDelayed, \"invalid timing\");",
+   "replacement": "require(rollupDelay && l1MsgQueueDelayed, \"invalid timing\");",
+   "operator": "logical",
+   "equivalent": false
+  },
+  {
+   "id": "R20",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 692,
+   "original": "return challenges[batchIndex].challenger != address(0) && !challenges[batchIndex].finished;",
+   "replacement": "return challenges[batchIndex].challenger != address(0);",
+   "operator": "condition_drop",
+   "equivalent": false
+  }
+ ]
+}
