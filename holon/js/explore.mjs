@@ -163,19 +163,37 @@ function candidates(b, env) {
         return perturb(base, l.proj).map((st) => ({ ty: "State", v: enc(st), raw: { state: st } }));
       }
     }
-    return prefixes().map((p) => ({ ty: "State", v: p.state, raw: { state: dec(p.state) } }));
+    // a prefix state is reachable: report it as the trace from s0 that reaches it (run(p, s0))
+    return prefixes().map((p) => ({ ty: "State", v: p.state, raw: { run: p.trace } }));
   }
   if (b.type === "Trace") return suffixes(baseState(env)).map((tr) => ({ ty: "Trace", v: toList(tr.map(mkAct)), raw: tr }));
   return [];
+}
+
+// the declared type of each state field (facts "state": [name, type, doc]); perturbations respect it
+const FIELD_TYPE = Object.fromEntries((facts.state || []).map((x) => [x[0], x[1]]));
+function zeroOf(ty) {
+  if (ty === "Nat") return 0;
+  if (ty === "Bool") return false;
+  if (ty.startsWith("List<")) return [];
+  const rec = (facts.types || {})[ty];
+  if (!rec) throw new Error(`perturb: no type ${ty}`);
+  const o = { $: "H" + ty };
+  for (const [fn, ft] of rec.fields) o[fn] = zeroOf(ft);
+  return o;
 }
 
 function perturb(st, fields) {
   const out = [];
   for (const f of fields) {
     const v = st[f];
+    const ty = FIELD_TYPE[f] || "";
+    const elem = ty.startsWith("List<") ? ty.slice(5, -1) : null;
     const alts = typeof v === "number" ? [v + 1, v + 5, Math.max(0, v - 1)]
       : typeof v === "boolean" ? [!v]
-      : Array.isArray(v) ? (v.length && typeof v[0] === "object" ? [[], v.slice(1)] : [[], [1], [7], [1, ...v], v.slice(1)])
+      : Array.isArray(v) ? (elem && elem !== "Nat" && elem !== "Bool"
+          ? [[], v.slice(1), [zeroOf(elem), ...v]]          // a list of records: never fill it with numbers
+          : [[], [1], [7], [1, ...v], v.slice(1)])
       : [];
     for (const a of alts) { const c = JSON.parse(JSON.stringify(st)); c[f] = a; if (key(c) !== key(st)) out.push(c); }
   }

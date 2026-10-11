@@ -18,7 +18,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from . import bend, bindings, ir, records
+from . import bend, bindings, inhabit, ir, records
 from . import facts as F
 from .gen import mlaws, mproofs
 from .gen.machine import Machine
@@ -314,6 +314,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         kbound["laws"][lid] = {"model": model_src.stem,
                                "cone": bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT))
+        rec["non_vacuity"] = inhabit.inhabit(law, milestone, ROOT, d, cfg, cm=cm, rec=rec)
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:22s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")

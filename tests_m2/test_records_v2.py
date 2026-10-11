@@ -84,7 +84,6 @@ class TestRecordsV2(unittest.TestCase):
                 with self.subTest(law=lid):
                     self.assertEqual(rec["refinement_refs"], "pending:I16")
                     self.assertEqual(rec["coverage"], "pending:I19")
-                    self.assertEqual(rec["non_vacuity"], "pending:I3")
                     want = "pending:I4" if rec["status"] == "REFUTED" else None
                     self.assertEqual(rec["witness_provenance"], want)
                     self.assertEqual(rec["filter_bin"], want)

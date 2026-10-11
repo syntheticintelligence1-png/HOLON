@@ -334,7 +334,7 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
         "independence_class": independence_class(rec),
         "refinement_refs": "pending:I16",
         "coverage": "pending:I19",
-        "non_vacuity": "pending:I3",
+        "non_vacuity": None,  # set by the pipeline from holon.inhabit (I3)
         "witness_provenance": "pending:I4" if refuted else None,
         "filter_bin": "pending:I4" if refuted else None,
     }

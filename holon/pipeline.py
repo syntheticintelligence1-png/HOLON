@@ -15,7 +15,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from . import bend, bindings, ir, records, refute
+from . import bend, bindings, inhabit, ir, records, refute
 from .replay import load_report, replay_status
 from . import facts as F
 from .gen import laws as LG
@@ -205,6 +205,7 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
         rec.update(records.v2_fields(law, rec, stext, model_src,
                                      ir.load_registry(milestone, ROOT).get("facts", "facts/morph_header.json"),
                                      compiled.artifact, ROOT))
+        rec["non_vacuity"] = inhabit.inhabit(law, milestone, ROOT, d, cfg, rec=rec)
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:16s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")
