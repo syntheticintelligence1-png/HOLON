@@ -78,6 +78,35 @@ The canaries catch a silently-weakening emitter, exactly as designed.
 - A vacuous LAWS.bend still prints `ALL PROOFS CHECK` — handled by checking
   law names (G11) rather than trusting exit 0.
 
+## P5: replay on the real Morph code
+
+`replay/M0/report.json` (morph @ 3e44e795586af3e11285b603ab642c67823add51) is
+folded into the result records by `python3 -m holon replay --milestone M0`,
+and `holon run` applies it automatically when the report exists so regenerated
+output stays identical.
+
+| Law | go | solidity | replay.status |
+|---|---|---|---|
+| L_par_hdr_v2 | passed | not_applicable (needs full commitBatch deployment, M1) | passed |
+| L_dom_hdr | passed | passed | passed |
+| L_par_hdr_ssvh | passed | not_applicable (Rollup.sol:351 writes bytes32(0) by inspection; live exec needs commitBatch, M1) | passed |
+
+`HOLON_REPLAY=1 python3 -m unittest tests.test_50_replay -v` passes.
+
+Facts-audit differences (`replay/M0/facts_audit.md`):
+
+- **D1** — the real Go v2 producer `BatchCache.createBatchHeaderWithSequencerSetHash`
+  (batch_cache.go:1720-1731) encodes a `BatchHeaderV1` then patches `h[0] = 2`;
+  the codec-level obstruction is real but the call site resolves it (M1).
+- **D2** — `sealBatch` (batch_cache.go:1447-1462) rejects nonzero ssvh for live
+  batches; nonzero only for legacy replay at index ≤ legacyCutoverBatchIndex.
+  Confirms L_par_hdr_ssvh is an intent question, not a live defect.
+- **D3** — node/types/batch_header.go is a DEPRECATED duplicate of common/batch's
+  `BatchHeaderBytes` (no BlobCommitHash, no encoders); a second `dec_go`
+  instance is uncovered by the M0 facts.
+- **D4** — dirty memory is harmless at this commit: writes cover [0,249) for v0
+  and [0,257) for v1/v2; storeLastBlockNumber writes past the hashed range.
+
 ## Questions for the human / suspected frozen-file issues
 
 None. Model, emitter and predictions all agree; nothing was steered toward a

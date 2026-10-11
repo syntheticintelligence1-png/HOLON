@@ -1,0 +1,41 @@
+{
+  "laws": {
+    "L_dom_hdr": {
+      "go": {
+        "command": "cd morph_scratch/common && HOLON_RESULTS=<holon>/results/M0 go test ./batch/ -run HolonReplay -v -count=1  (go1.24.6, test file replay/M0/go/holon_replay_test.go) -run TestHolonReplay_L_dom_hdr",
+        "observed": "len=250 byte0=0; Hash() err=\"invalid BatchHeaderBytes length\" (ErrInvalidBatchHeaderLength); Version()=(0,nil), since it does not validate; all 11 validating getters return ErrInvalidBatchHeaderLength",
+        "status": "passed"
+      },
+      "solidity": {
+        "command": "HOLON_DOM_WITNESS=<results/M0/L_dom_hdr.json witness.b> forge test --match-path test/Harness.t.sol -vv  (forge 1.8.5, solc 0.8.24, harness replay/M0/solidity/Harness.t.sol inheriting Rollup)",
+        "observed": "test_L_dom_hdr_witness_accepted PASS: _loadBatchHeader(250-byte v0 witness) did not revert, batchHash=0xe13fa46f2e07a6104dab7720c4820eb17a7395719c3eba8da33ecc47ba44c6a7 = keccak256(witness); control test_version3_249_rejected PASS: 249-byte header with version 3 reverts \"Unsupported batch version\"",
+        "status": "passed"
+      }
+    },
+    "L_par_hdr_ssvh": {
+      "go": {
+        "command": "cd morph_scratch/common && HOLON_RESULTS=<holon>/results/M0 go test ./batch/ -run HolonReplay -v -count=1  (go1.24.6, test file replay/M0/go/holon_replay_test.go) -run TestHolonReplay_L_par_hdr_ssvh",
+        "note": "Intent question: sealBatch (batch_cache.go:1447-1462) rejects a nonzero ssvh for live batches. Nonzero is allowed only for legacy replay at index <= legacyCutoverBatchIndex (facts_audit.md D2).",
+        "observed": "Bytes()[185:217]=0xff..ff (32 bytes): the nonzero witness sequencerSetVerifyHash is copied verbatim",
+        "status": "passed"
+      },
+      "solidity": {
+        "observed": "Rollup.sol:351 writes bytes32(0) by static inspection; executing it requires full commitBatch deployment (M1)",
+        "status": "not_applicable"
+      }
+    },
+    "L_par_hdr_v2": {
+      "go": {
+        "command": "cd morph_scratch/common && HOLON_RESULTS=<holon>/results/M0 go test ./batch/ -run HolonReplay -v -count=1  (go1.24.6, test file replay/M0/go/holon_replay_test.go) -run TestHolonReplay_L_par_hdr_v2",
+        "note": "Codec-level only. The real v2 producer, BatchCache.createBatchHeaderWithSequencerSetHash (common/batch/batch_cache.go:1720-1731), calls V1.Bytes() and then patches h[0] = BatchHeaderVersion2. That composition is outside the M0 facts (facts_audit.md D1).",
+        "observed": "witness.version=2; BatchHeaderV1{witness}.Bytes() len=257 byte0=1 (model: enc_go_v1 byte0 = 1)",
+        "status": "passed"
+      },
+      "solidity": {
+        "observed": "needs full commitBatch deployment wiring (M1)",
+        "status": "not_applicable"
+      }
+    }
+  },
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51"
+}

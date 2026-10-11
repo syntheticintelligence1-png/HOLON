@@ -45,7 +45,7 @@ def _emit_encoder(lines, facts, name, f):
         a(f"def {name}(+h: Hdr) -> {BYTE_LIST}:")
         a(f"  match h:")
         a(f"    case {_hdr_pat(names)}:")
-        _emit_ops(a, f, f["ops"], None, mem)
+        _emit_ops(a, w, f["ops"], None, mem)
         return
     if f["lang"] != "solidity-evm-memory":
         raise ValueError(f["lang"])
@@ -68,7 +68,7 @@ def _emit_encoder(lines, facts, name, f):
         a(f"  match h:")
         a(f"    case {_hdr_pat(names)}:")
         mem = [f"List.replicate(U32, {mem_size}n, 57005)"]
-        _emit_ops(a, f, [f["ops"][i] for i in ops], length, mem)
+        _emit_ops(a, w, [f["ops"][i] for i in ops], length, mem)
         a("")
     a(f"def {name}_at(v: Nat, +h: Hdr) -> {BYTE_LIST}:")
     a(f"  match v:")
@@ -86,23 +86,20 @@ def _emit_encoder(lines, facts, name, f):
     return
 
 
-def _emit_ops(a, f, ops, take_len, mem):
+def _emit_ops(a, w, ops, take_len, mem):
     """Emit m0/m1/.. put chain; last line returns the output list."""
     indent = "      "
     a(f"{indent}m0 = {mem[0]}")
     for i, op in enumerate(ops):
         src = []
         for item in op["src"]:
-            src.extend(_src_list(item, {x["name"]: x["width"] for x in _cur_fields}))
+            src.extend(_src_list(item, w))
         a(f"{indent}m{i + 1} = put(m{i}, {op['offset']}n, [{', '.join(src)}])")
     last = f"m{len(ops)}"
     if take_len is None:
         a(f"{indent}{last}")
     else:
         a(f"{indent}List.take(&2, U32, {last}, {take_len}n)")
-
-
-_cur_fields = []
 
 
 def _emit_predicate(lines, facts, name, f):
@@ -318,8 +315,6 @@ def is_true(b: Bool) -> Type:
 
 def bend_model(facts: dict) -> str:
     """Return the deterministic Bend source of the model for these facts."""
-    global _cur_fields
-    _cur_fields = header_fields(facts)
     lines = [PRELUDE, ""]
     names = field_names(facts)
     lines.append("type Hdr is Data:")

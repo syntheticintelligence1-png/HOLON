@@ -167,4 +167,11 @@ def main(args) -> int:
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         print(f"{lid}: {rec['status']} (verdict={rec['kernel']['verdict']})")
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+
+    # Replay statuses are part of the record: apply the report when present so
+    # regenerated output is identical to the committed records.
+    from . import replay
+    report_path = root / "replay" / milestone / "report.json"
+    if report_path.is_file():
+        replay.apply_replay(out_dir, report_path, root, milestone)
     return 0

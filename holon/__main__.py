@@ -21,6 +21,11 @@ def main(argv=None) -> int:
     pg.add_argument("--root", default=None)
     pg.add_argument("--report", default=None)
 
+    pp = sub.add_parser("replay", help="fold the replay report into result records (M0_SPEC 8)")
+    pp.add_argument("--milestone", required=True)
+    pp.add_argument("--report", default=None)
+    pp.add_argument("--out", default=None)
+
     args = p.parse_args(argv)
     if args.cmd == "run":
         from . import run
@@ -28,6 +33,9 @@ def main(argv=None) -> int:
     if args.cmd == "gate":
         from . import gate
         return gate.main(args)
+    if args.cmd == "replay":
+        from . import replay
+        return replay.main(args)
     return 2
 
 

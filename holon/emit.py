@@ -51,7 +51,7 @@ def _term_type(t: dict, law: dict, facts: dict) -> str:
     if "call" in t:
         return facts["functions"][t["call"]]["to"]
     if "some" in t:
-        return f"Maybe<Fields>" if True else ""
+        return "Maybe<Fields>"
     if "var" in t:
         return {b["name"]: b["type"] for b in law["statement"]["forall"]}[t["var"]]
     if "bytes" in t or "field" in t:
