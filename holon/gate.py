@@ -4,7 +4,9 @@ Order: GENV, G2, G1, G3, G5, G11, G6, G9, G7, G4. The report is always written; 
 `--checks G6,G9` runs a subset (after GENV) and marks the report partial.
 
   GENV  no bunfig.toml / .env under root (else Bend is never invoked), pinned bend version
-  G2    statement hashes match REGISTRY.json; registry lists exactly laws/<m>; facts hash
+  G2    statement hashes match REGISTRY.json; registry lists exactly laws/<m>; facts hash; and
+        spec/bindings/<m>.json matches the kernel (BendTT) form of every definition each statement
+        reaches in the committed models (a mismatch names the laws and the definitions)
   G1    regeneration into a temp dir is byte-identical (gen/**/*.bend, summary.json, and every
         result record with `seconds` stripped and artifact paths normalised), from a fresh build dir
   G3    no escape hatches in generated Bend; the checker reports no TODO / unsafe reliance
@@ -227,6 +229,26 @@ class Gate:
         return self.bend_version == pin
 
     def g2(self) -> None:
+        self.g2_registry()
+        if not self.checks["G2"]["passed"]:
+            return
+        from . import bindings
+        try:
+            p = bindings.path(self.m, self.root)
+            if not p.exists():
+                self.checks["G2"] = _res(False, f"no bindings: {p.relative_to(self.root)} is missing")
+                return
+            laws, defs, msgs = bindings.diff(_load(p), bindings.derive(self.m, self.root, self.cfg))
+            if laws:
+                self.checks["G2"] = _res(False, "bindings: " + "; ".join(msgs))
+            else:
+                n = len(_load(p)["laws"])
+                self.checks["G2"] = _res(True, self.checks["G2"]["detail"] + f"; {n} laws bound to the kernel form "
+                                                                          "of every definition they reach")
+        except Exception as e:  # noqa: BLE001
+            self.checks["G2"] = _res(False, f"bindings: error: {type(e).__name__}: {e}")
+
+    def g2_registry(self) -> None:
         if self.irv == "holon-ir/0.2":
             from .mpipeline import check_registry_multi
             try:
@@ -267,18 +289,19 @@ class Gate:
                 self.checks["G1"] = _res(False, f"regeneration failed: {(p.stdout + p.stderr)[-800:]}")
                 return
             def bends(d: Path) -> dict[str, bytes]:
-                return {f.relative_to(d).as_posix(): f.read_bytes() for f in sorted(d.rglob("*.bend"))}
+                return {f.relative_to(d).as_posix(): f.read_bytes() for f in sorted(d.rglob("*"))
+                        if f.is_file() and (f.suffix == ".bend" or f.name.endswith(".defs.json"))}
             a, b = bends(self.gen), bends(tmp / "gen")
             diff = sorted(k for k in set(a) | set(b) if a.get(k) != b.get(k))
-            sa = self.results / "summary.json"
-            same_summary = sa.exists() and sa.read_bytes() == (tmp / "results" / "summary.json").read_bytes()
+            same_summary = all((self.results / f).exists() and (self.results / f).read_bytes() ==
+                               (tmp / "results" / f).read_bytes() for f in ("summary.json", "deps.json"))
             ra = self.norm_records(self.results, self.gen)
             rb = self.norm_records(tmp / "results", tmp / "gen")
             # canonical bytes, not ==: 1, 1.0 and true must not compare equal
             rdiff = sorted(k for k in set(ra) | set(rb)
                            if (k in ra) != (k in rb) or ir.canonical_json(ra[k]) != ir.canonical_json(rb[k]))
             ok = not diff and same_summary and bool(a) and not rdiff and bool(ra)
-            self.checks["G1"] = _res(ok, f"{len(a)} generated .bend files identical, summary identical, "
+            self.checks["G1"] = _res(ok, f"{len(a)} generated .bend and .defs.json files identical, summary and deps identical, "
                                          f"{len(ra)} records identical" if ok else
                                      f"differs: {diff[:10]}; records differ: {rdiff[:10]}; summary identical: "
                                      f"{same_summary}; files: {len(a)}; records: {len(ra)}")

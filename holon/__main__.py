@@ -3,6 +3,7 @@
   python -m holon run  --milestone M0 [--facts PATH] [--out DIR] [--gen-dir DIR] [--no-registry]
   python -m holon gate --milestone M0 [--root DIR] [--report PATH] [--checks G6,G9]
   python -m holon audit prereg --milestone M2 [--root DIR]
+  python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon replay --morph PATH [--forge F] [--solc S] [--work DIR]
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
 """
@@ -27,6 +28,10 @@ def main(argv=None) -> int:
     g.add_argument("--root")
     g.add_argument("--report")
     g.add_argument("--checks", help="comma-separated subset to run after GENV (the report is marked partial)")
+    bd = sub.add_parser("bind", help="bind each law to the kernel form of the definitions it reaches (spec/bindings)")
+    bd.add_argument("--milestone", default="M0")
+    bd.add_argument("--root")
+    bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
     au = sub.add_parser("audit", help="audits: `audit prereg --milestone M2` checks preregistration order")
     au.add_argument("what", choices=["prereg"])
     au.add_argument("rest", nargs=argparse.REMAINDER)
@@ -48,6 +53,9 @@ def main(argv=None) -> int:
     if a.cmd == "gate":
         from .gate import main_gate
         return main_gate(a)
+    if a.cmd == "bind":
+        from .bindings import main_bind
+        return main_bind(a)
     if a.cmd == "audit":
         from .audit import prereg
         return prereg.main(a.rest)

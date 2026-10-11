@@ -18,7 +18,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from . import bend, ir, records
+from . import bend, bindings, ir, records
 from . import facts as F
 from .gen import mlaws, mproofs
 from .gen.machine import Machine
@@ -217,11 +217,13 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             cm_ = CompiledMachine.build(fp, cfg)
             src = gen / "model" / f"{model_name(fp)}.bend"
             src.write_text(cm_.source.read_text())
+            (gen / "model" / f"{model_name(fp)}.defs.json").write_text(bindings.dump(bindings.defs_index(src, cfg)))
             machines[fp] = (cm_, src, f"../model/{model_name(fp)}.bend", F.sha256_file(fp))
         return machines[fp]
     out_dir.mkdir(parents=True, exist_ok=True)
 
     summary = {}
+    kbound = {"milestone": milestone, "laws": {}}
     for law in laws:
         lid = law["law_id"]
         cm, model_src, imp, facts_sha = machine_for(law)
@@ -309,11 +311,13 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                                  "marker": v.marker, "seconds": v.seconds})
         rec["status"] = status
         rec["attempts"] = attempts
+        kbound["laws"][lid] = {"cone": {d: "" for d in bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))}}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT))
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:22s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+    (out_dir / "deps.json").write_text(bindings.dump(bindings.dependents(kbound)))
     return summary
 
 

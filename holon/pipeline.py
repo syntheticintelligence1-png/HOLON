@@ -15,7 +15,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from . import bend, ir, records, refute
+from . import bend, bindings, ir, records, refute
 from .replay import load_report, replay_status
 from . import facts as F
 from .gen import laws as LG
@@ -148,6 +148,10 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
     compiled = CompiledModel.build(facts_path, cfg=cfg)
     model_import = f"../model/{name}.bend"
     out_dir.mkdir(parents=True, exist_ok=True)
+    # kernel index of the model (BendTT, from the checker) and the stale index of the laws
+    (model_src.parent / f"{name}.defs.json").write_text(bindings.dump(bindings.defs_index(model_src, cfg)))
+    kernel = bindings.kernel_entries(model_src, cfg)
+    kbound = {"milestone": milestone, "laws": {}}
 
     summary = {}
     for law in laws:
@@ -196,13 +200,16 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
                                  "marker": v.marker, "seconds": v.seconds})
         rec["status"] = status
         rec["attempts"] = attempts
-        rec.update(records.v2_fields(law, rec, statement_text(law, facts, model_import), model_src,
+        stext = statement_text(law, facts, model_import)
+        kbound["laws"][lid] = {"cone": {d: "" for d in bindings.kernel_cone(stext, kernel)}}
+        rec.update(records.v2_fields(law, rec, stext, model_src,
                                      ir.load_registry(milestone, ROOT).get("facts", "facts/morph_header.json"),
                                      compiled.artifact, ROOT))
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:16s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+    (out_dir / "deps.json").write_text(bindings.dump(bindings.dependents(kbound)))
     return summary
 
 
