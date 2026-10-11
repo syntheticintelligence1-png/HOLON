@@ -125,21 +125,48 @@ def describe_space(law: dict, facts: dict) -> str:
 
 
 # ---------------------------------------------------------------- search
-def search(law: dict, facts: dict, model: CompiledModel, batch: int = 256) -> Search:
-    st = law["statement"]
-    pins = LG.collect_pins(law, facts)
+def subterms(t: dict):
+    """Every call/field subterm strictly inside t. A witness needs each to be defined:
+    an undefined intermediate (a revert, unwritten memory) is not an execution."""
+    for k in ("args",):
+        for a in t.get(k, []):
+            if "call" in a or "field" in a:
+                yield a
+            yield from subterms(a)
+    for k in ("some", "of"):
+        if k in t:
+            if "call" in t[k] or "field" in t[k]:
+                yield t[k]
+            yield from subterms(t[k])
+
+
+def _jobs_terms(law: dict, facts: dict):
     types = LG.binder_types(law)
-    a, b = st["claim"]["eq"]
-    res_t = LG.type_of(a, types, facts)
+    a, b = law["statement"]["claim"]["eq"]
+    subs = [x for side in (a, b) for x in subterms(side)]
+    sub_t = [LG.type_of(x, types, facts) for x in subs]
+    return types, [a, b] + subs, LG.type_of(a, types, facts), sub_t
+
+
+def _decode(vals: list, res_t: str, sub_t: list):
+    lv, rv, *sv = vals
+    for v, t in zip(sv, sub_t):
+        value_out(t, v)  # raises on an undefined intermediate
+    return value_out(res_t, lv), value_out(res_t, rv)
+
+
+def search(law: dict, facts: dict, model: CompiledModel, batch: int = 256) -> Search:
+    pins = LG.collect_pins(law, facts)
+    types, terms, res_t, sub_t = _jobs_terms(law, facts)
     out = Search(bound=describe_space(law, facts))
     cands = list(candidates(law, facts, pins))
     for i in range(0, len(cands), batch):
         chunk = cands[i:i + batch]
-        jobs = [{"terms": [a, b], "env": {v: value_in(types[v], x[v], facts) for v in types}} for _, x in chunk]
-        for (label, env), (lv, rv) in zip(chunk, model.run_jobs(jobs)):
+        jobs = [{"terms": terms, "env": {v: value_in(types[v], x[v], facts) for v in types}} for _, x in chunk]
+        for (label, env), vals in zip(chunk, model.run_jobs(jobs)):
             out.tried += 1
             try:
-                lj, rj = value_out(res_t, lv), value_out(res_t, rv)
+                lj, rj = _decode(vals, res_t, sub_t)
             except (ValueError, ModelError):
                 out.undefined += 1  # a side is undefined here (revert / unwritten memory): not a witness
                 continue
@@ -152,11 +179,9 @@ def search(law: dict, facts: dict, model: CompiledModel, batch: int = 256) -> Se
 
 def evaluate(law: dict, facts: dict, model: CompiledModel, env: dict):
     """(lhs, rhs) of a law's claim at one assignment, on the compiled model; None if undefined."""
-    types = LG.binder_types(law)
-    a, b = law["statement"]["claim"]["eq"]
-    res_t = LG.type_of(a, types, facts)
-    (lv, rv), = model.run_jobs([{"terms": [a, b], "env": {v: value_in(types[v], env[v], facts) for v in types}}])
+    types, terms, res_t, sub_t = _jobs_terms(law, facts)
+    vals, = model.run_jobs([{"terms": terms, "env": {v: value_in(types[v], env[v], facts) for v in types}}])
     try:
-        return value_out(res_t, lv), value_out(res_t, rv)
+        return _decode(vals, res_t, sub_t)
     except (ValueError, ModelError):
         return None
