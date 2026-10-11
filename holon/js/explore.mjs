@@ -183,14 +183,33 @@ function candidates(b, env) {
   return [];
 }
 
+// distinct values field f takes across reachable prefix states (decoded). Used for
+// proj-erased fields whose element/record type can't be inferred from the base value:
+// every pooled value is well-typed by construction, unlike literal guesses.
+const _fieldPool = {};
+function fieldPool(f) {
+  if (!_fieldPool[f]) {
+    const m = new Map();
+    for (const p of prefixes()) {
+      const s = dec(p.state);
+      if (f in s) m.set(key(s[f]), s[f]);
+    }
+    _fieldPool[f] = [...m.values()];
+  }
+  return _fieldPool[f];
+}
+
 function perturb(st, fields) {
   const out = [];
   for (const f of fields) {
     const v = st[f];
     const alts = typeof v === "number" ? [v + 1, v + 5, Math.max(0, v - 1)]
       : typeof v === "boolean" ? [!v]
-      : Array.isArray(v) ? (v.length && typeof v[0] === "object" ? [[], v.slice(1)] : [[], [1], [7], [1, ...v], v.slice(1)])
-      : [];
+      : Array.isArray(v)
+        ? (v.length
+          ? (typeof v[0] === "object" ? [[], v.slice(1)] : [[], [1], [7], [1, ...v], v.slice(1)])
+          : fieldPool(f))
+        : fieldPool(f);
     for (const a of alts) { const c = JSON.parse(JSON.stringify(st)); c[f] = a; if (key(c) !== key(st)) out.push(c); }
   }
   return out;
