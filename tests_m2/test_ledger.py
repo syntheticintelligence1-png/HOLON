@@ -100,5 +100,33 @@ class TestLedger(unittest.TestCase):
         self.assertEqual(R.model_assumptions(rec["facts_sha256"], set(rec["cone"])), rec["model_assumptions"])
 
 
+class TestDerivedFacts(unittest.TestCase):
+    """Added after the I1 prereg: the frozen mutation test (tests/test_31) runs the pipeline over facts the
+    ledger cannot know. Such records must say so (ledger_match "derived") and never pass the v2 schema."""
+
+    def test_derived_facts_run_is_flagged(self):
+        import shutil
+        from tests_m2._m2 import SCHEMAS2, copy_repo, run_holon, validate
+        repo = copy_repo()
+        try:
+            src = (repo / "facts" / "morph_header.json").read_text()
+            f = repo / "facts_derived.json"
+            f.write_text(src + "\n")  # same content, different sha256
+            out, gen = repo / "d_results", repo / "d_gen"
+            p = run_holon(["run", "--milestone", "M0", "--facts", str(f), "--out", str(out), "--gen-dir", str(gen),
+                           "--no-registry"], cwd=repo)
+            self.assertEqual(p.returncode, 0, p.stdout[-2000:] + p.stderr[-2000:])
+            committed = records("M0")
+            derived = {q.stem: load_json(q) for q in sorted(out.glob("L_*.json"))}
+            self.assertEqual(sorted(derived), sorted(committed))
+            for lid, rec in derived.items():
+                with self.subTest(law=lid):
+                    self.assertEqual(rec["ledger_match"], "derived")
+                    self.assertEqual(rec["model_assumptions"], committed[lid]["model_assumptions"])
+                    self.assertNotEqual(validate(rec, SCHEMAS2 / "result_record_v2.schema.json"), [])
+        finally:
+            shutil.rmtree(repo.parent, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main()

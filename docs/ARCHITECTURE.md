@@ -78,6 +78,7 @@ The foundations M1 builds on, all present now:
 - **Kept:** `holon/bend.py` (runner, verdict), `holon/ir.py` (hashing, freezing), `holon/gate.py` (G1–G11 skeleton, canaries), `holon/replay.py` (witness-hash-bound replay), the result-record schema, and the run/gate/replay CLI.
 - **To extend:**
   1. **IR `holon-ir/0.2`.** Add binders of state and action-sequence types; claim forms `obs(trace) == obs(trace')` (UNDO), `exs strategy` and `invariant` (DISCH); explicit `scope: bounded(H)`. Bump the IR version: 0.1 laws keep hashing the same.
+     *As built, this differs.* 0.2 has `forall`/`exists` binders and a claim that is one equation or a conjunction. It has no `invariant` form and no `scope` key. Strategies are ∃-trace laws, and blocking is a ∀-step law over states. The grammar is in `holon/gen/mlaws.py`, and the schema in `spec/schemas/law_ir_0_2.schema.json`. Scope lives in each record's `scope_v2`.
   2. **Facts `holon-facts/0.2` for transitions.** Per action: guard (`require` list), reads and writes (index-sensitive), principal class, and time as an environment move. Hand-written for the slice until M2, with the same source-line discipline as `morph_header.json`.
   3. **Model generator for state.** State as a record of small per-index maps (BEND_NOTES §3: keep each law under about 1 000 fields). `step_a : S → In → Env → Result(S, Obs)`, revert as a result variant, plus `Reach` as an inductive predicate.
   4. **New proof generator classes:**
@@ -92,6 +93,23 @@ The foundations M1 builds on, all present now:
   2. `L_sort_remaining` REFUTED (O27, unsigned underflow at `t = s + W + 1`).
   3. `L_tag_BVH` REFUTED (O26, ghost tag across revert).
   4. `L_disch_delay` profile and `L_disch_stale` blocking.
+
+## 4b. Records v2 and the assumption ledger (I1)
+
+Every result record now carries one field per §8.6 item, next to the frozen v1 fields. The builder is `holon/records.py`, and the schema is `spec/schemas/result_record_v2.schema.json`.
+
+- `premises` are exactly the rendered assume clauses of the frozen statement.
+- `cone` is the set of generated model definitions that the emitted statement reaches.
+- `model_assumptions` are the entries of `spec/ledger/assumptions.json` whose introducing definitions meet the cone. The ledger classifies every definition of every generated model.
+- `kernels` and `independence_class`: BendTT shares bend2's elaboration, so dual-checked results are class `I1-shared`, not `I2`.
+- Fields that a later iteration fills hold `pending:I<n>`.
+
+The gate now also runs:
+- **G1** over records;
+- **G6**: every REFUTED record is bound to a passed replay of the same witness for the facts' target commit, and a side not replayed is labelled `model-only pending replay`;
+- **G9**: every record validates against the v1 and v2 schemas.
+
+`python -m holon audit prereg --milestone M2` checks the preregistration order (`docs/BUILD_PLAN.md` §0.1).
 
 ## 5. Known gaps (whitepaper §12, as they stand today)
 

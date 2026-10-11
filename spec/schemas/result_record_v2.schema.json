@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON result record v2 (additive to the frozen schemas/result_record.schema.json)",
+  "description": "One field per whitepaper §8.6 item: status, statement_hash (law hash), model_sha256 (model hash), premises, scope_v2, kernels, independence_class, refinement_refs, replay (witness replay status), coverage. A field a later iteration fills holds the constant 'pending:I<n>'; that iteration replaces the constant here and asserts the removal in its own test.",
+  "type": "object",
+  "required": ["law_id", "statement_hash", "facts_sha256", "status", "premises", "replay", "record_version", "model_sha256",
+               "generator_sha256", "cone", "ledger_match", "model_assumptions", "scope_v2", "kernels", "independence_class",
+               "refinement_refs", "coverage", "non_vacuity", "witness_provenance", "filter_bin"],
+  "properties": {
+    "law_id": {"type": "string", "pattern": "^L_[A-Za-z0-9_]+$"},
+    "statement_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "facts_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["PROVED", "REFUTED", "UNKNOWN"]},
+    "premises": {"type": "array", "items": {"type": "string"}},
+    "replay": {"type": "object", "required": ["status"],
+               "properties": {"status": {"enum": ["not_run", "passed", "failed", "not_applicable"]}}},
+    "record_version": {"const": "holon-record/0.2"},
+    "model_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "generator_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "cone": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"}},
+    "ledger_match": {"const": "exact", "description": "committed records match their ledger bundle by facts sha256; 'derived' (a run over facts derived from a registered file, e.g. planted mutations) never validates"},
+    "model_assumptions": {"type": "array", "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*$"}},
+    "scope_v2": {
+      "type": "object",
+      "required": ["kind", "horizon", "at_state"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["bounded", "unbounded"]},
+        "horizon": {"type": ["string", "null"]},
+        "at_state": {"enum": ["s0", "any", null]}
+      }
+    },
+    "kernels": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "version", "role", "result"],
+        "properties": {
+          "name": {"enum": ["bend2", "bendtt", "lean4"]},
+          "version": {"type": "string"},
+          "role": {"enum": ["primary", "second"]},
+          "result": {"enum": ["checked", "failed", "not_run"]},
+          "shares_frontend_with": {"type": "string"},
+          "note": {"type": "string"}
+        }
+      }
+    },
+    "independence_class": {"enum": ["none", "I1", "I1-shared", "I2"]},
+    "refinement_refs": {"const": "pending:I16"},
+    "coverage": {"const": "pending:I19"},
+    "non_vacuity": {"const": "pending:I3"},
+    "witness_provenance": {"enum": ["pending:I4", null]},
+    "filter_bin": {"enum": ["pending:I4", null]}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "REFUTED"}}},
+     "then": {"properties": {"witness_provenance": {"const": "pending:I4"}, "filter_bin": {"const": "pending:I4"}}}},
+    {"if": {"properties": {"status": {"enum": ["PROVED", "UNKNOWN"]}}},
+     "then": {"properties": {"witness_provenance": {"type": "null"}, "filter_bin": {"type": "null"}}}},
+    {"if": {"properties": {"status": {"const": "UNKNOWN"}}},
+     "then": {"properties": {"independence_class": {"const": "none"}, "scope_v2": {"properties": {"kind": {"const": "bounded"}}}}}},
+    {"if": {"properties": {"status": {"enum": ["PROVED", "REFUTED"]}}},
+     "then": {"properties": {"independence_class": {"enum": ["I1", "I1-shared", "I2"]},
+                             "scope_v2": {"properties": {"kind": {"const": "unbounded"}}}}}}
+  ]
+}

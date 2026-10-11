@@ -43,13 +43,16 @@ GIT_DEPS = {
     "@rari-capital/solmate": ("https://github.com/transmissions11/solmate", "8f9b23f8838670afda0fd8983f2c41e8037ae6bc"),
 }
 
-# What each side is expected to show, and why a side is not applicable in M0.
+# What each side is expected to show, and why a side is not replayed yet. A side that is not
+# replayed must say so with the label the gate (G6) requires: "model-only pending replay".
 PLAN = {
     "L_par_hdr_v2": {"go": "TestHolonReplay/L_par_hdr_v2",
-                     "solidity": "needs a full commitBatch deployment (byte 0 = 2 is written on the commit path): M1"},
+                     "solidity": "model-only pending replay: needs a full commitBatch deployment (byte 0 = 2 is "
+                                 "written on the commit path); scheduled in docs/BUILD_PLAN.md I4"},
     "L_dom_hdr": {"go": "TestHolonReplay/L_dom_hdr", "solidity": "test_L_dom_hdr_witness_accepted"},
     "L_par_hdr_ssvh": {"go": "TestHolonReplay/L_par_hdr_ssvh",
-                       "solidity": "needs a full commitBatch deployment (ssvh is written as zero on the commit path): M1"},
+                       "solidity": "model-only pending replay: needs a full commitBatch deployment (ssvh is written "
+                                   "as zero on the commit path); scheduled in docs/BUILD_PLAN.md I4"},
 }
 
 

@@ -12,7 +12,7 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.396
+      "seconds": 0.414
     },
     {
       "bound": "Header: 16 structured fills + 48 random (seed 20261010), premises pinned; unpinned version over [0, 1, 2]+1",
@@ -30,41 +30,88 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.544
+      "seconds": 0.555
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.036
+      "seconds": 1.068
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.544
+    "seconds": 0.555
   },
+  "cone": [
+    "Hdr",
+    "enc_go_v1",
+    "enc_sol",
+    "enc_sol_at",
+    "hdr_version",
+    "overlay",
+    "put",
+    "zeros"
+  ],
+  "coverage": "pending:I19",
   "difference": {
     "lhs": "0x0200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
     "rhs": "0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
   },
   "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "filter_bin": "pending:I4",
+  "generator_sha256": "eb88ead82d1cc77dc27276eb14956794401dcec422c662fa09c7ab99e4ae3bd6",
+  "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
     "version": "2.0.36"
   },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
   "law_id": "L_par_hdr_v2",
+  "ledger_match": "exact",
+  "model_assumptions": [
+    "A-cache",
+    "A-dirty",
+    "A-hash",
+    "A-version",
+    "A-width"
+  ],
+  "model_sha256": "a4c3fef09dd69d202ebffe8cdea675a715c22a9cb21012e3ed49c500f69ac5b7",
+  "non_vacuity": "pending:I3",
   "premises": [
     "h.version == 0x02",
     "h.sequencerSetVerifyHash == 0x00*32"
   ],
+  "record_version": "holon-record/0.2",
+  "refinement_refs": "pending:I16",
   "replay": {
     "detail": "go: passed; solidity: not_applicable @ morph 3e44e795586a",
     "status": "passed"
   },
   "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
   "statement": "\u2200 h: Header. h.version == 0x02 \u2227 h.sequencerSetVerifyHash == 0x00*32 \u21d2 enc_sol(h) == enc_go_v1(h)",
   "statement_hash": "sha256:88c0b7734bbb1c3b4cc2f3127f4ee2c552789074f5f10d0286c03443ad037954",
   "status": "REFUTED",
@@ -84,5 +131,6 @@
       "version": "0x02",
       "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
     }
-  }
+  },
+  "witness_provenance": "pending:I4"
 }

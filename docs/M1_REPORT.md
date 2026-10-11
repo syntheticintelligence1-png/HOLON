@@ -104,8 +104,17 @@ Earlier runs did fail. Both causes were harness defects, and both were fixed in 
 
 ## 5. Premises and assumptions (visible, never axioms)
 
+**Correction (I1, 2026-10-11).** These are model assumptions, not premises of the frozen statements. Until I1, a hard-coded `CF(keccak256, headers)` string was appended to the premises of every M1 record, including `L_own_txspayload`, which involves no hash. Since I1:
+- each record's `premises` are exactly the assume clauses of its statement;
+- its `model_assumptions` are the entries of `spec/ledger/assumptions.json` that its cone reaches.
+
+The list below is the original text, corrected where it was wrong.
+
 - **CF(keccak256, headers).** Presenting a header is modelled by its index, and committedBatches by `k ≤ LCI`. Replay re-checks it: `keccak(header)` must equal `committedBatches(k)` after every commit, or the harness logs a mismatch. None were logged.
-- **HypZ.** The zero blob's versioned hash is ZERO_VERSIONED_HASH. Oracle-checked: `0x01 ‖ sha256(0xc0 ‖ 0⁴⁷)[1:]` equals the constant at Rollup.sol:24.
+- **Hyp-Z0-kzg (D2).** This item was originally called HypZ, but §8.5 reserves that name for the compression hypothesis. The claim is that ZERO_VERSIONED_HASH equals the versioned hash of the zero blob, `0x01 ‖ sha256(0xc0 ‖ 0⁴⁷)[1:]`.
+  - The constant is at Rollup.sol:25, not :24.
+  - The original text said the value was "oracle-checked". No code in the repo performed that check. The value was recomputed by hand on 2026-10-11 and matches.
+  - A checked test arrives with I3 (`docs/BUILD_PLAN.md`).
 - **Oracles.** ISubmitter and the verifier are oracles (stand-ins above). keccak over blob hashes (version 2) is an injective stand-in `agg`. Replay uses real keccak, and outcomes agreed.
 - **Index specialization.** Reads of per-batch registers above LCI go through the shadow only for `batchBlobVersionedHashes`. Every other read follows a guard that established `idx ≤ LCI`. This is documented per guard in the facts and exercised by the random corpus.
 - **Representative state for DISCH-delay.** The profile is computed at s*, a reachable representative of the guard class: one message, included, delay window passed, finalization pending. The profile is per state (Def 6.20), not global.

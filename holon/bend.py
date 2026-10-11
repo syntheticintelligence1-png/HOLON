@@ -21,6 +21,13 @@ MARK_FAIL = "SOME PROOFS FAIL"
 UNSAFE_ENV_FILES = ("bunfig.toml", ".env")
 
 
+def build_dir(root: Path | None = None) -> Path:
+    """Where compiled models are cached. The gate sets HOLON_BUILD_DIR to a fresh directory so a
+    regeneration (G1) or re-check never reuses a cache copied along with the tree."""
+    env = os.environ.get("HOLON_BUILD_DIR")
+    return Path(env) if env else Path(root or ROOT) / "build"
+
+
 def config(root: Path | None = None) -> dict:
     root = Path(root or ROOT)
     p = root / "config" / "holon.json"

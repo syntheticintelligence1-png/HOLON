@@ -18,7 +18,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from . import bend, ir
+from . import bend, ir, records
 from . import facts as F
 from .gen import mlaws, mproofs
 from .gen.machine import Machine
@@ -44,7 +44,7 @@ class CompiledMachine:
         sha = F.sha256_file(facts_path)
         m = Machine(facts)
         text = m.generate(sha)
-        src = ROOT / "build" / "eval" / sha[:16] / f"{model_name(facts_path)}.bend"
+        src = bend.build_dir(ROOT) / "eval" / sha[:16] / f"{model_name(facts_path)}.bend"
         src.parent.mkdir(parents=True, exist_ok=True)
         if not src.exists() or src.read_text() != text:
             src.write_text(text)
@@ -229,17 +229,18 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         attempts: list = []
         rec = {"law_id": lid, "statement_hash": ir.statement_hash(law), "facts_sha256": facts_sha,
                "rule": law["rule"], "subform": law.get("subform"), "maps_to": law.get("maps_to"),
-               "premises": [json.dumps(p["eq"], sort_keys=True) for p in law["statement"].get("assume", [])]
-               + ["CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"],
+               "statement": ir.render_statement(law), "premises": ir.premises(law),
                "kernel": {"name": "bend", "version": kver, "verdict": "not_run"},
                "artifacts": {"laws": None, "proof": None, "model": relpath(model_src), "law_name": None},
                "checker": {"exit_code": None, "marker": "not_run"}, "witness": None, "difference": None,
                "triage": "none", "replay": {"status": "not_run", "detail": "certificates are not replayed; refinement replay corpus in replay/M1"}}
         status, em, r = "UNKNOWN", None, None
         bound = None
+        stmt_text = records.ir_roots_text(law)
         try:
             E = mlaws.Emitter(cm.m)
             em = E.emit(law, imp, note=ir.statement_hash(law))
+            stmt_text = em.text
             exists = any(b["q"] == "exists" for b in law["statement"]["binders"])
             witness = None
             if exists:
@@ -308,6 +309,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                                  "marker": v.marker, "seconds": v.seconds})
         rec["status"] = status
         rec["attempts"] = attempts
+        rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], ROOT))
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:22s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")

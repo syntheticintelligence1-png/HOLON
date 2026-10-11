@@ -51,7 +51,7 @@ class CompiledModel:
         sha = F.sha256_file(facts_path)
         text = G.generate(facts, sha)
         if source is None:
-            source = ROOT / "build" / "eval" / sha[:16] / f"{model_name(facts_path)}.bend"
+            source = bend.build_dir(ROOT) / "eval" / sha[:16] / f"{model_name(facts_path)}.bend"
         source = Path(source)
         write_if_changed(source, text)
         artifact = source.with_suffix(".mjs")

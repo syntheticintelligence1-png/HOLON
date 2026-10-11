@@ -69,6 +69,7 @@ def rebind_facts(law: dict, facts_sha256: str) -> dict:
 
 # ---------------------------------------------------------------- rendering
 def render_term(t: dict) -> str:
+    # holon-ir/0.1 (header laws)
     if "var" in t:
         return t["var"]
     if "bytes" in t:
@@ -82,21 +83,61 @@ def render_term(t: dict) -> str:
         return f"{t['call']}({', '.join(render_term(a) for a in t['args'])})"
     if "some" in t:
         return f"Some({render_term(t['some'])})"
+    # holon-ir/0.2 (state-machine laws; grammar in holon/gen/mlaws.py)
+    if "nat" in t:
+        return str(int(t["nat"]))
+    if "bool" in t:
+        return "true" if t["bool"] else "false"
+    if "nats" in t:
+        return "[" + ", ".join(str(int(x)) for x in t["nats"]) + "]"
+    if "s0" in t:
+        return "s0"
+    for k in ("run", "step", "obs"):
+        if k in t:
+            return f"{k}({render_term(t[k])}, {render_term(t['from'])})"
+    if "trace" in t:
+        return "[" + ", ".join(render_term(a) for a in t["trace"]) + "]"
+    if "cat" in t:
+        return " ++ ".join(render_term(x) for x in t["cat"])
+    if "act" in t:
+        return f"{t['act']}(" + ", ".join(f"{k}={render_term(v)}" for k, v in sorted(t["args"].items())) + ")"
+    if "proj" in t:
+        return f"erase[{', '.join(t['proj'])}]({render_term(t['of'])})"
+    if "obsv" in t:
+        return f"{t['obsv']}({render_term(t['of'])})"
+    if "mig" in t:
+        return f"mig_{t['mig']}(" + ", ".join(render_term(x) for x in [t["of"]] + list(t.get("args", []))) + ")"
+    if "fn" in t:
+        return f"{t['fn']}({', '.join(render_term(a) for a in t['args'])})"
+    if "plus" in t:
+        return f"({render_term(t['plus'][0])} + {render_term(t['plus'][1])})"
     raise ValueError(f"unknown term {t}")
 
 
 def render_prop(p: dict) -> str:
+    if "all" in p:
+        return " ∧ ".join(render_prop(x) for x in p["all"])
     a, b = p["eq"]
     return f"{render_term(a)} == {render_term(b)}"
 
 
 def premises(law: dict) -> list[str]:
-    """Readable premises: one per assume clause (plus none for M0's oracle-free laws)."""
+    """Readable premises: one per assume clause of the frozen statement, nothing else.
+
+    Model assumptions (hash stand-ins, oracles, abstractions) are not statement premises:
+    they are joined from spec/ledger by holon.records into a record's model_assumptions.
+    """
     return [render_prop(p) for p in law["statement"].get("assume", [])]
 
 
 def render_statement(law: dict) -> str:
     st = law["statement"]
-    binders = ", ".join(f"{b['name']}: {b['type']}" for b in st["forall"])
+    if "binders" in st:
+        sym = {"forall": "∀", "exists": "∃"}
+        binders = ", ".join(f"{sym[b['q']]} {b['name']}: {b['type']}" for b in st["binders"])
+        head = f"{binders}. "
+    else:
+        binders = ", ".join(f"{b['name']}: {b['type']}" for b in st["forall"])
+        head = f"∀ {binders}. "
     prem = " ∧ ".join(premises(law))
-    return f"∀ {binders}. " + (f"{prem} ⇒ " if prem else "") + render_prop(st["claim"])
+    return head + (f"{prem} ⇒ " if prem else "") + render_prop(st["claim"])

@@ -15,7 +15,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from . import bend, ir, refute
+from . import bend, ir, records, refute
 from .replay import load_report, replay_status
 from . import facts as F
 from .gen import laws as LG
@@ -67,6 +67,14 @@ def check_registry(laws: list[dict], milestone: str, facts_sha: str) -> None:  #
 
 def _first_error(out: str, n: int = 12) -> str:
     return "\n".join(out.strip().splitlines()[:n])
+
+
+def statement_text(law: dict, facts: dict, model_import: str) -> str:
+    """The emitted frozen statement (never the counter-law): the roots of the law's cone."""
+    try:
+        return LG.emit(law, facts, model_import).text
+    except LG.Unsupported:
+        return records.ir_roots_text(law)
 
 
 def prove(law: dict, facts: dict, d: Path, model_import: str, cfg: dict, attempts: list):
@@ -188,6 +196,8 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
                                  "marker": v.marker, "seconds": v.seconds})
         rec["status"] = status
         rec["attempts"] = attempts
+        rec.update(records.v2_fields(law, rec, statement_text(law, facts, model_import), model_src,
+                                     ir.load_registry(milestone, ROOT).get("facts", "facts/morph_header.json"), ROOT))
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:16s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")

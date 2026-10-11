@@ -11,41 +11,96 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.514
+      "seconds": 0.459
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.059
+      "seconds": 0.873
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.514
+    "seconds": 0.459
   },
+  "cone": [
+    "Hdr",
+    "dec_go",
+    "dec_go_fields",
+    "dec_go_fields_at",
+    "dec_go_sel",
+    "enc_sol",
+    "enc_sol_at",
+    "hdr_version",
+    "ok_go",
+    "ok_go_at",
+    "overlay",
+    "put",
+    "slice",
+    "tail_len_eq",
+    "view",
+    "view_at"
+  ],
+  "coverage": "pending:I19",
   "difference": null,
   "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "filter_bin": null,
+  "generator_sha256": "eb88ead82d1cc77dc27276eb14956794401dcec422c662fa09c7ab99e4ae3bd6",
+  "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
     "version": "2.0.36"
   },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
   "law_id": "L_rt_go_v1",
+  "ledger_match": "exact",
+  "model_assumptions": [
+    "A-dirty",
+    "A-hash",
+    "A-version",
+    "A-width"
+  ],
+  "model_sha256": "a4c3fef09dd69d202ebffe8cdea675a715c22a9cb21012e3ed49c500f69ac5b7",
+  "non_vacuity": "pending:I3",
   "premises": [
     "h.version == 0x01",
     "h.sequencerSetVerifyHash == 0x00*32"
   ],
+  "record_version": "holon-record/0.2",
+  "refinement_refs": "pending:I16",
   "replay": {
     "detail": "certificates are not replayed; refinement replay is M2",
     "status": "not_run"
   },
   "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
   "statement": "\u2200 h: Header. h.version == 0x01 \u2227 h.sequencerSetVerifyHash == 0x00*32 \u21d2 dec_go(enc_sol(h)) == Some(view(h))",
   "statement_hash": "sha256:091b2c8c5785fbc857250b6f3fc9af20853bcf1b240471038c00d1bdfcf79d77",
   "status": "PROVED",
   "triage": "none",
-  "witness": null
+  "witness": null,
+  "witness_provenance": null
 }

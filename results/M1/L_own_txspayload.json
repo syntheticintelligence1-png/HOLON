@@ -18,42 +18,111 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.251
+      "seconds": 0.22
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 6.565
+      "seconds": 6.674
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.251
+    "seconds": 0.22
   },
+  "cone": [
+    "Dec_append",
+    "Dec_txsPayloadV2",
+    "HAct",
+    "HArr",
+    "HObs",
+    "HSl",
+    "HSt",
+    "b_first_ge",
+    "b_go_append_heap",
+    "b_go_append_slice",
+    "b_go_loop",
+    "b_go_nextcap",
+    "b_go_read",
+    "b_overlay",
+    "b_put",
+    "b_zeros",
+    "decide_append",
+    "decide_txsPayloadV2",
+    "empty_Arr",
+    "eq_list_nat",
+    "exec_append",
+    "exec_txsPayloadV2",
+    "g_Arr_cells",
+    "ite",
+    "nth_d",
+    "run",
+    "s0",
+    "set_d",
+    "step",
+    "step_append",
+    "step_txsPayloadV2",
+    "view_intact"
+  ],
+  "coverage": "pending:I19",
   "difference": {
     "lhs": false,
     "rhs": true
   },
   "facts_sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d",
+  "filter_bin": "pending:I4",
+  "generator_sha256": "378c645b1dc21a9e10e43980f3f6825379db35fff97f11ea9c25e5b522839751",
+  "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
     "version": "2.0.36"
   },
-  "law_id": "L_own_txspayload",
-  "maps_to": "O36 (F9 sub-item)",
-  "premises": [
-    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
   ],
+  "law_id": "L_own_txspayload",
+  "ledger_match": "exact",
+  "maps_to": "O36 (F9 sub-item)",
+  "model_assumptions": [
+    "abs-go-heap",
+    "abs-newbatchdata-cap0",
+    "oracle-go-sizeclass-trunc512",
+    "scope-batchdata-unmodelled"
+  ],
+  "model_sha256": "a50954c8bf5d7ad261c17c01effa1af7af35e860f2e945694044a0ffaf070f75",
+  "non_vacuity": "pending:I3",
+  "premises": [],
+  "record_version": "holon-record/0.2",
+  "refinement_refs": "pending:I16",
   "replay": {
     "detail": "view held across Append: len=70 cap(blockContexts)=80 changed=true first-diff=68 (Go go version go1.24.7 linux/amd64); realistic 60-byte contexts: passed (len=183 cap(blockContexts)=256 first-diff=180) @ morph 3e44e795586a",
     "status": "passed"
   },
   "rule": "OWN",
   "scope": "unbounded",
+  "scope_v2": {
+    "at_state": "s0",
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 p: Trace. view_intact(run(p, s0)) == true",
   "statement_hash": "sha256:e1d9e70fbe020ae01ff4036476a4677efb2fac20bb0febc8a37049ec8fa562c6",
   "status": "REFUTED",
   "subform": "alias",
@@ -165,5 +234,6 @@
         ]
       }
     ]
-  }
+  },
+  "witness_provenance": "pending:I4"
 }

@@ -1,13 +1,19 @@
 """`holon gate`: regenerate and re-check everything from scratch (whitepaper §9.3, M0_SPEC §7).
 
-Order: GENV, G2, G1, G3, G5, G11, G7, G4. The report is always written; exit 0 iff passed.
+Order: GENV, G2, G1, G3, G5, G11, G6, G9, G7, G4. The report is always written; exit 0 iff passed.
+`--checks G6,G9` runs a subset (after GENV) and marks the report partial.
 
   GENV  no bunfig.toml / .env under root (else Bend is never invoked), pinned bend version
   G2    statement hashes match REGISTRY.json; registry lists exactly laws/<m>; facts hash
-  G1    regeneration into a temp dir is byte-identical (gen/**/*.bend, summary.json)
+  G1    regeneration into a temp dir is byte-identical (gen/**/*.bend, summary.json, and every
+        result record with `seconds` stripped and artifact paths normalised), from a fresh build dir
   G3    no escape hatches in generated Bend; the checker reports no TODO / unsafe reliance
   G5    every PROVED/REFUTED PROOF.bend re-checks: exit 0 and ALL PROOFS CHECK
   G11   every law has a record; every checked LAWS.bend states exactly its expected law
+  G6    every REFUTED record is bound to a passed replay: its witness sha256 is in the replay
+        report, the report is for the facts' target commit, and a side not replayed is labelled
+        "model-only pending replay"
+  G9    every record validates against the frozen v1 schema and spec/schemas/result_record_v2
   G7    second kernel: BendTT (--verdict) re-checks every proof, or the run is labelled
         single-kernel when Lean is unavailable
   G4    >= 10 canaries of >= 3 kinds (pin_const, swap_fn, negated), all rejected, each for a
@@ -34,7 +40,8 @@ from .model_eval import CompiledModel, model_name
 ROOT = Path(__file__).resolve().parents[1]
 MIN_CANARIES = 10
 MAX_CANARIES = 24
-CHECK_ORDER = ["GENV", "G2", "G1", "G3", "G5", "G11", "G7", "G4"]
+CHECK_ORDER = ["GENV", "G2", "G1", "G3", "G5", "G11", "G6", "G9", "G7", "G4"]
+MODEL_ONLY = "model-only pending replay"
 
 
 def _res(passed: bool, detail: str) -> dict:
@@ -82,6 +89,102 @@ class Gate:
                 proof = _resolve(self.root, rec["artifacts"].get("proof"))
                 out.append((lid, rec, proof.parent if proof else self.gen / lid))
         return out
+
+    def norm_records(self, results: Path, gen: Path) -> dict[str, dict]:
+        """Records with every `seconds` removed and artifact paths made relative to their gen dir."""
+        def strip(x):
+            if isinstance(x, dict):
+                return {k: strip(v) for k, v in x.items() if k != "seconds"}
+            if isinstance(x, list):
+                return [strip(v) for v in x]
+            return x
+
+        def rel(p):
+            if p is None:
+                return None
+            q = Path(p)
+            q = q if q.is_absolute() else self.root / q
+            try:
+                return q.resolve().relative_to(gen.resolve()).as_posix()
+            except ValueError:
+                return f"<outside gen>/{q.name}"
+        out = {}
+        for f in sorted(Path(results).glob("L_*.json")):
+            r = strip(_load(f))
+            if isinstance(r.get("artifacts"), dict):
+                r["artifacts"] = {k: (rel(v) if k in ("laws", "proof", "model") else v) for k, v in r["artifacts"].items()}
+            out[f.stem] = r
+        return out
+
+    def target_commits(self) -> dict[str, str]:
+        """facts sha256 -> the target commit named by that facts file."""
+        out = {}
+        for law in ir.load_laws_any(self.m, self.root):
+            fp = self.root / law["facts"] if "facts" in law else self.facts_path
+            out[law["facts_sha256"]] = F.load(fp)["target"]["commit"]
+        return out
+
+    def g6(self) -> None:
+        from .replay import load_report, witness_sha256
+        bad, n, model_only = [], 0, 0
+        try:
+            report = load_report(self.m, self.root)
+        except Exception as e:  # noqa: BLE001
+            report = None
+            bad.append(f"replay report unreadable: {e}")
+        targets = self.target_commits()
+        refuted = {lid: rec for lid, rec in self.records().items() if rec and rec.get("status") == "REFUTED"}
+        if report is None and refuted and not bad:
+            bad.append(f"no replay report for {len(refuted)} REFUTED records")
+        if report is not None:
+            commit = report.get("morph_commit", "")
+            hashes = report.get("witness_sha256", {})
+            for lid in sorted(set(hashes) - set(refuted)):
+                bad.append(f"{lid}: the replay report lists a witness for a law that is not REFUTED")
+            for lid, rec in sorted(refuted.items()):
+                n += 1
+                if rec.get("replay", {}).get("status") != "passed":
+                    bad.append(f"{lid}: record replay status is {rec.get('replay', {}).get('status')!r}, not passed")
+                want = targets.get(rec["facts_sha256"], "")
+                if not want or not commit.startswith(want):
+                    bad.append(f"{lid}: report is for morph {commit[:12] or '?'}, facts target {want or '?'}")
+                if hashes.get(lid) != witness_sha256(rec.get("witness")):
+                    bad.append(f"{lid}: witness sha256 differs from the replay report")
+                entry = report.get("laws", {}).get(lid)
+                if entry is None:
+                    bad.append(f"{lid}: not in the replay report")
+                    continue
+                sides = {"_": entry} if "status" in entry else {k: v for k, v in entry.items() if isinstance(v, dict)}
+                if not sides:
+                    bad.append(f"{lid}: replay entry has no side")
+                for side, v in sorted(sides.items()):
+                    st = v.get("status")
+                    if st == "not_applicable":
+                        if not str(v.get("observed", "")).startswith(MODEL_ONLY):
+                            bad.append(f"{lid}: {side} side not replayed and not labelled '{MODEL_ONLY}'")
+                        else:
+                            model_only += 1
+                    elif st != "passed":
+                        bad.append(f"{lid}: {side} side replay {st!r}")
+        self.checks["G6"] = _res(not bad, f"{n} REFUTED records bound to passed replays ({model_only} sides "
+                                          f"{MODEL_ONLY})" if not bad else "; ".join(bad))
+
+    def g9(self) -> None:
+        from . import schema
+        v1 = _load(self.root / "schemas" / "result_record.schema.json")
+        v2 = _load(self.root / "spec" / "schemas" / "result_record_v2.schema.json")
+        bad, n = [], 0
+        for lid, rec in self.records().items():
+            if rec is None:
+                bad.append(f"{lid}: no result record")
+                continue
+            n += 1
+            for name, sch in (("v1", v1), ("v2", v2)):
+                errs = schema.errors(rec, sch)
+                if errs:
+                    bad.append(f"{lid}: {name}: {errs[:3]}")
+        self.checks["G9"] = _res(not bad and n > 0, f"{n} records valid against v1 and v2" if not bad and n
+                                 else "; ".join(bad) or "no records")
 
     # ------------------------------------------------------------ checks
     def genv(self) -> bool:
@@ -131,6 +234,7 @@ class Gate:
         try:
             env = dict(os.environ)
             env["PYTHONPATH"] = str(self.root) + os.pathsep + env.get("PYTHONPATH", "")
+            env["HOLON_BUILD_DIR"] = str(tmp / "build")
             p = subprocess.run([sys.executable, "-m", "holon", "run", "--milestone", self.m, "--out",
                                 str(tmp / "results"), "--gen-dir", str(tmp / "gen")],
                                cwd=self.root, env=env, capture_output=True, text=True, timeout=3600)
@@ -143,9 +247,14 @@ class Gate:
             diff = sorted(k for k in set(a) | set(b) if a.get(k) != b.get(k))
             sa = self.results / "summary.json"
             same_summary = sa.exists() and _load(sa) == _load(tmp / "results" / "summary.json")
-            ok = not diff and same_summary and bool(a)
-            self.checks["G1"] = _res(ok, f"{len(a)} generated .bend files identical, summary identical" if ok else
-                                     f"differs: {diff[:10]}; summary identical: {same_summary}; files: {len(a)}")
+            ra = self.norm_records(self.results, self.gen)
+            rb = self.norm_records(tmp / "results", tmp / "gen")
+            rdiff = sorted(k for k in set(ra) | set(rb) if ra.get(k) != rb.get(k))
+            ok = not diff and same_summary and bool(a) and not rdiff and bool(ra)
+            self.checks["G1"] = _res(ok, f"{len(a)} generated .bend files identical, summary identical, "
+                                         f"{len(ra)} records identical" if ok else
+                                     f"differs: {diff[:10]}; records differ: {rdiff[:10]}; summary identical: "
+                                     f"{same_summary}; files: {len(a)}; records: {len(ra)}")
         except Exception as e:  # noqa: BLE001
             self.checks["G1"] = _res(False, f"error: {e}")
         finally:
@@ -324,28 +433,45 @@ class Gate:
             self.checks["G4"] = _res(False, f"error: {e}")
 
     # ------------------------------------------------------------ driver
-    def run(self) -> dict:
-        if self.genv():
-            self.g2()
-            self.g1()
-            self.g5()
-            self.g3()
-            self.g11()
-            self.g7()
-            self.g4()
-        else:
-            for g in CHECK_ORDER[1:]:
-                self.checks[g] = _res(False, "skipped: unsafe environment" if bend.unsafe_env_files(self.root)
-                                      else "skipped: bend unavailable or not the pinned version")
-        checks = {g: self.checks[g] for g in CHECK_ORDER}
-        return {"milestone": self.m, "passed": all(c["passed"] for c in checks.values()),
-                "bend_version": self.bend_version, "checks": checks, "canaries": self.canaries}
+    def run(self, only: list[str] | None = None) -> dict:
+        order = CHECK_ORDER if not only else ["GENV"] + [g for g in CHECK_ORDER[1:] if g in only]
+        unknown = sorted(set(only or []) - set(CHECK_ORDER))
+        if unknown:
+            raise SystemExit(f"unknown checks: {unknown}")
+        steps = {"G2": self.g2, "G1": self.g1, "G5": self.g5, "G3": self.g3, "G11": self.g11, "G6": self.g6,
+                 "G9": self.g9, "G7": self.g7, "G4": self.g4}
+        # a fresh build directory: nothing compiled is reused from the tree under check
+        build = Path(tempfile.mkdtemp(prefix="holon-gate-build-"))
+        old_build = os.environ.get("HOLON_BUILD_DIR")
+        os.environ["HOLON_BUILD_DIR"] = str(build)
+        try:
+            if self.genv():
+                for g in ["G2", "G1", "G5", "G3", "G11", "G6", "G9", "G7", "G4"]:
+                    if g in order:
+                        steps[g]()
+            else:
+                for g in order[1:]:
+                    self.checks[g] = _res(False, "skipped: unsafe environment" if bend.unsafe_env_files(self.root)
+                                          else "skipped: bend unavailable or not the pinned version")
+        finally:
+            if old_build is None:
+                os.environ.pop("HOLON_BUILD_DIR", None)
+            else:
+                os.environ["HOLON_BUILD_DIR"] = old_build
+            shutil.rmtree(build, ignore_errors=True)
+        checks = {g: self.checks[g] for g in order}
+        rep = {"milestone": self.m, "passed": all(c["passed"] for c in checks.values()),
+               "bend_version": self.bend_version, "checks": checks, "canaries": self.canaries}
+        if only:
+            rep["partial"] = True
+        return rep
 
 
 def main_gate(args) -> int:
     root = Path(args.root or ROOT).resolve()
     report_path = Path(args.report) if args.report else root / "results" / args.milestone / "gate_report.json"
-    rep = Gate(args.milestone, root).run()
+    only = [c.strip() for c in args.checks.split(",") if c.strip()] if getattr(args, "checks", None) else None
+    rep = Gate(args.milestone, root).run(only)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(rep, indent=2, sort_keys=True) + "\n")
     for g, c in rep["checks"].items():
