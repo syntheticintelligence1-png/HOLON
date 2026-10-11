@@ -1,0 +1,95 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_fact_z",
+    "laws": "gen/M1/L_fact_Z/LAWS.bend",
+    "model": "gen/M1/model/morph_rollup.bend",
+    "proof": "gen/M1/L_fact_Z/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 3465
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.33
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.469
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.33
+  },
+  "difference": {
+    "lhs": [],
+    "rhs": [
+      1
+    ]
+  },
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_fact_Z",
+  "maps_to": "O22 (F2)",
+  "premises": [
+    "[{\"args\": [{\"var\": \"c1\"}], \"fn\": \"is_commitBatch\"}, {\"bool\": true}]",
+    "[{\"args\": [{\"var\": \"c2\"}], \"fn\": \"is_commitBatch\"}, {\"bool\": true}]",
+    "[{\"args\": [{\"from\": {\"from\": {\"s0\": {}}, \"run\": {\"var\": \"p\"}}, \"step\": {\"var\": \"c1\"}}], \"fn\": \"last_ok\"}, {\"bool\": true}]",
+    "[{\"args\": [{\"from\": {\"from\": {\"s0\": {}}, \"run\": {\"var\": \"p\"}}, \"step\": {\"var\": \"c2\"}}], \"fn\": \"last_ok\"}, {\"bool\": true}]",
+    "[{\"obsv\": \"new_hdr\", \"of\": {\"from\": {\"from\": {\"s0\": {}}, \"run\": {\"var\": \"p\"}}, \"step\": {\"var\": \"c1\"}}}, {\"obsv\": \"new_hdr\", \"of\": {\"from\": {\"from\": {\"s0\": {}}, \"run\": {\"var\": \"p\"}}, \"step\": {\"var\": \"c2\"}}}]",
+    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  ],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "FACT",
+  "scope": "unbounded",
+  "statement_hash": "sha256:5b3e051df5bfc68545307bd43c5c2ac7ec9bf9be54c6c9851f7757b25b5a512e",
+  "status": "REFUTED",
+  "subform": "kernel_containment",
+  "triage": "finding",
+  "witness": {
+    "c1": {
+      "blobs": [],
+      "lbn": 1,
+      "n": 0,
+      "op": "commitBatch",
+      "parent": 0,
+      "post": 110,
+      "prev": 100,
+      "ver": 1,
+      "who": 2
+    },
+    "c2": {
+      "blobs": [
+        1
+      ],
+      "lbn": 1,
+      "n": 0,
+      "op": "commitBatch",
+      "parent": 0,
+      "post": 110,
+      "prev": 100,
+      "ver": 1,
+      "who": 2
+    },
+    "p": []
+  }
+}

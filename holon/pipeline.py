@@ -48,7 +48,7 @@ def load_triage(milestone: str) -> dict:
     return json.loads(p.read_text()).get(milestone, {}) if p.exists() else {}
 
 
-def check_registry(laws: list[dict], milestone: str, facts_sha: str) -> None:
+def check_registry(laws: list[dict], milestone: str, facts_sha: str) -> None:  # noqa: C901
     reg = ir.load_registry(milestone, ROOT)
     problems = []
     if reg["facts_sha256"] != facts_sha:
@@ -109,6 +109,9 @@ def refute_law(law: dict, facts: dict, d: Path, model_import: str, cfg: dict, mo
 
 def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = None,
         gen_dir: str | None = None, no_registry: bool = False, log=print) -> dict:
+    if ir.ir_version_of(milestone, ROOT) == "holon-ir/0.2":
+        from .mpipeline import run_m1
+        return run_m1(milestone, facts_path, out, gen_dir, no_registry, log)
     cfg = bend.config(ROOT)
     facts_path = Path(facts_path or ROOT / "facts" / "morph_header.json")
     out_dir = Path(out or ROOT / "results" / milestone)

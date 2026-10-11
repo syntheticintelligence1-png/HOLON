@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 
 IR_VERSION = "holon-ir/0.1"
+IR_VERSIONS = ("holon-ir/0.1", "holon-ir/0.2")
 HASHED_KEYS = ("ir_version", "law_id", "rule", "facts_sha256", "statement")
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -36,6 +37,23 @@ def load_laws(milestone: str = "M0", root: Path | str | None = None) -> list[dic
         if law.get("ir_version") != IR_VERSION:
             raise ValueError(f"{law.get('law_id')}: unsupported IR version {law.get('ir_version')!r}")
     return sorted(laws, key=lambda l: l["law_id"])
+
+
+def load_laws_any(milestone: str, root: Path | str | None = None) -> list[dict]:
+    """Laws of any supported IR version (0.2 adds state-machine statements)."""
+    d = laws_dir(milestone, root)
+    laws = [json.loads(p.read_text()) for p in sorted(d.glob("L_*.json"))]
+    for law in laws:
+        if law.get("ir_version") not in IR_VERSIONS:
+            raise ValueError(f"{law.get('law_id')}: unsupported IR version {law.get('ir_version')!r}")
+    return sorted(laws, key=lambda l: l["law_id"])
+
+
+def ir_version_of(milestone: str, root: Path | str | None = None) -> str:
+    vs = {l["ir_version"] for l in load_laws_any(milestone, root)}
+    if len(vs) != 1:
+        raise ValueError(f"{milestone}: mixed IR versions {vs}")
+    return vs.pop()
 
 
 def load_registry(milestone: str = "M0", root: Path | str | None = None) -> dict:

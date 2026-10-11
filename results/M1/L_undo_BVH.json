@@ -1,0 +1,93 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_undo_bvh",
+    "laws": "gen/M1/L_undo_BVH/LAWS.bend",
+    "model": "gen/M1/model/morph_rollup.bend",
+    "proof": "gen/M1/L_undo_BVH/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 3463
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.299
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.466
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.299
+  },
+  "difference": null,
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_undo_BVH",
+  "maps_to": "O11/O32 (F2)",
+  "premises": [
+    "[{\"args\": [{\"var\": \"c\"}], \"fn\": \"is_commitBatch\"}, {\"bool\": true}]",
+    "[{\"args\": [{\"from\": {\"from\": {\"s0\": {}}, \"run\": {\"var\": \"p\"}}, \"step\": {\"var\": \"c\"}}], \"fn\": \"last_ok\"}, {\"bool\": true}]",
+    "[{\"var\": \"k\"}, {\"plus\": [{\"obsv\": \"lci_of\", \"of\": {\"from\": {\"s0\": {}}, \"run\": {\"var\": \"p\"}}}, {\"nat\": 1}]}]",
+    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  ],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "UNDO",
+  "scope": "unbounded",
+  "statement_hash": "sha256:dcfe90c619bcc087d54a84b2f80b1b8b8f66ba395e22099ddd5c4db211a3c09e",
+  "status": "REFUTED",
+  "subform": "undo_pair",
+  "triage": "finding",
+  "witness": {
+    "c": {
+      "blobs": [
+        17
+      ],
+      "lbn": 1,
+      "n": 0,
+      "op": "commitBatch",
+      "parent": 0,
+      "post": 110,
+      "prev": 100,
+      "ver": 1,
+      "who": 2
+    },
+    "k": 1,
+    "p": [],
+    "q": [
+      {
+        "blobs": [
+          17
+        ],
+        "lbn": 1,
+        "n": 0,
+        "op": "commitBatch",
+        "parent": 0,
+        "post": 110,
+        "prev": 100,
+        "ver": 1,
+        "who": 2
+      }
+    ]
+  }
+}

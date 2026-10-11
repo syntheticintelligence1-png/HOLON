@@ -1,0 +1,131 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_undo_cancel",
+    "laws": "gen/M1/L_undo_cancel/LAWS.bend",
+    "model": "gen/M1/model/morph_rollup.bend",
+    "proof": "gen/M1/L_undo_cancel/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 137111
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.395
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.605
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.395
+  },
+  "difference": {
+    "lhs": [
+      {
+        "$": "O_Ok"
+      },
+      {
+        "$": "O_Ok"
+      },
+      {
+        "$": "O_Ok"
+      }
+    ],
+    "rhs": [
+      {
+        "$": "O_Rev",
+        "code": 33
+      },
+      {
+        "$": "O_Ok"
+      },
+      {
+        "$": "O_Ok"
+      }
+    ]
+  },
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_undo_cancel",
+  "maps_to": "O12 (N2)",
+  "premises": [
+    "[{\"args\": [{\"from\": {\"from\": {\"s0\": {}}, \"run\": {\"var\": \"p\"}}, \"step\": {\"act\": \"challengeState\", \"args\": {\"idx\": {\"var\": \"j\"}, \"value\": {\"nat\": 1}, \"who\": {\"nat\": 4}}}}], \"fn\": \"last_ok\"}, {\"bool\": true}]",
+    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  ],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "UNDO",
+  "scope": "unbounded",
+  "statement_hash": "sha256:6f08f24ef596df34f2a4a2d295880a53ed3651416b77ff5d639c03a7d99665fc",
+  "status": "REFUTED",
+  "subform": "undo_pair",
+  "triage": "finding",
+  "witness": {
+    "j": 1,
+    "p": [
+      {
+        "blobs": [
+          17
+        ],
+        "lbn": 1,
+        "n": 0,
+        "op": "commitBatch",
+        "parent": 0,
+        "post": 110,
+        "prev": 100,
+        "ver": 1,
+        "who": 2
+      },
+      {
+        "blobs": [
+          27
+        ],
+        "lbn": 2,
+        "n": 0,
+        "op": "commitBatch",
+        "parent": 1,
+        "post": 121,
+        "prev": 110,
+        "ver": 1,
+        "who": 2
+      }
+    ],
+    "q": [
+      {
+        "op": "setPause",
+        "status": false,
+        "who": 1
+      },
+      {
+        "dt": 40,
+        "op": "wait"
+      },
+      {
+        "idx": 2,
+        "op": "challengeState",
+        "value": 1,
+        "who": 4
+      }
+    ]
+  }
+}

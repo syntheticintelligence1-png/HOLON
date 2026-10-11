@@ -1,0 +1,53 @@
+{
+  "artifacts": {
+    "law_name": "l_undo_csr",
+    "laws": "gen/M1/L_undo_CSR/LAWS.bend",
+    "model": "gen/M1/model/morph_rollup.bend",
+    "proof": "gen/M1/L_undo_CSR/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "noninterference",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.309
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.489
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.309
+  },
+  "difference": null,
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_undo_CSR",
+  "maps_to": "D5 (whitepaper \u00a711.6)",
+  "premises": [
+    "[{\"of\": {\"var\": \"s1\"}, \"proj\": [\"s_csr\"]}, {\"of\": {\"var\": \"s2\"}, \"proj\": [\"s_csr\"]}]",
+    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  ],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "UNDO",
+  "scope": "unbounded",
+  "statement_hash": "sha256:495a29ac6d11b350f95c4edc18fd0b7d9193c2f6a2f4b7e7a1d68156c221cf6b",
+  "status": "PROVED",
+  "subform": "dead_residue",
+  "triage": "none",
+  "witness": null
+}

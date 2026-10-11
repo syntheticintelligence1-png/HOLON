@@ -1,0 +1,54 @@
+{
+  "artifacts": {
+    "law_name": "l_disch_stale",
+    "laws": "gen/M1/L_disch_stale/LAWS.bend",
+    "model": "gen/M1/model/morph_rollup.bend",
+    "proof": "gen/M1/L_disch_stale/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "deadline",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.348
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.505
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.348
+  },
+  "difference": null,
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_disch_stale",
+  "maps_to": "O31 (F4)",
+  "premises": [
+    "[{\"obsv\": \"kappa\", \"of\": {\"var\": \"s\"}}, {\"bool\": true}]",
+    "[{\"args\": [{\"var\": \"a\"}], \"fn\": \"perm\"}, {\"bool\": true}]",
+    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  ],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "DISCH",
+  "scope": "unbounded",
+  "statement_hash": "sha256:a0243ce6687fe0e8587e507a4413c9cbc17214b844269df8bca36e29a441c297",
+  "status": "PROVED",
+  "subform": "blocking",
+  "triage": "none",
+  "witness": null
+}

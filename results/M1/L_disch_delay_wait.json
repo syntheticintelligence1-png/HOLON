@@ -1,0 +1,82 @@
+{
+  "artifacts": {
+    "law_name": "l_disch_delay_wait",
+    "laws": "gen/M1/L_disch_delay_wait/LAWS.bend",
+    "model": "gen/M1/model/morph_rollup.bend",
+    "proof": "gen/M1/L_disch_delay_wait/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "hit": true,
+      "kind": "strategy-search",
+      "tried": 1282
+    },
+    {
+      "exit_code": 0,
+      "generator": "evaluate",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.305
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.514
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.305
+  },
+  "difference": null,
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_disch_delay_wait",
+  "maps_to": "O33 (F7 reconciled)",
+  "premises": [
+    "CF(keccak256, headers): header equality stands for committedBatches equality (facts abstraction)"
+  ],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "DISCH",
+  "scope": "unbounded",
+  "statement_hash": "sha256:4bd81056051a82d78ef8cac54d119f2148a95a804218f3b936ecd70db05205b2",
+  "status": "PROVED",
+  "subform": "profile_point",
+  "triage": "none",
+  "witness": {
+    "st": [
+      {
+        "dt": 19,
+        "op": "wait"
+      },
+      {
+        "idx": 1,
+        "op": "finalizeBatch",
+        "who": 5
+      },
+      {
+        "blobs": [
+          27
+        ],
+        "lbn": 2,
+        "n": 0,
+        "op": "commitBatch",
+        "parent": 1,
+        "post": 125,
+        "prev": 101,
+        "ver": 1,
+        "who": 2
+      }
+    ]
+  }
+}
