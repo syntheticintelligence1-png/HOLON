@@ -193,6 +193,80 @@ class TestMutate(unittest.TestCase):
         self.assertEqual(r["label"], "invalid")
         self.assertFalse(r["detected"])
 
+    def _rollup_spec(self, *mutants) -> Path:
+        spec = json.loads(SPEC.read_text())
+        spec["mutants"] = list(mutants)
+        sp = self.work / f"rollup_spec_{len(list(self.work.glob('rollup_spec_*')))}.json"
+        sp.write_text(json.dumps(spec))
+        return sp
+
+    def test_rollup_noop_is_extraction_gap(self):
+        """A Rollup mutant whose replacement equals the original: S1
+        extraction is byte-identical, so extraction_gap and not detected."""
+        from unittest import mock
+        from holon.mutate import runner
+        spec = json.loads(SPEC.read_text())
+        (r01,) = [m for m in spec["mutants"] if m["id"] == "R01"]
+        noop = {"id": "R98", "file": r01["file"], "line": r01["line"],
+                "original": r01["original"], "replacement": r01["original"],
+                "operator": "noop", "equivalent": False}
+        sp = self._rollup_spec(noop)
+        out = self.work / "rollup_noop_report.json"
+        # keep the pipeline out of the timing path: statuses fixed, so a
+        # detection decision comes only from the facts comparison
+        with mock.patch.object(runner, "_run_rollup_pipeline", return_value={}):
+            runner.run_mutants(sp, MORPH, ["R98"], self.work / "rollup_noop",
+                               _solc(), out)
+        (r,) = json.loads(out.read_text())["mutants"]
+        self.assertTrue(r["valid"])
+        self.assertFalse(r["detected"])
+        self.assertEqual(r["label"], "extraction_gap")
+
+    def test_rollup_pending_without_s1(self):
+        """pending_extractor is derived: when S1 cannot be imported the
+        Rollup mutants stay pending and final stays false."""
+        from unittest import mock
+        from holon.mutate import runner
+        spec = json.loads(SPEC.read_text())
+        (r01,) = [m for m in spec["mutants"] if m["id"] == "R01"]
+        sp = self._rollup_spec(r01)
+        out = self.work / "pending_report.json"
+        with mock.patch.object(runner, "_s1_available", return_value=False):
+            runner.run_mutants(sp, MORPH, ["R01"], self.work / "pending",
+                               _solc(), out)
+        rep = json.loads(out.read_text())
+        (r,) = rep["mutants"]
+        self.assertEqual(r["label"], "pending_extractor")
+        self.assertFalse(rep["final"])
+
+    def test_rollup_baseline_once(self):
+        """The rollup baseline extraction+run happens once per invocation:
+        two mutants cost one baseline extraction plus one each."""
+        from unittest import mock
+        from holon.mutate import runner
+        spec = json.loads(SPEC.read_text())
+        (r01, r02) = [m for m in spec["mutants"] if m["id"] in ("R01", "R02")]
+        noops = [{"id": f"R9{i}", "file": m["file"], "line": m["line"],
+                  "original": m["original"], "replacement": m["original"],
+                  "operator": "noop", "equivalent": False}
+                 for i, m in enumerate((r01, r02))]
+        sp = self._rollup_spec(*noops)
+        out = self.work / "baseline_once_report.json"
+        calls = {"n": 0}
+        real_extract = runner._s1_extract
+
+        def counting(*a, **kw):
+            calls["n"] += 1
+            return real_extract(*a, **kw)
+
+        with mock.patch.object(runner, "_s1_extract", side_effect=counting), \
+                mock.patch.object(runner, "_run_rollup_pipeline", return_value={}):
+            runner.run_mutants(sp, MORPH, ["R90", "R91"],
+                               self.work / "baseline_once", _solc(), out)
+        self.assertEqual(calls["n"], 3)  # 1 baseline + 2 mutants
+        rep = json.loads(out.read_text())
+        self.assertIn("rollup_baseline_facts_sha256", rep)
+
     def test_noop_mutant_is_extraction_gap(self):
         """A synthetic mutant whose replacement equals the original: the
         extraction is byte-identical, so the label is extraction_gap and
