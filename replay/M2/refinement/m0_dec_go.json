@@ -1,19 +1,24 @@
 {
  "agreement": {
-  "agree": 67,
+  "agree": 91,
   "disagree": 6,
+  "explained": 6,
   "unexplained": 0
  },
  "corpus": {
-  "boundary": 48,
+  "boundary": 72,
+  "excluded": [],
   "grammar": 24,
+  "out_of_domain": 0,
   "seed": 1765925894,
-  "total": 73,
+  "total": 97,
   "witness": 1
  },
  "disagreements": [
   {
    "class": "oracle_mismatch",
+   "edge": "m0_dec_go",
+   "evidence": "facts/morph_header.json functions.dec_go.getters[].when + common/batch/batch_header.go: the Go getter table is per-version; a getter absent for the decoded version errors while the model reads the raw offset bytes",
    "input_id": 11,
    "model": [
     [
@@ -298,7 +303,7 @@
      87
     ]
    ],
-   "note": "version-specific getter surface: bytes identical, Go getter absent for this header version",
+   "note": "decoded field mismatch (ERR fields may be version-absent getters \u2014 see classify rules)",
    "real": [
     2,
     5153852864551763064,
@@ -511,10 +516,15 @@
     ],
     11407068537078035543
    ],
-   "src": "grammar"
+   "real_missing": false,
+   "rule": "getter_absent_for_version",
+   "src": "grammar",
+   "version": 2
   },
   {
    "class": "oracle_mismatch",
+   "edge": "m0_dec_go",
+   "evidence": "facts/morph_header.json functions.dec_go.getters[].when + common/batch/batch_header.go: the Go getter table is per-version; a getter absent for the decoded version errors while the model reads the raw offset bytes",
    "input_id": 12,
    "model": [
     [
@@ -799,7 +809,7 @@
      144
     ]
    ],
-   "note": "version-specific getter surface: bytes identical, Go getter absent for this header version",
+   "note": "decoded field mismatch (ERR fields may be version-absent getters \u2014 see classify rules)",
    "real": [
     2,
     8590608600902739966,
@@ -1012,10 +1022,15 @@
     ],
     143086339111819152
    ],
-   "src": "grammar"
+   "real_missing": false,
+   "rule": "getter_absent_for_version",
+   "src": "grammar",
+   "version": 2
   },
   {
    "class": "oracle_mismatch",
+   "edge": "m0_dec_go",
+   "evidence": "facts/morph_header.json functions.dec_go.getters[].when + common/batch/batch_header.go: the Go getter table is per-version; a getter absent for the decoded version errors while the model reads the raw offset bytes",
    "input_id": 20,
    "model": [
     [
@@ -1290,7 +1305,7 @@
      145
     ]
    ],
-   "note": "version-specific getter surface: bytes identical, Go getter absent for this header version",
+   "note": "decoded field mismatch (ERR fields may be version-absent getters \u2014 see classify rules)",
    "real": [
     0,
     16159870473855437056,
@@ -1536,10 +1551,15 @@
     ],
     "ERR"
    ],
-   "src": "grammar"
+   "real_missing": false,
+   "rule": "getter_absent_for_version",
+   "src": "grammar",
+   "version": 0
   },
   {
    "class": "oracle_mismatch",
+   "edge": "m0_dec_go",
+   "evidence": "facts/morph_header.json functions.dec_go.getters[].when + common/batch/batch_header.go: the Go getter table is per-version; a getter absent for the decoded version errors while the model reads the raw offset bytes",
    "input_id": 22,
    "model": [
     [
@@ -1814,7 +1834,7 @@
      236
     ]
    ],
-   "note": "version-specific getter surface: bytes identical, Go getter absent for this header version",
+   "note": "decoded field mismatch (ERR fields may be version-absent getters \u2014 see classify rules)",
    "real": [
     0,
     10995155206487503956,
@@ -2060,11 +2080,16 @@
     ],
     "ERR"
    ],
-   "src": "grammar"
+   "real_missing": false,
+   "rule": "getter_absent_for_version",
+   "src": "grammar",
+   "version": 0
   },
   {
    "class": "oracle_mismatch",
-   "input_id": 40,
+   "edge": "m0_dec_go",
+   "evidence": "facts/morph_header.json functions.dec_go.getters[].when + common/batch/batch_header.go: the Go getter table is per-version; a getter absent for the decoded version errors while the model reads the raw offset bytes",
+   "input_id": 48,
    "model": [
     [
      0
@@ -2338,7 +2363,7 @@
      0
     ]
    ],
-   "note": "version-specific getter surface: bytes identical, Go getter absent for this header version",
+   "note": "decoded field mismatch (ERR fields may be version-absent getters \u2014 see classify rules)",
    "real": [
     0,
     0,
@@ -2584,11 +2609,16 @@
     ],
     "ERR"
    ],
-   "src": "boundary:len=249,ver=0"
+   "real_missing": false,
+   "rule": "getter_absent_for_version",
+   "src": "boundary:len=249,ver=0",
+   "version": 0
   },
   {
    "class": "oracle_mismatch",
-   "input_id": 54,
+   "edge": "m0_dec_go",
+   "evidence": "facts/morph_header.json functions.dec_go.getters[].when + common/batch/batch_header.go: the Go getter table is per-version; a getter absent for the decoded version errors while the model reads the raw offset bytes",
+   "input_id": 68,
    "model": [
     [
      2
@@ -2872,7 +2902,7 @@
      0
     ]
    ],
-   "note": "version-specific getter surface: bytes identical, Go getter absent for this header version",
+   "note": "decoded field mismatch (ERR fields may be version-absent getters \u2014 see classify rules)",
    "real": [
     2,
     0,
@@ -3085,7 +3115,10 @@
     ],
     0
    ],
-   "src": "boundary:len=257,ver=2"
+   "real_missing": false,
+   "rule": "getter_absent_for_version",
+   "src": "boundary:len=257,ver=2",
+   "version": 2
   }
  ],
  "edge": "m0_dec_go",

@@ -173,19 +173,28 @@ def _eq(a, b) -> bool:
 
 
 def record(edge: str, model_ref: dict, impl_ref: dict, seed: int, inputs_meta: dict,
-           agree: list, disagreements: list, command: str) -> dict:
+           agree: list, disagreements: list, command: str,
+           excluded: list | None = None) -> dict:
     for d in disagreements:
-        d.setdefault("class", "unexplained")
+        classify(d)
         d.setdefault("note", "")
+    excl = excluded or []
     return {
         "record_version": "holon-refinement/1",
         "edge": edge,
         "model": model_ref,
         "implementation": impl_ref,
-        "corpus": {**inputs_meta, "seed": seed, "total": len(agree) + len(disagreements)},
+        "corpus": {**inputs_meta, "seed": seed,
+                   "total": len(agree) + len(disagreements),
+                   "out_of_domain": len(excl),
+                   "excluded": [{"input_id": i, "src": x["src"],
+                                 "reason": x["reason"],
+                                 "domain": x.get("domain")}
+                                for i, x in enumerate(excl)]},
         "agreement": {
             "agree": len(agree),
             "disagree": len(disagreements),
+            "explained": sum(1 for d in disagreements if d["class"] != "unexplained"),
             "unexplained": sum(1 for d in disagreements if d["class"] == "unexplained"),
         },
         "disagreements": disagreements,
@@ -209,6 +218,108 @@ def _write(edge: str, rec: dict) -> Path:
     return p
 
 
+
+
+# ------------------------------------------------------------ disagreement rules
+# A disagreement's class is assigned ONLY by an explicit, named rule that cites
+# the facts entry or source line justifying it. Anything no rule explains stays
+# 'unexplained' — the M2 exit threshold counts unexplained disagreements, so
+# classes may not be assigned by construction.
+
+HDR_FACTS_PATH = ROOT / "facts" / "morph_header.json"
+DEC_GETTER_CITE = ("facts/morph_header.json functions.dec_go.getters[].when + "
+                   "common/batch/batch_header.go: the Go getter table is "
+                   "per-version; a getter absent for the decoded version "
+                   "errors while the model reads the raw offset bytes")
+
+
+def rule_getter_absent_for_version(d: dict):
+    """Go getters that legitimately do not exist for the decoded version
+    (v0 has no lastBlockNumber getter; v2 has no blobVersionedHash getter —
+    its data lives at raw offset 57). Bytes are otherwise identical."""
+    if d.get("edge") != "m0_dec_go":
+        return None
+    rf, ver = d.get("real"), d.get("version")
+    if not (isinstance(rf, list) and "ERR" in rf):
+        return None
+    if not ((ver == 0 and rf[11] == "ERR") or (ver == 2 and rf[5] == "ERR")):
+        return None
+    if _dec_equal(d.get("model"), rf, ver=ver) != "tolerated":
+        return None  # bytes differ too — not explained by the getter surface
+    return {"rule": "getter_absent_for_version", "class": "oracle_mismatch",
+            "evidence": DEC_GETTER_CITE}
+
+
+def rule_model_eval_failed(d: dict):
+    """The emitted model library failed to produce a value for this input."""
+    if not d.get("model_failed"):
+        return None
+    return {"rule": "model_eval_failed", "class": "extraction_defect",
+            "evidence": "holon/native/js/worker.mjs returned a non-ok response"}
+
+
+def rule_forge_obs_missing(d: dict):
+    """The real harness emitted no observation line for this input/step."""
+    if not d.get("real_missing"):
+        return None
+    return {"rule": "forge_obs_missing", "class": "oracle_mismatch",
+            "evidence": "no HOLON line from forge / no field on the real "
+                        "driver's response"}
+
+
+RULES = [rule_getter_absent_for_version, rule_model_eval_failed,
+         rule_forge_obs_missing]
+
+
+def classify(dis: dict) -> dict:
+    """Attach rule/class/evidence to a disagreement dict. First matching rule
+    wins; unmatched stays unexplained."""
+    for r in RULES:
+        hit = r(dis)
+        if hit:
+            dis.update(hit)
+            break
+    dis.setdefault("rule", None)
+    dis.setdefault("class", "unexplained")
+    dis.setdefault("evidence", "")
+    return dis
+
+
+# ------------------------------------------------------------ encoder domain
+
+def encoder_domain(edge: str) -> set[int] | None:
+    """Versions the edge's encoder is defined for (facts encoder domain).
+    None = every input is in domain."""
+    fns = json.loads(HDR_FACTS_PATH.read_text())["functions"]
+    if edge == "m0_enc_sol":
+        le = fns["enc_sol"]["domain"]["version_le"]
+        return set(range(le + 1))
+    if edge == "m0_enc_go_v0":
+        return {0}
+    if edge == "m0_enc_go_v1":
+        # facts: 'No Go encoder exists for version 2'; v2 reuses the v1 wire
+        # only at the decoder. The v1 encoder's domain is version 1.
+        return {1}
+    return None
+
+
+def split_by_domain(edge: str, inputs: list[dict]) -> tuple[list, list]:
+    """(in_domain inputs, excluded inputs). Excluded entries carry reason
+    out_of_encoder_domain and are coverage, not agreement or disagreement."""
+    dom = encoder_domain(edge)
+    if dom is None:
+        return inputs, []
+    keep, out = [], []
+    for x in inputs:
+        ver = x["cells"][0] if x.get("cells") else None
+        if ver in dom:
+            keep.append(x)
+        else:
+            out.append({**x, "reason": "out_of_encoder_domain",
+                        "domain": sorted(dom)})
+    return keep, out
+
+
 # ------------------------------------------------------------------ M0 edges
 
 IMPL_GO_HDR = {"repo": "morph-l2/morph", "commit": "3e44e795586af3e11285b603ab642c67823add51",
@@ -218,7 +329,7 @@ IMPL_SOL_HDR = {"repo": "morph-l2/morph", "commit": "3e44e795586af3e11285b603ab6
 
 
 def edge_enc_go(model: JsonLine, real: JsonLine, edge: str, op: int) -> dict:
-    inputs = [x for x in corpus.hdr_corpus(edge)]
+    inputs, excluded = split_by_domain(edge, corpus.hdr_corpus(edge))
     seed = corpus.edge_seed(edge)
     agree, dis = [], []
     for i, x in enumerate(inputs):
@@ -228,14 +339,15 @@ def edge_enc_go(model: JsonLine, real: JsonLine, edge: str, op: int) -> dict:
         if mb is not None and rb is not None and mb == rb:
             agree.append(i)
         else:
-            dis.append({"input_id": i, "src": x["src"],
+            dis.append({"input_id": i, "src": x["src"], "edge": edge,
                         "model": mb if mb is not None else mo,
                         "real": rb if rb is not None else ro,
-                        "class": "extraction_defect",
+                        "model_failed": mb is None, "real_missing": rb is None,
                         "note": "byte-level encoder mismatch"})
     return record(edge, {"call": f"enc_go_v{op}", "via": f"hcall op {op}"}, IMPL_GO_HDR,
                   seed, _counts(inputs), agree, dis,
-                  "holonmodel flat op + realhdr (morph common/batch)")
+                  "holonmodel flat op + realhdr (morph common/batch)",
+                  excluded=excluded)
 
 
 def edge_ok_go(model: JsonLine, real: JsonLine, edge: str) -> dict:
@@ -249,8 +361,9 @@ def edge_ok_go(model: JsonLine, real: JsonLine, edge: str) -> dict:
         if mb is not None and rb is not None and mb == rb:
             agree.append(i)
         else:
-            dis.append({"input_id": i, "src": x["src"], "model": mb, "real": rb,
-                        "class": "extraction_defect",
+            dis.append({"input_id": i, "src": x["src"], "edge": edge,
+                        "model": mb, "real": rb,
+                        "model_failed": mb is None, "real_missing": rb is None,
                         "note": "accept/reject mismatch on BatchHeaderBytes.validate"})
     return record(edge, {"call": "ok_go", "via": "hcall op 3"}, IMPL_GO_HDR,
                   seed, _counts(inputs), agree, dis,
@@ -268,8 +381,9 @@ def edge_dec_go(model: JsonLine, real: JsonLine, edge: str) -> dict:
         rb = ro.get("dec")
         # model: [0] = None; [1, len0, b..., len1, b...] = Some fields
         if out is None:
-            dis.append({"input_id": i, "src": x["src"], "model": mo, "real": rb,
-                        "class": "oracle_mismatch", "note": "model call failed"})
+            dis.append({"input_id": i, "src": x["src"], "edge": edge,
+                        "model": mo, "real": rb, "model_failed": True,
+                        "note": "model call failed"})
             continue
         if out[0] == 0:
             ok = "agree" if rb is None else "disagree"
@@ -285,19 +399,14 @@ def edge_dec_go(model: JsonLine, real: JsonLine, edge: str) -> dict:
             # this version" only for v0 lastBlockNumber; everywhere else a real
             # error vs model bytes is a mismatch.
             ok = _dec_equal(mfields, rb, ver=(x["b"][0] if x["b"] else None))
-        if ok == "tolerated":
-            dis.append({"input_id": i, "src": x["src"],
-                        "model": mfields, "real": rb,
-                        "class": "oracle_mismatch",
-                        "note": "version-specific getter surface: bytes identical, "
-                                "Go getter absent for this header version"})
-        elif ok == "agree":
+        if ok == "agree":
             agree.append(i)
         else:
-            dis.append({"input_id": i, "src": x["src"],
-                        "model": mfields if out[0] else None, "real": rb,
-                        "class": "extraction_defect",
-                        "note": "decoded field mismatch"})
+            dis.append({"input_id": i, "src": x["src"], "edge": edge,
+                        "version": x["b"][0] if x["b"] else None,
+                        "model": mfields, "real": rb, "real_missing": rb is None,
+                        "note": "decoded field mismatch (ERR fields may be "
+                                "version-absent getters — see classify rules)"})
     return record(edge, {"call": "dec_go", "via": "hcall op 5"}, IMPL_GO_HDR,
                   seed, _counts(inputs), agree, dis,
                   "holonmodel flat op 5 + realhdr getters")
@@ -355,9 +464,9 @@ def edge_ok_sol(proj: Path, model: JsonLine, edge: str) -> dict:
         if mb is not None and rb is not None and mb == rb:
             agree.append(i)
         else:
-            cls = "oracle_mismatch" if rb is None else "extraction_defect"
-            dis.append({"input_id": i, "src": x["src"], "model": mb,
-                        "real": got if got else "missing", "class": cls,
+            dis.append({"input_id": i, "src": x["src"], "edge": edge,
+                        "model": mb, "real": got if got else "missing",
+                        "model_failed": mb is None, "real_missing": got is None,
                         "note": "Solidity _loadBatchHeader accept mismatch"})
     return record(edge, {"call": "ok_sol", "via": "hcall op 4"}, IMPL_SOL_HDR,
                   seed, _counts(inputs), agree, dis,
@@ -381,7 +490,7 @@ def edge_enc_sol(proj: Path, model: JsonLine, edge: str) -> dict:
     """Model enc_sol(h) -> EVM memory image (0xDEAD = unwritten); the real
     implementation consumes the sanitized image via _loadBatchHeader (the
     Solidity side has no header encoder). Agreement = loader accepts."""
-    inputs = corpus.hdr_corpus(edge)
+    inputs, excluded = split_by_domain(edge, corpus.hdr_corpus(edge))
     seed = corpus.edge_seed(edge)
     vectors, model_bytes = [], []
     for i, x in enumerate(inputs):
@@ -396,22 +505,21 @@ def edge_enc_sol(proj: Path, model: JsonLine, edge: str) -> dict:
         mb, raw = model_bytes[i]
         got = real.get(i)
         if mb is None:
-            dis.append({"input_id": i, "src": x["src"],
+            dis.append({"input_id": i, "src": x["src"], "edge": edge,
                         "model": f"non-byte image {raw}", "real": got,
-                        "class": "oracle_mismatch",
-                        "note": "no real header encoder exists for this version on "
-                                "either side; the model's dead-memory image is not a "
-                                "consumable encoding"})
+                        "model_failed": True,
+                        "note": "model emitted a non-byte encoding image"})
         elif got and got[0] == "ok":
             agree.append(i)
         else:
-            cls = "oracle_mismatch" if got is None else "extraction_defect"
-            dis.append({"input_id": i, "src": x["src"],
-                        "model": f"{len(mb)} bytes", "real": got, "class": cls,
+            dis.append({"input_id": i, "src": x["src"], "edge": edge,
+                        "model": f"{len(mb)} bytes", "real": got,
+                        "real_missing": got is None,
                         "note": "real loader rejected model-encoded header"})
     return record(edge, {"call": "enc_sol", "via": "hcall op 2"}, IMPL_SOL_HDR,
                   seed, _counts(inputs), agree, dis,
-                  "forge test --match-contract HolonRefine")
+                  "forge test --match-contract HolonRefine",
+                  excluded=excluded)
 
 
 # ------------------------------------------------------------------ M1 edges
@@ -465,8 +573,10 @@ def edge_rollup(proj: Path, model: JsonLine, cm, facts: dict) -> list[tuple[str,
                 per_op[op]["agree"].append({"tid": tid, "step": si})
             else:
                 per_op[op]["dis"].append({"tid": tid, "step": si, "src": x["src"],
+                                          "edge": f"{edge}_{op}",
                                           "model": ms, "real": rs if rs else "missing",
-                                          "class": "extraction_defect",
+                                          "model_failed": ms is None,
+                                          "real_missing": rs is None,
                                           "note": "transition obs mismatch"})
     outs = []
     impl = {"repo": "morph-l2/morph", "commit": "3e44e795586af3e11285b603ab642c67823add51",
@@ -511,17 +621,18 @@ def edge_batchdata(model: JsonLine, realbd: JsonLine) -> list[tuple[str, dict]]:
                   (f"rev code:{codes[si] - 1}" if codes and si < len(codes) else None))
             rs = robs[si] if si < len(robs) else None
             ok = ms == "ok" and rs == "ok"
-            cls = "oracle_mismatch" if ms is None else "extraction_defect"
             per_op[a["op"]]["agree" if ok else "dis"].append(
                 {"tid": tid, "step": si, "src": x["src"], "model": ms, "real": rs,
-                 **({} if ok else {"class": cls,
+                 **({} if ok else {"edge": f"{edge}_{a['op']}",
+                                  "model_failed": ms is None,
+                                  "real_missing": rs is None,
                                   "note": "model evaluation failed" if ms is None
                                           else "BatchData obs mismatch"})})
             if a["op"] == "txsPayloadV2" and ok and mview is not None and rview is not None and mview != rview:
                 per_op["txsPayloadV2"]["dis"].append(
                     {"tid": tid, "step": si, "src": x["src"],
+                     "edge": f"{edge}_txsPayloadV2",
                      "model": f"view[{len(mview)}B]", "real": f"view[{len(rview)}B]",
-                     "class": "extraction_defect",
                      "note": "TxsPayloadV2 view bytes differ"})
     outs = []
     for op in ("append", "txsPayloadV2"):

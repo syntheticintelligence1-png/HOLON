@@ -1,73 +1,71 @@
 {
  "agreement": {
   "agree": 75,
-  "disagree": 5,
+  "disagree": 0,
+  "explained": 0,
   "unexplained": 0
  },
  "corpus": {
-  "boundary": 54,
+  "boundary": 49,
+  "excluded": [
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 0,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:version=255"
+   },
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 1,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:version=254"
+   },
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 2,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:version=3"
+   },
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 3,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:version=255"
+   },
+   {
+    "domain": [
+     0,
+     1,
+     2
+    ],
+    "input_id": 4,
+    "reason": "out_of_encoder_domain",
+    "src": "boundary:all-max"
+   }
+  ],
   "grammar": 24,
+  "out_of_domain": 5,
   "seed": 895788803,
-  "total": 80,
+  "total": 75,
   "witness": 2
  },
- "disagreements": [
-  {
-   "class": "extraction_defect",
-   "input_id": 26,
-   "model": "1 bytes",
-   "note": "real loader rejected model-encoded header",
-   "real": [
-    "rev",
-    "batch header length too small"
-   ],
-   "src": "boundary:version=255"
-  },
-  {
-   "class": "extraction_defect",
-   "input_id": 27,
-   "model": "1 bytes",
-   "note": "real loader rejected model-encoded header",
-   "real": [
-    "rev",
-    "batch header length too small"
-   ],
-   "src": "boundary:version=254"
-  },
-  {
-   "class": "extraction_defect",
-   "input_id": 75,
-   "model": "1 bytes",
-   "note": "real loader rejected model-encoded header",
-   "real": [
-    "rev",
-    "batch header length too small"
-   ],
-   "src": "boundary:version=3"
-  },
-  {
-   "class": "extraction_defect",
-   "input_id": 76,
-   "model": "1 bytes",
-   "note": "real loader rejected model-encoded header",
-   "real": [
-    "rev",
-    "batch header length too small"
-   ],
-   "src": "boundary:version=255"
-  },
-  {
-   "class": "extraction_defect",
-   "input_id": 77,
-   "model": "1 bytes",
-   "note": "real loader rejected model-encoded header",
-   "real": [
-    "rev",
-    "batch header length too small"
-   ],
-   "src": "boundary:all-max"
-  }
- ],
+ "disagreements": [],
  "edge": "m0_enc_sol",
  "implementation": {
   "code": "contracts/l1/rollup/Rollup.sol:_loadBatchHeader",

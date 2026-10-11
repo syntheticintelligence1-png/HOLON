@@ -106,3 +106,40 @@ class TestRefinementRecords(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestClassification(unittest.TestCase):
+    def test_unmatched_disagreement_stays_unexplained(self):
+        from holon.native import refine
+        d = {"input_id": 0, "src": "injected", "edge": "m0_ok_go",
+             "model": 1, "real": 0, "note": "no rule covers this"}
+        refine.classify(d)
+        self.assertEqual(d["class"], "unexplained")
+        self.assertIsNone(d["rule"])
+
+    def test_getter_absent_rule(self):
+        from holon.native import refine
+        # v0 header: real has 12 fields with ERR at index 11 (no lastBlockNumber
+        # getter for v0), model has the 11 real fields — bytes identical.
+        mfields = [[0]] + [[0] * 8] * 3 + [[0] * 32] * 7
+        real = [0, 0, 0, 0] + [[0] * 32] * 7 + ["ERR"]
+        d = {"edge": "m0_dec_go", "version": 0, "model": mfields, "real": real}
+        refine.classify(d)
+        self.assertEqual(d["class"], "oracle_mismatch")
+        self.assertEqual(d["rule"], "getter_absent_for_version")
+        self.assertIn("dec_go", d["evidence"])
+
+    def test_encoder_domain_split(self):
+        from holon.native import refine
+        keep, out = refine.split_by_domain(
+            "m0_enc_sol",
+            [{"kind": "hdr", "src": "v0", "cells": [0] * 257},
+             {"kind": "hdr", "src": "v2", "cells": [2] + [0] * 256},
+             {"kind": "hdr", "src": "v3", "cells": [3] + [0] * 256},
+             {"kind": "hdr", "src": "v255", "cells": [255] * 257}])
+        self.assertEqual([x["src"] for x in keep], ["v0", "v2"])
+        self.assertEqual([x["src"] for x in out], ["v3", "v255"])
+        self.assertTrue(all(x["reason"] == "out_of_encoder_domain" for x in out))
+        keep2, out2 = refine.split_by_domain("m0_ok_go", [{"kind": "bytes", "src": "b", "b": [255]}])
+        self.assertEqual(len(keep2), 1)
+        self.assertEqual(out2, [])

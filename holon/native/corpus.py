@@ -96,7 +96,7 @@ def grammar_bytes(n: int, rng: random.Random) -> list[dict]:
 def boundary_bytes(rng: random.Random) -> list[dict]:
     out = []
     for L in (0, 1, 2, 248, 249, 250, 256, 257, 258, 259, 511, 512):
-        for ver in (0, 1, 2, 3):
+        for ver in (0, 1, 2, 3, 254, 255):
             b = [0] * L
             if L:
                 b[0] = ver
