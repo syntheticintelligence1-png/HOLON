@@ -1,0 +1,72 @@
+{
+  "evidence": [
+    "E1",
+    "E6"
+  ],
+  "facts": "spec/M1/facts/morph_header_m1.json",
+  "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_par_hdr_v2_composed",
+  "maps_to": "O2 (PAR-domain v2; resolves L_par_hdr_v2 at the producer level)",
+  "milestone": "M1",
+  "notes": "Post hoc (not preregistered in \u00a711.8): resolves the M0 obstruction L_par_hdr_v2 at the system level. The real v2 producer is BatchCache.createBatchHeaderWithSequencerSetHash (common/batch/batch_cache.go:1727-1731): BatchHeaderV1.Bytes() then h[0]=BatchHeaderVersion2, with BlobVersionedHash = aggregateBlobHashes(blobHashes) supplied by the caller. The claim is the L_par_hdr_v2 statement with the Go side replaced by that composed producer.",
+  "predicted": "PROVED",
+  "rule": "PAR",
+  "statement": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "field": "version",
+            "of": {
+              "var": "h"
+            }
+          },
+          {
+            "bytes": "0x02"
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "field": "sequencerSetVerifyHash",
+            "of": {
+              "var": "h"
+            }
+          },
+          {
+            "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "var": "h"
+            }
+          ],
+          "call": "enc_sol"
+        },
+        {
+          "args": [
+            {
+              "var": "h"
+            }
+          ],
+          "call": "enc_go_v2_producer"
+        }
+      ]
+    },
+    "forall": [
+      {
+        "name": "h",
+        "type": "Header"
+      }
+    ]
+  },
+  "subform": "cross_component_codec"
+}

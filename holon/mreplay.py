@@ -25,6 +25,7 @@ from pathlib import Path
 
 from . import facts as F
 from .mpipeline import CompiledMachine, _act_val
+from .model_eval import eval_batch
 from .replay import _holon_lines, _run, _sol_deps, check_checkout, witness_sha256  # noqa: F401
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +34,54 @@ OPS = {"commitBatch": 1, "commitState": 2, "commitBatchWithProof": 3, "revertBat
 WIDTH = 13
 CHUNK = 25
 LINE = re.compile(r"HOLON (\d+) (\d+) (ok|rev) ?(.*)")
+V2_SOL = re.compile(r"HOLON_V2 (0x[0-9a-fA-F]+)")
+V2_GO = re.compile(r"HOLON_V2_GO (\w+) (0x[0-9a-fA-F]+)")
+
+
+def _header_fields(facts: dict, hexs: str) -> dict:
+    """Split committed header bytes into the facts' Header record fields."""
+    b = bytes.fromhex(hexs[2:])
+    out, off = {}, 0
+    for f in facts["types"]["Header"]["fields"]:
+        w = f["width"]
+        out[f["name"]] = "0x" + b[off:off + w].hex()
+        off += w
+    if off != len(b):
+        raise ValueError(f"header length {len(b)} != record {off}")
+    return out
+
+
+def _par_v2_check(law: dict, sol_hex: str | None, go_cases: dict | None) -> dict:
+    """ir/0.1 PAR law replay: both sides' bytes must equal the model's enc_go_v2_producer.
+    go_cases maps case name -> logged header hex (one per Go test case)."""
+    fn = law["statement"]["claim"]["eq"][1]["call"]
+    facts_path = str(ROOT / law["facts"])
+    facts = F.load(facts_path)
+    sides = {}
+    for name, hexs in (("solidity", sol_hex), ("go", None)):
+        if hexs is None:
+            sides[name] = {"status": "missing"}
+            continue
+        fields = _header_fields(facts, hexs)
+        model_out = eval_batch(fn, [fields], facts_path)["outputs"][0]
+        sides[name] = {"status": "passed" if model_out == hexs.lower() or model_out == hexs else "failed",
+                       "model": model_out, "real": hexs}
+    cases = {}
+    if go_cases:
+        for cname, hexs in sorted(go_cases.items()):
+            fields = _header_fields(facts, hexs)
+            model_out = eval_batch(fn, [fields], facts_path)["outputs"][0]
+            cases[cname] = {"status": "passed" if model_out in (hexs.lower(), hexs) else "failed",
+                            "model": model_out, "real": hexs}
+        sides["go"] = {"status": "passed" if cases and all(c["status"] == "passed" for c in cases.values()) else "failed",
+                       "cases": len(cases)}
+    else:
+        sides["go"] = {"status": "missing"}
+    ok = all(s["status"] == "passed" for s in sides.values())
+    obs = "; ".join(f"{n}: {'bytes == model' if s['status'] == 'passed' else s['status']}"
+                    for n, s in sides.items())
+    return {"status": "passed" if ok else "failed", "obstruction_reproduced": ok, "observed": obs,
+            "go_cases": cases, "go_case_count": len(cases), "traces": []}
 
 
 # ---------------------------------------------------------------- traces
@@ -243,6 +292,8 @@ def run_forge(morph: Path, work: Path, traces: list[list[dict]], facts: dict, fo
         out_all += out
         for m in LINE.finditer(out):
             res[(int(m.group(1)), int(m.group(2)))] = (m.group(3), m.group(4).strip())
+        for m in V2_SOL.finditer(out):
+            res["v2_solidity"] = m.group(1)
     out = out_all
     if not res:
         raise SystemExit(f"forge produced no HOLON lines (exit {code}):\n" + "\n".join(out.splitlines()[-40:]))
@@ -282,15 +333,19 @@ def replay_own_go(morph: Path, work: Path, results: Path) -> tuple[dict, str]:
     for d in ("bindings", "common"):
         shutil.copytree(morph / d, ws / d, symlinks=True)
     (ws / "go.work").write_text("go 1.24.0\n\nuse (\n\t./bindings\n\t./common\n)\n")
-    shutil.copy(ROOT / "replay" / "M1" / "go" / "holon_own_test.go", ws / "common" / "batch")
+    for f in (ROOT / "replay" / "M1" / "go").glob("*_test.go"):
+        shutil.copy(f, ws / "common" / "batch")
     shutil.copytree(results, ws / "holon_results")
     gv = subprocess.run(["go", "version"], capture_output=True, text=True).stdout.strip()
-    cmd = ["go", "test", "./batch", "-run", "TestHolonOwn", "-v", "-count=1"]
+    cmd = ["go", "test", "./batch", "-run", "TestHolon(Own|V2)", "-v", "-count=1"]
     code, out = _run(cmd, ws / "common", {"HOLON_RESULTS": str(ws / "holon_results"), "HOLON_GOVERSION": gv})
     lines = _holon_lines(out)
     m = re.search(r"HOLON realistic (\w+) (.*)", out)
     if m:
         lines["realistic"] = ("passed" if m.group(1) == "true" else "failed", m.group(2))
+    v2 = {m2.group(1): m2.group(2) for m2 in V2_GO.finditer(out)}
+    if v2:
+        lines["_v2_go"] = (v2, "")
     return lines, f"(cd common && {' '.join(cmd)})  # exit {code}; {gv}"
 
 
@@ -369,14 +424,26 @@ def main_replay_m1(args) -> int:
         entry["observed"] = why
         report["laws"][lid] = entry
         report["witness_sha256"][lid] = witness_sha256(records[lid]["witness"])
+    go_lines, gcmd = None, None
     for lid in go_laws:
-        lines, gcmd = replay_own_go(morph, work, results)
-        st, obs = lines.get(lid, ("failed", "no result from go test"))
-        realistic = lines.get("realistic")
+        if go_lines is None:
+            go_lines, gcmd = replay_own_go(morph, work, results)
+        st, obs = go_lines.get(lid, ("failed", "no result from go test"))
+        realistic = go_lines.get("realistic")
         report["laws"][lid] = {"status": st, "obstruction_reproduced": st == "passed", "command": gcmd,
                                "observed": obs + (f"; realistic 60-byte contexts: {realistic[0]} ({realistic[1]})" if realistic else ""),
                                "traces": []}
         report["witness_sha256"][lid] = witness_sha256(records[lid]["witness"])
+    # ir/0.1 PAR laws in the milestone (e.g. L_par_hdr_v2_composed): the real v2 producer and a
+    # real v2 commitBatch, both compared byte-for-byte to the compiled model.
+    par_laws = [lid for lid in sorted(laws) if laws[lid].get("ir_version") != "holon-ir/0.2"]
+    if par_laws and go_lines is None:
+        go_lines, gcmd = replay_own_go(morph, work, results)
+    for lid in par_laws:
+        go_cases = go_lines.get("_v2_go", (None,))[0] if go_lines else None
+        entry = _par_v2_check(laws[lid], real.get("v2_solidity"), go_cases)
+        entry["command"] = f"forge test --match-contract HolonTraceReplay (test_v2_composed); {gcmd}"
+        report["laws"][lid] = entry
     # refinement corpus
     per_op: dict = {}
     disagreements = []

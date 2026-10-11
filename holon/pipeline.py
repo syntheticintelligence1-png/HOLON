@@ -109,7 +109,7 @@ def refute_law(law: dict, facts: dict, d: Path, model_import: str, cfg: dict, mo
 
 def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = None,
         gen_dir: str | None = None, no_registry: bool = False, log=print) -> dict:
-    if ir.ir_version_of(milestone, ROOT) == "holon-ir/0.2":
+    if "holon-ir/0.2" in {l["ir_version"] for l in ir.load_laws_any(milestone, ROOT)}:
         from .mpipeline import run_m1
         return run_m1(milestone, facts_path, out, gen_dir, no_registry, log)
     cfg = bend.config(ROOT)
