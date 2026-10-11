@@ -1,0 +1,71 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_sort3_enq_sentinel",
+    "laws": "gen/M3_sorts/L_sort3_enq_sentinel/LAWS.bend",
+    "model": "gen/M3_sorts/model/morph_rollup_sorted.bend",
+    "proof": "gen/M3_sorts/L_sort3_enq_sentinel/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 1
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.161
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.242
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.161
+  },
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "facts_sha256": "26e3a06a4c40cbf1d9f4c45fc0e3840a3e2d169affe70ca57c9ae564539869d0",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_sort3_enq_sentinel",
+  "maps_to": "O21 (F7)",
+  "premises": [
+    "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+    "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+    "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+    "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+    "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+    "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+    "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+    "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
+  ],
+  "replay": {
+    "detail": "model-only pending replay: migration legacy_enq (pre-upgrade storage) has no Foundry harness step @ morph 3e44e795586a",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "statement_hash": "sha256:0bc2b1f0a74160a7191a8bc7e6846ffccebe5b091546d089e78c8f04b452a5a7",
+  "status": "REFUTED",
+  "subform": "sentinel",
+  "triage": "finding",
+  "witness": {
+    "p": []
+  }
+}
