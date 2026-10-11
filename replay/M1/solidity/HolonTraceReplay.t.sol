@@ -270,4 +270,29 @@ contract HolonTraceReplayTest is Test {
             }
         }
     }
+
+    // L_par_hdr_v2_composed: a real commitBatch at version 2 through the deployed Rollup.
+    // Codec-built parent + batch headers (vm.blobhashes for the blob), then the stored header
+    // (hash-identified by committedBatches) must have byte0 == 2, zero SSVH, and be byte-identical
+    // to the model's enc_go_v2_producer output; mreplay compares the logged bytes.
+    function test_v2_composed() public {
+        deploy(0, 5, 5, 3, 1, 100);
+        bytes32[] memory blobs = new bytes32[](1);
+        blobs[0] = blobEnc(17);
+        HV.blobhashes(blobs);
+        bytes memory ph = hdrs[0][0];
+        H memory x = H(2, 1, 0, 0, dataHash(1, 0, 0), keccak256(abi.encodePacked(blobs[0])),
+                       bytes32(uint256(100)), bytes32(uint256(110)), keccak256(ph), 1);
+        bytes memory h = enc(x);
+        (bool ok, bytes memory ret) = callAs(
+            2, abi.encodeCall(Rollup.commitBatch,
+                              (IRollup.BatchDataInput(2, ph, 1, 0, bytes32(uint256(100)),
+                                                      bytes32(uint256(110)), bytes32(0)))),
+            0);
+        require(ok, reason(ret));
+        require(rollup.committedBatches(1) == keccak256(h), "committedBatches(1) != keccak(header)");
+        require(h[0] == 0x02, "byte0 != 2");
+        for (uint256 i = 185; i < 217; i++) require(h[i] == 0, "ssvh nonzero");
+        console.log("HOLON_V2", HV.toString(h));
+    }
 }

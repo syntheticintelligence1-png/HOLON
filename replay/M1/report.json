@@ -150,8 +150,15 @@
       ]
     },
     "L_own_txspayload": {
-      "command": "(cd common && go test ./batch -run TestHolonOwn -v -count=1)  # exit 0; go version go1.24.7 linux/amd64",
-      "observed": "view held across Append: len=70 cap(blockContexts)=80 changed=true first-diff=68 (Go go version go1.24.7 linux/amd64); realistic 60-byte contexts: passed (len=183 cap(blockContexts)=256 first-diff=180)",
+      "command": "(cd common && go test ./batch -run TestHolon(Own|V2) -v -count=1)  # exit 0; go version go1.24.6 linux/amd64",
+      "observed": "view held across Append: len=70 cap(blockContexts)=80 changed=true first-diff=68 (Go go version go1.24.6 linux/amd64); realistic 60-byte contexts: passed (len=183 cap(blockContexts)=256 first-diff=180)",
+      "obstruction_reproduced": true,
+      "status": "passed",
+      "traces": []
+    },
+    "L_par_hdr_v2_composed": {
+      "command": "forge test --match-contract HolonTraceReplay (test_v2_composed); (cd common && go test ./batch -run TestHolon(Own|V2) -v -count=1)  # exit 0; go version go1.24.6 linux/amd64",
+      "observed": "solidity: bytes == model; go: bytes == model",
       "obstruction_reproduced": true,
       "status": "passed",
       "traces": []
@@ -613,49 +620,49 @@
     "n_disagreements": 0,
     "per_action": {
       "challengeState": {
-        "agree": 67,
+        "agree": 9,
         "disagree": 0
       },
       "commitBatch": {
-        "agree": 874,
+        "agree": 188,
         "disagree": 0
       },
       "commitBatchWithProof": {
-        "agree": 130,
+        "agree": 31,
         "disagree": 0
       },
       "commitState": {
-        "agree": 224,
+        "agree": 43,
         "disagree": 0
       },
       "finalizeBatch": {
-        "agree": 114,
+        "agree": 26,
         "disagree": 0
       },
       "proveState": {
-        "agree": 96,
+        "agree": 16,
         "disagree": 0
       },
       "revertBatch": {
-        "agree": 68,
+        "agree": 14,
         "disagree": 0
       },
       "sendMessage": {
-        "agree": 108,
+        "agree": 21,
         "disagree": 0
       },
       "setPause": {
-        "agree": 123,
+        "agree": 31,
         "disagree": 0
       },
       "wait": {
-        "agree": 628,
+        "agree": 131,
         "disagree": 0
       }
     },
     "seed": 20261011,
-    "steps": 2432,
-    "traces": 300
+    "steps": 510,
+    "traces": 60
   },
   "witness_sha256": {
     "L_fact_Z": "bb676259f3c0b78c8867027595552193b2a5c262dacf6dfe9e39116e63633072",

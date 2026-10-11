@@ -4374,11 +4374,296 @@
       "negated": true,
       "rejected": true,
       "source_law": "L_undo_CSR"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "h": {
+          "batchIndex": "0x0000000000000000",
+          "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "l1MessagePopped": "0x0000000000000000",
+          "lastBlockNumber": "0x0000000000000000",
+          "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "totalL1MessagePopped": "0x0000000000000000",
+          "version": "0x02",
+          "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "id": "CANARY_pin_const_0_L_par_hdr_v2_composed",
+      "kind": "pin_const",
+      "law": {
+        "evidence": [
+          "E1",
+          "E6"
+        ],
+        "facts": "spec/M1/facts/morph_header_m1.json",
+        "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
+        "ir_version": "holon-ir/0.1",
+        "law_id": "CANARY_pin_const_0_L_par_hdr_v2_composed",
+        "maps_to": "O11 (resolves L_par_hdr_v2 obstruction)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "field": "version",
+                  "of": {
+                    "var": "h"
+                  }
+                },
+                {
+                  "bytes": "0x02"
+                }
+              ]
+            },
+            {
+              "eq": [
+                {
+                  "field": "sequencerSetVerifyHash",
+                  "of": {
+                    "var": "h"
+                  }
+                },
+                {
+                  "bytes": "0x0000000000000000000000000000000000000000000000000000000000000001"
+                }
+              ]
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "var": "h"
+                  }
+                ],
+                "call": "enc_sol"
+              },
+              {
+                "args": [
+                  {
+                    "var": "h"
+                  }
+                ],
+                "call": "enc_go_v2_producer"
+              }
+            ]
+          },
+          "forall": [
+            {
+              "name": "h",
+              "type": "Header"
+            }
+          ]
+        },
+        "subform": "cross_component_codec"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_par_hdr_v2_composed"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "h": {
+          "batchIndex": "0x0000000000000000",
+          "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "l1MessagePopped": "0x0000000000000000",
+          "lastBlockNumber": "0x0000000000000000",
+          "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "totalL1MessagePopped": "0x0000000000000000",
+          "version": "0x02",
+          "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "id": "CANARY_swap_fn_0_L_par_hdr_v2_composed",
+      "kind": "swap_fn",
+      "law": {
+        "evidence": [
+          "E1",
+          "E6"
+        ],
+        "facts": "spec/M1/facts/morph_header_m1.json",
+        "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
+        "ir_version": "holon-ir/0.1",
+        "law_id": "CANARY_swap_fn_0_L_par_hdr_v2_composed",
+        "maps_to": "O11 (resolves L_par_hdr_v2 obstruction)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "field": "version",
+                  "of": {
+                    "var": "h"
+                  }
+                },
+                {
+                  "bytes": "0x02"
+                }
+              ]
+            },
+            {
+              "eq": [
+                {
+                  "field": "sequencerSetVerifyHash",
+                  "of": {
+                    "var": "h"
+                  }
+                },
+                {
+                  "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                }
+              ]
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "var": "h"
+                  }
+                ],
+                "call": "enc_go_v0"
+              },
+              {
+                "args": [
+                  {
+                    "var": "h"
+                  }
+                ],
+                "call": "enc_go_v2_producer"
+              }
+            ]
+          },
+          "forall": [
+            {
+              "name": "h",
+              "type": "Header"
+            }
+          ]
+        },
+        "subform": "cross_component_codec"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_par_hdr_v2_composed"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "h": {
+          "batchIndex": "0x0000000000000000",
+          "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "l1MessagePopped": "0x0000000000000000",
+          "lastBlockNumber": "0x0000000000000000",
+          "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "sequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "totalL1MessagePopped": "0x0000000000000000",
+          "version": "0x02",
+          "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "id": "CANARY_swap_fn_1_L_par_hdr_v2_composed",
+      "kind": "swap_fn",
+      "law": {
+        "evidence": [
+          "E1",
+          "E6"
+        ],
+        "facts": "spec/M1/facts/morph_header_m1.json",
+        "facts_sha256": "4723153079ceca55a4b8e039bec722d28e4508001ce693f94af0bba1cd5a7c8f",
+        "ir_version": "holon-ir/0.1",
+        "law_id": "CANARY_swap_fn_1_L_par_hdr_v2_composed",
+        "maps_to": "O11 (resolves L_par_hdr_v2 obstruction)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "field": "version",
+                  "of": {
+                    "var": "h"
+                  }
+                },
+                {
+                  "bytes": "0x02"
+                }
+              ]
+            },
+            {
+              "eq": [
+                {
+                  "field": "sequencerSetVerifyHash",
+                  "of": {
+                    "var": "h"
+                  }
+                },
+                {
+                  "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                }
+              ]
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "var": "h"
+                  }
+                ],
+                "call": "enc_go_v1"
+              },
+              {
+                "args": [
+                  {
+                    "var": "h"
+                  }
+                ],
+                "call": "enc_go_v2_producer"
+              }
+            ]
+          },
+          "forall": [
+            {
+              "name": "h",
+              "type": "Header"
+            }
+          ]
+        },
+        "subform": "cross_component_codec"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_par_hdr_v2_composed"
     }
   ],
   "checks": {
     "G1": {
-      "detail": "34 generated .bend files identical, summary identical",
+      "detail": "37 generated .bend files identical, summary identical",
       "passed": true
     },
     "G11": {
@@ -4394,15 +4679,15 @@
       "passed": true
     },
     "G4": {
-      "detail": "21 canaries of kinds ['erase_live', 'negated', 'pin_const'], all rejected",
+      "detail": "24 canaries of kinds ['erase_live', 'negated', 'pin_const', 'swap_fn'], all rejected",
       "passed": true
     },
     "G5": {
-      "detail": "16 proofs re-checked from scratch",
+      "detail": "17 proofs re-checked from scratch",
       "passed": true
     },
     "G7": {
-      "detail": "dual-kernel: 16 proofs re-checked by BendTT (--verdict)",
+      "detail": "dual-kernel: 17 proofs re-checked by BendTT (--verdict)",
       "passed": true
     },
     "GENV": {
