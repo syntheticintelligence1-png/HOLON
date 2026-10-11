@@ -74,7 +74,7 @@ def _debt_items(codecs_cov, own_cov):
     return items
 
 
-def extract(morph: Path = None) -> dict:
+def extract(morph: Path = None, out_dir: Path = None) -> dict:
     morph = morph or morph_dir()
     commit = target_commit(morph)
     dump = load_dump(morph)
@@ -84,14 +84,16 @@ def extract(morph: Path = None) -> dict:
                     "packages": PACKAGES}
     mm["target"] = {"repo": "morph-l2/morph", "commit": commit,
                     "packages": PACKAGES}
-    _write(EXTRACTED / "go_codecs.json", cc)
-    _write(EXTRACTED / "go_batchdata.json", mm)
+    ext_dir = Path(out_dir) if out_dir is not None else EXTRACTED
+    cov_dir = Path(out_dir) if out_dir is not None else COVERAGE
+    _write(ext_dir / "go_codecs.json", cc)
+    _write(ext_dir / "go_batchdata.json", mm)
     coverage = {
         "frontend": "go",
         "target_commit": commit,
         "items": _debt_items(cc["coverage"], mm["coverage"]),
     }
-    _write(COVERAGE / "go.json", coverage)
+    _write(cov_dir / "go.json", coverage)
     return {"codecs": cc, "machine": mm, "coverage": coverage}
 
 

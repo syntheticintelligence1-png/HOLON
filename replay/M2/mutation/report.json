@@ -1,0 +1,950 @@
+{
+  "schema": "holon-mutation-report/0.1",
+  "spec": "spec/M2/mutants.json",
+  "target_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "baseline_facts_sha256": "846eb1304721169ff8741a13085b054ddc2ada38260796afd9b730509787f919",
+  "m1_rollup_facts": "spec/M1/facts (hand; S1 extraction pending)",
+  "m1_header_laws": [
+    "L_par_hdr_v2_composed"
+  ],
+  "detected_via_counts": {
+    "flip": 13,
+    "unknown_only": 4
+  },
+  "mutants": [
+    {
+      "id": "G01",
+      "file": "common/batch/batch_header.go",
+      "line": 44,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "74acee6997ebf98b0692461d96c7798f81fe7956cf698545dc00be4b3fae6f37",
+      "changed": [
+        {
+          "law": "L_dom_hdr",
+          "baseline": "REFUTED",
+          "mutant": "PROVED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 27.172
+    },
+    {
+      "id": "G02",
+      "file": "common/batch/batch_header.go",
+      "line": 17,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "e4792a85bab5042c55012018ec31dbd419a2c70ef4de24a2c2812ccd0e4d6548",
+      "changed": [
+        {
+          "law": "L_par_hdr_v0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 14.905
+    },
+    {
+      "id": "G03",
+      "file": "common/batch/batch_header.go",
+      "line": 245,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "07429574806f71e26b52e303d0c9b4183ee54faebbbc0d578311f2320fae2f07",
+      "changed": [
+        {
+          "law": "L_par_hdr_v1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_par_hdr_v2",
+          "baseline": "REFUTED",
+          "mutant": "PROVED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 13.698
+    },
+    {
+      "id": "G04",
+      "file": "common/batch/batch_header.go",
+      "line": 218,
+      "operator": "offset",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "3eeba5d7486700247a74e540ba7db83265e17b5812300aed03347d108862a585",
+      "changed": [
+        {
+          "law": "L_par_hdr_v0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 13.845
+    },
+    {
+      "id": "G05",
+      "file": "common/batch/batch_header.go",
+      "line": 221,
+      "operator": "offset",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "f4ab502c6ac092beaa5392a4bf30a02d8bb1ec41a729fcc2dd4ba15c10007822",
+      "changed": [
+        {
+          "law": "L_par_hdr_v0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 14.092
+    },
+    {
+      "id": "G06",
+      "file": "common/batch/batch_header.go",
+      "line": 227,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "fd2bcd0e548ccdf976669b7fef97fd253e6eddc9116aa8057763966b673683e9",
+      "changed": [
+        {
+          "law": "L_par_hdr_v0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 13.776
+    },
+    {
+      "id": "G07",
+      "file": "common/batch/batch_header.go",
+      "line": 256,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "ded1934dc5bbc48db90599058c8a84e014f303fab26ea0ca21a55f3281378286",
+      "changed": [
+        {
+          "law": "L_par_hdr_v1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_par_hdr_v2_composed",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 14.239
+    },
+    {
+      "id": "G08",
+      "file": "common/batch/batch_header.go",
+      "line": 83,
+      "operator": "offset",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "d998d5ff802ebf5c8980598e8580052437890e53a031ccbb7b2adb86b5b83036",
+      "changed": [
+        {
+          "law": "L_rt_go_v0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 14.43
+    },
+    {
+      "id": "G09",
+      "file": "common/batch/batch_header.go",
+      "line": 192,
+      "operator": "offset",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "ef1435865f7d1881d8412e1ffd4200ac34fdc236a4610c3ded4c805bd2ef1fd1",
+      "changed": [
+        {
+          "law": "L_rt_go_v1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 14.129
+    },
+    {
+      "id": "G10",
+      "file": "common/batch/batch_header.go",
+      "line": 189,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "429a7cc999f50b77461b9304f87fa719bce408e4c6581da1c1bedb202668b9d0",
+      "changed": [
+        {
+          "law": "L_rt_go_v1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 13.773
+    },
+    {
+      "id": "G11",
+      "file": "common/batch/batch_header.go",
+      "line": 52,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "cf29f2f088c00fe0fb3496b1bee16f140c7977c566f129479467afc5c25b80e6",
+      "changed": [
+        {
+          "law": "L_rt_go_v2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 13.433
+    },
+    {
+      "id": "G12",
+      "file": "common/batch/batch_header.go",
+      "line": 226,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "facts_sha256": "0bb4e0cf7c47b6aad2abfad0cabad8e3b9437b8545e44d69d2a69813ebcb50b0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 13.184
+    },
+    {
+      "id": "G13",
+      "file": "common/batch/batch_header.go",
+      "line": 220,
+      "operator": "field_swap",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "65904ded3a534fad91caa5d04738b1ae7ef9bd594573874bac13466151518e2e",
+      "changed": [
+        {
+          "law": "L_par_hdr_v0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 13.463
+    },
+    {
+      "id": "G14",
+      "file": "common/batch/batch_header.go",
+      "line": 116,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "extraction_gap",
+      "detected_via": null,
+      "facts_sha256": "846eb1304721169ff8741a13085b054ddc2ada38260796afd9b730509787f919",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 12.072
+    },
+    {
+      "id": "S01",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "line": 32,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "52363388fc0bb19ce35ed16fe488b4a81f7353e7f28b33704379f7986983efd8",
+      "changed": [
+        {
+          "law": "L_dom_hdr",
+          "baseline": "REFUTED",
+          "mutant": "PROVED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 10.631
+    },
+    {
+      "id": "S02",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+      "line": 35,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "facts_sha256": "ee2f4dab3fdad2f47836675cdbcea3820c335bd115abce0f16e7f339a53c944c",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 11.024
+    },
+    {
+      "id": "S03",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "line": 144,
+      "operator": "shift",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "facts_sha256": "83e824f952a46328af0d2cef40e2d1c7bf8eb58a9575da918ed6a2a3b1edde7d",
+      "changed": [],
+      "pipeline_error": "enc_go_v0: put_uint64_be at 1 writes 9 bytes, expected 8",
+      "link_fallbacks": [
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:247",
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:248",
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:249",
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:250",
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:251",
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:252",
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:253",
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:254",
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:255",
+        "batch.BatchCache.createBatchHeaderWithSequencerSetHash:256",
+        "batch.BatchHeaderV0.Bytes:219",
+        "batch.BatchHeaderV0.Bytes:220",
+        "batch.BatchHeaderV0.Bytes:221",
+        "batch.BatchHeaderV0.Bytes:222",
+        "batch.BatchHeaderV0.Bytes:223",
+        "batch.BatchHeaderV0.Bytes:224",
+        "batch.BatchHeaderV0.Bytes:225",
+        "batch.BatchHeaderV0.Bytes:226",
+        "batch.BatchHeaderV0.Bytes:227",
+        "batch.BatchHeaderV1.Bytes:247",
+        "batch.BatchHeaderV1.Bytes:248",
+        "batch.BatchHeaderV1.Bytes:249",
+        "batch.BatchHeaderV1.Bytes:250",
+        "batch.BatchHeaderV1.Bytes:251",
+        "batch.BatchHeaderV1.Bytes:252",
+        "batch.BatchHeaderV1.Bytes:253",
+        "batch.BatchHeaderV1.Bytes:254",
+        "batch.BatchHeaderV1.Bytes:255",
+        "batch.BatchHeaderV1.Bytes:256"
+      ],
+      "seconds": 2.699
+    },
+    {
+      "id": "S04",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "line": 175,
+      "operator": "offset",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "unknown_only",
+      "facts_sha256": "d472ae2fe65e49124e736d2ee1fdebb7af9340c20fe8df71eba9db0dd930f968",
+      "changed": [
+        {
+          "law": "L_par_hdr_ssvh",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v0",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v2",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v0",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v2",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v2_composed",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 6.977
+    },
+    {
+      "id": "S05",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "line": 229,
+      "operator": "offset",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "unknown_only",
+      "facts_sha256": "9a31c10fc0a76410aac8025f574f2ec82f024c53c2adbdb19eb69c66f37da8e6",
+      "changed": [
+        {
+          "law": "L_par_hdr_ssvh",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v0",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v2",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v0",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v2",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v2_composed",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 6.852
+    },
+    {
+      "id": "S06",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+      "line": 56,
+      "operator": "offset",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "unknown_only",
+      "facts_sha256": "2e6b7bdae11a8d1be6ae8545be3ce997cae29c955ad82e283900603f297e8b15",
+      "changed": [
+        {
+          "law": "L_par_hdr_ssvh",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v2",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v2",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v2_composed",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 7.756
+    },
+    {
+      "id": "S07",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "line": 55,
+      "operator": "shift",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "facts_sha256": "6deec47fa5e5c183402d1ae5395cdef0059a8c37f9ed956b25b72d23b197e1c9",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 10.747
+    },
+    {
+      "id": "S08",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "line": 46,
+      "operator": "shift",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "facts_sha256": "809cd4c7f0a710879b46398e7f766fe613eecb8ddace6b5fdf798b83ebac1dc8",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 10.764
+    },
+    {
+      "id": "S09",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "line": 220,
+      "operator": "offset",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "unknown_only",
+      "facts_sha256": "b56a0c223d925dab823b635789ba171dc7267aea538d55d29d70f1b3259256f4",
+      "changed": [
+        {
+          "law": "L_par_hdr_ssvh",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v0",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v2",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v0",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_rt_go_v2",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_par_hdr_v2_composed",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 6.981
+    },
+    {
+      "id": "S10",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 840,
+      "operator": "condition_drop",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "facts_sha256": "279ac5725b58c8d4d3bdbb73011267ce8c57b59cef7f6ec2239975d131808b64",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 10.799
+    },
+    {
+      "id": "S11",
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "line": 242,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "facts_sha256": "1b2ee030c69ccfb06eb8abb5965c321f59937b0aa16c04ca30dcb4b1d39d9a7e",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 10.781
+    },
+    {
+      "id": "R01",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 363,
+      "operator": "arith_drop",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R02",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 368,
+      "operator": "arith_drop",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R03",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 476,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R04",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 475,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R05",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 490,
+      "operator": "condition_drop",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R06",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 491,
+      "operator": "arith_drop",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R07",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 441,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R08",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 443,
+      "operator": "arith_drop",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R09",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 451,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R10",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 581,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R11",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 610,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R12",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 643,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R13",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 633,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R14",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 631,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R15",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 261,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R16",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 312,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R17",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 710,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R18",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 421,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R19",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 400,
+      "operator": "logical",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    },
+    {
+      "id": "R20",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 692,
+      "operator": "condition_drop",
+      "equivalent": false,
+      "valid": null,
+      "detected": false,
+      "label": "pending_extractor",
+      "changed": [],
+      "seconds": 0.0
+    }
+  ],
+  "final": false,
+  "pending": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16",
+    "R17",
+    "R18",
+    "R19",
+    "R20"
+  ],
+  "provisional_header_score": 0.68,
+  "score_definition": "detected / (non-equivalent and valid mutants); compare to threshold; misses reported with labels; threshold is never relaxed.",
+  "threshold": 0.8,
+  "equivalence_reclassifications": []
+}
