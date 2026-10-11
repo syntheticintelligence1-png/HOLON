@@ -114,20 +114,34 @@ function holds(p, env) {
 function tryHolds(p, env) { try { return holds(p, env); } catch (e) { if (e instanceof Unassigned) return null; throw e; } }
 
 // ---------------------------------------------------------------- binder enumeration
+// Structural statement matching: key order and whitespace must not matter.
+function* walk(t) {
+  if (Array.isArray(t)) { for (const x of t) yield* walk(x); }
+  else if (t && typeof t === "object") { yield t; for (const k of Object.keys(t)) yield* walk(t[k]); }
+}
+const oneKey = (o, k, v) => o && typeof o === "object" && !Array.isArray(o)
+  && Object.keys(o).length === 1 && JSON.stringify(o[k]) === JSON.stringify(v);
+// a node {run|obs: {var: v}, from: {s0: {}}}, whatever else the object carries
+const hasObserved = (t, kind, v) => { for (const n of walk(t))
+  if (n[kind] !== undefined && oneKey(n[kind], "var", v)
+      && n.from && typeof n.from === "object" && !Array.isArray(n.from)
+      && JSON.stringify(n.from.s0) === JSON.stringify({})) return true;
+  return false; };
+
 const st = law.statement;
 const binders = st.binders;
 // enumerate states and prefixes first, then actions and numbers, then continuation traces
-const rank = (b) => (b.type === "State" || (b.type === "Trace" && (JSON.stringify(law.statement).includes(JSON.stringify({ run: { var: b.name }, from: { s0: {} } }))
-  || JSON.stringify(law.statement).includes(JSON.stringify({ obs: { var: b.name }, from: { s0: {} } }))))) ? 0
+const rank = (b) => (b.type === "State" || (b.type === "Trace" && (hasObserved(law.statement, "run", b.name)
+  || hasObserved(law.statement, "obs", b.name)))) ? 0
   : b.type === "Act" ? 1 : b.type === "Nat" ? 2 : 3;
 const forall = binders.filter((b) => b.q === "forall").map((b, i) => [b, i]).sort((x, y) => rank(x[0]) - rank(y[0]) || x[1] - y[1]).map((x) => x[0]);
 const assume = st.assume || [];
 const claims = st.claim.all || [st.claim];
-const mentions = (t, v) => JSON.stringify(t).includes(JSON.stringify({ var: v }));
-const isPrefixVar = (v) => JSON.stringify(st).includes(JSON.stringify({ run: { var: v }, from: { s0: {} } }));
+const mentions = (t, v) => { for (const n of walk(t)) if (oneKey(n, "var", v)) return true; return false; };
+const isPrefixVar = (v) => hasObserved(st, "run", v);
 // a trace observed from the initial state: reachable prefixes, each possibly ending in one failing action
-const isObsPrefixVar = (v) => JSON.stringify(st).includes(JSON.stringify({ obs: { var: v }, from: { s0: {} } }));
-const isObsSuffix = (v) => claims.length === 1 && claims[0].eq.every((s) => s.obs && JSON.stringify(s.obs) === JSON.stringify({ var: v }));
+const isObsPrefixVar = (v) => hasObserved(st, "obs", v);
+const isObsSuffix = (v) => claims.length === 1 && claims[0].eq.every((s) => s.obs && oneKey(s.obs, "var", v));
 
 function baseState(env) {
   for (const b of forall) if (b.type === "State" && env[b.name]) return env[b.name].v;
