@@ -59,23 +59,35 @@ class Translator:
         self.world = world
         self.spec = spec
         self.guards = []            # emitted guard/let items
+        self.guard_prov = []        # 'ast'|'spec' parallel to guards
         self.writes = []            # (family_kind, key, conds, expr)
+        self.write_prov = []        # 'ast'|'spec' parallel to writes
         self.debt = []              # coverage debt items
         self.notes = []             # emitted notes attached to next require
         self.env = {}               # locals: name -> expr | Carrier | UNBOUND
-        self.expr_lets = {}         # canon(expr) -> queue of names
+        self.expr_lets = {}         # canon(expr) -> queue of names (spec let_names)
         self.let_exprs = {}         # canon(expr) -> bound name
         self.pending = []           # pending let/guard items before next emit
         self.established = []       # normalized established requires
         self.subst = {}             # var -> expr established equalities
         self.new_entry = None       # pending window-entry dict
+        self.entry_prov = {}        # entry field -> 'ast'|'spec'
         self.lci_write = None       # last lci assignment expr
         self.ret = []               # (conds, expr) returns for view fns
         self.blob_lets_done = False
         self.blob_indices = []
+        self.blob_emitted = set()
+        self.fact_inputs = set()
         self.call_guards = {}       # fn key -> guards collected for call sites
         self.in_unchecked = False
         self.debt_keys = set()
+        # mechanical let-hoisting state
+        self.let_names = {}         # classifier -> [names] queue (spec-provided names)
+        self.hoist_used = {}        # classifier -> count consumed
+        self.hoist_bound = {}       # (classifier, canon) -> {'name','valid'}
+        self.hoist_policy = {}      # 'def:<name>' -> 'always'|'value'
+        self.in_require_arg = 0     # >0 while translating require(...) condition
+        self.self_idx_alias = None  # self-carrier idx proven equal to new_idx
 
     # ---------------------------------------------------------------- utils
     def line(self, node):
@@ -99,21 +111,115 @@ class Translator:
             self.debt.append({"element": element, "kind": kind, "reason": reason})
 
     # ------------------------------------------------------------ emission
-    def emit_let(self, name, expr, src=None):
-        self.guards.append({"let": name, "expr": expr, **({"src": src} if src else {})})
+    def emit_let(self, name, expr, src=None, prov="ast"):
+        item = {"let": name, "expr": expr, **({"src": src} if src else {})}
+        self.guards.append(item)
+        self.guard_prov.append(prov)
         self.let_exprs[canon(expr)] = name
+        self.let_values[name] = expr
+        g = getattr(self, "action_spec", {}).get("ghost_tag")
+        if g and name == g.get("after"):
+            self.guards.append({"let": g["name"], "expr": g["expr"]})
+            self.guard_prov.append("spec")
+            self.let_exprs[canon(g["expr"])] = g["name"]
+
+    def _vocab(self):
+        """Names that are always bound in the emitted facts: params, state and
+        ghost fields, defs, and the action's declared inputs."""
+        if not hasattr(self, "_vocab_cache"):
+            v = set((self.spec.get("params") or {}).keys())
+            for sec in ("state", "ghost_state"):
+                v |= {r[0] for r in (self.spec.get(sec) or [])}
+            v |= set((self.spec.get("defs") or {}).keys())
+            v |= set((self.spec.get("shadow") or {}).keys())
+            v |= {x for x in (self.spec.get("env") or {}).values() if isinstance(x, str)}
+            for r in (self.spec.get("reasons") or []):
+                pass
+            self._vocab_cache = v
+        return self._vocab_cache
+
+    def _unbound_names(self, e, extra=()):
+        """Str leaves that would surface in emitted facts with no binding:
+        not an input/param/state/let name and env-bound to an unbound marker."""
+        bad = []
+        bound = self.fact_inputs | set(self.let_values) | self._vocab() | set(extra)
+        OPS = {"call", "get", "mk", "with", "list", "?", "!", "&&", "||",
+               "==", "!=", "<", "<=", ">", ">=", "+", "-", "*", "/"}
+
+        def walk(x, skip=False):
+            if isinstance(x, str):
+                if skip or x in OPS or x in bound:
+                    return
+                v = self.env.get(x)
+                if v is not None and not (isinstance(v, tuple) and v[0] == "unbound"):
+                    return
+                bad.append(x)
+            elif isinstance(x, dict):
+                for v in x.values():
+                    walk(v)
+            elif isinstance(x, list):
+                op = x[0] if x and isinstance(x[0], str) else None
+                for j, y in enumerate(x):
+                    if j == 0:
+                        continue
+                    # call name, get field, and mk/with type names are not vars
+                    if op == "call" and j == 1:
+                        continue
+                    if op == "get" and j == 2:
+                        continue
+                    if op in ("mk", "with") and j == 1:
+                        continue
+                    walk(y)
+
+        walk(e)
+        return bad
 
     def _drain_pending(self):
+        pnames = {it["let"] for it in self.pending if "let" in it}
+        kept = []
         for it in self.pending:
-            self.guards.append(it)
+            drop = False
+            if "let" in it and "expr" in it:
+                ubad = self._unbound_names(it["expr"], extra=pnames)
+                if ubad:
+                    self.add_debt(f"{it.get('src')} let {it['let']}", "unbound_value",
+                              f"let dropped: name(s) {sorted(set(ubad))} have no bound "
+                              "model value")
+                    self.let_values.pop(it["let"], None)
+                    drop = True
+            if not drop:
+                kept.append(it)
+        self.pending = kept
+        out = []
+        g = getattr(self, "action_spec", {}).get("ghost_tag") or {}
+        for it in self.pending:
+            out.append(it)
+            if it.get("let") == g.get("after") and g.get("name"):
+                out.append({"let": g["name"], "expr": g["expr"], "__prov": "spec"})
         self.pending = []
+        for it in out:
+            prov = it.pop("__prov", "ast")
+            self.guards.append(it)
+            self.guard_prov.append(prov)
+            if "let" in it and "expr" in it:
+                self.let_values[it["let"]] = it["expr"]
 
-    def emit_require(self, expr, reason_str, src, note=None, site=None):
+    def emit_require(self, expr, reason_str, src, note=None, site=None, prov="ast"):
         conds = getattr(self, "conds", [])
         e = simplify(expr)
         if conds:
             e = simplify(OR(NOT(AND(*conds)), e))
+        e = self._ifcond_operands(e)
+        if isinstance(e, list):
+            e = self.rewrite_lets(e)
         self._drain_pending()
+        bad = self._unbound_names(e)
+        if bad:
+            self.add_debt(f"{src} require {reason_str}", "unbound_guard",
+                          f"guard dropped: name(s) {sorted(set(bad))} have no bound "
+                          "model value (decoded from opaque header bytes or "
+                          "unmodelled locals)")
+            return
         rid = self.reason_id(reason_str)
         item = {"require": e, "reason": rid, "src": src}
         if site:
@@ -121,11 +227,19 @@ class Translator:
         if note:
             item["note"] = note
         self.guards.append(item)
+        self.guard_prov.append(prov)
         self.established.append(normalize(e))
         if isinstance(e, list) and e[0] == "==":
             if isinstance(e[1], str) and e[1].isidentifier():
                 self.subst.setdefault(e[1], e[2])
         return item
+
+    def W(self, *w, prov="ast"):
+        w = list(w)
+        if isinstance(w[-1], list):
+            w[-1] = self.rewrite_lets(w[-1])
+        self.writes.append(tuple(w))
+        self.write_prov.append(prov)
 
     def reason_id(self, s):
         rs = self.reasons.setdefault(s, len(self.reasons) + 1)
@@ -135,23 +249,48 @@ class Translator:
         if self.pending_notes is not None:
             self.pending_notes.append(text)
 
-    def bind_or_let(self, expr, name=None, src=None):
-        """If expr has an expr_lets name -> emit let once and return the name."""
+    # -------------------------------------------------- mechanical hoisting
+    def hoist(self, expr, classifier, src=None, prov="ast"):
+        """Bind expr to a let name drawn from let_names[classifier] (a queue).
+
+        The expr is always AST-derived; the spec only supplies the model's
+        conventional names. Reuse the bound name while the binding is valid;
+        a write to the underlying state invalidates it (see invalidate()).
+        """
         c = canon(expr)
-        if c in self.let_exprs:
-            return self.let_exprs[c]
-        names = self.expr_let_table.get(c)
-        if names:
-            nm = names.pop(0) if isinstance(names, list) else names
-            self.pending.append({"let": nm, "expr": expr, **({"src": src} if src else {})})
-            self.let_exprs[c] = nm
-            return nm
-        return None
+        key = (classifier, c)
+        st = self.hoist_bound.get(key)
+        if st is not None and st["valid"]:
+            return st["name"]
+        names = self.let_names.get(classifier)
+        if names is None:
+            return expr
+        i = self.hoist_used.get(classifier, 0)
+        if i >= len(names):
+            return expr
+        nm = names[i]
+        self.hoist_used[classifier] = i + 1
+        self.pending.append({"let": nm, "expr": expr, **({"src": src} if src else {}), "__prov": prov})
+        self.let_exprs[c] = nm
+        self.let_values[nm] = expr
+        self.hoist_bound[key] = {"name": nm, "valid": True}
+        return nm
+
+    def invalidate(self, classifier):
+        """Mark every binding of `classifier` stale: next read re-hoists a fresh name."""
+        for k, v in self.hoist_bound.items():
+            if k[0] == classifier:
+                v["valid"] = False
+
+    def _is_lci(self, e):
+        return canon(e) == canon(self.lci_expr()) or e == self.let_exprs.get(canon(self.lci_expr()))
+
+    def bind_or_let(self, expr, name=None, src=None):
+        """Compat shim: hoist by generated classifier (no spec expr table)."""
+        return self.hoist(expr, name or "gen", src=src)
 
     def maybe_name(self, expr, src=None):
-        """Return let-name for expr when expr_lets says so (emitting the let); else expr."""
-        n = self.bind_or_let(expr, src=src)
-        return n if n is not None else expr
+        return expr
 
     def rewrite_lets(self, e):
         """Substitute subexprs equal to bound lets by their names (recursively, innermost)."""
@@ -250,7 +389,7 @@ class Translator:
             if k == "const":
                 return f["value"]
             if k == "derived_lci":
-                return self.maybe_name(self.lci_expr())
+                return self.hoist(self.lci_expr(), "lci", src=self.src(n))
             if k == "oracle_addr":
                 return ("addr", name)
             if k == "immutable":
@@ -263,6 +402,27 @@ class Translator:
         if name in self.def_calls:
             return ("fncall", name)
         return name
+
+    def hoist_accessor(self, e, node=None):
+        """Shadow-accessor calls (bvh_at/tag_at etc.) hoist in value contexts."""
+        if isinstance(e, list) and is_call(e) and self.hoist_policy.get(f"def:{e[1]}") == "value" and not self.in_require_arg:
+            return self.hoist(e, f"def:{e[1]}", src=self.src(node) if node is not None else None)
+        return e
+
+    def post_hoist(self, e, node=None):
+        """Mechanical hoists applied to call-site results: lci reads and
+        hoist_policy'd def calls whose classifier carries a spec name."""
+        if (isinstance(e, list) and is_call(e) and e[1] == "nth"
+                and len(e) == 4 and e[2] == "blobs" and isinstance(e[3], int)):
+            self.blob(e[3], node)
+        if isinstance(e, list) and canon(e) == canon(self.lci_expr()):
+            return self.hoist(e, "lci", src=self.src(node) if node is not None else None)
+        if isinstance(e, list) and is_call(e):
+            cls = f"def:{e[1]}"
+            pol = self.hoist_policy.get(cls)
+            if pol and cls in self.let_names and (pol == "always" or not self.in_require_arg):
+                return self.hoist(e, cls, src=self.src(node) if node is not None else None)
+        return e
 
     def x_member(self, n):
         base = self.X(n["expression"])
@@ -281,7 +441,17 @@ class Translator:
             if m is None:
                 self.add_debt(f"{self.src(n)} member {f['record']}.{mem}", "unmodelled_member", mem)
                 return ("unmodelled", mem)
-            return ["get", ["call", "nth_ch", f["field"], k], m]
+            call = ["call", "nth_ch", f["field"], k]
+            if "ch" in self.let_names:
+                base = self.hoist(call, "ch", src=self.src(n))
+                return ["get", base, m]
+            bound = self.let_exprs.get(canon(call))
+            if bound is not None:
+                return ["get", bound, m]
+            e = ["get", call, m]
+            if f"ch.{m}" in self.let_names:
+                return self.hoist(e, f"ch.{m}", src=self.src(n))
+            return e
         if isinstance(base, tuple) and base[0] == "shadow":
             _, nm, f, k, fields = base
             ctor = self.spec["struct_ctors"].get(f["record"])
@@ -316,10 +486,10 @@ class Translator:
         if mem in ("length",) and isinstance(base, str):
             return base
         if isinstance(base, tuple) and base[0] == "batch_entry":
-            f = base[-1]
+            _, _nm, k, f = base
             m = (f.get("fields") or {}).get(mem) if isinstance(f, dict) else None
-            if m or (isinstance(f, dict) and f.get("entry_field")):
-                return ["get", self._lower(base), m or mem]
+            if m:
+                return self.hoist_accessor(["get", ["call", "w", "lfi", "win", k], m], n)
             self.add_debt(f"{self.src(n)} member {base[1]}.{mem}", "unmodelled_member", mem)
             return ("unmodelled", mem)
         return base if isinstance(base, (str, int, bool, list)) else ("member", base, mem)
@@ -352,6 +522,8 @@ class Translator:
         if kind == "abs_map":
             if f.get("record"):
                 return ("abs_rec", f, k)
+            if f["field"] == "blobs" and isinstance(k, int):
+                return self.blob(k, n)
             return ["call", "nth", f["field"], k]
         if kind == "role_set":
             return ["call", "mem", k, f["field"]]
@@ -380,20 +552,38 @@ class Translator:
             other = b if tok is a else a
             return ("commit_cmp", op, tok[1], other)
         if isinstance(a, tuple) and a[0] == "batch_entry" and isinstance(b, tuple) and b[0] == "hash":
-            return ("honesty", n)
+            return ("honesty", n, b[1], a[2])
         if isinstance(b, tuple) and b[0] == "batch_entry" and isinstance(a, tuple) and a[0] == "hash":
-            return ("honesty", n)
+            return ("honesty", n, a[1], b[2])
         a = self._lower(a)
         b = self._lower(b)
         if isinstance(a, tuple) and a[0] in ("unmodelled", "debt", "map") or isinstance(b, tuple) and b[0] in ("unmodelled", "debt", "map"):
             return ("unmodelled", "cmp")
         d = BINOP.get(op)
+        if d in ("&&", "||", "!") or op in ("&&", "||"):
+            aa = self.commit_atom(*a[1:]) if isinstance(a, tuple) and a[0] == "commit_cmp" else a
+            bb = self.commit_atom(*b[1:]) if isinstance(b, tuple) and b[0] == "commit_cmp" else b
+            if isinstance(aa, tuple) or isinstance(bb, tuple):
+                return ("unmodelled", "cmp")
+            a, b = aa, bb
         if d is None:
             self.add_debt(f"{self.src(n)} binop {op}", "untranslated_expr", f"binary op {op}")
             return ("debt", op)
         if d == "-" and not self.in_unchecked:
             self.panic_guard(a, b, n)
         return [d, self.rewrite_lets(a) if isinstance(a, list) else a, self.rewrite_lets(b) if isinstance(b, list) else b]
+
+    def commit_atom(self, op, k, other):
+        """commit_cmp folded inside a boolean context: committedBatches[k] is nonzero
+        exactly on the window lfi..lci, so !=0 -> k>=lfi and ==0 -> k>lci."""
+        if other != 0:
+            return None
+        lci = self._last_bound(self.lci_expr())
+        if op == "!=":
+            return [">=", k, "lfi"]
+        if op == "==":
+            return [">", k, lci]
+        return None
 
     def panic_guard(self, a, b, node):
         if b == 0:
@@ -414,7 +604,9 @@ class Translator:
         ex = n["expression"]
         # require/assert
         if ex.get("nodeType") == "Identifier" and ex.get("name") in ("require", "assert"):
+            self.in_require_arg += 1
             cond = self.X(n["arguments"][0])
+            self.in_require_arg -= 1
             msg = n["arguments"][1].get("value") if len(n["arguments"]) > 1 else None
             return ("require", cond, msg, n)
         # type conversions
@@ -449,7 +641,7 @@ class Translator:
             if isinstance(obj, tuple) and obj[0] == "map":
                 f = self.fam(obj[1])
                 if f and f["kind"] == "queue" and mem == "push":
-                    self.writes.append(("state", "qlen", list(self.conds), ["+", "qlen", 1]))
+                    self.W("state", "qlen", list(self.conds), ["+", "qlen", 1])
                     return ("void", "push")
             return ("method", obj, mem, n["arguments"])
         if ex.get("nodeType") == "Identifier":
@@ -476,11 +668,11 @@ class Translator:
         return ("call", "unknown", n)
 
     def blob(self, i, n):
-        if not self.blob_lets_done:
-            self.blob_lets_done = True
-            for j in self.blob_indices:
-                self.pending.append({"let": f"b{j}", "expr": ["call", "nth", "blobs", j]})
-        return ["call", "nth", "blobs", i] if isinstance(i, int) else ["call", "nth", "blobs", i]
+        for j in self.blob_indices:
+            if j not in self.blob_emitted:
+                self.blob_emitted.add(j)
+                self.pending.append({"let": f"b{j}", "expr": ["call", "nth", "blobs", j], "__prov": "ast"})
+        return ["call", "nth", "blobs", i]
 
     def keccak(self, n):
         # inside _computeBlobVersionedHash the asm collects blob hashes -> agg(blobs)
@@ -537,14 +729,14 @@ class Translator:
             if "inline" in oc:
                 return self.inline_fn(tuple(oc["inline"]), args, node)
             if "emit" in oc:
-                return self.subst_args(oc["emit"], args)
+                return self.post_hoist(self.subst_args(oc["emit"], args), node)
             if "guard" in oc:
                 g = oc["guard"]
                 self.emit_require(g["require"], g["reason"], g.get("src", self.src(node)))
                 return ("guard", key)
             if "effects" in oc or "returns_unmodelled" in oc:
                 for ef in oc.get("effects", []):
-                    self.writes.append(("state", ef["field"], list(self.conds), self.subst_args(ef["expr"], args)))
+                    self.W("state", ef["field"], list(self.conds), self.subst_args(ef["expr"], args))
                 if oc.get("note"):
                     self.add_debt(f"{self.src(node)} {key}", "unmodelled_value", oc["note"])
                 return ("unmodelled", oc.get("returns_unmodelled", key))
@@ -566,7 +758,7 @@ class Translator:
         return e
 
     def call_oracle(self, key, oc, args, node):
-        return self.subst_args(oc.get("emit"), args)
+        return self.post_hoist(self.subst_args(oc.get("emit"), args), node)
 
     # ------------------------------------------------------- internal calls
     def find_fn(self, contract, name):
@@ -640,7 +832,7 @@ class Translator:
                 call_args.append(resolved[i])
             else:
                 call_args.append(p)
-        return self.maybe_name(["call", dname, *call_args])
+        return self.post_hoist(["call", dname, *call_args], node)
 
     def inline_fn(self, fkey, args, node, fn=None):
         fn = fn or self.find_fn(fkey[0], fkey[1])
@@ -657,6 +849,8 @@ class Translator:
         for i, p in enumerate(params):
             if i < len(args):
                 newenv[p["name"]] = self.X(args[i])
+        for rp in fn.get("returnParameters", {}).get("parameters", []):
+            newenv.setdefault(rp["name"], ("unbound", rp["name"]))
         self.env = newenv
         self.run_modifiers(fn)
         for st in fn.get("body", {}).get("statements", []):
@@ -666,12 +860,12 @@ class Translator:
         self.ret = saved_ret
         self.cur_fn = saved_cur
         if len(rets) == 1 and rets[0][0] == []:
-            return rets[0][1]
+            return self.post_hoist(rets[0][1], node)
         if len(rets) > 1:
             e = rets[-1][1]
             for conds, val in reversed(rets[:-1]):
                 e = simplify(["?", AND(*conds), val, e])
-            return e
+            return self.post_hoist(e, node)
         return ("void", fkey[1])
 
     def run_modifiers(self, fn):
@@ -705,15 +899,17 @@ class Translator:
             b = self.X(args[-2])           # _numL1Messages
             self.emit_require(["<=", ["+", a, b], "qlen"], "message index out of range",
                               "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
-                              note="_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length")
+                              note="_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length",
+                              prov="spec")
             return ("unmodelled", "queue_read_range")
         if h == "pop_messages":
-            btot = self.maybe_name(self.X(args[0]))
-            bn = self.maybe_name(self.X(args[1]))
+            bn = self.hoist(self.X(args[1]), "pop")
+            btot = self.hoist(self.X(args[0]), "pop")
             hh = self.spec["handlers"]["_popL1Messages"]
             self.emit_require(OR(["==", bn, 0], ["==", "qpend", ["-", btot, bn]]),
-                              "start index mismatch", hh["require_src"], note=hh.get("note"))
-            self.writes.append(("state", "qpend", list(self.conds), simplify(["?", ["==", bn, 0], "qpend", btot])))
+                              "start index mismatch", hh["require_src"], note=hh.get("note"),
+                              prov="spec")
+            self.W("state", "qpend", list(self.conds), simplify(["?", ["==", bn, 0], "qpend", btot]), prov="spec")
             return ("void", "pop_messages")
         if h == "asm_scan":
             return ("unmodelled", "asm")
@@ -814,7 +1010,7 @@ class Translator:
             f = e[-1]
             k = e[3] if e[0] == "entry_field" else e[2]
             if isinstance(f, dict) and f.get("accessor"):
-                return ["call", f["accessor"], "lfi", "win", f["shadow"], k]
+                return self.hoist_accessor(["call", f["accessor"], "lfi", "win", f["shadow"], k])
             field = e[2] if e[0] == "entry_field" else (f.get("entry_field") if isinstance(f, dict) else e[2])
             return ["get", ["call", "w", "lfi", "win", k], field]
         return e
@@ -864,12 +1060,16 @@ class Translator:
             return
         saved = list(self.conds)
         saved_env = dict(self.env)
+        saved_pending = list(self.pending)
         self.conds = saved + [c]
         self.in_branch = getattr(self, "in_branch", 0) + 1
         for s in tstmt.get("statements", []):
             self.S(s)
         self.in_branch -= 1
         self.conds = saved
+        # pending hoists emitted inside the branch are branch-local: resolve
+        # their names back to exprs in the environment before merging.
+        self._squash_branch_lets(saved_pending)
         then_env = dict(self.env)
         if fstmt is not None:
             self.env = dict(saved_env)
@@ -879,16 +1079,21 @@ class Translator:
                 self.S(s)
             self.in_branch -= 1
             self.conds = saved
-        else_env = self.env
+            self._squash_branch_lets(saved_pending)
+        else_env = self.env if fstmt is not None else dict(saved_env)
         # join: local names bound differently across branches become a ?-merge;
         # a branch established by an already-emitted require collapses to its value
         merged = dict(else_env)
         keys = set(then_env) | set(else_env)
         est = {canon(x) for x in self.established}
         for k in sorted(keys):
-            vt = then_env.get(k, saved_env.get(k, ("unbound", k)))
-            ve = else_env.get(k, saved_env.get(k, ("unbound", k)))
-            if vt == ve:
+            def deref(v):
+                if isinstance(v, str) and v in self.let_values:
+                    return self.let_values[v]
+                return v
+            vt = deref(then_env.get(k, saved_env.get(k, ("unbound", k))))
+            ve = deref(else_env.get(k, saved_env.get(k, ("unbound", k))))
+            if canon(vt) == canon(ve) if isinstance(vt, list) or isinstance(ve, list) else vt == ve:
                 merged[k] = vt
                 continue
             if canon(NOT(c)) in est:
@@ -901,7 +1106,18 @@ class Translator:
             if nm and isinstance(merged[k], list) and canon(merged[k]) not in self.let_exprs:
                 self.emit_let(nm, merged[k], src=self.src_span(tstmt))
                 merged[k] = nm
+            elif isinstance(merged[k], list) and merged[k] and merged[k][0] == "?":
+                cond = merged[k][1]
+                cls = f"ifcond:{cond}" if isinstance(cond, str) else None
+                if cls and cls in self.let_names:
+                    merged[k] = self.hoist(merged[k], cls, src=self.src(tstmt))
         self.env = merged
+
+    def _squash_branch_lets(self, saved_pending):
+        for it in self.pending[len(saved_pending):]:
+            self.let_values[it["let"]] = it["expr"]
+            self.let_exprs.pop(canon(it["expr"]), None)
+        del self.pending[len(saved_pending):]
 
     def _is_single_return(self, body):
         ss = body.get("statements", [])
@@ -924,20 +1140,21 @@ class Translator:
         self.add_debt(f"{self.src(st)} {kind}-loop", "untranslated_loop", f"{kind} loop in {fn} not translated")
 
     def h_revert_loop(self, st):
-        p = self.maybe_name(["-", "idx", "lfi"])
-        moved = self.maybe_name(["call", "drop", "win", "p"])
+        p = self.hoist(["-", "idx", "lfi"], "rev_p")
+        moved = self.hoist(["call", "drop", "win", "p"], "rev_moved")
         self._drain_pending()
-        self.writes.append(("state", "win", [], ["call", "take", "win", p]))
+        lci = self._last_bound(self.lci_expr())
+        self.W("state", "win", [], ["call", "take", "win", p], prov="spec")
         for s in ("s_csr", "s_bd", "s_bvh", "s_tag"):
-            self.writes.append(("state", s, [], ["call", "concat", ["call", f"es_{s[2:]}", moved], s]))
-        self.writes.append(("state", "inch", [], simplify(["&&", "inch", ["!", ["call", "any_open", "chs", "idx", "lci"]]])))
-        self.writes.append(("state", "chs", [], ["call", "clear_chs", "chs", "idx", "lci"]))
-        self.writes.append(("state", "rri", [], simplify(["?", ["&&", [">", "rri", 0], [">=", "rri", "idx"], ["<=", "rri", "lci"]], 0, "rri"])))
+            self.W("state", s, [], ["call", "concat", ["call", f"es_{s[2:]}", moved], s], prov="spec")
+        self.W("state", "inch", [], simplify(["&&", "inch", ["!", ["call", "any_open", "chs", "idx", lci]]]), prov="spec")
+        self.W("state", "chs", [], ["call", "clear_chs", "chs", "idx", lci], prov="spec")
+        self.W("state", "rri", [], simplify(["?", ["&&", [">", "rri", 0], [">=", "rri", "idx"], ["<=", "rri", lci]], 0, "rri"]), prov="spec")
         self.add_debt(f"{self.src(st)} revert loop refunds", "unmodelled_write",
                       "batchChallengeReward += challengeDeposit inside the loop is reward accounting")
 
     def h_bump_loop(self, st):
-        self.writes.append(("state", "win", [], ["call", "bump_f", "win", ["-", "idx", "lfi"], "W"]))
+        self.W("state", "win", [], ["call", "bump_f", "win", ["-", "idx", "lfi"], "W"], prov="spec")
 
     def s_decl(self, st):
         decls = st.get("declarations", [])
@@ -965,7 +1182,7 @@ class Translator:
             # local record shadow: `Ch memory ch = challenges[k]`
             _, f, k = v
             nm = self.local_names.get(name, name)
-            self.pending.append({"let": nm, "expr": ["call", "nth_ch", f["field"], k], "src": self.src(st)})
+            self.pending.append({"let": nm, "expr": ["call", "nth_ch", f["field"], k], "src": self.src(st), "__prov": "ast"})
             self.let_exprs[canon(["call", "nth_ch", f["field"], k])] = nm
             self.env[name] = ("shadow", nm, f, k, {})
             self._drain_pending()
@@ -973,31 +1190,23 @@ class Translator:
         if isinstance(v, tuple):
             self.env[name] = v
             return
-        atomic = isinstance(v, (int, bool, str)) and (not isinstance(v, str) or v in self.input_names or True)
         nm = self.local_names.get(name)
         if nm and isinstance(v, list):
-            self.pending.append({"let": nm, "expr": v, "src": self.src(st)})
+            self.pending.append({"let": nm, "expr": v, "src": self.src(st), "__prov": "ast"})
             self.let_exprs[canon(v)] = nm
             self.env[name] = nm
             self._drain_pending()
         elif isinstance(v, list) and self._heavy(v):
             nm = nm or f"v{name}"
-            self.pending.append({"let": nm, "expr": v, "src": self.src(st)})
+            self.pending.append({"let": nm, "expr": v, "src": self.src(st), "__prov": "ast"})
             self.let_exprs[canon(v)] = nm
             self.env[name] = nm
             self._drain_pending()
         else:
             self.env[name] = v
-        if nm == "bvh":
-            self.emit_ghost()
 
     def _heavy(self, e):
         return isinstance(e, list)
-
-    def emit_ghost(self):
-        g = self.action_spec.get("ghost_tag")
-        if g:
-            self.emit_let(g["name"], g["expr"])
 
     def s_assign(self, st):
         op = st["operator"]
@@ -1018,11 +1227,10 @@ class Translator:
             if getattr(self, "in_branch", 0):
                 return
             nm = self.local_names.get(name)
-            if nm and canon(nv) != canon(name) and isinstance(nv, list) and canon(nv) not in self.let_exprs:
+            if (nm and canon(nv) != canon(name) and isinstance(nv, list)
+                    and canon(nv) not in self.let_exprs and nm not in self.let_exprs.values()):
                 self.emit_let(nm, nv, src=self.src_span(st))
                 self.env[name] = nm
-                if nm == "bvh":
-                    self.emit_ghost()
             return
         self.write_target(lhs, op, v, st)
 
@@ -1082,10 +1290,15 @@ class Translator:
                     if m is None:
                         self.add_debt(f"{self.src(st)} write {name}.{mem}", "unmodelled_write", mem)
                         return
-                    base = ["get", ["call", "nth_ch", "chs", k], m]
+                    call = ["call", "nth_ch", "chs", k]
+                    if "ch" in self.let_names:
+                        base_nm = self.hoist(call, "ch", src=self.src(st))
+                    else:
+                        base_nm = self.let_exprs.get(canon(call), call)
+                    base = ["get", base_nm, m]
                     nv = v if op == "=" else [op[0], base, v]
-                    rec = ["with", f["record"], ["call", "nth_ch", "chs", k], {m: nv}]
-                    self.writes.append(("ch_rec", f, k, conds, rec))
+                    rec = ["with", f["record"], base_nm, {m: nv}]
+                    self.W("ch_rec", f, k, conds, rec)
                     return
                 self.add_debt(f"{self.src(st)} write {name}.{mem}", "unmodelled_write", f"{name}.{mem}")
                 return
@@ -1098,7 +1311,7 @@ class Translator:
             return
         if kind == "scalar":
             nv = v if op == "=" else [op[0], f["field"], v]
-            self.writes.append(("state", f["field"], conds, nv))
+            self.W("state", f["field"], conds, nv)
             if name == "lastCommittedBatchIndex":
                 self.lci_write = v
             return
@@ -1110,13 +1323,13 @@ class Translator:
                 if isinstance(v, tuple) and v[0] == "shadow":
                     _, nm, _f, _k, fields = v
                     v = ["with", f["record"], nm, dict(fields)]
-                self.writes.append(("ch_rec", f, k, conds, v))
+                self.W("ch_rec", f, k, conds, v)
             else:
                 nv = v if op == "=" else [op[0], ["call", "nth", f["field"], k], v]
                 if name == "messageEnqueueTime" and canon(k) == canon("qlen"):
-                    self.writes.append(("state", "enq", conds, ["call", "snoc", "enq", v]))
+                    self.W("state", "enq", conds, ["call", "snoc", "enq", v])
                 else:
-                    self.writes.append(("state", f["field"], conds, ["call", "set_nat", f["field"], k, nv]))
+                    self.W("state", f["field"], conds, ["call", "set_nat", f["field"], k, nv])
             return
         if kind == "batch_map":
             if isinstance(v, tuple) and v[0] == "ctor_fields":
@@ -1142,21 +1355,25 @@ class Translator:
         self.add_debt(f"{self.src(st)} write {name}", "unmodelled_write", kind)
 
     def entry_write(self, family_name, k, efield, v, conds):
-        """Write to the batch-map entry: into new_entry when k == next, else win_set/last."""
-        if self.new_idx is not None and canon(k) == canon(self.new_idx):
+        """Write to the batch-map entry: into new_entry when k names the entry under
+        construction (new_idx, or the self-carrier index aliased to it by premise)."""
+        if isinstance(v, list):
+            v = self.rewrite_lets(v)
+        if self.new_idx is not None and (canon(k) == canon(self.new_idx) or (
+                self.self_idx_alias is not None and canon(k) == canon(self.self_idx_alias))):
             if self.new_entry is None:
                 self.new_entry = {}
             self.new_entry[efield] = v
-            if efield == "bvh" and self.action_spec.get("ghost_tag") and "tag" not in self.new_entry:
-                self.new_entry["tag"] = self.tag_expr()
+            self.entry_prov[efield] = "ast"
+            g = self.action_spec.get("ghost_tag")
+            if efield == "bvh" and g and "tag" not in self.new_entry:
+                self.new_entry["tag"] = g["expr"]
+                self.entry_prov["tag"] = "spec"
             return
         if family_name == "committedStateRoots" and canon(k) == canon(self._last_bound(self.lci_expr())):
-            self.writes.append(("state", "win", conds, ["call", "set_last_csr", "win", v]))
+            self.W("state", "win", conds, ["call", "set_last_csr", "win", v])
             return
         self.add_debt(f"batch entry {efield} write at {k!r}", "unmodelled_write", f"{family_name}[k].{efield} outside entry construction")
-
-    def tag_expr(self):
-        return self.action_spec.get("ghost_tag", {}).get("expr")
 
     def s_unary(self, st):
         if st["operator"] in ("++", "--", "delete"):
@@ -1178,7 +1395,7 @@ class Translator:
             k = self.rewrite_lets(self.X(sub["indexExpression"]))
             f = self.fam(name)
             if f and f["kind"] == "abs_map" and f.get("record"):
-                self.writes.append(("state", "chs", list(self.conds), ["call", "set_ch", "chs", k, ["call", "empty_ch"]]))
+                self.W("state", "chs", list(self.conds), ["call", "set_ch", "chs", k, ["call", "empty_ch"]])
                 return
             if f and f["kind"] == "batch_map":
                 # deleting batch entries at k: covered by the window drop when k == lfi
@@ -1200,7 +1417,9 @@ class Translator:
             _, field, v = r
             if self.new_entry is None:
                 self.new_entry = {}
+            v = self.rewrite_lets(v) if isinstance(v, list) else v
             self.new_entry[field] = v
+            self.entry_prov[field] = "ast"
             return
         if isinstance(r, tuple) and r[0] in ("store_drop",):
             return
@@ -1222,18 +1441,11 @@ class Translator:
             if kind == "commit_cmp":
                 return self.commit_require(cond, msg, node)
             if kind == "honesty":
-                dr = self._drop_rule(msg)
-                if dr:
-                    self.add_debt(f"{self.src(node)} require {msg}", "subsumed_require", dr["note"])
-                    return
-                self.add_debt(f"{self.src(node)} require {msg}", "subsumed_require", "honest-header premise")
-                return
+                return self.s_honesty(cond, msg, node)
             if kind in ("unmodelled", "debt", "call"):
                 self.add_debt(f"{self.src(node)} require {msg}", "unmodelled_require", f"require({msg}) not translated")
                 return
-        dr = self._drop_rule(msg)
-        if dr:
-            self.add_debt(f"{self.src(node)} require {msg}", "subsumed_require", dr["note"])
+        if self._carrier_eq_drop(cond, msg, node):
             return
         # tuple records comparisons etc.
         self._drain_pending()
@@ -1244,11 +1456,69 @@ class Translator:
         self.pending_notes = []
         self.emit_require(cond, msg or "require", self.src(node), note=note, site=site)
 
-    def _drop_rule(self, msg):
-        for d in self.spec.get("drop_requires", []):
-            if d["reason"] == msg:
-                return d
-        return None
+    def s_honesty(self, cond, msg, node):
+        """committedBatches[k] == hash(carrier): the carrier premise declares the
+        presented header's hash equals the map entry, so the equality half is
+        dropped as debt. For a self-carrier the *range* half (k committed)
+        survives as `k <= lci` unless k already aliases the current lci."""
+        _, _n, kind, k = cond
+        self.add_debt(f"{self.src(node)} require {msg}", "subsumed_require",
+                      "honest-carrier premise: the presented header's hash equals "
+                      "committedBatches at its index by construction")
+        if kind == "self":
+            if self.self_idx_alias is not None and canon(k) == canon(self.self_idx_alias):
+                return
+            lci = self.hoist(self.lci_expr(), "lci", src=self.src(node))
+            e = ["<=", k, lci]
+            self._drain_pending()
+            self.emit_require(e, msg, self.src(node),
+                              note=self.spec["commit_notes"]["commit_hash"])
+        return
+
+    def _ifcond_operands(self, e):
+        """A composite boolean operand containing `get <bound-let> .m` is a named
+        reusable condition: hoist it under the 'ifcond' classifier when the
+        action names one (e.g. proveState's timeout)."""
+        if "ifcond" not in self.let_names or not isinstance(e, list) or e[0] not in ("||", "&&"):
+            return e
+        if self.hoist_used.get("ifcond", 0) >= len(self.let_names["ifcond"]):
+            return e
+
+        def bound_get(x):
+            return isinstance(x, list) and (
+                (x[0] == "get" and isinstance(x[1], str) and x[1] in self.let_values)
+                or any(bound_get(y) for y in x[1:]))
+
+        e = list(e)
+        for j, op in enumerate(e[1:], 1):
+            if (isinstance(op, list) and bound_get(op)
+                    and canon(op) not in self.let_exprs):
+                e[j] = self.hoist(op, "ifcond")
+                break
+        return e
+
+    def _carrier_eq_drop(self, cond, msg, node):
+        """`lci == idx` (self-carrier index vs lastCommittedBatchIndex): subsumed by
+        the carrier premise; additionally proves idx == new_idx for entry writes."""
+        if not (isinstance(cond, list) and cond[0] == "=="):
+            return False
+        a, b = cond[1], cond[2]
+        self_idx = self.spec.get("carrier_idx", {}).get("self")
+        if self_idx is None:
+            return False
+        if a == self_idx:
+            other = b
+        elif b == self_idx:
+            other = a
+        else:
+            return False
+        if not self._is_lci(other):
+            return False
+        self.add_debt(f"{self.src(node)} require {msg}", "subsumed_require",
+                      "carrier premise: the presented header carries index LCI")
+        if self.new_idx is not None:
+            self.self_idx_alias = self.new_idx
+        return True
 
     def site_for(self, cond):
         for s in self.spec.get("sites", []):
@@ -1259,7 +1529,7 @@ class Translator:
     def commit_require(self, cond, msg, node):
         _, op, k, other = cond
         notes = self.spec["commit_notes"]
-        lci = self._last_bound(self.lci_expr())
+        lci = self.hoist(self.lci_expr(), "lci", src=self.src(node))
         if op == "==" and other == 0:
             e = [">", k, lci]
             self._drain_pending()
@@ -1278,15 +1548,21 @@ class Translator:
         return isinstance(e, tuple) and e[0] in ("hash",) or isinstance(e, str)
 
     # ------------------------------------------------------------ walk entry
-    def translate_fn(self, contract, name, env, local_names, expr_lets, conds=()):
+    def translate_fn(self, contract, name, env, local_names, expr_lets=None, conds=(),
+                     let_names=None, hoist_policy=None):
         self.conds = list(conds)
         self.reasons = {}
         self.input_map = env
         self.input_names = set(v for v in env.values() if isinstance(v, str))
         self.local_names = local_names
+        self.let_names = {k: list(v) for k, v in (let_names or {}).items()}
+        self.hoist_used = {}
+        self.hoist_bound = {}
+        self.hoist_policy = dict(hoist_policy or {})
+        self.in_require_arg = 0
+        self.self_idx_alias = None
+        self.let_values = {}
         self.expr_let_table = {}
-        for el in expr_lets:
-            self.expr_let_table[canon(el["expr"])] = (el["name"] if isinstance(el["name"], list) else [el["name"]])
         self.pending_notes = []
         self.cur_fn = (contract, name)
         self.new_entry = None

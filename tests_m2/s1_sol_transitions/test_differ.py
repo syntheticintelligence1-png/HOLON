@@ -23,7 +23,8 @@ REPORT = Path(__file__).parent / "differ_report.json"
 REQUIRED_TOP = ["facts_version", "params", "types", "state", "ghost_state", "defs", "actions",
                 "reasons", "principals", "observers", "disch", "consumers"]
 DEBT_KINDS = {"not_extracted", "hand_simplification", "oracle_gap", "diverged",
-              "unmodelled_member", "unmodelled_value", "unmodelled_call", "unmodelled_write"}
+              "unmodelled_member", "unmodelled_value", "unmodelled_call", "unmodelled_write",
+              "spec_bound", "entry_field_default", "subsumed_require"}
 
 
 def _load():
@@ -69,12 +70,32 @@ class TestExtractedShape(unittest.TestCase):
 class TestDiffer(unittest.TestCase):
     def test_every_hand_item_accounted(self):
         h, e = _load()
-        report = differ_mod.diff_facts(h, e)
+        cov = json.loads(COVERAGE.read_text())
+        report = differ_mod.diff_facts(h, e, cov)
         REPORT.write_text(json.dumps(report, indent=1, sort_keys=True) + "\n")
         for action, res in sorted(report.items()):
             for m in res["missing"]:
                 self.assertIn(m["kind"], DEBT_KINDS, f"{action}: bad debt kind {m['kind']}")
                 self.assertTrue(m.get("reason"), f"{action}: missing item without reason: {m['item']}")
+
+    def test_provenance_declared(self):
+        """Every section/action field is labelled ast or spec, and every
+        spec-bound semantic item appears in coverage as kind spec_bound."""
+        _, e = _load()
+        prov = e.get("provenance", {})
+        self.assertTrue(prov, "provenance map missing")
+        for k, v in prov.items():
+            self.assertIn(v, ("ast", "spec"), f"provenance[{k}]={v}")
+        for sec in ("types", "state", "ghost_state", "shadow", "initial",
+                    "observers", "disch", "consumers", "coverage"):
+            self.assertEqual(prov.get(sec), "spec", f"{sec} should be spec-bound")
+        cov = json.loads(COVERAGE.read_text())
+        kinds = {i["kind"] for i in cov["items"]}
+        self.assertIn("spec_bound", kinds)
+        for it in cov["items"]:
+            if it["kind"] == "spec_bound":
+                self.assertTrue(it.get("reason"))
+                self.assertTrue(it.get("element"))
 
     def test_extractor_does_not_read_hand_facts(self):
         """The extractor must never open the hand-written facts file."""

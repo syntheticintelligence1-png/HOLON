@@ -1,22 +1,15 @@
 {
  "_defs": {
   "extra": [],
-  "missing": [
-   {
-    "item": {
-     "def": "blob_hash"
-    },
-    "kind": "diverged",
-    "reason": "extracted def body differs canonically from hand def"
-   }
-  ],
-  "recovered": 7
+  "missing": [],
+  "recovered_from_ast": 3,
+  "spec_bound": 5
  },
  "challengeState": {
   "extra": [
    {
     "item": {
-     "reason": 31,
+     "reason": 24,
      "require": [
       "&&",
       [
@@ -24,25 +17,20 @@
        [
         "get",
         [
-         "get",
-         [
-          "call",
-          "w",
-          "lfi",
-          "win",
-          "idx"
-         ],
-         null
+         "call",
+         "w",
+         "lfi",
+         "win",
+         "idx"
         ],
         "bdo"
        ],
        0
       ],
       [
-       "commit_cmp",
-       "!=",
+       ">=",
        "idx",
-       0
+       "lfi"
       ]
      ],
      "src": "contracts/contracts/l1/rollup/Rollup.sol:478"
@@ -54,15 +42,36 @@
   "missing": [
    {
     "item": {
-     "let": [
+     "require": [
       "call",
-      "lci",
-      "lfi",
-      "win"
+      "mem",
+      "who",
+      "chals"
      ]
     },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "==",
+      "rri",
+      0
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!",
+      "paused"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
    },
    {
     "item": {
@@ -97,33 +106,15 @@
     "reason": "hand guard has no extracted counterpart"
    }
   ],
-  "recovered": 12
+  "recovered_from_ast": 9,
+  "spec_bound": 1
  },
  "commitBatch": {
   "extra": [
    {
     "item": {
-     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)",
-     "reason": 11,
-     "require": [
-      ">",
-      "next",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
-     ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
-    },
-    "kind": "strengthened",
-    "reason": "extracted guard/write not present in hand facts"
-   },
-   {
-    "item": {
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 13,
+     "reason": 8,
      "require": [
       "<=",
       "parent",
@@ -138,17 +129,36 @@
   "missing": [
    {
     "item": {
-     "let": [
+     "require": [
       "call",
-      "enq_first",
-      "qpend",
-      "qlen",
-      "enq",
-      "t"
+      "mem",
+      "who",
+      "active"
      ]
     },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "==",
+      "rri",
+      0
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!",
+      "paused"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
    },
    {
     "item": {
@@ -177,9 +187,21 @@
    {
     "item": {
      "require": [
-      ">",
-      "next",
-      "lci"
+      "||",
+      [
+       "!=",
+       "ver",
+       2
+      ],
+      [
+       ">",
+       [
+        "call",
+        "blob_count",
+        "blobs"
+       ],
+       0
+      ]
      ]
     },
     "kind": "not_extracted",
@@ -187,39 +209,22 @@
    },
    {
     "item": {
-     "let": [
-      "get",
+     "require": [
+      "||",
       [
-       "call",
-       "nth_ch",
-       "chs",
-       "bc"
+       "==",
+       "ver",
+       2
       ],
-      "s"
+      [
+       "==",
+       "b1",
+       0
+      ]
      ]
     },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
-     "let": [
-      "?",
-      "inch",
-      [
-       "-",
-       [
-        "+",
-        "W",
-        "cstart"
-       ],
-       "t"
-      ],
-      0
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
    },
    {
     "item": {
@@ -265,14 +270,15 @@
     "reason": "hand write simplified relative to extracted semantics"
    }
   ],
-  "recovered": 23
+  "recovered_from_ast": 20,
+  "spec_bound": 2
  },
  "commitBatchWithProof": {
   "extra": [
    {
     "item": {
      "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)",
-     "reason": 11,
+     "reason": 6,
      "require": [
       ">",
       "next",
@@ -285,7 +291,7 @@
    },
    {
     "item": {
-     "reason": 12,
+     "reason": 7,
      "require": [
       "==",
       "parent",
@@ -299,7 +305,7 @@
    {
     "item": {
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 13,
+     "reason": 8,
      "require": [
       "<=",
       "parent",
@@ -312,21 +318,7 @@
    },
    {
     "item": {
-     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 21,
-     "require": [
-      "<=",
-      "idx",
-      "lci0"
-     ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:418"
-    },
-    "kind": "strengthened",
-    "reason": "extracted guard/write not present in hand facts"
-   },
-   {
-    "item": {
-     "reason": 22,
+     "reason": 16,
      "require": [
       ">",
       "proof",
@@ -341,75 +333,76 @@
   "missing": [
    {
     "item": {
-     "let": [
-      "call",
-      "enq_first",
-      "qpend",
-      "qlen",
-      "enq",
-      "t"
+     "require": [
+      "==",
+      "rri",
+      0
      ]
     },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
    },
    {
     "item": {
-     "let": [
-      "call",
-      "nth",
-      "blobs",
-      1
+     "require": [
+      "!",
+      "paused"
      ]
     },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
    },
    {
     "item": {
-     "let": [
-      "call",
-      "bvh_at",
-      "lfi",
-      "win",
-      "s_bvh",
-      "next"
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
-     "let": [
-      "?",
+     "require": [
+      "||",
       [
        "!=",
        "stored",
        0
       ],
       [
-       "call",
-       "tag_at",
-       "lfi",
-       "win",
-       "s_tag",
-       "next"
+       "!=",
+       "ver",
+       2
       ],
       [
-       "?",
+       ">",
        [
-        "==",
-        "ver",
-        2
+        "call",
+        "blob_count",
+        "blobs"
        ],
-       2,
-       1
+       0
       ]
      ]
     },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "||",
+      [
+       "!=",
+       "stored",
+       0
+      ],
+      [
+       "==",
+       "ver",
+       2
+      ],
+      [
+       "==",
+       "b1",
+       0
+      ]
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
    },
    {
     "item": {
@@ -444,42 +437,6 @@
     },
     "kind": "not_extracted",
     "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "let": [
-      "get",
-      [
-       "call",
-       "nth_ch",
-       "chs",
-       "bc"
-      ],
-      "s"
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
-     "let": [
-      "?",
-      "inch",
-      [
-       "-",
-       [
-        "+",
-        "W",
-        "cstart"
-       ],
-       "t"
-      ],
-      0
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
    },
    {
     "item": {
@@ -528,33 +485,15 @@
     "reason": "hand write simplified relative to extracted semantics"
    }
   ],
-  "recovered": 25
+  "recovered_from_ast": 25,
+  "spec_bound": 2
  },
  "commitState": {
   "extra": [
    {
     "item": {
-     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)",
-     "reason": 11,
-     "require": [
-      ">",
-      "next",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
-     ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
-    },
-    "kind": "strengthened",
-    "reason": "extracted guard/write not present in hand facts"
-   },
-   {
-    "item": {
      "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 13,
+     "reason": 8,
      "require": [
       "<=",
       "parent",
@@ -569,64 +508,11 @@
   "missing": [
    {
     "item": {
-     "let": [
-      "call",
-      "nth",
-      "blobs",
-      1
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
-     "let": [
-      "call",
-      "bvh_at",
-      "lfi",
-      "win",
-      "s_bvh",
-      "next"
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
-     "let": [
-      "call",
-      "tag_at",
-      "lfi",
-      "win",
-      "s_tag",
-      "next"
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
-     "let": [
-      "call",
-      "enq_first",
-      "qpend",
-      "qlen",
-      "enq",
-      "t"
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
      "require": [
-      ">",
-      "next",
-      "lci"
+      "call",
+      "mem",
+      "who",
+      "active"
      ]
     },
     "kind": "not_extracted",
@@ -634,39 +520,24 @@
    },
    {
     "item": {
-     "let": [
-      "get",
-      [
-       "call",
-       "nth_ch",
-       "chs",
-       "bc"
-      ],
-      "s"
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
-     "let": [
-      "?",
-      "inch",
-      [
-       "-",
-       [
-        "+",
-        "W",
-        "cstart"
-       ],
-       "t"
-      ],
+     "require": [
+      "==",
+      "rri",
       0
      ]
     },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
+   {
+    "item": {
+     "require": [
+      "!",
+      "paused"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
    },
    {
     "item": {
@@ -712,85 +583,18 @@
     "reason": "hand write simplified relative to extracted semantics"
    }
   ],
-  "recovered": 21
+  "recovered_from_ast": 23,
+  "spec_bound": 2
  },
  "finalizeBatch": {
-  "extra": [
-   {
-    "item": {
-     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 21,
-     "require": [
-      "<=",
-      "idx",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
-     ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:629"
-    },
-    "kind": "strengthened",
-    "reason": "extracted guard/write not present in hand facts"
-   },
-   {
-    "item": {
-     "reason": 31,
-     "require": [
-      "&&",
-      [
-       ">",
-       [
-        "get",
-        [
-         "get",
-         [
-          "call",
-          "w",
-          "lfi",
-          "win",
-          "idx"
-         ],
-         null
-        ],
-        "bdo"
-       ],
-       0
-      ],
-      [
-       "commit_cmp",
-       "!=",
-       "idx",
-       0
-      ]
-     ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:630"
-    },
-    "kind": "strengthened",
-    "reason": "extracted guard/write not present in hand facts"
-   }
-  ],
+  "extra": [],
   "missing": [
    {
     "item": {
-     "let": [
-      "call",
-      "lci",
-      "lfi",
-      "win"
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
      "require": [
-      "<=",
-      "idx",
-      "lci"
+      "==",
+      "rri",
+      0
      ]
     },
     "kind": "not_extracted",
@@ -799,27 +603,8 @@
    {
     "item": {
      "require": [
-      "&&",
-      [
-       ">=",
-       "idx",
-       "lfi"
-      ],
-      [
-       ">",
-       [
-        "get",
-        [
-         "call",
-         "w",
-         "lfi",
-         "win",
-         "idx"
-        ],
-        "bdo"
-       ],
-       0
-      ]
+      "!",
+      "paused"
      ]
     },
     "kind": "not_extracted",
@@ -838,52 +623,17 @@
     "reason": "hand effect on 'win' has no extracted counterpart"
    }
   ],
-  "recovered": 16
+  "recovered_from_ast": 15,
+  "spec_bound": 2
  },
  "proveState": {
   "extra": [
    {
     "item": {
-     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 21,
-     "require": [
-      "<=",
-      "idx",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
-     ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:603"
-    },
-    "kind": "strengthened",
-    "reason": "extracted guard/write not present in hand facts"
-   },
-   {
-    "item": {
-     "reason": 22,
+     "reason": 16,
      "require": [
       "||",
-      [
-       "<=",
-       [
-        "+",
-        [
-         "get",
-         [
-          "call",
-          "nth_ch",
-          "chs",
-          "idx"
-         ],
-         "s"
-        ],
-        "W"
-       ],
-       "t"
-      ],
+      "timeout",
       [
        ">",
        "proof",
@@ -899,22 +649,10 @@
   "missing": [
    {
     "item": {
-     "let": [
-      "call",
-      "lci",
-      "lfi",
-      "win"
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
      "require": [
-      "<=",
-      "idx",
-      "lci"
+      "==",
+      "rri",
+      0
      ]
     },
     "kind": "not_extracted",
@@ -922,34 +660,25 @@
    },
    {
     "item": {
-     "let": [
-      "call",
-      "nth_ch",
-      "chs",
-      "idx"
+     "require": [
+      "!",
+      "paused"
      ]
     },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
    },
    {
     "item": {
-     "let": [
-      "<=",
-      [
-       "+",
-       [
-        "get",
-        "ch",
-        "s"
-       ],
-       "W"
-      ],
-      "t"
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "active"
      ]
     },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
    },
    {
     "item": {
@@ -988,55 +717,14 @@
     "reason": "hand effect on 'chs' has no extracted counterpart"
    }
   ],
-  "recovered": 8
+  "recovered_from_ast": 9,
+  "spec_bound": 0
  },
  "revertBatch": {
   "extra": [
    {
     "item": {
-     "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
-     "reason": 21,
-     "require": [
-      "<=",
-      "idx",
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
-     ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:436"
-    },
-    "kind": "strengthened",
-    "reason": "extracted guard/write not present in hand facts"
-   },
-   {
-    "item": {
-     "note": "committedBatches[k] == 0 <=> k > LCI (committed indices are exactly 0..LCI)",
-     "reason": 26,
-     "require": [
-      ">",
-      [
-       "+",
-       "idx",
-       "count"
-      ],
-      [
-       "call",
-       "lci",
-       "lfi",
-       "win"
-      ]
-     ],
-     "src": "contracts/contracts/l1/rollup/Rollup.sol:439"
-    },
-    "kind": "strengthened",
-    "reason": "extracted guard/write not present in hand facts"
-   },
-   {
-    "item": {
-     "reason": 16,
+     "reason": 11,
      "require": [
       "<=",
       1,
@@ -1051,44 +739,18 @@
   "missing": [
    {
     "item": {
-     "let": [
-      "call",
-      "lci",
-      "lfi",
-      "win"
-     ]
-    },
-    "kind": "hand_simplification",
-    "reason": "hand let-binding does not match any extracted let; the extracted side models the value differently (e.g. a full ?-merge across branches)"
-   },
-   {
-    "item": {
      "require": [
-      "<=",
-      "idx",
-      "lci"
-     ]
-    },
-    "kind": "not_extracted",
-    "reason": "hand guard has no extracted counterpart"
-   },
-   {
-    "item": {
-     "require": [
-      ">",
-      [
-       "+",
-       "idx",
-       "count"
-      ],
-      "lci"
+      "==",
+      "who",
+      "OWNER"
      ]
     },
     "kind": "not_extracted",
     "reason": "hand guard has no extracted counterpart"
    }
   ],
-  "recovered": 13
+  "recovered_from_ast": 7,
+  "spec_bound": 8
  },
  "sendMessage": {
   "extra": [],
@@ -1105,11 +767,23 @@
     "reason": "hand effect on 'qlen' has no extracted counterpart"
    }
   ],
-  "recovered": 1
+  "recovered_from_ast": 1,
+  "spec_bound": 0
  },
  "setPause": {
   "extra": [],
   "missing": [
+   {
+    "item": {
+     "require": [
+      "==",
+      "who",
+      "OWNER"
+     ]
+    },
+    "kind": "not_extracted",
+    "reason": "hand guard has no extracted counterpart"
+   },
    {
     "item": {
      "paused": "status"
@@ -1118,11 +792,13 @@
     "reason": "hand write simplified relative to extracted semantics"
    }
   ],
-  "recovered": 5
+  "recovered_from_ast": 4,
+  "spec_bound": 0
  },
  "wait": {
   "extra": [],
   "missing": [],
-  "recovered": 1
+  "recovered_from_ast": 1,
+  "spec_bound": 0
  }
 }

@@ -966,16 +966,6 @@
   "onlyChallenger": "challenger",
   "onlyOwner": "owner"
  },
- "drop_requires": [
-  {
-   "reason": "incorrect parent batch hash",
-   "note": "honest-header premise: a presented header's hash equals committedBatches at its index by CF"
-  },
-  {
-   "reason": "incorrect batch header",
-   "note": "honest-header premise: the presented header carries index LCI (just committed)"
-  }
- ],
  "sites": [
   {
    "expr": [
@@ -1078,41 +1068,6 @@
     "_blobVersionedHash": "bvh",
     "_totalL1MessagesPoppedOverall": "tot"
    },
-   "expr_lets": [
-    {
-     "expr": [
-      "call",
-      "enq_first",
-      "qpend",
-      "qlen",
-      "enq",
-      "t"
-     ],
-     "name": "ef"
-    },
-    {
-     "expr": [
-      "call",
-      "lci",
-      "lfi",
-      "win"
-     ],
-     "name": "lci"
-    },
-    {
-     "expr": [
-      "get",
-      [
-       "call",
-       "nth_ch",
-       "chs",
-       "bc"
-      ],
-      "s"
-     ],
-     "name": "cstart"
-    }
-   ],
    "ghost_tag": {
     "name": "tag",
     "expr": [
@@ -1128,33 +1083,19 @@
     "after": "bvh"
    },
    "entry_at": "next",
-   "entry_template": {
-    "ver": "ver",
-    "tot": [
-     "+",
-     "tot",
-     "n"
+   "let_names": {
+    "lci": [
+     "lci"
     ],
-    "n": "n",
-    "hb": "bvh",
-    "prev": "prev",
-    "post": "post",
-    "lbn": "lbn",
-    "csr": "post",
-    "bvh": "bvh",
-    "tag": "tag",
-    "bdo": "t",
-    "bdf": [
-     "+",
-     [
-      "+",
-      "t",
-      "F"
-     ],
+    "def:enq_first": [
+     "ef"
+    ],
+    "ch.s": [
+     "cstart"
+    ],
+    "ifcond:inch": [
      "prt"
-    ],
-    "bdn": "lbn",
-    "bds": "who"
+    ]
    }
   },
   {
@@ -1220,91 +1161,35 @@
     "_nextBatchIndex": "next",
     "_totalL1MessagesPoppedOverall": "tot"
    },
-   "expr_lets": [
-    {
-     "expr": [
-      "call",
-      "bvh_at",
-      "lfi",
-      "win",
-      "s_bvh",
-      "next"
-     ],
-     "name": "bvh"
-    },
-    {
-     "expr": [
-      "call",
-      "tag_at",
-      "lfi",
-      "win",
-      "s_tag",
-      "next"
-     ],
-     "name": "tag"
-    },
-    {
-     "expr": [
-      "call",
-      "enq_first",
-      "qpend",
-      "qlen",
-      "enq",
-      "t"
-     ],
-     "name": "ef"
-    },
-    {
-     "expr": [
-      "call",
-      "lci",
-      "lfi",
-      "win"
-     ],
-     "name": "lci"
-    },
-    {
-     "expr": [
-      "get",
-      [
-       "call",
-       "nth_ch",
-       "chs",
-       "bc"
-      ],
-      "s"
-     ],
-     "name": "cstart"
-    }
-   ],
    "entry_at": "next",
-   "entry_template": {
-    "ver": "ver",
-    "tot": [
-     "+",
-     "tot",
-     "n"
+   "let_names": {
+    "lci": [
+     "lci"
     ],
-    "n": "n",
-    "hb": "bvh",
-    "prev": "prev",
-    "post": "post",
-    "lbn": "lbn",
-    "csr": "post",
-    "bvh": "bvh",
-    "tag": "tag",
-    "bdo": "t",
-    "bdf": [
-     "+",
-     [
-      "+",
-      "t",
-      "F"
-     ],
+    "def:enq_first": [
+     "ef"
+    ],
+    "def:bvh_at": [
+     "bvh"
+    ],
+    "ch.s": [
+     "cstart"
+    ],
+    "ifcond:inch": [
      "prt"
+    ]
+   },
+   "ghost_tag": {
+    "name": "tag",
+    "expr": [
+     "call",
+     "tag_at",
+     "lfi",
+     "win",
+     "s_tag",
+     "next"
     ],
-    "bdn": "lbn",
-    "bds": "who"
+    "after": "bvh"
    }
   },
   {
@@ -1381,55 +1266,6 @@
     "_blobVersionedHash": "bvh",
     "_totalL1MessagesPoppedOverall": "tot"
    },
-   "expr_lets": [
-    {
-     "expr": [
-      "call",
-      "lci",
-      "lfi",
-      "win"
-     ],
-     "name": [
-      "lci0",
-      "lci"
-     ]
-    },
-    {
-     "expr": [
-      "call",
-      "enq_first",
-      "qpend",
-      "qlen",
-      "enq",
-      "t"
-     ],
-     "name": "ef"
-    },
-    {
-     "expr": [
-      "call",
-      "bvh_at",
-      "lfi",
-      "win",
-      "s_bvh",
-      "next"
-     ],
-     "name": "stored"
-    },
-    {
-     "expr": [
-      "get",
-      [
-       "call",
-       "nth_ch",
-       "chs",
-       "bc"
-      ],
-      "s"
-     ],
-     "name": "cstart"
-    }
-   ],
    "ghost_tag": {
     "name": "tag",
     "expr": [
@@ -1460,38 +1296,24 @@
     ],
     "after": "bvh"
    },
-   "entry_overrides": {
-    "bdf": "t",
-    "bds": 0
-   },
    "entry_at": "next",
-   "entry_template": {
-    "ver": "ver",
-    "tot": [
-     "+",
-     "tot",
-     "n"
+   "let_names": {
+    "lci": [
+     "lci0",
+     "lci"
     ],
-    "n": "n",
-    "hb": "bvh",
-    "prev": "prev",
-    "post": "post",
-    "lbn": "lbn",
-    "csr": "post",
-    "bvh": "bvh",
-    "tag": "tag",
-    "bdo": "t",
-    "bdf": [
-     "+",
-     [
-      "+",
-      "t",
-      "F"
-     ],
+    "def:bvh_at": [
+     "stored"
+    ],
+    "ch.s": [
+     "cstart"
+    ],
+    "def:enq_first": [
+     "ef"
+    ],
+    "ifcond:inch": [
      "prt"
-    ],
-    "bdn": "lbn",
-    "bds": "who"
+    ]
    }
   },
   {
@@ -1527,35 +1349,18 @@
     "_msgSender()": "who"
    },
    "local_names": {},
-   "expr_lets": [
-    {
-     "expr": [
-      "call",
-      "lci",
-      "lfi",
-      "win"
-     ],
-     "name": "lci"
-    },
-    {
-     "expr": [
-      "-",
-      "idx",
-      "lfi"
-     ],
-     "name": "p"
-    },
-    {
-     "expr": [
-      "call",
-      "drop",
-      "win",
-      "p"
-     ],
-     "name": "moved"
-    }
-   ],
-   "loop_handler": "revert_loop"
+   "loop_handler": "revert_loop",
+   "let_names": {
+    "lci": [
+     "lci"
+    ],
+    "rev_p": [
+     "p"
+    ],
+    "rev_moved": [
+     "moved"
+    ]
+   }
   },
   {
    "name": "challengeState",
@@ -1589,17 +1394,11 @@
     "_msgSender()": "who"
    },
    "local_names": {},
-   "expr_lets": [
-    {
-     "expr": [
-      "call",
-      "lci",
-      "lfi",
-      "win"
-     ],
-     "name": "lci"
-    }
-   ]
+   "let_names": {
+    "lci": [
+     "lci"
+    ]
+   }
   },
   {
    "name": "proveState",
@@ -1636,34 +1435,18 @@
    "local_names": {
     "timeout": "timeout"
    },
-   "expr_lets": [
-    {
-     "expr": [
-      "call",
-      "nth_ch",
-      "chs",
-      "idx"
-     ],
-     "name": "ch"
-    },
-    {
-     "expr": [
-      "<=",
-      [
-       "+",
-       [
-        "get",
-        "ch",
-        "s"
-       ],
-       "W"
-      ],
-      "t"
-     ],
-     "name": "timeout"
-    }
-   ],
-   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:609-621, _challengerWin :803-808 (slash deactivates the batch submitter)"
+   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:609-621, _challengerWin :803-808 (slash deactivates the batch submitter)",
+   "let_names": {
+    "lci": [
+     "lci"
+    ],
+    "ch": [
+     "ch"
+    ],
+    "ifcond": [
+     "timeout"
+    ]
+   }
   },
   {
    "name": "finalizeBatch",
@@ -1693,46 +1476,16 @@
     "_msgSender()": "who"
    },
    "local_names": {},
-   "expr_lets": [
-    {
-     "expr": [
-      "call",
-      "lci",
-      "lfi",
-      "win"
-     ],
-     "name": "lci"
-    },
-    {
-     "expr": [
-      "get",
-      [
-       "call",
-       "w",
-       "lfi",
-       "win",
-       "idx"
-      ],
-      "n"
-     ],
-     "name": "bn"
-    },
-    {
-     "expr": [
-      "get",
-      [
-       "call",
-       "w",
-       "lfi",
-       "win",
-       "idx"
-      ],
-      "tot"
-     ],
-     "name": "btot"
-    }
-   ],
-   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:644-660 (deletes batchDataStore/committedStateRoots/batchBlobVersionedHashes/challenges at idx-1: the old window head)"
+   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:644-660 (deletes batchDataStore/committedStateRoots/batchBlobVersionedHashes/challenges at idx-1: the old window head)",
+   "let_names": {
+    "lci": [
+     "lci"
+    ],
+    "pop": [
+     "bn",
+     "btot"
+    ]
+   }
   },
   {
    "name": "setPause",
@@ -1758,8 +1511,8 @@
     "_msgSender()": "who"
    },
    "local_names": {},
-   "expr_lets": [],
-   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:575-583 (pausing deletes the open challenge; finalizeTimestamp extensions stay)"
+   "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:575-583 (pausing deletes the open challenge; finalizeTimestamp extensions stay)",
+   "let_names": {}
   },
   {
    "name": "sendMessage",
@@ -1779,9 +1532,9 @@
    },
    "inputs_extra": {},
    "local_names": {},
-   "expr_lets": [],
    "principal": "anyone (through the messenger; fee abstracted as one message cost)",
-   "note": "models appendCrossDomainMessage through _queueTransaction; the onlyMessenger check is folded into the principal class and _validateGasLimit into gas-limit debt"
+   "note": "models appendCrossDomainMessage through _queueTransaction; the onlyMessenger check is folded into the principal class and _validateGasLimit into gas-limit debt",
+   "let_names": {}
   },
   {
    "name": "wait",
@@ -2077,5 +1830,10 @@
  "carrier_idx": {
   "self": "idx",
   "parent": "parent"
+ },
+ "hoist_policy": {
+  "def:enq_first": "always",
+  "def:bvh_at": "value",
+  "def:tag_at": "value"
  }
 }
