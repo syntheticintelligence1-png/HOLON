@@ -512,7 +512,7 @@ class TestToyDerivation(unittest.TestCase):
         text = sites.instrumented_model(facts, self.d.doc("DERIVATION"))
         self.assertEqual(text.count(H.GHOST_MARKER), 1)
         head, ghost = text.split(H.GHOST_MARKER)
-        plain = machine.Machine(load_json(facts), facts).generate(file_sha(facts), reach=True)
+        plain = machine.Machine(load_json(facts), facts, m2plus=True).generate(file_sha(facts), reach=True)
         self.assertEqual(head.rstrip("\n"), plain.rstrip("\n"), "the model above the ghost section is unchanged")
         defined = set(re.findall(r"^def\s+(\w+)\(", ghost, re.M))
         for lid in self.d.law_docs():
@@ -664,8 +664,10 @@ class TestDeriveHonesty(unittest.TestCase):
                         "the renaming reached a site expression")
         self.assertEqual(derivation_view(rn["derivation"], back=True), derivation_view(base["derivation"]))
         strip_id = lambda o: {k: v for k, v in o.items() if k != "id"}  # noqa: E731
-        self.assertEqual(sorted(json.dumps(unrename(strip_id(o)), sort_keys=True) for o in rn["obstructions"]["obstructions"]),
-                         sorted(json.dumps(strip_id(o), sort_keys=True) for o in base["obstructions"]["obstructions"]))
+        # registers are listed sorted by var (contract), an order the renaming changes: re-sorted once named back
+        by_var = lambda o: dict(o, registers=sorted(o["registers"], key=lambda r: r["var"]))  # noqa: E731
+        self.assertEqual(sorted(json.dumps(by_var(unrename(strip_id(o))), sort_keys=True) for o in rn["obstructions"]["obstructions"]),
+                         sorted(json.dumps(by_var(strip_id(o)), sort_keys=True) for o in base["obstructions"]["obstructions"]))
 
 
 class TestGenericCode(unittest.TestCase):
