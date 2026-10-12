@@ -1799,6 +1799,79 @@
           4095
         ]
       }
+    },
+    "I59": {
+      "title": "I23a track: historical on-chain acquisition and the first per-edge replay on real inputs (human answer Q5)",
+      "plan": "docs/HUMAN_ANSWERS.md#i23a-historical-data-acquisition-added-for-q5",
+      "prompt": "prompts/I59_historical.md",
+      "predictions": [
+        {
+          "id": "I59-P1",
+          "claim": "Every decoded successful commit's parentBatchHeader hashes (keccak256) to the batchHash of the latest CommitBatch event for that batch index before the transaction; 0 exceptions, reverts and recommits included.",
+          "check": "tests_m2/test_historical.py::TestPredictions::test_parent_headers_link_to_the_emitted_batch_hashes"
+        },
+        {
+          "id": "I59-P2",
+          "claim": "Every real parent header has length 249 or 257, is accepted by the frozen ok_sol and ok_go, and its enc_sol(dec(.)) round trip differs at most in the sequencerSetVerifyHash cells 185..216.",
+          "check": "tests_m2/test_historical.py::TestPredictions::test_real_headers_are_in_the_model_domain_and_round_trip_except_ssvh"
+        },
+        {
+          "id": "I59-P3",
+          "claim": "Headers with a nonzero sequencerSetVerifyHash form a prefix of the batch sequence (every one has a lower batch index than every header whose field is zero), and at least one header has it zero.",
+          "check": "tests_m2/test_historical.py::TestPredictions::test_nonzero_ssvh_headers_form_a_prefix_of_the_batch_sequence"
+        },
+        {
+          "id": "I59-P4",
+          "claim": "Only header versions 0 and 1 occur on mainnet in the window; version 2 never appears.",
+          "check": "tests_m2/test_historical.py::TestPredictions::test_observed_header_versions_are_0_and_1_only"
+        },
+        {
+          "id": "I59-P5",
+          "claim": "For every batch whose latest commit was a commitBatch carrying blobs, the header's blobVersionedHash (seen in the next commit's parent) equals that transaction's first blob versioned hash; 0 exceptions.",
+          "check": "tests_m2/test_historical.py::TestPredictions::test_header_blob_hashes_equal_the_committing_transactions"
+        },
+        {
+          "id": "I59-P6",
+          "claim": "At least 99% of the commit blobs in the window are retrievable (beacon API or blob archive), and every retrieved blob's KZG commitment hashes to its versioned hash.",
+          "check": "tests_m2/test_historical.py::TestPredictions::test_blobs_are_retrievable_and_match_their_commitments"
+        },
+        {
+          "id": "I59-P7",
+          "claim": "The real Go decoders of the pinned checkout (common/batch) agree with the frozen dec_go/ok_go on every real parent header.",
+          "check": "tests_m2/test_historical.py::TestPredictions::test_the_real_go_decoder_agrees_with_the_model_on_every_real_header"
+        },
+        {
+          "id": "I59-P8",
+          "claim": "The window holds the whole history: the earliest committed batch index is 1, the indices cover 1..max without gaps, and every reverted batch is recommitted within the window.",
+          "check": "tests_m2/test_historical.py::TestPredictions::test_the_window_holds_the_whole_batch_history"
+        },
+        {
+          "id": "I59-P9",
+          "claim": "Every successful commit transaction after the proxy's last Upgraded event in the window decodes under the pinned ABI.",
+          "check": "tests_m2/test_historical.py::TestPredictions::test_every_commit_after_the_last_upgrade_decodes_under_the_pinned_abi"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I59-R1",
+          "claim": "Gates M0, M1 and M2 pass; statements, statuses and gen files of M0, M1 and M2 are unchanged.",
+          "check": "gate"
+        },
+        {
+          "id": "I59-R2",
+          "claim": "Construction: the index of a fixed sub-window is byte-identical across runs; no secret in any output; the snapshot is outside the repo; header_checks passes the toy headers.",
+          "check": "tests_m2/test_historical.py::TestFetch and tests_m2/test_historical.py::TestToyHeader"
+        }
+      ],
+      "outcome_paths": [
+        "results/M2/historical/"
+      ],
+      "tests": [
+        "tests_m2/test_historical.py"
+      ],
+      "thresholds": {
+        "blob_retrievable_min": 0.99
+      }
     }
   }
 }

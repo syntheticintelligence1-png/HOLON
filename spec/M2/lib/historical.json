@@ -1,0 +1,37 @@
+{
+  "doc": "Frozen instrument for I23a (historical on-chain acquisition and early per-edge replay; human answer Q5 in docs/HUMAN_ANSWERS.md). Fixes the chain, the contract, the event topics, the window and the sources before any historical item is fetched.",
+  "chain_id": 1,
+  "contracts": {
+    "Rollup": {
+      "address": "0x759894ced0e6af42c26668076ffa84d02e3cef60",
+      "source": "/root/work/morph node/types/networks.go:11 at 3e44e795586af3e11285b603ab642c67823add51 (MainnetRollupContractAddress)",
+      "abi": "contracts/contracts/l1/rollup/IRollup.sol and Rollup.sol at the same commit"
+    }
+  },
+  "events": {
+    "CommitBatch(uint256,bytes32)": "0x2c32d4ae151744d0bf0b9464a3e897a1d17ed2f1af71f7c9a75f12ce0d28238f",
+    "RevertBatch(uint256,bytes32)": "0x00cae2739091badfd91c373f0a16cede691e0cd25bb80cff77dd5caeb4710146",
+    "FinalizeBatch(uint256,bytes32,bytes32,bytes32)": "0x26ba82f907317eedc97d0cbef23de76a43dd6edb563bdb6e9407645b950a7a2d",
+    "ChallengeState(uint64,address,uint256)": "0x3a6ea19df25b49e7624e313ce7c1ab23984238e93727260db56a81735b1b9976",
+    "Upgraded(address)": "0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b"
+  },
+  "window": {
+    "from_block": 19426587,
+    "from_reason": "Dencun (EIP-4844) activation on mainnet. Morph commits carry blobs. Completeness is checked, not assumed (I23a-P8: the earliest CommitBatch in the window must be batch 1).",
+    "to_block": 26179508,
+    "to_block_hash": "0x3d07652cc0b9acdd37a33b468074d5afbfb4763b7b3654a62729fa8882d0ec41",
+    "to_reason": "the finalized block at the prereg (2026-10-12)"
+  },
+  "sources": {
+    "execution": ["env:ETH_RPC_URL", "https://ethereum-rpc.publicnode.com"],
+    "beacon": "https://ethereum-beacon-api.publicnode.com",
+    "blob_archive": "https://api.blobscan.com",
+    "explorer": "https://api.etherscan.io (env:ETHERSCAN_API_KEY, optional)",
+    "l2": "https://rpc.morphl2.io"
+  },
+  "limits": {
+    "get_logs_max_blocks": 1972,
+    "observed": "at the prereg the public execution RPC accepted an eth_getLogs range of 1972 blocks and refused 10000 (HTTP 403); historical state (eth_call, eth_getStorageAt and eth_getCode at old blocks) needs an archive token"
+  },
+  "snapshot_dir": "~/.holon/historical (override: env HOLON_HISTORICAL_DIR); never inside the repo"
+}
