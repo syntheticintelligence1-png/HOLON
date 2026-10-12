@@ -77,7 +77,8 @@
   "2": "initialized",
   "3": "ErrorStartBatchIndexFinalized",
   "4": "ErrorStartBatchIndexTooSmall",
-  "5": "ErrorZeroAddress"
+  "5": "ErrorZeroAddress",
+  "6": "ErrorVerifierNotFound"
  },
  "defs": {
   "get_verifier": {
@@ -359,6 +360,38 @@
     ]
    ],
    "guards": [
+    {
+     "require": [
+      "||",
+      [
+       "<=",
+       [
+        "get",
+        [
+         "call",
+         "nth_rec",
+         "lv",
+         "v"
+        ],
+        "s"
+       ],
+       "idx"
+      ],
+      [
+       "call",
+       "lv_le_has",
+       [
+        "call",
+        "nthl",
+        "lvv",
+        "v"
+       ],
+       "idx"
+      ]
+     ],
+     "reason": 6,
+     "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:118"
+    },
     {
      "let": "v_verifier",
      "expr": [
