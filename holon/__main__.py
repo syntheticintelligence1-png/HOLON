@@ -1,6 +1,7 @@
 """holon CLI.
 
   python -m holon run  --milestone M0 [--facts PATH] [--out DIR] [--gen-dir DIR] [--no-registry] [--core import|paste]
+                       [--laws ID,ID]   (M1+: decide only those laws; I15)
   python -m holon gate --milestone M0 [--root DIR] [--report PATH] [--checks G6,G9]
   python -m holon audit prereg --milestone M2 [--root DIR]
   python -m holon audit status [--json] [--root DIR]
@@ -58,6 +59,8 @@ def main(argv=None) -> int:
     r.add_argument("--no-registry", action="store_true")
     r.add_argument("--core", choices=["import", "paste"], default="import",
                    help="M2+ milestones: import the core library (default) or paste it into each proof (baseline)")
+    r.add_argument("--laws", help="comma-separated law ids: decide only those laws (the registry is still checked whole; "
+                                  "state-machine milestones)")
     g = sub.add_parser("gate", help="re-check everything from scratch (G1-G5, G7, G11, GENV, canaries)")
     g.add_argument("--milestone", default="M0")
     g.add_argument("--root")

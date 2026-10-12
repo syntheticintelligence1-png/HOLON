@@ -306,25 +306,27 @@ class Emitter:
             self.expect(tx, "Nat", t)
             self.expect(ty_, "Nat", t)
             return f"Nat.add({x}, {y})", "Nat"
-        if "site" in t and "on" in t and "from" in t:
+        if ("site" in t or "at_site" in t) and "on" in t and "from" in t:
             # a SORT-site term (I15): the ghost predicate site_<x> of the instrumented model (holon.sorts.sites),
-            # applied to the action, the state and the oracle tables the model threads
+            # applied to the action, the state and the oracle tables the model threads. {"at_site": ID, ..} is its
+            # at_site premise hit_<x> (never a frozen law's term: holon.inhabit states non-vacuity with it)
             from ..sorts.sites import SiteError, ghost_x, law_id as site_law_id
+            sid = t.get("site", t.get("at_site"))
             a, ta = self.term(t["on"], env, types)
             s, ts = self.term(t["from"], env, types)
             self.expect(ta, "Act", t)
             self.expect(ts, "State", t)
             try:
-                x = ghost_x(site_law_id(t["site"]))
+                x = ghost_x(site_law_id(sid))
             except (SiteError, ValueError) as e:
-                raise Unsupported(f"site term {t['site']!r}: {e}") from e
+                raise Unsupported(f"site term {sid!r}: {e}") from e
             tabs = ""
             for p in self.m.threaded:
                 if not self.is_param(p, types):
-                    raise Unsupported(f"site {t['site']} runs the parametric model, but the statement binds no oracle "
+                    raise Unsupported(f"site {sid} runs the parametric model, but the statement binds no oracle "
                                       f"parameter {p}")
                 tabs += f", {env[p]}"
-            return f"{ALIAS}.site_{x}({a}, {s}{tabs})", "Bool"
+            return f"{ALIAS}.{'site' if 'site' in t else 'hit'}_{x}({a}, {s}{tabs})", "Bool"
         raise Unsupported(f"term {t}")
 
     @staticmethod

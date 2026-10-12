@@ -380,16 +380,24 @@ def refinement_refs(law: dict, cone_set: set[str], root: Path | str = ROOT) -> l
 
 
 def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_facts: str | None,
-              compiled_path: Path | None, root: Path | str = ROOT, lean_entry: dict | None = None) -> dict:
+              compiled_path: Path | None, root: Path | str = ROOT, lean_entry: dict | None = None,
+              ledger_required: bool = True) -> dict:
     """The v2 fields of a finished record (status, kernel, bound and replay already set).
 
     base_facts is the registered facts file (repo-relative) the run's facts stand for;
     compiled_path is the compiled model the refuter executed; lean_entry is the record's lean4 kernel
-    entry (holon.lean.kernel_entry; None where the Lean emitters do not apply)."""
+    entry (holon.lean.kernel_entry; None where the Lean emitters do not apply). ledger_required=False (test
+    milestones only, holon.mpipeline.test_milestone: fixtures that are no target) records a document without a ledger
+    bundle as ledger_match "none" with no model assumptions, which the v2 schema never accepts; otherwise LedgerError."""
     model_text = Path(model_path).read_text()
     c = cone(statement_text, model_text)
     refuted = rec["status"] == "REFUTED"
-    b, match = resolve_bundle(rec["facts_sha256"], base_facts, root, model_text, set(c))
+    try:
+        b, match = resolve_bundle(rec["facts_sha256"], base_facts, root, model_text, set(c))
+    except LedgerError:
+        if ledger_required:
+            raise
+        b, match = None, "none"
     wp, fb = None, None
     if refuted:  # provisional finding filter (I4), from the committed replay report
         from .filter import record_fields
@@ -403,7 +411,7 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
         "generator_sha256": generator_sha256(law["ir_version"], root),
         "cone": c,
         "ledger_match": match,
-        "model_assumptions": model_assumptions(b["facts_sha256"], set(c), root, base_facts),
+        "model_assumptions": model_assumptions(b["facts_sha256"], set(c), root, base_facts) if b else [],
         "scope_v2": scope_v2(law, rec),
         "kernels": kernels(rec, lean_entry),
         "independence_class": independence_class(rec, lean_entry),

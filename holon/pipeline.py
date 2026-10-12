@@ -116,10 +116,13 @@ def refute_law(law: dict, facts: dict, d: Path, model_import: str, cfg: dict, mo
 
 
 def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = None,
-        gen_dir: str | None = None, no_registry: bool = False, log=print, core: str = "import") -> dict:
+        gen_dir: str | None = None, no_registry: bool = False, log=print, core: str = "import",
+        only: list[str] | None = None) -> dict:
     if ir.ir_version_of(milestone, ROOT) in ("holon-ir/0.2", "holon-ir/0.3"):
         from .mpipeline import run_m1
-        return run_m1(milestone, facts_path, out, gen_dir, no_registry, log, core=core)
+        return run_m1(milestone, facts_path, out, gen_dir, no_registry, log, core=core, only=only)
+    if only:
+        raise ValueError("--laws applies to state-machine milestones (holon-ir/0.2 and 0.3)")
     cfg = bend.config(ROOT)
     facts_path = Path(facts_path or ROOT / "facts" / "morph_header.json")
     out_dir = Path(out or ROOT / "results" / milestone)
@@ -226,7 +229,9 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
 
 def main_run(args) -> int:
     try:
-        run(args.milestone, args.facts, args.out, args.gen_dir, args.no_registry, core=getattr(args, "core", "import"))
+        only = [x.strip() for x in args.laws.split(",") if x.strip()] if getattr(args, "laws", None) else None
+        run(args.milestone, args.facts, args.out, args.gen_dir, args.no_registry, core=getattr(args, "core", "import"),
+            only=only)
     except RegistryMismatch as e:
         print(f"refusing to run: {e}", file=sys.stderr)
         return 2
