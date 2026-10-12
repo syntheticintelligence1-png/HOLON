@@ -248,12 +248,10 @@ def extract(world, spec, out_path=None, cov_path=None):
         for p, _t in d["params"]:
             tr.input_map.setdefault(p, p)
         tr.input_names = set(tr.input_map)
-        # "bind_params": treat the def's params as bound names during body
-        # translation, so lets/guards referencing them survive _unbound_names.
-        # Declared per-def: params are substituted at call sites, so an emitted
-        # guard is closed over the params and correct at every call site.
-        if d.get("bind_params"):
-            tr.fact_inputs = {p[0] for p in d["params"]}
+        # Def params are fact-level names (substituted at call sites), so they
+        # are bound names for _unbound_names during body translation. Without
+        # this every let/guard referencing a param is silently dropped.
+        tr.fact_inputs = {p[0] for p in d["params"]}
         tr.local_names = {}
         tr.pending_notes = []
         tr.pending = []
