@@ -343,6 +343,9 @@ def main_replay(args) -> int:
     if _ir.ir_version_of(args.milestone, ROOT) == "holon-ir/0.2":
         from .mreplay import main_replay_m1
         return main_replay_m1(args)
+    if _ir.ir_version_of(args.milestone, ROOT) == "holon-ir/0.3":   # SORT-site witnesses per entry point (I15)
+        from .mreplay import main_replay_m2
+        return main_replay_m2(args)
     from .mreplay import m0_commit_sides
     morph = morph_path(args)
     facts = F.load(ROOT / "facts" / "morph_header.json")

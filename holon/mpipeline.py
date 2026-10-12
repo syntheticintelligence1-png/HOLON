@@ -213,9 +213,22 @@ class CompiledMachine:
             raise RuntimeError(f"houdini failed: {p.stderr[-2000:]}")
         return json.loads(p.stdout)
 
+    def oracle_runtime(self) -> dict | None:
+        """For machine.mjs and policy.mjs (holon/js/oracle_model.mjs): the model's oracle parameters answered by their
+        sidecar instances (the I12 design), and the tables each function threads (passed empty). None without
+        parameters (M0, M1)."""
+        if not self.m.oparams:
+            return None
+        art, insts, _ = self.instance_module()
+        return {"instModule": str(art) if art else None,
+                "instances": [{"id": i["id"], "param": i["param"], "fn": i["fn"]} for i in insts], "fnTabs": self.m.fn_tabs}
+
     def calls(self, calls: list) -> list:
-        p = subprocess.run(["node", str(MACHINE_JS)], input=json.dumps({"module": str(self.artifact), "calls": calls}),
-                           capture_output=True, text=True, timeout=600)
+        req = {"module": str(self.artifact), "calls": calls}
+        orc = self.oracle_runtime()
+        if orc is not None:
+            req["oracles"] = orc
+        p = subprocess.run(["node", str(MACHINE_JS)], input=json.dumps(req), capture_output=True, text=True, timeout=600)
         if p.returncode != 0:
             raise RuntimeError(p.stderr[-2000:])
         return json.loads(p.stdout)["results"]
@@ -422,10 +435,17 @@ def milestone_model(milestone: str, facts_path: Path, cfg: dict | None = None, a
     and their stand-ins survive only as instances (I12; holon.gen.oracles.Oracles.for_milestone: M2 over
     spec/M1/facts takes spec/M2/lib/oracles.json). M0 and M1: the model as bound. root: the tree F lives in."""
     orc = O.Oracles.for_milestone(milestone, anchor or facts_path, root or ROOT)
-    der = derivation_of(milestone, root) if m2plus(milestone) else None
-    if has_sites(der, anchor or facts_path, root):   # the run's model of a document with SORT-site laws (I15)
-        return CompiledMachine.instrumented(milestone, facts_path, der, cfg, anchor=anchor, root=root)
     return CompiledMachine.build(facts_path, cfg, reach=m2plus(milestone), anchor=anchor, oracles=orc)
+
+
+def run_model(milestone: str, facts_path: Path, cfg: dict | None = None, anchor: Path | None = None,
+              root: Path | None = None) -> CompiledMachine:
+    """The model `holon run` checks a document's laws against: milestone_model, followed, when laws/<M>/DERIVATION.json
+    holds SORT-site laws of the document, by their ghost section (the instrumented model, I15)."""
+    der = derivation_of(milestone, root) if m2plus(milestone) else None
+    if has_sites(der, anchor or facts_path, root):
+        return CompiledMachine.instrumented(milestone, facts_path, der, cfg, anchor=anchor, root=root)
+    return milestone_model(milestone, facts_path, cfg, anchor, root)
 
 
 def main_model(args) -> int:
@@ -816,7 +836,7 @@ def entry_replay(report: dict | None, lid: str, e: str, w: dict | None) -> dict:
         return {"status": "not_run", "detail": "replay report is for a different witness", "panic_site": None}
     return {"status": ent.get("status", "not_run"),
             "detail": (f"real outcomes {ent.get('real')}; obstruction observed: {ent.get('obstruction_observed')} "
-                       f"@ morph {str(report.get('morph_commit', ''))[:12]}")[:500],
+                       f"@ target commit {str(report.get('morph_commit', ''))[:12]}")[:500],
             "panic_site": ent.get("panic_site")}
 
 

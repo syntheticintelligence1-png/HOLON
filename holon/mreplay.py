@@ -18,6 +18,12 @@ hash; same commitment: equal committedBatches). The law-level verdict (status, o
 is the conjunction of its sides. Disagreements are model defects and are reported loudly.
 
 The same harness also replays the M0 codec witnesses on the commit path (m0_commit_sides).
+
+`holon replay --milestone M2` (I15, main_replay_m2): every REFUTED per-entry witness of a SORT-site law (prefix ++
+[action]) through the same harness, compared step by step with the M2 model (its oracle parameters answered by their
+sidecar instances), and its last step replayed alone by replay/M2/solidity/HolonLastStep.t.sol under the Foundry
+debugger, where locate_panic finds the Panic's source line (panic_site); and the refinement corpus, the M1 rule with
+its seed and size, on the M2 model.
 """
 from __future__ import annotations
 
@@ -231,10 +237,13 @@ _POLICY_CACHE: dict = {}
 
 
 def policy_at(cm: CompiledMachine, tr: list[dict]) -> list[dict]:
-    key = json.dumps(tr, sort_keys=True)
+    key = json.dumps([str(cm.artifact), tr], sort_keys=True)
     if key not in _POLICY_CACHE:
-        p = subprocess.run(["node", str(ROOT / "holon" / "js" / "policy.mjs")],
-                           input=json.dumps({"module": str(cm.artifact), "facts": cm.facts, "hints": cm.hints(), "trace": tr}),
+        req = {"module": str(cm.artifact), "facts": cm.facts, "hints": cm.hints(), "trace": tr}
+        orc = cm.oracle_runtime()
+        if orc is not None:   # an M2+ model: its oracle parameters are their sidecar instances (I15)
+            req["oracles"] = orc
+        p = subprocess.run(["node", str(ROOT / "holon" / "js" / "policy.mjs")], input=json.dumps(req),
                            capture_output=True, text=True, timeout=120)
         if p.returncode != 0:
             raise RuntimeError(p.stderr[-1500:])
@@ -597,3 +606,239 @@ def main_replay_m1(args) -> int:
     if bad or rf["n_disagreements"] or report["harness_mismatch"]:
         return 1
     return 0
+
+
+# ---------------------------------------------------------------- M2: SORT-site witnesses (I15)
+SITE_HARNESS = ROOT / "replay" / "M2" / "solidity" / "HolonLastStep.t.sol"
+FOUNDRY_DIR = "contracts"   # the morph directory a scratch Foundry project mirrors (its foundry.toml and contracts/)
+PANIC_SELECTOR = bytes.fromhex("4e487b71")
+OP_REVERT = 0xFD
+CORPUS_SEED = 20261011      # the M1 corpus rule (main_replay_m1), run on the M2 model
+
+
+def locate_panic(dump: dict) -> dict | None:
+    """Where the dumped step raised Panic(uint256) (a `forge test --debug --dump` of HolonLastStep's test_last).
+
+    The raising frame is the first debug-arena node, in execution order, whose last step is a REVERT returning exactly
+    the 36 bytes of Panic(uint256). Its code is the artifact of the contract the dump identifies at the node's address
+    (for a DELEGATECALL frame the address is the implementation's). The site is the source position of that frame's
+    last instruction before the REVERT that solc's runtime source map (pc -> instruction index -> entry) attributes to
+    a source file: Yul utility code has no file and is skipped. Returns {"code", "contract", "kind", "path" (in the
+    scratch project), "line", "text"}, or None when no frame raised a Panic; ValueError when the frame's artifacts
+    name different positions."""
+    names = {k.lower(): v for k, v in dump["contracts"]["identified_contracts"].items()}
+    sources = dump["contracts"]["sources"]
+    for node in dump["debug_arena"]:
+        steps = node.get("steps") or []
+        if not steps or steps[-1].get("op") != OP_REVERT:
+            continue
+        rv = steps[-1]
+        stack = rv.get("stack") or []
+        if len(stack) < 2:
+            continue
+        off, size = int(stack[-1], 16), int(stack[-2], 16)
+        mem = bytes.fromhex(rv["memory"][2:]) if rv.get("memory") else b""
+        data = mem[off:off + size]
+        if size != 36 or data[:4] != PANIC_SELECTOR:
+            continue
+        contract = names.get(str(node.get("address", "")).lower())
+        sites = set()
+        for art in sources["artifacts_by_name"].get(contract) or []:
+            files = sources["sources_by_id"].get(str(art["build_id"]), {})
+            smap, pcs = art["source_map_runtime"], art["pc_ic_map_runtime"]
+            pos = None
+            for st in steps[:-1]:
+                ic = pcs.get(str(st["pc"]))
+                if ic is None or ic >= len(smap):
+                    continue
+                ent = smap[ic]
+                f = files.get(str(ent.get("index"))) if ent.get("index") is not None else None
+                if f is None:
+                    continue
+                src = f["source"]
+                pos = (f["path"], src[:ent["offset"]].count("\n") + 1, src[ent["offset"]:ent["offset"] + ent["length"]])
+            if pos is not None:
+                sites.add(pos)
+        lines = {(p, ln) for p, ln, _ in sites}
+        if len(lines) != 1:
+            raise ValueError(f"the Panic frame of {contract} maps to {sorted(lines)} in its artifacts")
+        path, line, text = sorted(sites)[0]
+        return {"code": int.from_bytes(data[4:], "big"), "contract": contract, "kind": node.get("kind"),
+                "path": path, "line": line, "text": text}
+    return None
+
+
+def site_project(morph: Path, proj: Path) -> Path:
+    """A scratch Foundry project: morph's contracts/ tree at the pinned commit, the pinned dependencies, the M1 trace
+    harness and HolonLastStep (both copied unchanged)."""
+    proj.mkdir(parents=True, exist_ok=True)
+    shutil.rmtree(proj / "contracts", ignore_errors=True)
+    shutil.copytree(morph / FOUNDRY_DIR / "contracts", proj / "contracts")
+    for d in ("mock", "test"):
+        shutil.rmtree(proj / "contracts" / d, ignore_errors=True)
+    for f in ("foundry.toml", "remappings.txt"):
+        shutil.copy(morph / FOUNDRY_DIR / f, proj / f)
+    _sol_deps(proj)
+    shutil.rmtree(proj / "test", ignore_errors=True)
+    (proj / "test").mkdir()
+    shutil.copy(ROOT / "replay" / "M1" / "solidity" / "HolonTraceReplay.t.sol", proj / "test")
+    shutil.copy(SITE_HARNESS, proj / "test")
+    return proj
+
+
+def last_step(proj: Path, trace: list[dict], facts: dict, forge: str, solc: str | None, k: int) -> tuple[dict, dict | None, str]:
+    """Replay one trace with its last step alone in test_last: ({step: outcome}, the located Panic or None, command)."""
+    init = facts["initial"]
+    data = [init["F"], init["W"], init["D"], init["t"], init["fsr"][0], len(trace)]
+    for a in trace:
+        data += encode_step(a, facts)
+    tf = proj / f"holon_last_trace_{k}.json"
+    tf.write_text(json.dumps({"data": data}))
+    base = [forge, "test", "--match-contract", "HolonLastStepTest", "--match-test", "test_last", "--offline"] \
+        + (["--use", solc] if solc else [])
+    code, out = _run(base + ["-vv"], proj, {"HOLON_LAST_TRACE": tf.name})
+    got = {int(m.group(2)): ("ok" if m.group(3) == "ok" else "rev " + m.group(4).strip()) for m in LINE.finditer(out)}
+    if code != 0 or not got:
+        raise SystemExit(f"HolonLastStep failed on trace {k} (exit {code}): {out[-1500:]}")
+    dump = proj / f"holon_last_dump_{k}.json"
+    code, out = _run(base + ["--debug", "--dump", dump.name], proj, {"HOLON_LAST_TRACE": tf.name})
+    if code != 0 or not dump.exists():
+        raise SystemExit(f"HolonLastStep debugger dump failed on trace {k} (exit {code}): {out[-1500:]}")
+    panic = locate_panic(json.loads(dump.read_text()))
+    dump.unlink()
+    shown = " ".join("forge" if c == forge else "<solc 0.8.24>" if c == solc else c for c in base)
+    return got, panic, f"HOLON_LAST_TRACE=<trace> {shown} -vv; then --debug --dump <file> (holon.mreplay.locate_panic)"
+
+
+def in_span(span: str, site: str | None) -> bool:
+    """Whether a located panic site "<path>:<line>" lies in a facts span "<path>:<lo>[-<hi>]"."""
+    import re as _re
+    m = _re.match(r"^(\S+?):(\d+)(?:-(\d+))?$", span or "")
+    if not m or not site or ":" not in site:
+        return False
+    path, line = site.rsplit(":", 1)
+    return path == m.group(1) and int(m.group(2)) <= int(line) <= int(m.group(3) or m.group(2))
+
+
+def main_replay_m2(args) -> int:
+    """`holon replay --milestone M2` (I15): every REFUTED per-entry witness of a SORT-site law (prefix ++ [action]) on
+    the real code through the M1 trace harness, its last step's Panic located by HolonLastStep and a debugger dump;
+    and the refinement corpus (the M1 corpus rule, seed and size) on the M2 model, its oracle parameters their sidecar
+    instances. Writes replay/<M>/report.json and the records' replay fields."""
+    from .ir import LAW_GLOB, record_files
+    from .mpipeline import run_model, site_law, derivation_of
+    from .replay import PIN_KEYS, morph_path, toolchain
+    from .evidence import expected_provenance
+    from .sorts.sites import load_sidecar
+    milestone = args.milestone
+    morph = morph_path(args)
+    # the harness replays the M1 rollup machine: its document (laws/M1/REGISTRY.json) gives the op table and initial state
+    hrel = json.loads((ROOT / "laws" / "M1" / "REGISTRY.json").read_text())["facts"]
+    facts = F.load(ROOT / hrel)
+    sha = check_checkout(morph, facts["target"]["commit"])
+    tc = toolchain(args)
+    work = Path(args.work or ROOT / "build" / f"replay_{milestone.lower()}").resolve()
+    results = ROOT / "results" / milestone
+    laws = {p.stem: json.loads(p.read_text()) for p in (ROOT / "laws" / milestone).glob(LAW_GLOB)}
+    records = {p.stem: json.loads(p.read_text()) for p in record_files(results)}
+    der = {e["law_id"]: e for e in (derivation_of(milestone) or {}).get("laws", [])}
+    _, _, real_reasons = load_sidecar(milestone, ROOT)
+    cm = run_model(milestone, ROOT / hrel)
+    plan = []   # (law, entry, trace, witness)
+    for lid in sorted(records):
+        r = records[lid]
+        if r.get("status") != "REFUTED" or site_law(laws.get(lid, {})) is None:
+            continue
+        if laws[lid].get("facts") != hrel:
+            raise SystemExit(f"{lid}: its document {laws[lid].get('facts')} is not the harness's {hrel}")
+        for e in sorted(r.get("witnesses") or {}):
+            w = r["witnesses"][e]
+            if w.get("status") == "REFUTED" and w.get("witness"):
+                plan.append((lid, e, list(w["witness"]["s"]["run"]) + [dict(w["witness"]["a"])], w["witness"]))
+    corpus = random_corpus(cm, args.corpus, seed=CORPUS_SEED)
+    traces = [t for _, _, t, _ in plan] + corpus
+    models = model_logs(cm, traces)
+    real, command, _ = run_forge(morph, work, traces, facts, tc["forge"], tc["solc"])
+    proj = site_project(morph, work / "solidity_site")
+    report = {"morph_commit": sha, "command": command, "harness_mismatch": bool(real.pop("harness_mismatch", False)),
+              "laws": {}, "witness_sha256": {}, "entry_witness_sha256": {},
+              "toolchain": {**{k: tc[k] for k in PIN_KEYS}, "go_version": tc["go_version"]}}
+    for tid, (lid, e, tr, w) in enumerate(plan):
+        ag, dis = compare(facts, models[tid], real, tid, tr)
+        outs = [("ok" if real.get((tid, i), ("?",))[0] == "ok" else "rev " + real.get((tid, i), ("", "?"))[1])
+                for i in range(len(tr))]
+        ls, panic, lcmd = last_step(proj, tr, facts, tc["forge"], tc["solc"], tid)
+        site = f"{FOUNDRY_DIR}/{panic['path']}:{panic['line']}" if panic else None
+        span = der.get(lid, {}).get("basis", {}).get("span")
+        passed = not dis and len(ag) == len(tr) and ls.get(len(tr) - 1) == outs[-1]
+        observed = (passed and any(outs[-1] == f"rev {x}" for x in sorted(real_reasons)) and in_span(span, site))
+        ent = {"trace": tr, "model": [obs_str(facts, o) for o in models[tid]], "real": outs, "status": "passed" if passed else "failed",
+               "disagree": dis, "panic_site": site, "panic": panic, "obstruction_observed": bool(observed),
+               "last_step_command": lcmd}
+        L = report["laws"].setdefault(lid, {"entries": {}})
+        L["entries"][e] = ent
+        report["entry_witness_sha256"].setdefault(lid, {})[e] = witness_sha256(w)
+    for lid, L in report["laws"].items():
+        ents = L["entries"]
+        status = "passed" if ents and all(x["status"] == "passed" for x in ents.values()) else "failed"
+        observed = bool(ents) and all(x["obstruction_observed"] for x in ents.values())
+        summary = "; ".join(f"{e}: {x['real'][-1]} at {x['panic_site'] or 'no located panic'}" for e, x in sorted(ents.items()))
+        L.update({"status": status, "obstruction_reproduced": observed, "observed": summary,
+                  "sides": {"solidity": {"status": status, "provenance": expected_provenance(laws[lid], "solidity"),
+                                         "observed": summary, "command": command, "obstruction_observed": observed}}})
+        report["witness_sha256"][lid] = witness_sha256(records[lid].get("witness"))
+    per_op: dict = {}
+    disagreements = []
+    for k, tr in enumerate(corpus):
+        tid = len(plan) + k
+        ag, dis = compare(facts, models[tid], real, tid, tr)
+        for x in ag:
+            per_op.setdefault(x["op"], {"agree": 0, "disagree": 0})["agree"] += 1
+        for x in dis:
+            per_op.setdefault(x["op"], {"agree": 0, "disagree": 0})["disagree"] += 1
+            disagreements.append({"trace": tid, **x, "prefix": tr[: x["step"] + 1]})
+    orc = cm.oracle_runtime()
+    report["refinement"] = {"traces": len(corpus), "steps": sum(len(t) for t in corpus), "per_action": per_op,
+                            "disagreements": disagreements[:50], "n_disagreements": len(disagreements), "seed": CORPUS_SEED,
+                            "rule": "holon.mreplay.random_corpus (the M1 corpus rule)",
+                            "model": f"the {milestone} model of {hrel}"
+                                     + (f"; oracle parameters answered by their sidecar instances "
+                                        f"({', '.join(sorted({i['param'] + ' = the instance of entry ' + i['id'] for i in orc['instances']}))})"
+                                        if orc else "")}
+    out = ROOT / "replay" / milestone / "report.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    stamp_site_records(milestone, results, report)
+    for lid, L in sorted(report["laws"].items()):
+        print(f"{lid}: {L['status']}, obstruction reproduced: {L['obstruction_reproduced']}")
+        for e, x in sorted(L["entries"].items()):
+            print(f"    {e:22s} {x['status']:7s} last step {x['real'][-1]} at {x['panic_site']}  observed={x['obstruction_observed']}")
+    rf = report["refinement"]
+    print(f"refinement corpus: {rf['traces']} traces, {rf['steps']} steps, {rf['n_disagreements']} disagreements")
+    bad = [lid for lid, L in report["laws"].items() if L["status"] != "passed" or not L["obstruction_reproduced"]]
+    if bad or rf["n_disagreements"] or report["harness_mismatch"]:
+        print(f"MODEL DEFECT or NOT REPRODUCED: {bad}; refinement disagreements: {rf['n_disagreements']}; "
+              f"harness mismatch: {report['harness_mismatch']}")
+        return 1
+    return 0
+
+
+def stamp_site_records(milestone: str, results: Path, report: dict) -> list[str]:
+    """The records' replay fields from the report: the law's (holon.replay.replay_status) and each REFUTED entry
+    point's (holon.mpipeline.entry_replay)."""
+    from .mpipeline import entry_replay
+    from .replay import replay_status
+    changed = []
+    for p in sorted(results.glob("L*.json")):
+        rec = json.loads(p.read_text())
+        if rec.get("status") != "REFUTED" or not isinstance(rec.get("witnesses"), dict):
+            continue
+        lid = rec["law_id"]
+        new = dict(rec)
+        new["replay"] = replay_status(report, lid, rec.get("witness"))
+        new["witnesses"] = {e: {**w, "replay": entry_replay(report, lid, e, w.get("witness"))} if w.get("status") == "REFUTED"
+                            else w for e, w in rec["witnesses"].items()}
+        if new != rec:
+            p.write_text(json.dumps(new, indent=2, sort_keys=True) + "\n")
+            changed.append(lid)
+    return changed
