@@ -117,6 +117,7 @@ Neither blind run found F1, F3, F5 (B2's attempt failed replay), F8, F11, F13 or
 ## Coverage debt and gate state
 
 - **All M3 gates pass**, M3_nat, M3_msg, M3_router and M3_sorts, with 0 uncovered actions or registers. M0 and M1 pass too.
+- **R5 (def-param guards):** lets/guards referencing `defs_from` params had been silently dropped as unbound in every def. Params are now bound names during def translation, so `_computeBlobVersionedHash`'s blob requires reach `commitBatch`/`commitBatchWithProof` (Rollup.sol:913,915, verified against source). `mvrv.json` is byte-identical after the `bind_params` flag removal; the M3_nat rebind flipped no status. M2 regeneration drift is disclosed in `docs/M2_EXTRACTION_DRIFT.md`; `spec/M2/` stays at committed bytes.
 - **How the earlier G8 holes were closed:**
   - **Extraction fixes, so no hole is hidden** (`07d4905`, `8369b08`):
     - the OZ owner guard now reads the `own` register instead of the constant `OWNER`;
