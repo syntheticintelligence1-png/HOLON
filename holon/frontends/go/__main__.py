@@ -141,6 +141,9 @@ def main(argv):
         print(f"go_derivation.json: {len(out['facts']['parse_batch']['error_exits'])} ParseBatch exits, "
               f"{len(out['coverage']['items'])} debt items")
         return 0
+    if cmd == "lift":
+        from . import lift as lift_mod
+        return lift_mod.main(argv[2:])
     if cmd == "dump":
         morph = morph_dir()
         raw = tool.run_dump(morph, PACKAGES)

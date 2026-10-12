@@ -1,0 +1,66 @@
+{
+ "frontend": "go_lift",
+ "items": [
+  {
+   "element": "action:append.dropped:l1TxHashes",
+   "kind": "unlifted_dropped",
+   "reason": "append outside tracked cone",
+   "src": "common/batch/batch_data.go:39"
+  },
+  {
+   "element": "action:append.other_ops:blockNum",
+   "kind": "unlifted_other_ops",
+   "reason": "field_store: *cks.blockNum + 1",
+   "src": "common/batch/batch_data.go:37"
+  },
+  {
+   "element": "action:append.other_ops:l1TxNum",
+   "kind": "unlifted_other_ops",
+   "reason": "field_store: *cks.l1TxNum + len(l1TxHashes)",
+   "src": "common/batch/batch_data.go:41"
+  },
+  {
+   "element": "machine:BatchData:l1TxHashes",
+   "in_loop": true,
+   "kind": "unlifted_coverage_debt",
+   "reason": "append outside tracked cone",
+   "src": "common/batch/batch_data.go:39"
+  },
+  {
+   "element": "machine:BatchData:method",
+   "in_loop": false,
+   "kind": "unlifted_coverage_debt",
+   "reason": "method IsEmpty not modelled (no append, no slice return)",
+   "src": "common/batch/batch_data.go:64"
+  },
+  {
+   "element": "machine:BatchData:method",
+   "in_loop": false,
+   "kind": "unlifted_coverage_debt",
+   "reason": "method DataHashV2 not modelled (no append, no slice return)",
+   "src": "common/batch/batch_data.go:83"
+  },
+  {
+   "element": "machine:BatchData:method",
+   "in_loop": false,
+   "kind": "unlifted_coverage_debt",
+   "reason": "method calculateHash not modelled (no append, no slice return)",
+   "src": "common/batch/batch_data.go:103"
+  },
+  {
+   "element": "machine:BatchData:method",
+   "in_loop": false,
+   "kind": "unlifted_coverage_debt",
+   "reason": "method BlockNum not modelled (no append, no slice return)",
+   "src": "common/batch/batch_data.go:122"
+  },
+  {
+   "element": "machine:BatchData:method",
+   "in_loop": false,
+   "kind": "unlifted_coverage_debt",
+   "reason": "method WillExceedCompressedSizeLimit not modelled (no append, no slice return)",
+   "src": "common/batch/batch_data.go:149"
+  }
+ ],
+ "target_commit": "3e44e795586af3e11285b603ab642c67823add51"
+}

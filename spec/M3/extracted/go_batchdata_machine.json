@@ -1,0 +1,384 @@
+{
+ "abstractions": [],
+ "actions": [
+  {
+   "effects": {
+    "blockContexts": "blockcontexts_p",
+    "heap": "h2",
+    "txsPayload": "txspayload_p"
+   },
+   "function": "BatchData.Append",
+   "guards": [
+    {
+     "expr": [
+      "call",
+      "go_append_heap",
+      "heap",
+      "blockContexts",
+      "blockContext",
+      "classes"
+     ],
+     "let": "h1",
+     "src": "common/batch/batch_data.go:35 append"
+    },
+    {
+     "expr": [
+      "call",
+      "go_append_slice",
+      "heap",
+      "blockContexts",
+      "blockContext",
+      "classes"
+     ],
+     "let": "blockcontexts_p",
+     "src": "common/batch/batch_data.go:35 append"
+    },
+    {
+     "expr": [
+      "call",
+      "go_append_heap",
+      "h1",
+      "txsPayload",
+      "in_txsPayload",
+      "classes"
+     ],
+     "let": "h2",
+     "src": "common/batch/batch_data.go:36 append"
+    },
+    {
+     "expr": [
+      "call",
+      "go_append_slice",
+      "h1",
+      "txsPayload",
+      "in_txsPayload",
+      "classes"
+     ],
+     "let": "txspayload_p",
+     "src": "common/batch/batch_data.go:36 append"
+    }
+   ],
+   "inputs": [
+    [
+     "blockContext",
+     "List<Nat>"
+    ],
+    [
+     "in_txsPayload",
+     "List<Nat>"
+    ]
+   ],
+   "name": "append",
+   "src": "common/batch/batch_data.go:31-42"
+  },
+  {
+   "effects": {
+    "heap": "heap",
+    "live": true,
+    "snap": [
+     "call",
+     "go_read",
+     "heap",
+     "txsPayload"
+    ],
+    "view": "txsPayload"
+   },
+   "function": "BatchData.TxsPayload",
+   "guards": [],
+   "inputs": [],
+   "name": "txsPayload",
+   "src": "common/batch/batch_data.go:113-115"
+  },
+  {
+   "effects": {
+    "heap": "h1",
+    "live": true,
+    "snap": [
+     "call",
+     "go_read",
+     "h1",
+     "v"
+    ],
+    "view": "v"
+   },
+   "function": "BatchData.TxsPayloadV2",
+   "guards": [
+    {
+     "expr": [
+      "call",
+      "go_read",
+      "heap",
+      "txsPayload"
+     ],
+     "let": "r_txsPayload",
+     "src": "field load"
+    },
+    {
+     "expr": [
+      "call",
+      "go_append_heap",
+      "heap",
+      "blockContexts",
+      "r_txsPayload",
+      "classes"
+     ],
+     "let": "h1",
+     "src": "common/batch/batch_data.go:119 append"
+    },
+    {
+     "expr": [
+      "call",
+      "go_append_slice",
+      "heap",
+      "blockContexts",
+      "r_txsPayload",
+      "classes"
+     ],
+     "let": "v",
+     "src": "common/batch/batch_data.go:119 append"
+    }
+   ],
+   "inputs": [],
+   "name": "txsPayloadV2",
+   "src": "common/batch/batch_data.go:118-120"
+  },
+  {
+   "effects": {
+    "heap": "h1"
+   },
+   "function": "BatchData.EstimateCompressedSizeWithNewPayload",
+   "guards": [
+    {
+     "expr": [
+      "call",
+      "go_append_heap",
+      "heap",
+      "txsPayload",
+      "txPayload",
+      "classes"
+     ],
+     "let": "h1",
+     "src": "common/batch/batch_data.go:126 append"
+    }
+   ],
+   "inputs": [
+    [
+     "txPayload",
+     "List<Nat>"
+    ]
+   ],
+   "name": "estimateCompressedSizeWithNewPayload",
+   "src": "common/batch/batch_data.go:124-135"
+  }
+ ],
+ "consumers": {},
+ "coverage": {
+  "debt": [
+   "action:append.dropped:l1TxHashes",
+   "action:append.other_ops:blockNum",
+   "action:append.other_ops:l1TxNum",
+   "machine:BatchData:l1TxHashes",
+   "machine:BatchData:method",
+   "machine:BatchData:method",
+   "machine:BatchData:method",
+   "machine:BatchData:method",
+   "machine:BatchData:method"
+  ],
+  "modelled": [
+   "BatchData.Append",
+   "BatchData.EstimateCompressedSizeWithNewPayload",
+   "BatchData.TxsPayload",
+   "BatchData.TxsPayloadV2"
+  ]
+ },
+ "defs": {},
+ "disch": {},
+ "extraction": {
+  "method": "lifted from spec/M2/extracted/go_batchdata.json sha256 ed48d1c3997df9a71b636d9bc95c903516fa21516cccfb307f9b2d5133928b82 by holon.frontends.go.lift",
+  "renames": {
+   "blockContexts'": "blockcontexts_p",
+   "txsPayload'": "txspayload_p",
+   "txsPayload@input": "in_txsPayload"
+  }
+ },
+ "facts_version": "holon-facts/0.2",
+ "ghost_state": [
+  "snap",
+  "live"
+ ],
+ "initial": {
+  "blockContexts": {
+   "b": 0,
+   "cap": 0,
+   "len": 0,
+   "off": 0
+  },
+  "classes": [
+   0,
+   8,
+   16,
+   24,
+   32,
+   48,
+   64,
+   80,
+   96,
+   112,
+   128,
+   144,
+   160,
+   176,
+   192,
+   208,
+   224,
+   240,
+   256,
+   288,
+   320,
+   352,
+   384,
+   416,
+   448,
+   480,
+   512
+  ],
+  "heap": [
+   {
+    "cells": []
+   }
+  ],
+  "live": false,
+  "log": [],
+  "snap": [],
+  "txsPayload": {
+   "b": 0,
+   "cap": 0,
+   "len": 0,
+   "off": 0
+  },
+  "view": {
+   "b": 0,
+   "cap": 0,
+   "len": 0,
+   "off": 0
+  }
+ },
+ "migrations": {},
+ "observers": {
+  "view_intact": {
+   "body": [
+    "||",
+    [
+     "!",
+     "live"
+    ],
+    [
+     "call",
+     "eq_nats",
+     [
+      "call",
+      "go_read",
+      "heap",
+      "view"
+     ],
+     "snap"
+    ]
+   ],
+   "doc": "OWN-alias: while a caller holds the view, its contents are unchanged by writes not made through it",
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Bool"
+  }
+ },
+ "params": {},
+ "principals": {},
+ "provenance": {},
+ "reasons": {},
+ "shadow": {},
+ "state": [
+  [
+   "heap",
+   "List<Arr>",
+   "Go heap (backing arrays)"
+  ],
+  [
+   "blockContexts",
+   "Sl",
+   "BatchData.blockContexts"
+  ],
+  [
+   "txsPayload",
+   "Sl",
+   "BatchData.txsPayload"
+  ],
+  [
+   "view",
+   "Sl",
+   "the slice the last view-producing call returned"
+  ],
+  [
+   "snap",
+   "List<Nat>",
+   "GHOST: contents of the view when it was returned"
+  ],
+  [
+   "live",
+   "Bool",
+   "GHOST: a caller holds the view"
+  ],
+  [
+   "classes",
+   "List<Nat>",
+   "oracle: Go runtime size classes"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "observations"
+  ]
+ ],
+ "target": {
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "packages": [
+   "morph-l2/common/batch",
+   "morph-l2/node/types"
+  ],
+  "repo": "morph-l2/morph"
+ },
+ "types": {
+  "Arr": {
+   "doc": "a backing array",
+   "fields": [
+    [
+     "cells",
+     "List<Nat>"
+    ]
+   ]
+  },
+  "Sl": {
+   "doc": "Go slice header",
+   "fields": [
+    [
+     "b",
+     "Nat"
+    ],
+    [
+     "off",
+     "Nat"
+    ],
+    [
+     "len",
+     "Nat"
+    ],
+    [
+     "cap",
+     "Nat"
+    ]
+   ]
+  }
+ }
+}
