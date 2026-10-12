@@ -174,8 +174,19 @@ def load_ledger(root: Path | str = ROOT) -> dict:
     return _ledger(str(Path(root) / LEDGER))
 
 
-def bundle(facts_sha256: str, root: Path | str = ROOT) -> dict:
-    for b in load_ledger(root)["bundles"]:
+def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None) -> list[dict]:
+    """The ledger's bundles, plus the bundles of a sidecar ledger.json next to a facts file (a fixture
+    or a target outside spec/ may carry its own ledger; I6)."""
+    out = list(load_ledger(root)["bundles"])
+    if facts_path is not None:
+        side = (Path(root) / facts_path).parent / "ledger.json"
+        if side.exists():
+            out += json.loads(side.read_text(encoding="utf-8"))["bundles"]
+    return out
+
+
+def bundle(facts_sha256: str, root: Path | str = ROOT, facts_path: Path | str | None = None) -> dict:
+    for b in all_bundles(root, facts_path):
         if b["facts_sha256"] == facts_sha256:
             return b
     raise LedgerError(f"no ledger bundle for facts {facts_sha256}: add the bundle's model assumptions to {LEDGER} "
@@ -186,15 +197,15 @@ def resolve_bundle(facts_sha256: str, base_facts: str | None, root: Path | str =
                    model_text: str | None = None, cone_set: set[str] | None = None) -> tuple[dict, str]:
     """(bundle, "exact" | "derived"); see the module docstring. LedgerError when neither applies."""
     try:
-        return bundle(facts_sha256, root), "exact"
+        return bundle(facts_sha256, root, base_facts), "exact"
     except LedgerError:
-        same = [b for b in load_ledger(root)["bundles"] if base_facts and b["facts"] == base_facts]
+        same = [b for b in all_bundles(root, base_facts) if base_facts and b["facts"] == base_facts]
         if len(same) != 1:
             raise LedgerError(f"no ledger bundle for facts {facts_sha256} and no registered base bundle "
                               f"({base_facts!r}): add its model assumptions to {LEDGER}") from None
         b = same[0]
         if model_text is not None:
-            loose = sorted(set(unclassified(b["facts_sha256"], model_text, root)) & set(cone_set or ()))
+            loose = sorted(set(unclassified(b["facts_sha256"], model_text, root, base_facts)) & set(cone_set or ()))
             if loose:
                 raise LedgerError(f"derived facts for {base_facts}: definitions {loose} in the cone are not "
                                   f"classified by its ledger bundle, so its assumptions may not apply")
@@ -205,14 +216,16 @@ def _meets(entry: dict, cone_set: set[str]) -> bool:
     return any(p == "*" or any(fnmatch.fnmatchcase(d, p) for d in cone_set) for p in entry["introduced_by"])
 
 
-def model_assumptions(facts_sha256: str, cone_set: set[str], root: Path | str = ROOT) -> list[str]:
-    b = bundle(facts_sha256, root)
+def model_assumptions(facts_sha256: str, cone_set: set[str], root: Path | str = ROOT,
+                      facts_path: Path | str | None = None) -> list[str]:
+    b = bundle(facts_sha256, root, facts_path)
     return sorted(e["id"] for e in b["entries"] if _meets(e, set(cone_set)))
 
 
-def unclassified(facts_sha256: str, model_text: str, root: Path | str = ROOT) -> list[str]:
+def unclassified(facts_sha256: str, model_text: str, root: Path | str = ROOT,
+                 facts_path: Path | str | None = None) -> list[str]:
     """Model definitions the ledger classifies neither by an entry nor by exactly one no_assumption group."""
-    b = bundle(facts_sha256, root)
+    b = bundle(facts_sha256, root, facts_path)
     bad = []
     for d in model_defs(model_text):
         by_entry = any(p != "*" and fnmatch.fnmatchcase(d, p) for e in b["entries"] for p in e["introduced_by"])
@@ -255,6 +268,8 @@ def _holon_imports(rel: str, root: Path) -> set[str]:
 
 
 def generator_files(ir_version: str, root: Path | str = ROOT) -> list[str]:
+    """The generator modules, transitively, plus (for state machines, since I6) the target libraries
+    and search hints the generators read as input (holon.gen.targetlib)."""
     root = Path(root)
     seen, todo = set(), list(GENERATORS[ir_version])
     while todo:
@@ -262,6 +277,9 @@ def generator_files(ir_version: str, root: Path | str = ROOT) -> list[str]:
         if rel not in seen:
             seen.add(rel)
             todo.extend(sorted(_holon_imports(rel, root) - seen))
+    if ir_version == "holon-ir/0.2":
+        for pat in ("spec/lib/*.lib.json", "spec/*/lib/*.lib.json", "spec/*/policy_hints.mjs"):
+            seen |= {p.relative_to(root).as_posix() for p in root.glob(pat)}
     return sorted(seen)
 
 
@@ -335,7 +353,7 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
         "generator_sha256": generator_sha256(law["ir_version"], root),
         "cone": c,
         "ledger_match": match,
-        "model_assumptions": model_assumptions(b["facts_sha256"], set(c), root),
+        "model_assumptions": model_assumptions(b["facts_sha256"], set(c), root, base_facts),
         "scope_v2": scope_v2(law, rec),
         "kernels": kernels(rec),
         "independence_class": independence_class(rec),

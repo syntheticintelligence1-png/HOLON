@@ -1,9 +1,10 @@
 // CLI: candidate actions after a trace.  stdin {"module", "facts", "trace": [Act..]} -> stdout [Act..]
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-import { policyOf } from "./policy_lib.mjs";
 
 const req = JSON.parse(readFileSync(0, "utf8"));
+// target search hints (req.hints, from holon.gen.targetlib.hints_for) or the generic policy
+const { policyOf } = await import(req.hints ? pathToFileURL(req.hints).href : "./policy_gen.mjs");
 const M = (await import(pathToFileURL(req.module).href)).default;
 const ACTIONS = Object.fromEntries(req.facts.actions.map((a) => [a.name, a]));
 const enc = (v) => typeof v === "number" ? BigInt(v) : typeof v === "boolean" ? v

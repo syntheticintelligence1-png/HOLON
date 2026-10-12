@@ -215,7 +215,7 @@ def policy_at(cm: CompiledMachine, tr: list[dict]) -> list[dict]:
     key = json.dumps(tr, sort_keys=True)
     if key not in _POLICY_CACHE:
         p = subprocess.run(["node", str(ROOT / "holon" / "js" / "policy.mjs")],
-                           input=json.dumps({"module": str(cm.artifact), "facts": cm.facts, "trace": tr}),
+                           input=json.dumps({"module": str(cm.artifact), "facts": cm.facts, "hints": cm.hints(), "trace": tr}),
                            capture_output=True, text=True, timeout=120)
         if p.returncode != 0:
             raise RuntimeError(p.stderr[-1500:])

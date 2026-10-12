@@ -13,7 +13,7 @@ over the decision `d`, so a state component that `decide` never reads and no eff
 into an observed field is unobservable, by construction of the proof rather than by trust.
 
 Conventions of the generated model:
-  * types are prefixed (HSt, HEntry, HAct, HObs, ..); constructors are globally unique;
+  * types are prefixed (HSt, H<Record>, HAct, HObs, ..); constructors are globally unique;
   * Nat is unbounded; `-` is truncated subtraction; checked arithmetic is an explicit require;
   * an action that fails a require leaves the state unchanged and logs O_Rev{code};
   * the log is newest-first.
@@ -21,10 +21,15 @@ Conventions of the generated model:
 from __future__ import annotations
 
 import re
+from pathlib import Path
+
+from .targetlib import Library, LibError
 
 KEYWORDS = {"match", "case", "def", "type", "law", "for", "exs", "import", "as", "do", "return", "is", "where"}
 
-PRELUDE = '''\
+# The generic prelude. Target libraries (holon.gen.targetlib) may add helpers in the slot between
+# PRELUDE_HEAD and PRELUDE_TAIL; the generator joins the three in that order.
+PRELUDE_HEAD = '''\
 def ite(-A: Data, c: Bool, a: A, b: A) -> A:
   match c:
     case True{}:
@@ -90,13 +95,9 @@ def b_remove(+x: Nat, xs: List<&2, Nat>) -> List<&2, Nat>:
     case Con{+h, +t}:
       ite(List<&2, Nat>, Nat.is_eq(x, h), b_remove(x, t), Con{h, b_remove(x, t)})
 
-def b_blob_count(xs: List<&2, Nat>) -> Nat:
-  match xs:
-    case Nil{}:
-      0n
-    case Con{+h, t}:
-      ite(Nat, Nat.is_eq(h, 0n), 0n, 1n+b_blob_count(t))
+'''
 
+PRELUDE_TAIL = '''\
 def b_pair(+a: Nat, +b: Nat) -> Nat:
   Nat.add(Nat.div(Nat.mul(Nat.add(a, b), Nat.add(Nat.add(a, b), 1n)), 2n), b)
 
@@ -145,78 +146,6 @@ def is_true(b: Bool) -> Type:
 '''
 
 
-GO_LIB = """\
-# ---- Go runtime oracle (Go 1.24 runtime/slice.go nextslicecap; roundupsize = smallest size class >= n)
-# `ite` is strict, so the loop stops through a matched flag: done = (newcap >= newlen) after a step
-def b_go_loop(fuel: Nat, done: Bool, +newcap: Nat, +newlen: Nat) -> Nat:
-  match fuel:
-    case 0n:
-      newcap
-    case 1n+p:
-      match done:
-        case True{}:
-          newcap
-        case False{}:
-          +nc = Nat.add(newcap, Nat.div(Nat.add(newcap, 768n), 4n))
-          b_go_loop(p, Nat.is_ge(nc, newlen), nc, newlen)
-
-def b_go_nextcap(+newlen: Nat, +oldcap: Nat) -> Nat:
-  ite(Nat, Nat.is_gt(newlen, Nat.add(oldcap, oldcap)), newlen, ite(Nat, Nat.is_lt(oldcap, 256n), Nat.add(oldcap, oldcap), b_go_loop(newlen, False{}, oldcap, newlen)))
-
-def b_first_ge(cls: List<&2, Nat>, +n: Nat) -> Nat:
-  match cls:
-    case Nil{}:
-      n
-    case Con{+h, t}:
-      ite(Nat, Nat.is_ge(h, n), h, b_first_ge(t, n))
-
-def b_overlay(mem: List<&2, Nat>, bs: List<&2, Nat>) -> List<&2, Nat>:
-  match mem bs:
-    case Nil{} _:
-      Nil{}
-    case Con{h, t} Nil{}:
-      Con{h, t}
-    case Con{h, t} Con{b, r}:
-      Con{b, b_overlay(t, r)}
-
-def b_put(mem: List<&2, Nat>, off: Nat, bs: List<&2, Nat>) -> List<&2, Nat>:
-  match mem off:
-    case Nil{} _:
-      Nil{}
-    case Con{h, t} 0n:
-      b_overlay(Con{h, t}, bs)
-    case Con{h, t} 1n+p:
-      Con{h, b_put(t, p, bs)}
-
-def b_zeros(n: Nat) -> List<&2, Nat>:
-  match n:
-    case 0n:
-      Nil{}
-    case 1n+p:
-      Con{0n, b_zeros(p)}
-
-def b_go_read(heap: List<&2, HArr>, s: HSl) -> List<&2, Nat>:
-  match s:
-    case HSl{b, off, len, cap}:
-      List.take(&2, Nat, List.drop(&2, Nat, g_Arr_cells(nth_d(HArr, heap, b, empty_Arr())), off), len)
-
-# append(s, xs...): in place when it fits the capacity, else a new backing array of the grown capacity
-def b_go_append_slice(+heap: List<&2, HArr>, s: HSl, +xs: List<&2, Nat>, +cls: List<&2, Nat>) -> HSl:
-  match s:
-    case HSl{+b, +off, +len, +cap}:
-      +n = Nat.add(len, List.length(&2, Nat, xs))
-      ite(HSl, Nat.is_le(n, cap), HSl{b, off, n, cap}, HSl{List.length(&2, HArr, heap), 0n, n, b_first_ge(cls, b_go_nextcap(n, cap))})
-
-def b_go_append_heap(+heap: List<&2, HArr>, +s: HSl, +xs: List<&2, Nat>, +cls: List<&2, Nat>) -> List<&2, HArr>:
-  match s:
-    case HSl{+b, +off, +len, +cap}:
-      +n = Nat.add(len, List.length(&2, Nat, xs))
-      +nc = b_first_ge(cls, b_go_nextcap(n, cap))
-      +grown = List.append(&2, Nat, b_go_read(heap, HSl{b, off, len, cap}), xs)
-      ite(List<&2, HArr>, Nat.is_le(n, cap), set_d(HArr, heap, b, HArr{b_put(g_Arr_cells(nth_d(HArr, heap, b, empty_Arr())), Nat.add(off, len), xs)}, empty_Arr()), List.append(&2, HArr, heap, [HArr{List.append(&2, Nat, grown, b_zeros(Nat.sub(nc, n)))}]))
-"""
-
-
 class FactsError(Exception):
     pass
 
@@ -249,9 +178,12 @@ def bname(v: str) -> str:
 
 
 class Machine:
-    def __init__(self, facts: dict):
+    def __init__(self, facts: dict, path: Path | str | None = None, lib: "Library | None" = None):
+        """`path` locates the facts' target libraries (holon.gen.targetlib); without it, only the
+        global libraries in spec/lib apply."""
         self.f = facts
         self.params = facts.get("params", {})
+        self.lib = lib if lib is not None else Library.for_facts(path, self.params)
         self.types = {k: [tuple(x) for x in v["fields"]] for k, v in facts["types"].items()}
         self.state = [(n, t) for n, t, *_ in facts["state"]]
         self.stypes = dict(self.state)
@@ -272,7 +204,6 @@ class Machine:
         """(bend text, type) of a builtin call, given compiled (text, type) args."""
         txt = [a for a, _ in args]
         ty = [t for _, t in args]
-        ent = "HEntry"
 
         def need(n):
             if len(args) != n:
@@ -292,41 +223,15 @@ class Machine:
         if name == "snoc":
             need(2)
             return f"List.append(&2, {bt(elem(ty[0]))}, {txt[0]}, [{txt[1]}])", ty[0]
-        if name == "win_at":
-            need(2)
-            return f"nth_d({ent}, {txt[0]}, {txt[1]}, empty_entry())", "Entry"
-        if name == "win_last":
-            need(1)
-            return f"last_d({ent}, {txt[0]}, empty_entry())", "Entry"
-        if name == "nth_ch":
-            need(2)
-            return f"nth_d(HCh, {txt[0]}, {txt[1]}, empty_ch())", "Ch"
-        if name == "set_ch":
-            need(3)
-            return f"set_d(HCh, {txt[0]}, {txt[1]}, {txt[2]}, empty_ch())", "List<Ch>"
-        if name == "empty_entry":
-            return "empty_entry()", "Entry"
-        if name == "empty_ch":
-            return "empty_ch()", "Ch"
-        if name == "agg":
-            need(1)
-            return f"Nat.add({self.params.get('AGG_BASE', 1000)}n, b_enc({txt[0]}))", "Nat"
-        if name in ("go_read",):
-            need(2)
-            return f"b_go_read({txt[0]}, {txt[1]})", "List<Nat>"
-        if name == "go_append_slice":
-            need(4)
-            return f"b_go_append_slice({', '.join(txt)})", "Sl"
-        if name == "go_append_heap":
-            need(4)
-            return f"b_go_append_heap({', '.join(txt)})", "List<Arr>"
         if name == "eq_nats":
             need(2)
             return f"eq_list_nat({txt[0]}, {txt[1]})", "Bool"
-        fixed = {"nth": "Nat", "set_nat": "List<Nat>", "mem": "Bool", "remove": "List<Nat>", "blob_count": "Nat",
-                 "zeros_like": "List<Nat>", "bump_f": "List<Entry>", "any_open": "Bool", "clear_chs": "List<Ch>",
-                 "zero_csr": "List<Entry>", "set_last_csr": "List<Entry>", "tags_exact": "Bool",
-                 "hdr_of": "List<Nat>"}
+        if name in self.lib.builtins:
+            try:
+                return self.lib.render(name, txt)
+            except LibError as e:
+                raise FactsError(str(e)) from e
+        fixed = {"nth": "Nat", "set_nat": "List<Nat>", "mem": "Bool", "remove": "List<Nat>", "zeros_like": "List<Nat>"}
         for sf, field in self.shadow.items():
             fixed[f"es_{field}"] = self.stypes[sf]
         if name in fixed:
@@ -478,59 +383,29 @@ class Machine:
         return out
 
     def gen_record_lib(self) -> list[str]:
-        """Record-specific builtins (empty values, projections over the window, Go heap)."""
+        """Empty values of every record type, then the target libraries' record blocks, in order."""
         zero = lambda t: "False{}" if t == "Bool" else ("Nil{}" if t.startswith("List<") else "0n")
         out = []
         for ty, fields in self.types.items():
             out += [f"def empty_{ty}() -> H{ty}:", f"  H{ty}{{" + ", ".join(zero(t) for _, t in fields) + "}", ""]
-        if "Sl" in self.types and "Arr" in self.types:
-            out += GO_LIB.splitlines() + [""]
-        if "Entry" not in self.types:
-            return out
-        E = self.types["Entry"]
-        out += ["def empty_entry() -> HEntry:", "  empty_Entry()", ""]
-        if "Ch" in self.types:
-            out += ["def empty_ch() -> HCh:", "  empty_Ch()", ""]
-        epat = ", ".join(f for f, _ in E)
-        for sf, field in self.shadow.items():
-            et = elem(self.stypes[sf])
-            if field == "bd":
-                val = "HBD{bdo, bdf, bdn, bds}"
+        for block in self.lib.record_blocks:
+            if not all(ty in self.types for ty in block.get("when_types", [])):
+                continue
+            if block.get("emit") == "shadow_projections":
+                out += self.gen_shadow_projections(block["record"])
             else:
-                val = field
-            out += [f"def b_es_{field}(es: List<&2, HEntry>) -> {bt(self.stypes[sf])}:", "  match es:", "    case Nil{}:",
-                    "      Nil{}", "    case Con{e, t}:", "      match e:", f"        case HEntry{{{epat}}}:",
+                out += block["bend"].split("\n")
+        return out
+
+    def gen_shadow_projections(self, record: str) -> list[str]:
+        """b_es_<field>: project each shadowed field out of a list of `record` values."""
+        out = []
+        pat = ", ".join(f for f, _ in self.types[record])
+        for sf, field in self.shadow.items():
+            val = self.lib.shadow_values.get(field, field)
+            out += [f"def b_es_{field}(es: List<&2, H{record}>) -> {bt(self.stypes[sf])}:", "  match es:", "    case Nil{}:",
+                    "      Nil{}", "    case Con{e, t}:", "      match e:", f"        case H{record}{{{pat}}}:",
                     f"          Con{{{val}, b_es_{field}(t)}}", ""]
-            del et
-        # window bump: finalizeTimestamp += w at positions 1.. except skip
-        bump_new = ", ".join(("Nat.add(bdf, w)" if f == "bdf" else f) for f, _ in E)
-        out += ["def b_bump_go(es: List<&2, HEntry>, +pos: Nat, +skip: Nat, +w: Nat) -> List<&2, HEntry>:", "  match es:",
-                "    case Nil{}:", "      Nil{}", "    case Con{e, t}:", "      match e:",
-                f"        case HEntry{{{', '.join('+' + f for f, _ in E)}}}:",
-                f"          Con{{ite(HEntry, Bool.and(Nat.is_gt(pos, 0n), Bool.not(Nat.is_eq(pos, skip))), HEntry{{{bump_new}}}, HEntry{{{epat}}}), b_bump_go(t, 1n+pos, skip, w)}}",
-                "", "def b_bump_f(es: List<&2, HEntry>, skip: Nat, w: Nat) -> List<&2, HEntry>:", "  b_bump_go(es, 0n, skip, w)", ""]
-        if "Ch" in self.types:
-            out += ["def b_any_go(cs: List<&2, HCh>, +i: Nat, +lo: Nat, +hi: Nat) -> Bool:", "  match cs:", "    case Nil{}:",
-                    "      False{}", "    case Con{c, t}:", "      match c:", "        case HCh{cc, cd, cs0, cw, cf}:",
-                    "          Bool.or(Bool.and(Bool.and(Nat.is_ge(i, lo), Nat.is_le(i, hi)), Bool.and(Bool.not(Nat.is_eq(cc, 0n)), Bool.not(cf))), b_any_go(t, 1n+i, lo, hi))",
-                    "", "def b_any_open(cs: List<&2, HCh>, lo: Nat, hi: Nat) -> Bool:", "  b_any_go(cs, 0n, lo, hi)", "",
-                    "def b_clear_go(cs: List<&2, HCh>, +i: Nat, +lo: Nat, +hi: Nat) -> List<&2, HCh>:", "  match cs:",
-                    "    case Nil{}:", "      Nil{}", "    case Con{c, t}:",
-                    "      Con{ite(HCh, Bool.and(Nat.is_ge(i, lo), Nat.is_le(i, hi)), empty_ch(), c), b_clear_go(t, 1n+i, lo, hi)}",
-                    "", "def b_clear_chs(cs: List<&2, HCh>, lo: Nat, hi: Nat) -> List<&2, HCh>:", "  b_clear_go(cs, 0n, lo, hi)", ""]
-        zc = ", ".join(("0n" if f == "csr" else f) for f, _ in E)
-        out += ["def b_zero_csr(es: List<&2, HEntry>) -> List<&2, HEntry>:", "  match es:", "    case Nil{}:", "      Nil{}",
-                "    case Con{e, t}:", "      match e:", f"        case HEntry{{{epat}}}:", f"          Con{{HEntry{{{zc}}}, b_zero_csr(t)}}", ""]
-        sl = ", ".join(("r" if f == "csr" else f) for f, _ in E)
-        out += ["def b_set_last_csr(es: List<&2, HEntry>, +r: Nat) -> List<&2, HEntry>:", "  match es:", "    case Nil{}:", "      Nil{}",
-                "    case Con{e, t}:", "      match e:", f"        case HEntry{{{epat}}}:", "          match t:", "            case Nil{}:",
-                f"              [HEntry{{{sl}}}]", "            case Con{e2, t2}:",
-                f"              Con{{HEntry{{{epat}}}, b_set_last_csr(Con{{e2, t2}}, r)}}", ""]
-        out += ["def b_tags_exact(es: List<&2, HEntry>) -> Bool:", "  match es:", "    case Nil{}:", "      True{}",
-                "    case Con{e, t}:", "      match e:", f"        case HEntry{{{epat}}}:",
-                "          Bool.and(eq_bool(Nat.is_eq(ver, 2n), Nat.is_eq(tag, 2n)), b_tags_exact(t))", ""]
-        out += ["def b_hdr_of(e: HEntry) -> List<&2, Nat>:", "  match e:", f"    case HEntry{{{epat}}}:",
-                "      [ver, tot, n, hb, prev, post, lbn]", ""]
         return out
 
     def gen_defs(self) -> list[str]:
@@ -808,9 +683,9 @@ class Machine:
         head = ["# GENERATED by holon.gen.machine from facts; do not edit (fix the generator instead).",
                 f"# facts_sha256: {facts_sha256}", f"# target: {self.f['target']['repo']} @ {self.f['target']['commit']}",
                 "import Base", ""]
-        text = head + [PRELUDE] + body + self.helpers + acts + disp + obs + init
+        text = head + [PRELUDE_HEAD + "".join(self.lib.prelude) + PRELUDE_TAIL] + body + self.helpers + acts + disp + obs + init
         return "\n".join(text).rstrip() + "\n"
 
 
-def generate(facts: dict, facts_sha256: str) -> str:
-    return Machine(facts).generate(facts_sha256)
+def generate(facts: dict, facts_sha256: str, path: Path | str | None = None) -> str:
+    return Machine(facts, path).generate(facts_sha256)

@@ -1,0 +1,33 @@
+{
+  "lib_version": "holon-lib/0.1",
+  "name": "go_slices",
+  "doc": "Go slice and append-growth library (moved out of holon/gen/machine.py in I6): a heap of backing arrays, slice headers, append with the runtime's growth rule and a size-class table. Emitted when the facts declare the record types Sl and Arr. The class table itself is facts state. Its exact text matters: it triggers the bend2/BendTT mismatch documented in docs/M1_REPORT.md.",
+  "prelude": [],
+  "builtins": {
+    "go_read": {
+      "arity": 2,
+      "bend": "b_go_read($0, $1)",
+      "type": "List<Nat>"
+    },
+    "go_append_slice": {
+      "arity": 4,
+      "bend": "b_go_append_slice($args)",
+      "type": "Sl"
+    },
+    "go_append_heap": {
+      "arity": 4,
+      "bend": "b_go_append_heap($args)",
+      "type": "List<Arr>"
+    }
+  },
+  "record_blocks": [
+    {
+      "when_types": [
+        "Sl",
+        "Arr"
+      ],
+      "bend": "# ---- Go runtime oracle (Go 1.24 runtime/slice.go nextslicecap; roundupsize = smallest size class >= n)\n# `ite` is strict, so the loop stops through a matched flag: done = (newcap >= newlen) after a step\ndef b_go_loop(fuel: Nat, done: Bool, +newcap: Nat, +newlen: Nat) -> Nat:\n  match fuel:\n    case 0n:\n      newcap\n    case 1n+p:\n      match done:\n        case True{}:\n          newcap\n        case False{}:\n          +nc = Nat.add(newcap, Nat.div(Nat.add(newcap, 768n), 4n))\n          b_go_loop(p, Nat.is_ge(nc, newlen), nc, newlen)\n\ndef b_go_nextcap(+newlen: Nat, +oldcap: Nat) -> Nat:\n  ite(Nat, Nat.is_gt(newlen, Nat.add(oldcap, oldcap)), newlen, ite(Nat, Nat.is_lt(oldcap, 256n), Nat.add(oldcap, oldcap), b_go_loop(newlen, False{}, oldcap, newlen)))\n\ndef b_first_ge(cls: List<&2, Nat>, +n: Nat) -> Nat:\n  match cls:\n    case Nil{}:\n      n\n    case Con{+h, t}:\n      ite(Nat, Nat.is_ge(h, n), h, b_first_ge(t, n))\n\ndef b_overlay(mem: List<&2, Nat>, bs: List<&2, Nat>) -> List<&2, Nat>:\n  match mem bs:\n    case Nil{} _:\n      Nil{}\n    case Con{h, t} Nil{}:\n      Con{h, t}\n    case Con{h, t} Con{b, r}:\n      Con{b, b_overlay(t, r)}\n\ndef b_put(mem: List<&2, Nat>, off: Nat, bs: List<&2, Nat>) -> List<&2, Nat>:\n  match mem off:\n    case Nil{} _:\n      Nil{}\n    case Con{h, t} 0n:\n      b_overlay(Con{h, t}, bs)\n    case Con{h, t} 1n+p:\n      Con{h, b_put(t, p, bs)}\n\ndef b_zeros(n: Nat) -> List<&2, Nat>:\n  match n:\n    case 0n:\n      Nil{}\n    case 1n+p:\n      Con{0n, b_zeros(p)}\n\ndef b_go_read(heap: List<&2, HArr>, s: HSl) -> List<&2, Nat>:\n  match s:\n    case HSl{b, off, len, cap}:\n      List.take(&2, Nat, List.drop(&2, Nat, g_Arr_cells(nth_d(HArr, heap, b, empty_Arr())), off), len)\n\n# append(s, xs...): in place when it fits the capacity, else a new backing array of the grown capacity\ndef b_go_append_slice(+heap: List<&2, HArr>, s: HSl, +xs: List<&2, Nat>, +cls: List<&2, Nat>) -> HSl:\n  match s:\n    case HSl{+b, +off, +len, +cap}:\n      +n = Nat.add(len, List.length(&2, Nat, xs))\n      ite(HSl, Nat.is_le(n, cap), HSl{b, off, n, cap}, HSl{List.length(&2, HArr, heap), 0n, n, b_first_ge(cls, b_go_nextcap(n, cap))})\n\ndef b_go_append_heap(+heap: List<&2, HArr>, +s: HSl, +xs: List<&2, Nat>, +cls: List<&2, Nat>) -> List<&2, HArr>:\n  match s:\n    case HSl{+b, +off, +len, +cap}:\n      +n = Nat.add(len, List.length(&2, Nat, xs))\n      +nc = b_first_ge(cls, b_go_nextcap(n, cap))\n      +grown = List.append(&2, Nat, b_go_read(heap, HSl{b, off, len, cap}), xs)\n      ite(List<&2, HArr>, Nat.is_le(n, cap), set_d(HArr, heap, b, HArr{b_put(g_Arr_cells(nth_d(HArr, heap, b, empty_Arr())), Nat.add(off, len), xs)}, empty_Arr()), List.append(&2, HArr, heap, [HArr{List.append(&2, Nat, grown, b_zeros(Nat.sub(nc, n)))}]))\n"
+    }
+  ],
+  "shadow_values": {}
+}

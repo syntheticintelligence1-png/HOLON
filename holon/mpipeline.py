@@ -21,6 +21,7 @@ from pathlib import Path
 from . import bend, bindings, inhabit, ir, records
 from . import facts as F
 from .gen import mlaws, mproofs
+from .gen import targetlib
 from .gen.machine import Machine
 from .replay import replay_status, load_report
 
@@ -35,14 +36,20 @@ def model_name(facts_path: Path) -> str:
 
 
 class CompiledMachine:
-    def __init__(self, source: Path, artifact: Path, facts: dict, machine: Machine):
+    def __init__(self, source: Path, artifact: Path, facts: dict, machine: Machine, facts_path: Path | None = None):
         self.source, self.artifact, self.facts, self.m = source, artifact, facts, machine
+        self.facts_path = Path(facts_path) if facts_path else None
+
+    def hints(self) -> str | None:
+        """The facts' untrusted search-hints module (holon.gen.targetlib), or None for the generic policy."""
+        h = targetlib.hints_for(self.facts_path)
+        return str(h) if h else None
 
     @classmethod
     def build(cls, facts_path: Path, cfg: dict | None = None) -> "CompiledMachine":
         facts = F.load(facts_path)
         sha = F.sha256_file(facts_path)
-        m = Machine(facts)
+        m = Machine(facts, facts_path)
         text = m.generate(sha)
         src = bend.build_dir(ROOT) / "eval" / sha[:16] / f"{model_name(facts_path)}.bend"
         src.parent.mkdir(parents=True, exist_ok=True)
@@ -56,11 +63,11 @@ class CompiledMachine:
             if r.code != 0 or not art.exists():
                 raise RuntimeError(f"bend failed to compile {src}: {r.out[:2000]}")
             stamp.write_text(h)
-        return cls(src, art, facts, m)
+        return cls(src, art, facts, m, Path(facts_path))
 
     def evaluate(self, law: dict, assignment: dict) -> dict:
         """Premises and claims of a law at one assignment, on the compiled model."""
-        p = subprocess.run(["node", str(EXPLORE)], input=json.dumps({"module": str(self.artifact), "facts": self.facts,
+        p = subprocess.run(["node", str(EXPLORE)], input=json.dumps({"module": str(self.artifact), "facts": self.facts, "hints": self.hints(),
                                                                      "law": law, "evaluate": assignment}),
                            capture_output=True, text=True, timeout=600)
         if p.returncode != 0:
@@ -68,7 +75,7 @@ class CompiledMachine:
         return json.loads(p.stdout)
 
     def explore(self, law: dict, budget: dict | None = None) -> dict:
-        p = subprocess.run(["node", str(EXPLORE)], input=json.dumps({"module": str(self.artifact), "facts": self.facts,
+        p = subprocess.run(["node", str(EXPLORE)], input=json.dumps({"module": str(self.artifact), "facts": self.facts, "hints": self.hints(),
                                                                      "law": law, "budget": budget or {}}),
                            capture_output=True, text=True, timeout=3600)
         if p.returncode != 0:

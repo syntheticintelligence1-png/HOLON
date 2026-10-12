@@ -258,7 +258,7 @@ def expected_texts(law: dict, m: str, root: Path, rec: dict) -> tuple[str, str, 
         fpath = root / ir.load_registry(m, root).get("facts", "facts/morph_header.json")
         return texts_01(law, F.load(fpath), model, rec["non_vacuity"]["witness"])
     from .gen.machine import Machine
-    return texts_02(law, Machine(F.load(root / law["facts"])), model, rec["non_vacuity"]["witness"])
+    return texts_02(law, Machine(F.load(root / law["facts"]), root / law["facts"]), model, rec["non_vacuity"]["witness"])
 
 
 def premise_mismatch(law: dict, m: str, root: Path, laws_text: str) -> str | None:

@@ -29,7 +29,7 @@ class Unsupported(Exception):
 
 
 _MODEL_FN = re.compile(r"(?<![\w.])(d_\w+|g_\w+|b_\w+|with_\w+|dec_\w+|decide_\w+|nth_d|set_d|ite|tail0|last_d|"
-                       r"empty_entry|empty_ch|eq_bool|eq_list_nat)\(")
+                       r"empty_\w+|eq_bool|eq_list_nat)\(")
 
 
 def q(t: str) -> str:

@@ -220,7 +220,7 @@ def _emit(law: dict, m: str, root: Path, counter: bool) -> str | None:
     from .gen import mlaws
     from .gen.machine import Machine
     try:
-        return mlaws.Emitter(Machine(F.load(fp))).emit(law, imp, counter=counter, note=ir.statement_hash(law)).text
+        return mlaws.Emitter(Machine(F.load(fp), fp)).emit(law, imp, counter=counter, note=ir.statement_hash(law)).text
     except mlaws.Unsupported:
         return None
 

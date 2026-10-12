@@ -50,7 +50,8 @@ const runJ = (tr, s) => tr.reduce((st, a) => stepJ(a, st), s);
 const lastOk = (s) => M.last_ok(s);
 
 // ---------------------------------------------------------------- policy (search heuristics, untrusted)
-import { policyOf } from "./policy_lib.mjs";
+// target search hints (req.hints, from holon.gen.targetlib.hints_for) or the generic policy
+const { policyOf } = await import(req.hints ? pathToFileURL(req.hints).href : "./policy_gen.mjs");
 const policy = (sj) => policyOf(dec(sj), facts);
 
 // reachable prefixes: BFS over successful actions, deduplicated by state (log excluded)
@@ -121,16 +122,26 @@ function tryHolds(p, env) { try { return holds(p, env); } catch (e) { if (e inst
 const st = law.statement;
 const binders = st.binders;
 // enumerate states and prefixes first, then actions and numbers, then continuation traces
-const rank = (b) => (b.type === "State" || (b.type === "Trace" && (JSON.stringify(law.statement).includes(JSON.stringify({ run: { var: b.name }, from: { s0: {} } }))
-  || JSON.stringify(law.statement).includes(JSON.stringify({ obs: { var: b.name }, from: { s0: {} } }))))) ? 0
+// key-order independent: does term t contain {kind: {var: v}, from: {s0: {}}}? (I6: a law in canonical,
+// sorted-key form must search exactly like the same law in authored key order)
+const isVar = (x, v) => x && typeof x === "object" && Object.keys(x).length === 1 && x.var === v;
+const isS0 = (x) => x && typeof x === "object" && Object.keys(x).length === 1 && x.s0 && Object.keys(x.s0).length === 0;
+const hasFromS0 = (t, kind, v) => {
+  if (Array.isArray(t)) return t.some((x) => hasFromS0(x, kind, v));
+  if (!t || typeof t !== "object") return false;
+  if (Object.keys(t).length === 2 && isVar(t[kind], v) && isS0(t.from)) return true;
+  return Object.values(t).some((x) => hasFromS0(x, kind, v));
+};
+const rank = (b) => (b.type === "State" || (b.type === "Trace" && (hasFromS0(law.statement, "run", b.name)
+  || hasFromS0(law.statement, "obs", b.name)))) ? 0
   : b.type === "Act" ? 1 : b.type === "Nat" ? 2 : 3;
 const forall = binders.filter((b) => b.q === "forall").map((b, i) => [b, i]).sort((x, y) => rank(x[0]) - rank(y[0]) || x[1] - y[1]).map((x) => x[0]);
 const assume = st.assume || [];
 const claims = st.claim.all || [st.claim];
 const mentions = (t, v) => JSON.stringify(t).includes(JSON.stringify({ var: v }));
-const isPrefixVar = (v) => JSON.stringify(st).includes(JSON.stringify({ run: { var: v }, from: { s0: {} } }));
+const isPrefixVar = (v) => hasFromS0(st, "run", v);
 // a trace observed from the initial state: reachable prefixes, each possibly ending in one failing action
-const isObsPrefixVar = (v) => JSON.stringify(st).includes(JSON.stringify({ obs: { var: v }, from: { s0: {} } }));
+const isObsPrefixVar = (v) => hasFromS0(st, "obs", v);
 const isObsSuffix = (v) => claims.length === 1 && claims[0].eq.every((s) => s.obs && JSON.stringify(s.obs) === JSON.stringify({ var: v }));
 
 function baseState(env) {

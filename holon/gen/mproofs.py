@@ -287,7 +287,8 @@ GENERATORS = [("evaluate", evaluate), ("nat_split", nat_split), ("noninterferenc
 
 # ---------------------------------------------------------------- DISCH: deadline guards
 def _kappa_shape(m: Machine, name: str):
-    """kappa = b && (x + get(nth_ch(chs, i), f)) < t over state fields; returns the pieces or None."""
+    """kappa = b && (x + get(nth(chs, i), f)) < t over state fields, where nth is a target-library list
+    accessor with a default element (kind nth_default); returns the pieces or None."""
     o = m.f.get("observers", {}).get(name)
     if not o:
         return None
@@ -300,9 +301,10 @@ def _kappa_shape(m: Machine, name: str):
         _, x, get = plus
         assert isinstance(x, str) and get[0] == "get"
         _, call, fld = get
-        assert call[0] == "call" and call[1] == "nth_ch" and isinstance(call[2], str) and isinstance(call[3], str)
+        assert call[0] == "call" and m.lib.kind(call[1]) == "nth_default" and isinstance(call[2], str) \
+            and isinstance(call[3], str)
         return {"b": b, "x": x, "chs": call[2], "i": call[3], "f": fld, "t": t, "expr": e,
-                "start": get, "deadline": plus}
+                "start": get, "deadline": plus, "nth": call[1]}
     except (AssertionError, ValueError, TypeError, IndexError):
         return None
 
@@ -344,11 +346,14 @@ def deadline(em: EmittedM, m: Machine, model_import: str) -> str | None:
     if pname != "perm" or c_l != f"{ALIAS}.{kname}({ALIAS}.step({a}, {s}))" or c_r != "True{}":
         return None
     k = _kappa_shape(m, kname)
-    if not k or m.stypes.get(k["chs"]) != "List<Ch>":
+    if not k:
+        return None
+    rec, fld = m.lib.builtins[k["nth"]]["type"], k["f"]
+    if m.stypes.get(k["chs"]) != f"List<{rec}>":
         return None
     kfields = {k["b"], k["x"], k["chs"], k["i"], k["t"]}
-    rec, fld = "Ch", k["f"]
-    E = f"{ALIAS}.empty_ch()"
+    dflt = m.lib.default_of(k["nth"])
+    E = f"{ALIAS}.{m.lib.render(dflt, [])[0]}"
     get = lambda xs, j: f"{ALIAS}.g_{rec}_{fld}({ALIAS}.nth_d({ALIAS}.H{rec}, {xs}, {j}, {E}))"
     setE = lambda xs, i: f"{ALIAS}.set_d({ALIAS}.H{rec}, {xs}, {i}, {E}, {E})"
     out = ["# class deadline: kappa = b && w + start(chs[i]) < t is preserved by every permissionless action", ""]
@@ -390,8 +395,9 @@ def deadline(em: EmittedM, m: Machine, model_import: str) -> str | None:
             dt, _ = m.ex(touched[k["t"]][2], {**m.stypes, **dict(act["inputs"])})
             okbody = (f"core_and_lt_add({bname(k['b'])}, Nat.add({bname(k['x'])}, {get(bname(k['chs']), bname(k['i']))}), "
                       f"{bname(k['t'])}, {dt}, h0)")
-        elif set(touched) == {k["chs"]} and touched[k["chs"]][:3] == ["call", "set_ch", k["chs"]] \
-                and touched[k["chs"]][4] == ["call", "empty_ch"]:
+        elif set(touched) == {k["chs"]} and touched[k["chs"]][0] == "call" \
+                and m.lib.kind(touched[k["chs"]][1]) == "set_default" and m.lib.default_of(touched[k["chs"]][1]) == dflt \
+                and touched[k["chs"]][2] == k["chs"] and touched[k["chs"]][4] == ["call", dflt]:
             lets_t = {g["let"]: None for g in act["guards"] if "let" in g}
             env = {**m.stypes, **dict(act["inputs"])}
             ix, _ = m.ex(touched[k["chs"]][3], env)

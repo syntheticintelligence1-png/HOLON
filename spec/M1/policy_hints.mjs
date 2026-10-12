@@ -1,5 +1,7 @@
-// Search policy for the Morph rollup machine: candidate actions from a decoded state.
-// Untrusted heuristics (like a fuzzing dictionary): they only steer the search.
+// Search hints for the Morph rollup machine (and the Go BatchData machine): candidate actions from a
+// decoded state. Moved out of holon/js in I6: a target input chosen by the facts' milestone, loaded by
+// holon/js/explore.mjs and policy.mjs. Untrusted heuristics (like a fuzzing dictionary): they only
+// steer the search; a refutation still needs Bend to accept the counter-law.
 export function policyOf(s, facts) {
   if (facts.policy === "batchdata") return batchdataPolicy(s);
 
