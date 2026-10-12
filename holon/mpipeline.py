@@ -283,7 +283,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                 rec["bound"] = rec.get("bound") or "no witness in the searched space"
                 rec["scope"] = "bounded"
             else:
-                rec["scope"] = "closed" if not law["statement"].get("binders") else "unbounded"
+                rec["closed"] = not law["statement"].get("binders")
+                rec["scope"] = "unbounded"
                 rec["artifacts"].update({"laws": relpath(d / "LAWS.bend"), "proof": relpath(d / "PROOF.bend"),
                                          "law_name": em.name})
                 rec["checker"] = {"exit_code": r.code, "marker": r.marker, "seconds": r.seconds}
@@ -377,7 +378,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             rec["scope"] = "bounded"
             rec["bound"] = bound or "not searched"
         else:
-            rec["scope"] = "closed" if not law["statement"].get("binders") else "unbounded"
+            rec["closed"] = not law["statement"].get("binders")
+            rec["scope"] = "unbounded"
             rec["artifacts"].update({"laws": relpath(d / "LAWS.bend"), "proof": relpath(d / "PROOF.bend"), "law_name": em.name})
             rec["checker"] = {"exit_code": r.code, "marker": r.marker, "seconds": r.seconds}
             if verdict:
