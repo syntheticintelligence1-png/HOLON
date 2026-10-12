@@ -1,0 +1,763 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "holon-facts/0.3",
+  "description": "holon-facts/0.3: the shared envelope of every extracted fact document (holon extract <frontend>, *.extracted.json) and the closed shape of the Solidity frontend's documents (contract: the docstring of tests_m2/test_extract_solidity_layout.py). The top level is a oneOf of one branch per frontend, told apart by extraction.frontend: \"solidity\" (I17, closed) and \"go\" (I18: envelope keys plus an open \"go\" object, closed by spec/schemas/facts_0_3_go.schema.json). A later frontend adds its branch. Every branch requires facts_version, target {repo, commit, scope} and extraction {method \"extracted\", frontend, frontend_version, inputs}; assumptions are objects with at least id and text. Only the mini-schema keywords are used (type, required, properties, additionalProperties, enum, const, pattern, items, oneOf, allOf, $ref).",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/solidity"
+    },
+    {
+      "$ref": "#/$defs/go"
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "span": {
+      "type": "string",
+      "pattern": "^[^\\s:]+:[1-9][0-9]*(-[1-9][0-9]*)?$"
+    },
+    "stack": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/span"
+      }
+    },
+    "fn": {
+      "type": "string",
+      "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*\\.[A-Za-z_$][A-Za-z0-9_$]*$"
+    },
+    "assumption_min": {
+      "type": "object",
+      "required": [
+        "id",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "solidity": {
+      "type": "object",
+      "required": [
+        "facts_version",
+        "target",
+        "extraction",
+        "types",
+        "functions",
+        "assumptions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "facts_version": {
+          "const": "holon-facts/0.3"
+        },
+        "target": {
+          "type": "object",
+          "required": [
+            "repo",
+            "commit",
+            "scope"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "commit": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scope": {
+              "type": "string"
+            }
+          }
+        },
+        "extraction": {
+          "$ref": "#/$defs/sol_extraction"
+        },
+        "types": {
+          "$ref": "#/$defs/sol_types"
+        },
+        "functions": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/sol_edge"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sol_assumption"
+          }
+        }
+      },
+      "description": "A Solidity frontend document (holon-frontend-solidity): codec edges under functions."
+    },
+    "sol_extraction": {
+      "type": "object",
+      "required": [
+        "method",
+        "frontend",
+        "frontend_version",
+        "sidecar",
+        "toolchain",
+        "settings",
+        "inputs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "const": "extracted"
+        },
+        "frontend": {
+          "const": "solidity"
+        },
+        "frontend_version": {
+          "type": "string",
+          "pattern": "^holon-frontend-solidity/[0-9]+\\.[0-9]+$"
+        },
+        "sidecar": {
+          "type": "object",
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "toolchain": {
+          "type": "object",
+          "required": [
+            "solc"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "solc": {
+              "type": "object",
+              "required": [
+                "version",
+                "sha256"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "version": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/sha256"
+                }
+              }
+            }
+          }
+        },
+        "settings": {
+          "type": "object"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "unit",
+              "sha256"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "unit": {
+                "type": "string"
+              },
+              "sha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          }
+        }
+      }
+    },
+    "sol_types": {
+      "type": "object",
+      "required": [
+        "Bytes"
+      ],
+      "properties": {
+        "Bytes": {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "bytes"
+            }
+          }
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sol_record"
+      }
+    },
+    "sol_record": {
+      "type": "object",
+      "required": [
+        "kind",
+        "fields"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "record"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sol_field"
+          }
+        }
+      }
+    },
+    "sol_field": {
+      "type": "object",
+      "required": [
+        "name",
+        "width",
+        "value_type",
+        "value_bits",
+        "truncates"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$"
+        },
+        "width": {
+          "type": "integer"
+        },
+        "value_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "value_bits": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "truncates": {
+          "type": "boolean"
+        }
+      }
+    },
+    "sol_edge": {
+      "type": "object",
+      "required": [
+        "kind",
+        "from",
+        "to",
+        "lang",
+        "entry",
+        "sink",
+        "memory_init",
+        "paths",
+        "debt",
+        "exact",
+        "walk"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "encoder",
+            "loader"
+          ]
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "enum": [
+            "Bytes",
+            "Maybe<Bytes>"
+          ]
+        },
+        "lang": {
+          "const": "solidity-evm-memory"
+        },
+        "entry": {
+          "type": "object",
+          "required": [
+            "fn",
+            "src"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "fn": {
+              "$ref": "#/$defs/fn"
+            },
+            "src": {
+              "$ref": "#/$defs/span"
+            }
+          }
+        },
+        "sink": {
+          "type": "object",
+          "required": [
+            "op",
+            "stack"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "op": {
+              "const": "keccak256"
+            },
+            "stack": {
+              "$ref": "#/$defs/stack"
+            }
+          }
+        },
+        "memory_init": {
+          "const": "dirty"
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ok_path"
+              },
+              {
+                "$ref": "#/$defs/revert_path"
+              }
+            ]
+          }
+        },
+        "debt": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/debt"
+          }
+        },
+        "exact": {
+          "type": "boolean"
+        },
+        "walk": {
+          "$ref": "#/$defs/walk"
+        }
+      }
+    },
+    "expr": {
+      "type": [
+        "integer",
+        "string",
+        "array"
+      ],
+      "pattern": "^([A-Za-z_$][A-Za-z0-9_$]*|==|!=|<|<=|>|>=|!|&&|\\|\\||\\+|-|\\*|/|%|&|\\||\\^|<<|>>)$",
+      "items": {
+        "$ref": "#/$defs/expr"
+      }
+    },
+    "ok_path": {
+      "type": "object",
+      "required": [
+        "cond",
+        "outcome",
+        "length",
+        "ops"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "cond": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/expr"
+          }
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "length": {
+          "$ref": "#/$defs/expr"
+        },
+        "ops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/op"
+          }
+        }
+      }
+    },
+    "revert_path": {
+      "type": "object",
+      "required": [
+        "cond",
+        "outcome",
+        "reason",
+        "src"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "cond": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/expr"
+          }
+        },
+        "outcome": {
+          "const": "revert"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        }
+      }
+    },
+    "op": {
+      "type": "object",
+      "required": [
+        "op",
+        "offset",
+        "width",
+        "src",
+        "origin"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "enum": [
+            "mstore",
+            "mstore8",
+            "calldatacopy"
+          ]
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "width": {
+          "$ref": "#/$defs/expr"
+        },
+        "src": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/item"
+          }
+        },
+        "origin": {
+          "type": "object",
+          "required": [
+            "fn",
+            "src",
+            "stack"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "fn": {
+              "$ref": "#/$defs/fn"
+            },
+            "src": {
+              "$ref": "#/$defs/span"
+            },
+            "stack": {
+              "$ref": "#/$defs/stack"
+            }
+          }
+        }
+      }
+    },
+    "item": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "field",
+            "from",
+            "len"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "field": {
+              "type": "string"
+            },
+            "from": {
+              "type": "integer"
+            },
+            "len": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "zeros"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "zeros": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "const"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "const": {
+              "type": "integer",
+              "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "input",
+            "from",
+            "len"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "input": {
+              "type": "string"
+            },
+            "from": {
+              "type": "integer"
+            },
+            "len": {
+              "$ref": "#/$defs/expr"
+            }
+          }
+        }
+      ]
+    },
+    "debt": {
+      "type": "object",
+      "required": [
+        "kind",
+        "construct",
+        "src",
+        "fn",
+        "stack"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "loop",
+            "construct",
+            "address",
+            "value",
+            "call"
+          ]
+        },
+        "construct": {
+          "type": "string"
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "fn": {
+          "$ref": "#/$defs/fn"
+        },
+        "stack": {
+          "$ref": "#/$defs/stack"
+        }
+      }
+    },
+    "walk": {
+      "type": "object",
+      "required": [
+        "functions",
+        "paths",
+        "sinks",
+        "debt"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "functions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fn"
+          }
+        },
+        "paths": {
+          "type": "object",
+          "required": [
+            "ok",
+            "revert",
+            "other"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ok": {
+              "type": "integer"
+            },
+            "revert": {
+              "type": "integer"
+            },
+            "other": {
+              "type": "integer"
+            }
+          }
+        },
+        "sinks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "op",
+              "stack",
+              "selected"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "keccak256"
+              },
+              "stack": {
+                "$ref": "#/$defs/stack"
+              },
+              "selected": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "debt": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/debt"
+          }
+        }
+      }
+    },
+    "sol_assumption": {
+      "type": "object",
+      "required": [
+        "id",
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^A-(dirty|env|implicit|width:[A-Za-z_$][A-Za-z0-9_$]*)$"
+        },
+        "text": {
+          "type": "string"
+        },
+        "record": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "go": {
+      "type": "object",
+      "required": [
+        "facts_version",
+        "target",
+        "extraction",
+        "assumptions",
+        "go"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "facts_version": {
+          "const": "holon-facts/0.3"
+        },
+        "target": {
+          "type": "object",
+          "required": [
+            "repo",
+            "commit",
+            "scope"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "scope": {
+              "type": "string"
+            }
+          }
+        },
+        "extraction": {
+          "type": "object",
+          "required": [
+            "method",
+            "frontend",
+            "frontend_version",
+            "inputs"
+          ],
+          "properties": {
+            "method": {
+              "const": "extracted"
+            },
+            "frontend": {
+              "const": "go"
+            },
+            "frontend_version": {
+              "type": "string"
+            },
+            "inputs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assumption_min"
+          }
+        },
+        "go": {
+          "type": "object"
+        }
+      },
+      "description": "A Go frontend document (I18): the envelope plus all Go content under go, which spec/schemas/facts_0_3_go.schema.json closes."
+    }
+  }
+}

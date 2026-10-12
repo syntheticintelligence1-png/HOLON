@@ -21,6 +21,8 @@
   python -m holon evidence [--milestone M2] [--root DIR] [--out PATH]   (evidence set E1-E6, gen/M2/evidence.json, I14)
   python -m holon refine --milestone M0 [--edges E1,E2] [--out DIR] [--morph PATH] [--work DIR] [--fix C ..]
   python -m holon metrics --milestone M [--root DIR]    (results/<M>/metrics.json, I16)
+  python -m holon extract <frontend> ...                (fact extraction, holon-facts/0.3; I17 solidity, I18 go)
+  python -m holon extract solidity [--milestone M2] [--sidecar PATH] [--root DIR] [--source DIR] [--out PATH] [--check]
 """
 from __future__ import annotations
 
@@ -49,6 +51,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["evidence"]:  # likewise for holon.diagram.evidence (I14)
         from .diagram import evidence
         return evidence.main(argv[1:])
+    if argv[:1] == ["extract"]:  # likewise for holon.frontends (the frontend named by the next argument, I17)
+        from . import frontends
+        return frontends.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
