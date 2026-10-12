@@ -46,7 +46,7 @@ const runJ = (tr, s) => tr.reduce((st, a) => stepJ(a, st), s);
 const lastOk = (s) => M.last_ok(s);
 
 // ---------------------------------------------------------------- policy (search heuristics, untrusted)
-import { policyOf } from "./policy_lib.mjs";
+import { policyOf, policyNotes } from "./policy_lib.mjs";
 const policy = (sj) => policyOf(dec(sj), facts);
 
 // reachable prefixes: BFS over successful actions, deduplicated by state (log excluded)
@@ -326,4 +326,5 @@ let witness = null;
 if (binders.some((b) => b.q === "exists")) { witness = strategies(); notes.push("exists law: strategy search"); }
 else witness = search(0, {}, {});
 const bound = `prefixes: BFS depth ${B.prefixDepth} over policy actions (<= ${B.maxPrefixes} states); suffixes: divergence BFS depth ${B.suffixDepth}; Nat binders 0..${B.natMax} plus premise-solved values`;
+notes.push(...policyNotes);
 process.stdout.write(JSON.stringify({ witness, tried, bound, notes }));
