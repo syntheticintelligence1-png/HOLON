@@ -78,6 +78,7 @@ class Translator:
         self.blob_indices = []
         self.blob_emitted = set()
         self.fact_inputs = set()
+        self.oracle_inputs = []     # input names an oracle emit asked to add (ordered)
         self.call_guards = {}       # fn key -> guards collected for call sites
         self.in_unchecked = False
         self.debt_keys = set()
@@ -764,7 +765,7 @@ class Translator:
             return ("unmodelled", "public input hash")
         oc = self.spec.get("oracles", {}).get("keccak256")
         if oc and "emit" in oc:
-            return self.post_hoist(self.subst_args(oc["emit"], n["arguments"]), n)
+            return self.oracle_emit(oc, n["arguments"], n)
         self.add_debt(f"{self.src(n)} keccak256", "unmodelled_value", "hash contents")
         return ("unmodelled", "keccak256")
 
@@ -814,7 +815,7 @@ class Translator:
             if "inline" in oc:
                 return self.inline_fn(tuple(oc["inline"]), args, node)
             if "emit" in oc:
-                return self.post_hoist(self.subst_args(oc["emit"], args), node)
+                return self.oracle_emit(oc, args, node)
             if "guard" in oc:
                 g = oc["guard"]
                 self.emit_require(g["require"], g["reason"], g.get("src", self.src(node)))
@@ -842,8 +843,18 @@ class Translator:
             return [self.subst_args(x, args) for x in e]
         return e
 
-    def call_oracle(self, key, oc, args, node):
+    def oracle_emit(self, oc, args, node):
+        """Oracle `emit` + `add_inputs`: a declared input name emitted by the
+        oracle is a per-call input of the action (added to its inputs by the
+        extractor), not a global param."""
+        for n in oc.get("add_inputs", []):
+            if n not in self.fact_inputs:
+                self.fact_inputs.add(n)
+                self.oracle_inputs.append(n)
         return self.post_hoist(self.subst_args(oc.get("emit"), args), node)
+
+    def call_oracle(self, key, oc, args, node):
+        return self.oracle_emit(oc, args, node)
 
     # ------------------------------------------------------- internal calls
     def find_fn(self, contract, name):

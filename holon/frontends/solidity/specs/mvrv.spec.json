@@ -129,8 +129,7 @@
  "consumers": {},
  "params": {
   "OWNER": 1,
-  "LFI": 7,
-  "LCI": 9,
+
   "rollup": 5
  },
  "principal_map": {
@@ -145,7 +144,8 @@
  },
  "oracles": {
   "IRollup.lastFinalizedBatchIndex": {
-   "emit": "LFI"
+   "emit": "lfi",
+   "add_inputs": ["lfi"]
   },
   "IZkEvmVerifier.verifyBatch": {
    "debt": "external verifier call; the verifier's own check is a contract oracle"

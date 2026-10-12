@@ -77,8 +77,6 @@
  "consumers": {},
  "params": {
   "OWNER": 1,
-  "LFI": 7,
-  "LCI": 9,
   "rollupContract": 6
  },
  "principal_map": {
@@ -93,10 +91,12 @@
  },
  "oracles": {
   "IRollupSubmitterView.lastFinalizedBatchIndex": {
-   "emit": "LFI"
+   "emit": "lfi",
+   "add_inputs": ["lfi"]
   },
   "IRollupSubmitterView.lastCommittedBatchIndex": {
-   "emit": "LCI"
+   "emit": "lci",
+   "add_inputs": ["lci"]
   }
  },
  "state": [

@@ -13,8 +13,7 @@
   "OWNER": 1,
   "LFI": 7,
   "LCI": 9,
-  "QI": 8,
-  "FEE": 9
+  "QI": 8
  },
  "constants_doc": {},
  "types": {
@@ -119,11 +118,13 @@
   "5": "anyone"
  },
  "reasons": {
-  "1": "Provided message has not been enqueued",
-  "2": "Message already dropped",
-  "3": "Insufficient msg.value for fee",
-  "4": "Exceed maximum replay times",
-  "5": "replay times must be greater than 0"
+  "1": "Pausable: paused",
+  "2": "Provided message has not been enqueued",
+  "3": "Message already dropped",
+  "4": "Insufficient msg.value for fee",
+  "5": "Exceed maximum replay times",
+  "6": "Ownable: caller is not the owner",
+  "7": "replay times must be greater than 0"
  },
  "defs": {
   "est_fee": {
@@ -179,15 +180,27 @@
      "Nat"
     ],
     [
-     "fee",
+     "from",
      "Nat"
     ],
     [
      "mn",
      "Nat"
+    ],
+    [
+     "amt",
+     "Nat"
     ]
    ],
    "guards": [
+    {
+     "require": [
+      "!",
+      "paused"
+     ],
+     "reason": 1,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
     {
      "require": [
       ">",
@@ -199,7 +212,7 @@
       ],
       0
      ],
-     "reason": 1,
+     "reason": 2,
      "src": "contracts/l1/L1CrossDomainMessenger.sol:193"
     },
     {
@@ -212,16 +225,27 @@
        "dr"
       ]
      ],
-     "reason": 2,
+     "reason": 3,
      "src": "contracts/l1/L1CrossDomainMessenger.sol:195"
+    },
+    {
+     "let": "v_fee",
+     "expr": [
+      "call",
+      "est_fee",
+      "from",
+      "wl",
+      "amt"
+     ],
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:198"
     },
     {
      "require": [
       ">=",
       "value",
-      "FEE"
+      "v_fee"
      ],
-     "reason": 3,
+     "reason": 4,
      "src": "contracts/l1/L1CrossDomainMessenger.sol:201"
     },
     {
@@ -244,7 +268,7 @@
       ],
       "maxr"
      ],
-     "reason": 4,
+     "reason": 5,
      "src": "contracts/l1/L1CrossDomainMessenger.sol:226"
     },
     {
@@ -252,7 +276,7 @@
      "expr": [
       "-",
       "value",
-      "FEE"
+      "v_fee"
      ],
      "src": "contracts/l1/L1CrossDomainMessenger.sol:238"
     }
@@ -351,11 +375,20 @@
    "guards": [
     {
      "require": [
+      "==",
+      "OWNER",
+      "who"
+     ],
+     "reason": 6,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    },
+    {
+     "require": [
       ">",
       "val",
       0
      ],
-     "reason": 5,
+     "reason": 7,
      "src": "contracts/l1/L1CrossDomainMessenger.sol:264"
     }
    ],

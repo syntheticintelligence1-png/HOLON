@@ -114,6 +114,47 @@ class TestProvenanceDebt(unittest.TestCase):
             self.assertIn(want, {a["name"] for a in r["actions"]})
 
 
+class TestFidelity(unittest.TestCase):
+    def test_fee_oracle_keyed_on_from(self):
+        """(a) replayMessage's fee guard references `from` and `wl`."""
+        a = next(x for x in facts("l1messenger")["actions"] if x["name"] == "replayMessage")
+        fee = next(g for g in a["guards"] if g.get("expr") and
+                   "est_fee" in json.dumps(g["expr"]))
+        self.assertEqual(fee["expr"], ["call", "est_fee", "from", "wl", "amt"])
+        guard = next(g for g in a["guards"] if g.get("require") == [">=", "value", "v_fee"])
+        self.assertIsNotNone(guard)
+        self.assertIn("from", [i[0] for i in a["inputs"]])
+        self.assertIn("amt", [i[0] for i in a["inputs"]])
+        self.assertIn("paused", json.dumps(a["guards"]))
+
+    def test_no_lfi_lci_params(self):
+        """(b) Rollup reads are per-call inputs, not global params, in submitter/mvrv."""
+        for n in ("submitter", "mvrv"):
+            f = facts(n)
+            for a in f["actions"]:
+                self.assertNotIn("LFI", json.dumps(a["guards"] + [a.get("effects", {})]),
+                                 f"{n}.{a['name']} still references the LFI param")
+                self.assertNotIn("LCI", json.dumps(a["guards"] + [a.get("effects", {})]),
+                                 f"{n}.{a['name']} still references the LCI param")
+            self.assertNotIn("LFI", json.dumps(f.get("params", {})))
+
+    def test_no_dup_disjunctions(self):
+        """(d) no ["||", X, X] / ["&&", X, X] remains in any M3 facts file."""
+        def walk(x, where):
+            if isinstance(x, list):
+                if x and x[0] in ("||", "&&") and len(set(map(repr, x[1:]))) < len(x) - 1:
+                    self.fail(f"dup operand in {where}: {x}")
+                for y in x:
+                    walk(y, where)
+        for n in ("submitter", "mvrv", "l1messenger", "morph_rollup"):
+            f = facts(n)
+            for a in f["actions"]:
+                walk(a["guards"], f"{n}.{a['name']}.guards")
+                walk(a.get("effects", {}), f"{n}.{a['name']}.effects")
+            for d in f.get("defs", {}).values():
+                walk(d.get("body"), f"{n}.defs")
+
+
 class TestM2Identity(unittest.TestCase):
     def test_m2_facts_sha(self):
         import hashlib
@@ -132,11 +173,42 @@ class TestMutantFacts(unittest.TestCase):
         "l1messenger": ("contracts/l1/L1CrossDomainMessenger.sol", "require", "function updateMaxReplayTimes"),
     }
 
+    def _extract_mutant(self, name, rel, mutant):
+        morph = Path(os.environ["HOLON_MORPH_DIR"]).expanduser()
+        td = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, td, True)
+        work = td / "morph"
+        shutil.copytree(morph, work, ignore=shutil.ignore_patterns("node_modules", ".git"), symlinks=True)
+        nm = morph / "contracts" / "node_modules"
+        if not nm.is_dir():
+            nm = morph / "node_modules"
+        if nm.is_dir():
+            (work / "contracts" / "node_modules").symlink_to(nm, target_is_directory=True)
+        (work / "contracts" / rel).write_text(mutant)
+        s = spec(name)
+        env = dict(os.environ)
+        env["HOLON_MORPH_DIR"] = str(work)
+        sp = td / "spec.json"
+        s["output"] = str(td / "facts.json")
+        s["coverage_out"] = str(td / "cov.json")
+        sp.write_text(json.dumps(s, indent=1))
+        r = subprocess.run(
+            ["python3", "-m", "holon.frontends.solidity.extract", str(sp)],
+            cwd=REPO, env=env, capture_output=True, text=True, timeout=600)
+        if r.returncode != 0:
+            self.fail(f"mutant extract failed to compile: {r.stdout[-300:]} {r.stderr[-300:]}")
+        return json.loads((td / "facts.json").read_text())
+
+    def _assert_changes_facts(self, name, mf, why):
+        self.assertNotEqual(
+            json.dumps(mf["actions"], sort_keys=True),
+            json.dumps(facts(name)["actions"], sort_keys=True),
+            f"{name}: {why} left facts unchanged")
+
     def test_mutant_changes_facts(self):
         for name, (rel, kw, action) in self.CONTRACTS.items():
             morph = Path(os.environ["HOLON_MORPH_DIR"]).expanduser()
-            src = morph / "contracts" / rel
-            code = src.read_text()
+            code = (morph / "contracts" / rel).read_text()
             # mutate the first guard line in the file: `if (c) revert E();` loses its
             # body (if binds to the next statement); `require(` gets a `true ||` prefix.
             import re as _re
@@ -150,36 +222,31 @@ class TestMutantFacts(unittest.TestCase):
                 lines[i] = lines[i].replace("require(", "require(true || ", 1)
             else:
                 lines[i] = "        // mutated: guard deleted"
-            mutant = "\n".join(lines)
-            with tempfile.TemporaryDirectory() as td:
-                td = Path(td)
-                # copy the morph tree shallowly enough for solc: symlink keeps paths
-                work = td / "morph"
-                shutil.copytree(morph, work, ignore=shutil.ignore_patterns("node_modules", ".git"), symlinks=True)
-                nm = morph / "contracts" / "node_modules"
-                if not nm.is_dir():
-                    nm = morph / "node_modules"
-                if nm.is_dir():
-                    (work / "contracts" / "node_modules").symlink_to(nm, target_is_directory=True)
-                q = work / "contracts" / rel
-                q.write_text(mutant)
-                s = spec(name)
-                env = dict(os.environ)
-                env["HOLON_MORPH_DIR"] = str(work)
-                sp = td / "spec.json"
-                s["output"] = str(td / "facts.json")
-                s["coverage_out"] = str(td / "cov.json")
-                sp.write_text(json.dumps(s, indent=1))
-                r = subprocess.run(
-                    ["python3", "-m", "holon.frontends.solidity.extract", str(sp)],
-                    cwd=REPO, env=env, capture_output=True, text=True, timeout=600)
-                if r.returncode != 0:
-                    self.fail(f"mutant extract failed to compile: {r.stdout[-300:]} {r.stderr[-300:]}")
-                mf = json.loads((td / "facts.json").read_text())
-                self.assertNotEqual(
-                    json.dumps(mf["actions"], sort_keys=True),
-                    json.dumps(facts(name)["actions"], sort_keys=True),
-                    f"{name}: require-deletion mutant left facts unchanged")
+            mf = self._extract_mutant(name, rel, "\n".join(lines))
+            self._assert_changes_facts(name, mf, "require-deletion mutant")
+
+    def test_fee_key_mutant_changes_facts(self):
+        """(a) replacing `_from` with `_msgSender()` in the fee oracle call changes facts."""
+        morph = Path(os.environ["HOLON_MORPH_DIR"]).expanduser()
+        rel = "contracts/l1/L1CrossDomainMessenger.sol"
+        code = (morph / "contracts" / rel).read_text()
+        self.assertIn("estimateCrossDomainMessageFee(_from", code)
+        mf = self._extract_mutant("l1messenger", rel, code.replace(
+            "estimateCrossDomainMessageFee(_from", "estimateCrossDomainMessageFee(_msgSender()", 1))
+        self._assert_changes_facts("l1messenger", mf, "fee-key mutant")
+
+    def test_whennotpaused_mutant_changes_facts(self):
+        """(c) deleting whenNotPaused from replayMessage changes facts."""
+        morph = Path(os.environ["HOLON_MORPH_DIR"]).expanduser()
+        rel = "contracts/l1/L1CrossDomainMessenger.sol"
+        code = (morph / "contracts" / rel).read_text()
+        # replayMessage signature: `) external payable override whenNotPaused notInExecution {`
+        lines = code.split("\n")
+        j = next(i for i, l in enumerate(lines) if "function replayMessage" in l)
+        i = next(i for i, l in enumerate(lines) if i > j and "whenNotPaused" in l)
+        lines[i] = lines[i].replace("whenNotPaused ", "", 1)
+        mf = self._extract_mutant("l1messenger", rel, "\n".join(lines))
+        self._assert_changes_facts("l1messenger", mf, "whenNotPaused-deletion mutant")
 
 
 class TestSmokeTrace(unittest.TestCase):

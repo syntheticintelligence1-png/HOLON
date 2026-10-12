@@ -107,8 +107,19 @@ def _flat(op, xs):
     return out
 
 
+def _dedup(xs):
+    seen = set()
+    out = []
+    for x in xs:
+        k = repr(x)
+        if k not in seen:
+            seen.add(k)
+            out.append(x)
+    return out
+
+
 def _and(xs):
-    xs = _flat("&&", xs)
+    xs = _dedup(_flat("&&", xs))
     xs = [x for x in xs if x is not True]
     if any(x is False for x in xs):
         return False
@@ -133,7 +144,7 @@ def _and(xs):
 
 
 def _or(xs):
-    xs = _flat("||", xs)
+    xs = _dedup(_flat("||", xs))
     xs = [x for x in xs if x is not False]
     if any(x is True for x in xs):
         return True

@@ -11,8 +11,6 @@
  "abstractions": [],
  "params": {
   "OWNER": 1,
-  "LFI": 7,
-  "LCI": 9,
   "rollup": 5
  },
  "constants_doc": {},
@@ -191,22 +189,18 @@
     [
      "a",
      "Nat"
+    ],
+    [
+     "lfi",
+     "Nat"
     ]
    ],
    "guards": [
     {
      "require": [
-      "||",
-      [
-       ">",
-       "st",
-       "LFI"
-      ],
-      [
-       ">",
-       "st",
-       "LFI"
-      ]
+      ">",
+      "st",
+      "lfi"
      ],
      "reason": 2,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149"
@@ -223,24 +217,12 @@
     },
     {
      "require": [
-      "||",
+      ">=",
+      "st",
       [
-       ">=",
-       "st",
-       [
-        "get",
-        "_latestVerifier",
-        "s"
-       ]
-      ],
-      [
-       ">=",
-       "st",
-       [
-        "get",
-        "_latestVerifier",
-        "s"
-       ]
+       "get",
+       "_latestVerifier",
+       "s"
       ]
      ],
      "reason": 3,
@@ -248,17 +230,9 @@
     },
     {
      "require": [
-      "||",
-      [
-       "!=",
-       "a",
-       0
-      ],
-      [
-       "!=",
-       "a",
-       0
-      ]
+      "!=",
+      "a",
+      0
      ],
      "reason": 4,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:153"

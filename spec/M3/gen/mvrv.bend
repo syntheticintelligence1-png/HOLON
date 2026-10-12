@@ -143,7 +143,7 @@ type HSt is Data:
 
 type HAct is Data:
   A_initialize{who: Nat, r: Nat}
-  A_updateVerifier{who: Nat, v: Nat, st: Nat, a: Nat}
+  A_updateVerifier{who: Nat, v: Nat, st: Nat, a: Nat, lfi: Nat}
   A_verifyAggregateProof{who: Nat, v: Nat, idx: Nat}
 
 def empty_V() -> HV:
@@ -215,7 +215,7 @@ def dec_updateVerifier_2(c: Bool, +a: Nat, +_latestVerifier: HV) -> Dec_updateVe
     case False{}:
       D_updateVerifier_Rev{3n}
     case True{}:
-      dec_updateVerifier_3(Bool.or(Bool.not(Nat.is_eq(a, 0n)), Bool.not(Nat.is_eq(a, 0n))), _latestVerifier)
+      dec_updateVerifier_3(Bool.not(Nat.is_eq(a, 0n)), _latestVerifier)
 
 # contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149
 def dec_updateVerifier_0(c: Bool, +lv: List<&2, HV>, +v: Nat, +st: Nat, +a: Nat) -> Dec_updateVerifier:
@@ -224,22 +224,22 @@ def dec_updateVerifier_0(c: Bool, +lv: List<&2, HV>, +v: Nat, +st: Nat, +a: Nat)
       D_updateVerifier_Rev{2n}
     case True{}:
       +_latestVerifier = nth_d(HV, lv, v, empty_V())
-      dec_updateVerifier_2(Bool.or(Nat.is_ge(st, g_V_s(_latestVerifier)), Nat.is_ge(st, g_V_s(_latestVerifier))), a, _latestVerifier)
+      dec_updateVerifier_2(Nat.is_ge(st, g_V_s(_latestVerifier)), a, _latestVerifier)
 
-def decide_updateVerifier(+lv: List<&2, HV>, +who: Nat, +v: Nat, +st: Nat, +a: Nat) -> Dec_updateVerifier:
-  dec_updateVerifier_0(Bool.or(Nat.is_gt(st, 7n), Nat.is_gt(st, 7n)), lv, v, st, a)
+def decide_updateVerifier(+lv: List<&2, HV>, +who: Nat, +v: Nat, +st: Nat, +a: Nat, +lfi: Nat) -> Dec_updateVerifier:
+  dec_updateVerifier_0(Nat.is_gt(st, lfi), lv, v, st, a)
 
-def exec_updateVerifier(d: Dec_updateVerifier, +t: Nat, +own: Nat, +lv: List<&2, HV>, +lvv: List<&2, List<&2, HV>>, +log: List<&2, HObs>, +who: Nat, +v: Nat, +st: Nat, +a: Nat) -> HSt:
+def exec_updateVerifier(d: Dec_updateVerifier, +t: Nat, +own: Nat, +lv: List<&2, HV>, +lvv: List<&2, List<&2, HV>>, +log: List<&2, HObs>, +who: Nat, +v: Nat, +st: Nat, +a: Nat, +lfi: Nat) -> HSt:
   match d:
     case D_updateVerifier_Rev{code}:
       HSt{t, own, lv, lvv, Con{O_Rev{code}, log}}
     case D_updateVerifier_Ok{+_latestVerifier}:
       HSt{t, own, set_d(HV, lv, v, with_V_a_s(_latestVerifier, a, ite(Nat, Nat.is_lt(g_V_s(_latestVerifier), st), st, g_V_s(_latestVerifier))), empty_V()), ite(List<&2, List<&2, HV>>, Bool.and(Nat.is_lt(g_V_s(_latestVerifier), st), Bool.not(Nat.is_eq(g_V_a(_latestVerifier), 0n))), set_d(List<&2, HV>, lvv, v, List.append(&2, HV, nth_d(List<&2, HV>, lvv, v, Nil{}), [with_V_(_latestVerifier, )]), Nil{}), lvv), Con{O_Ok{}, log}}
 
-def step_updateVerifier(s: HSt, +who: Nat, +v: Nat, +st: Nat, +a: Nat) -> HSt:
+def step_updateVerifier(s: HSt, +who: Nat, +v: Nat, +st: Nat, +a: Nat, +lfi: Nat) -> HSt:
   match s:
     case HSt{+t, +own, +lv, +lvv, +log}:
-      exec_updateVerifier(decide_updateVerifier(lv, who, v, st, a), t, own, lv, lvv, log, who, v, st, a)
+      exec_updateVerifier(decide_updateVerifier(lv, who, v, st, a, lfi), t, own, lv, lvv, log, who, v, st, a, lfi)
 
 type Dec_verifyAggregateProof is Data:
   D_verifyAggregateProof_Rev{code: Nat}
@@ -265,8 +265,8 @@ def step(a: HAct, s: HSt) -> HSt:
   match a:
     case A_initialize{+who, +r}:
       step_initialize(s, who, r)
-    case A_updateVerifier{+who, +v, +st, +a}:
-      step_updateVerifier(s, who, v, st, a)
+    case A_updateVerifier{+who, +v, +st, +a, +lfi}:
+      step_updateVerifier(s, who, v, st, a, lfi)
     case A_verifyAggregateProof{+who, +v, +idx}:
       step_verifyAggregateProof(s, who, v, idx)
 
@@ -358,7 +358,7 @@ def is_initialize(a: HAct) -> Bool:
   match a:
     case A_initialize{_, _}:
       True{}
-    case A_updateVerifier{_, _, _, _}:
+    case A_updateVerifier{_, _, _, _, _}:
       False{}
     case A_verifyAggregateProof{_, _, _}:
       False{}
@@ -367,7 +367,7 @@ def is_updateVerifier(a: HAct) -> Bool:
   match a:
     case A_initialize{_, _}:
       False{}
-    case A_updateVerifier{_, _, _, _}:
+    case A_updateVerifier{_, _, _, _, _}:
       True{}
     case A_verifyAggregateProof{_, _, _}:
       False{}
@@ -376,7 +376,7 @@ def is_verifyAggregateProof(a: HAct) -> Bool:
   match a:
     case A_initialize{_, _}:
       False{}
-    case A_updateVerifier{_, _, _, _}:
+    case A_updateVerifier{_, _, _, _, _}:
       False{}
     case A_verifyAggregateProof{_, _, _}:
       True{}
@@ -389,7 +389,7 @@ def cost(tr: List<&2, HAct>) -> Nat:
       match a:
         case A_initialize{_, _}:
           Nat.add(0n, cost(rest))
-        case A_updateVerifier{_, _, _, _}:
+        case A_updateVerifier{_, _, _, _, _}:
           Nat.add(0n, cost(rest))
         case A_verifyAggregateProof{_, _, _}:
           Nat.add(0n, cost(rest))
@@ -402,7 +402,7 @@ def elapsed(tr: List<&2, HAct>) -> Nat:
       match a:
         case A_initialize{_, _}:
           Nat.add(0n, elapsed(rest))
-        case A_updateVerifier{_, _, _, _}:
+        case A_updateVerifier{_, _, _, _, _}:
           Nat.add(0n, elapsed(rest))
         case A_verifyAggregateProof{_, _, _}:
           Nat.add(0n, elapsed(rest))
@@ -412,7 +412,7 @@ def perm(a: HAct) -> Bool:
   match a:
     case A_initialize{_, _}:
       False{}
-    case A_updateVerifier{_, _, _, _}:
+    case A_updateVerifier{_, _, _, _, _}:
       False{}
     case A_verifyAggregateProof{_, _, _}:
       True{}

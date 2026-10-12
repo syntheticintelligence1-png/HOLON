@@ -142,7 +142,7 @@ type HSt is Data:
   HSt{t: Nat, own: Nat, maxr: Nat, mrt: List<&2, HRS>, pri: List<&2, Nat>, mst: List<&2, Nat>, wl: List<&2, Nat>, bf: Nat, dr: List<&2, Nat>, fq: Nat, paused: Bool, log: List<&2, HObs>}
 
 type HAct is Data:
-  A_replayMessage{who: Nat, xh: Nat, value: Nat, qi: Nat, fee: Nat, mn: Nat}
+  A_replayMessage{who: Nat, xh: Nat, value: Nat, qi: Nat, from: Nat, mn: Nat, amt: Nat}
   A_updateMaxReplayTimes{who: Nat, val: Nat}
 
 def empty_RS() -> HRS:
@@ -161,68 +161,85 @@ type Dec_replayMessage is Data:
   D_replayMessage_Ok{_replayState: HRS}
 
 # contracts/l1/L1CrossDomainMessenger.sol:226
-def dec_replayMessage_4(c: Bool, +value: Nat, +_replayState: HRS) -> Dec_replayMessage:
+def dec_replayMessage_6(c: Bool, +value: Nat, +v_fee: Nat, +_replayState: HRS) -> Dec_replayMessage:
+  match c:
+    case False{}:
+      D_replayMessage_Rev{5n}
+    case True{}:
+      +v_refund = Nat.sub(value, v_fee)
+      D_replayMessage_Ok{_replayState}
+
+# contracts/l1/L1CrossDomainMessenger.sol:201
+def dec_replayMessage_4(c: Bool, +maxr: Nat, +mrt: List<&2, HRS>, +xh: Nat, +value: Nat, +v_fee: Nat) -> Dec_replayMessage:
   match c:
     case False{}:
       D_replayMessage_Rev{4n}
     case True{}:
-      +v_refund = Nat.sub(value, 9n)
-      D_replayMessage_Ok{_replayState}
+      +_replayState = nth_d(HRS, mrt, xh, empty_RS())
+      dec_replayMessage_6(Nat.is_lt(g_RS_tm(_replayState), maxr), value, v_fee, _replayState)
 
-# contracts/l1/L1CrossDomainMessenger.sol:201
-def dec_replayMessage_2(c: Bool, +maxr: Nat, +mrt: List<&2, HRS>, +xh: Nat, +value: Nat) -> Dec_replayMessage:
+# contracts/l1/L1CrossDomainMessenger.sol:195
+def dec_replayMessage_2(c: Bool, +maxr: Nat, +mrt: List<&2, HRS>, +wl: List<&2, Nat>, +xh: Nat, +value: Nat, +from: Nat, +amt: Nat) -> Dec_replayMessage:
   match c:
     case False{}:
       D_replayMessage_Rev{3n}
     case True{}:
-      +_replayState = nth_d(HRS, mrt, xh, empty_RS())
-      dec_replayMessage_4(Nat.is_lt(g_RS_tm(_replayState), maxr), value, _replayState)
+      +v_fee = d_est_fee(from, wl, amt)
+      dec_replayMessage_4(Nat.is_ge(value, v_fee), maxr, mrt, xh, value, v_fee)
 
-# contracts/l1/L1CrossDomainMessenger.sol:195
-def dec_replayMessage_1(c: Bool, +maxr: Nat, +mrt: List<&2, HRS>, +xh: Nat, +value: Nat) -> Dec_replayMessage:
+# contracts/l1/L1CrossDomainMessenger.sol:193
+def dec_replayMessage_1(c: Bool, +maxr: Nat, +mrt: List<&2, HRS>, +wl: List<&2, Nat>, +dr: List<&2, Nat>, +xh: Nat, +value: Nat, +from: Nat, +amt: Nat) -> Dec_replayMessage:
   match c:
     case False{}:
       D_replayMessage_Rev{2n}
     case True{}:
-      dec_replayMessage_2(Nat.is_ge(value, 9n), maxr, mrt, xh, value)
+      dec_replayMessage_2(Bool.not(b_mem(xh, dr)), maxr, mrt, wl, xh, value, from, amt)
 
-# contracts/l1/L1CrossDomainMessenger.sol:193
-def dec_replayMessage_0(c: Bool, +maxr: Nat, +mrt: List<&2, HRS>, +dr: List<&2, Nat>, +xh: Nat, +value: Nat) -> Dec_replayMessage:
+# @openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def dec_replayMessage_0(c: Bool, +maxr: Nat, +mrt: List<&2, HRS>, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +dr: List<&2, Nat>, +xh: Nat, +value: Nat, +from: Nat, +amt: Nat) -> Dec_replayMessage:
   match c:
     case False{}:
       D_replayMessage_Rev{1n}
     case True{}:
-      dec_replayMessage_1(Bool.not(b_mem(xh, dr)), maxr, mrt, xh, value)
+      dec_replayMessage_1(Nat.is_gt(b_nth(mst, xh), 0n), maxr, mrt, wl, dr, xh, value, from, amt)
 
-def decide_replayMessage(+maxr: Nat, +mrt: List<&2, HRS>, +mst: List<&2, Nat>, +dr: List<&2, Nat>, +who: Nat, +xh: Nat, +value: Nat, +qi: Nat, +fee: Nat, +mn: Nat) -> Dec_replayMessage:
-  dec_replayMessage_0(Nat.is_gt(b_nth(mst, xh), 0n), maxr, mrt, dr, xh, value)
+def decide_replayMessage(+maxr: Nat, +mrt: List<&2, HRS>, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +dr: List<&2, Nat>, +paused: Bool, +who: Nat, +xh: Nat, +value: Nat, +qi: Nat, +from: Nat, +mn: Nat, +amt: Nat) -> Dec_replayMessage:
+  dec_replayMessage_0(Bool.not(paused), maxr, mrt, mst, wl, dr, xh, value, from, amt)
 
-def exec_replayMessage(d: Dec_replayMessage, +t: Nat, +own: Nat, +maxr: Nat, +mrt: List<&2, HRS>, +pri: List<&2, Nat>, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +bf: Nat, +dr: List<&2, Nat>, +fq: Nat, +paused: Bool, +log: List<&2, HObs>, +who: Nat, +xh: Nat, +value: Nat, +qi: Nat, +fee: Nat, +mn: Nat) -> HSt:
+def exec_replayMessage(d: Dec_replayMessage, +t: Nat, +own: Nat, +maxr: Nat, +mrt: List<&2, HRS>, +pri: List<&2, Nat>, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +bf: Nat, +dr: List<&2, Nat>, +fq: Nat, +paused: Bool, +log: List<&2, HObs>, +who: Nat, +xh: Nat, +value: Nat, +qi: Nat, +from: Nat, +mn: Nat, +amt: Nat) -> HSt:
   match d:
     case D_replayMessage_Rev{code}:
       HSt{t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, Con{O_Rev{code}, log}}
     case D_replayMessage_Ok{+_replayState}:
       HSt{t, own, maxr, set_d(HRS, mrt, xh, with_RS_li_tm(_replayState, 8n, Nat.add(g_RS_tm(_replayState), 1n)), empty_RS()), ite(List<&2, Nat>, Bool.not(Nat.is_eq(g_RS_li(_replayState), 0n)), b_set_nat(pri, 8n, Nat.add(g_RS_li(_replayState), 1n)), ite(List<&2, Nat>, Nat.is_eq(g_RS_li(_replayState), 0n), b_set_nat(pri, 8n, Nat.add(mn, 1n)), pri)), mst, wl, bf, dr, fq, paused, Con{O_Ok{}, log}}
 
-def step_replayMessage(s: HSt, +who: Nat, +xh: Nat, +value: Nat, +qi: Nat, +fee: Nat, +mn: Nat) -> HSt:
+def step_replayMessage(s: HSt, +who: Nat, +xh: Nat, +value: Nat, +qi: Nat, +from: Nat, +mn: Nat, +amt: Nat) -> HSt:
   match s:
     case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
-      exec_replayMessage(decide_replayMessage(maxr, mrt, mst, dr, who, xh, value, qi, fee, mn), t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, log, who, xh, value, qi, fee, mn)
+      exec_replayMessage(decide_replayMessage(maxr, mrt, mst, wl, dr, paused, who, xh, value, qi, from, mn, amt), t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, log, who, xh, value, qi, from, mn, amt)
 
 type Dec_updateMaxReplayTimes is Data:
   D_updateMaxReplayTimes_Rev{code: Nat}
   D_updateMaxReplayTimes_Ok{}
 
 # contracts/l1/L1CrossDomainMessenger.sol:264
-def dec_updateMaxReplayTimes_0(c: Bool) -> Dec_updateMaxReplayTimes:
+def dec_updateMaxReplayTimes_1(c: Bool) -> Dec_updateMaxReplayTimes:
   match c:
     case False{}:
-      D_updateMaxReplayTimes_Rev{5n}
+      D_updateMaxReplayTimes_Rev{7n}
     case True{}:
       D_updateMaxReplayTimes_Ok{}
 
+# @openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56
+def dec_updateMaxReplayTimes_0(c: Bool, +val: Nat) -> Dec_updateMaxReplayTimes:
+  match c:
+    case False{}:
+      D_updateMaxReplayTimes_Rev{6n}
+    case True{}:
+      dec_updateMaxReplayTimes_1(Nat.is_gt(val, 0n))
+
 def decide_updateMaxReplayTimes(+who: Nat, +val: Nat) -> Dec_updateMaxReplayTimes:
-  dec_updateMaxReplayTimes_0(Nat.is_gt(val, 0n))
+  dec_updateMaxReplayTimes_0(Nat.is_eq(1n, who), val)
 
 def exec_updateMaxReplayTimes(d: Dec_updateMaxReplayTimes, +t: Nat, +own: Nat, +maxr: Nat, +mrt: List<&2, HRS>, +pri: List<&2, Nat>, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +bf: Nat, +dr: List<&2, Nat>, +fq: Nat, +paused: Bool, +log: List<&2, HObs>, +who: Nat, +val: Nat) -> HSt:
   match d:
@@ -238,8 +255,8 @@ def step_updateMaxReplayTimes(s: HSt, +who: Nat, +val: Nat) -> HSt:
 
 def step(a: HAct, s: HSt) -> HSt:
   match a:
-    case A_replayMessage{+who, +xh, +value, +qi, +fee, +mn}:
-      step_replayMessage(s, who, xh, value, qi, fee, mn)
+    case A_replayMessage{+who, +xh, +value, +qi, +from, +mn, +amt}:
+      step_replayMessage(s, who, xh, value, qi, from, mn, amt)
     case A_updateMaxReplayTimes{+who, +val}:
       step_updateMaxReplayTimes(s, who, val)
 
@@ -329,14 +346,14 @@ def eq_obs_list(xs: List<&2, HObs>, ys: List<&2, HObs>) -> Bool:
 
 def is_replayMessage(a: HAct) -> Bool:
   match a:
-    case A_replayMessage{_, _, _, _, _, _}:
+    case A_replayMessage{_, _, _, _, _, _, _}:
       True{}
     case A_updateMaxReplayTimes{_, _}:
       False{}
 
 def is_updateMaxReplayTimes(a: HAct) -> Bool:
   match a:
-    case A_replayMessage{_, _, _, _, _, _}:
+    case A_replayMessage{_, _, _, _, _, _, _}:
       False{}
     case A_updateMaxReplayTimes{_, _}:
       True{}
@@ -347,7 +364,7 @@ def cost(tr: List<&2, HAct>) -> Nat:
       0n
     case Con{a, rest}:
       match a:
-        case A_replayMessage{_, _, _, _, _, _}:
+        case A_replayMessage{_, _, _, _, _, _, _}:
           Nat.add(0n, cost(rest))
         case A_updateMaxReplayTimes{_, _}:
           Nat.add(0n, cost(rest))
@@ -358,7 +375,7 @@ def elapsed(tr: List<&2, HAct>) -> Nat:
       0n
     case Con{a, rest}:
       match a:
-        case A_replayMessage{_, _, _, _, _, _}:
+        case A_replayMessage{_, _, _, _, _, _, _}:
           Nat.add(0n, elapsed(rest))
         case A_updateMaxReplayTimes{_, _}:
           Nat.add(0n, elapsed(rest))
@@ -366,7 +383,7 @@ def elapsed(tr: List<&2, HAct>) -> Nat:
 # actions any principal may take (no role modifier): the permissionless class X of DISCH
 def perm(a: HAct) -> Bool:
   match a:
-    case A_replayMessage{_, _, _, _, _, _}:
+    case A_replayMessage{_, _, _, _, _, _, _}:
       True{}
     case A_updateMaxReplayTimes{_, _}:
       False{}

@@ -131,13 +131,13 @@ type HSt is Data:
 type HAct is Data:
   A_initialize{who: Nat, owner_: Nat, rollup_: Nat, mins_: Nat, dep_: Nat, rew_: Nat}
   A_addSubmitter{who: Nat, sub: Nat}
-  A_removeSubmitter{who: Nat, sub: Nat}
+  A_removeSubmitter{who: Nat, sub: Nat, lci: Nat}
   A_setMinimumStake{who: Nat, val: Nat}
   A_updateChallengeDeposit{who: Nat, val: Nat}
   A_updateRewardPercentage{who: Nat, val: Nat}
   A_stake{who: Nat, sub: Nat, value: Nat}
-  A_withdraw{who: Nat}
-  A_claimWithdrawal{who: Nat, rc: Nat}
+  A_withdraw{who: Nat, lci: Nat}
+  A_claimWithdrawal{who: Nat, rc: Nat, lfi: Nat}
   A_slash{who: Nat, sub: Nat, reward: Nat}
   A_claimSlashRemaining{who: Nat, rc: Nat}
 
@@ -243,20 +243,20 @@ def dec_removeSubmitter_0(c: Bool, +stake: List<&2, Nat>, +sub: Nat) -> Dec_remo
       +vamount = b_nth(stake, sub)
       D_removeSubmitter_Ok{vamount}
 
-def decide_removeSubmitter(+reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +who: Nat, +sub: Nat) -> Dec_removeSubmitter:
+def decide_removeSubmitter(+reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +who: Nat, +sub: Nat, +lci: Nat) -> Dec_removeSubmitter:
   dec_removeSubmitter_0(Bool.and(b_mem(sub, reg), Bool.not(b_mem(sub, wdr))), stake, sub)
 
-def exec_removeSubmitter(d: Dec_removeSubmitter, +t: Nat, +own: Nat, +min_stake: Nat, +dep: Nat, +rew: Nat, +srem: Nat, +reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +log: List<&2, HObs>, +who: Nat, +sub: Nat) -> HSt:
+def exec_removeSubmitter(d: Dec_removeSubmitter, +t: Nat, +own: Nat, +min_stake: Nat, +dep: Nat, +rew: Nat, +srem: Nat, +reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +log: List<&2, HObs>, +who: Nat, +sub: Nat, +lci: Nat) -> HSt:
   match d:
     case D_removeSubmitter_Rev{code}:
       HSt{t, own, min_stake, dep, rew, srem, reg, stake, wdr, wbi, Con{O_Rev{code}, log}}
     case D_removeSubmitter_Ok{+vamount}:
-      HSt{t, own, min_stake, dep, rew, srem, b_remove(sub, reg), stake, ite(List<&2, Nat>, Nat.is_gt(vamount, 0n), ite(List<&2, Nat>, b_mem(sub, wdr), wdr, List.append(&2, Nat, wdr, [sub])), wdr), ite(List<&2, Nat>, Nat.is_gt(vamount, 0n), b_set_nat(wbi, sub, 9n), wbi), Con{O_Ok{}, log}}
+      HSt{t, own, min_stake, dep, rew, srem, b_remove(sub, reg), stake, ite(List<&2, Nat>, Nat.is_gt(vamount, 0n), ite(List<&2, Nat>, b_mem(sub, wdr), wdr, List.append(&2, Nat, wdr, [sub])), wdr), ite(List<&2, Nat>, Nat.is_gt(vamount, 0n), b_set_nat(wbi, sub, lci), wbi), Con{O_Ok{}, log}}
 
-def step_removeSubmitter(s: HSt, +who: Nat, +sub: Nat) -> HSt:
+def step_removeSubmitter(s: HSt, +who: Nat, +sub: Nat, +lci: Nat) -> HSt:
   match s:
     case HSt{+t, +own, +min_stake, +dep, +rew, +srem, +reg, +stake, +wdr, +wbi, +log}:
-      exec_removeSubmitter(decide_removeSubmitter(reg, stake, wdr, who, sub), t, own, min_stake, dep, rew, srem, reg, stake, wdr, wbi, log, who, sub)
+      exec_removeSubmitter(decide_removeSubmitter(reg, stake, wdr, who, sub, lci), t, own, min_stake, dep, rew, srem, reg, stake, wdr, wbi, log, who, sub, lci)
 
 type Dec_setMinimumStake is Data:
   D_setMinimumStake_Rev{code: Nat}
@@ -387,20 +387,20 @@ def dec_withdraw_0(c: Bool) -> Dec_withdraw:
     case True{}:
       D_withdraw_Ok{}
 
-def decide_withdraw(+reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +who: Nat) -> Dec_withdraw:
+def decide_withdraw(+reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +who: Nat, +lci: Nat) -> Dec_withdraw:
   dec_withdraw_0(Bool.and(b_mem(who, reg), Bool.and(Bool.not(b_mem(who, wdr)), Nat.is_gt(b_nth(stake, who), 0n))))
 
-def exec_withdraw(d: Dec_withdraw, +t: Nat, +own: Nat, +min_stake: Nat, +dep: Nat, +rew: Nat, +srem: Nat, +reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +log: List<&2, HObs>, +who: Nat) -> HSt:
+def exec_withdraw(d: Dec_withdraw, +t: Nat, +own: Nat, +min_stake: Nat, +dep: Nat, +rew: Nat, +srem: Nat, +reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +log: List<&2, HObs>, +who: Nat, +lci: Nat) -> HSt:
   match d:
     case D_withdraw_Rev{code}:
       HSt{t, own, min_stake, dep, rew, srem, reg, stake, wdr, wbi, Con{O_Rev{code}, log}}
     case D_withdraw_Ok{}:
-      HSt{t, own, min_stake, dep, rew, srem, b_remove(who, reg), stake, ite(List<&2, Nat>, b_mem(who, wdr), wdr, List.append(&2, Nat, wdr, [who])), b_set_nat(wbi, who, 9n), Con{O_Ok{}, log}}
+      HSt{t, own, min_stake, dep, rew, srem, b_remove(who, reg), stake, ite(List<&2, Nat>, b_mem(who, wdr), wdr, List.append(&2, Nat, wdr, [who])), b_set_nat(wbi, who, lci), Con{O_Ok{}, log}}
 
-def step_withdraw(s: HSt, +who: Nat) -> HSt:
+def step_withdraw(s: HSt, +who: Nat, +lci: Nat) -> HSt:
   match s:
     case HSt{+t, +own, +min_stake, +dep, +rew, +srem, +reg, +stake, +wdr, +wbi, +log}:
-      exec_withdraw(decide_withdraw(reg, stake, wdr, who), t, own, min_stake, dep, rew, srem, reg, stake, wdr, wbi, log, who)
+      exec_withdraw(decide_withdraw(reg, stake, wdr, who, lci), t, own, min_stake, dep, rew, srem, reg, stake, wdr, wbi, log, who, lci)
 
 type Dec_claimWithdrawal is Data:
   D_claimWithdrawal_Rev{code: Nat}
@@ -416,35 +416,35 @@ def dec_claimWithdrawal_2(c: Bool, +stake: List<&2, Nat>, +who: Nat) -> Dec_clai
       D_claimWithdrawal_Ok{}
 
 # contracts/l1/rollup/Submitter.sol:132
-def dec_claimWithdrawal_1(c: Bool, +stake: List<&2, Nat>, +wbi: List<&2, Nat>, +who: Nat) -> Dec_claimWithdrawal:
+def dec_claimWithdrawal_1(c: Bool, +stake: List<&2, Nat>, +wbi: List<&2, Nat>, +who: Nat, +lfi: Nat) -> Dec_claimWithdrawal:
   match c:
     case False{}:
       D_claimWithdrawal_Rev{11n}
     case True{}:
-      dec_claimWithdrawal_2(Nat.is_ge(7n, b_nth(wbi, who)), stake, who)
+      dec_claimWithdrawal_2(Nat.is_ge(lfi, b_nth(wbi, who)), stake, who)
 
 # contracts/l1/rollup/Submitter.sol:131
-def dec_claimWithdrawal_0(c: Bool, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +who: Nat) -> Dec_claimWithdrawal:
+def dec_claimWithdrawal_0(c: Bool, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +who: Nat, +lfi: Nat) -> Dec_claimWithdrawal:
   match c:
     case False{}:
       D_claimWithdrawal_Rev{10n}
     case True{}:
-      dec_claimWithdrawal_1(b_mem(who, wdr), stake, wbi, who)
+      dec_claimWithdrawal_1(b_mem(who, wdr), stake, wbi, who, lfi)
 
-def decide_claimWithdrawal(+stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +who: Nat, +rc: Nat) -> Dec_claimWithdrawal:
-  dec_claimWithdrawal_0(Bool.not(Nat.is_eq(rc, 0n)), stake, wdr, wbi, who)
+def decide_claimWithdrawal(+stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +who: Nat, +rc: Nat, +lfi: Nat) -> Dec_claimWithdrawal:
+  dec_claimWithdrawal_0(Bool.not(Nat.is_eq(rc, 0n)), stake, wdr, wbi, who, lfi)
 
-def exec_claimWithdrawal(d: Dec_claimWithdrawal, +t: Nat, +own: Nat, +min_stake: Nat, +dep: Nat, +rew: Nat, +srem: Nat, +reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +log: List<&2, HObs>, +who: Nat, +rc: Nat) -> HSt:
+def exec_claimWithdrawal(d: Dec_claimWithdrawal, +t: Nat, +own: Nat, +min_stake: Nat, +dep: Nat, +rew: Nat, +srem: Nat, +reg: List<&2, Nat>, +stake: List<&2, Nat>, +wdr: List<&2, Nat>, +wbi: List<&2, Nat>, +log: List<&2, HObs>, +who: Nat, +rc: Nat, +lfi: Nat) -> HSt:
   match d:
     case D_claimWithdrawal_Rev{code}:
       HSt{t, own, min_stake, dep, rew, srem, reg, stake, wdr, wbi, Con{O_Rev{code}, log}}
     case D_claimWithdrawal_Ok{}:
       HSt{t, own, min_stake, dep, rew, srem, reg, b_set_nat(stake, who, 0n), b_remove(who, wdr), b_set_nat(wbi, who, 0n), Con{O_Ok{}, log}}
 
-def step_claimWithdrawal(s: HSt, +who: Nat, +rc: Nat) -> HSt:
+def step_claimWithdrawal(s: HSt, +who: Nat, +rc: Nat, +lfi: Nat) -> HSt:
   match s:
     case HSt{+t, +own, +min_stake, +dep, +rew, +srem, +reg, +stake, +wdr, +wbi, +log}:
-      exec_claimWithdrawal(decide_claimWithdrawal(stake, wdr, wbi, who, rc), t, own, min_stake, dep, rew, srem, reg, stake, wdr, wbi, log, who, rc)
+      exec_claimWithdrawal(decide_claimWithdrawal(stake, wdr, wbi, who, rc, lfi), t, own, min_stake, dep, rew, srem, reg, stake, wdr, wbi, log, who, rc, lfi)
 
 type Dec_slash is Data:
   D_slash_Rev{code: Nat}
@@ -523,8 +523,8 @@ def step(a: HAct, s: HSt) -> HSt:
       step_initialize(s, who, owner_, rollup_, mins_, dep_, rew_)
     case A_addSubmitter{+who, +sub}:
       step_addSubmitter(s, who, sub)
-    case A_removeSubmitter{+who, +sub}:
-      step_removeSubmitter(s, who, sub)
+    case A_removeSubmitter{+who, +sub, +lci}:
+      step_removeSubmitter(s, who, sub, lci)
     case A_setMinimumStake{+who, +val}:
       step_setMinimumStake(s, who, val)
     case A_updateChallengeDeposit{+who, +val}:
@@ -533,10 +533,10 @@ def step(a: HAct, s: HSt) -> HSt:
       step_updateRewardPercentage(s, who, val)
     case A_stake{+who, +sub, +value}:
       step_stake(s, who, sub, value)
-    case A_withdraw{+who}:
-      step_withdraw(s, who)
-    case A_claimWithdrawal{+who, +rc}:
-      step_claimWithdrawal(s, who, rc)
+    case A_withdraw{+who, +lci}:
+      step_withdraw(s, who, lci)
+    case A_claimWithdrawal{+who, +rc, +lfi}:
+      step_claimWithdrawal(s, who, rc, lfi)
     case A_slash{+who, +sub, +reward}:
       step_slash(s, who, sub, reward)
     case A_claimSlashRemaining{+who, +rc}:
@@ -632,7 +632,7 @@ def is_initialize(a: HAct) -> Bool:
       True{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -642,9 +642,9 @@ def is_initialize(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       False{}
@@ -657,7 +657,7 @@ def is_addSubmitter(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       True{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -667,9 +667,9 @@ def is_addSubmitter(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       False{}
@@ -682,7 +682,7 @@ def is_removeSubmitter(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       True{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -692,9 +692,9 @@ def is_removeSubmitter(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       False{}
@@ -707,7 +707,7 @@ def is_setMinimumStake(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       True{}
@@ -717,9 +717,9 @@ def is_setMinimumStake(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       False{}
@@ -732,7 +732,7 @@ def is_updateChallengeDeposit(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -742,9 +742,9 @@ def is_updateChallengeDeposit(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       False{}
@@ -757,7 +757,7 @@ def is_updateRewardPercentage(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -767,9 +767,9 @@ def is_updateRewardPercentage(a: HAct) -> Bool:
       True{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       False{}
@@ -782,7 +782,7 @@ def is_stake(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -792,9 +792,9 @@ def is_stake(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       True{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       False{}
@@ -807,7 +807,7 @@ def is_withdraw(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -817,9 +817,9 @@ def is_withdraw(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       True{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       False{}
@@ -832,7 +832,7 @@ def is_claimWithdrawal(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -842,9 +842,9 @@ def is_claimWithdrawal(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       True{}
     case A_slash{_, _, _}:
       False{}
@@ -857,7 +857,7 @@ def is_slash(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -867,9 +867,9 @@ def is_slash(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       True{}
@@ -882,7 +882,7 @@ def is_claimSlashRemaining(a: HAct) -> Bool:
       False{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -892,9 +892,9 @@ def is_claimSlashRemaining(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       False{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       False{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       False{}
     case A_slash{_, _, _}:
       False{}
@@ -911,7 +911,7 @@ def cost(tr: List<&2, HAct>) -> Nat:
           Nat.add(0n, cost(rest))
         case A_addSubmitter{_, _}:
           Nat.add(0n, cost(rest))
-        case A_removeSubmitter{_, _}:
+        case A_removeSubmitter{_, _, _}:
           Nat.add(0n, cost(rest))
         case A_setMinimumStake{_, _}:
           Nat.add(0n, cost(rest))
@@ -921,9 +921,9 @@ def cost(tr: List<&2, HAct>) -> Nat:
           Nat.add(0n, cost(rest))
         case A_stake{_, _, _}:
           Nat.add(0n, cost(rest))
-        case A_withdraw{_}:
+        case A_withdraw{_, _}:
           Nat.add(0n, cost(rest))
-        case A_claimWithdrawal{_, _}:
+        case A_claimWithdrawal{_, _, _}:
           Nat.add(0n, cost(rest))
         case A_slash{_, _, _}:
           Nat.add(0n, cost(rest))
@@ -940,7 +940,7 @@ def elapsed(tr: List<&2, HAct>) -> Nat:
           Nat.add(0n, elapsed(rest))
         case A_addSubmitter{_, _}:
           Nat.add(0n, elapsed(rest))
-        case A_removeSubmitter{_, _}:
+        case A_removeSubmitter{_, _, _}:
           Nat.add(0n, elapsed(rest))
         case A_setMinimumStake{_, _}:
           Nat.add(0n, elapsed(rest))
@@ -950,9 +950,9 @@ def elapsed(tr: List<&2, HAct>) -> Nat:
           Nat.add(0n, elapsed(rest))
         case A_stake{_, _, _}:
           Nat.add(0n, elapsed(rest))
-        case A_withdraw{_}:
+        case A_withdraw{_, _}:
           Nat.add(0n, elapsed(rest))
-        case A_claimWithdrawal{_, _}:
+        case A_claimWithdrawal{_, _, _}:
           Nat.add(0n, elapsed(rest))
         case A_slash{_, _, _}:
           Nat.add(0n, elapsed(rest))
@@ -966,7 +966,7 @@ def perm(a: HAct) -> Bool:
       True{}
     case A_addSubmitter{_, _}:
       False{}
-    case A_removeSubmitter{_, _}:
+    case A_removeSubmitter{_, _, _}:
       False{}
     case A_setMinimumStake{_, _}:
       False{}
@@ -976,9 +976,9 @@ def perm(a: HAct) -> Bool:
       False{}
     case A_stake{_, _, _}:
       True{}
-    case A_withdraw{_}:
+    case A_withdraw{_, _}:
       True{}
-    case A_claimWithdrawal{_, _}:
+    case A_claimWithdrawal{_, _, _}:
       True{}
     case A_slash{_, _, _}:
       False{}

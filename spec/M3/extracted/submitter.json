@@ -11,8 +11,6 @@
  "abstractions": [],
  "params": {
   "OWNER": 1,
-  "LFI": 7,
-  "LCI": 9,
   "rollupContract": 6
  },
  "constants_doc": {},
@@ -362,6 +360,10 @@
     [
      "sub",
      "Nat"
+    ],
+    [
+     "lci",
+     "Nat"
     ]
    ],
    "guards": [
@@ -442,7 +444,7 @@
       "set_nat",
       "wbi",
       "sub",
-      "LCI"
+      "lci"
      ],
      "wbi"
     ]
@@ -655,6 +657,10 @@
     [
      "who",
      "Nat"
+    ],
+    [
+     "lci",
+     "Nat"
     ]
    ],
    "guards": [
@@ -719,7 +725,7 @@
      "set_nat",
      "wbi",
      "who",
-     "LCI"
+     "lci"
     ]
    }
   },
@@ -734,6 +740,10 @@
     ],
     [
      "rc",
+     "Nat"
+    ],
+    [
+     "lfi",
      "Nat"
     ]
    ],
@@ -760,7 +770,7 @@
     {
      "require": [
       ">=",
-      "LFI",
+      "lfi",
       [
        "call",
        "nth",
