@@ -1,0 +1,30 @@
+{
+  "facts_version": "holon-facts/0.2",
+  "target": {"repo": "holon/toy-oracle", "commit": "0000000000000000000000000000000000000000",
+             "scope": "a toy commit-and-decode machine that calls a hash (agg) and an oracle (dec): the fixture for hashes and oracles as parameters (I12)"},
+  "extraction": {"method": "hand-written fixture", "date": "2026-10-12"},
+  "abstractions": ["Values are Nat. commit stores the hash of a one-element list; post stores the decoding of its input padded by PAD."],
+  "params": {"AGG_BASE": 1000, "PAD": 8},
+  "types": {},
+  "state": [["com", "Nat", "the last commitment"],
+            ["got", "Nat", "the last decoded value"],
+            ["log", "List<Obs>", "observations"]],
+  "ghost_state": [],
+  "initial": {"doc": "nothing committed, nothing decoded", "com": 0, "got": 0, "log": []},
+  "principals": {},
+  "reasons": {"1": "unused: no action of the toy reverts"},
+  "defs": {},
+  "actions": [
+    {"name": "commit", "src": "toy: commit(x)", "principal": "anyone", "inputs": [["x", "Nat"]],
+     "guards": [], "effects": {"com": ["call", "agg", ["list", "Nat", "x"]]}},
+    {"name": "post", "src": "toy: post(x)", "principal": "anyone", "inputs": [["x", "Nat"]],
+     "guards": [], "effects": {"got": ["call", "dec", ["+", "x", "PAD"]]}}
+  ],
+  "observers": {
+    "com_of": {"params": [["s", "State"]], "type": "Nat", "body": "com", "doc": "the last commitment"},
+    "got_of": {"params": [["s", "State"]], "type": "Nat", "body": "got", "doc": "the last decoded value"}
+  },
+  "policy": "generic",
+  "search": {"domains": {"commit": {"x": [1, 2]}, "post": {"x": [1, 2]}}, "prefixDepth": 3, "maxPrefixes": 200},
+  "coverage": {"modelled": ["commit", "post"], "debt": []}
+}

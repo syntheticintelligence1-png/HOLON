@@ -1,0 +1,76 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_orc_run_post",
+  "milestone": "T12",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/oracles/facts/toy_oracle.facts.json",
+  "facts_sha256": "",
+  "predicted": "PROVED",
+  "notes": "commit does not change the decoded value: got after [commit 1, post 2] equals got after [post 2], for every agg and dec. PROVED by evaluation through run.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "agg",
+        "type": "Fn<List<Nat>,Nat>"
+      },
+      {
+        "q": "forall",
+        "name": "dec",
+        "type": "Fn<Nat,Nat>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "got_of",
+          "of": {
+            "run": {
+              "trace": [
+                {
+                  "act": "commit",
+                  "args": {
+                    "x": {
+                      "nat": 1
+                    }
+                  }
+                },
+                {
+                  "act": "post",
+                  "args": {
+                    "x": {
+                      "nat": 2
+                    }
+                  }
+                }
+              ]
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "obsv": "got_of",
+          "of": {
+            "step": {
+              "act": "post",
+              "args": {
+                "x": {
+                  "nat": 2
+                }
+              }
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

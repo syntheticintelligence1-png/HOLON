@@ -1,0 +1,30 @@
+{
+  "facts_version": "holon-facts/0.2",
+  "target": {"repo": "holon/toy-clock", "commit": "0000000000000000000000000000000000000000",
+             "scope": "a clock with one planted ill-sorted sum (I13): stamp adds the timestamp to itself (Time + Time); bump moves a register nothing seeds"},
+  "extraction": {"method": "hand-written fixture", "date": "2026-10-12"},
+  "abstractions": ["Registers are Nat."],
+  "params": {},
+  "types": {},
+  "state": [["t", "Nat", "block.timestamp (environment)"],
+            ["r", "Nat", "register written by stamp"],
+            ["k", "Nat", "register written by bump"],
+            ["log", "List<Obs>", "observations"]],
+  "ghost_state": [],
+  "initial": {"doc": "all registers zero", "t": 0, "r": 0, "k": 0, "log": []},
+  "principals": {},
+  "reasons": {"1": "unused"},
+  "defs": {},
+  "actions": [
+    {"name": "stamp", "src": "toy/Clock.sol:10-12", "principal": "anyone", "inputs": [],
+     "guards": [{"let": "due", "expr": ["+", "t", "t"], "src": "toy/Clock.sol:11"}],
+     "effects": {"r": "due"}},
+    {"name": "bump", "src": "toy/Clock.sol:14-16", "principal": "anyone", "inputs": [["d", "Nat"]],
+     "guards": [], "effects": {"k": ["+", "k", "d"]}},
+    {"name": "wait", "src": "environment: time progress", "principal": "environment", "inputs": [["dt", "Nat"]],
+     "guards": [], "effects": {"t": ["+", "t", "dt"]}}
+  ],
+  "observers": {},
+  "disch": {"doc": "delay is time waited", "delay": {"action": "wait", "input": "dt"}},
+  "coverage": {"modelled": ["stamp", "bump", "wait"], "debt": []}
+}

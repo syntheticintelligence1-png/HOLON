@@ -1,0 +1,143 @@
+// SPDX-License-Identifier: MIT
+// HOLON I16 preregistration instrument, Solidity side (read by tests_m2/_i16.py::run_sol_instrument).
+//
+// Written at the I16 prereg, before the I16 harness exists, and independent of it
+// (replay/M2/solidity/HolonCodec.t.sol). The test copies this file into a scratch Foundry project
+// holding morph contracts/ at the pinned commit (as holon/replay.py::replay_solidity lays it out) as
+// test/HolonPreregInstrument.t.sol and runs `forge test --match-contract HolonPreregInstrument`.
+//
+// Input  ($HOLON_PREREG_IN, a path inside the project): one line per item. A line "enc_sol" or "ok_sol"
+// starts that edge's section; each following line is one input, "0x" + hex; a last line "end" closes the
+// file. Inputs:
+//   enc_sol  the Header's fields concatenated in the order of facts types.Header.fields (version 1,
+//            batchIndex 8, l1MessagePopped 8, totalL1MessagePopped 8, dataHash 32, blobVersionedHash 32,
+//            prevStateHash 32, postStateHash 32, withdrawRootHash 32, sequencerSetVerifyHash 32,
+//            parentBatchHash 32, lastBlockNumber 8: 257 bytes)
+//   ok_sol   the Bytes input itself ("0x" for the empty input)
+// Output ($HOLON_PREREG_OUT): one line per input, in input order, then "end <n>":
+//   enc_sol  "0x" + hex of the header the build block of Rollup._commitBatchWithBatchData writes
+//            (BatchHeaderCodecV0 store*, then BatchHeaderCodecV1.storeLastBlockNumber when version >= 1;
+//            sequencerSetVerifyHash is bytes32(0) there, whatever the input holds), over the header
+//            length the block hashes (249, or 257 when version >= 1)
+//   ok_sol   "true" iff Rollup._loadBatchHeader(b) does not revert, else "false"
+pragma solidity =0.8.24;
+
+import {Test} from "forge-std/Test.sol";
+import {Rollup} from "../contracts/l1/rollup/Rollup.sol";
+import {BatchHeaderCodecV0} from "../contracts/libraries/codec/BatchHeaderCodecV0.sol";
+import {BatchHeaderCodecV1} from "../contracts/libraries/codec/BatchHeaderCodecV1.sol";
+
+/// Exposes the real header loader: Rollup._loadBatchHeader is internal.
+contract HolonPreregLoader is Rollup {
+    constructor() Rollup(53077) {}
+
+    function holonPreregLoad(bytes calldata h) external pure returns (uint256 memPtr, bytes32 batchHash) {
+        return _loadBatchHeader(h);
+    }
+}
+
+contract HolonPreregInstrumentTest is Test {
+    HolonPreregLoader internal loader;
+
+    function setUp() public {
+        loader = new HolonPreregLoader();
+    }
+
+    function _u64(bytes memory h, uint256 o) internal pure returns (uint256 x) {
+        for (uint256 i = 0; i < 8; i++) {
+            x = (x << 8) | uint256(uint8(h[o + i]));
+        }
+    }
+
+    function _b32(bytes memory h, uint256 o) internal pure returns (bytes32 x) {
+        require(o + 32 <= h.length, "holon prereg: short field");
+        assembly {
+            x := mload(add(add(h, 32), o))
+        }
+    }
+
+    /// enc_sol: the header build block of Rollup._commitBatchWithBatchData, store call by store call.
+    function _encSol(bytes memory h) internal pure returns (bytes memory out) {
+        require(h.length == 257, "holon prereg: a Header input is 257 bytes");
+        uint256 version = uint256(uint8(h[0]));
+        uint256 len = BatchHeaderCodecV0.BATCH_HEADER_LENGTH;
+        if (version >= 1) {
+            len = BatchHeaderCodecV1.BATCH_HEADER_LENGTH;
+        }
+        uint256 ptr;
+        assembly {
+            ptr := mload(0x40)
+            mstore(0x40, add(ptr, len))
+        }
+        BatchHeaderCodecV0.storeVersion(ptr, version);
+        BatchHeaderCodecV0.storeBatchIndex(ptr, _u64(h, 1));
+        BatchHeaderCodecV0.storeL1MessagePopped(ptr, _u64(h, 9));
+        BatchHeaderCodecV0.storeTotalL1MessagePopped(ptr, _u64(h, 17));
+        BatchHeaderCodecV0.storeDataHash(ptr, _b32(h, 25));
+        BatchHeaderCodecV0.storeBlobVersionedHash(ptr, _b32(h, 57));
+        BatchHeaderCodecV0.storePrevStateHash(ptr, _b32(h, 89));
+        BatchHeaderCodecV0.storePostStateHash(ptr, _b32(h, 121));
+        BatchHeaderCodecV0.storeWithdrawRootHash(ptr, _b32(h, 153));
+        BatchHeaderCodecV0.storeSequencerSetVerifyHash(ptr, bytes32(0));
+        BatchHeaderCodecV0.storeParentBatchHash(ptr, _b32(h, 217));
+        if (version >= 1) {
+            BatchHeaderCodecV1.storeLastBlockNumber(ptr, _u64(h, 249));
+        }
+        // storeLastBlockNumber writes 32 bytes at offset 249, past the header: leave room before copying
+        assembly {
+            mstore(0x40, add(ptr, 320))
+        }
+        out = new bytes(len);
+        for (uint256 i = 0; i < len; i++) {
+            uint8 b;
+            assembly {
+                b := byte(0, mload(add(ptr, i)))
+            }
+            out[i] = bytes1(b);
+        }
+    }
+
+    function _okSol(bytes memory b) internal view returns (bool) {
+        try loader.holonPreregLoad(b) returns (uint256, bytes32) {
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    function test_holon_prereg_instrument() public {
+        string memory inPath = vm.envString("HOLON_PREREG_IN");
+        string memory outPath = vm.envString("HOLON_PREREG_OUT");
+        uint256 n = 0;
+        bytes32 edge = bytes32(0);
+        uint256 fmp;
+        assembly {
+            fmp := mload(0x40)
+        }
+        while (true) {
+            // every item reuses the same memory: nothing allocated for an item outlives it
+            assembly {
+                mstore(0x40, fmp)
+            }
+            string memory line = vm.readLine(inPath);
+            bytes32 k = keccak256(bytes(line));
+            if (k == keccak256("end")) {
+                break;
+            }
+            if (k == keccak256("enc_sol") || k == keccak256("ok_sol")) {
+                edge = k;
+                continue;
+            }
+            bytes memory x = vm.parseBytes(line);
+            if (edge == keccak256("enc_sol")) {
+                vm.writeLine(outPath, vm.toString(_encSol(x)));
+            } else if (edge == keccak256("ok_sol")) {
+                vm.writeLine(outPath, _okSol(x) ? "true" : "false");
+            } else {
+                revert("holon prereg: an input line before any edge section");
+            }
+            n++;
+        }
+        vm.writeLine(outPath, string.concat("end ", vm.toString(n)));
+    }
+}

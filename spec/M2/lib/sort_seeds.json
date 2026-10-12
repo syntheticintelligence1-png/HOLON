@@ -1,0 +1,17 @@
+{
+  "seeds_version": "holon-sort-seeds/0.1",
+  "doc": "The only target vocabulary holon sorts reads (I13), frozen in the I13 preregistration before the solver first ran on the Morph facts. Lexical seeds match real-code text only: a state field's or record field's doc (doc_fields), a constant's constants_doc, and library builtin / facts def names. They never match a fact variable's own name, a law id, or a ghost field (ghost_state, a record's ghost fields and their docs are not read). Every seed is a unit constraint listing the rule ids that ground it. Writer labels name writer sets (whitepaper §7.3); they are names only: whether two registers get distinct refined sorts is decided by the solver's rules, not by this file.",
+  "lexical": [
+    {"id": "lex-clock", "match": "doc", "pattern": "block\\.timestamp", "sort": "Time"},
+    {"id": "lex-queue-index", "match": "doc", "pattern": "QueueIndex", "sort": "Idx[queue]"},
+    {"id": "lex-versioned-hash", "match": "doc", "pattern": "(?i)versioned ?hash", "sort": "Dig[VH]"},
+    {"id": "lex-aggregate", "match": "builtin", "pattern": "^agg$", "sort": "Dig[Agg]"}
+  ],
+  "writer_labels": {
+    "rules": [
+      {"id": "wl-finalize", "prefix": "finalize", "label": "fin"},
+      {"id": "wl-commit", "prefix": "commit", "label": "inc"}
+    ],
+    "fallback": "when not every writer of the set matches one rule's prefix: 'w' followed by the first 8 hex digits of sha256 of the sorted writer names joined by ','"
+  }
+}

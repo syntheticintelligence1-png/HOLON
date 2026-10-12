@@ -1,0 +1,47 @@
+{
+  "oracles_version": "holon-oracles/0.1",
+  "doc": "Oracle records of the toy oracle machine (I12 fixture; format in the docstring of tests_m2/test_oracles.py). agg is a hash parameter whose concrete instance is the M1 aggregate stand-in; dec is an oracle parameter with two hypothesis variants of family HypD, each with its own concrete instance; fetcher is a not_in_scope record.",
+  "oracles": [
+    {
+      "id": "agg",
+      "oracle": "agg",
+      "parameter": {"name": "agg", "type": "Fn<List<Nat>,Nat>"},
+      "hypothesis": {"id": "CF-agg", "kind": "cf",
+                     "doc": "CF(agg, S) for every finite S: agg maps the elements of S to pairwise different values. Each law states its own S."},
+      "instance": {"bend": "Nat.add(${param:AGG_BASE:1000}n, b_enc($0))",
+                   "doc": "the injective stand-in agg(xs) = AGG_BASE + enc(xs), the template of spec/M1/lib/morph_rollup.lib.json"},
+      "status": "modelled"
+    },
+    {
+      "id": "dec-exact",
+      "oracle": "dec",
+      "parameter": {"name": "dec", "type": "Fn<Nat,Nat>"},
+      "hypothesis": {"id": "HypD-exact", "kind": "hyp", "family": "HypD",
+                     "doc": "dec inverts the unpadded encodings of 1 and 2.",
+                     "predicate": [{"eq": [{"app": "dec", "args": [{"nat": 1}]}, {"nat": 1}]},
+                                   {"eq": [{"app": "dec", "args": [{"nat": 2}]}, {"nat": 2}]}]},
+      "instance": {"bend": "$0", "doc": "the identity"},
+      "status": "modelled"
+    },
+    {
+      "id": "dec-pad",
+      "oracle": "dec",
+      "parameter": {"name": "dec", "type": "Fn<Nat,Nat>"},
+      "hypothesis": {"id": "HypD-pad", "kind": "hyp", "family": "HypD",
+                     "doc": "dec tolerates the padding: it inverts the encodings of 1 and 2 padded by PAD = 8.",
+                     "predicate": [{"eq": [{"app": "dec", "args": [{"nat": 9}]}, {"nat": 1}]},
+                                   {"eq": [{"app": "dec", "args": [{"nat": 10}]}, {"nat": 2}]}]},
+      "instance": {"bend": "Nat.sub($0, ${param:PAD:8}n)", "doc": "strip the padding (truncated subtraction)"},
+      "status": "modelled"
+    },
+    {
+      "id": "fetcher",
+      "oracle": "fetcher",
+      "parameter": {"name": "fetch"},
+      "hypothesis": {"id": "HypF", "doc": "the fetcher returns the data the chain committed"},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "the toy machine has no fetcher; the record exercises the not_in_scope form"
+    }
+  ]
+}

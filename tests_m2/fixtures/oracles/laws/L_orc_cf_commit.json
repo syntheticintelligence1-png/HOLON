@@ -1,0 +1,91 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_orc_cf_commit",
+  "milestone": "T12",
+  "rule": "FACT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/oracles/facts/toy_oracle.facts.json",
+  "facts_sha256": "",
+  "predicted": "PROVED",
+  "notes": "CF fixture through the parametric model: a hash parameter collision-free on {[1], [2]} gives commit(1) and commit(2) different commitments. PROVED from the premise. G11V: the CF premise is inhabited by agg := the oracle record's concrete instance (I12-P3).",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "agg",
+        "type": "Fn<List<Nat>,Nat>"
+      },
+      {
+        "q": "forall",
+        "name": "dec",
+        "type": "Fn<Nat,Nat>"
+      }
+    ],
+    "assume": [
+      {
+        "cf": {
+          "fn": "agg",
+          "set": [
+            {
+              "nats": [
+                1
+              ]
+            },
+            {
+              "nats": [
+                2
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "eq_nat",
+          "args": [
+            {
+              "obsv": "com_of",
+              "of": {
+                "step": {
+                  "act": "commit",
+                  "args": {
+                    "x": {
+                      "nat": 1
+                    }
+                  }
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            },
+            {
+              "obsv": "com_of",
+              "of": {
+                "step": {
+                  "act": "commit",
+                  "args": {
+                    "x": {
+                      "nat": 2
+                    }
+                  }
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            }
+          ]
+        },
+        {
+          "bool": false
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

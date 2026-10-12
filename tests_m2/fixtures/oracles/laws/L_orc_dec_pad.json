@@ -1,0 +1,58 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_orc_dec_pad",
+  "milestone": "T12",
+  "rule": "FACT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/oracles/facts/toy_oracle.facts.json",
+  "facts_sha256": "",
+  "predicted": "PROVED",
+  "notes": "Variant HypD-pad of the pair (L_orc_dec_pad, L_orc_dec_exact): a decoder that tolerates the padding returns 1 after post(1). PROVED from the premise; inhabited by the dec-pad instance. Split on HypD with L_orc_dec_exact (I12-P2).",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "agg",
+        "type": "Fn<List<Nat>,Nat>"
+      },
+      {
+        "q": "forall",
+        "name": "dec",
+        "type": "Fn<Nat,Nat>"
+      }
+    ],
+    "assume": [
+      {
+        "hyp": {
+          "name": "HypD-pad"
+        }
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "got_of",
+          "of": {
+            "step": {
+              "act": "post",
+              "args": {
+                "x": {
+                  "nat": 1
+                }
+              }
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "nat": 1
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

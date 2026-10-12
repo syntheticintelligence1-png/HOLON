@@ -1,0 +1,51 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_orc_agg_value",
+  "milestone": "T12",
+  "rule": "FACT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/oracles/facts/toy_oracle.facts.json",
+  "facts_sha256": "",
+  "predicted": "REFUTED",
+  "notes": "True of the stand-in instance (agg([1]) = AGG_BASE + enc([1]) = 1002), false for a hash parameter: REFUTED exactly when the model is parametric in agg rather than compiled with its instance.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "agg",
+        "type": "Fn<List<Nat>,Nat>"
+      },
+      {
+        "q": "forall",
+        "name": "dec",
+        "type": "Fn<Nat,Nat>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "com_of",
+          "of": {
+            "step": {
+              "act": "commit",
+              "args": {
+                "x": {
+                  "nat": 1
+                }
+              }
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "nat": 1002
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

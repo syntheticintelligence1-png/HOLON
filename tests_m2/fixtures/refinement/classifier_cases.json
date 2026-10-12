@@ -1,0 +1,205 @@
+{
+  "doc": "I16 prereg fixture: mechanical disagreement classes (BUILD_PLAN I16). tests_m2/test_refinement.py::classifier_root builds a minimal tree from laws/M0, laws/M1, results/M0, results/M1, replay/M0/report.json, replay/M1/report.json, results/M2/hypotheses.json merged with `hypotheses`, and writes `files`. Each case's `expected` is the class the rules in the test_refinement.py docstring give; holon.refinement.classify must return it whatever the entry's label.",
+  "hypotheses": {
+    "Hyp-fixture-failed": {
+      "status": "failed",
+      "computed": "0x01",
+      "expected": "0x02",
+      "note": "fixture: a failing hypothesis record"
+    }
+  },
+  "files": {
+    "results/M2/refinement/enc_go_v1.json": {
+      "edge": "enc_go_v1",
+      "milestone": "M0",
+      "compared": 10,
+      "agree": 10,
+      "disagreements": 0,
+      "disagreement_ids": [],
+      "fixes": ["0123456789abcdef0123456789abcdef01234567"]
+    },
+    "results/M2/refinement/enc_sol.json": {
+      "edge": "enc_sol",
+      "milestone": "M0",
+      "compared": 10,
+      "agree": 9,
+      "disagreements": 1,
+      "disagreement_ids": ["D-fixture-red"],
+      "fixes": ["0123456789abcdef0123456789abcdef01234567"]
+    },
+    "results/M2/refinement/dec_go.json": {
+      "edge": "dec_go",
+      "milestone": "M0",
+      "compared": 10,
+      "agree": 10,
+      "disagreements": 0,
+      "disagreement_ids": [],
+      "fixes": []
+    },
+    "replay/M2/rerun_enc_go_v1.json": {
+      "edge": "enc_go_v1",
+      "milestone": "M0",
+      "compared": 10,
+      "agree": 10,
+      "disagreements": 0,
+      "disagreement_ids": [],
+      "fixes": ["0123456789abcdef0123456789abcdef01234567"]
+    }
+  },
+  "cases": [
+    {
+      "expected": "extraction_defect",
+      "why": "fix commit plus a green re-run record of the same edge that names it",
+      "entry": {"id": "C-extraction-ok", "edge": "enc_go_v1", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "extraction_defect",
+                "links": {"fix_commit": "0123456789abcdef0123456789abcdef01234567", "rerun": "results/M2/refinement/enc_go_v1.json"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "no fix commit",
+      "entry": {"id": "C-extraction-no-fix", "edge": "enc_go_v1", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "extraction_defect",
+                "links": {"rerun": "results/M2/refinement/enc_go_v1.json"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "no re-run record",
+      "entry": {"id": "C-extraction-no-rerun", "edge": "enc_go_v1", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "extraction_defect",
+                "links": {"fix_commit": "0123456789abcdef0123456789abcdef01234567"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "an abbreviated commit is not a 40-hex commit id",
+      "entry": {"id": "C-extraction-short-commit", "edge": "enc_go_v1", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "extraction_defect",
+                "links": {"fix_commit": "0123456", "rerun": "results/M2/refinement/enc_go_v1.json"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "the re-run record is not green (1 disagreement)",
+      "entry": {"id": "D-fixture-red", "edge": "enc_sol", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "extraction_defect",
+                "links": {"fix_commit": "0123456789abcdef0123456789abcdef01234567", "rerun": "results/M2/refinement/enc_sol.json"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "the re-run record is for another edge",
+      "entry": {"id": "C-extraction-other-edge", "edge": "enc_go_v0", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "extraction_defect",
+                "links": {"fix_commit": "0123456789abcdef0123456789abcdef01234567", "rerun": "results/M2/refinement/enc_go_v1.json"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "the re-run record does not name the fix commit",
+      "entry": {"id": "C-extraction-fix-not-rerun", "edge": "dec_go", "milestone": "M0", "input": null, "model": null, "real": ["0x00"],
+                "class": "extraction_defect",
+                "links": {"fix_commit": "0123456789abcdef0123456789abcdef01234567", "rerun": "results/M2/refinement/dec_go.json"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "a re-run record outside results/M2/refinement/ does not count",
+      "entry": {"id": "C-extraction-rerun-outside", "edge": "enc_go_v1", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "extraction_defect",
+                "links": {"fix_commit": "0123456789abcdef0123456789abcdef01234567", "rerun": "replay/M2/rerun_enc_go_v1.json"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "a path that leaves results/M2/refinement/ through .. does not count",
+      "entry": {"id": "C-extraction-rerun-dotdot", "edge": "enc_go_v1", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "extraction_defect",
+                "links": {"fix_commit": "0123456789abcdef0123456789abcdef01234567", "rerun": "results/M2/refinement/../../../replay/M2/rerun_enc_go_v1.json"}}
+    },
+    {
+      "expected": "real_defect",
+      "why": "REFUTED M0 law, edge in its cone, witness hash matches the report, obstruction observed on both sides",
+      "entry": {"id": "C-real-m0", "edge": "ok_sol", "milestone": "M0", "input": null, "model": true, "real": false,
+                "class": "real_defect",
+                "links": {"law": "M0/L_dom_hdr"}}
+    },
+    {
+      "expected": "real_defect",
+      "why": "REFUTED M1 law (report sides under entry.sides), step_commitBatch in its cone, obstruction observed",
+      "entry": {"id": "C-real-m1", "edge": "step_commitBatch", "milestone": "M1", "input": null, "model": "ok", "real": "rev x",
+                "class": "real_defect",
+                "links": {"law": "M1/L_undo_BVH"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "the linked law is PROVED",
+      "entry": {"id": "C-real-proved", "edge": "enc_sol", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "real_defect",
+                "links": {"law": "M0/L_par_hdr_v0"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "L_fact_Z's go_consumer side did not observe the obstruction",
+      "entry": {"id": "C-real-not-reproduced", "edge": "step_commitBatch", "milestone": "M1", "input": null, "model": "ok", "real": "rev x",
+                "class": "real_defect",
+                "links": {"law": "M1/L_fact_Z"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "enc_sol is not in L_dom_hdr's cone",
+      "entry": {"id": "C-real-edge-outside-cone", "edge": "enc_sol", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "real_defect",
+                "links": {"law": "M0/L_dom_hdr"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "no such law",
+      "entry": {"id": "C-real-unknown-law", "edge": "ok_sol", "milestone": "M0", "input": null, "model": true, "real": false,
+                "class": "real_defect",
+                "links": {"law": "M0/L_no_such_law"}}
+    },
+    {
+      "expected": "oracle_mismatch",
+      "why": "the linked hypothesis record failed",
+      "entry": {"id": "C-oracle-ok", "edge": "dec_go", "milestone": "M0", "input": null, "model": null, "real": ["0x00"],
+                "class": "oracle_mismatch",
+                "links": {"hypothesis": "Hyp-fixture-failed"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "the linked hypothesis record passed (status checked)",
+      "entry": {"id": "C-oracle-passing", "edge": "dec_go", "milestone": "M0", "input": null, "model": null, "real": ["0x00"],
+                "class": "oracle_mismatch",
+                "links": {"hypothesis": "Hyp-Z0-kzg"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "no such hypothesis record",
+      "entry": {"id": "C-oracle-missing", "edge": "dec_go", "milestone": "M0", "input": null, "model": null, "real": ["0x00"],
+                "class": "oracle_mismatch",
+                "links": {"hypothesis": "Hyp-no-such-record"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "a label with no link",
+      "entry": {"id": "C-no-links", "edge": "ok_sol", "milestone": "M0", "input": null, "model": true, "real": false,
+                "class": "real_defect",
+                "links": {}}
+    },
+    {
+      "expected": "real_defect",
+      "why": "the label says extraction_defect, the links say real_defect: the links decide",
+      "entry": {"id": "C-label-ignored", "edge": "ok_go", "milestone": "M0", "input": null, "model": false, "real": true,
+                "class": "extraction_defect",
+                "links": {"law": "M0/L_dom_hdr"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "two kinds of link: an entry has exactly one explanation",
+      "entry": {"id": "C-two-kinds", "edge": "ok_sol", "milestone": "M0", "input": null, "model": true, "real": false,
+                "class": "real_defect",
+                "links": {"law": "M0/L_dom_hdr", "hypothesis": "Hyp-fixture-failed"}}
+    },
+    {
+      "expected": "unexplained",
+      "why": "labelled unexplained, no links",
+      "entry": {"id": "C-unexplained", "edge": "enc_sol", "milestone": "M0", "input": null, "model": "0x00", "real": "0x01",
+                "class": "unexplained",
+                "links": {}}
+    }
+  ]
+}

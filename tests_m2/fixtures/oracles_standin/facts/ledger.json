@@ -1,0 +1,87 @@
+{
+  "ledger_version": "holon-ledger/0.1",
+  "doc": "Sidecar ledger of the toy oracle fixture's M1-encoding baseline (I12-P1); byte-identical facts, so the same bundle.",
+  "bundles": [
+    {
+      "facts": "tests_m2/fixtures/oracles_standin/facts/toy_oracle.facts.json",
+      "facts_sha256": "54618dcab4ab835bed7857b45e0bbc44d41410e426f13c73a736e335bee494ab",
+      "model": "toy_oracle",
+      "entries": [
+        {
+          "id": "abs-toy-oracle-nat",
+          "kind": "abstraction",
+          "source": "tests_m2/fixtures/oracles_standin/facts/toy_oracle.facts.json#/abstractions/0",
+          "text": "Values are Nat; commit stores the hash of a one-element list and post the decoding of its padded input (a fixture for hashes and oracles as parameters, not a real target).",
+          "introduced_by": [
+            "HSt"
+          ]
+        }
+      ],
+      "no_assumption": [
+        {
+          "defs": [
+            "ite",
+            "nth_d",
+            "set_d",
+            "tail0",
+            "last_d",
+            "b_nth",
+            "b_set_nat",
+            "b_mem",
+            "b_remove",
+            "b_pair",
+            "b_enc",
+            "b_zeros_like",
+            "eq_bool",
+            "eq_list_nat",
+            "is_true"
+          ],
+          "why": "list, Nat and Bool utilities of the generator prelude; no modelling choice"
+        },
+        {
+          "defs": [
+            "g_*",
+            "empty_*",
+            "HObs",
+            "HSt",
+            "HAct",
+            "Dec_*"
+          ],
+          "why": "record plumbing generated from the facts types"
+        },
+        {
+          "defs": [
+            "decide_*",
+            "exec_*",
+            "step_*",
+            "step",
+            "run"
+          ],
+          "why": "action chains generated from the fixture's actions"
+        },
+        {
+          "defs": [
+            "clear_log",
+            "log_of",
+            "obs",
+            "ok_head",
+            "last_ok",
+            "all_ok",
+            "runs_ok",
+            "no_code",
+            "eq_obs",
+            "eq_obs_list",
+            "is_commit",
+            "is_post",
+            "cost",
+            "elapsed",
+            "perm",
+            "com_of",
+            "got_of"
+          ],
+          "why": "statement vocabulary generated from the facts observers and the action log"
+        }
+      ]
+    }
+  ]
+}

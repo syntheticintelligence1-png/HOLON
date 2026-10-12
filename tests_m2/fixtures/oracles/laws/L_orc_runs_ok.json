@@ -1,0 +1,63 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_orc_runs_ok",
+  "milestone": "T12",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/oracles/facts/toy_oracle.facts.json",
+  "facts_sha256": "",
+  "predicted": "PROVED",
+  "notes": "Both actions succeed whatever the oracles return: PROVED by evaluation through run, with both parameters threaded.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "agg",
+        "type": "Fn<List<Nat>,Nat>"
+      },
+      {
+        "q": "forall",
+        "name": "dec",
+        "type": "Fn<Nat,Nat>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "runs_ok",
+          "args": [
+            {
+              "trace": [
+                {
+                  "act": "commit",
+                  "args": {
+                    "x": {
+                      "nat": 1
+                    }
+                  }
+                },
+                {
+                  "act": "post",
+                  "args": {
+                    "x": {
+                      "nat": 2
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "s0": {}
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

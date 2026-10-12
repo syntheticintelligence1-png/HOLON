@@ -961,6 +961,238 @@
         "tests_m2/test_regress.py"
       ],
       "thresholds": {}
+    },
+    "I12": {
+      "title": "Hashes and oracles as parameters",
+      "plan": "docs/BUILD_PLAN.md#i12",
+      "prompt": "prompts/I12_oracles.md",
+      "predictions": [
+        {
+          "id": "I12-P1",
+          "claim": "The parametric model checks with term size per law at most 1.5x the M1 model's on the same fixture laws. Operationalized on fixture milestone T12 (toy machine tests_m2/fixtures/oracles/, parameters agg and dec from its oracle sidecar): the generated model passes bend; the model is parametric (L_orc_agg_value, true of the agg stand-in, is REFUTED by a witness other than the stand-in); the four parameter laws are decided as the fixtures predict (3 PROVED, 1 REFUTED) with BendTT verdict checked; and for each fixture law PROVED in both encodings (L_orc_cf_commit, L_orc_runs_ok, L_orc_run_post, L_orc_dec_pad), term size (characters of the BendTT kernel entries in the law's kernel cone over its model, plus its emitted LAWS.bend without comment lines) is at most 1.5x that of the same law in its M1 form (parameter binders and CF/hypothesis premises removed, claim kept) on the M1 model of the same machine (tests_m2/fixtures/oracles_standin/: byte-identical facts, each oracle compiled in as a target-library stand-in builtin), run as the same milestone.",
+          "check": "tests_m2/test_oracles.py::TestParametricModel::test_parametric_model_checks and tests_m2/test_oracles.py::TestParametricModel::test_model_is_parametric_in_agg and tests_m2/test_oracles.py::TestParametricModel::test_term_size_at_most_1_5x_the_stand_in_model"
+        },
+        {
+          "id": "I12-P2",
+          "claim": "A fixture oracle with two hypothesis variants yields a law pair with different statuses, reported as a split: the oracle dec with variants HypD-pad and HypD-exact (family HypD) gives L_orc_dec_pad PROVED and L_orc_dec_exact REFUTED (BendTT verdict checked), and splits.json reports the pair on family HypD with split true.",
+          "check": "tests_m2/test_oracles.py::TestSplits::test_variant_pair_has_different_statuses and tests_m2/test_oracles.py::TestSplits::test_splits_json_reports_the_split"
+        },
+        {
+          "id": "I12-P3",
+          "claim": "The agg inhabitant of CF(h, S) checks: the premise CF(agg, {[1], [2]}) of L_orc_cf_commit (PROVED) is inhabited with agg := the oracle record's concrete instance (AGG_BASE + enc(xs)), recorded as {\"instance\": \"agg\"}; the inhabitant states the law's premise and re-checks under bend; and with an agg instance that violates the premise (a constant) no inhabitant claims the instance.",
+          "check": "tests_m2/test_oracles.py::TestNonVacuity::test_cf_premise_inhabited_by_the_agg_instance and tests_m2/test_oracles.py::TestNonVacuity::test_cf_inhabitant_is_the_instance_not_a_label"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I12-R1",
+          "claim": "M1 models untouched: gen/M0 and gen/M1 byte-identical.",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged"
+        },
+        {
+          "id": "I12-R2",
+          "claim": "M1 laws untouched: laws/M0 and laws/M1 byte-identical to the prereg tree, and the 24 statement hashes recompute equal.",
+          "check": "tests_m2/test_oracles.py::TestRegression::test_m0_m1_laws_untouched and tests_m2/test_ir03.py::TestSchemaAndHash::test_existing_hashes_recompute_equal"
+        },
+        {
+          "id": "I12-R3",
+          "claim": "results/M2/hypotheses.json keeps I3's Hyp-Z0-kzg entry unchanged: oracle check extends the file and never rewrites that entry.",
+          "check": "tests_m2/test_zero_blob.py::TestZeroBlob::test_hypotheses_file and tests_m2/test_oracles.py::TestHypotheses::test_oracle_check_reproduces_and_keeps_zero_blob"
+        },
+        {
+          "id": "I12-R4",
+          "claim": "24 statuses unchanged; gates M0 and M1 pass.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M0/",
+        "gen/M1/",
+        "results/M0/",
+        "results/M1/",
+        "results/M2/hypotheses.json",
+        "gen/M2/oracles/"
+      ],
+      "tests": [
+        "tests_m2/test_oracles.py"
+      ],
+      "thresholds": {
+        "term_size_ratio_max": 1.5
+      }
+    },
+    "I13": {
+      "title": "Sorts I: grammar, constraints, union-find, unsat cores, frozen assignment",
+      "plan": "docs/BUILD_PLAN.md#i13",
+      "prompt": "prompts/I13_sorts.md",
+      "predictions": [
+        {
+          "id": "I13-P1",
+          "claim": "t is Time and wait.dt is Dur; W, F and D are Dur; Ch.start (assignment key Ch.s, the BatchChallenge startTime field) is Time.",
+          "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_time_and_duration_sorts"
+        },
+        {
+          "id": "I13-P2",
+          "claim": "W + cstart - t is SDur at one source site, Rollup.sol:363 (site span exactly contracts/contracts/l1/rollup/Rollup.sol:363). Three entry points reach it through _commitBatchWithBatchData: commitBatch (:268), commitState (:285) and commitBatchWithProof (:411). The M1 facts duplicate the guard per action (morph_rollup.json lines 1110, 1502, 2017); deduplication by span yields one site, whose entry points are those three actions.",
+          "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_one_signed_duration_site_at_rollup_363 and tests_m2/test_sorts_morph.py::TestPredictions::test_site_and_entry_points_in_the_pinned_source"
+        },
+        {
+          "id": "I13-P3",
+          "claim": "qpend and Entry.tot get distinct sorts, Idx[queue]_fin and Idx[queue]_inc, through writer provenance (labels fin and inc, derived from the writer sets {finalizeBatch} and the commit actions).",
+          "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_queue_cursors_get_distinct_writer_refined_sorts"
+        },
+        {
+          "id": "I13-P4",
+          "claim": "win.bvh (assignment key Entry.bvh) and s_bvh form the union Dig[VH] + Dig[Agg].",
+          "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_bvh_registers_form_the_digest_union"
+        },
+        {
+          "id": "I13-P5",
+          "claim": "0 SORT-affine conflicts on the M1 facts (spec/M1/facts/morph_rollup.json and morph_batchdata.json): no conflict of kind affine and none whose core holds an affine or compare constraint.",
+          "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_no_affine_conflicts_on_the_m1_facts"
+        },
+        {
+          "id": "I13-P6",
+          "claim": "The planted Time+Time fixture's minimal core has exactly 2 constraints (tests_m2/fixtures/sorts/time_plus_time.json: one conflict, at the planted sum t + t; its core is unsatisfiable and irreducible under holon.sorts.solve.satisfiable).",
+          "check": "tests_m2/test_sorts_fixture.py::TestPlantedTimePlusTime::test_planted_conflict_has_a_two_constraint_minimal_core and tests_m2/test_sorts_fixture.py::TestPlantedTimePlusTime::test_core_is_unsatisfiable_and_irreducible"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I13-R1",
+          "claim": "No existing statement, record or generated file under gen/M0, gen/M1, results/M0 or results/M1 changes; gates M0 and M1 pass.",
+          "check": "gate"
+        },
+        {
+          "id": "I13-R2",
+          "claim": "gen/M2/diagram is unchanged and regenerates byte for byte (sorts live in gen/M2/sorts; carrier sort_ref stays null).",
+          "check": "tests_m2/test_diagram.py::TestDiagramFiles::test_regeneration_is_byte_identical and tests_m2/test_sorts_morph.py::TestSortsFiles::test_the_diagram_carries_no_sorts"
+        },
+        {
+          "id": "I13-R3",
+          "claim": "Exit (construction check, not a prediction): two runs of python -m holon sorts write byte-identical files, assignment included, equal to the committed gen/M2/sorts/.",
+          "check": "tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files"
+        },
+        {
+          "id": "I13-R4",
+          "claim": "Construction check (not a prediction): the solver's only target vocabulary is spec/M2/lib/sort_seeds.json, frozen in the I13 prereg commit; every other input is a fact document, a target library or the ledger.",
+          "check": "tests_m2/test_sorts_morph.py::TestSortsContract::test_the_only_target_vocabulary_is_the_frozen_seed_sidecar"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M2/sorts/"
+      ],
+      "tests": [
+        "tests_m2/test_sorts_morph.py",
+        "tests_m2/test_sorts_fixture.py",
+        "tests_m2/test_sorts_unit.py",
+        "tests_m2/test_sorts_honesty.py"
+      ],
+      "thresholds": {}
+    },
+    "I16": {
+      "title": "Native C model, per-edge corpus, refinement records, metrics",
+      "plan": "docs/BUILD_PLAN.md#i16",
+      "prompt": "prompts/I16_native_refinement.md",
+      "predictions": [
+        {
+          "id": "I16-P1",
+          "claim": "Native and .mjs agree on 100% of the refuter's candidates. Operationalized: for every M0 law, every candidate holon.refute.candidates yields (the whole candidate space, not stopped at the first hit), every claim term (both sides and every subterm, as holon.refute evaluates them) gives the same value on the native C model (an ELF binary, run with no node or bend reachable) and on the .mjs model, with evaluation errors compared as a class; results/M2/native.json records the same counts. A recorded fallback to .mjs is a miss of this prediction.",
+          "check": "tests_m2/test_native.py::TestNativeAgreement::test_native_agrees_with_mjs_on_every_refuter_candidate"
+        },
+        {
+          "id": "I16-P2",
+          "claim": "Per codec edge: 2,000 grammar samples, all boundary values, all witnesses. Operationalized for the 4 CODEC edges of the I11 M0 diagram (enc_sol, enc_go_v0, enc_go_v1, dec_go): exactly 2,000 seeded grammar samples; every sort-boundary value of whitepaper §8.7 (each Header field at 0, 1, max and max - 1, and the version at every version sentinel of the facts, within the edge's domain; for Bytes inputs the lengths 0, 1 and every length sentinel, and the first byte at 0, 1, 254, 255 and every version sentinel; rule tests_m2/_i16.py::required_boundary); every REFUTED M0 witness of the edge's input sort in its domain; and each edge's refinement record compares exactly that corpus.",
+          "check": "tests_m2/test_refinement.py::TestCorpus::test_two_thousand_grammar_samples_per_codec_edge and tests_m2/test_refinement.py::TestCorpus::test_all_boundary_values_per_codec_edge and tests_m2/test_refinement.py::TestCorpus::test_all_witnesses_per_codec_edge and tests_m2/test_refinement.py::TestCorpus::test_records_compare_the_whole_corpus"
+        },
+        {
+          "id": "I16-P3",
+          "claim": "0 disagreements on every faithful edge, v2 inputs included (enc_go_v1 writes byte 0 = 1 exactly as Go does), and decoder domains included. Operationalized: every edge is treated as faithful. Each per-edge refinement record reports 0 disagreements and equal model and real output digests. That covers the 4 CODEC edges, each compared with its own implementation, plus the decoder domains ok_go (Go validate()) and ok_sol (Solidity _loadBatchHeader) on a Bytes corpus built by the same rule. The model digest equals the frozen reference interpreter's over the same corpus. Instruments fixed at the prereg reproduce every real digest: the Go instrument for enc_go_v0, enc_go_v1, dec_go and ok_go, the Foundry instrument for enc_sol and ok_sol. enc_go_v1's corpus holds version-2 grammar and boundary inputs, on which Go and the model both write byte 0 = 1. The dec_go, ok_go and ok_sol corpora hold inputs inside and outside their domains.",
+          "check": "tests_m2/test_refinement.py::TestAgreement::test_zero_disagreements_on_every_edge and tests_m2/test_refinement.py::TestAgreement::test_model_side_matches_the_reference_interpreter and tests_m2/test_refinement.py::TestAgreement::test_v2_inputs_included_for_enc_go_v1 and tests_m2/test_refinement.py::TestAgreement::test_decoder_domains_included and tests_m2/test_refinement.py::TestIndependentGo::test_go_real_outputs_match_the_records and tests_m2/test_refinement.py::TestIndependentGo::test_go_writes_byte0_1_on_v2_inputs_like_the_model and tests_m2/test_refinement.py::TestIndependentSolidity::test_solidity_real_outputs_match_the_records and tests_m2/test_refinement.py::TestDomainCorpus::test_domain_predicates_follow_the_corpus_rule"
+        },
+        {
+          "id": "I16-P4",
+          "claim": "O1 and O2 appear as cross-edge PAR differences linked to L_dom_hdr and L_par_hdr_v2, not in the refinement counts. Operationalized: results/M2/cross_edge.json holds a PAR difference between ok_go and ok_sol linked to L_dom_hdr, and one between enc_go_v1 and enc_sol linked to L_par_hdr_v2. Each linked law is REFUTED and its claim compares exactly that pair. Each recorded example satisfies the law's premises and differs under the reference interpreter (O2: byte 0 is 2 for enc_sol and 1 for enc_go_v1). The per-edge records of ok_go, ok_sol, enc_go_v1 and enc_sol count 0 disagreements, and no spec/M2/disagreements.json entry links either law.",
+          "check": "tests_m2/test_refinement.py::TestCrossEdge::test_o1_is_a_cross_edge_difference_linked_to_l_dom_hdr and tests_m2/test_refinement.py::TestCrossEdge::test_o2_is_a_cross_edge_difference_linked_to_l_par_hdr_v2 and tests_m2/test_refinement.py::TestCrossEdge::test_o1_o2_are_not_in_the_refinement_counts and tests_m2/test_refinement.py::TestCrossEdge::test_every_linked_difference_names_a_law_comparing_its_pair"
+        },
+        {
+          "id": "I16-P5",
+          "claim": "0 unexplained. Operationalized: every entry of spec/M2/disagreements.json is classified from its links, by the rules fixed at the prereg (tests_m2/_i16.py::expected_class, which holon.refinement.classify matches), to a class other than unexplained, equal to its label. Every disagreement id that a refinement record lists has an entry. Gate check GREF passes on a copy of the committed tree.",
+          "check": "tests_m2/test_refinement.py::TestDisagreements::test_zero_unexplained and tests_m2/test_refinement.py::TestGateGREF::test_gref_passes_on_the_committed_tree"
+        },
+        {
+          "id": "I16-P6",
+          "kind": "construction",
+          "claim": "Construction check, not counted toward prediction accuracy: the native build's outcome is recorded explicitly. results/M2/native.json has status native or fallback; a native status names the sha256 of the C source a fresh build emits, and the engine is an ELF binary under the build directory; a fallback carries a captured compiler error that a fresh build reproduces, and its refinement records run on .mjs. The C probe's recorded exit codes and output reproduce. The C driver is generated deterministically, without escape hatches.",
+          "check": "tests_m2/test_native.py::TestNativeRecord::test_native_record_is_explicit and tests_m2/test_native.py::TestNativeRecord::test_c_probe_outcome_is_recorded_and_reproduces and tests_m2/test_native.py::TestNativeRecord::test_c_driver_is_generated_deterministically_without_escape_hatches"
+        },
+        {
+          "id": "I16-P7",
+          "kind": "construction",
+          "claim": "Construction check, not counted: one refinement record per edge, against its own implementation, through the replay/M2 harnesses. Each record is pinned to the toolchain and the full morph commit, and harness dependencies stay outside the repo. The corpus is identical across processes and hash seeds. `holon refine --edges dec_go` reproduces the committed dec_go record byte for byte.",
+          "check": "tests_m2/test_refinement.py::TestRecordsPerEdge::test_one_record_per_edge_against_its_own_implementation and tests_m2/test_refinement.py::TestRecordsPerEdge::test_records_are_pinned_to_the_toolchain_and_commit and tests_m2/test_refinement.py::TestRecordsPerEdge::test_harnesses_drive_the_real_code_and_keep_dependencies_outside and tests_m2/test_refinement.py::TestCorpus::test_corpus_is_deterministic_across_processes and tests_m2/test_refinement.py::TestReproduction::test_refine_reproduces_the_dec_go_record"
+        },
+        {
+          "id": "I16-P8",
+          "kind": "construction",
+          "claim": "Construction check, not counted: the mechanical classes follow the links on the prereg fixture cases (tests_m2/fixtures/refinement/classifier_cases.json), whatever the label. GREF is a gate check, and it fails, naming the entry, on a mislabelled entry and on a disagreement that has no entry.",
+          "check": "tests_m2/test_refinement.py::TestClassifier::test_classes_follow_the_links and tests_m2/test_refinement.py::TestClassifier::test_the_label_is_never_trusted and tests_m2/test_refinement.py::TestClassifier::test_a_witness_that_no_longer_matches_its_replay_is_unexplained and tests_m2/test_refinement.py::TestClassifier::test_check_disagreements_names_every_unexplained_or_mislabelled_entry and tests_m2/test_refinement.py::TestGateGREF::test_gref_is_a_gate_check and tests_m2/test_refinement.py::TestGateGREF::test_gref_fails_on_a_mislabelled_entry and tests_m2/test_refinement.py::TestGateGREF::test_gref_fails_on_an_unrecorded_disagreement"
+        },
+        {
+          "id": "I16-P9",
+          "kind": "construction",
+          "claim": "Construction check, not counted: records gain refinement_refs, and pending:I16 is removed from the v2 schema. M0 refs are the per-edge records of the refined edges in the cone. M1 refs are the M1 corpus per_action entries of the step_<a> definitions in the cone. Every ref resolves to a record with 0 disagreements.",
+          "check": "tests_m2/test_refinement.py::TestRefinementRefs::test_schema_no_longer_accepts_pending_I16 and tests_m2/test_refinement.py::TestRefinementRefs::test_m0_records_reference_the_refined_edges_in_their_cone and tests_m2/test_refinement.py::TestRefinementRefs::test_m1_records_reference_the_corpus_actions_in_their_cone and tests_m2/test_refinement.py::TestRefinementRefs::test_every_ref_resolves_to_a_record_without_disagreements"
+        },
+        {
+          "id": "I16-P10",
+          "kind": "construction",
+          "claim": "Construction check, not counted: results/M0 and results/M1 metrics.json are deterministic, and their values follow the records, the gate report, the refinement records and the disagreements. Every other §13 metric is reported or listed under not_applicable. Timings, including from_scratch_gate_s, live only in metrics_timing.json. G1 compares metrics.json and excludes metrics_timing.json.",
+          "check": "tests_m2/test_metrics.py::TestMetricsFiles::test_metrics_written_for_m0_and_m1 and tests_m2/test_metrics.py::TestMetricsFiles::test_counts_follow_the_records and tests_m2/test_metrics.py::TestMetricsFiles::test_canary_acceptance_follows_the_gate_report and tests_m2/test_metrics.py::TestMetricsFiles::test_refinement_section and tests_m2/test_metrics.py::TestMetricsFiles::test_every_section13_metric_is_reported_or_not_applicable and tests_m2/test_metrics.py::TestMetricsFiles::test_no_timings_in_metrics and tests_m2/test_metrics.py::TestMetricsFiles::test_timings_file_has_the_from_scratch_gate_time and tests_m2/test_metrics.py::TestMetricsFiles::test_g1_excludes_the_timings_file and tests_m2/test_metrics.py::TestMetricsRegeneration::test_regeneration_is_byte_identical and tests_m2/test_metrics.py::TestMetricsRegeneration::test_g1_compares_metrics_and_ignores_timings"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I16-R1",
+          "claim": "0 disagreements on the M1 corpus (replay/M1/report.json refinement: n_disagreements 0, every per_action disagree 0, no harness mismatch).",
+          "check": "tests_m2/test_refinement.py::TestM1Corpus::test_m1_corpus_has_no_disagreements"
+        },
+        {
+          "id": "I16-R2",
+          "claim": "The 24 M0/M1 statuses and statement hashes are unchanged.",
+          "check": "tests_m2/test_records_v2.py::TestRecordsV2::test_statuses_unchanged and tests_m2/test_records_v2.py::TestRecordsV2::test_statement_hashes_unchanged"
+        },
+        {
+          "id": "I16-R3",
+          "claim": "gen/M0 and gen/M1 are byte-identical: native build products live in the build directory.",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged"
+        },
+        {
+          "id": "I16-R4",
+          "claim": "Gates M0 and M1 pass, with GREF among their checks.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "results/M2/refinement/",
+        "results/M2/cross_edge.json",
+        "results/M2/native.json",
+        "spec/M2/disagreements.json",
+        "results/M0/",
+        "results/M1/",
+        "replay/M2/",
+        "bend/notes/c_probe/"
+      ],
+      "tests": [
+        "tests_m2/test_native.py",
+        "tests_m2/test_refinement.py",
+        "tests_m2/test_metrics.py"
+      ],
+      "thresholds": {
+        "grammar_samples_per_codec_edge": 2000,
+        "native_mjs_agreement_min": 1.0,
+        "disagreements_per_faithful_edge_max": 0,
+        "unexplained_max": 0
+      }
     }
   }
 }

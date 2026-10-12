@@ -1,0 +1,12 @@
+{
+  "lib_version": "holon-lib/0.1",
+  "name": "toy_oracle_standin",
+  "doc": "The M1 encoding of the toy oracle machine, the baseline of I12-P1: no oracle sidecar, and each oracle compiled into the model as a stand-in builtin, exactly as spec/M1/lib/morph_rollup.lib.json compiles agg. The templates are the concrete instances of tests_m2/fixtures/oracles/lib/oracles.json (agg; dec under HypD-pad).",
+  "prelude": [],
+  "builtins": {
+    "agg": {"arity": 1, "bend": "Nat.add(${param:AGG_BASE:1000}n, b_enc($0))", "type": "Nat"},
+    "dec": {"arity": 1, "bend": "Nat.sub($0, ${param:PAD:8}n)", "type": "Nat"}
+  },
+  "record_blocks": [],
+  "shadow_values": {}
+}

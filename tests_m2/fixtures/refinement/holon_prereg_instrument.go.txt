@@ -1,0 +1,171 @@
+// HOLON I16 preregistration instrument (read by tests_m2/_i16.py::run_go_instrument).
+//
+// Written at the I16 prereg, before the I16 harness exists, and independent of it. The test copies
+// this file into a scratch copy of morph common/batch (at the pinned commit) as
+// holon_prereg_instrument_test.go and runs `go test -run '^TestHolonPreregInstrument$'`.
+//
+// Input  ($HOLON_PREREG_IN):  {"headers": {edge: [Header JSON]}, "bytes": {edge: ["0x.."]}}
+// Output ($HOLON_PREREG_OUT): {edge: [output]} in input order, in the canonical JSON form of
+// tests/reference/ref_model.value_to_json:
+//   enc_go_v0, enc_go_v1  "0x" + hex of BatchHeaderV0{..}.Bytes() / BatchHeaderV1{..}.Bytes()
+//   ok_go                 validate() == nil
+//   dec_go                null when validate() fails, else the getters' results as byte strings, in
+//                         the facts' getter order (lastBlockNumber only when version >= 1)
+package batch
+
+import (
+	"encoding/binary"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"os"
+	"strings"
+	"testing"
+
+	"github.com/morph-l2/go-ethereum/common"
+)
+
+type holonPreregIn struct {
+	Headers map[string][]map[string]string `json:"headers"`
+	Bytes   map[string][]string            `json:"bytes"`
+}
+
+func holonPreregHex(t *testing.T, s string) []byte {
+	if !strings.HasPrefix(s, "0x") {
+		t.Fatalf("not 0x-hex: %q", s)
+	}
+	b, err := hex.DecodeString(s[2:])
+	if err != nil {
+		t.Fatal(err)
+	}
+	return b
+}
+
+func holonPreregField(t *testing.T, h map[string]string, name string, width int) []byte {
+	v, ok := h[name]
+	if !ok {
+		t.Fatalf("header input has no field %s", name)
+	}
+	b := holonPreregHex(t, v)
+	if len(b) != width {
+		t.Fatalf("field %s: %d bytes, want %d", name, len(b), width)
+	}
+	return b
+}
+
+func holonPreregV0(t *testing.T, h map[string]string) BatchHeaderV0 {
+	f8 := func(n string) uint64 { return binary.BigEndian.Uint64(holonPreregField(t, h, n, 8)) }
+	f32 := func(n string) common.Hash { return common.BytesToHash(holonPreregField(t, h, n, 32)) }
+	return BatchHeaderV0{
+		BatchIndex:             f8("batchIndex"),
+		L1MessagePopped:        f8("l1MessagePopped"),
+		TotalL1MessagePopped:   f8("totalL1MessagePopped"),
+		DataHash:               f32("dataHash"),
+		BlobVersionedHash:      f32("blobVersionedHash"),
+		PrevStateRoot:          f32("prevStateHash"),
+		PostStateRoot:          f32("postStateHash"),
+		WithdrawalRoot:         f32("withdrawRootHash"),
+		SequencerSetVerifyHash: f32("sequencerSetVerifyHash"),
+		ParentBatchHash:        f32("parentBatchHash"),
+	}
+}
+
+func holonPreregOut(b []byte) string {
+	return "0x" + hex.EncodeToString(b)
+}
+
+func holonPreregU64(x uint64) []byte {
+	b := make([]byte, 8)
+	binary.BigEndian.PutUint64(b, x)
+	return b
+}
+
+// dec_go: nil when validate() fails, else every getter's result as bytes, in the facts' order.
+func holonPreregDecode(t *testing.T, b BatchHeaderBytes) interface{} {
+	if b.validate() != nil {
+		return nil
+	}
+	must := func(err error) {
+		if err != nil {
+			t.Fatalf("a getter failed after validate() passed: %v", err)
+		}
+	}
+	v, err := b.Version()
+	must(err)
+	out := []string{holonPreregOut([]byte{v})}
+	u := func(x uint64, err error) {
+		must(err)
+		out = append(out, holonPreregOut(holonPreregU64(x)))
+	}
+	hh := func(x common.Hash, err error) {
+		must(err)
+		out = append(out, holonPreregOut(x[:]))
+	}
+	u(b.BatchIndex())
+	u(b.L1MessagePopped())
+	u(b.TotalL1MessagePopped())
+	hh(b.DataHash())
+	hh(b.BlobCommitHash())
+	hh(b.PrevStateRoot())
+	hh(b.PostStateRoot())
+	hh(b.WithdrawalRoot())
+	hh(b.SequencerSetVerifyHash())
+	hh(b.ParentBatchHash())
+	if v >= 1 {
+		u(b.LastBlockNumber())
+	}
+	return out
+}
+
+func TestHolonPreregInstrument(t *testing.T) {
+	raw, err := os.ReadFile(os.Getenv("HOLON_PREREG_IN"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var in holonPreregIn
+	if err := json.Unmarshal(raw, &in); err != nil {
+		t.Fatal(err)
+	}
+	out := map[string][]interface{}{}
+	for edge, hs := range in.Headers {
+		res := make([]interface{}, 0, len(hs))
+		for _, h := range hs {
+			holonPreregField(t, h, "version", 1) // the Go structs have no version field; the input must still be a Header
+			v0 := holonPreregV0(t, h)
+			switch edge {
+			case "enc_go_v0":
+				res = append(res, holonPreregOut(v0.Bytes()))
+			case "enc_go_v1":
+				v1 := BatchHeaderV1{BatchHeaderV0: v0,
+					LastBlockNumber: binary.BigEndian.Uint64(holonPreregField(t, h, "lastBlockNumber", 8))}
+				res = append(res, holonPreregOut(v1.Bytes()))
+			default:
+				t.Fatalf("no Go encoder for edge %s", edge)
+			}
+		}
+		out[edge] = res
+	}
+	for edge, bs := range in.Bytes {
+		res := make([]interface{}, 0, len(bs))
+		for _, s := range bs {
+			b := BatchHeaderBytes(holonPreregHex(t, s))
+			switch edge {
+			case "ok_go":
+				res = append(res, b.validate() == nil)
+			case "dec_go":
+				res = append(res, holonPreregDecode(t, b))
+			default:
+				t.Fatalf("no Go function for edge %s", edge)
+			}
+		}
+		out[edge] = res
+	}
+	enc, err := json.Marshal(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(os.Getenv("HOLON_PREREG_OUT"), enc, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("HOLON-PREREG wrote outputs for %d edges\n", len(out))
+}
