@@ -768,6 +768,13 @@ def _constant_base_len(fn, base):
     return None
 
 
+def _phi_start(phi):
+    for edge in phi[1]:
+        if edge[0] == "const" and edge[1] is not None:
+            return int(edge[1])
+    return None
+
+
 def _index_partiality(fn, dump):
     seq, _ = M.walk_seq(fn)
     checked, debt = [], []
@@ -798,18 +805,18 @@ def _index_partiality(fn, dump):
             debt.append({"line": _line(fn, ins), "expr": _text(fn, e),
                          "reason": "index base has no constant local allocation length"})
             continue
-        start = 0 if coef >= 0 else bound - 1
-        end = bound - 1 if coef >= 0 else 0
+        start = _phi_start(phi)
+        if start is None:
+            debt.append({"line": _line(fn, ins), "expr": _text(fn, e),
+                         "reason": "affine loop index has no constant lower bound"})
+            continue
+        if coef <= 0:
+            debt.append({"line": _line(fn, ins), "expr": _text(fn, e),
+                         "reason": "affine loop index has a non-positive coefficient"})
+            continue
+        end = bound - 1
         min_val, max_val = coef * start + off, coef * end + off
-        first = None
-        if coef > 0:
-            first = (base_len - off + coef - 1) // coef
-        elif coef < 0:
-            # First nonnegative i for which coef*i+off >= base_len.
-            vals = (i for i in range(start, end + 1) if coef * i + off >= base_len)
-            first = next(vals, None)
-        elif off >= base_len:
-            first = start
+        first = (base_len - off + coef - 1) // coef
         item = {"line": _line(fn, ins), "expr": _text(fn, e),
                 "base_len": {"value": base_len,
                              "constant": const_by_value.get(base_len)},
