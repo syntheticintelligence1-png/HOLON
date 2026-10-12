@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON evidence set (holon-evidence/0.1): gen/<M>/evidence.json",
+  "description": "The frozen evidence set of the evidence calculus E1-E6 (whitepaper Def 4.5, §5.1, §10.2, L3; BUILD_PLAN I14), written by `python -m holon evidence` (holon/diagram/evidence.py). The contract is the docstring of tests_m2/test_evidence.py. One schema per via shape: an atom's level selects the shapes its via may take (E1: inverse or common_decoder). Uses only the keywords of holon/schema.py and tests/reference/mini_schema.py.",
+  "type": "object",
+  "required": ["document", "evidence_version", "milestone", "inputs", "levels", "sorts_sha256", "models", "atoms",
+               "unresolved", "evidence_sha256"],
+  "additionalProperties": false,
+  "properties": {
+    "document": {"const": "evidence"},
+    "evidence_version": {"const": "holon-evidence/0.1"},
+    "milestone": {"type": ["string", "null"], "pattern": "^M[0-9]+$"},
+    "inputs": {"type": "array", "items": {"$ref": "#/$defs/input"}},
+    "levels": {
+      "type": "object",
+      "required": ["E1", "E2", "E3", "E4", "E5", "E6"],
+      "additionalProperties": false,
+      "properties": {
+        "E1": {"const": "strong"}, "E2": {"const": "strong"}, "E3": {"const": "strong"}, "E4": {"const": "strong"},
+        "E5": {"const": "medium"}, "E6": {"const": "weak"}
+      }
+    },
+    "sorts_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "models": {"type": "object", "additionalProperties": {"$ref": "#/$defs/model"}},
+    "atoms": {"type": "array", "items": {"$ref": "#/$defs/atom"}},
+    "unresolved": {"type": "array", "items": {"$ref": "#/$defs/unresolved"}},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "edge": {"type": "string", "pattern": "^(CODEC|TRANS|MIG|CONS|LOAD\\.obs)\\.[^:]+$"},
+    "edges": {"type": "array", "items": {"$ref": "#/$defs/edge"}},
+    "strings": {"type": "array", "items": {"type": "string"}},
+    "input": {
+      "type": "object", "required": ["path", "sha256"], "additionalProperties": false,
+      "properties": {"path": {"type": "string"}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "model": {
+      "type": "object",
+      "required": ["facts", "facts_sha256", "facts_version", "diagram", "anchors"],
+      "additionalProperties": false,
+      "properties": {
+        "facts": {"type": "string"},
+        "facts_sha256": {"$ref": "#/$defs/sha256"},
+        "facts_version": {"enum": ["holon-facts/0.1", "holon-facts/0.2"]},
+        "diagram": {"type": ["string", "null"], "pattern": "^gen/M[0-9]+/diagram/[A-Za-z0-9_]+\\.json$"},
+        "anchors": {"$ref": "#/$defs/anchors"}
+      }
+    },
+    "anchors": {
+      "type": "object",
+      "required": ["codec", "domains", "actions", "reasons", "permissionless", "observers", "migrations", "consumers",
+                   "carriers", "trans", "sites"],
+      "additionalProperties": false,
+      "properties": {
+        "codec": {"type": "object", "additionalProperties": {"$ref": "#/$defs/edge"}},
+        "domains": {"type": "object", "additionalProperties": {"$ref": "#/$defs/edges"}},
+        "actions": {"type": "object", "additionalProperties": {"$ref": "#/$defs/edge"}},
+        "reasons": {"type": "object", "additionalProperties": {"$ref": "#/$defs/edges"}},
+        "permissionless": {"$ref": "#/$defs/edges"},
+        "observers": {"type": "object", "additionalProperties": {"$ref": "#/$defs/edge"}},
+        "migrations": {"type": "object", "additionalProperties": {"$ref": "#/$defs/edge"}},
+        "consumers": {"type": "object", "additionalProperties": {"$ref": "#/$defs/edge"}},
+        "carriers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object", "required": ["writers", "readers"], "additionalProperties": false,
+            "properties": {"writers": {"$ref": "#/$defs/edges"}, "readers": {"$ref": "#/$defs/edges"}}
+          }
+        },
+        "trans": {"$ref": "#/$defs/edges"},
+        "sites": {"type": "object", "additionalProperties": {"$ref": "#/$defs/edges"}}
+      }
+    },
+    "atom": {
+      "type": "object",
+      "required": ["id", "model", "level", "p", "q", "via", "src"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9_]+:E[1-6]:[^:]+:[^:]+:[0-9a-f]{8}$"},
+        "model": {"type": "string", "pattern": "^[A-Za-z0-9_]+$"},
+        "level": {"enum": ["E1", "E2", "E3", "E4", "E5", "E6"]},
+        "p": {"$ref": "#/$defs/edge"},
+        "q": {"$ref": "#/$defs/edge"},
+        "via": {"type": "object"},
+        "src": {"type": ["string", "null"]}
+      },
+      "allOf": [
+        {"if": {"properties": {"level": {"const": "E1"}}},
+         "then": {"properties": {"via": {"oneOf": [{"$ref": "#/$defs/via_e1_inverse"},
+                                                   {"$ref": "#/$defs/via_e1_common_decoder"}]},
+                                 "src": {"type": "null"}}}},
+        {"if": {"properties": {"level": {"const": "E2"}}},
+         "then": {"properties": {"via": {"$ref": "#/$defs/via_e2"}, "src": {"type": "null"}}}},
+        {"if": {"properties": {"level": {"const": "E3"}}},
+         "then": {"properties": {"via": {"$ref": "#/$defs/via_e3"}}}},
+        {"if": {"properties": {"level": {"const": "E4"}}},
+         "then": {"properties": {"via": {"$ref": "#/$defs/via_e4"}, "src": {"type": "null"}}}},
+        {"if": {"properties": {"level": {"const": "E5"}}},
+         "then": {"properties": {"via": {"$ref": "#/$defs/via_e5"}}}},
+        {"if": {"properties": {"level": {"const": "E6"}}},
+         "then": {"properties": {"via": {"$ref": "#/$defs/via_e6"}, "src": {"type": "null"}}}}
+      ]
+    },
+    "via_e1_inverse": {
+      "description": "E1, an encoder and a decoder: the decoder's getters active at the version, recovered (at least one) or not, in getter order",
+      "type": "object", "required": ["kind", "version", "fields", "not_recovered"], "additionalProperties": false,
+      "properties": {
+        "kind": {"const": "inverse"},
+        "version": {"type": "integer"},
+        "fields": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "not_recovered": {"$ref": "#/$defs/strings"}
+      }
+    },
+    "via_e1_common_decoder": {
+      "description": "E1, two encoders with an inverse atom at one decoder and version: the fields both recover, in getter order",
+      "type": "object", "required": ["kind", "version", "decoder", "fields"], "additionalProperties": false,
+      "properties": {
+        "kind": {"const": "common_decoder"},
+        "version": {"type": "integer"},
+        "decoder": {"$ref": "#/$defs/edge"},
+        "fields": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      }
+    },
+    "via_e2": {
+      "description": "E2, written via p and read via q: the precise overlapping index terms on one carrier, sorted",
+      "type": "object", "required": ["carrier", "writes", "reads"], "additionalProperties": false,
+      "properties": {
+        "carrier": {"type": "string"},
+        "writes": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "reads": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      }
+    },
+    "via_e3": {
+      "description": "E3, an == node of a guard's require between two path terms, operands as written",
+      "type": "object", "required": ["where", "reason", "operands"], "additionalProperties": false,
+      "properties": {
+        "where": {"type": "string", "pattern": "^guards\\[[0-9]+\\]\\.require$"},
+        "reason": {"type": ["integer", "null"]},
+        "operands": {"type": "array", "minItems": 2, "maxItems": 2}
+      }
+    },
+    "via_e4": {
+      "description": "E4, a call over action inputs stored by p (effects) and recomputed by q",
+      "type": "object", "required": ["fn", "stored", "recomputed"], "additionalProperties": false,
+      "properties": {
+        "fn": {"type": "string"},
+        "stored": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^effects\\..+$"}},
+        "recomputed": {"type": "array", "minItems": 1,
+                       "items": {"type": "string", "pattern": "^(guards\\[[0-9]+\\]\\.(require|expr)|effects\\..+)$"}}
+      }
+    },
+    "via_e5": {
+      "description": "E5, a comparison or +/- node whose operands carry one refined sort of the frozen assignment",
+      "type": "object", "required": ["where", "op", "operands", "sort"], "additionalProperties": false,
+      "properties": {
+        "where": {"type": "string", "pattern": "^(guards\\[[0-9]+\\]\\.(require|expr)|effects\\..+|body)$"},
+        "op": {"enum": ["+", "-", "==", "!=", "<", "<=", ">", ">="]},
+        "operands": {"type": "array", "minItems": 2, "maxItems": 2},
+        "sort": {"type": "string"}
+      }
+    },
+    "via_e6": {
+      "description": "E6, lexical only: the name tokens two parallel edges share, sorted",
+      "type": "object", "required": ["tokens"], "additionalProperties": false,
+      "properties": {"tokens": {"type": "array", "minItems": 1, "items": {"type": "string"}}}
+    },
+    "unresolved": {
+      "description": "an overlapping write/read pair whose only overlaps involve an imprecise term (a kindless library builtin): never evidence",
+      "type": "object", "required": ["id", "model", "p", "q", "carrier", "imprecise"], "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9_]+:unresolved:[^:]+:[^:]+:[^:]+$"},
+        "model": {"type": "string"},
+        "p": {"$ref": "#/$defs/edge"},
+        "q": {"$ref": "#/$defs/edge"},
+        "carrier": {"type": "string"},
+        "imprecise": {"enum": [["read"], ["write"], ["read", "write"]]}
+      }
+    }
+  }
+}

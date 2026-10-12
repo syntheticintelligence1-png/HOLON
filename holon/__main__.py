@@ -15,6 +15,7 @@
   python -m holon diagram --milestone M2 [--out DIR] [--root DIR]   (one diagram per fact document)
   python -m holon sorts [--milestone M2] [--root DIR] [--out DIR] [--facts PATH ...]   (refined sorts, I13)
   python -m holon native --milestone M0 [--out PATH]    (native C model, results/M2/native.json, I16)
+  python -m holon evidence [--milestone M2] [--root DIR] [--out PATH]   (evidence set E1-E6, gen/M2/evidence.json, I14)
   python -m holon refine --milestone M0 [--edges E1,E2] [--out DIR] [--morph PATH] [--work DIR] [--fix C ..]
   python -m holon metrics --milestone M [--root DIR]    (results/<M>/metrics.json, I16)
 """
@@ -39,6 +40,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["native"]:  # likewise for holon.model_native
         from . import model_native
         return model_native.main(argv[1:])
+    if argv[:1] == ["evidence"]:  # likewise for holon.diagram.evidence (I14)
+        from .diagram import evidence
+        return evidence.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
