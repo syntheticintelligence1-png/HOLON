@@ -10,8 +10,7 @@
  },
  "abstractions": [],
  "params": {
-  "OWNER": 1,
-  "rollup": 5
+  "OWNER": 1
  },
  "constants_doc": {},
  "types": {
@@ -35,14 +34,14 @@
  },
  "state": [
   [
-   "t",
-   "Nat",
-   "block.timestamp (environment)"
-  ],
-  [
    "own",
    "Nat",
    "OwnableUpgradeable._owner"
+  ],
+  [
+   "rollup",
+   "Nat",
+   "MultipleVersionRollupVerifier.rollup"
   ],
   [
    "lv",
@@ -63,8 +62,8 @@
  "ghost_state": [],
  "shadow": {},
  "initial": {
-  "t": 0,
   "own": 1,
+  "rollup": 0,
   "lv": [],
   "lvv": [],
   "log": []
@@ -74,10 +73,11 @@
   "5": "anyone"
  },
  "reasons": {
-  "1": "initialized",
-  "2": "ErrorStartBatchIndexFinalized",
-  "3": "ErrorStartBatchIndexTooSmall",
-  "4": "ErrorZeroAddress"
+  "1": "Ownable: caller is not the owner",
+  "2": "initialized",
+  "3": "ErrorStartBatchIndexFinalized",
+  "4": "ErrorStartBatchIndexTooSmall",
+  "5": "ErrorZeroAddress"
  },
  "defs": {
   "get_verifier": {
@@ -160,14 +160,25 @@
     {
      "require": [
       "==",
+      "own",
+      "who"
+     ],
+     "reason": 1,
+     "src": "@openzeppelin/contracts/access/Ownable.sol:36"
+    },
+    {
+     "require": [
+      "==",
       "rollup",
       0
      ],
-     "reason": 1,
+     "reason": 2,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:81"
     }
    ],
-   "effects": {}
+   "effects": {
+    "rollup": "r"
+   }
   },
   {
    "name": "updateVerifier",
@@ -198,11 +209,20 @@
    "guards": [
     {
      "require": [
+      "==",
+      "own",
+      "who"
+     ],
+     "reason": 1,
+     "src": "@openzeppelin/contracts/access/Ownable.sol:36"
+    },
+    {
+     "require": [
       ">",
       "st",
       "lfi"
      ],
-     "reason": 2,
+     "reason": 3,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149"
     },
     {
@@ -225,7 +245,7 @@
        "s"
       ]
      ],
-     "reason": 3,
+     "reason": 4,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:152"
     },
     {
@@ -234,7 +254,7 @@
       "a",
       0
      ],
-     "reason": 4,
+     "reason": 5,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:153"
     }
    ],

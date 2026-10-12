@@ -103,16 +103,17 @@
   "3": "invalid minimum stake",
   "4": "invalid challenge deposit",
   "5": "invalid reward percentage",
-  "6": "invalid submitter",
-  "7": "not stakeable",
-  "8": "below minimum stake",
-  "9": "not withdrawable",
-  "10": "invalid receiver",
-  "11": "not withdrawing",
-  "12": "withdrawal batch not finalized",
-  "13": "only rollup contract",
-  "14": "panic:0x11",
-  "15": "no slash remaining"
+  "6": "Ownable: caller is not the owner",
+  "7": "invalid submitter",
+  "8": "not stakeable",
+  "9": "below minimum stake",
+  "10": "not withdrawable",
+  "11": "invalid receiver",
+  "12": "not withdrawing",
+  "13": "withdrawal batch not finalized",
+  "14": "only rollup contract",
+  "15": "panic:0x11",
+  "16": "no slash remaining"
  },
  "defs": {
   "is_active": {
@@ -290,6 +291,15 @@
    "guards": [
     {
      "require": [
+      "==",
+      "own",
+      "who"
+     ],
+     "reason": 6,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+    },
+    {
+     "require": [
       "&&",
       [
        "!=",
@@ -325,7 +335,7 @@
        0
       ]
      ],
-     "reason": 6,
+     "reason": 7,
      "src": "contracts/l1/rollup/Submitter.sol:75"
     }
    ],
@@ -369,6 +379,15 @@
    "guards": [
     {
      "require": [
+      "==",
+      "own",
+      "who"
+     ],
+     "reason": 6,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+    },
+    {
+     "require": [
       "&&",
       [
        "call",
@@ -386,7 +405,7 @@
        ]
       ]
      ],
-     "reason": 6,
+     "reason": 7,
      "src": "contracts/l1/rollup/Submitter.sol:84"
     },
     {
@@ -467,6 +486,15 @@
    "guards": [
     {
      "require": [
+      "==",
+      "own",
+      "who"
+     ],
+     "reason": 6,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+    },
+    {
+     "require": [
       "&&",
       [
        ">",
@@ -504,6 +532,15 @@
    "guards": [
     {
      "require": [
+      "==",
+      "own",
+      "who"
+     ],
+     "reason": 6,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+    },
+    {
+     "require": [
       "&&",
       [
        ">",
@@ -539,6 +576,15 @@
     ]
    ],
    "guards": [
+    {
+     "require": [
+      "==",
+      "own",
+      "who"
+     ],
+     "reason": 6,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+    },
     {
      "require": [
       "&&",
@@ -604,7 +650,7 @@
        ]
       ]
      ],
-     "reason": 7,
+     "reason": 8,
      "src": "contracts/l1/rollup/Submitter.sol:113"
     },
     {
@@ -635,7 +681,7 @@
        "min_stake"
       ]
      ],
-     "reason": 8,
+     "reason": 9,
      "src": "contracts/l1/rollup/Submitter.sol:115"
     }
    ],
@@ -693,7 +739,7 @@
        0
       ]
      ],
-     "reason": 9,
+     "reason": 10,
      "src": "contracts/l1/rollup/Submitter.sol:122"
     }
    ],
@@ -754,7 +800,7 @@
       "rc",
       0
      ],
-     "reason": 10,
+     "reason": 11,
      "src": "contracts/l1/rollup/Submitter.sol:131"
     },
     {
@@ -764,7 +810,7 @@
       "who",
       "wdr"
      ],
-     "reason": 11,
+     "reason": 12,
      "src": "contracts/l1/rollup/Submitter.sol:132"
     },
     {
@@ -778,7 +824,7 @@
        "who"
       ]
      ],
-     "reason": 12,
+     "reason": 13,
      "src": "contracts/l1/rollup/Submitter.sol:133"
     },
     {
@@ -840,7 +886,7 @@
       "who",
       "rollupContract"
      ],
-     "reason": 13,
+     "reason": 14,
      "src": "contracts/l1/rollup/Submitter.sol:35"
     },
     {
@@ -859,7 +905,7 @@
       "reward",
       "vamount"
      ],
-     "reason": 14,
+     "reason": 15,
      "src": "contracts/l1/rollup/Submitter.sol:156"
     }
    ],
@@ -918,11 +964,20 @@
    "guards": [
     {
      "require": [
+      "==",
+      "own",
+      "who"
+     ],
+     "reason": 6,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+    },
+    {
+     "require": [
       "!=",
       "rc",
       0
      ],
-     "reason": 10,
+     "reason": 11,
      "src": "contracts/l1/rollup/Submitter.sol:162"
     },
     {
@@ -931,7 +986,7 @@
       "srem",
       0
      ],
-     "reason": 15,
+     "reason": 16,
      "src": "contracts/l1/rollup/Submitter.sol:164"
     }
    ],

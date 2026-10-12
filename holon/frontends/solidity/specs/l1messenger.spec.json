@@ -591,6 +591,16 @@
  ],
  "coverage_items": [
   {
+   "element": "bf",
+   "kind": "abstracted",
+   "reason": "unread: queue fee abstracted as the per-call input amt (= gasLimit*l2BaseFee); see defs.est_fee.body"
+  },
+  {
+   "element": "fq",
+   "kind": "abstracted",
+   "reason": "unread: queue fee abstracted as the per-call input amt (= gasLimit*l2BaseFee); see defs.est_fee.body"
+  },
+  {
    "element": "contracts/l1/L1CrossDomainMessenger.sol:replayMessage enqueue",
    "kind": "unmodelled_call",
    "reason": "appendCrossDomainMessage side effects live on the queue machine"
@@ -669,7 +679,10 @@
  "coverage_out": "spec/M3/coverage/l1messenger.json",
  "coverage": {
   "modelled": [],
-  "debt": []
+  "debt": [
+   "bf",
+   "fq"
+  ]
  },
  "types": {
   "RS": {

@@ -58,6 +58,10 @@ class Translator:
     def __init__(self, world, spec):
         self.world = world
         self.spec = spec
+        # state register the spec maps from Ownable._owner storage (e.g. 'own');
+        # when present, owner()/_checkOwner translate against it instead of the
+        # OWNER param
+        self.owner_reg = ((spec.get("storage") or {}).get("_owner") or {}).get("field")
         self.guards = []            # emitted guard/let items
         self.guard_prov = []        # 'ast'|'spec' parallel to guards
         self.writes = []            # (family_kind, key, conds, expr)
@@ -882,6 +886,8 @@ class Translator:
         return None
 
     def call_internal(self, name, args, node):
+        if self.owner_reg and name + "()" == "owner()":
+            return self.owner_reg
         if name + "()" in self.spec.get("env", {}):
             return self.spec["env"][name + "()"]
         ctor = self.spec.get("struct_ctors", {}).get(name)
@@ -917,6 +923,10 @@ class Translator:
             return ("unmodelled", name)
         fn = self.find_fn(self.cur_fn[0] if self.cur_fn else None, name) or self.find_fn(None, name)
         if fn is None:
+            if name == "_checkOwner" and self.owner_reg:
+                self.emit_require(["==", self.owner_reg, "who"],
+                                  "Ownable: caller is not the owner", self.src(node))
+                return ("void",)
             self.add_debt(f"{self.src(node)} call {name}", "unmodelled_call", f"{name} not in scope contracts")
             return ("unmodelled", name)
         return self.inline_fn((self.cur_fn[0] if self.cur_fn else None, name), args, node, fn)

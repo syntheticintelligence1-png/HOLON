@@ -119,7 +119,6 @@
  "env": {
   "msg.sender": "who",
   "_msgSender()": "who",
-  "block.timestamp": "t",
   "msg.value": "value",
   "owner()": "OWNER"
  },
@@ -155,8 +154,7 @@
  "disch": {},
  "consumers": {},
  "params": {
-  "OWNER": 1,
-  "rollup": 5
+  "OWNER": 1
  },
  "principal_map": {
   "onlyOwner": "owner"
@@ -181,14 +179,14 @@
  },
  "state": [
   [
-   "t",
-   "Nat",
-   "block.timestamp (environment)"
-  ],
-  [
    "own",
    "Nat",
    "OwnableUpgradeable._owner"
+  ],
+  [
+   "rollup",
+   "Nat",
+   "MultipleVersionRollupVerifier.rollup"
   ],
   [
    "lv",
@@ -207,8 +205,8 @@
   ]
  ],
  "initial": {
-  "t": 0,
   "own": 1,
+  "rollup": 0,
   "lv": [],
   "lvv": [],
   "log": []
@@ -225,7 +223,8 @@
    "record": "V"
   },
   "rollup": {
-   "kind": "oracle_addr"
+   "kind": "scalar",
+   "field": "rollup"
   },
   "_owner": {
    "kind": "scalar",

@@ -1,6 +1,14 @@
 {
   "coverage_debt": [
     {
+      "element": "bf",
+      "source": "spec/M3/extracted/l1messenger.json"
+    },
+    {
+      "element": "fq",
+      "source": "spec/M3/extracted/l1messenger.json"
+    },
+    {
       "element": "batch.BatchCache.createBatchHeaderWithSequencerSetHash:1690",
       "kind": "off_output_write",
       "reason": "op writes buffer ('alloc', 5), not the returned bytes (input construction; modelled via the field precondition)",
@@ -1110,7 +1118,8 @@
           ],
           "quantified": [],
           "registers": [
-            "maxr"
+            "maxr",
+            "own"
           ]
         },
         "wait": {
@@ -1376,8 +1385,18 @@
           ]
         },
         "own": {
-          "how": {},
-          "laws": []
+          "how": {
+            "L_msg_budget_owner_lifts": [
+              "action:updateMaxReplayTimes"
+            ],
+            "L_setup_msg_budget_owner_lifts": [
+              "action:updateMaxReplayTimes"
+            ]
+          },
+          "laws": [
+            "L_msg_budget_owner_lifts",
+            "L_setup_msg_budget_owner_lifts"
+          ]
         },
         "paused": {
           "how": {
@@ -1659,17 +1678,15 @@
       },
       "uncovered": [
         "action sendMessage2",
-        "register bf",
         "register fq",
-        "register own"
+        "register bf"
       ]
     }
   },
   "milestone": "M3_msg",
   "uncovered": [
     "spec/M3/extracted/l1messenger.json: action sendMessage2",
-    "spec/M3/extracted/l1messenger.json: register bf",
     "spec/M3/extracted/l1messenger.json: register fq",
-    "spec/M3/extracted/l1messenger.json: register own"
+    "spec/M3/extracted/l1messenger.json: register bf"
   ]
 }

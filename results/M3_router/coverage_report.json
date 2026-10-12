@@ -1033,7 +1033,10 @@
         "initialize": {
           "direct": [],
           "quantified": [],
-          "registers": []
+          "registers": [
+            "own",
+            "rollup"
+          ]
         },
         "updateVerifier": {
           "direct": [
@@ -1050,7 +1053,8 @@
           "quantified": [],
           "registers": [
             "lv",
-            "lvv"
+            "lvv",
+            "own"
           ]
         },
         "verifyAggregateProof": {
@@ -1171,10 +1175,48 @@
           ]
         },
         "own": {
-          "how": {},
-          "laws": []
+          "how": {
+            "L_rt_before_start": [
+              "action:updateVerifier"
+            ],
+            "L_rt_finalized_start": [
+              "action:updateVerifier"
+            ],
+            "L_rt_latest": [
+              "action:updateVerifier"
+            ],
+            "L_rt_latest2": [
+              "action:updateVerifier"
+            ],
+            "L_rt_legacy": [
+              "action:updateVerifier"
+            ],
+            "L_rt_same_start_replaces": [
+              "action:updateVerifier"
+            ],
+            "L_setup_rt_latest": [
+              "action:updateVerifier"
+            ],
+            "L_setup_rt_legacy": [
+              "action:updateVerifier"
+            ],
+            "L_setup_rt_same_start_replaces": [
+              "action:updateVerifier"
+            ]
+          },
+          "laws": [
+            "L_rt_before_start",
+            "L_rt_finalized_start",
+            "L_rt_latest",
+            "L_rt_latest2",
+            "L_rt_legacy",
+            "L_rt_same_start_replaces",
+            "L_setup_rt_latest",
+            "L_setup_rt_legacy",
+            "L_setup_rt_same_start_replaces"
+          ]
         },
-        "t": {
+        "rollup": {
           "how": {},
           "laws": []
         }
@@ -1182,8 +1224,7 @@
       "uncovered": [
         "action initialize",
         "action verifyAggregateProof",
-        "register t",
-        "register own"
+        "register rollup"
       ]
     }
   },
@@ -1191,7 +1232,6 @@
   "uncovered": [
     "spec/M3/extracted/mvrv.json: action initialize",
     "spec/M3/extracted/mvrv.json: action verifyAggregateProof",
-    "spec/M3/extracted/mvrv.json: register t",
-    "spec/M3/extracted/mvrv.json: register own"
+    "spec/M3/extracted/mvrv.json: register rollup"
   ]
 }
