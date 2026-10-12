@@ -101,6 +101,8 @@ class TestE3Extraction(unittest.TestCase):
         self.assertNotEqual(differ, self.committed["retrieve_blob_bytes"]["differ"])
         self.assertFalse(
             differ["error_reports_unchecked_value"]["common_batch"])
+        self.assertEqual(f["retrieve_blob_bytes"]["common_batch"]
+                         ["index_partiality"]["panic_set"], [])
 
     def test_mutant_parse_batch_value_id_shift(self):
         def mutate(m):

@@ -134,5 +134,62 @@ class TestM3NatReplay(_ForgeRun):
             self.assertEqual(rep["laws"][lid]["verdict"], "agree")
 
 
+def _go_available() -> bool:
+    if not shutil.which("go") and not Path("/usr/local/go/bin/go").exists():
+        return False
+    if not (MORPH / "node/derivation/batch_info.go").exists():
+        return False
+    try:
+        out = subprocess.run(["git", "-C", str(MORPH), "rev-parse", "HEAD"],
+                             capture_output=True, text=True, timeout=30)
+        return out.stdout.strip().startswith("3e44e79")
+    except Exception:
+        return False
+
+
+def _go_project() -> Path:
+    proj = WORK / "go"
+    for d in ("bindings", "common", "node"):
+        if not (proj / d).exists():
+            shutil.copytree(MORPH / d, proj / d, symlinks=True)
+    (proj / "go.work").write_text(
+        "go 1.24.0\n\nuse (\n\t./bindings\n\t./common\n\t./node\n)\n")
+    shutil.copy(ROOT / "replay" / "M3" / "go" / "holon_f3_test.go",
+                proj / "node" / "derivation")
+    return proj
+
+
+@unittest.skipUnless(_go_available(), "needs go + morph @3e44e79")
+class TestM3F3Replay(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        proj = _go_project()
+        go = shutil.which("go") or "/usr/local/go/bin/go"
+        env = dict(os.environ)
+        env.setdefault("GOTOOLCHAIN", "local")
+        cls.cmd = [go, "test", "./derivation", "-run", "TestHolonF3", "-v", "-count=1"]
+        cls.res = subprocess.run(cls.cmd, cwd=proj / "node", env=env,
+                                 capture_output=True, text=True, timeout=1800)
+
+    def test_go_passed(self):
+        self.assertEqual(self.res.returncode, 0,
+                         self.res.stdout[-3000:] + self.res.stderr[-2000:])
+        self.assertIn("--- PASS: TestHolonF3RetrievePanic", self.res.stdout)
+        self.assertIn("--- PASS: TestHolonF3ParseBatchPanic", self.res.stdout)
+
+    def test_f3_lines(self):
+        out = self.res.stdout
+        self.assertIn("HOLON f3 0 commitment ok", out)
+        self.assertIn("HOLON f3 1 common_batch panic runtime error: index out of range", out)
+        self.assertIn("HOLON f3 2 common_batch control error invalid blob", out)
+        self.assertIn("HOLON f3 3 common_blob control error invalid blob", out)
+        self.assertIn("HOLON f3 4 parse_batch panic runtime error: index out of range", out)
+
+    def test_report_consistent(self):
+        rep = json.loads((ROOT / "replay" / "M3" / "f3_report.json").read_text())
+        self.assertTrue(rep["morph_commit"].startswith("3e44e79"))
+        self.assertEqual(rep["verdict"], "replayed_panic")
+
+
 if __name__ == "__main__":
     unittest.main()

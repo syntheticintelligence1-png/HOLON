@@ -717,6 +717,73 @@
     "reported_operand": "data[i * 32]",
     "error_reports_unchecked_value": true
    },
+   "index_partiality": {
+    "checked": [
+     {
+      "line": 49,
+      "expr": "data[i * 32]",
+      "base_len": {
+       "value": 126976,
+       "constant": {
+        "name": "MaxBlobBytesSize",
+        "pkg": "morph-l2/common/blob",
+        "type": "untyped int",
+        "value": "126976"
+       }
+      },
+      "index_range": {
+       "loop_var": "i",
+       "start": 0,
+       "end": 4095,
+       "value_min": 0,
+       "value_max": 131040
+      },
+      "path_condition": [
+       "i < 4096",
+       "blob[i * 32] != 0"
+      ],
+      "first_panicking_index": 3968,
+      "panic_condition": "i * 32 >= 126976 (i >= 3968)",
+      "panics": true
+     }
+    ],
+    "panic_set": [
+     {
+      "line": 49,
+      "expr": "data[i * 32]",
+      "base_len": {
+       "value": 126976,
+       "constant": {
+        "name": "MaxBlobBytesSize",
+        "pkg": "morph-l2/common/blob",
+        "type": "untyped int",
+        "value": "126976"
+       }
+      },
+      "index_range": {
+       "loop_var": "i",
+       "start": 0,
+       "end": 4095,
+       "value_min": 0,
+       "value_max": 131040
+      },
+      "path_condition": [
+       "i < 4096",
+       "blob[i * 32] != 0"
+      ],
+      "first_panicking_index": 3968,
+      "panic_condition": "i * 32 >= 126976 (i >= 3968)",
+      "panics": true
+     }
+    ],
+    "debt": [
+     {
+      "line": 48,
+      "expr": "blob[i * 32]",
+      "reason": "index base has no constant local allocation length"
+     }
+    ]
+   },
    "copy_calls": [
     {
      "arguments": [
@@ -741,6 +808,22 @@
     "guard_operand": "blob[i * 32]",
     "reported_operand": "blob[i * 32]",
     "error_reports_unchecked_value": false
+   },
+   "index_partiality": {
+    "checked": [],
+    "panic_set": [],
+    "debt": [
+     {
+      "line": 46,
+      "expr": "blob[i * 32]",
+      "reason": "index base has no constant local allocation length"
+     },
+     {
+      "line": 47,
+      "expr": "blob[i * 32]",
+      "reason": "index base has no constant local allocation length"
+     }
+    ]
    },
    "copy_calls": [
     {
@@ -777,11 +860,129 @@
       "reported_operand": "blob[i * 32]",
       "error_reports_unchecked_value": false
      }
+    },
+    {
+     "field": "index_partiality",
+     "common_batch": {
+      "checked": [
+       {
+        "line": 49,
+        "expr": "data[i * 32]",
+        "base_len": {
+         "value": 126976,
+         "constant": {
+          "name": "MaxBlobBytesSize",
+          "pkg": "morph-l2/common/blob",
+          "type": "untyped int",
+          "value": "126976"
+         }
+        },
+        "index_range": {
+         "loop_var": "i",
+         "start": 0,
+         "end": 4095,
+         "value_min": 0,
+         "value_max": 131040
+        },
+        "path_condition": [
+         "i < 4096",
+         "blob[i * 32] != 0"
+        ],
+        "first_panicking_index": 3968,
+        "panic_condition": "i * 32 >= 126976 (i >= 3968)",
+        "panics": true
+       }
+      ],
+      "panic_set": [
+       {
+        "line": 49,
+        "expr": "data[i * 32]",
+        "base_len": {
+         "value": 126976,
+         "constant": {
+          "name": "MaxBlobBytesSize",
+          "pkg": "morph-l2/common/blob",
+          "type": "untyped int",
+          "value": "126976"
+         }
+        },
+        "index_range": {
+         "loop_var": "i",
+         "start": 0,
+         "end": 4095,
+         "value_min": 0,
+         "value_max": 131040
+        },
+        "path_condition": [
+         "i < 4096",
+         "blob[i * 32] != 0"
+        ],
+        "first_panicking_index": 3968,
+        "panic_condition": "i * 32 >= 126976 (i >= 3968)",
+        "panics": true
+       }
+      ],
+      "debt": [
+       {
+        "line": 48,
+        "expr": "blob[i * 32]",
+        "reason": "index base has no constant local allocation length"
+       }
+      ]
+     },
+     "common_blob": {
+      "checked": [],
+      "panic_set": [],
+      "debt": [
+       {
+        "line": 46,
+        "expr": "blob[i * 32]",
+        "reason": "index base has no constant local allocation length"
+       },
+       {
+        "line": 47,
+        "expr": "blob[i * 32]",
+        "reason": "index base has no constant local allocation length"
+       }
+      ]
+     }
     }
    ],
    "error_reports_unchecked_value": {
     "common_batch": true,
     "common_blob": false
+   },
+   "index_panic_set": {
+    "common_batch": [
+     {
+      "line": 49,
+      "expr": "data[i * 32]",
+      "base_len": {
+       "value": 126976,
+       "constant": {
+        "name": "MaxBlobBytesSize",
+        "pkg": "morph-l2/common/blob",
+        "type": "untyped int",
+        "value": "126976"
+       }
+      },
+      "index_range": {
+       "loop_var": "i",
+       "start": 0,
+       "end": 4095,
+       "value_min": 0,
+       "value_max": 131040
+      },
+      "path_condition": [
+       "i < 4096",
+       "blob[i * 32] != 0"
+      ],
+      "first_panicking_index": 3968,
+      "panic_condition": "i * 32 >= 126976 (i >= 3968)",
+      "panics": true
+     }
+    ],
+    "common_blob": []
    }
   }
  },

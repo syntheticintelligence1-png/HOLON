@@ -727,6 +727,110 @@ def _decode_txs(fn):
             "unsupported_branch": unsupported}
 
 
+def _affine_index(e):
+    """Return (loop phi, coefficient, offset) for an affine index expression."""
+    if e[0] == "phi":
+        return e, 1, 0
+    if e[0] == "const":
+        return None, 0, int(e[1])
+    if e[0] != "binop":
+        return None, 0, None
+    if e[1] in ("+", "-"):
+        lphi, la, lo = _affine_index(e[2])
+        rphi, ra, ro = _affine_index(e[3])
+        if lphi is not None and (rphi is None or rphi == lphi):
+            sign = 1 if e[1] == "+" else -1
+            return lphi, la + sign * ra, lo + sign * ro
+        if rphi is not None and lphi is None and e[1] == "+":
+            return rphi, ra, lo + ro
+    if e[1] == "*":
+        lphi, la, lo = _affine_index(e[2])
+        rphi, ra, ro = _affine_index(e[3])
+        if lphi is not None and rphi is None:
+            return lphi, la * ro, lo * ro
+        if rphi is not None and lphi is None:
+            return rphi, ra * lo, ro * lo
+    return None, 0, None
+
+
+def _constant_base_len(fn, base):
+    """Length of a locally allocated constant-size slice/array base."""
+    base = M.strip_loads(M.strip_casts(base))
+    if base[0] == "slice" and base[3][0] == "const" and base[3][1] is not None:
+        return int(base[3][1])
+    if base[0] == "makeslice" and base[1][0] == "const":
+        return int(base[1][1])
+    if base[0] == "alloc":
+        ty = (fn.instr(base[1]) or {}).get("type", "")
+        m = re.match(r"\*\[(\d+)\]", ty)
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def _index_partiality(fn, dump):
+    seq, _ = M.walk_seq(fn)
+    checked, debt = [], []
+    const_by_value = {}
+    for c in dump.consts:
+        if c["name"] == "MaxBlobBytesSize":
+            try:
+                const_by_value.setdefault(int(c["value"]), c)
+            except (TypeError, ValueError):
+                pass
+    for ins in fn.d["instrs"]:
+        if ins["op"] not in ("index", "indexaddr") or len(ins.get("args") or []) < 2:
+            continue
+        e = M.expr(fn, ins["id"])
+        phi, coef, off = _affine_index(e[2])
+        if phi is None:
+            continue
+        loop = next((i for i in fn.d["instrs"] if i["op"] == "if" and
+                     (c := M.expr(fn, i.get("cond")))[0] == "binop" and
+                     c[1] == "<" and c[2] == phi and c[3][0] == "const"), None)
+        if loop is None:
+            debt.append({"line": _line(fn, ins), "expr": _text(fn, e),
+                         "reason": "affine loop index has no constant upper bound"})
+            continue
+        bound = int(M.expr(fn, loop["cond"])[3][1])
+        base_len = _constant_base_len(fn, e[1])
+        if base_len is None:
+            debt.append({"line": _line(fn, ins), "expr": _text(fn, e),
+                         "reason": "index base has no constant local allocation length"})
+            continue
+        start = 0 if coef >= 0 else bound - 1
+        end = bound - 1 if coef >= 0 else 0
+        min_val, max_val = coef * start + off, coef * end + off
+        first = None
+        if coef > 0:
+            first = (base_len - off + coef - 1) // coef
+        elif coef < 0:
+            # First nonnegative i for which coef*i+off >= base_len.
+            vals = (i for i in range(start, end + 1) if coef * i + off >= base_len)
+            first = next(vals, None)
+        elif off >= base_len:
+            first = start
+        item = {"line": _line(fn, ins), "expr": _text(fn, e),
+                "base_len": {"value": base_len,
+                             "constant": const_by_value.get(base_len)},
+                "index_range": {"loop_var": _text(fn, phi),
+                                "start": start, "end": end,
+                                "value_min": min_val, "value_max": max_val},
+                "path_condition": _path(fn, _conditions_for_ins(seq, ins["id"]))}
+        if first is not None and start <= first <= end:
+            item["first_panicking_index"] = first
+            item["panic_condition"] = (f"{_text(fn, e[2])} >= {base_len} "
+                                       f"({_text(fn, phi)} >= {first})")
+            item["panics"] = True
+        else:
+            item["panic_condition"] = None
+            item["panics"] = False
+        checked.append(item)
+    return {"checked": checked,
+            "panic_set": [x for x in checked if x["panics"]],
+            "debt": debt}
+
+
 def _fmt_arg_exprs(fn, fmt_e, line):
     if len(fmt_e[2]) < 2 or fmt_e[2][1][0] != "slice" or fmt_e[2][1][1][0] != "alloc":
         return []
@@ -744,7 +848,7 @@ def _fmt_arg_exprs(fn, fmt_e, line):
     return out
 
 
-def _twin_summary(fn):
+def _twin_summary(fn, dump):
     calls = _call_records(fn)
     seq, _ = M.walk_seq(fn)
     guards = [_text(fn, M.expr(fn, i["cond"])) for i in fn.d["instrs"] if i["op"] == "if"]
@@ -773,12 +877,14 @@ def _twin_summary(fn):
             "error_format": message,
             "error_arguments": error_args,
             "unchecked_error_operand": unchecked,
+            "index_partiality": _index_partiality(fn, dump),
             "copy_calls": [{"arguments": c["arguments"]} for c in copies]}
 
 
 def _twin_diff(a, b):
     differences = []
-    for key in ("loop_conditions", "error_format", "error_arguments", "unchecked_error_operand", "copy_calls"):
+    for key in ("loop_conditions", "error_format", "error_arguments", "unchecked_error_operand",
+                "index_partiality", "copy_calls"):
         if a[key] != b[key]:
             differences.append({"field": key, "common_batch": a[key], "common_blob": b[key]})
     structural_keys = ("loop_conditions", "error_format", "copy_calls")
@@ -786,7 +892,10 @@ def _twin_diff(a, b):
             "differences_derived_by_recursive_field_comparison": differences,
             "error_reports_unchecked_value": {
                 "common_batch": (a.get("unchecked_error_operand") or {}).get("error_reports_unchecked_value"),
-                "common_blob": (b.get("unchecked_error_operand") or {}).get("error_reports_unchecked_value")}}
+                "common_blob": (b.get("unchecked_error_operand") or {}).get("error_reports_unchecked_value")},
+            "index_panic_set": {
+                "common_batch": a["index_partiality"]["panic_set"],
+                "common_blob": b["index_partiality"]["panic_set"]}}
 
 
 def _producer_sites(dump):
@@ -815,8 +924,8 @@ def extract_derivation(dump: M.Dump, target_commit: str) -> dict:
     combine = _find_fn(dump, "combinePayloads", "common/batch/batch_data.go")
     decode = _find_fn(dump, "DecodeTxsFromBytes", "common/batch/blob.go")
 
-    batch_summary = _twin_summary(batch_twin)
-    blob_summary = _twin_summary(blob_twin)
+    batch_summary = _twin_summary(batch_twin, dump)
+    blob_summary = _twin_summary(blob_twin, dump)
     comp = _combine_payloads(combine)
     data_hash = _data_hash(data_hash_fn)
     est_fact = _estimator(estimate, dump=dump)

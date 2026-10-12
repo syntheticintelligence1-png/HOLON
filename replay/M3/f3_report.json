@@ -1,0 +1,227 @@
+{
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "harness": "replay/M3/go/holon_f3_test.go",
+  "command": "go test ./derivation -run TestHolonF3 -v -count=1  # in a scratch workspace containing pinned morph bindings/, common/, node/",
+  "go_version": "go version go1.24.0 linux/amd64",
+  "finding": {
+    "panic_site": "common/batch/blob.go:49",
+    "panic_expression": "data[i*32]",
+    "base": "data := make([]byte, MaxBlobBytesSize)",
+    "base_len": 126976,
+    "loop": "for i := 0; i < 4096; i++",
+    "first_panicking_index": 3968,
+    "path_condition": [
+      "i < 4096",
+      "blob[i*32] != 0"
+    ]
+  },
+  "reachability_trace": [
+    {
+      "step": 0,
+      "file": "node/derivation/derivation.go",
+      "line": 194,
+      "event": "func (d *Derivation) Start()"
+    },
+    {
+      "step": 1,
+      "file": "node/derivation/derivation.go",
+      "line": 200,
+      "event": "go func() { ... } starts the derivation loop"
+    },
+    {
+      "step": 2,
+      "file": "node/derivation/derivation.go",
+      "line": 207,
+      "event": "d.derivationBlock(d.ctx)"
+    },
+    {
+      "step": 3,
+      "file": "node/derivation/derivation.go",
+      "line": 456,
+      "event": "VerifyModeLayer1 calls d.fetchRollupDataByTxHash(lg.TxHash, lg.BlockNumber)"
+    },
+    {
+      "step": 4,
+      "file": "node/derivation/derivation.go",
+      "line": 380,
+      "event": "VerifyModeLocal scenario C calls d.fetchRollupDataByTxHash(lg.TxHash, lg.BlockNumber)"
+    },
+    {
+      "step": 5,
+      "file": "node/derivation/derivation.go",
+      "line": 428,
+      "event": "VerifyModeLocal self-heal calls d.fetchRollupDataByTxHash(lg.TxHash, lg.BlockNumber)"
+    },
+    {
+      "step": 6,
+      "file": "node/derivation/derivation.go",
+      "line": 548,
+      "event": "func (d *Derivation) fetchRollupDataByTxHash(txHash common.Hash, blockNumber uint64)"
+    },
+    {
+      "step": 7,
+      "file": "node/derivation/derivation.go",
+      "line": 549,
+      "event": "TransactionByHash fetches the L1 transaction"
+    },
+    {
+      "step": 8,
+      "file": "node/derivation/derivation.go",
+      "line": 556,
+      "event": "UnPackData decodes the commit-batch calldata"
+    },
+    {
+      "step": 9,
+      "file": "node/derivation/derivation.go",
+      "line": 568,
+      "event": "tx.BlobHashes() obtains the L1-signed versioned blob hashes"
+    },
+    {
+      "step": 10,
+      "file": "node/derivation/derivation.go",
+      "line": 589,
+      "event": "d.l1BeaconClient.GetVerifiedBlobSidecar(...) fetches and content-verifies sidecars"
+    },
+    {
+      "step": 11,
+      "file": "node/derivation/beacon.go",
+      "line": 273,
+      "event": "func (c *FallbackBeaconClient) GetVerifiedBlobSidecar(...)"
+    },
+    {
+      "step": 12,
+      "file": "node/derivation/beacon.go",
+      "line": 284,
+      "event": "GetBlobSidecarsEnhanced fetches beacon sidecars"
+    },
+    {
+      "step": 13,
+      "file": "node/derivation/beacon.go",
+      "line": 292,
+      "event": "blobsFromSidecars verifies and assembles the wanted blobs"
+    },
+    {
+      "step": 14,
+      "file": "node/derivation/beacon.go",
+      "line": 343,
+      "event": "hexutil.Decode(sidecar.Blob)"
+    },
+    {
+      "step": 15,
+      "file": "node/derivation/beacon.go",
+      "line": 347,
+      "event": "len(b) != BlobSize length check"
+    },
+    {
+      "step": 16,
+      "file": "node/derivation/beacon.go",
+      "line": 352,
+      "event": "verifyBlob(&blob, expected)"
+    },
+    {
+      "step": 17,
+      "file": "node/derivation/beacon.go",
+      "line": 179,
+      "event": "kzg4844.BlobToCommitment(blob.KZGBlob())"
+    },
+    {
+      "step": 18,
+      "file": "node/derivation/beacon.go",
+      "line": 183,
+      "event": "KZGToVersionedHash(commitment) compared with expectedHash"
+    },
+    {
+      "step": 19,
+      "file": "node/derivation/derivation.go",
+      "line": 596,
+      "event": "batch.Sidecar = sidecar"
+    },
+    {
+      "step": 20,
+      "file": "node/derivation/derivation.go",
+      "line": 599,
+      "event": "d.parseBatch(batch)"
+    },
+    {
+      "step": 21,
+      "file": "node/derivation/derivation.go",
+      "line": 715,
+      "event": "batchInfo.ParseBatch(batch)"
+    },
+    {
+      "step": 22,
+      "file": "node/derivation/batch_info.go",
+      "line": 114,
+      "event": "for i := range batch.Sidecar.Blobs"
+    },
+    {
+      "step": 23,
+      "file": "node/derivation/batch_info.go",
+      "line": 116,
+      "event": "commonbatch.RetrieveBlobBytes(&blobCopy)"
+    },
+    {
+      "step": 24,
+      "file": "common/batch/blob.go",
+      "line": 48,
+      "event": "blob[i*32] != 0 guard"
+    },
+    {
+      "step": 25,
+      "file": "common/batch/blob.go",
+      "line": 49,
+      "event": "fmt.Errorf(..., data[i*32], i) evaluates data[i*32]"
+    }
+  ],
+  "pre_line_116_checks": [
+    {
+      "file": "node/derivation/beacon.go",
+      "line": 347,
+      "check": "decoded blob length is 131072"
+    },
+    {
+      "file": "node/derivation/beacon.go",
+      "lines": [178, 186],
+      "check": "KZG commitment from blob equals commitment implied by L1 versioned hash"
+    },
+    {
+      "file": "node/derivation/batch_info.go",
+      "lines": [88, 105],
+      "check": "non-empty sidecar; parent header BatchIndex and TotalL1MessagePopped decode"
+    },
+    {
+      "file": "common/batch/blob.go",
+      "line": 48,
+      "check": "high-order-byte != 0 is the first high-byte check; it is the path condition for the panic site"
+    }
+  ],
+  "canonical_or_high_byte_checks_before_line_116": [],
+  "recover_search": {
+    "command": "grep -RInE 'recover[[:space:]]*\\(' node common --include='*.go'",
+    "matches": [],
+    "stack_entry": "node/derivation/derivation.go:200 go func()",
+    "panic_path": "derivation.go:207 -> :236 derivationBlock -> :380|:428|:456 fetchRollupDataByTxHash -> :548 -> :599 parseBatch -> :713 -> :715 ParseBatch -> batch_info.go:116 -> common/batch/blob.go:49"
+  },
+  "panic_effect": "The panic is unhandled on the derivation goroutine; no recover() exists in node/ or common/, so Go terminates the process rather than returning an error.",
+  "replay_output": [
+    "=== RUN   TestHolonF3RetrievePanic",
+    "HOLON f3 0 commitment ok",
+    "HOLON f3 1 common_batch panic runtime error: index out of range [126976] with length 126976",
+    "HOLON f3 2 common_batch control error invalid blob, found non-zero high order byte 0 of field element 3967",
+    "HOLON f3 3 common_blob control error invalid blob, found non-zero high order byte 1 of field element 3968",
+    "--- PASS: TestHolonF3RetrievePanic (0.00s)",
+    "=== RUN   TestHolonF3ParseBatchPanic",
+    "HOLON f3 4 parse_batch panic runtime error: index out of range [126976] with length 126976",
+    "--- PASS: TestHolonF3ParseBatchPanic (0.00s)",
+    "PASS",
+    "ok  \tmorph-l2/node/derivation\t2.119s"
+  ],
+  "verdict": "replayed_panic",
+  "evidence": {
+    "commitment": "kzg4844.BlobToCommitment(&malformed) succeeded for blob[3968*32]=0x01",
+    "panic": "runtime error: index out of range [126976] with length 126976",
+    "control_3967": "commonbatch.RetrieveBlobBytes returned an error without panic",
+    "control_common_blob": "commonblob.RetrieveBlobBytes returned an error without panic",
+    "entry_point": "BatchInfo.ParseBatch panicked on the public exported entry point"
+  }
+}
