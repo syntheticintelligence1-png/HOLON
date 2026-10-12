@@ -27,6 +27,10 @@ FROZEN_ROOTS = [
     "schemas",
     "tests",
     "bend/probes",
+    "laws/A3",
+    "spec/M2/A3/build_laws.py",
+    "spec/M2/A3/sample_mutants.py",
+    "spec/M2/A3/mutants.json",
 ]
 SKIP_PARTS = {"__pycache__", ".pytest_cache"}
 
