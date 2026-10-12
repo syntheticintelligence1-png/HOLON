@@ -680,7 +680,12 @@ class Gate:
             # replay report, refinement records and disagreements), compared byte for byte
             from . import metrics as MT
             mp = self.results / "metrics.json"
-            same_metrics = mp.exists() and mp.read_text() == MT.render(MT.compute(self.m, self.root, tmp / "results"))
+            # every section byte for byte except canary_acceptance, which metrics reads from gate_report.json:
+            # a gate output G1 never compares (G1_EXCLUDED; I3), so the previous gate run cannot decide G1
+            regen = json.loads(MT.render(MT.compute(self.m, self.root, tmp / "results")))
+            same_metrics = mp.exists() and (ir.canonical_json({k: v for k, v in json.loads(mp.read_text()).items()
+                                                               if k not in MT.GATE_DERIVED})
+                                            == ir.canonical_json({k: v for k, v in regen.items() if k not in MT.GATE_DERIVED}))
             ok = not diff and same_summary and bool(a) and not rdiff and bool(ra) and same_metrics
             self.checks["G1"] = _res(ok, f"{len(a)} generated .bend and .defs.json files identical, summary and deps identical, "
                                          f"{len(ra)} records identical, metrics.json identical" if ok else

@@ -85,6 +85,10 @@ def prediction_accuracy(milestone: str, recs: dict[str, dict], root: Path) -> di
     return {"source": rel, "predicted": len(preds), "met": met, "rate": _rate(met, len(preds))}
 
 
+# sections read from the gate's own outputs (gate_report.json): G1 does not compare them (holon.gate G1_EXCLUDED)
+GATE_DERIVED = ("canary_acceptance",)
+
+
 def compute(milestone: str, root: Path = ROOT, results: Path | None = None) -> dict:
     root = Path(root)
     recs = records(milestone, results or root / "results" / milestone)

@@ -272,8 +272,9 @@ def record(milestone: str = "M0", root: Path = ROOT) -> dict:
                 "exit_code": e.exit_code if isinstance(e.exit_code, int) else -1,
                 "bend_version": bend.version(), "engine": "mjs",
                 "note": "the native C build failed, so the .mjs model stays the engine (BUILD_PLAN I16 fallback); "
-                        "every refinement record runs on .mjs. The failure and a minimal reproduction are in "
-                        "bend/notes/c_probe/RESULT.json (arity_limit)",
+                        "every refinement record runs on .mjs. "
+                        + ("The failure and a minimal reproduction are in bend/notes/c_probe/RESULT.json (arity_limit)"
+                           if "arity over" in (e.output or "") else "See reason for the captured build error"),
                 "driver_on_bend_lane": driver_on_bend_lane(facts_path, mjs, jobs, len(laws))}
     a = mjs.run_jobs([j for _, j in jobs])
     b = nat.run_jobs([j for _, j in jobs])
