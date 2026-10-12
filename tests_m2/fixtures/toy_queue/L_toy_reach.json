@@ -1,0 +1,14 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_toy_reach",
+  "milestone": "T0",
+  "rule": "DISCH",
+  "subform": "profile_point",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Planted TRUE law: some successful trace from s0 makes the counter 2.",
+  "evidence": "list",
+  "statement": {"binders": [{"q": "exists", "name": "st", "type": "Trace"}], "assume": [],
+                "claim": {"all": [{"eq": [{"fn": "runs_ok", "args": [{"var": "st"}, {"s0": {}}]}, {"bool": true}]},
+                                  {"eq": [{"obsv": "n_of", "of": {"run": {"var": "st"}, "from": {"s0": {}}}}, {"nat": 2}]}]}}
+}

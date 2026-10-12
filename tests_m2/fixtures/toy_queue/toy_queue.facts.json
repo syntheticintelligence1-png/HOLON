@@ -1,0 +1,31 @@
+{
+  "facts_version": "holon-facts/0.2",
+  "target": {"repo": "holon/toy-queue", "commit": "0000000000000000000000000000000000000000",
+             "scope": "a bounded FIFO with a counter: a non-Morph target for the target-agnostic generators (I6)"},
+  "extraction": {"method": "hand-written fixture", "date": "2026-10-12"},
+  "abstractions": ["Values are Nat; the queue is a list, newest last."],
+  "params": {},
+  "types": {},
+  "state": [["q", "List<Nat>", "queue contents, oldest first"],
+            ["n", "Nat", "element counter"],
+            ["log", "List<Obs>", "observations"]],
+  "ghost_state": [],
+  "initial": {"doc": "empty queue", "q": [], "n": 0, "log": []},
+  "principals": {},
+  "reasons": {"1": "queue empty"},
+  "defs": {},
+  "actions": [
+    {"name": "push", "src": "toy: push(x)", "principal": "anyone", "inputs": [["x", "Nat"]],
+     "guards": [], "effects": {"q": ["call", "snoc", "q", "x"], "n": ["+", "n", 1]}},
+    {"name": "pop", "src": "toy: pop()", "principal": "anyone", "inputs": [],
+     "guards": [{"require": [">", ["call", "len", "q"], 0], "reason": 1}],
+     "effects": {"q": ["call", "tail", "q"], "n": ["-", "n", 1]}}
+  ],
+  "observers": {
+    "n_of": {"params": [["s", "State"]], "type": "Nat", "body": "n", "doc": "the counter"},
+    "small": {"params": [["s", "State"]], "type": "Bool", "body": ["<=", "n", 2], "doc": "planted false claim: the counter never exceeds 2"}
+  },
+  "policy": "generic",
+  "search": {"domains": {"push": {"x": [1, 2]}}, "prefixDepth": 4, "maxPrefixes": 400},
+  "coverage": {"modelled": ["push", "pop"], "debt": []}
+}

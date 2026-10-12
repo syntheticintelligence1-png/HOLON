@@ -649,6 +649,51 @@
       "thresholds": {
         "open_high_findings_before_I6": 0
       }
+    },
+    "I6": {
+      "title": "Target-agnostic generators, byte-identical",
+      "plan": "docs/BUILD_PLAN.md#i6",
+      "prompt": "prompts/I6_target_agnostic.md",
+      "predictions": [
+        {
+          "id": "I6-P1",
+          "claim": "With the Morph library moved to spec/ target libraries, gen/M0/** and gen/M1/** are byte-identical (tree hash pinned at the prereg) and spec/bindings is unchanged.",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged and tests_m2/test_target_agnostic.py::TestByteIdentity::test_bindings_unchanged"
+        },
+        {
+          "id": "I6-P2",
+          "claim": "All 24 records are identical modulo seconds and generator_sha256, witnesses included (the search hints preserve the explorer's candidate order).",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_records_unchanged_modulo_seconds_and_generator_hash"
+        },
+        {
+          "id": "I6-P3",
+          "claim": "The generic generator modules hold no Morph identifier (empty allowlist); the Morph libraries and hints live under spec/.",
+          "check": "tests_m2/test_target_agnostic.py::TestNoMorphInGenerators"
+        },
+        {
+          "id": "I6-P4",
+          "claim": "A toy non-Morph queue machine runs through the same generators: the planted true law L_toy_reach is PROVED and the planted false law L_toy_small is REFUTED with a witness of at least 3 pushes.",
+          "check": "tests_m2/test_target_agnostic.py::TestToyMachine::test_planted_true_law_proved_and_false_law_refuted"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I6-R1",
+          "claim": "24 statuses and statement hashes unchanged; canaries at least 16 and 21, all rejected; gates M0 and M1 pass.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M0/",
+        "gen/M1/",
+        "results/M0/",
+        "results/M1/",
+        "spec/bindings/"
+      ],
+      "tests": [
+        "tests_m2/test_target_agnostic.py"
+      ],
+      "thresholds": {}
     }
   }
 }
