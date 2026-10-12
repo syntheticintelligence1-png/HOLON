@@ -11,7 +11,8 @@ One deterministic diagram per fact document, built by adapters with one mapping 
   python -m holon diagram --milestone M2 [--out DIR] [--root DIR]
 
 writes <out or gen/<M>/diagram>/<model>.json for every fact document of the milestone: facts/*.json
-and spec/M<j>/facts/*.json for j <= the milestone. Diagrams start at M2: gen/M0 and gen/M1 are
+and spec/M<j>/facts/*.json for j <= the milestone, except extracted documents (*.extracted.json, holon extract:
+compared with the frozen facts, not fact documents yet). Diagrams start at M2: gen/M0 and gen/M1 are
 pinned byte for byte (I6), so no diagram is written under them.
 """
 from __future__ import annotations
@@ -38,6 +39,9 @@ def fact_documents(milestone: str, root: Path | str = ROOT) -> list[Path]:
     docs = sorted((root / "facts").glob("*.json"))
     for j in range(1, k + 1):
         docs += sorted((root / "spec" / f"M{j}" / "facts").glob("*.json"))
+    # An extracted document (holon extract, holon-facts/0.3: *.extracted.json, I17/I18) is compared with the frozen
+    # facts, not used as one: it becomes a fact document only when a later iteration adopts it (I20).
+    docs = [p for p in docs if not p.name.endswith(".extracted.json")]
     stems = [p.stem for p in docs]
     dup = sorted({s for s in stems if stems.count(s) > 1})
     if dup:
