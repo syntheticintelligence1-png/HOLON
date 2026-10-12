@@ -1,0 +1,93 @@
+{
+ "facts": "spec/M3/extracted/mvrv.json",
+ "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+ "ir_version": "holon-ir/0.2",
+ "law_id": "L_init_rt_same_start_replaces",
+ "milestone": "M3_router",
+ "notes": "R9 restatement of L_rt_same_start_replaces on an initialised router (1 s0 trace(s) prefixed with initialize); :157-163 same start replaces in place",
+ "predicted": "PROVED",
+ "rule": "PAR",
+ "statement": {
+  "assume": [],
+  "binders": [],
+  "claim": {
+   "eq": [
+    {
+     "args": [
+      {
+       "nat": 0
+      },
+      {
+       "nat": 10
+      }
+     ],
+     "obsv": "verifier_of",
+     "of": {
+      "from": {
+       "s0": {}
+      },
+      "run": {
+       "trace": [
+        {
+         "act": "initialize",
+         "args": {
+          "r": {
+           "nat": 5
+          },
+          "who": {
+           "nat": 1
+          }
+         }
+        },
+        {
+         "act": "updateVerifier",
+         "args": {
+          "a": {
+           "nat": 3
+          },
+          "lfi": {
+           "nat": 5
+          },
+          "st": {
+           "nat": 10
+          },
+          "v": {
+           "nat": 0
+          },
+          "who": {
+           "nat": 1
+          }
+         }
+        },
+        {
+         "act": "updateVerifier",
+         "args": {
+          "a": {
+           "nat": 4
+          },
+          "lfi": {
+           "nat": 5
+          },
+          "st": {
+           "nat": 10
+          },
+          "v": {
+           "nat": 0
+          },
+          "who": {
+           "nat": 1
+          }
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "nat": 4
+    }
+   ]
+  }
+ },
+ "subform": "scenario"
+}

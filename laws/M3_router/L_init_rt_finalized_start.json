@@ -1,0 +1,76 @@
+{
+ "facts": "spec/M3/extracted/mvrv.json",
+ "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+ "ir_version": "holon-ir/0.2",
+ "law_id": "L_init_rt_finalized_start",
+ "milestone": "M3_router",
+ "notes": "R9 restatement of L_rt_finalized_start on an initialised router (1 s0 trace(s) prefixed with initialize); :149 start <= lastFinalizedBatchIndex",
+ "predicted": "PROVED",
+ "rule": "GUARD",
+ "statement": {
+  "assume": [],
+  "binders": [],
+  "claim": {
+   "eq": [
+    {
+     "args": [
+      {
+       "from": {
+        "from": {
+         "s0": {}
+        },
+        "run": {
+         "trace": [
+          {
+           "act": "initialize",
+           "args": {
+            "r": {
+             "nat": 5
+            },
+            "who": {
+             "nat": 1
+            }
+           }
+          }
+         ]
+        }
+       },
+       "obs": {
+        "trace": [
+         {
+          "act": "updateVerifier",
+          "args": {
+           "a": {
+            "nat": 3
+           },
+           "lfi": {
+            "nat": 5
+           },
+           "st": {
+            "nat": 5
+           },
+           "v": {
+            "nat": 0
+           },
+           "who": {
+            "nat": 1
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "reason": "ErrorStartBatchIndexFinalized"
+      }
+     ],
+     "fn": "no_code"
+    },
+    {
+     "bool": false
+    }
+   ]
+  }
+ },
+ "subform": "scenario"
+}
