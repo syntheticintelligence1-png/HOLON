@@ -1,0 +1,180 @@
+{
+  "facts": "spec/M3/extracted/l1messenger.json",
+  "facts_sha256": "10ecd16a67de10d871dfef4ad59ec05987205f2d3f3fa90ce83d9d5cf6661f6b",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_msgr_sender_can_replay",
+  "maps_to": "O34 (F8)",
+  "milestone": "M3_msg",
+  "notes": "exit obligation: after third-party replays, the original sender (5) can still replay its own message without owner action.",
+  "predicted": "REFUTED",
+  "rule": "DISCH",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": [
+                    {
+                      "act": "wait",
+                      "args": {
+                        "dt": {
+                          "nat": 1
+                        }
+                      }
+                    },
+                    {
+                      "act": "sendMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "gl": {
+                          "nat": 1
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "to": {
+                          "nat": 9
+                        },
+                        "val": {
+                          "nat": 0
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 5
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    },
+                    {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 1
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    },
+                    {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 2
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    },
+                    {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 3
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "step": {
+                "act": "replayMessage",
+                "args": {
+                  "amt": {
+                    "nat": 4
+                  },
+                  "from": {
+                    "nat": 5
+                  },
+                  "mn": {
+                    "nat": 0
+                  },
+                  "qi": {
+                    "nat": 4
+                  },
+                  "value": {
+                    "nat": 4
+                  },
+                  "who": {
+                    "nat": 5
+                  },
+                  "xh": {
+                    "nat": 11
+                  }
+                }
+              }
+            }
+          ],
+          "fn": "last_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "obligation_scenario"
+}

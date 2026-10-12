@@ -1,0 +1,217 @@
+{
+  "facts": "spec/M3/extracted/morph_rollup.json",
+  "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_natr_slash_at_stake",
+  "maps_to": "O13/O14 (F10)",
+  "milestone": "M3_nat",
+  "notes": "O14 (F10) naturality, slash edge: when the proof window of a post-cutover challenge on batch 1 has elapsed, its committer is still a member of the registry the challenger win will slash. Depends on spec-bound initialize4 effect active := nact.",
+  "predicted": "REFUTED",
+  "rule": "NAT",
+  "statement": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "args": [
+              {
+                "from": {
+                  "from": {
+                    "s0": {}
+                  },
+                  "run": {
+                    "trace": [
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "who": {
+                            "nat": 5
+                          }
+                        }
+                      },
+                      {
+                        "act": "commitBatch",
+                        "args": {
+                          "blobs": {
+                            "nats": [
+                              7
+                            ]
+                          },
+                          "lbn": {
+                            "nat": 1
+                          },
+                          "n": {
+                            "nat": 1
+                          },
+                          "parent": {
+                            "nat": 0
+                          },
+                          "post": {
+                            "nat": 101
+                          },
+                          "prev": {
+                            "nat": 100
+                          },
+                          "ver": {
+                            "nat": 1
+                          },
+                          "who": {
+                            "var": "w"
+                          }
+                        }
+                      },
+                      {
+                        "act": "challengeState",
+                        "args": {
+                          "idx": {
+                            "nat": 1
+                          },
+                          "value": {
+                            "nat": 1
+                          },
+                          "who": {
+                            "nat": 4
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "step": {
+                  "act": "proveState",
+                  "args": {
+                    "idx": {
+                      "nat": 1
+                    },
+                    "proof": {
+                      "nat": 1
+                    },
+                    "who": {
+                      "var": "w"
+                    }
+                  }
+                }
+              }
+            ],
+            "fn": "last_ok"
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "w",
+        "q": "forall",
+        "type": "Nat"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "var": "w"
+            }
+          ],
+          "obsv": "active_has",
+          "of": {
+            "from": {
+              "s0": {}
+            },
+            "run": {
+              "trace": [
+                {
+                  "act": "sendMessage",
+                  "args": {
+                    "who": {
+                      "nat": 5
+                    }
+                  }
+                },
+                {
+                  "act": "commitBatch",
+                  "args": {
+                    "blobs": {
+                      "nats": [
+                        7
+                      ]
+                    },
+                    "lbn": {
+                      "nat": 1
+                    },
+                    "n": {
+                      "nat": 1
+                    },
+                    "parent": {
+                      "nat": 0
+                    },
+                    "post": {
+                      "nat": 101
+                    },
+                    "prev": {
+                      "nat": 100
+                    },
+                    "ver": {
+                      "nat": 1
+                    },
+                    "who": {
+                      "var": "w"
+                    }
+                  }
+                },
+                {
+                  "act": "initialize4",
+                  "args": {
+                    "exp": {
+                      "nat": 1
+                    },
+                    "nact": {
+                      "nats": [
+                        7
+                      ]
+                    },
+                    "sub": {
+                      "nat": 9
+                    },
+                    "who": {
+                      "nat": 6
+                    }
+                  }
+                },
+                {
+                  "act": "challengeState",
+                  "args": {
+                    "idx": {
+                      "nat": 1
+                    },
+                    "value": {
+                      "nat": 1
+                    },
+                    "who": {
+                      "nat": 4
+                    }
+                  }
+                },
+                {
+                  "act": "wait",
+                  "args": {
+                    "dt": {
+                      "nat": 10
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "naturality_scenario"
+}

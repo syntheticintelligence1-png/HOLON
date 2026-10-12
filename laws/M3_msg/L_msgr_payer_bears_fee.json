@@ -1,0 +1,123 @@
+{
+  "facts": "spec/M3/extracted/l1messenger.json",
+  "facts_sha256": "10ecd16a67de10d871dfef4ad59ec05987205f2d3f3fa90ce83d9d5cf6661f6b",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_msgr_payer_bears_fee",
+  "maps_to": "O29 (F8)",
+  "milestone": "M3_msg",
+  "notes": "payer/bearer: a replay by a non-whitelisted caller (6) that pays 0 must fail the fee check; the waiver must follow the payer, not the origin _from.",
+  "predicted": "REFUTED",
+  "rule": "SORT",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": [
+                    {
+                      "act": "wait",
+                      "args": {
+                        "dt": {
+                          "nat": 1
+                        }
+                      }
+                    },
+                    {
+                      "act": "setWhitelist",
+                      "args": {
+                        "b": {
+                          "bool": true
+                        },
+                        "sub": {
+                          "nat": 5
+                        },
+                        "who": {
+                          "nat": 0
+                        }
+                      }
+                    },
+                    {
+                      "act": "sendMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "gl": {
+                          "nat": 1
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "to": {
+                          "nat": 9
+                        },
+                        "val": {
+                          "nat": 0
+                        },
+                        "value": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 5
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "obs": {
+                "trace": [
+                  {
+                    "act": "replayMessage",
+                    "args": {
+                      "amt": {
+                        "nat": 4
+                      },
+                      "from": {
+                        "nat": 5
+                      },
+                      "mn": {
+                        "nat": 0
+                      },
+                      "qi": {
+                        "nat": 1
+                      },
+                      "value": {
+                        "nat": 0
+                      },
+                      "who": {
+                        "nat": 6
+                      },
+                      "xh": {
+                        "nat": 11
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "reason": "Insufficient msg.value for fee"
+            }
+          ],
+          "fn": "no_code"
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "subform": "obligation_scenario"
+}
