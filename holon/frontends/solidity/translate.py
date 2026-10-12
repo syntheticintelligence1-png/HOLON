@@ -707,7 +707,8 @@ class Translator:
                 tname = inner["expression"].get("typeDescriptions", {}).get("typeString", "")
                 cname = _contract_name(tname) or inner["expression"].get("name")
                 key = f"{cname}.{mem}" if cname else None
-                return self.call_contract(key, cname, None, n["arguments"], n)
+                addr = self.X(inner["arguments"][0]) if inner.get("arguments") else None
+                return self.call_contract(key, cname, addr, n["arguments"], n)
             if inner.get("nodeType") == "Identifier":
                 f = self.fam(inner["name"])
                 if f and f["kind"] == "queue" and mem == "push":
@@ -717,8 +718,8 @@ class Translator:
                 return self.call_named(f"{lib}.{mem}", n["arguments"], n)
             obj = self.X(inner)
             if isinstance(obj, tuple) and obj[0] == "contract":
-                cname = self.spec.get("contract_ifaces", {}).get(obj[1], obj[1])
-                return self.call_contract(f"{cname}.{mem}", cname, None, n["arguments"], n)
+                cname = self.spec.get("contract_ifaces", {}).get(obj[1], obj[1]) if isinstance(obj[1], str) else obj[1]
+                return self.call_contract(f"{cname}.{mem}", cname, obj[1], n["arguments"], n)
             if isinstance(obj, tuple) and obj[0] == "map":
                 f = self.fam(obj[1])
                 if f and f["kind"] == "queue" and mem == "push":
@@ -813,7 +814,56 @@ class Translator:
         self.add_debt(f"{self.src(node)} call {key}", "unmodelled_call", f"call {key} not translated")
         return ("unmodelled", key)
 
+    def _addr_bound(self, name):
+        """Whether a bare name is a modelled value: state register, action
+        input, or let/computed name."""
+        if name in self.fact_inputs:
+            return True
+        f = self.fam(name)
+        if f and f.get("kind") == "scalar":
+            return True
+        if any(name in q for q in self.let_names.values()):
+            return True
+        if any(it.get("let") == name for it in self.pending):
+            return True
+        if any(it.get("let") == name for it in getattr(self, "guards", [])):
+            return True
+        if any(isinstance(st, dict) and st.get("name") == name
+               for st in getattr(self, "hoist_bound", {}).values()):
+            return True
+        return False
+
+    def _addr_expr(self, e):
+        """Callee address of a high-level external call as a model expr, or
+        None when the address is not a modelled value (oracle_addr, unmodelled
+        or map-wrapped storage var, immutable): those are deployment-fixed
+        addresses the model has no register for; the caller records them as
+        `assumed` debt instead of inventing a value."""
+        if isinstance(e, list):
+            return e
+        if isinstance(e, tuple) and e[0] in ("addr", "contract", "map", "unmodelled", "debt", "imm"):
+            inner = e[1]
+            if isinstance(inner, (tuple, list)):
+                return self._addr_expr(inner)
+            return inner if self._addr_bound(inner) else None
+        if isinstance(e, str):
+            return e if self._addr_bound(e) else None
+        return e
+
     def call_contract(self, key, cname, addr, args, node):
+        # High-level external call (contract-typed callee): Solidity >=0.8
+        # reverts on a target without code (extcodesize / empty returndata
+        # decode). Address 0 has no code, so require the callee != 0 -- but
+        # only when the callee address is a value the model has. Calls on
+        # `this`, library calls and low-level calls don't reach here.
+        if addr is not None and addr != "this" and addr != 0:
+            e = self._addr_expr(addr)
+            if e is None:
+                name = addr[1] if isinstance(addr, tuple) else addr
+                self.add_debt(f"{self.src(node)} call target {name}", "assumed",
+                              f"deployment-fixed address {name} assumed nonzero with code")
+            else:
+                self.emit_require(["!=", e, 0], "call to address without code", self.src(node))
         oc = self.spec["oracles"].get(key) if key else None
         if oc:
             if "inline" in oc:

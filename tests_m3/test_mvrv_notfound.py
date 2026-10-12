@@ -1,11 +1,12 @@
 """M3: MVRV getVerifier not-found as an extracted call-site revert.
 
-Model-eval assertions are the faithful outcomes of the extracted facts
-(vap(3,1) ok from s0 because latest.s=0 skips the not-found branch and the
-oracle verifyBatch always succeeds in the model; see replay/M3/
-mvrv_notfound_report.json for the on-chain extcodesize revert). Near-miss
-cases check the structural recogniser leaves unmatched loops as
-untranslated_loop.
+Model-eval assertions are the faithful outcomes of the extracted facts.
+Under the R9 code-presence guard, an uninitialised machine (rollup==0)
+reverts updateVerifier/vap with "call to address without code" (reason 3);
+after initialize(r!=0) the R4 not-found semantics hold with
+ErrorVerifierNotFound at reason id 7. See replay/M3/mvrv_notfound_report.json
+for the on-chain controls. Near-miss cases check the structural recogniser
+leaves unmatched loops as untranslated_loop.
 """
 import json
 import os
@@ -41,35 +42,48 @@ class TestMvrvModelOutcome(unittest.TestCase):
     def obs(self, trace):
         return self.model_logs(self.cm, [trace])[0][-1]
 
-    def test_unregistered_vap_ok(self):
-        # v=3 unregistered: latest.s=0 <= idx -> not-found branch unreachable;
-        # model's oracle verifyBatch succeeds. On chain this reverts with empty
-        # data (extcodesize), covered by the unmodelled_revert coverage item.
+    INIT = {"op": "initialize", "who": 1, "r": 6}
+
+    def test_uninitialised_vap_rev(self):
+        # s0: rollup==0, so the code-presence guard on IRollup(0) reverts --
+        # "call to address without code", reason 3 (native: ctrlC_uninit_*).
         obs = self.obs([{"op": "verifyAggregateProof", "who": 5, "v": 3, "idx": 1}])
-        self.assertEqual(obs, {"$": "O_Ok"})
+        self.assertEqual(obs, {"$": "O_Rev", "code": 3})
+
+    def test_uninitialised_update_verifier_rev(self):
+        obs = self.obs([{"op": "updateVerifier", "who": 1, "v": 3, "st": 10, "a": 7, "lfi": 0}])
+        self.assertEqual(obs, {"$": "O_Rev", "code": 3})
+
+    def test_unregistered_vap_rev_after_init(self):
+        # initialised (rollup=6): unregistered v=3 gives v_verifier==0 ->
+        # the verifyBatch code-presence guard reverts, reason 3.
+        obs = self.obs([self.INIT, {"op": "verifyAggregateProof", "who": 5, "v": 3, "idx": 1}])
+        self.assertEqual(obs, {"$": "O_Rev", "code": 3})
 
     def test_registered_latest_not_found_rev(self):
         upd = {"op": "updateVerifier", "who": 1, "v": 3, "st": 10, "a": 7, "lfi": 0}
-        obs = self.obs([upd, {"op": "verifyAggregateProof", "who": 5, "v": 3, "idx": 9}])
-        # ErrorVerifierNotFound, facts reasons id 6
-        self.assertEqual(obs, {"$": "O_Rev", "code": 6})
+        obs = self.obs([self.INIT, upd, {"op": "verifyAggregateProof", "who": 5, "v": 3, "idx": 9}])
+        # ErrorVerifierNotFound, facts reasons id 7
+        self.assertEqual(obs, {"$": "O_Rev", "code": 7})
 
     def test_registered_latest_at_start_ok(self):
         upd = {"op": "updateVerifier", "who": 1, "v": 3, "st": 10, "a": 7, "lfi": 0}
-        obs = self.obs([upd, {"op": "verifyAggregateProof", "who": 5, "v": 3, "idx": 10}])
+        obs = self.obs([self.INIT, upd, {"op": "verifyAggregateProof", "who": 5, "v": 3, "idx": 10}])
         self.assertEqual(obs, {"$": "O_Ok"})
 
     def test_legacy_cover_ok(self):
-        tr = [{"op": "updateVerifier", "who": 1, "v": 3, "st": 5, "a": 7, "lfi": 0},
+        tr = [self.INIT,
+              {"op": "updateVerifier", "who": 1, "v": 3, "st": 5, "a": 7, "lfi": 0},
               {"op": "updateVerifier", "who": 1, "v": 3, "st": 10, "a": 8, "lfi": 5},
               {"op": "verifyAggregateProof", "who": 5, "v": 3, "idx": 9}]
         self.assertEqual(self.obs(tr), {"$": "O_Ok"})
 
     def test_legacy_no_cover_rev(self):
-        tr = [{"op": "updateVerifier", "who": 1, "v": 3, "st": 5, "a": 7, "lfi": 0},
+        tr = [self.INIT,
+              {"op": "updateVerifier", "who": 1, "v": 3, "st": 5, "a": 7, "lfi": 0},
               {"op": "updateVerifier", "who": 1, "v": 3, "st": 10, "a": 8, "lfi": 5},
               {"op": "verifyAggregateProof", "who": 5, "v": 3, "idx": 4}]
-        self.assertEqual(self.obs(tr), {"$": "O_Rev", "code": 6})
+        self.assertEqual(self.obs(tr), {"$": "O_Rev", "code": 7})
 
 
 @unittest.skipUnless(_world_available(), "needs morph tree + solc to build the AST world")

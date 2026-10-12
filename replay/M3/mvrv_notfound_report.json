@@ -4,16 +4,37 @@
  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
  "solc": "0.8.24",
  "deployment": "real MultipleVersionRollupVerifier (real constructor with empty versions/verifiers + real initialize); LastFinalizedIndex stand-in supplies only IRollup.lastFinalizedBatchIndex (a dependency, not a contract under test); AcceptingVerifier is a code-bearing verifyBatch target; no vm.store, no etched code, no mocks of MVRV",
- "result": "3 tests passed, 0 failed",
+ "result": "4 tests passed, 0 failed",
  "probes": {
-  "vap_unregistered": {"call": "verifyAggregateProof(3, 1, \"\", 0x0)", "outcome": "rev", "revert_data": "0x",
-   "note": "unregistered v=3: latestVerifier.s=0, the not-found branch is unreachable; getVerifier returns address(0); solc 0.8.24's extcodesize check on the code-less verifyBatch target reverts with empty data"},
-  "ctrlA_idx9": {"call": "updateVerifier(3, 10, <code-bearing AcceptingVerifier>) then verifyAggregateProof(3, 9, ..)", "outcome": "rev", "revert_data": "0x70f6c8ff",
-   "note": "latest.s=10 > 9 and no legacy element covers 9 -> ErrorVerifierNotFound() selector"},
-  "ctrlA_idx10": {"call": "verifyAggregateProof(3, 10, ..) after the same updateVerifier", "outcome": "ok",
-   "note": "s=10 is not > 10; getVerifier returns the registered verifier; verifyBatch succeeds"},
-  "ctrlB_idx10": {"call": "updateVerifier(3, 10, <EOA 0xE0A>) then verifyAggregateProof(3, 10, ..)", "outcome": "rev", "revert_data": "0x",
-   "note": "guard passes (s=10 not > 10) but the EOA verifyBatch target has no code -> extcodesize revert, empty data"}
+  "vap_unregistered": {
+   "call": "verifyAggregateProof(3, 1, \"\", 0x0)",
+   "outcome": "rev",
+   "revert_data": "0x",
+   "note": "unregistered v=3: latestVerifier.s=0, the not-found branch is unreachable; getVerifier returns address(0); solc 0.8.24's extcodesize check on the code-less verifyBatch target reverts with empty data"
+  },
+  "ctrlA_idx9": {
+   "call": "updateVerifier(3, 10, <code-bearing AcceptingVerifier>) then verifyAggregateProof(3, 9, ..)",
+   "outcome": "rev",
+   "revert_data": "0x70f6c8ff",
+   "note": "latest.s=10 > 9 and no legacy element covers 9 -> ErrorVerifierNotFound() selector"
+  },
+  "ctrlA_idx10": {
+   "call": "verifyAggregateProof(3, 10, ..) after the same updateVerifier",
+   "outcome": "ok",
+   "note": "s=10 is not > 10; getVerifier returns the registered verifier; verifyBatch succeeds"
+  },
+  "ctrlB_idx10": {
+   "call": "updateVerifier(3, 10, <EOA 0xE0A>) then verifyAggregateProof(3, 10, ..)",
+   "outcome": "rev",
+   "revert_data": "0x",
+   "note": "guard passes (s=10 not > 10) but the EOA verifyBatch target has no code -> extcodesize revert, empty data"
+  },
+  "ctrlC_uninit_updateVerifier": {
+   "call": "updateVerifier(3, 10, 0xACCE) on a freshly deployed, uninitialised MVRV (owner = deployer via constructor)",
+   "outcome": "rev",
+   "revert_data": "0x",
+   "note": "rollup storage is unset (0) before initialize; IRollup(0).lastFinalizedBatchIndex() reverts with empty data via solc's code-presence check -- the R9 setup-order artefact behind the M3_router flips"
+  }
  },
  "raw_output": "Ran 3 tests for test/HolonMvrvNotFoundReplay.t.sol:HolonMvrvNotFoundReplayTest\n[PASS] test_control_contract_verifier() (gas: 445911)\nLogs:\n  HOLON mvrv ctrlA_idx9 rev 0x70f6c8ff\n  HOLON mvrv ctrlA_idx10 ok\n\n[PASS] test_control_eoa_verifier() (gas: 408829)\nLogs:\n  HOLON mvrv ctrlB_idx10 rev 0x\n\n[PASS] test_probe() (gas: 352357)\nLogs:\n  HOLON mvrv vap_unregistered rev 0x\n\nSuite result: ok. 3 passed; 0 failed; 0 skipped; finished in 1.49ms (3.28ms CPU time)"
 }

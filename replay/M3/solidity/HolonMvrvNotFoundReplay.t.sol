@@ -74,6 +74,23 @@ contract HolonMvrvNotFoundReplayTest is Test {
         assertTrue(ok10);
     }
 
+    /// Control C: a freshly deployed, uninitialised MVRV. The constructor
+    /// sets owner() to the deployer, so this contract can call updateVerifier
+    /// directly; rollup is still unset, so IRollup(0).lastFinalizedBatchIndex()
+    /// reverts with empty data.
+    function test_control_uninitialised() public {
+        uint256[] memory vs = new uint256[](0);
+        address[] memory as_ = new address[](0);
+        mvrv = new MultipleVersionRollupVerifier(vs, as_);
+        // the constructor sets owner() to the deployer, so this contract can
+        // call updateVerifier; rollup stays unset, so IRollup(0) reverts.
+        (bool ok, bytes memory data) = address(mvrv).call(
+            abi.encodeCall(MultipleVersionRollupVerifier.updateVerifier, (3, 10, address(uint160(0xACCE)))));
+        logResult("ctrlC_uninit_updateVerifier", ok, data);
+        assertTrue(!ok);
+        assertEq(data.length, 0);
+    }
+
     /// Control B: EOA verifier at st=10. idx=10 passes the guard but the
     /// code-less verifyBatch target reverts with empty data.
     function test_control_eoa_verifier() public {

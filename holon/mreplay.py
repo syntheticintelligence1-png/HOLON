@@ -330,12 +330,23 @@ def run_forge(morph: Path, work: Path, traces: list[list[dict]], facts: dict, fo
     return res, f"HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+{CHUNK} {shown}  # per chunk of {CHUNK} traces", code
 
 
+# Model reason -> revert data a replay harness prints for it. solc's
+# code-presence check reverts with empty data; corpus harnesses print
+# undecodable data as "raw:<hex>".
+REASON_DATA = {"call to address without code": "raw:0x"}
+
+
+def reason_str(facts: dict, code) -> str:
+    s = facts["reasons"][str(code)]
+    return REASON_DATA.get(s, s)
+
+
 def obs_str(facts: dict, o) -> str:
     if o is None:
         return "ok"
     if o["$"] == "O_Ok":
         return "ok"
-    return "rev " + facts["reasons"][str(o["code"])]
+    return "rev " + reason_str(facts, o["code"])
 
 
 def compare(facts: dict, model: list, real: dict, tid: int, trace: list[dict]) -> tuple[list, list]:
@@ -366,7 +377,7 @@ def verdict_obstruction(facts: dict, kind: str, outs: list, real: dict) -> tuple
     if kind == "symptom":
         (r0, _, _, _, t0), = outs
         last = real.get((t0, len(r0["trace"]) - 1))
-        want = facts["reasons"][str(r0["symptom"][1])]
+        want = reason_str(facts, r0["symptom"][1])
         return (bool(last) and last[0] == "rev" and last[1] == want,
                 f"last step on the real code: {last}")
     if kind == "accepted":
