@@ -1,0 +1,114 @@
+{
+  "facts": "spec/M3/extracted/l1messenger.json",
+  "facts_sha256": "ca5a8c6d22c8a5e9a9906f1185daee6a20483785038501ab8385e1f2a2d731ad",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_cov_send2_dup",
+  "milestone": "M3_msg",
+  "notes": "L1CrossDomainMessenger.sol:304 both overloads share messageSendTimestamp",
+  "predicted": "PROVED",
+  "rule": "SORT",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": [
+                    {
+                      "act": "wait",
+                      "args": {
+                        "dt": {
+                          "nat": 1
+                        }
+                      }
+                    },
+                    {
+                      "act": "sendMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "gl": {
+                          "nat": 1
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "to": {
+                          "nat": 9
+                        },
+                        "val": {
+                          "nat": 0
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 5
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "obs": {
+                "trace": [
+                  {
+                    "act": "sendMessage2",
+                    "args": {
+                      "amt": {
+                        "nat": 4
+                      },
+                      "gl": {
+                        "nat": 1
+                      },
+                      "mn": {
+                        "nat": 0
+                      },
+                      "ra": {
+                        "nat": 5
+                      },
+                      "to": {
+                        "nat": 9
+                      },
+                      "val": {
+                        "nat": 0
+                      },
+                      "value": {
+                        "nat": 4
+                      },
+                      "who": {
+                        "nat": 5
+                      },
+                      "xh": {
+                        "nat": 11
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "reason": "Duplicated message"
+            }
+          ],
+          "fn": "no_code"
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "subform": "coverage_scenario"
+}

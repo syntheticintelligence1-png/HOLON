@@ -1,0 +1,91 @@
+{
+  "facts": "spec/M3/extracted/morph_rollup.json",
+  "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_cov_revert_ok",
+  "milestone": "M3_nat",
+  "notes": "Rollup.sol:430-462 owner reverts the last unfinalized batch",
+  "predicted": "PROVED",
+  "rule": "UNDO",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": [
+                    {
+                      "act": "sendMessage",
+                      "args": {
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    },
+                    {
+                      "act": "commitBatch",
+                      "args": {
+                        "blobs": {
+                          "nat": [
+                            7
+                          ]
+                        },
+                        "lbn": {
+                          "nat": 1
+                        },
+                        "n": {
+                          "nat": 1
+                        },
+                        "parent": {
+                          "nat": 0
+                        },
+                        "post": {
+                          "nat": 101
+                        },
+                        "prev": {
+                          "nat": 100
+                        },
+                        "ver": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "step": {
+                "act": "revertBatch",
+                "args": {
+                  "count": {
+                    "nat": 1
+                  },
+                  "idx": {
+                    "nat": 1
+                  },
+                  "who": {
+                    "nat": 1
+                  }
+                }
+              }
+            }
+          ],
+          "fn": "last_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "coverage_scenario"
+}

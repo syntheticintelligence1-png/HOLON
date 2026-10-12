@@ -1,0 +1,55 @@
+{
+  "facts": "spec/M3/extracted/morph_rollup.json",
+  "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_cov_pause_owner",
+  "milestone": "M3_nat",
+  "notes": "Rollup.sol:573 onlyOwner",
+  "predicted": "PROVED",
+  "rule": "SORT",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": []
+                }
+              },
+              "obs": {
+                "trace": [
+                  {
+                    "act": "setPause",
+                    "args": {
+                      "status": {
+                        "bool": true
+                      },
+                      "who": {
+                        "nat": 5
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "reason": "Ownable: caller is not the owner"
+            }
+          ],
+          "fn": "no_code"
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "subform": "coverage_scenario"
+}

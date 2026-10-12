@@ -1,0 +1,51 @@
+{
+  "facts": "spec/M3/extracted/mvrv.json",
+  "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_cov_rt_vap_unregistered_fails",
+  "milestone": "M3_router",
+  "notes": "MVRV:118 getVerifier reverts ErrorVerifierNotFound for an unregistered version",
+  "predicted": "PROVED",
+  "rule": "PAR",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": []
+                }
+              },
+              "step": {
+                "act": "verifyAggregateProof",
+                "args": {
+                  "idx": {
+                    "nat": 1
+                  },
+                  "v": {
+                    "nat": 3
+                  },
+                  "who": {
+                    "nat": 5
+                  }
+                }
+              }
+            }
+          ],
+          "fn": "last_ok"
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "subform": "coverage_scenario"
+}

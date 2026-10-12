@@ -1,0 +1,48 @@
+{
+  "facts": "spec/M3/extracted/mvrv.json",
+  "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_cov_rt_init_ok",
+  "milestone": "M3_router",
+  "notes": "MVRV:80-84 first initialize by the owner succeeds",
+  "predicted": "PROVED",
+  "rule": "SORT",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": []
+                }
+              },
+              "step": {
+                "act": "initialize",
+                "args": {
+                  "r": {
+                    "nat": 5
+                  },
+                  "who": {
+                    "nat": 1
+                  }
+                }
+              }
+            }
+          ],
+          "fn": "last_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "coverage_scenario"
+}

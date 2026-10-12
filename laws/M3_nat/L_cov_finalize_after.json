@@ -1,0 +1,96 @@
+{
+  "facts": "spec/M3/extracted/morph_rollup.json",
+  "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_cov_finalize_after",
+  "milestone": "M3_nat",
+  "notes": "Rollup.sol:625-650 at t=51 batch 1 finalizes; fsr[0]=100=prev",
+  "predicted": "PROVED",
+  "rule": "DISCH",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": [
+                    {
+                      "act": "sendMessage",
+                      "args": {
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    },
+                    {
+                      "act": "commitBatch",
+                      "args": {
+                        "blobs": {
+                          "nat": [
+                            7
+                          ]
+                        },
+                        "lbn": {
+                          "nat": 1
+                        },
+                        "n": {
+                          "nat": 1
+                        },
+                        "parent": {
+                          "nat": 0
+                        },
+                        "post": {
+                          "nat": 101
+                        },
+                        "prev": {
+                          "nat": 100
+                        },
+                        "ver": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    },
+                    {
+                      "act": "wait",
+                      "args": {
+                        "dt": {
+                          "nat": 41
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "step": {
+                "act": "finalizeBatch",
+                "args": {
+                  "idx": {
+                    "nat": 1
+                  },
+                  "who": {
+                    "nat": 5
+                  }
+                }
+              }
+            }
+          ],
+          "fn": "last_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "coverage_scenario"
+}

@@ -1,0 +1,72 @@
+{
+  "facts": "spec/M3/extracted/mvrv.json",
+  "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_cov_rt_vap_registered",
+  "milestone": "M3_router",
+  "notes": "MVRV:130-139 registered version routes (verifyBatch is an oracle)",
+  "predicted": "PROVED",
+  "rule": "PAR",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": [
+                    {
+                      "act": "updateVerifier",
+                      "args": {
+                        "a": {
+                          "nat": 8
+                        },
+                        "lfi": {
+                          "nat": 0
+                        },
+                        "st": {
+                          "nat": 1
+                        },
+                        "v": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "step": {
+                "act": "verifyAggregateProof",
+                "args": {
+                  "idx": {
+                    "nat": 2
+                  },
+                  "v": {
+                    "nat": 0
+                  },
+                  "who": {
+                    "nat": 5
+                  }
+                }
+              }
+            }
+          ],
+          "fn": "last_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "coverage_scenario"
+}
