@@ -56,7 +56,10 @@ class TestRecordsV2(unittest.TestCase):
                         continue
                     self.assertEqual(ks["primary"]["result"], "checked")
                     second = ks.get("second")
-                    if rec["kernel"]["verdict"] == "checked":
+                    lean = ks.get("second-independent")   # I9: Lean 4, an independent kernel (M0)
+                    if lean is not None and lean.get("name") == "lean4" and lean.get("result") == "checked":
+                        self.assertEqual(rec["independence_class"], "I2")
+                    elif rec["kernel"]["verdict"] == "checked":
                         self.assertEqual(second["name"], "bendtt")
                         self.assertEqual(second["result"], "checked")
                         self.assertEqual(second["shares_frontend_with"], "bend2")
@@ -64,6 +67,9 @@ class TestRecordsV2(unittest.TestCase):
                                          "BendTT re-checks bend2's elaboration: not an independent kernel")
                     else:
                         self.assertEqual(rec["independence_class"], "I1")
+                    if rec["kernel"]["verdict"] == "checked":   # the BendTT entry stays labelled as shared
+                        self.assertEqual(second["name"], "bendtt")
+                        self.assertEqual(second["shares_frontend_with"], "bend2")
 
     def test_scope_v2(self):
         for m in MILESTONES:

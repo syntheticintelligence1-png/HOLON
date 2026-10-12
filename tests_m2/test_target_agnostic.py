@@ -36,7 +36,8 @@ def tree_sha(root: Path, dirs: list[str], norm=None) -> str:
     h = hashlib.sha256()
     for d in dirs:
         for f in sorted((root / d).rglob("*")):
-            if f.is_file() and "__pycache__" not in f.parts:
+            if f.is_file() and "__pycache__" not in f.parts and "lean" not in f.relative_to(root / d).parts[:1]:
+                # gen/<m>/lean/ is I9's second-kernel output, new by design (not a change to the Bend tree)
                 b = f.read_bytes()
                 if norm:
                     b = norm(f, b)
@@ -57,7 +58,14 @@ def norm_record(f: Path, b: bytes) -> bytes:
         if isinstance(x, list):
             return [s(v) for v in x]
         return x
-    return json.dumps(s(json.loads(b)), sort_keys=True).encode()
+    rec = json.loads(b)
+    # I9 adds a checked lean4 kernel entry, which earns I2; without it the record is exactly the pinned one
+    lean = [k for k in rec.get("kernels", []) if k.get("name") == "lean4"]
+    if lean:
+        rec["kernels"] = [k for k in rec["kernels"] if k.get("name") != "lean4"]
+        if rec.get("independence_class") == "I2" and lean[0].get("result") == "checked":
+            rec["independence_class"] = "I1-shared"
+    return json.dumps(s(rec), sort_keys=True).encode()
 
 
 def records_sha(root: Path) -> str:
