@@ -1,0 +1,21 @@
+{
+  "ledger_version": "holon-ledger/0.1",
+  "doc": "Milestone M2's extension of spec/ledger/assumptions.json (holon.records.milestone_extensions; I15-B). A bundle there classifies the definitions of the model generated for its facts at the milestone that registered it (M1 for the rollup). The M2 model of the same facts adds definitions, which only this file classifies: holon.records reads it for records of milestone M2 (a run over derived facts, such as a mutation, checks that every definition in a law's cone is classified). The base ledger is not edited, so the documents built from it (gen/M2/diagram, gen/M2/evidence.json) are unchanged.",
+  "extends": [
+    {
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+      "no_assumption": [
+        {
+          "defs": [
+            "Reach",
+            "HO_*",
+            "ap_*",
+            "perm_*"
+          ],
+          "why": "what the M2 model of this document adds to the M1 model: Reach, the reachable states (s0, and one step of the model's own step from a reachable state; I8); HO_<p> and ap_<p>, an oracle parameter's table and its lookup (I12: the parameter is universally quantified and its hypothesis is a premise of the laws that need it; a stand-in entry the model still holds stays in the record's ledger_assumptions); perm_<class>, the permission predicate of a principal class, derived from the actions' permission guards (audit F-M2-26, holon.diagram.principals), which the facts transcribe with source lines"
+        }
+      ]
+    }
+  ]
+}

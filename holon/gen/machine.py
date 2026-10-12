@@ -559,9 +559,34 @@ class Machine:
                     f"          Con{{{val}, b_es_{field}(t)}}", ""]
         return out
 
+    def def_order(self) -> list[str]:
+        """The facts defs in a stable dependency order: each def after the defs its body calls (a Bend def sees only
+        the defs above it), otherwise in facts order, so facts already in dependency order keep their order byte for
+        byte. A cycle between defs is a FactsError (Bend forbids mutual recursion)."""
+        def calls(e, out: set) -> set:
+            if isinstance(e, list):
+                if len(e) > 1 and e[0] == "call" and isinstance(e[1], str):
+                    out.add(e[1])
+                for x in e[1:]:
+                    calls(x, out)
+            elif isinstance(e, dict):
+                for x in e.values():
+                    calls(x, out)
+            return out
+        names = list(self.defs)
+        deps = {n: {c for c in calls(self.defs[n]["body"], set()) if c in self.defs and c != n} for n in names}
+        out: list[str] = []
+        while len(out) < len(names):
+            nxt = next((n for n in names if n not in out and deps[n] <= set(out)), None)
+            if nxt is None:
+                raise FactsError(f"defs call each other in a cycle: {sorted(set(names) - set(out))}")
+            out.append(nxt)
+        return out
+
     def gen_defs(self) -> list[str]:
         out = []
-        for name, d in self.defs.items():
+        for name in self.def_order():
+            d = self.defs[name]
             env = {p: t for p, t in d["params"]}
             body, ty = self.ex(d["body"], env)
             if ty != d["type"]:

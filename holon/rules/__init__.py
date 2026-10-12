@@ -195,9 +195,11 @@ def compute(milestone: str, root: Path, facts: list[str] | None = None, assignme
         if d.facts.get("facts_version") == "holon-facts/0.2" and d.model in A.get("models", {}):
             obstructions += _check.obstructions(d.facts, A, d.model)
     listing = inputs.listing()
+    # back-test links (audit F-M2-08, F-M2-23; gate G2 holon.statement_diff.check_cross_milestone): a rule that
+    # re-derives an earlier milestone's law names the pair here; SORT-site laws come from sites, so there are none
     derivation = {"document": "derivation", "derive_version": DERIVE_VERSION, "milestone": milestone,
                   "rule_catalog_version": RULE_CATALOG_VERSION, "sorts_sha256": A.get("sorts_sha256"),
-                  "inputs": listing, "laws": entries}
+                  "inputs": listing, "laws": entries, "links": []}
     dtext = dumps(derivation)
     named = sorted({law["facts"] for law in laws.values()})
     registry = {"milestone": milestone, "ir_version": IR_VERSION, "rule_catalog_version": RULE_CATALOG_VERSION,

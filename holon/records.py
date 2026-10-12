@@ -188,19 +188,34 @@ def load_ledger(root: Path | str = ROOT) -> dict:
     return _ledger(str(Path(root) / LEDGER))
 
 
-def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None) -> list[dict]:
+def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, milestone: str | None = None) -> list[dict]:
     """The ledger's bundles, plus the bundles of a sidecar ledger.json next to a facts file (a fixture
-    or a target outside spec/ may carry its own ledger; I6)."""
+    or a target outside spec/ may carry its own ledger; I6). With a milestone, a bundle extended by
+    spec/<milestone>/ledger.json (milestone_extensions) carries the extension's no_assumption groups too."""
     out = list(load_ledger(root)["bundles"])
     if facts_path is not None:
         side = (Path(root) / facts_path).parent / "ledger.json"
         if side.exists():
             out += json.loads(side.read_text(encoding="utf-8"))["bundles"]
+    exts = milestone_extensions(root, milestone) if milestone else []
+    for i, b in enumerate(out):
+        for x in exts:
+            if x.get("facts") == b.get("facts") and x.get("facts_sha256") == b.get("facts_sha256"):
+                out[i] = b = {**b, "no_assumption": list(b["no_assumption"]) + list(x.get("no_assumption") or [])}
     return out
 
 
-def bundle(facts_sha256: str, root: Path | str = ROOT, facts_path: Path | str | None = None) -> dict:
-    for b in all_bundles(root, facts_path):
+def milestone_extensions(root: Path | str, milestone: str) -> list[dict]:
+    """spec/<milestone>/ledger.json "extends": per facts bundle, the no_assumption groups of the definitions that
+    milestone's model generator adds to the bundle's model (I15: the M2 model's Reach, oracle tables and permission
+    predicates). The base ledger is unchanged, so what reads it (the diagrams) is unchanged."""
+    p = Path(root) / "spec" / milestone / "ledger.json"
+    return list(json.loads(p.read_text(encoding="utf-8")).get("extends") or []) if p.exists() else []
+
+
+def bundle(facts_sha256: str, root: Path | str = ROOT, facts_path: Path | str | None = None,
+           milestone: str | None = None) -> dict:
+    for b in all_bundles(root, facts_path, milestone):
         if b["facts_sha256"] == facts_sha256:
             return b
     raise LedgerError(f"no ledger bundle for facts {facts_sha256}: add the bundle's model assumptions to {LEDGER} "
@@ -208,18 +223,21 @@ def bundle(facts_sha256: str, root: Path | str = ROOT, facts_path: Path | str | 
 
 
 def resolve_bundle(facts_sha256: str, base_facts: str | None, root: Path | str = ROOT,
-                   model_text: str | None = None, cone_set: set[str] | None = None) -> tuple[dict, str]:
-    """(bundle, "exact" | "derived"); see the module docstring. LedgerError when neither applies."""
+                   model_text: str | None = None, cone_set: set[str] | None = None,
+                   milestone: str | None = None) -> tuple[dict, str]:
+    """(bundle, "exact" | "derived"); see the module docstring. LedgerError when neither applies. milestone: the run's
+    milestone, whose ledger extension classifies what its model adds (milestone_extensions)."""
     try:
         return bundle(facts_sha256, root, base_facts), "exact"
     except LedgerError:
-        same = [b for b in all_bundles(root, base_facts) if base_facts and b["facts"] == base_facts]
+        same = [b for b in all_bundles(root, base_facts, milestone) if base_facts and b["facts"] == base_facts]
         if len(same) != 1:
             raise LedgerError(f"no ledger bundle for facts {facts_sha256} and no registered base bundle "
                               f"({base_facts!r}): add its model assumptions to {LEDGER}") from None
         b = same[0]
         if model_text is not None:
-            loose = sorted(set(unclassified(b["facts_sha256"], model_text, root, base_facts)) & set(cone_set or ()))
+            loose = sorted(set(unclassified(b["facts_sha256"], model_text, root, base_facts, milestone))
+                           & set(cone_set or ()))
             if loose:
                 raise LedgerError(f"derived facts for {base_facts}: definitions {loose} in the cone are not "
                                   f"classified by its ledger bundle, so its assumptions may not apply")
@@ -237,11 +255,14 @@ def model_assumptions(facts_sha256: str, cone_set: set[str], root: Path | str = 
 
 
 def unclassified(facts_sha256: str, model_text: str, root: Path | str = ROOT,
-                 facts_path: Path | str | None = None) -> list[str]:
-    """Model definitions the ledger classifies neither by an entry nor by exactly one no_assumption group."""
-    b = bundle(facts_sha256, root, facts_path)
+                 facts_path: Path | str | None = None, milestone: str | None = None) -> list[str]:
+    """Model definitions the ledger classifies neither by an entry nor by exactly one no_assumption group. The ghost
+    section of an instrumented model (I15, after GHOST_MARKER) is not the model: its definitions only evaluate the
+    model's own terms (no state, nothing above the marker names them), so they carry no assumption to classify."""
+    from .sorts.sites import GHOST_MARKER
+    b = bundle(facts_sha256, root, facts_path, milestone)
     bad = []
-    for d in model_defs(model_text):
+    for d in model_defs(model_text.split(GHOST_MARKER, 1)[0]):
         by_entry = any(p != "*" and fnmatch.fnmatchcase(d, p) for e in b["entries"] for p in e["introduced_by"])
         groups = sum(1 for g in b["no_assumption"] if any(fnmatch.fnmatchcase(d, p) for p in g["defs"]))
         if not by_entry and groups != 1:
@@ -393,7 +414,7 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
     c = cone(statement_text, model_text)
     refuted = rec["status"] == "REFUTED"
     try:
-        b, match = resolve_bundle(rec["facts_sha256"], base_facts, root, model_text, set(c))
+        b, match = resolve_bundle(rec["facts_sha256"], base_facts, root, model_text, set(c), law.get("milestone"))
     except LedgerError:
         if ledger_required:
             raise
