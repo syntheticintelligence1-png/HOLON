@@ -1,0 +1,122 @@
+{
+  "facts": "spec/M3/extracted/l1messenger.json",
+  "facts_sha256": "11005a734ee999bedd2f59e408bee4ad0aff384081b33ec2818d9f10f9c4ac9f",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_msg_waiver_not_caller",
+  "milestone": "M3_msg",
+  "notes": "O29: a whitelisted caller replaying a non-whitelisted origin's message still pays",
+  "predicted": "PROVED",
+  "rule": "SORT",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": [
+                    {
+                      "act": "wait",
+                      "args": {
+                        "dt": {
+                          "nat": 1
+                        }
+                      }
+                    },
+                    {
+                      "act": "setWhitelist",
+                      "args": {
+                        "b": {
+                          "bool": true
+                        },
+                        "sub": {
+                          "nat": 6
+                        },
+                        "who": {
+                          "nat": 0
+                        }
+                      }
+                    },
+                    {
+                      "act": "sendMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "gl": {
+                          "nat": 1
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "to": {
+                          "nat": 9
+                        },
+                        "val": {
+                          "nat": 0
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 5
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "obs": {
+                "trace": [
+                  {
+                    "act": "replayMessage",
+                    "args": {
+                      "amt": {
+                        "nat": 4
+                      },
+                      "from": {
+                        "nat": 5
+                      },
+                      "mn": {
+                        "nat": 0
+                      },
+                      "qi": {
+                        "nat": 1
+                      },
+                      "value": {
+                        "nat": 0
+                      },
+                      "who": {
+                        "nat": 6
+                      },
+                      "xh": {
+                        "nat": 11
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "reason": "Insufficient msg.value for fee"
+            }
+          ],
+          "fn": "no_code"
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "subform": "scenario"
+}

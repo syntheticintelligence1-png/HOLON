@@ -1,0 +1,64 @@
+{
+  "facts": "spec/M3/extracted/mvrv.json",
+  "facts_sha256": "baa86b79086449bd992daf0353b549b1268d99534bac0fdf526292f86024c2af",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_rt_finalized_start",
+  "milestone": "M3_router",
+  "notes": ":149 start <= lastFinalizedBatchIndex",
+  "predicted": "PROVED",
+  "rule": "GUARD",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": []
+                }
+              },
+              "obs": {
+                "trace": [
+                  {
+                    "act": "updateVerifier",
+                    "args": {
+                      "a": {
+                        "nat": 3
+                      },
+                      "lfi": {
+                        "nat": 5
+                      },
+                      "st": {
+                        "nat": 5
+                      },
+                      "v": {
+                        "nat": 0
+                      },
+                      "who": {
+                        "nat": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "reason": "ErrorStartBatchIndexFinalized"
+            }
+          ],
+          "fn": "no_code"
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "subform": "scenario"
+}

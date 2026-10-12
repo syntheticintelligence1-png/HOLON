@@ -1,0 +1,160 @@
+{
+  "facts": "spec/M3/extracted/l1messenger.json",
+  "facts_sha256": "11005a734ee999bedd2f59e408bee4ad0aff384081b33ec2818d9f10f9c4ac9f",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_setup_msg_budget_owner_lifts",
+  "milestone": "M3_msg",
+  "notes": "setup trace of msg_budget_owner_lifts runs ok",
+  "predicted": "PROVED",
+  "rule": "GUARD",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "trace": [
+                {
+                  "act": "wait",
+                  "args": {
+                    "dt": {
+                      "nat": 1
+                    }
+                  }
+                },
+                {
+                  "act": "sendMessage",
+                  "args": {
+                    "amt": {
+                      "nat": 4
+                    },
+                    "gl": {
+                      "nat": 1
+                    },
+                    "mn": {
+                      "nat": 0
+                    },
+                    "to": {
+                      "nat": 9
+                    },
+                    "val": {
+                      "nat": 0
+                    },
+                    "value": {
+                      "nat": 4
+                    },
+                    "who": {
+                      "nat": 5
+                    },
+                    "xh": {
+                      "nat": 11
+                    }
+                  }
+                },
+                {
+                  "act": "replayMessage",
+                  "args": {
+                    "amt": {
+                      "nat": 4
+                    },
+                    "from": {
+                      "nat": 5
+                    },
+                    "mn": {
+                      "nat": 0
+                    },
+                    "qi": {
+                      "nat": 1
+                    },
+                    "value": {
+                      "nat": 4
+                    },
+                    "who": {
+                      "nat": 6
+                    },
+                    "xh": {
+                      "nat": 11
+                    }
+                  }
+                },
+                {
+                  "act": "replayMessage",
+                  "args": {
+                    "amt": {
+                      "nat": 4
+                    },
+                    "from": {
+                      "nat": 5
+                    },
+                    "mn": {
+                      "nat": 0
+                    },
+                    "qi": {
+                      "nat": 2
+                    },
+                    "value": {
+                      "nat": 4
+                    },
+                    "who": {
+                      "nat": 6
+                    },
+                    "xh": {
+                      "nat": 11
+                    }
+                  }
+                },
+                {
+                  "act": "replayMessage",
+                  "args": {
+                    "amt": {
+                      "nat": 4
+                    },
+                    "from": {
+                      "nat": 5
+                    },
+                    "mn": {
+                      "nat": 0
+                    },
+                    "qi": {
+                      "nat": 3
+                    },
+                    "value": {
+                      "nat": 4
+                    },
+                    "who": {
+                      "nat": 6
+                    },
+                    "xh": {
+                      "nat": 11
+                    }
+                  }
+                },
+                {
+                  "act": "updateMaxReplayTimes",
+                  "args": {
+                    "val": {
+                      "nat": 4
+                    },
+                    "who": {
+                      "nat": 1
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "s0": {}
+            }
+          ],
+          "fn": "runs_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "setup"
+}

@@ -1,0 +1,74 @@
+{
+  "facts": "spec/M3/extracted/mvrv.json",
+  "facts_sha256": "baa86b79086449bd992daf0353b549b1268d99534bac0fdf526292f86024c2af",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_setup_rt_legacy",
+  "milestone": "M3_router",
+  "notes": "setup trace of rt_legacy runs ok",
+  "predicted": "PROVED",
+  "rule": "GUARD",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "trace": [
+                {
+                  "act": "updateVerifier",
+                  "args": {
+                    "a": {
+                      "nat": 3
+                    },
+                    "lfi": {
+                      "nat": 5
+                    },
+                    "st": {
+                      "nat": 10
+                    },
+                    "v": {
+                      "nat": 0
+                    },
+                    "who": {
+                      "nat": 1
+                    }
+                  }
+                },
+                {
+                  "act": "updateVerifier",
+                  "args": {
+                    "a": {
+                      "nat": 4
+                    },
+                    "lfi": {
+                      "nat": 15
+                    },
+                    "st": {
+                      "nat": 20
+                    },
+                    "v": {
+                      "nat": 0
+                    },
+                    "who": {
+                      "nat": 1
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "s0": {}
+            }
+          ],
+          "fn": "runs_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "setup"
+}
