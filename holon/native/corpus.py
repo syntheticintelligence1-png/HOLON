@@ -159,7 +159,7 @@ def rollup_witnesses() -> list[dict]:
         if law.get("facts") != "spec/M1/facts/morph_rollup.json":
             continue  # batchdata witnesses belong to the batchdata corpus
         try:
-            traces = mreplay.linearise(law, rec["witness"])
+            traces = mreplay.linearise(law, rec["witness"], conjunct=rec.get("refuted_conjunct"))
         except Exception:
             continue
         for tr in traces:

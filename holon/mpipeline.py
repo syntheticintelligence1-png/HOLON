@@ -86,6 +86,10 @@ class CompiledMachine:
         return json.loads(p.stdout)["results"]
 
 
+class _NoCounterLaw(Exception):
+    """The search returned a witness but no claim conjunct evaluates false on the compiled model."""
+
+
 def relpath(p: Path) -> str:
     p = Path(p).resolve()
     try:
@@ -350,9 +354,20 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                                  "tried": s["tried"], "hit": s["witness"] is not None})
                 if s["witness"] is not None:
                     w = s["witness"]
-                    em2 = mlaws.Emitter(cm.m).emit(law, imp, counter=True, note=orig_hash)
+                    # conjunction: refute the lowest-index conjunct the compiled
+                    # model evaluates false under the witness (never the oracle)
+                    ev = cm.evaluate(law, w)
+                    conj = next((i for i, ok in enumerate(ev["claims"]) if ok is False), None)
+                    if conj is None:
+                        attempts.append({"kind": "counter-law", "generator": "counter",
+                                         "error": "witness falsifies no claim conjunct on the compiled model"})
+                        raise _NoCounterLaw()
+                    em2 = mlaws.Emitter(cm.m).emit(law, imp, counter=True, note=orig_hash, conj=conj)
+                    rec["refuted_conjunct"] = conj
                     env = {n: mlaws.value_literal(cm.m, t, w[n]) for _, n, t in em2.binders}
-                    lhs, _, ty = mlaws.Emitter(cm.m).prop(law["statement"]["claim"], env, {n: t for _, n, t in em2.binders})
+                    cl = law["statement"]["claim"]
+                    claim_k = cl["all"][conj] if "all" in cl else cl
+                    lhs, _, ty = mlaws.Emitter(cm.m).prop(claim_k, env, {n: t for _, n, t in em2.binders})
                     text = mproofs.counter(em2, cm.m, imp, w, lhs, ty)
                     shutil.rmtree(d, ignore_errors=True)
                     d.mkdir(parents=True)
@@ -371,6 +386,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                         if t.get("why"):
                             rec["triage_why"] = t["why"]
                         rec["replay"] = replay_status(report, lid, w)
+        except _NoCounterLaw:
+            pass
         except mlaws.Unsupported as e:
             attempts.append({"kind": "emit", "error": f"unsupported statement form: {e}"})
         if status == "UNKNOWN":

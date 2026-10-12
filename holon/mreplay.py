@@ -136,8 +136,10 @@ def model_logs(cm: CompiledMachine, traces: list[list[dict]]) -> list[list]:
     return out
 
 
-def linearise(law: dict, w: dict) -> list[dict]:
-    """The concrete traces a REFUTED law's claim compares, built from its witness."""
+def linearise(law: dict, w: dict, conjunct: int | None = None) -> list[dict]:
+    """The concrete traces a REFUTED law's claim compares, built from its witness.
+    For a conjunction claim, only the refuted conjunct is linearised; without it
+    the law is reported as not linearisable."""
     st = law["statement"]
 
     def trace_of(t) -> list[dict]:
@@ -197,7 +199,12 @@ def linearise(law: dict, w: dict) -> list[dict]:
             return None
         raise ValueError(t)
 
-    c = st["claim"]["eq"]
+    cl = st["claim"]
+    if "all" in cl:
+        if conjunct is None or not (0 <= conjunct < len(cl["all"])):
+            raise ValueError(f"cannot linearise conjunction without a refuted conjunct ({len(cl['all'])} claims)")
+        cl = cl["all"][conjunct]
+    c = cl["eq"]
     out = []
     if all("obs" in x for x in c):
         out = [{"label": "lhs", **side(c[0])}, {"label": "rhs", **side(c[1])}]
@@ -219,8 +226,10 @@ def linearise(law: dict, w: dict) -> list[dict]:
     elif "fn" in c[0] and c[0]["fn"] == "blobs_of":
         # FACT: the two commits from the same prefix; the commitment (committedBatches) must coincide
         prem = [p["eq"][0] for p in st["assume"] if "obsv" in p["eq"][0] and p["eq"][0]["obsv"] == "new_hdr"]
+        if not prem:
+            raise ValueError("cannot linearise blobs_of claim: no new_hdr premise")
         s1 = state_of(prem[0]["of"])
-        p_assume = [p for p in st["assume"] if "obsv" in p["eq"][0] and p["eq"][0]["obsv"] == "new_hdr"][0]
+        p_assume = prem[0]
         s2 = state_of(p_assume["eq"][1]["of"])
         out = [{"label": "c1", "trace": s1, "split": len(s1) - 1, "kind": "same_commitment"},
                {"label": "c2", "trace": s2, "split": len(s2) - 1}]
@@ -444,9 +453,12 @@ def main_replay_m1(args) -> int:
                 pending[lid] = f"no replay harness for {laws[lid]['facts']}"
             continue
         try:
-            runs = linearise(laws[lid], r["witness"])
+            runs = linearise(laws[lid], r["witness"], conjunct=r.get("refuted_conjunct"))
         except NoHarness as e:
             pending[lid] = str(e)
+            continue
+        except ValueError as e:
+            pending[lid] = f"not linearisable: {e}"
             continue
         unknown = sorted({a["op"] for run in runs for a in run["trace"] if a["op"] not in OPS})
         if unknown:

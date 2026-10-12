@@ -350,7 +350,9 @@ class TestObservers(unittest.TestCase):
     def test_messenger_sent_at(self):
         tr = [{"op": "sendMessage", "who": 0, "to": 1, "val": 0, "gl": 0,
                "xh": 5, "value": 10, "mn": 0, "amt": 2}]
-        self._eval("l1messenger", _obs_law("sent_at", [5], 0), tr)
+        # initial t is 1 (timestamp-zero is the 'not enqueued' sentinel), so a
+        # message sent at s0 is stamped 1, not 0
+        self._eval("l1messenger", _obs_law("sent_at", [5], 1), tr)
 
     def test_mvrv_verifier_of(self):
         self._eval("mvrv", _obs_law("verifier_of", [0, 0], 0), [])
