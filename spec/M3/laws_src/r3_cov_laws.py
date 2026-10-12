@@ -9,7 +9,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 _s = importlib.util.spec_from_file_location("e2_laws", ROOT / "spec/M3/laws_src/e2_laws.py")
 E2 = importlib.util.module_from_spec(_s); _s.loader.exec_module(E2)
-act, ok, rev, W, send, upd = E2.act, E2.ok, E2.rev, E2.W, E2.send, E2.upd
+ok, rev, W, send, upd = E2.ok, E2.rev, E2.W, E2.send, E2.upd
+def _v(x):
+    if isinstance(x, dict): return x
+    return {"nats": x} if isinstance(x, list) else {"bool": x} if isinstance(x, bool) else {"nat": x}
+def act(_nm, **a): return {"act": _nm, "args": {k: _v(x) for k, x in a.items()}}
 FACTS = {"M3_nat": "spec/M3/extracted/morph_rollup.json", "M3_msg": E2.FACTS["M3_msg"], "M3_router": E2.FACTS["M3_router"]}
 OWN = "Ownable: caller is not the owner"
 
