@@ -209,8 +209,9 @@ def _emit(law: dict, m: str, root: Path, counter: bool) -> str | None:
     """The emitter's text for a law (statement or counter-law), as the pipelines emit it;
     None when the emitter cannot express that form."""
     from .model_eval import model_name
+    from .mpipeline import layout
     fp = root / law_facts(law, m, root)
-    imp = f"../model/{model_name(fp)}.bend"
+    imp = f"{layout(m, root, law['law_id'])[2]}model/{model_name(fp)}.bend"   # as the pipelines import it (I10)
     if law["ir_version"] == "holon-ir/0.1":
         from .gen import laws as LG
         try:

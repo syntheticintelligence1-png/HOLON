@@ -13,11 +13,14 @@ Order: GENV, G2, G1, G3, G5, G11, G11V, G6, G9, G7, G4. The report is always wri
   G2    statement hashes match REGISTRY.json; registry lists exactly laws/<m>; facts hash; and
         spec/bindings/<m>.json matches the kernel (BendTT) form of every definition each statement
         reaches in the committed models, plus the emitted statement and counter-law (a mismatch
-        names the laws and the definitions); self-certified until I10 and Q1
+        names the laws and the definitions); every entry of laws/STATEMENT_DIFF.jsonl is accepted by
+        holon.statement_diff and the log extends each committed version of itself (I10: without a
+        key in keys/, every weakening is rejected); self-certified until Q1
   G1    regeneration into a temp dir is byte-identical (gen/**/*.bend, summary.json, and every
         result record with `seconds` stripped and artifact paths normalised), from a fresh build dir
   G3    no escape hatches in generated Bend; the checker reports no TODO / unsafe reliance; every law's
-        premises pass holon.ir.check_premises (no global injectivity)
+        premises pass holon.ir.check_premises (no global injectivity); no file under gen/<m>/proofs/
+        declares a law (laws_in_proofs: prover separation for milestones after M1, I10)
   G5    every PROVED/REFUTED PROOF.bend re-checks: exit 0 and ALL PROOFS CHECK, each within
         bend.budget_s_per_file seconds (default 120); timings go to results/<m>/gate_timing.json
   G11   every law has a record; every checked LAWS.bend states exactly its expected law
@@ -113,6 +116,18 @@ def quarantined_fingerprints(root: Path) -> set[str]:
         raise ValueError("results/quarantine.json is not an object")
     out = {q.get("fingerprint")} | {e.get("fingerprint") for e in q.get("earlier", []) if isinstance(e, dict)}
     return {f for f in out if isinstance(f, str)}
+
+
+_LAW_DECL = re.compile(r"^[ \t]*law\s+[A-Za-z0-9_.]+\s*:", re.M)
+
+
+def laws_in_proofs(gen_dir: Path) -> list[Path]:
+    """Every .bend file under <gen_dir>/proofs/ that declares a law (I10, whitepaper L14). For milestones
+    other than M0 and M1, laws live in <gen>/laws/ and proofs in <gen>/proofs/ (holon.mpipeline.layout);
+    a prover that states a law of its own breaks the separation, and G3 fails on it."""
+    d = Path(gen_dir) / "proofs"
+    return sorted(f for f in d.rglob("*.bend") if f.is_file() and _LAW_DECL.search(f.read_text(errors="replace"))) \
+        if d.is_dir() else []
 
 
 def _res(passed: bool, detail: str) -> dict:
@@ -543,6 +558,11 @@ class Gate:
         self.g2_registry()
         if not self.checks["G2"]["passed"]:
             return
+        from .statement_diff import check_file   # I10: every entry of the statement-change log is accepted
+        sd = check_file(self.root / "laws" / "STATEMENT_DIFF.jsonl", self.root)
+        if sd:
+            self.checks["G2"] = _res(False, "laws/STATEMENT_DIFF.jsonl: " + "; ".join(sd))
+            return
         from . import bindings
         try:
             p = bindings.path(self.m, self.root)
@@ -567,8 +587,9 @@ class Gate:
                 n = len(_load(p)["laws"])
                 self.checks["G2"] = _res(True, self.checks["G2"]["detail"] + f"; {n} laws bound to their emitted "
                                          "statement and counter-law and to the kernel form of every definition they "
-                                         "reach (registry and bindings are agent-writable: self-certified until I10 "
-                                         "and the human's freeze, Q1)")
+                                         "reach; laws/STATEMENT_DIFF.jsonl accepted (registry, bindings and the "
+                                         "statement-change log are agent-writable: self-certified until the human's "
+                                         "freeze, Q1)")
         except Exception as e:  # noqa: BLE001
             self.checks["G2"] = _res(False, f"bindings: error: {type(e).__name__}: {e}")
 
@@ -705,6 +726,8 @@ class Gate:
                 ir.check_premises(law)
             except ir.IRError as e:
                 bad.append(str(e))
+        for f in laws_in_proofs(self.gen):   # prover separation (I10, L14): no law under proofs/
+            bad.append(f"{f.relative_to(self.root)}: declares a law under proofs/")
         self.checks["G3"] = _res(not bad, "no escape hatches" if not bad else "; ".join(bad))
 
     def g11(self) -> None:

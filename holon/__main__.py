@@ -4,6 +4,7 @@
   python -m holon gate --milestone M0 [--root DIR] [--report PATH] [--checks G6,G9]
   python -m holon audit prereg --milestone M2 [--root DIR]
   python -m holon audit status [--json] [--root DIR]
+  python -m holon audit regress --from A --to B [--json] [--root DIR]
   python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon oracle zero-blob [--morph PATH]
   python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
@@ -47,8 +48,10 @@ def main(argv=None) -> int:
     cu = sub.add_parser("checker-upgrade", help="re-run gates and runs under a candidate checker; report every diff")
     cu.add_argument("rest", nargs=argparse.REMAINDER)
     au = sub.add_parser("audit", help="audits: `audit prereg --milestone M2` checks preregistration order; "
-                                      "`audit status` summarises the adversarial audit findings")
-    au.add_argument("what", choices=["prereg", "status"])
+                                      "`audit status` summarises the adversarial audit findings; "
+                                      "`audit regress --from A --to B` reports statement-hash changes and when each "
+                                      "law, result and prediction was first committed (A3)")
+    au.add_argument("what", choices=["prereg", "status", "regress"])
     au.add_argument("rest", nargs=argparse.REMAINDER)
     rp = sub.add_parser("replay", help="replay REFUTED witnesses on the real Go and Solidity code")
     rp.add_argument("--milestone", default="M0")
@@ -84,6 +87,9 @@ def main(argv=None) -> int:
         if a.what == "status":
             from .audit import status
             return status.main(a.rest)
+        if a.what == "regress":
+            from .audit import regress
+            return regress.main(a.rest)
         from .audit import prereg
         return prereg.main(a.rest)
     if a.cmd == "replay":
