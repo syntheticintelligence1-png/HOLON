@@ -328,7 +328,11 @@ class Machine:
             return f"set_d(List<&2, H{rt}>, {txt[0]}, {txt[1]}, {txt[2]}, Nil{{}})", ty[0]
         if name == "lv_le":
             need(2)
-            return f"b_lv_le({txt[0]}, {txt[1]})", "Nat"
+            rt = elem(ty[0])          # element type of the list arg
+            return f"b_lv_el({txt[0]}, {txt[1]})", rt
+        if name == "lv_le_has":
+            need(2)
+            return f"b_lv_le_has({txt[0]}, {txt[1]})", "Bool"
         if name == "lv_le_nf":
             # like lv_le, but the not-found path yields the nonzero sentinel b_nf
             # instead of 0: a claim that depends on the unmodelled revert can no
@@ -534,6 +538,21 @@ class Machine:
                         "",
                         f"def b_lv_le(xs: List<&2, H{ty}>, idx: Nat) -> Nat:",
                         "  b_lv_le_go(xs, idx, 0n)", "",
+                        # b_lv_el: the last element whose s <= idx, as the record
+                        # itself (else the empty record); lv_le's extracted-loop form
+                        f"def b_lv_el_go(xs: List<&2, H{ty}>, +idx: Nat, +acc: H{ty}) -> H{ty}:",
+                        "  match xs:",
+                        "    case Nil{}: acc",
+                        f"    case Con{{+h, t}}: b_lv_el_go(t, idx, ite(H{ty}, Nat.is_le(g_{ty}_s(h), idx), h, acc))",
+                        "",
+                        f"def b_lv_el(xs: List<&2, H{ty}>, idx: Nat) -> H{ty}:",
+                        f"  b_lv_el_go(xs, idx, empty_{ty}())", "",
+                        # b_lv_le_has: some element has s <= idx (the scan's found flag)
+                        f"def b_lv_le_has(xs: List<&2, H{ty}>, +idx: Nat) -> Bool:",
+                        "  match xs:",
+                        "    case Nil{}: False{}",
+                        f"    case Con{{+h, t}}: Bool.or(Nat.is_le(g_{ty}_s(h), idx), b_lv_le_has(t, idx))",
+                        "",
                         # not-found sentinel for lv_le_nf: never 0, so a claim
                         # asserting verifier_of(...) == 0 refutes rather than
                         # proving the bogus not-found->0 result (audit R2 F3)

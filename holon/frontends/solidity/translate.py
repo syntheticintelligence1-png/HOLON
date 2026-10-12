@@ -1267,7 +1267,115 @@ class Translator:
         # _loadL1MessageHashes for-loop inside unchecked (reached via inline_through)
         if fn == "_loadL1MessageHashes":
             return  # handled by queue_read_range at the call site
+        if kind == "for" and self.h_scan_loop(st):
+            return
         self.add_debt(f"{self.src(st)} {kind}-loop", "untranslated_loop", f"{kind} loop in {fn} not translated")
+
+    def _declared_bool(self, name):
+        """True when a VariableDeclaration for `name` of type bool occurs anywhere
+        in the current function's body."""
+        fn = self.find_fn(*self.cur_fn) if self.cur_fn else None
+
+        def walk(n):
+            if isinstance(n, dict):
+                if n.get("nodeType") == "VariableDeclaration":
+                    tn = n.get("typeName") or {}
+                    if n.get("name") == name and tn.get("nodeType") == "ElementaryTypeName" and tn.get("name") == "bool":
+                        yield n
+                for v in n.values():
+                    if isinstance(v, (dict, list)):
+                        yield from walk(v)
+            elif isinstance(n, list):
+                for x in n:
+                    yield from walk(x)
+        return fn is not None and any(True for _ in walk(fn.get("body") or {}))
+
+    def h_scan_loop(self, st):
+        """Backward selection loop, purely by AST shape:
+        for (i = L; i > 0; --i) { X = A[i-1]; if (X.f <= K) { F = true; break; } }
+        with L = A.length and F a declared bool local. Binds X to the selected
+        record lv_le(A, K) and F to lv_le_has(A, K). Returns True when handled;
+        anything else falls through to untranslated_loop."""
+        init = st.get("initializationExpression") or {}
+        cond = st.get("condition") or st.get("conditionExpression") or {}
+        loop = st.get("loopExpression") or {}
+        body = (st.get("body") or {}).get("statements", [])
+        if init.get("nodeType") != "VariableDeclarationStatement" or len(init.get("declarations") or []) != 1:
+            return False
+        i = init["declarations"][0].get("name")
+        if init.get("initialValue") is None:
+            return False
+        iv = self.X(init["initialValue"])
+        if (cond.get("nodeType") != "BinaryOperation" or cond.get("operator") != ">"
+                or (cond.get("leftExpression") or {}).get("name") != i
+                or str((cond.get("rightExpression") or {}).get("value")) != "0"):
+            return False
+        lex = loop.get("expression") or {}
+        if (lex.get("nodeType") != "UnaryOperation" or lex.get("operator") != "--"
+                or not lex.get("prefix") or (lex.get("subExpression") or {}).get("name") != i):
+            return False
+        if len(body) != 2:
+            return False
+        asg = body[0].get("expression") or {}
+        iff = body[1] or {}
+        if asg.get("nodeType") != "Assignment" or asg.get("operator") != "=":
+            return False
+        lhs, rhs = asg.get("leftHandSide") or {}, asg.get("rightHandSide") or {}
+        if lhs.get("nodeType") != "Identifier" or rhs.get("nodeType") != "IndexAccess":
+            return False
+        Xn = lhs["name"]
+        sub = rhs.get("indexExpression") or {}
+        if (sub.get("nodeType") != "BinaryOperation" or sub.get("operator") != "-"
+                or (sub.get("leftExpression") or {}).get("name") != i
+                or str((sub.get("rightExpression") or {}).get("value")) != "1"):
+            return False
+        anode = rhs.get("baseExpression") or {}
+        if (anode.get("nodeType") != "IndexAccess"
+                or (anode.get("baseExpression") or {}).get("nodeType") != "Identifier"):
+            return False
+        fam = self.fam(anode["baseExpression"]["name"])
+        if not fam or fam.get("kind") != "abs_map_list" or not fam.get("record"):
+            return False
+        if iff.get("nodeType") != "IfStatement" or iff.get("falseBody"):
+            return False
+        ic = iff.get("condition") or {}
+        if ic.get("nodeType") != "BinaryOperation" or ic.get("operator") != "<=":
+            return False
+        le = ic.get("leftExpression") or {}
+        if (le.get("nodeType") != "MemberAccess"
+                or (le.get("expression") or {}).get("name") != Xn):
+            return False
+        ctor = self.ctor_of(fam["record"])
+        if (ctor or {}).get("member_fields", {}).get(le.get("memberName")) != "s":
+            return False
+        K = self.X(ic.get("rightExpression") or {})
+        tb = (iff.get("trueBody") or {}).get("statements", [])
+        if len(tb) != 2:
+            return False
+        fasg = tb[0].get("expression") or {}
+        if (fasg.get("nodeType") != "Assignment"
+                or (fasg.get("leftHandSide") or {}).get("nodeType") != "Identifier"
+                or str((fasg.get("rightHandSide") or {}).get("value")).lower() != "true"):
+            return False
+        Fn = fasg["leftHandSide"]["name"]
+        if tb[1].get("nodeType") != "Break":
+            return False
+        if not self._declared_bool(Fn):
+            return False
+        A = self.X(anode)
+        if not (isinstance(A, list) and A[:2] == ["call", "nthl"]):
+            return False
+        ivv = self._lower(iv)
+        ivv = self.let_values.get(ivv, ivv)
+        if canon(ivv) != canon(["call", "len", A]):
+            return False
+        ln = f"{Xn}_lv"
+        self.pending.append({"let": ln, "expr": ["call", "lv_le", A, K],
+                             "src": self.src(st), "__prov": "ast"})
+        self.env[Xn] = ("shadow", ln, fam, A[2], {})
+        self.env[Fn] = ["call", "lv_le_has", A, K]
+        self._drain_pending()
+        return True
 
     def h_revert_loop(self, st):
         p = self.hoist(["-", "idx", "lfi"], "rev_p")

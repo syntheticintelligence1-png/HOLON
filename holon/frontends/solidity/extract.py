@@ -248,6 +248,12 @@ def extract(world, spec, out_path=None, cov_path=None):
         for p, _t in d["params"]:
             tr.input_map.setdefault(p, p)
         tr.input_names = set(tr.input_map)
+        # "bind_params": treat the def's params as bound names during body
+        # translation, so lets/guards referencing them survive _unbound_names.
+        # Declared per-def: params are substituted at call sites, so an emitted
+        # guard is closed over the params and correct at every call site.
+        if d.get("bind_params"):
+            tr.fact_inputs = {p[0] for p in d["params"]}
         tr.local_names = {}
         tr.pending_notes = []
         tr.pending = []
@@ -292,11 +298,19 @@ def extract(world, spec, out_path=None, cov_path=None):
                              "reason": "no faithful AST derivation (named return / abstracted internals); spec-declared explicit value"})
         else:
             defs_prov.setdefault(dname, "ast")
-        # guards emitted during def translation belong to call sites (params substituted there)
+        # guards emitted during def translation belong to call sites (params substituted there).
+        # Let names bound inside the def are inlined so the guard is closed over the
+        # def's params only.
+        def _inline_lets(e):
+            if isinstance(e, str) and e in tr.let_values:
+                return _inline_lets(tr.let_values[e])
+            if isinstance(e, list):
+                return [_inline_lets(x) for x in e]
+            return e
         call_guards[(cname, fname)] = {
             "params": [p[0] for p in d["params"]],
             "guards": [
-                {"expr": g["require"], "reason": [k for k, v in tr.reasons.items() if v == g["reason"]][0] if tr.reasons else g["reason"], "src": g["src"], **({"site": g["site"]} if "site" in g else {})}
+                {"expr": _inline_lets(g["require"]), "reason": [k for k, v in tr.reasons.items() if v == g["reason"]][0] if tr.reasons else g["reason"], "src": g["src"], **({"site": g["site"]} if "site" in g else {})}
                 for g in tr.guards[guards_before:] if "require" in g]}
         defs[dname] = {"params": d["params"], "type": d["type"], "body": body, "src": None}
 
