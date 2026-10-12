@@ -1,0 +1,40 @@
+{
+  "kind": "strengthening",
+  "law_id": "L10_sd_small",
+  "old": {
+    "ir_version": "holon-ir/0.3",
+    "law_id": "L10_sd_small",
+    "milestone": "T3",
+    "rule": "SORT",
+    "rule_catalog_version": "holon-rules/0.1",
+    "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+    "facts_sha256": "",
+    "notes": "statement-diff fixture (audit F-M2-24): the old statement has a conjunct that is false on the model",
+    "statement": {
+      "binders": [{"q": "forall", "name": "a", "type": "Act"}],
+      "assume": [],
+      "claim": {"all": [
+        {"eq": [{"obsv": "small", "of": {"step": {"var": "a"}, "from": {"s0": {}}}}, {"bool": true}]},
+        {"eq": [{"fn": "eq_nat", "args": [{"obsv": "n_of", "of": {"step": {"var": "a"}, "from": {"s0": {}}}}, {"nat": 1}]}, {"bool": false}]}
+      ]},
+      "scope": {"kind": "unbounded"}
+    }
+  },
+  "new": {
+    "ir_version": "holon-ir/0.3",
+    "law_id": "L10_sd_small",
+    "milestone": "T3",
+    "rule": "SORT",
+    "rule_catalog_version": "holon-rules/0.1",
+    "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+    "facts_sha256": "",
+    "notes": "statement-diff fixture (audit F-M2-24): the new statement drops the conjunct that is false on the model",
+    "statement": {
+      "binders": [{"q": "forall", "name": "a", "type": "Act"}],
+      "assume": [],
+      "claim": {"eq": [{"obsv": "small", "of": {"step": {"var": "a"}, "from": {"s0": {}}}}, {"bool": true}]},
+      "scope": {"kind": "unbounded"}
+    }
+  },
+  "reason": "fixture: labelled a strengthening, but the new statement drops a conjunct that is false on the model (push x from s0 makes n_of 1), so S' => S is false, not merely unproved"
+}

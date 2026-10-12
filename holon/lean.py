@@ -48,6 +48,16 @@ FORBIDDEN = re.compile(r"\b(sorry|admit|native_decide|bv_decide|decide\s*\+\s*na
                        r"extern|ofReduceBool|ofReduceNat|opaque|partial|macro|macro_rules|syntax|elab|notation|"
                        r"infix|infixl|infixr|prefix|postfix|import|run_cmd|run_tac|run_elab|initialize|"
                        r"builtin_initialize|debug\.skipKernelTC|Lean\.Elab|Lean\.Meta)\b")
+# commands that run code or cut elaboration short (#eval runs IO during the lake build; #exit stops checking the rest
+# of the file): forbidden like the tactics above (audit F-M2-32)
+FORBIDDEN_CMD = re.compile(r"(?m)^[ \t]*#(eval|exit)\b")
+# A canary counts as rejected only for a semantic reason (audit F-M2-32): the kernel decided the flipped claim false,
+# or found the two sides not definitionally equal. A parse, name or goal-shape error rejects it vacuously, and
+# "unsolved goals" alone is not enough (a syntax error can surface first as an empty tactic block's unsolved goal).
+SEMANTIC_REJECTION = re.compile(r"Tactic `decide` proved that the proposition|is not definitionally equal|"
+                                r"Tactic `rfl` failed: The left-hand side|type mismatch")
+NON_SEMANTIC = re.compile(r"unexpected token|unexpected identifier|unknown identifier|unknown constant|unknown tactic|"
+                          r"expected term|unterminated|invalid syntax|Expected the goal to be a binary relation")
 CLAIM_MARK = "-- holon:claim"
 REPORT = "report.json"
 SUBDIR = "lean"
@@ -181,7 +191,24 @@ def strip_comments(src: str) -> str:
 def forbidden(src: str) -> list[str]:
     code = strip_comments(src)
     code = re.sub(r'"(?:[^"\\]|\\.)*"', '""', code)
-    return sorted(set(m.group(0) for m in FORBIDDEN.finditer(code)))
+    return sorted(set(m.group(0) for m in FORBIDDEN.finditer(code))
+                  | {"#" + m.group(1) for m in FORBIDDEN_CMD.finditer(code)})
+
+
+def first_error_block(out: str) -> str:
+    """The text of Lean's first error, up to the next error or warning."""
+    lines = out.splitlines()
+    i = next((k for k, line in enumerate(lines) if re.search(r"(^|: )error:", line)), None)
+    if i is None:
+        return ""
+    j = next((k for k in range(i + 1, len(lines)) if re.search(r"(^|: )(error|warning):", lines[k])), len(lines))
+    return "\n".join(lines[i:j])
+
+
+def semantic_rejection(out: str) -> bool:
+    """Was a canary rejected for a semantic reason (SEMANTIC_REJECTION in its first error, and no parse, name or
+    goal-shape error anywhere)? A canary rejected for any other reason proves nothing about the kernel."""
+    return bool(SEMANTIC_REJECTION.search(first_error_block(out))) and not NON_SEMANTIC.search(out)
 
 
 def theorems(src: str) -> list[str]:

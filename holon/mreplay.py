@@ -481,8 +481,9 @@ def main_replay_m1(args) -> int:
     shutil.rmtree(work / "go", ignore_errors=True)
     results = ROOT / "results" / milestone
     cm = CompiledMachine.build(facts_path)
-    laws = {p.stem: json.loads(p.read_text()) for p in (ROOT / "laws" / milestone).glob("L_*.json")}
-    records = {p.stem: json.loads(p.read_text()) for p in results.glob("L_*.json")}
+    from .ir import LAW_GLOB, record_files   # every law-id pattern ir.load_laws_any reads (audit F-M2-02)
+    laws = {p.stem: json.loads(p.read_text()) for p in (ROOT / "laws" / milestone).glob(LAW_GLOB)}
+    records = {p.stem: json.loads(p.read_text()) for p in record_files(results)}
     # witness corpus
     plan = []
     go_laws = []

@@ -65,7 +65,7 @@ def _strip_seconds(x):
 
 
 def norm_records(root: Path, m: str) -> dict[str, dict]:
-    """root/results/<m>/L_*.json with `seconds` removed and artifact paths relative to root/gen/<m>."""
+    """root/results/<m>/L*.json with `seconds` removed and artifact paths relative to root/gen/<m>."""
     gen = (root / "gen" / m).resolve()
 
     def rel(p):
@@ -78,12 +78,14 @@ def norm_records(root: Path, m: str) -> dict[str, dict]:
         except ValueError:
             return f"<outside gen>/{q.name}"
     out = {}
-    for f in sorted((root / "results" / m).glob("L_*.json")):
+    for f in ir.record_files(root / "results" / m):   # L_*, L3_*, .. as ir.load_laws_any (audit F-M2-02)
         r = _strip_seconds(json.loads(f.read_text()))
         if isinstance(r.get("artifacts"), dict):
             r["artifacts"] = {k: (rel(v) if k in PATH_KEYS else v) for k, v in r["artifacts"].items()}
         if isinstance(r.get("non_vacuity"), dict) and r["non_vacuity"].get("law"):
             r["non_vacuity"] = {**r["non_vacuity"], "law": rel(r["non_vacuity"]["law"])}
+        if isinstance(r.get("negation"), dict):   # an ∃-law's negation files (0.3), as holon.gate.Gate.norm_records
+            r["negation"] = {k: (rel(v) if k in PATH_KEYS else v) for k, v in r["negation"].items()}
         out[f.stem] = r
     return out
 

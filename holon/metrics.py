@@ -3,7 +3,7 @@
     python -m holon metrics --milestone M [--root DIR]
 
 writes <root>/results/<M>/metrics.json, a deterministic function of the committed records
-(results/<M>/L_*.json), the canaries of results/<M>/gate_report.json, the trace corpus of
+(results/<M>/L*.json: L_* and L3_* etc.), the canaries of results/<M>/gate_report.json, the trace corpus of
 replay/<M>/report.json, the per-edge refinement records results/M2/refinement/*.json, the entries of
 spec/M2/disagreements.json and the files holon.refinement.classify reads; and
 <root>/results/<M>/metrics_timing.json, the only place timings go (G1 excludes it). Its
@@ -39,7 +39,8 @@ def _rate(k: int, n: int) -> float | None:
 
 
 def records(milestone: str, results: Path) -> dict[str, dict]:
-    return {p.stem: _load(p) for p in sorted(Path(results).glob("L_*.json"))}
+    from .ir import record_files   # every law-id pattern ir.load_laws_any reads, L3_* included (audit F-M2-02)
+    return {p.stem: _load(p) for p in record_files(results)}
 
 
 def refinement(milestone: str, root: Path) -> dict:

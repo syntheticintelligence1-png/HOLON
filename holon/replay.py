@@ -350,8 +350,8 @@ def main_replay(args) -> int:
     tc = toolchain(args)
     results = ROOT / "results" / args.milestone
     work = Path(args.work or ROOT / "build" / "replay").resolve()
-    records = {p.stem: json.loads(p.read_text()) for p in results.glob("L_*.json")}
-    laws = {p.stem: json.loads(p.read_text()) for p in (ROOT / "laws" / args.milestone).glob("L_*.json")}
+    records = {p.stem: json.loads(p.read_text()) for p in ir.record_files(results)}
+    laws = {p.stem: json.loads(p.read_text()) for p in (ROOT / "laws" / args.milestone).glob(ir.LAW_GLOB)}
     go = replay_go(morph, work, results) if shutil.which("go") else None
     sol = replay_solidity(morph, work, results, tc["forge"], tc["solc"])
     commit = m0_commit_sides(morph, work / "commit", records, laws, facts, tc)
