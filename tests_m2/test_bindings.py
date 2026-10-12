@@ -125,6 +125,47 @@ class TestBindingTamper(unittest.TestCase):
         self.assertTrue(g2["passed"], g2["detail"])
 
 
+def signed_binding_change(repo: Path, lid: str, defs: list) -> int:
+    """Append to the copy's laws/STATEMENT_DIFF.jsonl a binding_change entry for law lid (statement unchanged)
+    naming defs, signed with a key made for the test in a throwaway GNUPGHOME and exported to the copy's keys/
+    (holon.statement_diff.append checks it). Returns its line number. A signature is a human act: this key lives
+    only in the throwaway copy."""
+    import json
+    import os
+    import subprocess
+    import tempfile
+    SD = holon_module("holon.statement_diff")
+    law = load_json(repo / "laws" / "M1" / f"{lid}.json")
+    entry = {"kind": "binding_change", "law_id": lid, "old": law, "new": law, "defs": sorted(defs),
+             "reason": "test: the planted change of " + ", ".join(sorted(defs))}
+    home = Path(tempfile.mkdtemp(prefix="holon-test-gpg-"))
+    try:
+        os.chmod(home, 0o700)
+        env = {"GNUPGHOME": str(home), "PATH": os.environ.get("PATH", ""), "LC_ALL": "C"}
+
+        def gpg(*a):
+            r = subprocess.run(["gpg", "--batch", "--pinentry-mode", "loopback", "--passphrase", "", *a], env=env,
+                               capture_output=True)
+            if r.returncode != 0:
+                raise AssertionError(f"gpg {a[:2]}: {r.stderr.decode(errors='replace')[-400:]}")
+            return r.stdout
+        gpg("--quick-gen-key", "holon test <test@holon.invalid>", "ed25519", "sign", "never")
+        (repo / "keys").mkdir(exist_ok=True)
+        (repo / "keys" / "test.asc").write_bytes(gpg("--armor", "--export", "test@holon.invalid"))
+        (home / "payload").write_bytes(SD.signed_payload(entry))
+        gpg("--armor", "--detach-sign", "--local-user", "test@holon.invalid", "-o", str(home / "sig.asc"),
+            str(home / "payload"))
+        entry["signature"] = (home / "sig.asc").read_text()
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+    r = SD.append(entry, repo)
+    if not r["ok"]:
+        raise AssertionError(r)
+    lines = [ln for ln in (repo / "laws" / "STATEMENT_DIFF.jsonl").read_text().splitlines()]
+    assert json.loads(lines[-1])["law_id"] == lid
+    return len(lines)
+
+
 class TestBindChannel(unittest.TestCase):
     def test_rebind_requires_a_reason(self):
         repo = copy_repo()
@@ -137,6 +178,12 @@ class TestBindChannel(unittest.TestCase):
             p = run_holon(["bind", "--milestone", "M1"], cwd=repo)
             self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
             self.assertIn("L_tag_BVH", p.stdout + p.stderr)
+            # I10 lifecycle (audit M2/1 F-M2-09): a free-text reason alone no longer rebinds an existing law
+            p = run_holon(["bind", "--milestone", "M1", "--accept-change", "test: planted change"], cwd=repo)
+            self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+            self.assertIn("binding_change", p.stderr)
+            # with an accepted binding_change entry naming the law and the changed definition, it does
+            n = signed_binding_change(repo, "L_tag_BVH", ["b_tags_exact"])
             p = run_holon(["bind", "--milestone", "M1", "--accept-change", "test: planted change"], cwd=repo)
             self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
             log = (repo / "spec" / "bindings" / "changes.jsonl").read_text().strip().splitlines()
@@ -144,6 +191,7 @@ class TestBindChannel(unittest.TestCase):
             self.assertEqual(last["reason"], "test: planted change")
             self.assertEqual(last["laws"], ["L_tag_BVH"])
             self.assertIn("b_tags_exact", last["defs"])
+            self.assertEqual(last["covered_by"], {"L_tag_BVH": n})
             p, rep = gate(repo, "M1", "G2")
             self.assertTrue(rep["checks"]["G2"]["passed"], rep["checks"]["G2"]["detail"])
         finally:
