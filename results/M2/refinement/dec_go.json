@@ -1,0 +1,45 @@
+{
+  "agree": 2092,
+  "command": "(cd common && HOLON_CODEC_IN=\u2026 HOLON_CODEC_OUT=\u2026 go test ./batch -run ^TestHolonCodec$ -count=1 -v)  # exit 0",
+  "compared": 2092,
+  "corpus": {
+    "boundary": 91,
+    "grammar": 2000,
+    "inputs_sha256": "03d60e5b7987425ae4d8e5153e919ab65979667b3862c9d39eaacb0d0ba5e4f1",
+    "seed": 20261016,
+    "witness": 1
+  },
+  "diagram_edge": "CODEC.dec_go",
+  "disagreement_ids": [],
+  "disagreements": 0,
+  "domain": {
+    "in": 300,
+    "out": 1792
+  },
+  "edge": "dec_go",
+  "facts": "facts/morph_header.json",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "fixes": [],
+  "implementation": {
+    "harness": "replay/M2/go/holon_codec_test.go",
+    "lang": "go",
+    "target": "common/batch BatchHeaderBytes: validate(), then the getters in the facts' order (BlobCommitHash for blobVersionedHash); a getter that errors after validate() passed is absent"
+  },
+  "kind": "codec",
+  "milestone": "M0",
+  "model_engine": "mjs",
+  "model_sha256": "a4c3fef09dd69d202ebffe8cdea675a715c22a9cb21012e3ed49c500f69ac5b7",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "native": "fallback (results/M2/native.json)",
+  "outputs_sha256": {
+    "model": "a091de04685a970ac14e5f2470c1bbfafe22799fe6d9579dab90e5988b1047a4",
+    "real": "a091de04685a970ac14e5f2470c1bbfafe22799fe6d9579dab90e5988b1047a4"
+  },
+  "record_version": "holon-refinement/0.1",
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "go_version": "go version go1.24.7 linux/amd64",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  }
+}

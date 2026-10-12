@@ -1,0 +1,45 @@
+{
+  "agree": 2092,
+  "command": "HOLON_CODEC_IN=holon_codec_in.txt HOLON_CODEC_OUT=holon_codec_out.txt forge test --match-contract HolonCodec --offline --use <solc 0.8.24> -vv  # exit 0",
+  "compared": 2092,
+  "corpus": {
+    "boundary": 91,
+    "grammar": 2000,
+    "inputs_sha256": "d3fa85932a05825cb24bf6bea7f44668446b46f30e91a7335dc95d08cb215cb8",
+    "seed": 20261016,
+    "witness": 1
+  },
+  "diagram_edge": null,
+  "disagreement_ids": [],
+  "disagreements": 0,
+  "domain": {
+    "in": 470,
+    "out": 1622
+  },
+  "edge": "ok_sol",
+  "facts": "facts/morph_header.json",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "fixes": [],
+  "implementation": {
+    "harness": "replay/M2/solidity/HolonCodec.t.sol",
+    "lang": "solidity",
+    "target": "contracts/l1/rollup/Rollup.sol _loadBatchHeader(b) does not revert (through a harness that inherits Rollup)"
+  },
+  "kind": "domain",
+  "milestone": "M0",
+  "model_engine": "mjs",
+  "model_sha256": "a4c3fef09dd69d202ebffe8cdea675a715c22a9cb21012e3ed49c500f69ac5b7",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "native": "fallback (results/M2/native.json)",
+  "outputs_sha256": {
+    "model": "00907efa045164d55832dc81b2df2760dce3f80bfe4aa8610b7cbbb4e29e57fd",
+    "real": "00907efa045164d55832dc81b2df2760dce3f80bfe4aa8610b7cbbb4e29e57fd"
+  },
+  "record_version": "holon-refinement/0.1",
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "go_version": "go version go1.24.7 linux/amd64",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  }
+}

@@ -14,6 +14,9 @@
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
   python -m holon diagram --milestone M2 [--out DIR] [--root DIR]   (one diagram per fact document)
   python -m holon sorts [--milestone M2] [--root DIR] [--out DIR] [--facts PATH ...]   (refined sorts, I13)
+  python -m holon native --milestone M0 [--out PATH]    (native C model, results/M2/native.json, I16)
+  python -m holon refine --milestone M0 [--edges E1,E2] [--out DIR] [--morph PATH] [--work DIR] [--fix C ..]
+  python -m holon metrics --milestone M [--root DIR]    (results/<M>/metrics.json, I16)
 """
 from __future__ import annotations
 
@@ -33,6 +36,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["sorts"]:  # likewise for holon.sorts
         from . import sorts
         return sorts.main(argv[1:])
+    if argv[:1] == ["native"]:  # likewise for holon.model_native
+        from . import model_native
+        return model_native.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
@@ -84,6 +90,19 @@ def main(argv=None) -> int:
     dg.add_argument("--milestone", default="M2")
     dg.add_argument("--out", help="output directory (default: <root>/gen/<milestone>/diagram)")
     dg.add_argument("--root", help="repository root holding the fact documents (default: this checkout)")
+    nt = sub.add_parser("native", help="build the native C model and record results/M2/native.json (I16)")
+    nt.add_argument("rest", nargs=argparse.REMAINDER)
+    rf = sub.add_parser("refine", help="per-edge refinement records against each edge's own implementation (I16)")
+    rf.add_argument("--milestone", default="M0")
+    rf.add_argument("--edges", help="comma-separated subset of the refined edges (default: all, plus cross_edge.json "
+                                    "and spec/M2/disagreements.json)")
+    rf.add_argument("--out", help="output directory for the records (default: results/M2/refinement)")
+    rf.add_argument("--morph", help="morph checkout at the facts' commit (default: config replay.morph)")
+    rf.add_argument("--work", help="scratch directory for the harness workspaces (default: a temporary directory)")
+    rf.add_argument("--fix", action="append", help="a fix commit (40 lowercase hex) this run measures; repeatable")
+    mt = sub.add_parser("metrics", help="write results/<M>/metrics.json and metrics_timing.json (I16)")
+    mt.add_argument("--milestone", default="M0")
+    mt.add_argument("--root")
     a = ap.parse_args(argv)
     if a.cmd == "run":
         from .pipeline import main_run
@@ -115,6 +134,12 @@ def main(argv=None) -> int:
     if a.cmd == "replay":
         from .replay import main_replay
         return main_replay(a)
+    if a.cmd == "refine":
+        from .refinement import main_refine
+        return main_refine(a)
+    if a.cmd == "metrics":
+        from .metrics import main_metrics
+        return main_metrics(a)
     if a.cmd == "diagram":
         from . import diagram
         return diagram.run(a.milestone, a.out, a.root)

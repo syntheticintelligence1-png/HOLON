@@ -1,0 +1,18 @@
+{
+  "bend_version": "2.0.36",
+  "command": "bend driver.bend -o driver.c",
+  "driver_on_bend_lane": {
+    "agree": 569,
+    "candidates": 569,
+    "disagree": 0,
+    "engine": "bend driver.bend JOBS OUT: Bend's own JavaScript lane, not native",
+    "laws": 8,
+    "ran": true
+  },
+  "engine": "mjs",
+  "exit_code": 1,
+  "milestone": "M0",
+  "note": "the native C build failed, so the .mjs model stays the engine (BUILD_PLAN I16 fallback); every refinement record runs on .mjs. The failure and a minimal reproduction are in bend/notes/c_probe/RESULT.json (arity_limit)",
+  "reason": "Error: an arity over 247",
+  "status": "fallback"
+}

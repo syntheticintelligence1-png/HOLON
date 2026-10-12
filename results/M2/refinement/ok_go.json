@@ -1,0 +1,45 @@
+{
+  "agree": 2092,
+  "command": "(cd common && HOLON_CODEC_IN=\u2026 HOLON_CODEC_OUT=\u2026 go test ./batch -run ^TestHolonCodec$ -count=1 -v)  # exit 0",
+  "compared": 2092,
+  "corpus": {
+    "boundary": 91,
+    "grammar": 2000,
+    "inputs_sha256": "aa0c2c6a2595d910f74b5ad2bf2f044e737ffac381096df00a9208fed3e78b94",
+    "seed": 20261016,
+    "witness": 1
+  },
+  "diagram_edge": null,
+  "disagreement_ids": [],
+  "disagreements": 0,
+  "domain": {
+    "in": 297,
+    "out": 1795
+  },
+  "edge": "ok_go",
+  "facts": "facts/morph_header.json",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "fixes": [],
+  "implementation": {
+    "harness": "replay/M2/go/holon_codec_test.go",
+    "lang": "go",
+    "target": "common/batch BatchHeaderBytes.validate() == nil"
+  },
+  "kind": "domain",
+  "milestone": "M0",
+  "model_engine": "mjs",
+  "model_sha256": "a4c3fef09dd69d202ebffe8cdea675a715c22a9cb21012e3ed49c500f69ac5b7",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "native": "fallback (results/M2/native.json)",
+  "outputs_sha256": {
+    "model": "045f64b4f047229dc543b9033ad96fa738b7ec6d44fa6650605770b7120de613",
+    "real": "045f64b4f047229dc543b9033ad96fa738b7ec6d44fa6650605770b7120de613"
+  },
+  "record_version": "holon-refinement/0.1",
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "go_version": "go version go1.24.7 linux/amd64",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  }
+}

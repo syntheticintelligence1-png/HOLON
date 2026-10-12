@@ -12,9 +12,15 @@ accepts the committed gen/<m>/lean/report.json only for the exact text emitted f
 and witness, and G7 re-checks it from scratch.
 
 plus the cone of the law, its model_assumptions, the generator hash and the fields later
-iterations fill: non_vacuity (I3) and witness_provenance / filter_bin (I4, from the replay
-report through holon.filter) are filled; refinement_refs (I16) and coverage (I19) are still
-pending. A pending field holds "pending:I<n>", never a made-up value.
+iterations fill: non_vacuity (I3), witness_provenance / filter_bin (I4, from the replay
+report through holon.filter) and refinement_refs (I16, refinement_refs below) are filled; coverage
+(I19) is still pending. A pending field holds "pending:I<n>", never a made-up value.
+
+refinement_refs (Def 4.7, §8.6 "the refinement records of the edges used") is the sorted list of
+  * "results/M2/refinement/<edge>.json" for every per-edge refinement record (holon.refinement) of the
+    law's milestone and facts whose edge is in the law's cone;
+  * "replay/<m>/report.json#/refinement/per_action/<a>" for every action a of the milestone's trace
+    corpus (holon.mreplay) whose step definition step_<a> (holon/gen/machine.py) is in the cone.
 
 The cone of a law is the set of generated model definitions its frozen statement reaches:
 the `M.<name>` references of the emitted statement (a type for a constructor), closed
@@ -348,6 +354,31 @@ def independence_class(rec: dict, lean_entry: dict | None = None) -> str:
     return "I1-shared" if rec["kernel"].get("verdict") == "checked" else "I1"
 
 
+STEP_PREFIX = "step_"  # holon/gen/machine.py names the step definition of action <a> step_<a>
+
+
+def refinement_refs(law: dict, cone_set: set[str], root: Path | str = ROOT) -> list[str]:
+    """The refinement records of the edges the law's cone uses (see the module docstring)."""
+    root, m, out = Path(root), law["milestone"], set()
+    for f in sorted((root / "results" / "M2" / "refinement").glob("*.json")):
+        try:
+            r = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        if (isinstance(r, dict) and r.get("milestone") == m and r.get("facts_sha256") == law["facts_sha256"]
+                and r.get("edge") in cone_set):
+            out.add(f"results/M2/refinement/{f.name}")
+    rep = root / "replay" / m / "report.json"
+    try:
+        pa = (json.loads(rep.read_text()).get("refinement") or {}).get("per_action") if rep.exists() else None
+    except (OSError, ValueError):
+        pa = None
+    for a in sorted(pa or {}):
+        if STEP_PREFIX + a in cone_set:
+            out.add(f"replay/{m}/report.json#/refinement/per_action/{a}")
+    return sorted(out)
+
+
 def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_facts: str | None,
               compiled_path: Path | None, root: Path | str = ROOT, lean_entry: dict | None = None) -> dict:
     """The v2 fields of a finished record (status, kernel, bound and replay already set).
@@ -376,7 +407,7 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
         "scope_v2": scope_v2(law, rec),
         "kernels": kernels(rec, lean_entry),
         "independence_class": independence_class(rec, lean_entry),
-        "refinement_refs": "pending:I16",
+        "refinement_refs": refinement_refs(law, set(c), root),
         "coverage": "pending:I19",
         "non_vacuity": None,  # set by the pipeline from holon.inhabit (I3)
         "witness_provenance": wp,

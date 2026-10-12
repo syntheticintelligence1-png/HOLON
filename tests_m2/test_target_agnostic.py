@@ -59,6 +59,10 @@ def norm_record(f: Path, b: bytes) -> bytes:
             return [s(v) for v in x]
         return x
     rec = json.loads(b)
+    # I16 fills refinement_refs: a filled list is compared as its pinned pre-I16 value "pending:I16";
+    # every other field is compared as before
+    if isinstance(rec.get("refinement_refs"), list):
+        rec["refinement_refs"] = "pending:I16"
     # I9 adds a checked lean4 kernel entry, which earns I2; without it the record is exactly the pinned one
     lean = [k for k in rec.get("kernels", []) if k.get("name") == "lean4"]
     if lean:

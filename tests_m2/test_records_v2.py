@@ -88,7 +88,6 @@ class TestRecordsV2(unittest.TestCase):
         for m in MILESTONES:
             for lid, rec in records(m).items():
                 with self.subTest(law=lid):
-                    self.assertEqual(rec["refinement_refs"], "pending:I16")
                     self.assertEqual(rec["coverage"], "pending:I19")
 
     def test_statuses_unchanged(self):

@@ -1,0 +1,41 @@
+{
+  "agree": 2107,
+  "command": "HOLON_CODEC_IN=holon_codec_in.txt HOLON_CODEC_OUT=holon_codec_out.txt forge test --match-contract HolonCodec --offline --use <solc 0.8.24> -vv  # exit 0",
+  "compared": 2107,
+  "corpus": {
+    "boundary": 105,
+    "grammar": 2000,
+    "inputs_sha256": "cc1498a2af01e830dc183b22f8bf124f374379fc4b63d543b62be9d7e9cff4b3",
+    "seed": 20261016,
+    "witness": 2
+  },
+  "diagram_edge": "CODEC.enc_sol",
+  "disagreement_ids": [],
+  "disagreements": 0,
+  "edge": "enc_sol",
+  "facts": "facts/morph_header.json",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "fixes": [],
+  "implementation": {
+    "harness": "replay/M2/solidity/HolonCodec.t.sol",
+    "lang": "solidity",
+    "target": "contracts/l1/rollup/Rollup.sol _commitBatchWithBatchData header build block: header length by version, BatchHeaderCodecV0.store* in the block's order, then BatchHeaderCodecV1.storeLastBlockNumber when version >= 1; the output is the header the block hashes"
+  },
+  "kind": "codec",
+  "milestone": "M0",
+  "model_engine": "mjs",
+  "model_sha256": "a4c3fef09dd69d202ebffe8cdea675a715c22a9cb21012e3ed49c500f69ac5b7",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "native": "fallback (results/M2/native.json)",
+  "outputs_sha256": {
+    "model": "cc5031cfaff5fda9751f3862275d6044e897fb982511984f50e7f4561ed04b3c",
+    "real": "cc5031cfaff5fda9751f3862275d6044e897fb982511984f50e7f4561ed04b3c"
+  },
+  "record_version": "holon-refinement/0.1",
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "go_version": "go version go1.24.7 linux/amd64",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  }
+}

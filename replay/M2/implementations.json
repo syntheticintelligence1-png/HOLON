@@ -1,0 +1,102 @@
+{
+  "doc": "I16 refinement binding: which real implementation each refined model edge of facts/morph_header.json is compared with, and how the harness calls it. Read by holon/refinement.py. Each edge is compared with its OWN implementation. Go edges run through replay/M2/go/holon_codec_test.go (copied into a scratch copy of morph common/batch), Solidity edges through replay/M2/solidity/HolonCodec.t.sol (in a scratch Foundry project holding morph contracts/). `fields` maps a Header field of the facts to the Go struct field it fills (the Go structs carry no version: Bytes() writes its own version byte); `getters` maps a getter of the facts to the Go method dec_go calls; `abi` is the order and type of the values the Solidity build block stores, as the harness's HolonHeader struct declares them (sequencerSetVerifyHash is absent: the build block stores the constant bytes32(0)).",
+  "facts": "facts/morph_header.json",
+  "harnesses": {
+    "go": {
+      "path": "replay/M2/go/holon_codec_test.go",
+      "copy_trees": ["bindings", "common"],
+      "package": "common/batch",
+      "file": "holon_codec_test.go",
+      "test": "TestHolonCodec"
+    },
+    "solidity": {
+      "path": "replay/M2/solidity/HolonCodec.t.sol",
+      "file": "test/HolonCodec.t.sol",
+      "contract": "HolonCodec"
+    }
+  },
+  "edges": {
+    "dec_go": {
+      "lang": "go",
+      "op": "decode",
+      "target": "common/batch BatchHeaderBytes: validate(), then the getters in the facts' order (BlobCommitHash for blobVersionedHash); a getter that errors after validate() passed is absent",
+      "getters": {
+        "version": "Version",
+        "batchIndex": "BatchIndex",
+        "l1MessagePopped": "L1MessagePopped",
+        "totalL1MessagePopped": "TotalL1MessagePopped",
+        "dataHash": "DataHash",
+        "blobVersionedHash": "BlobCommitHash",
+        "prevStateHash": "PrevStateRoot",
+        "postStateHash": "PostStateRoot",
+        "withdrawRootHash": "WithdrawalRoot",
+        "sequencerSetVerifyHash": "SequencerSetVerifyHash",
+        "parentBatchHash": "ParentBatchHash",
+        "lastBlockNumber": "LastBlockNumber"
+      }
+    },
+    "enc_go_v0": {
+      "lang": "go",
+      "op": "BatchHeaderV0.Bytes",
+      "target": "common/batch BatchHeaderV0{..}.Bytes() with an empty EncodedBytes cache",
+      "fields": {
+        "batchIndex": "BatchIndex",
+        "l1MessagePopped": "L1MessagePopped",
+        "totalL1MessagePopped": "TotalL1MessagePopped",
+        "dataHash": "DataHash",
+        "blobVersionedHash": "BlobVersionedHash",
+        "prevStateHash": "PrevStateRoot",
+        "postStateHash": "PostStateRoot",
+        "withdrawRootHash": "WithdrawalRoot",
+        "sequencerSetVerifyHash": "SequencerSetVerifyHash",
+        "parentBatchHash": "ParentBatchHash"
+      }
+    },
+    "enc_go_v1": {
+      "lang": "go",
+      "op": "BatchHeaderV1.Bytes",
+      "target": "common/batch BatchHeaderV1{BatchHeaderV0: .., LastBlockNumber: ..}.Bytes() with empty EncodedBytes caches",
+      "fields": {
+        "batchIndex": "BatchIndex",
+        "l1MessagePopped": "L1MessagePopped",
+        "totalL1MessagePopped": "TotalL1MessagePopped",
+        "dataHash": "DataHash",
+        "blobVersionedHash": "BlobVersionedHash",
+        "prevStateHash": "PrevStateRoot",
+        "postStateHash": "PostStateRoot",
+        "withdrawRootHash": "WithdrawalRoot",
+        "sequencerSetVerifyHash": "SequencerSetVerifyHash",
+        "parentBatchHash": "ParentBatchHash",
+        "lastBlockNumber": "LastBlockNumber"
+      }
+    },
+    "enc_sol": {
+      "lang": "solidity",
+      "op": "build",
+      "target": "contracts/l1/rollup/Rollup.sol _commitBatchWithBatchData header build block: header length by version, BatchHeaderCodecV0.store* in the block's order, then BatchHeaderCodecV1.storeLastBlockNumber when version >= 1; the output is the header the block hashes",
+      "abi": [
+        ["version", "uint8"],
+        ["batchIndex", "uint64"],
+        ["l1MessagePopped", "uint64"],
+        ["totalL1MessagePopped", "uint64"],
+        ["dataHash", "bytes32"],
+        ["blobVersionedHash", "bytes32"],
+        ["prevStateHash", "bytes32"],
+        ["postStateHash", "bytes32"],
+        ["withdrawRootHash", "bytes32"],
+        ["parentBatchHash", "bytes32"],
+        ["lastBlockNumber", "uint64"]
+      ]
+    },
+    "ok_go": {
+      "lang": "go",
+      "op": "validate",
+      "target": "common/batch BatchHeaderBytes.validate() == nil"
+    },
+    "ok_sol": {
+      "lang": "solidity",
+      "op": "load",
+      "target": "contracts/l1/rollup/Rollup.sol _loadBatchHeader(b) does not revert (through a harness that inherits Rollup)"
+    }
+  }
+}
