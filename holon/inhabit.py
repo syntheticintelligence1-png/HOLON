@@ -412,7 +412,7 @@ def expected_texts(law: dict, m: str, root: Path, rec: dict) -> tuple[str, str, 
     from .gen.machine import Machine
     from .gen.oracles import Oracles
     from .mpipeline import m2plus
-    orc = Oracles.for_facts(root / law["facts"]) if m2plus(m) else None
+    orc = Oracles.for_milestone(m, root / law["facts"], root)
     return texts_02(law, Machine(F.load(root / law["facts"]), root / law["facts"], oracles=orc, m2plus=m2plus(m)), model,
                     rec["non_vacuity"]["witness"])
 
@@ -434,6 +434,28 @@ def premise_mismatch(law: dict, m: str, root: Path, laws_text: str) -> str | Non
     want = re.findall(r"^\s+for h\d+: (\{.*\})\s*$", parent, re.M)
     got = re.findall(r"^\s+(?:exs c\d+: )?(\{.*\})\s*$", body, re.M)
     return None if got == want else "premises differ from the parent statement's"
+
+
+def unreachable(law: dict, witness, proof_text: str) -> str | None:
+    """None when every State and Reach binder of the inhabitant's witness is a run from s0 and every Reach binder's
+    evidence in the inhabitant's proof is the R0 / RStep chain of that run; else why not. G11V recomputes this from
+    the witness and the proof file; the record's `reachable` flag is never trusted (F-M1-05, F-M2-13): a constructed
+    state ({"state": ..}) can satisfy the premises at a point no trace reaches."""
+    w = witness if isinstance(witness, dict) else {}
+    bs = law["statement"].get("binders", [])
+    not_run = [b["name"] for b in bs if b["type"] in ("State", "Reach")
+               and not (isinstance(w.get(b["name"]), dict) and set(w[b["name"]]) == {"run"}
+                        and isinstance(w[b["name"]]["run"], list))]
+    if not_run:
+        return (f"inhabitant states {not_run} are not runs from s0 (a constructed state is not shown reachable; the "
+                "stored reachable flag is not trusted)")
+    reach = [b["name"] for b in bs if b["type"] == "Reach"]
+    if reach:
+        steps = sum(len(w[x]["run"]) for x in reach)
+        if proof_text.count(".R0{{==}}") < len(reach) or proof_text.count(".RStep{") < steps:
+            return (f"inhabitant proof does not carry the R0 / RStep chain of its Reach binders {reach} "
+                    f"({steps} steps)")
+    return None
 
 
 def g11v(gate) -> tuple[bool, str]:
@@ -488,10 +510,15 @@ def g11v(gate) -> tuple[bool, str]:
         if bend.escape_hatches(laws_text + proof_text):
             bad.append(f"{lid}: inhabitant uses an escape hatch")
             continue
+        why = unreachable(law, nv.get("witness"), proof_text)
+        if why:   # recomputed from the witness; the stored flag is not trusted (audit M1/1 F-M1-05, M2/1 F-M2-13)
+            bad.append(f"{lid}: {why}")
+            continue
         states = [b["name"] for b in law["statement"].get("binders", []) if b["type"] == "State"]
-        if states:
+        if states or any(b["type"] == "Reach" for b in law["statement"].get("binders", [])):
             if nv.get("reachable") is not True:
-                bad.append(f"{lid}: inhabitant states are not all reachable (run(p, s0))")
+                bad.append(f"{lid}: the record's reachable flag is {nv.get('reachable')!r}, but its witness states are "
+                           "runs from s0")
                 continue
             if len(states) >= 2:
                 fp = gate.root / law["facts"]
@@ -499,7 +526,7 @@ def g11v(gate) -> tuple[bool, str]:
                     from .gen.oracles import Oracles
                     from .mpipeline import m2plus
                     machines[fp] = CompiledMachine.build(fp, gate.cfg, reach=m2plus(gate.m),
-                                                         oracles=Oracles.for_facts(fp) if m2plus(gate.m) else None)
+                                                         oracles=Oracles.for_milestone(gate.m, fp, gate.root))
                 if degenerate(machines[fp], law, nv["witness"]) is not False:
                     bad.append(f"{lid}: inhabitant is degenerate (its two states are equal)")
                     continue
