@@ -1,0 +1,355 @@
+{
+  "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
+  "entry_witness_sha256": {
+    "L_sort_site_rollup_363_1fc7f88a": {
+      "commitBatch": "5c6033c4ec1d25ad473cdd68a2511cb233a12f3705ebc2291e16be77965f5fe8",
+      "commitBatchWithProof": "f0a8cc6408dcc037ef5eb52fa0f0b60c7094f67f00130e6bc4a87a9b139be39a",
+      "commitState": "aec8f73613be3fccff1761ebae7ec4b2800003d7441103986e57fc9118744aed"
+    },
+    "L_sort_site_rollup_636_e68daf06": {
+      "finalizeBatch": "36ff6f7760470d3176a8e9c5e4f2e323ba03870faa962d8bcc3a30bb00db1f34"
+    }
+  },
+  "harness_mismatch": false,
+  "laws": {
+    "L_sort_site_rollup_363_1fc7f88a": {
+      "entries": {
+        "commitBatch": {
+          "disagree": [],
+          "last_step_command": "HOLON_LAST_TRACE=<trace> forge test --match-contract HolonLastStepTest --match-test test_last --offline --use <solc 0.8.24> -vv; then --debug --dump <file> (holon.mreplay.locate_panic)",
+          "model": [
+            "ok",
+            "ok",
+            "ok",
+            "rev panic:0x11"
+          ],
+          "obstruction_observed": true,
+          "panic": {
+            "code": 17,
+            "contract": "Rollup",
+            "kind": "DELEGATECALL",
+            "line": 363,
+            "path": "contracts/l1/rollup/Rollup.sol",
+            "text": "proofWindow + challenges[batchChallenged].startTime - block.timestamp"
+          },
+          "panic_site": "contracts/contracts/l1/rollup/Rollup.sol:363",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "rev panic:0x11"
+          ],
+          "status": "passed",
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 11,
+              "op": "wait"
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 1,
+              "post": 123,
+              "prev": 110,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        },
+        "commitBatchWithProof": {
+          "disagree": [],
+          "last_step_command": "HOLON_LAST_TRACE=<trace> forge test --match-contract HolonLastStepTest --match-test test_last --offline --use <solc 0.8.24> -vv; then --debug --dump <file> (holon.mreplay.locate_panic)",
+          "model": [
+            "ok",
+            "ok",
+            "ok",
+            "rev panic:0x11"
+          ],
+          "obstruction_observed": true,
+          "panic": {
+            "code": 17,
+            "contract": "Rollup",
+            "kind": "DELEGATECALL",
+            "line": 363,
+            "path": "contracts/l1/rollup/Rollup.sol",
+            "text": "proofWindow + challenges[batchChallenged].startTime - block.timestamp"
+          },
+          "panic_site": "contracts/contracts/l1/rollup/Rollup.sol:363",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "rev panic:0x11"
+          ],
+          "status": "passed",
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 21,
+              "op": "wait"
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatchWithProof",
+              "parent": 1,
+              "post": 123,
+              "prev": 110,
+              "proof": 1,
+              "ver": 1,
+              "who": 5
+            }
+          ]
+        },
+        "commitState": {
+          "disagree": [],
+          "last_step_command": "HOLON_LAST_TRACE=<trace> forge test --match-contract HolonLastStepTest --match-test test_last --offline --use <solc 0.8.24> -vv; then --debug --dump <file> (holon.mreplay.locate_panic)",
+          "model": [
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "rev panic:0x11"
+          ],
+          "obstruction_observed": true,
+          "panic": {
+            "code": 17,
+            "contract": "Rollup",
+            "kind": "DELEGATECALL",
+            "line": 363,
+            "path": "contracts/l1/rollup/Rollup.sol",
+            "text": "proofWindow + challenges[batchChallenged].startTime - block.timestamp"
+          },
+          "panic_site": "contracts/contracts/l1/rollup/Rollup.sol:363",
+          "real": [
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "ok",
+            "rev panic:0x11"
+          ],
+          "status": "passed",
+          "trace": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 1,
+              "post": 121,
+              "prev": 110,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "count": 1,
+              "idx": 2,
+              "op": "revertBatch",
+              "who": 1
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 11,
+              "op": "wait"
+            },
+            {
+              "blobs": [],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitState",
+              "parent": 1,
+              "post": 125,
+              "prev": 110,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        }
+      },
+      "observed": "commitBatch: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:363; commitBatchWithProof: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:363; commitState: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:363",
+      "obstruction_reproduced": true,
+      "sides": {
+        "solidity": {
+          "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
+          "observed": "commitBatch: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:363; commitBatchWithProof: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:363; commitState: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:363",
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    },
+    "L_sort_site_rollup_636_e68daf06": {
+      "entries": {
+        "finalizeBatch": {
+          "disagree": [],
+          "last_step_command": "HOLON_LAST_TRACE=<trace> forge test --match-contract HolonLastStepTest --match-test test_last --offline --use <solc 0.8.24> -vv; then --debug --dump <file> (holon.mreplay.locate_panic)",
+          "model": [
+            "rev panic:0x11"
+          ],
+          "obstruction_observed": true,
+          "panic": {
+            "code": 17,
+            "contract": "Rollup",
+            "kind": "DELEGATECALL",
+            "line": 636,
+            "path": "contracts/l1/rollup/Rollup.sol",
+            "text": "_batchIndex - 1"
+          },
+          "panic_site": "contracts/contracts/l1/rollup/Rollup.sol:636",
+          "real": [
+            "rev panic:0x11"
+          ],
+          "status": "passed",
+          "trace": [
+            {
+              "idx": 0,
+              "op": "finalizeBatch",
+              "who": 5
+            }
+          ]
+        }
+      },
+      "observed": "finalizeBatch: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:636",
+      "obstruction_reproduced": true,
+      "sides": {
+        "solidity": {
+          "command": "HOLON_TRACES=holon_traces.json HOLON_LO=k HOLON_HI=k+25 forge test --match-contract HolonTraceReplay -vv --offline --use <solc 0.8.24>  # per chunk of 25 traces",
+          "observed": "finalizeBatch: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:636",
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    }
+  },
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "refinement": {
+    "disagreements": [],
+    "model": "the M2 model of spec/M1/facts/morph_rollup.json; oracle parameters answered by their sidecar instances (agg = the instance of entry agg)",
+    "n_disagreements": 0,
+    "per_action": {
+      "challengeState": {
+        "agree": 67,
+        "disagree": 0
+      },
+      "commitBatch": {
+        "agree": 874,
+        "disagree": 0
+      },
+      "commitBatchWithProof": {
+        "agree": 130,
+        "disagree": 0
+      },
+      "commitState": {
+        "agree": 224,
+        "disagree": 0
+      },
+      "finalizeBatch": {
+        "agree": 114,
+        "disagree": 0
+      },
+      "proveState": {
+        "agree": 96,
+        "disagree": 0
+      },
+      "revertBatch": {
+        "agree": 68,
+        "disagree": 0
+      },
+      "sendMessage": {
+        "agree": 108,
+        "disagree": 0
+      },
+      "setPause": {
+        "agree": 123,
+        "disagree": 0
+      },
+      "wait": {
+        "agree": 628,
+        "disagree": 0
+      }
+    },
+    "rule": "holon.mreplay.random_corpus (the M1 corpus rule)",
+    "seed": 20261011,
+    "steps": 2432,
+    "traces": 300
+  },
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "go_version": "go version go1.24.7 linux/amd64",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  },
+  "witness_sha256": {
+    "L_sort_site_rollup_363_1fc7f88a": "5c6033c4ec1d25ad473cdd68a2511cb233a12f3705ebc2291e16be77965f5fe8",
+    "L_sort_site_rollup_636_e68daf06": "36ff6f7760470d3176a8e9c5e4f2e323ba03870faa962d8bcc3a30bb00db1f34"
+  }
+}

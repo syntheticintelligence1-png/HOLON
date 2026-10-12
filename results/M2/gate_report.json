@@ -1,0 +1,1705 @@
+{
+  "bend_version": "2.0.36",
+  "canaries": [
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "obligations_closed_by_computation": [
+          "Nat.is_le(d_lci(lfi, win), idx)"
+        ],
+        "why": "a Nat comparison of free variables does not compute to True{} for every value; the source proof discharged it by a passed condition and a core lemma"
+      },
+      "id": "CANARY_drop_lemma_0_L_sort_site_def_bvh_at_6126d1f1",
+      "kind": "drop_lemma",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_drop_lemma_0_L_sort_site_def_bvh_at_6126d1f1",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:bvh_at:6126d1f1"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_def_bvh_at_6126d1f1"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "table": []
+        },
+        "s": {
+          "run": []
+        }
+      },
+      "id": "CANARY_negated_0_L_sort_site_def_bvh_at_6126d1f1",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_negated_0_L_sort_site_def_bvh_at_6126d1f1",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:bvh_at:6126d1f1"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_sort_site_def_bvh_at_6126d1f1"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "instance": "agg"
+        },
+        "s": {
+          "run": []
+        }
+      },
+      "id": "CANARY_flip_const_0_L_sort_site_def_bvh_at_6126d1f1",
+      "kind": "flip_const",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_flip_const_0_L_sort_site_def_bvh_at_6126d1f1",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:bvh_at:6126d1f1"
+              },
+              {
+                "bool": false
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_def_bvh_at_6126d1f1"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "obligations_closed_by_computation": [
+          "Nat.is_le(1n, Nat.add(lfi, List.length(&2, HEntry, win)))"
+        ],
+        "why": "a Nat comparison of free variables does not compute to True{} for every value; no passed condition implies it (the law is UNKNOWN)"
+      },
+      "id": "CANARY_force_coercion_0_L_sort_site_def_lci_356891e4",
+      "kind": "force_coercion",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_force_coercion_0_L_sort_site_def_lci_356891e4",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:lci:356891e4"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_def_lci_356891e4"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "obligations_closed_by_computation": [
+          "Nat.is_le(1n, Nat.sub(idx, d_lci(lfi, win)))"
+        ],
+        "why": "a Nat comparison of free variables does not compute to True{} for every value; the source proof discharged it by a passed condition and a core lemma"
+      },
+      "id": "CANARY_drop_lemma_1_L_sort_site_def_bvh_at_e064679d",
+      "kind": "drop_lemma",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_drop_lemma_1_L_sort_site_def_bvh_at_e064679d",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:bvh_at:e064679d"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_def_bvh_at_e064679d"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "table": []
+        },
+        "s": {
+          "run": []
+        }
+      },
+      "id": "CANARY_negated_1_L_sort_site_def_bvh_at_e064679d",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_negated_1_L_sort_site_def_bvh_at_e064679d",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:bvh_at:e064679d"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_sort_site_def_bvh_at_e064679d"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "instance": "agg"
+        },
+        "s": {
+          "run": []
+        }
+      },
+      "id": "CANARY_flip_const_1_L_sort_site_def_bvh_at_e064679d",
+      "kind": "flip_const",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_flip_const_1_L_sort_site_def_bvh_at_e064679d",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:bvh_at:e064679d"
+              },
+              {
+                "bool": false
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_def_bvh_at_e064679d"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "obligations_closed_by_computation": [
+          "Nat.is_le(g_Entry_n(d_w(lfi, win, idx)), g_Entry_tot(d_w(lfi, win, idx)))"
+        ],
+        "why": "a Nat comparison of free variables does not compute to True{} for every value; no passed condition implies it (the law is UNKNOWN)"
+      },
+      "id": "CANARY_force_coercion_1_L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17",
+      "kind": "force_coercion",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_force_coercion_1_L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325:f89daf17"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "obligations_closed_by_computation": [
+          "Nat.is_le(lfi, idx)"
+        ],
+        "why": "a Nat comparison of free variables does not compute to True{} for every value; the source proof discharged it by a passed condition and a core lemma"
+      },
+      "id": "CANARY_drop_lemma_2_L_sort_site_def_w_b4cd5068",
+      "kind": "drop_lemma",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_drop_lemma_2_L_sort_site_def_w_b4cd5068",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:w:b4cd5068"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_def_w_b4cd5068"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "table": []
+        },
+        "s": {
+          "run": []
+        }
+      },
+      "id": "CANARY_negated_2_L_sort_site_def_w_b4cd5068",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_negated_2_L_sort_site_def_w_b4cd5068",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:w:b4cd5068"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_sort_site_def_w_b4cd5068"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "instance": "agg"
+        },
+        "s": {
+          "run": []
+        }
+      },
+      "id": "CANARY_flip_const_2_L_sort_site_def_w_b4cd5068",
+      "kind": "flip_const",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_flip_const_2_L_sort_site_def_w_b4cd5068",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:morph_rollup:w:b4cd5068"
+              },
+              {
+                "bool": false
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_def_w_b4cd5068"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "obligations_closed_by_computation": [
+          "Nat.is_le(lfi, idx)"
+        ],
+        "why": "a Nat comparison of free variables does not compute to True{} for every value; the source proof discharged it by a passed condition and a core lemma"
+      },
+      "id": "CANARY_drop_lemma_3_L_sort_site_rollup_441_b4cd5068",
+      "kind": "drop_lemma",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_drop_lemma_3_L_sort_site_rollup_441_b4cd5068",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:441:b4cd5068"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_rollup_441_b4cd5068"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "count": 1,
+          "idx": 1,
+          "op": "revertBatch",
+          "who": 1
+        },
+        "agg": {
+          "table": [
+            [
+              [
+                17
+              ],
+              1154
+            ]
+          ]
+        },
+        "s": {
+          "run": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        }
+      },
+      "id": "CANARY_negated_3_L_sort_site_rollup_441_b4cd5068",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_negated_3_L_sort_site_rollup_441_b4cd5068",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:441:b4cd5068"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_sort_site_rollup_441_b4cd5068"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "instance": "agg"
+        },
+        "s": {
+          "run": []
+        }
+      },
+      "id": "CANARY_flip_const_3_L_sort_site_rollup_441_b4cd5068",
+      "kind": "flip_const",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_flip_const_3_L_sort_site_rollup_441_b4cd5068",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:441:b4cd5068"
+              },
+              {
+                "bool": false
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_rollup_441_b4cd5068"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "obligations_closed_by_computation": [
+          "Nat.is_le(lfi, idx)"
+        ],
+        "why": "a Nat comparison of free variables does not compute to True{} for every value; the source proof discharged it by a passed condition and a core lemma"
+      },
+      "id": "CANARY_drop_lemma_4_L_sort_site_rollup_485_495_b4cd5068",
+      "kind": "drop_lemma",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_drop_lemma_4_L_sort_site_rollup_485_495_b4cd5068",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:485-495:b4cd5068"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_rollup_485_495_b4cd5068"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "idx": 1,
+          "op": "challengeState",
+          "value": 1,
+          "who": 4
+        },
+        "agg": {
+          "table": [
+            [
+              [
+                17
+              ],
+              1154
+            ]
+          ]
+        },
+        "s": {
+          "run": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            }
+          ]
+        }
+      },
+      "id": "CANARY_negated_4_L_sort_site_rollup_485_495_b4cd5068",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_negated_4_L_sort_site_rollup_485_495_b4cd5068",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:485-495:b4cd5068"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_sort_site_rollup_485_495_b4cd5068"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "instance": "agg"
+        },
+        "s": {
+          "run": []
+        }
+      },
+      "id": "CANARY_flip_const_4_L_sort_site_rollup_485_495_b4cd5068",
+      "kind": "flip_const",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_flip_const_4_L_sort_site_rollup_485_495_b4cd5068",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:485-495:b4cd5068"
+              },
+              {
+                "bool": false
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_rollup_485_495_b4cd5068"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "obligations_closed_by_computation": [
+          "Nat.is_le(1n, idx)"
+        ],
+        "why": "a Nat comparison of free variables does not compute to True{} for every value; the source proof discharged it by a passed condition and a core lemma"
+      },
+      "id": "CANARY_drop_lemma_5_L_sort_site_rollup_644_660_e68daf06",
+      "kind": "drop_lemma",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_drop_lemma_5_L_sort_site_rollup_644_660_e68daf06",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:644-660:e68daf06"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_rollup_644_660_e68daf06"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "idx": 1,
+          "op": "finalizeBatch",
+          "who": 5
+        },
+        "agg": {
+          "table": [
+            [
+              [
+                17
+              ],
+              1154
+            ]
+          ]
+        },
+        "s": {
+          "run": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "dt": 40,
+              "op": "wait"
+            }
+          ]
+        }
+      },
+      "id": "CANARY_negated_5_L_sort_site_rollup_644_660_e68daf06",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_negated_5_L_sort_site_rollup_644_660_e68daf06",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:644-660:e68daf06"
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_sort_site_rollup_644_660_e68daf06"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "instance": "agg"
+        },
+        "s": {
+          "run": []
+        }
+      },
+      "id": "CANARY_flip_const_5_L_sort_site_rollup_644_660_e68daf06",
+      "kind": "flip_const",
+      "law": {
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.3",
+        "law_id": "CANARY_flip_const_5_L_sort_site_rollup_644_660_e68daf06",
+        "milestone": "M2",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/1.0",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "Reach"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            },
+            {
+              "name": "agg",
+              "q": "forall",
+              "type": "Fn<List<Nat>,Nat>"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "from": {
+                  "var": "s"
+                },
+                "on": {
+                  "var": "a"
+                },
+                "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:644-660:e68daf06"
+              },
+              {
+                "bool": false
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        },
+        "subform": "site"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_sort_site_rollup_644_660_e68daf06"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": null,
+      "id": "CANARY_core_omit_0_L_sort_site_def_bvh_at_6126d1f1",
+      "kind": "core_omit",
+      "law": null,
+      "negated": false,
+      "omitted_lemma": "core_le_of_not_le",
+      "rejected": true,
+      "source_law": "L_sort_site_def_bvh_at_6126d1f1"
+    }
+  ],
+  "checks": {
+    "G1": {
+      "detail": "36 generated .bend and .defs.json files identical, summary and deps identical, 10 records identical, metrics.json identical; M2 outputs regenerated byte-identical: diagram (3 files), sorts (5 files), oracles (0 files), derive (laws/M2: 12 files, gen/M2/sorts/obstructions.json)",
+      "passed": true
+    },
+    "G11": {
+      "detail": "every law has a record and a non-vacuous LAWS.bend, which its checked PROOF.bend imports",
+      "passed": true
+    },
+    "G11V": {
+      "detail": "6 premised PROVED laws inhabited (dual-checked; regenerated from the IR and witness; reachable and non-degenerate where states are involved), 2 premised REFUTED laws inhabited by their counter-law witnesses",
+      "passed": true
+    },
+    "G2": {
+      "detail": "all statement and facts hashes match the registry (holon-ir/0.3; refs into the facts, the target library and the oracle sidecar); laws/STATEMENT_DIFF.jsonl: 1 committed versions, 0 committed bytes; committed lines verified against the commit that appended them, new lines checked against the working tree; statement-change tie: 0 statement-hash changes since the log was introduced (d3f5d64); 0 DERIVATION.json back-test links, each covered by an accepted entry; 0 post-I10 binding change lines of M2, each covered by an accepted statement-diff entry; 10 laws bound to their emitted statement and counter-law and to the kernel form of every definition they reach; laws/STATEMENT_DIFF.jsonl accepted (registry, bindings and the statement-change log are agent-writable: self-certified until the human's freeze, Q1)",
+      "passed": true
+    },
+    "G3": {
+      "detail": "no escape hatches",
+      "passed": true
+    },
+    "G4": {
+      "detail": "21 canaries of kinds ['core_omit', 'drop_lemma', 'flip_const', 'force_coercion', 'negated'], all rejected",
+      "passed": true
+    },
+    "G5": {
+      "detail": "8 proofs re-checked from scratch, and 4 per-entry counter-laws of SORT-site laws, slowest 0.709 s (budget 120 s per file)",
+      "passed": true
+    },
+    "G6": {
+      "detail": "2 REFUTED records bound to passed replays with strict sides, provenance and recomputed filter bins; model-only pending replay: none",
+      "passed": true
+    },
+    "G7": {
+      "detail": "dual-kernel: 8 proofs and 4 per-entry counter-laws re-checked by BendTT (--verdict); Lean: not applicable to holon-ir/0.3 (the Lean emitters cover holon-ir/0.1 header laws; state machines are I43)",
+      "passed": true
+    },
+    "G9": {
+      "detail": "10 records valid against v1 and v2; ledger_assumptions recomputed",
+      "passed": true
+    },
+    "GENV": {
+      "detail": "bend 2.0.36, pinned 2.0.36; fingerprint sha256:50c0675b0aa1f22c2db9f45610155ce4e5357b716bcfd3db2c861a6e082d9af9 pinned (checkout /root/.holon/bend at 2343aec043b7, bun 1.4.2, bun sha256 a83d263767d8); executes /root/.bun/bin/bun /root/.holon/bend/bend2/main.ts; kernel /root/.bend/bendtt/b9f3e0253abffb11/bendtt sha256 3cedffa1a1ea pinned; no global bunfig; not quarantined (results/quarantine.json is agent-writable: self-certified until Q1)",
+      "passed": true
+    },
+    "GEVID": {
+      "detail": "enforcing: 10 laws against gen/M2/evidence.json (evidence_sha256 1d30875df09d3a0473fe8912d78e7f716a56f55ca958510081cabdc391c28418); 0 whose metadata evidence is not computed; 0 divergences from the v1 triage; 0 overrides; 0 uncovered",
+      "divergences": [],
+      "evidence_sha256": "1d30875df09d3a0473fe8912d78e7f716a56f55ca958510081cabdc391c28418",
+      "laws": {
+        "L_sort_site_def_bvh_at_6126d1f1": {
+          "computed": [],
+          "covered": true,
+          "effective": "none",
+          "evidence_triage": "none",
+          "max": null,
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "none"
+        },
+        "L_sort_site_def_bvh_at_e064679d": {
+          "computed": [],
+          "covered": true,
+          "effective": "none",
+          "evidence_triage": "none",
+          "max": null,
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "none"
+        },
+        "L_sort_site_def_lci_356891e4": {
+          "computed": [],
+          "covered": true,
+          "effective": "none",
+          "evidence_triage": "none",
+          "max": null,
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "none"
+        },
+        "L_sort_site_def_w_b4cd5068": {
+          "computed": [],
+          "covered": true,
+          "effective": "none",
+          "evidence_triage": "none",
+          "max": null,
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "none"
+        },
+        "L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17": {
+          "computed": [
+            "E2",
+            "E3",
+            "E5",
+            "E6"
+          ],
+          "covered": true,
+          "effective": "none",
+          "evidence_triage": "none",
+          "max": "E2",
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "none"
+        },
+        "L_sort_site_rollup_363_1fc7f88a": {
+          "computed": [
+            "E2",
+            "E3",
+            "E4",
+            "E5",
+            "E6"
+          ],
+          "covered": true,
+          "effective": "finding",
+          "evidence_triage": "finding",
+          "max": "E2",
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "finding"
+        },
+        "L_sort_site_rollup_441_b4cd5068": {
+          "computed": [
+            "E2",
+            "E6"
+          ],
+          "covered": true,
+          "effective": "none",
+          "evidence_triage": "none",
+          "max": "E2",
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "none"
+        },
+        "L_sort_site_rollup_485_495_b4cd5068": {
+          "computed": [
+            "E2",
+            "E5",
+            "E6"
+          ],
+          "covered": true,
+          "effective": "none",
+          "evidence_triage": "none",
+          "max": "E2",
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "none"
+        },
+        "L_sort_site_rollup_636_e68daf06": {
+          "computed": [
+            "E2",
+            "E3",
+            "E5",
+            "E6"
+          ],
+          "covered": true,
+          "effective": "finding",
+          "evidence_triage": "finding",
+          "max": "E2",
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "finding"
+        },
+        "L_sort_site_rollup_644_660_e68daf06": {
+          "computed": [
+            "E2",
+            "E3",
+            "E5",
+            "E6"
+          ],
+          "covered": true,
+          "effective": "none",
+          "evidence_triage": "none",
+          "max": "E2",
+          "metadata": [],
+          "missing": [],
+          "override": null,
+          "v1_triage": "none"
+        }
+      },
+      "milestone": "M2",
+      "mismatches": [],
+      "mode": "enforcing",
+      "overrides": [],
+      "passed": true,
+      "problems": [],
+      "uncovered": []
+    },
+    "GREF": {
+      "detail": "0 disagreement entries, each classified by its links to its label and none unexplained; every disagreement id of the 6 refinement records under results/M2/refinement/ has an entry (fix-commit existence is left to `holon audit`)",
+      "passed": true
+    }
+  },
+  "milestone": "M2",
+  "passed": true
+}
