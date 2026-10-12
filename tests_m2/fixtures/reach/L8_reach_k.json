@@ -1,0 +1,36 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L8_reach_k",
+  "milestone": "T2",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_reach/toy_reach.facts.json",
+  "facts_sha256": "",
+  "notes": "Planted false invariant: k <= 2 on every reachable state. Refuted by ticks.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "Reach"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "k_small",
+          "of": {
+            "var": "s"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

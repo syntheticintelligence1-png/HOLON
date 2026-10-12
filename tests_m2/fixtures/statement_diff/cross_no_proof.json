@@ -1,0 +1,93 @@
+{
+  "derivation": {
+    "links": [
+      {
+        "old": "L10_xm_old",
+        "old_milestone": "T4",
+        "new": "L10_xm_new",
+        "new_milestone": "T5",
+        "basis": "back-test fixture"
+      }
+    ]
+  },
+  "laws": {
+    "L10_xm_old": {
+      "ir_version": "holon-ir/0.3",
+      "law_id": "L10_xm_old",
+      "milestone": "T4",
+      "rule": "SORT",
+      "rule_catalog_version": "holon-rules/0.1",
+      "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+      "facts_sha256": "",
+      "notes": "statement-diff fixture",
+      "statement": {
+        "binders": [
+          {
+            "q": "forall",
+            "name": "a",
+            "type": "Act"
+          }
+        ],
+        "assume": [],
+        "claim": {
+          "eq": [
+            {
+              "obsv": "small",
+              "of": {
+                "step": {
+                  "var": "a"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        "scope": {
+          "kind": "unbounded"
+        }
+      }
+    },
+    "L10_xm_new": {
+      "ir_version": "holon-ir/0.3",
+      "law_id": "L10_xm_new",
+      "milestone": "T5",
+      "rule": "SORT",
+      "rule_catalog_version": "holon-rules/0.1",
+      "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+      "facts_sha256": "",
+      "notes": "statement-diff fixture",
+      "statement": {
+        "binders": [
+          {
+            "q": "forall",
+            "name": "a",
+            "type": "Act"
+          }
+        ],
+        "assume": [],
+        "claim": {
+          "eq": [
+            {
+              "obsv": "small",
+              "of": {
+                "s0": {}
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        "scope": {
+          "kind": "unbounded"
+        }
+      }
+    }
+  },
+  "entries": []
+}

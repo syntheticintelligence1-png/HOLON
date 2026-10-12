@@ -1,0 +1,245 @@
+{
+  "derivation": {
+    "links": [
+      {
+        "old": "L10_xm_old",
+        "old_milestone": "T4",
+        "new": "L10_xm_new2",
+        "new_milestone": "T5",
+        "basis": "back-test fixture"
+      }
+    ]
+  },
+  "laws": {
+    "L10_xm_old": {
+      "ir_version": "holon-ir/0.3",
+      "law_id": "L10_xm_old",
+      "milestone": "T4",
+      "rule": "SORT",
+      "rule_catalog_version": "holon-rules/0.1",
+      "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+      "facts_sha256": "",
+      "notes": "statement-diff fixture",
+      "statement": {
+        "binders": [
+          {
+            "q": "forall",
+            "name": "a",
+            "type": "Act"
+          }
+        ],
+        "assume": [],
+        "claim": {
+          "eq": [
+            {
+              "obsv": "small",
+              "of": {
+                "step": {
+                  "var": "a"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        "scope": {
+          "kind": "unbounded"
+        }
+      }
+    },
+    "L10_xm_new2": {
+      "ir_version": "holon-ir/0.3",
+      "law_id": "L10_xm_new2",
+      "milestone": "T5",
+      "rule": "SORT",
+      "rule_catalog_version": "holon-rules/0.1",
+      "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+      "facts_sha256": "",
+      "notes": "statement-diff fixture",
+      "statement": {
+        "binders": [
+          {
+            "q": "forall",
+            "name": "a",
+            "type": "Act"
+          }
+        ],
+        "assume": [],
+        "claim": {
+          "all": [
+            {
+              "eq": [
+                {
+                  "fn": "eq_nat",
+                  "args": [
+                    {
+                      "obsv": "n_of",
+                      "of": {
+                        "step": {
+                          "var": "a"
+                        },
+                        "from": {
+                          "s0": {}
+                        }
+                      }
+                    },
+                    {
+                      "nat": 5
+                    }
+                  ]
+                },
+                {
+                  "bool": false
+                }
+              ]
+            },
+            {
+              "eq": [
+                {
+                  "obsv": "small",
+                  "of": {
+                    "step": {
+                      "var": "a"
+                    },
+                    "from": {
+                      "s0": {}
+                    }
+                  }
+                },
+                {
+                  "bool": true
+                }
+              ]
+            }
+          ]
+        },
+        "scope": {
+          "kind": "unbounded"
+        }
+      }
+    }
+  },
+  "entries": [
+    {
+      "kind": "cross_milestone",
+      "old": {
+        "ir_version": "holon-ir/0.3",
+        "law_id": "L10_xm_old",
+        "milestone": "T4",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/0.1",
+        "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+        "facts_sha256": "",
+        "notes": "statement-diff fixture",
+        "statement": {
+          "binders": [
+            {
+              "q": "forall",
+              "name": "a",
+              "type": "Act"
+            }
+          ],
+          "assume": [],
+          "claim": {
+            "eq": [
+              {
+                "obsv": "small",
+                "of": {
+                  "step": {
+                    "var": "a"
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                }
+              },
+              {
+                "bool": true
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        }
+      },
+      "new": {
+        "ir_version": "holon-ir/0.3",
+        "law_id": "L10_xm_new2",
+        "milestone": "T5",
+        "rule": "SORT",
+        "rule_catalog_version": "holon-rules/0.1",
+        "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+        "facts_sha256": "",
+        "notes": "statement-diff fixture",
+        "statement": {
+          "binders": [
+            {
+              "q": "forall",
+              "name": "a",
+              "type": "Act"
+            }
+          ],
+          "assume": [],
+          "claim": {
+            "all": [
+              {
+                "eq": [
+                  {
+                    "fn": "eq_nat",
+                    "args": [
+                      {
+                        "obsv": "n_of",
+                        "of": {
+                          "step": {
+                            "var": "a"
+                          },
+                          "from": {
+                            "s0": {}
+                          }
+                        }
+                      },
+                      {
+                        "nat": 5
+                      }
+                    ]
+                  },
+                  {
+                    "bool": false
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "obsv": "small",
+                    "of": {
+                      "step": {
+                        "var": "a"
+                      },
+                      "from": {
+                        "s0": {}
+                      }
+                    }
+                  },
+                  {
+                    "bool": true
+                  }
+                ]
+              }
+            ]
+          },
+          "scope": {
+            "kind": "unbounded"
+          }
+        }
+      },
+      "reason": "fixture: the new law adds a conjunct"
+    }
+  ]
+}

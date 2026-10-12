@@ -829,6 +829,138 @@
         "tests_m2/test_diagram.py"
       ],
       "thresholds": {}
+    },
+    "I8": {
+      "title": "Core library and Reach",
+      "plan": "docs/BUILD_PLAN.md#i8",
+      "prompt": "prompts/I8_core_reach.md",
+      "predictions": [
+        {
+          "id": "I8-P1",
+          "claim": "Probe (a): a PROOF.bend that imports a LAWS module holding an unproved law, and uses that law, fails its check.",
+          "check": "tests_m2/test_reach.py::TestCoreImportProbe::test_unproved_imported_law_fails"
+        },
+        {
+          "id": "I8-P2",
+          "claim": "Toy reach machine: the 2 true invariants are PROVED (x == 0 needs a strengthening, which lives only in the proof file) and the 2 false ones are REFUTED at reachable states.",
+          "check": "tests_m2/test_reach.py::TestReachToy::test_true_invariants_proved and tests_m2/test_reach.py::TestReachToy::test_false_invariants_refuted and tests_m2/test_reach.py::TestReachToy::test_strengthening_lives_in_the_proof_file"
+        },
+        {
+          "id": "I8-P3",
+          "claim": "Reach checks under --verdict: all 4 decided toy reach laws are re-checked by BendTT.",
+          "check": "tests_m2/test_reach.py::TestReachToy::test_reach_checks_under_verdict"
+        },
+        {
+          "id": "I8-P4",
+          "claim": "G5 time on the toy rises by no more than 20% when proofs import the core instead of pasting it.",
+          "check": "tests_m2/test_reach.py::TestCoreCost::test_core_import_costs_at_most_20_percent"
+        },
+        {
+          "id": "I8-P5",
+          "claim": "The core checks under both kernels, the core canary (one core law unproved) is rejected, and G3 flags a bare core LAWS import.",
+          "check": "tests_m2/test_reach.py::TestCoreLibrary"
+        },
+        {
+          "id": "I8-P6",
+          "claim": "G11V: both PROVED toy reach laws have a kernel-checked, reachable Reach inhabitant.",
+          "check": "tests_m2/test_reach.py::TestReachToy::test_reach_premise_inhabited"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I8-R1",
+          "claim": "gen/M0 and gen/M1 byte-identical (M0 and M1 keep their pasted CORE and emit no Reach).",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged"
+        },
+        {
+          "id": "I8-R2",
+          "claim": "24 statuses unchanged; gates M0 and M1 pass.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M0/",
+        "gen/M1/",
+        "results/M0/",
+        "results/M1/",
+        "bend/notes/p_core_import/"
+      ],
+      "tests": [
+        "tests_m2/test_reach.py"
+      ],
+      "thresholds": {
+        "g5_time_ratio_max": 1.2
+      }
+    },
+    "I10": {
+      "title": "Statement lifecycle, A3, prover separation",
+      "plan": "docs/BUILD_PLAN.md#i10",
+      "prompt": "prompts/I10_lifecycle.md",
+      "predictions": [
+        {
+          "id": "I10-P1",
+          "claim": "An unsigned weakening is rejected.",
+          "check": "tests_m2/test_statement_diff.py::TestEntryKinds::test_unsigned_weakening_is_rejected"
+        },
+        {
+          "id": "I10-P2",
+          "claim": "A strengthening with a checked proof is accepted.",
+          "check": "tests_m2/test_statement_diff.py::TestEntryKinds::test_strengthening_with_a_checked_implication_is_accepted"
+        },
+        {
+          "id": "I10-P3",
+          "claim": "A reextraction entry backed by a hand-edited facts file is rejected.",
+          "check": "tests_m2/test_statement_diff.py::TestEntryKinds::test_reextraction_backed_by_hand_written_facts_is_rejected"
+        },
+        {
+          "id": "I10-P4",
+          "claim": "A cross-milestone fixture without an implication proof is rejected.",
+          "check": "tests_m2/test_cross_milestone.py::TestCrossMilestone::test_link_without_an_implication_proof_is_rejected"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I10-R1",
+          "claim": "A3 over 8a1dbe7..HEAD reports 0 hash changes.",
+          "check": "tests_m2/test_regress.py::TestRegress::test_no_hash_changes_since_the_seed"
+        },
+        {
+          "id": "I10-R2",
+          "claim": "15 law files were added at 9a96037 together with their results.",
+          "check": "tests_m2/test_regress.py::TestRegress::test_fifteen_m1_laws_added_with_their_results"
+        },
+        {
+          "id": "I10-R3",
+          "claim": "L_own_txspayload was added at 3e9cb2a with its result and prediction entry.",
+          "check": "tests_m2/test_regress.py::TestRegress::test_own_txspayload_added_with_result_and_prediction"
+        },
+        {
+          "id": "I10-R4",
+          "claim": "spec/M1/predictions.json was introduced at bfdb5f2.",
+          "check": "tests_m2/test_regress.py::TestRegress::test_m1_predictions_file_introduced_later"
+        },
+        {
+          "id": "I10-R5",
+          "claim": "A3 flags all 16 M1 laws as 'result in the same commit; prediction later or together', and cannot single out the 2 labelled post hoc.",
+          "check": "tests_m2/test_regress.py::TestRegress::test_all_sixteen_m1_laws_flagged"
+        },
+        {
+          "id": "I10-R6",
+          "claim": "Gates M0 and M1 pass.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "laws/STATEMENT_DIFF.jsonl",
+        "results/M0/",
+        "results/M1/"
+      ],
+      "tests": [
+        "tests_m2/test_statement_diff.py",
+        "tests_m2/test_cross_milestone.py",
+        "tests_m2/test_regress.py"
+      ],
+      "thresholds": {}
     }
   }
 }

@@ -1,0 +1,38 @@
+{
+  "facts_version": "holon-facts/0.2",
+  "target": {"repo": "holon/toy-reach", "commit": "0000000000000000000000000000000000000000",
+             "scope": "a register machine for invariants over reachable states (I8): x is copied from y, y is only ever cleared, so x stays 0 on every reachable state, but x == 0 alone is not inductive"},
+  "extraction": {"method": "hand-written fixture", "date": "2026-10-12"},
+  "abstractions": ["Registers are Nat; the flag is a Bool."],
+  "params": {},
+  "types": {},
+  "state": [["x", "Nat", "register copied from y"],
+            ["y", "Nat", "register that is only ever cleared"],
+            ["k", "Nat", "tick counter"],
+            ["flag", "Bool", "set once raised"],
+            ["log", "List<Obs>", "observations"]],
+  "ghost_state": [],
+  "initial": {"doc": "all registers zero, flag down", "x": 0, "y": 0, "k": 0, "flag": false, "log": []},
+  "principals": {},
+  "reasons": {"1": "no tick yet"},
+  "defs": {},
+  "actions": [
+    {"name": "tick", "src": "toy: tick(d)", "principal": "anyone", "inputs": [["d", "Nat"]],
+     "guards": [], "effects": {"k": ["+", "k", "d"]}},
+    {"name": "copy", "src": "toy: copy()", "principal": "anyone", "inputs": [],
+     "guards": [{"require": [">", "k", 0], "reason": 1}], "effects": {"x": "y"}},
+    {"name": "clear", "src": "toy: clear()", "principal": "anyone", "inputs": [],
+     "guards": [], "effects": {"y": 0}},
+    {"name": "raise", "src": "toy: raise()", "principal": "anyone", "inputs": [],
+     "guards": [], "effects": {"flag": true}}
+  ],
+  "observers": {
+    "x_zero": {"params": [["s", "State"]], "type": "Bool", "body": ["==", "x", 0], "doc": "true invariant, not inductive alone (copy reads y)"},
+    "y_zero": {"params": [["s", "State"]], "type": "Bool", "body": ["==", "y", 0], "doc": "true invariant, inductive"},
+    "k_small": {"params": [["s", "State"]], "type": "Bool", "body": ["<=", "k", 2], "doc": "planted false invariant: ticks push k past 2"},
+    "flag_down": {"params": [["s", "State"]], "type": "Bool", "body": ["!", "flag"], "doc": "planted false invariant: raise sets the flag"}
+  },
+  "policy": "generic",
+  "search": {"domains": {"tick": {"d": [1, 2]}}, "prefixDepth": 3, "maxPrefixes": 400},
+  "coverage": {"modelled": ["tick", "copy", "clear", "raise"], "debt": []}
+}
