@@ -1,0 +1,133 @@
+{
+  "facts": "spec/M3/extracted/morph_rollup.json",
+  "facts_sha256": "acc1cc7267a338d141e93a52fb5f4fb7d9e9de4c04e7a0c56611747d84ba3759",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_nat_slash_legacy_misses",
+  "milestone": "M3_nat",
+  "notes": "O14 slash edge: challenger wins on legacy batch 1; slash(bds=2) hits a registry without 2, no member loses status (FINDING if PROVED)",
+  "predicted": "PROVED",
+  "rule": "NAT",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "nat": 7
+            }
+          ],
+          "obsv": "active_has",
+          "of": {
+            "from": {
+              "s0": {}
+            },
+            "run": {
+              "trace": [
+                {
+                  "act": "sendMessage",
+                  "args": {
+                    "who": {
+                      "nat": 5
+                    }
+                  }
+                },
+                {
+                  "act": "commitBatch",
+                  "args": {
+                    "blobs": {
+                      "nats": [
+                        7
+                      ]
+                    },
+                    "lbn": {
+                      "nat": 1
+                    },
+                    "n": {
+                      "nat": 1
+                    },
+                    "parent": {
+                      "nat": 0
+                    },
+                    "post": {
+                      "nat": 101
+                    },
+                    "prev": {
+                      "nat": 100
+                    },
+                    "ver": {
+                      "nat": 1
+                    },
+                    "who": {
+                      "nat": 2
+                    }
+                  }
+                },
+                {
+                  "act": "initialize4",
+                  "args": {
+                    "exp": {
+                      "nat": 1
+                    },
+                    "nact": {
+                      "nats": [
+                        7
+                      ]
+                    },
+                    "sub": {
+                      "nat": 9
+                    },
+                    "who": {
+                      "nat": 6
+                    }
+                  }
+                },
+                {
+                  "act": "challengeState",
+                  "args": {
+                    "idx": {
+                      "nat": 1
+                    },
+                    "value": {
+                      "nat": 1
+                    },
+                    "who": {
+                      "nat": 4
+                    }
+                  }
+                },
+                {
+                  "act": "wait",
+                  "args": {
+                    "dt": {
+                      "nat": 10
+                    }
+                  }
+                },
+                {
+                  "act": "proveState",
+                  "args": {
+                    "idx": {
+                      "nat": 1
+                    },
+                    "proof": {
+                      "nat": 1
+                    },
+                    "who": {
+                      "nat": 7
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "scenario"
+}

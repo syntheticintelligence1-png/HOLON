@@ -1,0 +1,103 @@
+{
+  "facts": "spec/M3/extracted/morph_rollup.json",
+  "facts_sha256": "acc1cc7267a338d141e93a52fb5f4fb7d9e9de4c04e7a0c56611747d84ba3759",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_nat_cutover_mismatch",
+  "milestone": "M3_nat",
+  "notes": ":212",
+  "predicted": "PROVED",
+  "rule": "NAT",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": [
+                    {
+                      "act": "sendMessage",
+                      "args": {
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    },
+                    {
+                      "act": "commitBatch",
+                      "args": {
+                        "blobs": {
+                          "nats": [
+                            7
+                          ]
+                        },
+                        "lbn": {
+                          "nat": 1
+                        },
+                        "n": {
+                          "nat": 1
+                        },
+                        "parent": {
+                          "nat": 0
+                        },
+                        "post": {
+                          "nat": 101
+                        },
+                        "prev": {
+                          "nat": 100
+                        },
+                        "ver": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "obs": {
+                "trace": [
+                  {
+                    "act": "initialize4",
+                    "args": {
+                      "exp": {
+                        "nat": 0
+                      },
+                      "nact": {
+                        "nats": [
+                          7
+                        ]
+                      },
+                      "sub": {
+                        "nat": 9
+                      },
+                      "who": {
+                        "nat": 6
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "reason": "cutover batch mismatch"
+            }
+          ],
+          "fn": "no_code"
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "subform": "scenario"
+}

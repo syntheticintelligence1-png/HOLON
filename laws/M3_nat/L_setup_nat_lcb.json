@@ -1,0 +1,92 @@
+{
+  "facts": "spec/M3/extracted/morph_rollup.json",
+  "facts_sha256": "acc1cc7267a338d141e93a52fb5f4fb7d9e9de4c04e7a0c56611747d84ba3759",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_setup_nat_lcb",
+  "milestone": "M3_nat",
+  "notes": "setup trace of nat_lcb runs ok",
+  "predicted": "PROVED",
+  "rule": "GUARD",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "trace": [
+                {
+                  "act": "sendMessage",
+                  "args": {
+                    "who": {
+                      "nat": 5
+                    }
+                  }
+                },
+                {
+                  "act": "commitBatch",
+                  "args": {
+                    "blobs": {
+                      "nats": [
+                        7
+                      ]
+                    },
+                    "lbn": {
+                      "nat": 1
+                    },
+                    "n": {
+                      "nat": 1
+                    },
+                    "parent": {
+                      "nat": 0
+                    },
+                    "post": {
+                      "nat": 101
+                    },
+                    "prev": {
+                      "nat": 100
+                    },
+                    "ver": {
+                      "nat": 1
+                    },
+                    "who": {
+                      "nat": 2
+                    }
+                  }
+                },
+                {
+                  "act": "initialize4",
+                  "args": {
+                    "exp": {
+                      "nat": 1
+                    },
+                    "nact": {
+                      "nats": [
+                        7
+                      ]
+                    },
+                    "sub": {
+                      "nat": 9
+                    },
+                    "who": {
+                      "nat": 6
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "s0": {}
+            }
+          ],
+          "fn": "runs_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "setup"
+}
