@@ -53,8 +53,10 @@ def main(argv=None) -> int:
     mu.add_argument("--out", default="replay/M2/mutation/report.json")
     mu.add_argument("--a2", action="store_true",
                     help="held-out A2 campaign: walk spec/M2/A2/mutants.json order")
+    mu.add_argument("--a3", action="store_true",
+                    help="held-out A3 campaign: walk spec/M2/A3/mutants.json order")
     mu.add_argument("--limit", type=int, default=None,
-                    help="A2 smoke: score at most N valid mutants (report is never final)")
+                    help="A2/A3 smoke: score at most N valid mutants (report is never final)")
     a = ap.parse_args(argv)
     if a.cmd == "sorts":
         from .sorts.pipeline import run_sorts
@@ -69,14 +71,15 @@ def main(argv=None) -> int:
         print(f"wrote {a.out} ({len(doc['functions'])} functions)")
         return 0
     if a.cmd == "mutate":
-        from .mutate.runner import run_a2, run_mutants
+        from .mutate.runner import run_a2, run_a3, run_mutants
         from pathlib import Path
-        if a.a2:
+        if a.a2 or a.a3:
             out = Path(a.out)
             if str(out) == "replay/M2/mutation/report.json":
-                out = Path("replay/M2/A2/report.json")
-            return run_a2(Path(a.morph), Path(a.work) if a.work else None,
-                          Path(a.solc) if a.solc else None, out, a.limit)
+                out = Path(f"replay/M2/{'A3' if a.a3 else 'A2'}/report.json")
+            run = run_a3 if a.a3 else run_a2
+            return run(Path(a.morph), Path(a.work) if a.work else None,
+                       Path(a.solc) if a.solc else None, out, a.limit)
         return run_mutants(Path(a.mutants), Path(a.morph), a.only.split(",") if a.only else None,
                            Path(a.work) if a.work else None,
                            Path(a.solc) if a.solc else None, Path(a.out))
