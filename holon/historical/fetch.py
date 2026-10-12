@@ -127,7 +127,7 @@ class Fetcher:
                 except net.SourceError as e:
                     if net.is_rate_limit(e):
                         self.http.pacer(rpc.host).limited()
-                        time.sleep(min(30, 2 ** attempt))
+                        time.sleep(min(15, 2 ** attempt))
                         continue
                     res = [e] * len(ask)
                     break
@@ -296,8 +296,8 @@ class Fetcher:
         done, t0, missing = 0, time.time(), 0
         with cf.ThreadPoolExecutor(self.workers) as ex:
             futs = {ex.submit(self.calls, method, [(h, b, [h]) for b, h in ch], i): ch for i, ch in enumerate(chunks)}
-            for f in cf.as_completed(futs):
-                ch = futs[f]
+            for f in cf.as_completed(list(futs)):
+                ch = futs.pop(f)   # drop the future: its result holds the fetched objects
                 got = f.result()
                 for b, h in ch:
                     if h in got:
@@ -453,8 +453,8 @@ class Fetcher:
         done, bad, t0 = 0, 0, time.time()
         with cf.ThreadPoolExecutor(self.blob_workers) as ex:
             futs = {ex.submit(self._blob_task, b, h, hs, edge is not None and b > edge, genesis): (b, h) for b, h, hs in jobs}
-            for f in cf.as_completed(futs):
-                b, h = futs[f]
+            for f in cf.as_completed(list(futs)):
+                b, h = futs.pop(f)  # drop the future: its result holds the blob bytes
                 bad += self.store_blobs(h, b, f.result())
                 done += 1
                 if done % 200 == 0 or done == len(jobs):

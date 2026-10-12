@@ -56,7 +56,7 @@ def host(url: str) -> str:
 class Pacer:
     """Per-host spacing between requests. The interval grows on a rate limit and shrinks slowly on success."""
 
-    def __init__(self, interval: float = 0.05, floor: float = 0.02, ceiling: float = 10.0):
+    def __init__(self, interval: float = 0.05, floor: float = 0.02, ceiling: float = 2.0):
         self.lock = threading.Lock()
         self.interval, self.floor, self.ceiling = interval, floor, ceiling
         self.next_at = 0.0
@@ -75,12 +75,12 @@ class Pacer:
 
     def ok(self) -> None:
         with self.lock:
-            self.interval = max(self.floor, self.interval * 0.97)
+            self.interval = max(self.floor, self.interval * 0.85)
 
     def limited(self, retry_after: float | None = None) -> None:
         with self.lock:
-            self.interval = min(self.ceiling, self.interval * 1.6 + 0.02)
-            pause = retry_after if retry_after else min(30.0, self.interval * 8)
+            self.interval = min(self.ceiling, self.interval * 1.5 + 0.02)
+            pause = min(30.0, retry_after) if retry_after else min(10.0, self.interval * 5)
             self.pause_until = max(self.pause_until, time.monotonic() + pause)
 
 
@@ -133,7 +133,7 @@ class Http:
                 last = f"{type(e).__name__}: {e}"
                 pacer.limited()
             if attempt < self.retries:
-                time.sleep(min(60.0, (2 ** attempt) * 0.5 * (1 + random.random())))
+                time.sleep(min(30.0, (2 ** attempt) * 0.5 * (1 + random.random())))
         raise TransientError(scrub(f"{h}: retries exhausted ({last})"))
 
     def get_json(self, url: str):
