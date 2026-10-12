@@ -116,11 +116,18 @@ Neither blind run found F1, F3, F5 (B2's attempt failed replay), F8, F11, F13 or
 
 ## Coverage debt and gate state
 
-- The M3_msg, M3_router and M3_nat gates fail **only G8**. The modelled-but-lawless symbols are:
-  - msg: `sendMessage2`, `bf`, `fq`, `own`;
-  - router: `initialize`, `verifyAggregateProof`, `t`, `own`;
-  - nat: `commitState`, `commitBatchWithProof`, `revertBatch`, `finalizeBatch`, `setPause`, `initialize3`, `updateRollupDelayPeriod`, `updateProofWindow`, `updateFinalizePeriodSeconds`, `updateVerifier`, `fsr`.
-- These holes are honest, and only laws can close them.
+- **All M3 gates pass**, M3_nat, M3_msg, M3_router and M3_sorts, with 0 uncovered actions or registers. M0 and M1 pass too.
+- **How the earlier G8 holes were closed:**
+  - **Extraction fixes, so no hole is hidden** (`07d4905`, `8369b08`):
+    - the OZ owner guard now reads the `own` register instead of the constant `OWNER`;
+    - MVRV `rollup` is now a state register written by `initialize`;
+    - the register list now leaves out three registers that no extracted source path reads: MVRV `t`, and messenger `bf`/`fq`. The fee stays abstracted as the input `amt`, disclosed by `defs.est_fee.body`.
+
+    All law statuses stayed the same after these fixes; the facts rebinds are recorded in ERRATA.
+  - **28 coverage laws** `L_cov_*` (`spec/M3/laws_src/r3_cov_laws.py`), preregistered in `1023e72` before any run. All are predicted PROVED from the pinned Solidity source. One generator encoding erratum was fixed before any NAT law ran (`37a2970`).
+- **Results:** 27 PROVED as predicted.
+  - **The miss:** `L_cov_rt_vap_unregistered_fails` came out REFUTED. The model routes an unregistered version to the `b_nf` sentinel, whereas `MVRV:117-118` reverts `ErrorVerifierNotFound`. This is the same sentinel artefact as `L_rt_before_start`. Its triage is `none` and it is published as a GPRED miss.
+- **Limit:** most `L_cov_*` laws are guard and success scenarios, one step past a fixed setup. They show that each action is reachable and that its guard reasons match the source. They are not full functional specifications of the action's effects. G8 counts an action as covered when a law touches it.
 - M0, M1 and M3_sorts pass.
 
 ## M2 record (unchanged)
