@@ -96,6 +96,7 @@ def translate_action(world, spec, a, reasons, call_guards):
     if fn is None:
         raise RuntimeError(f"{contract}.{fname} not found")
     tr.blob_indices = tr.scan_blobs(tr.world.units[fn["__file"]].node)
+    tr.run_modifiers(fn)
     for st in fn.get("body", {}).get("statements", []):
         tr.S(st)
     tr._drain_pending()

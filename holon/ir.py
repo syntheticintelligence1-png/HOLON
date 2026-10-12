@@ -104,3 +104,39 @@ def render_statement(law: dict) -> str:
     binders = ", ".join(f"{b['name']}: {b['type']}" for b in st["forall"])
     prem = " ∧ ".join(premises(law))
     return f"∀ {binders}. " + (f"{prem} ⇒ " if prem else "") + render_prop(st["claim"])
+
+
+def resolve_reasons(statement: dict, facts: dict) -> dict:
+    """Replace every {"reason": msg} term with {"nat": code}, where code is
+    the unique key in facts["reasons"] whose value is msg (keys are strings;
+    the emitted term carries an int). Reason codes are numbered per facts
+    file, so laws name reverts by message and resolve per file.
+    Raises gen.mlaws.Unsupported when no code — or more than one — matches."""
+    from .gen import mlaws
+    table = facts.get("reasons", {})
+
+    def walk(x):
+        if isinstance(x, dict):
+            if set(x) == {"reason"}:
+                msg = x["reason"]
+                codes = [int(k) for k, v in table.items() if v == msg]
+                if len(codes) == 0:
+                    raise mlaws.Unsupported(f"reason not in facts: {msg}")
+                if len(codes) > 1:
+                    raise mlaws.Unsupported(f"ambiguous reason in facts: {msg} -> {codes}")
+                return {"nat": codes[0]}
+            return {k: walk(v) for k, v in x.items()}
+        if isinstance(x, list):
+            return [walk(v) for v in x]
+        return x
+
+    return walk(copy.deepcopy(statement))
+
+
+def resolve_law_reasons(law: dict, facts: dict) -> dict:
+    """resolve_reasons over a whole law: a copy with the statement resolved;
+    the identity fields (statement_hash, premises, rendering) still read the
+    original law."""
+    out = dict(law)
+    out["statement"] = resolve_reasons(law["statement"], facts)
+    return out

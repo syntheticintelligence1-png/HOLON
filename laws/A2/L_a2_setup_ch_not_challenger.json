@@ -1,0 +1,73 @@
+{
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_a2_setup_ch_not_challenger",
+  "milestone": "A2",
+  "notes": "setup trace of ch_not_challenger runs ok (guards against vacuous probes)",
+  "predicted": "PROVED",
+  "rule": "GUARD",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "trace": [
+                {
+                  "act": "sendMessage",
+                  "args": {
+                    "who": {
+                      "nat": 5
+                    }
+                  }
+                },
+                {
+                  "act": "commitBatch",
+                  "args": {
+                    "blobs": {
+                      "nats": [
+                        7
+                      ]
+                    },
+                    "lbn": {
+                      "nat": 1
+                    },
+                    "n": {
+                      "nat": 1
+                    },
+                    "parent": {
+                      "nat": 0
+                    },
+                    "post": {
+                      "nat": 101
+                    },
+                    "prev": {
+                      "nat": 100
+                    },
+                    "ver": {
+                      "nat": 1
+                    },
+                    "who": {
+                      "nat": 2
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "s0": {}
+            }
+          ],
+          "fn": "runs_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "setup"
+}

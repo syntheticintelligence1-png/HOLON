@@ -1,7 +1,9 @@
-"""M2 A1 mutation-adequacy runner. See spec/M2/mutants.json for the contract."""
+"""M2 A1/A2 mutation-adequacy runner. See spec/M2/mutants.json (A1) and
+spec/M2/A2/mutants.json (A2, held-out set) for the contracts."""
 from __future__ import annotations
 
 import hashlib
+import collections
 import json
 import os
 import subprocess
@@ -9,20 +11,22 @@ import sys
 import time
 from pathlib import Path
 
-from .. import mpipeline, pipeline
+from .. import ir, mpipeline, pipeline
 from ..assemble.header import (M1_HEADER_FACTS, M1_HEADER_LAWS, assemble,
                                facts_sha256, write_docs)
 from ..frontends.solidity import layout_extract
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_WORK = Path.home() / "work" / "holon-mut"
+ROLLUP_FACTS = "spec/M1/facts/morph_rollup.json"
+A2_SPEC = "spec/M2/A2/mutants.json"
+A1_SPEC = "spec/M2/mutants.json"
 
 
 class CompileError(RuntimeError):
     """A compile failure of the mutated target — the ONLY route to `invalid`."""
 
 
-ROLLUP_FACTS = "spec/M1/facts/morph_rollup.json"
 
 # Laws whose extracted-baseline status diverges from results/M1 because their
 # counter-models need requires the AST cannot justify (S1 PR #16).
@@ -463,4 +467,200 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
     out.write_text(json.dumps(report, indent=2, sort_keys=False) + "\n")
     print(f"score {score} ({len(detected)}/{len(valid)} valid), "
           f"{len(pending)} pending -> {out}")
+    return 0
+
+
+# ==================================================================== A2 mode
+
+def _run_a2_pipeline(header_p: Path, rollup_p: Path, scratch: Path) -> dict:
+    """{family: {law: status}} — M0 on the assembled header facts, every M1
+    law (header facts override + rollup facts override; batchdata stays the
+    committed file), and every laws/A2 law on the extracted rollup facts.
+    Reason resolution stays per facts file."""
+    fam = {}
+    fam["m0"] = dict(pipeline.run("M0", str(header_p), str(scratch / "m0_res"),
+                                  str(scratch / "m0_gen"), no_registry=True,
+                                  log=lambda *a: None))
+    fam["m1"] = mpipeline.run_m1(
+        "M1", None, str(scratch / "m1_res"), str(scratch / "m1_gen"),
+        no_registry=True, log=lambda *a: None,
+        facts_overrides={ROLLUP_FACTS: Path(rollup_p),
+                         M1_HEADER_FACTS: Path(header_p)})
+    fam["a2"] = mpipeline.run_m1(
+        "A2", None, str(scratch / "a2_res"), str(scratch / "a2_gen"),
+        no_registry=True, log=lambda *a: None,
+        facts_overrides={ROLLUP_FACTS: Path(rollup_p)})
+    return fam
+
+
+def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
+           limit: int | None = None, log=print) -> int:
+    """Held-out A2 campaign: walk mutants.json `order`, keep the first `take`
+    mutants that compile. Baseline extracted once per invocation."""
+    a2 = json.loads((ROOT / A2_SPEC).read_text())
+    a1 = json.loads((ROOT / A1_SPEC).read_text())
+    target = a1["target"]
+    commit = target["commit"]
+    solc_p = _solc(solc)
+    work = work or DEFAULT_WORK
+    take = a2["take"]
+    if _git(morph, "rev-parse", "HEAD") != commit:
+        raise RuntimeError(f"morph at {_git(morph, 'rev-parse', 'HEAD')}, spec pins {commit}")
+    # assert the in-scope file matches the pinned sha before any walk
+    rollup_rel = "contracts/contracts/l1/rollup/Rollup.sol"
+    got = _file_sha(morph / rollup_rel)
+    want = target["file_sha256"][rollup_rel]
+    if got != want:
+        raise RuntimeError(f"{rollup_rel}: sha256 {got} != pinned {want}")
+    work.mkdir(parents=True, exist_ok=True)
+
+    def extract_pair(wt: Path, scratch: Path) -> dict:
+        """S1 rollup facts + assembled header facts for one worktree."""
+        run = _s1_extract(wt, solc_p, scratch)
+        hdr = _extract_and_run(wt, solc_p, scratch)
+        return {"rollup_p": run["facts_p"], "header_p": hdr["facts_p"],
+                "facts_sha": run["facts_sha"],
+                # miss labels compare BOTH extracted facts files (rollup + header)
+                "facts_bytes": run["facts_bytes"] + b"\0" + hdr["facts_bytes"],
+                "link_fallbacks": hdr["link_fallbacks"]}
+
+    def pipeline_of(wt: Path, scratch: Path) -> dict:
+        run = extract_pair(wt, scratch)
+        run["statuses"] = _run_a2_pipeline(run["header_p"], run["rollup_p"], scratch)
+        return run
+
+    def worktree_once(tag: str):
+        wt = work / f"wt-{tag}"
+        _worktree(morph, commit, wt)
+        _node_modules(wt, morph)
+        _verify_shas(wt, target["file_sha256"])
+        return wt
+
+    t0 = time.time()
+    base_wt = worktree_once("a2-baseline")
+    try:
+        base = pipeline_of(base_wt, work / "out" / "a2-baseline")
+    finally:
+        _rm_worktree(morph, base_wt)
+    base_seconds = round(time.time() - t0, 3)
+    log(f"baseline pipeline {base_seconds}s "
+        f"(m0 {len(base['statuses']['m0'])}, m1 {len(base['statuses']['m1'])}, "
+        f"a2 {len(base['statuses']['a2'])} laws)")
+
+    results = []
+    walked: list[str] = []
+    scored = 0
+    for m in a2["order"]:
+        if scored >= take or (limit is not None and scored >= limit):
+            break
+        walked.append(m["id"])
+        t0 = time.time()
+        rec = {"id": m["id"], "file": m["file"], "line": m["line"],
+               "operator": m.get("operator"), "equivalent": bool(m.get("equivalent"))}
+        wt = worktree_once(m["id"])
+        try:
+            _apply(wt, m)
+            scratch = work / "out" / f"a2-{m['id']}"
+            try:
+                run = extract_pair(wt, scratch)
+            except CompileError as e:
+                # a failed compile of the mutated target: invalid, skipped —
+                # does not count toward `take`
+                rec.update({"valid": False, "detected": False,
+                            "label": "invalid", "changed": [],
+                            "build_error": str(e)[:500],
+                            "seconds": round(time.time() - t0, 3)})
+                results.append(rec)
+                continue
+            except Exception as e:
+                scored += 1
+                first = (str(e).splitlines() or [repr(e)])[0]
+                rec.update({"valid": True, "detected": False,
+                            "label": "extraction_gap", "changed": [],
+                            "miss_cause": "pipeline_error",
+                            "pipeline_error": f"assemble: {first}"[:500],
+                            "link_fallbacks": [],
+                            "seconds": round(time.time() - t0, 3)})
+                results.append(rec)
+                continue
+            scored += 1
+            try:
+                statuses = _run_a2_pipeline(run["header_p"], run["rollup_p"], scratch)
+            except Exception as e:
+                first = (str(e).splitlines() or [repr(e)])[0]
+                label = ("extraction_gap"
+                         if run["facts_bytes"] == base["facts_bytes"]
+                         else "rule_gap")
+                rec.update({"valid": True, "detected": False, "label": label,
+                            "miss_cause": "pipeline_error",
+                            "facts_sha256": run["facts_sha"], "changed": [],
+                            "pipeline_error": f"pipeline: {first}"[:500],
+                            "link_fallbacks": run["link_fallbacks"],
+                            "seconds": round(time.time() - t0, 3)})
+                results.append(rec)
+                continue
+            changed = [{"law": lid, "family": fam_name,
+                        "baseline": base["statuses"][fam_name][lid],
+                        "mutant": st}
+                       for fam_name, fam in statuses.items()
+                       for lid, st in fam.items()
+                       if st != base["statuses"][fam_name][lid]]
+            detected = bool(changed)
+            rec.update({"valid": True, "detected": detected,
+                        "label": (None if detected
+                                  else "extraction_gap"
+                                  if run["facts_bytes"] == base["facts_bytes"]
+                                  else "rule_gap"),
+                        "detected_via": _detected_via(changed),
+                        **({"miss_cause": "no_status_change"} if not detected else {}),
+                        "facts_sha256": run["facts_sha"], "changed": changed,
+                        "link_fallbacks": run["link_fallbacks"],
+                        "seconds": round(time.time() - t0, 3)})
+            results.append(rec)
+        finally:
+            _rm_worktree(morph, wt)
+
+    valid = [r for r in results if r["valid"] and not r["equivalent"]]
+    detected = [r for r in valid if r["detected"]]
+    score = len(detected) / len(valid) if valid else None
+    counts = {"total": len(results),
+              "valid": len(valid),
+              "invalid": sum(1 for r in results if r["label"] == "invalid"),
+              "equivalent": sum(1 for r in results if r["equivalent"]),
+              "detected": len(detected),
+              "extraction_gap": sum(1 for r in valid if r["label"] == "extraction_gap"),
+              "rule_gap": sum(1 for r in valid if r["label"] == "rule_gap"),
+              "pending": 0}
+    report = {
+        "schema": "holon-mutation-report/0.1",
+        "spec": A2_SPEC,
+        "walked": walked,
+        "invalid_skipped": [r["id"] for r in results if r["label"] == "invalid"],
+        "counts": counts,
+        "score": score,
+        "threshold": a2["threshold"],
+        "final": scored >= take and limit is None,
+        "baseline_seconds": base_seconds,
+        "baseline_facts_sha256": base["facts_sha"],
+        "baseline_status_counts": {f: dict(sorted(collections.Counter(base["statuses"][f].values()).items()))
+                                   for f in base["statuses"]},
+        "provenance": {
+            "mutants_sha256": _file_sha(ROOT / A2_SPEC),
+            "registry_sha256": a2["registry_sha256"],
+            "seed": a2["seed"],
+            "morph_commit": commit,
+            "baseline_facts_sha256": base["facts_sha"],
+        },
+        "detected_via_counts": {
+            "flip": sum(1 for r in detected if r.get("detected_via") == "flip"),
+            "unknown_only": sum(1 for r in detected if r.get("detected_via") == "unknown_only"),
+        },
+        "mutants": results,
+        "equivalence_reclassifications": [],
+    }
+    out = Path(out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(report, indent=2, sort_keys=False) + "\n")
+    log(f"score {score} ({len(detected)}/{len(valid)} valid scored of {take}), "
+        f"{counts['invalid']} invalid skipped -> {out}")
     return 0

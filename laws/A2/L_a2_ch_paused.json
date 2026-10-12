@@ -1,0 +1,109 @@
+{
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "d5d28552e3108758ab43e26ed1689841de481bd1d2e258334c83dec54aed5c16",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_a2_ch_paused",
+  "milestone": "A2",
+  "notes": "whenNotPaused",
+  "predicted": "PROVED",
+  "rule": "GUARD",
+  "statement": {
+    "assume": [],
+    "binders": [],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "trace": [
+                    {
+                      "act": "sendMessage",
+                      "args": {
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    },
+                    {
+                      "act": "commitBatch",
+                      "args": {
+                        "blobs": {
+                          "nats": [
+                            7
+                          ]
+                        },
+                        "lbn": {
+                          "nat": 1
+                        },
+                        "n": {
+                          "nat": 1
+                        },
+                        "parent": {
+                          "nat": 0
+                        },
+                        "post": {
+                          "nat": 101
+                        },
+                        "prev": {
+                          "nat": 100
+                        },
+                        "ver": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    },
+                    {
+                      "act": "setPause",
+                      "args": {
+                        "status": {
+                          "bool": true
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "obs": {
+                "trace": [
+                  {
+                    "act": "challengeState",
+                    "args": {
+                      "idx": {
+                        "nat": 1
+                      },
+                      "value": {
+                        "nat": 1
+                      },
+                      "who": {
+                        "nat": 4
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "reason": "Pausable: paused"
+            }
+          ],
+          "fn": "no_code"
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "subform": "scenario"
+}
