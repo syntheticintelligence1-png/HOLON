@@ -1,0 +1,39 @@
+{
+ "frontend": "go",
+ "target_commit": "3e44e795586af3e11285b603ab642c67823add51",
+ "items": [
+  {
+   "element": "node/derivation/batch_info.go:201-247",
+   "kind": "untranslated_remainder",
+   "reason": "after the zero-block check, tx decoding, per-block context decoding, block-number and tx-count checks, queue dequeue, and BatchInfo field updates are not reduced in E3"
+  },
+  {
+   "element": "common/batch/blob.go:170-188",
+   "function": "decodeTypedTx",
+   "kind": "untranslated_decode_body",
+   "reason": "per-type decode body is not reduced in E3"
+  },
+  {
+   "element": "common/batch/blob.go:194-225",
+   "function": "decodeMorphTx",
+   "kind": "untranslated_decode_body",
+   "reason": "per-type decode body is not reduced in E3"
+  },
+  {
+   "element": "common/batch/blob.go:227-267",
+   "function": "extractInnerTxFullBytes",
+   "kind": "untranslated_decode_body",
+   "reason": "per-type decode body is not reduced in E3"
+  },
+  {
+   "element": "common/batch/batch_data.go:93",
+   "kind": "oracle_body",
+   "reason": "HeightFromBlockContextBytes parser body is an oracle"
+  },
+  {
+   "element": "node/derivation/batch_info.go:122",
+   "kind": "oracle_body",
+   "reason": "zstd.DecompressBatchBytes body is an oracle"
+  }
+ ]
+}

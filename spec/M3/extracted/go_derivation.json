@@ -1,0 +1,1844 @@
+{
+ "format": "holon-extracted/go-derivation/0.1",
+ "extractor": "holon.frontends.go.derivation (gossa-dump/0.1)",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "packages": [
+   "morph-l2/common/batch",
+   "morph-l2/node/types",
+   "morph-l2/common/blob",
+   "morph-l2/node/derivation"
+  ]
+ },
+ "parse_batch": {
+  "source": "node/derivation/batch_info.go:87-248",
+  "abstract_inputs": {
+   "blobCount": "len(batch.Sidecar.Blobs)",
+   "parentIndex": "parentIndex",
+   "parentTotalL1Popped": "parentTotalL1Popped",
+   "parentVersion": "parentVersion",
+   "parentLastBlock": "parentLastBlock",
+   "batch.Version": "batch.Version",
+   "batch.LastBlockNumber": "batch.LastBlockNumber",
+   "batch.BlockContexts": "batch.BlockContexts",
+   "len(batch.BlockContexts)": "len(batch.BlockContexts)",
+   "batchBytes": "batchBytes",
+   "len(batchBytes)": "len(batchBytes)",
+   "startBlock.Number": "startBlock.Number"
+  },
+  "decision_predicates": [
+   {
+    "line": 88,
+    "expression": "len(batch.Sidecar.Blobs) == 0"
+   },
+   {
+    "line": 93,
+    "expression": "parentIndexErr != nil"
+   },
+   {
+    "line": 97,
+    "expression": "parentTotalL1PoppedErr != nil"
+   },
+   {
+    "line": 117,
+    "expression": "retrieveBlobErr != nil"
+   },
+   {
+    "line": 123,
+    "expression": "decompressErr != nil"
+   },
+   {
+    "line": 128,
+    "expression": "batch.Version > 0"
+   },
+   {
+    "line": 130,
+    "expression": "parentVersionErr != nil"
+   },
+   {
+    "line": 166,
+    "expression": "batch.BlockContexts != nil"
+   },
+   {
+    "line": 133,
+    "expression": "parentVersion == 0"
+   },
+   {
+    "line": 137,
+    "expression": "len(batchBytes) < 60"
+   },
+   {
+    "line": 152,
+    "expression": "parentLastBlockErr != nil"
+   },
+   {
+    "line": 141,
+    "expression": "BlockContext.Decode(startBlock, batchBytes[:60]) != nil"
+   },
+   {
+    "line": 146,
+    "expression": "batch.LastBlockNumber < startBlock.Number"
+   },
+   {
+    "line": 157,
+    "expression": "batch.LastBlockNumber < parentLastBlock"
+   },
+   {
+    "line": 170,
+    "expression": "len(batch.BlockContexts) < 2"
+   },
+   {
+    "line": 197,
+    "expression": "blockCount == 0"
+   },
+   {
+    "line": 185,
+    "expression": "computedBlockCount > len(batchBytes) / 60"
+   },
+   {
+    "line": 174,
+    "expression": "len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2])"
+   }
+  ],
+  "oracles": [
+   {
+    "oracle": "parentHeader.BatchIndex",
+    "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+    "line": 92,
+    "arguments": [
+     "batch.ParentBatchHeader"
+    ]
+   },
+   {
+    "oracle": "parentHeader.TotalL1MessagePopped",
+    "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+    "line": 96,
+    "arguments": [
+     "batch.ParentBatchHeader"
+    ]
+   },
+   {
+    "oracle": "zstd.DecompressBatchBytes",
+    "callee": "morph-l2/common/codec/zstd.DecompressBatchBytes",
+    "line": 122,
+    "arguments": [
+     "compressed"
+    ]
+   },
+   {
+    "oracle": "parentHeader.Version",
+    "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchHeaderBytes).Version",
+    "line": 129,
+    "arguments": [
+     "batch.ParentBatchHeader"
+    ]
+   },
+   {
+    "oracle": "parentHeader.LastBlockNumber",
+    "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+    "line": 151,
+    "arguments": [
+     "batch.ParentBatchHeader"
+    ]
+   },
+   {
+    "oracle": "BlockContext.Decode",
+    "callee": "morph-l2/node/derivation.(morph-l2/node/derivation.BlockContext).Decode",
+    "line": 141,
+    "arguments": [
+     "startBlock",
+     "batchBytes[:60]"
+    ]
+   },
+   {
+    "oracle": "BlockContext.Decode",
+    "callee": "morph-l2/node/derivation.(morph-l2/node/derivation.BlockContext).Decode",
+    "line": 211,
+    "arguments": [
+     "block",
+     "rawBlockContexts[i * 60:i * 60 + 60]"
+    ]
+   }
+  ],
+  "error_exits": [
+   {
+    "line": 89,
+    "path_condition": [
+     "len(batch.Sidecar.Blobs) == 0"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "blobs length can not be zero",
+    "arguments": [],
+    "returned": [
+     "fmt.Errorf('blobs length can not be zero', nil)"
+    ]
+   },
+   {
+    "line": 94,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "parentIndexErr != nil"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "decode batch header index error:%v",
+    "arguments": [
+     "parentIndexErr"
+    ],
+    "returned": [
+     "fmt.Errorf('decode batch header index error:%v', alloc24[:])"
+    ]
+   },
+   {
+    "line": 98,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "parentTotalL1PoppedErr != nil"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "decode batch header totalL1MessagePopped error:%v",
+    "arguments": [
+     "parentTotalL1PoppedErr"
+    ],
+    "returned": [
+     "fmt.Errorf('decode batch header totalL1MessagePopped error:%v', alloc39[:])"
+    ]
+   },
+   {
+    "line": 118,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "i < len(batch.Sidecar.Blobs)",
+     "retrieveBlobErr != nil"
+    ],
+    "kind": "propagated_error",
+    "message": null,
+    "arguments": [],
+    "returned": [
+     "retrieveBlobErr"
+    ]
+   },
+   {
+    "line": 124,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "decompressErr != nil"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "decompress batch bytes error:%v",
+    "arguments": [
+     "decompressErr"
+    ],
+    "returned": [
+     "fmt.Errorf('decompress batch bytes error:%v', alloc110[:])"
+    ]
+   },
+   {
+    "line": 131,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "parentVersionErr != nil"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "decode batch header version error:%v",
+    "arguments": [
+     "parentVersionErr"
+    ],
+    "returned": [
+     "fmt.Errorf('decode batch header version error:%v', alloc139[:])"
+    ]
+   },
+   {
+    "line": 138,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "not (parentVersionErr != nil)",
+     "parentVersion == 0",
+     "len(batchBytes) < 60"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "decompressed batch too short for start block context: have %d, need 60",
+    "arguments": [
+     "len(batchBytes)"
+    ],
+    "returned": [
+     "fmt.Errorf('decompressed batch too short for start block context: have %d, need 60', alloc162[:])"
+    ]
+   },
+   {
+    "line": 142,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "not (parentVersionErr != nil)",
+     "parentVersion == 0",
+     "not (len(batchBytes) < 60)",
+     "BlockContext.Decode(startBlock, batchBytes[:60]) != nil"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "decode chunk block context error:%v",
+    "arguments": [
+     "BlockContext.Decode(startBlock, batchBytes[:60])"
+    ],
+    "returned": [
+     "fmt.Errorf('decode chunk block context error:%v', alloc178[:])"
+    ]
+   },
+   {
+    "line": 147,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "not (parentVersionErr != nil)",
+     "parentVersion == 0",
+     "not (len(batchBytes) < 60)",
+     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "batch.LastBlockNumber < startBlock.Number"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "invalid batch: lastBlockNumber %d < start block %d",
+    "arguments": [
+     "batch.LastBlockNumber",
+     "startBlock.Number"
+    ],
+    "returned": [
+     "fmt.Errorf('invalid batch: lastBlockNumber %d < start block %d', alloc197[:])"
+    ]
+   },
+   {
+    "line": 153,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "not (parentVersionErr != nil)",
+     "not (parentVersion == 0)",
+     "parentLastBlockErr != nil"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "decode batch header lastBlockNumber error:%v",
+    "arguments": [
+     "parentLastBlockErr"
+    ],
+    "returned": [
+     "fmt.Errorf('decode batch header lastBlockNumber error:%v', alloc217[:])"
+    ]
+   },
+   {
+    "line": 158,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "not (parentVersionErr != nil)",
+     "not (parentVersion == 0)",
+     "not (parentLastBlockErr != nil)",
+     "batch.LastBlockNumber < parentLastBlock"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "invalid batch: lastBlockNumber %d < parent lastBlockNumber %d",
+    "arguments": [
+     "batch.LastBlockNumber",
+     "parentLastBlock"
+    ],
+    "returned": [
+     "fmt.Errorf('invalid batch: lastBlockNumber %d < parent lastBlockNumber %d', alloc232[:])"
+    ]
+   },
+   {
+    "line": 171,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "not (parentVersionErr != nil)",
+     "parentVersion == 0",
+     "not (len(batchBytes) < 60)",
+     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "not (batch.LastBlockNumber < startBlock.Number)",
+     "batch.BlockContexts != nil",
+     "len(batch.BlockContexts) < 2"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "calldata block contexts too short for block count prefix: have %d, need 2",
+    "arguments": [
+     "len(batch.BlockContexts)"
+    ],
+    "returned": [
+     "fmt.Errorf('calldata block contexts too short for block count prefix: have %d, need 2', alloc273[:])"
+    ]
+   },
+   {
+    "line": 175,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "not (parentVersionErr != nil)",
+     "parentVersion == 0",
+     "not (len(batchBytes) < 60)",
+     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "not (batch.LastBlockNumber < startBlock.Number)",
+     "batch.BlockContexts != nil",
+     "not (len(batch.BlockContexts) < 2)",
+     "len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2])"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "calldata block contexts too short: have %d, need %d",
+    "arguments": [
+     "len(batch.BlockContexts)",
+     "2 + 60 * be16(BigEndian, batch.BlockContexts[:2])"
+    ],
+    "returned": [
+     "fmt.Errorf('calldata block contexts too short: have %d, need %d', alloc307[:])"
+    ]
+   },
+   {
+    "line": 186,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "not (parentVersionErr != nil)",
+     "parentVersion == 0",
+     "not (len(batchBytes) < 60)",
+     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "not (batch.LastBlockNumber < startBlock.Number)",
+     "not (batch.BlockContexts != nil)",
+     "computedBlockCount > len(batchBytes) / 60"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "decompressed batch too short for block contexts: have %d, need %d blocks",
+    "arguments": [
+     "len(batchBytes)",
+     "computedBlockCount"
+    ],
+    "returned": [
+     "fmt.Errorf('decompressed batch too short for block contexts: have %d, need %d blocks', alloc329[:])"
+    ]
+   },
+   {
+    "line": 198,
+    "path_condition": [
+     "not (len(batch.Sidecar.Blobs) == 0)",
+     "not (parentIndexErr != nil)",
+     "not (parentTotalL1PoppedErr != nil)",
+     "not (i < len(batch.Sidecar.Blobs))",
+     "not (decompressErr != nil)",
+     "batch.Version > 0",
+     "not (parentVersionErr != nil)",
+     "parentVersion == 0",
+     "not (len(batchBytes) < 60)",
+     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "not (batch.LastBlockNumber < startBlock.Number)",
+     "batch.BlockContexts != nil",
+     "not (len(batch.BlockContexts) < 2)",
+     "not (len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2]))",
+     "blockCount == 0"
+    ],
+    "kind": "fmt.Errorf",
+    "message": "invalid batch: zero block count",
+    "arguments": [],
+    "returned": [
+     "fmt.Errorf('invalid batch: zero block count', nil)"
+    ]
+   }
+  ],
+  "success": {
+   "batchIndex": [
+    {
+     "line": 102,
+     "expression": "parentIndex + 1"
+    }
+   ],
+   "blockCount": {
+    "initial_or_version_derived": [
+     {
+      "predecessor_block": 13,
+      "path_condition": [
+       "not (len(batch.Sidecar.Blobs) == 0)",
+       "not (parentIndexErr != nil)",
+       "not (parentTotalL1PoppedErr != nil)",
+       "not (i < len(batch.Sidecar.Blobs))",
+       "not (decompressErr != nil)",
+       "not (batch.Version > 0)"
+      ],
+      "value": "0",
+      "line": null
+     },
+     {
+      "predecessor_block": 25,
+      "path_condition": [
+       "not (len(batch.Sidecar.Blobs) == 0)",
+       "not (parentIndexErr != nil)",
+       "not (parentTotalL1PoppedErr != nil)",
+       "not (i < len(batch.Sidecar.Blobs))",
+       "not (decompressErr != nil)",
+       "batch.Version > 0",
+       "not (parentVersionErr != nil)",
+       "parentVersion == 0",
+       "not (len(batchBytes) < 60)",
+       "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+       "not (batch.LastBlockNumber < startBlock.Number)"
+      ],
+      "value": "batch.LastBlockNumber - startBlock.Number + 1",
+      "line": 149
+     },
+     {
+      "predecessor_block": 29,
+      "path_condition": [
+       "not (len(batch.Sidecar.Blobs) == 0)",
+       "not (parentIndexErr != nil)",
+       "not (parentTotalL1PoppedErr != nil)",
+       "not (i < len(batch.Sidecar.Blobs))",
+       "not (decompressErr != nil)",
+       "batch.Version > 0",
+       "not (parentVersionErr != nil)",
+       "not (parentVersion == 0)",
+       "not (parentLastBlockErr != nil)",
+       "not (batch.LastBlockNumber < parentLastBlock)"
+      ],
+      "value": "batch.LastBlockNumber - parentLastBlock",
+      "line": 160
+     }
+    ],
+    "calldata_or_version_derived": [
+     {
+      "predecessor_block": 36,
+      "path_condition": [
+       "not (len(batch.Sidecar.Blobs) == 0)",
+       "not (parentIndexErr != nil)",
+       "not (parentTotalL1PoppedErr != nil)",
+       "not (i < len(batch.Sidecar.Blobs))",
+       "not (decompressErr != nil)",
+       "batch.Version > 0",
+       "not (parentVersionErr != nil)",
+       "parentVersion == 0",
+       "not (len(batchBytes) < 60)",
+       "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+       "not (batch.LastBlockNumber < startBlock.Number)",
+       "batch.BlockContexts != nil",
+       "not (len(batch.BlockContexts) < 2)",
+       "not (len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2]))"
+      ],
+      "value": "be16(BigEndian, batch.BlockContexts[:2])",
+      "line": 173
+     },
+     {
+      "predecessor_block": 38,
+      "path_condition": [
+       "not (len(batch.Sidecar.Blobs) == 0)",
+       "not (parentIndexErr != nil)",
+       "not (parentTotalL1PoppedErr != nil)",
+       "not (i < len(batch.Sidecar.Blobs))",
+       "not (decompressErr != nil)",
+       "batch.Version > 0",
+       "not (parentVersionErr != nil)",
+       "parentVersion == 0",
+       "not (len(batchBytes) < 60)",
+       "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+       "not (batch.LastBlockNumber < startBlock.Number)",
+       "not (batch.BlockContexts != nil)",
+       "not (computedBlockCount > len(batchBytes) / 60)"
+      ],
+      "value": "computedBlockCount",
+      "line": 127
+     }
+    ]
+   },
+   "bcLen": {
+    "line": 188,
+    "expression": "computedBlockCount * 60"
+   },
+   "rawBlockContexts": [
+    {
+     "predecessor_block": 36,
+     "path_condition": [
+      "not (len(batch.Sidecar.Blobs) == 0)",
+      "not (parentIndexErr != nil)",
+      "not (parentTotalL1PoppedErr != nil)",
+      "not (i < len(batch.Sidecar.Blobs))",
+      "not (decompressErr != nil)",
+      "batch.Version > 0",
+      "not (parentVersionErr != nil)",
+      "parentVersion == 0",
+      "not (len(batchBytes) < 60)",
+      "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+      "not (batch.LastBlockNumber < startBlock.Number)",
+      "batch.BlockContexts != nil",
+      "not (len(batch.BlockContexts) < 2)",
+      "not (len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2]))"
+     ],
+     "value": "batch.BlockContexts[2:60 * be16(BigEndian, batch.BlockContexts[:2]) + 2]",
+     "line": 177
+    },
+    {
+     "predecessor_block": 38,
+     "path_condition": [
+      "not (len(batch.Sidecar.Blobs) == 0)",
+      "not (parentIndexErr != nil)",
+      "not (parentTotalL1PoppedErr != nil)",
+      "not (i < len(batch.Sidecar.Blobs))",
+      "not (decompressErr != nil)",
+      "batch.Version > 0",
+      "not (parentVersionErr != nil)",
+      "parentVersion == 0",
+      "not (len(batchBytes) < 60)",
+      "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+      "not (batch.LastBlockNumber < startBlock.Number)",
+      "not (batch.BlockContexts != nil)",
+      "not (computedBlockCount > len(batchBytes) / 60)"
+     ],
+     "value": "batchBytes[:computedBlockCount * 60]",
+     "line": null
+    }
+   ],
+   "txsData": [
+    {
+     "predecessor_block": 36,
+     "path_condition": [
+      "not (len(batch.Sidecar.Blobs) == 0)",
+      "not (parentIndexErr != nil)",
+      "not (parentTotalL1PoppedErr != nil)",
+      "not (i < len(batch.Sidecar.Blobs))",
+      "not (decompressErr != nil)",
+      "batch.Version > 0",
+      "not (parentVersionErr != nil)",
+      "parentVersion == 0",
+      "not (len(batchBytes) < 60)",
+      "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+      "not (batch.LastBlockNumber < startBlock.Number)",
+      "batch.BlockContexts != nil",
+      "not (len(batch.BlockContexts) < 2)",
+      "not (len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2]))"
+     ],
+     "value": "batchBytes",
+     "line": null
+    },
+    {
+     "predecessor_block": 38,
+     "path_condition": [
+      "not (len(batch.Sidecar.Blobs) == 0)",
+      "not (parentIndexErr != nil)",
+      "not (parentTotalL1PoppedErr != nil)",
+      "not (i < len(batch.Sidecar.Blobs))",
+      "not (decompressErr != nil)",
+      "batch.Version > 0",
+      "not (parentVersionErr != nil)",
+      "parentVersion == 0",
+      "not (len(batchBytes) < 60)",
+      "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+      "not (batch.LastBlockNumber < startBlock.Number)",
+      "not (batch.BlockContexts != nil)",
+      "not (computedBlockCount > len(batchBytes) / 60)"
+     ],
+     "value": "batchBytes[computedBlockCount * 60:]",
+     "line": 190
+    }
+   ]
+  },
+  "zero_block_check": {
+   "line": 197,
+   "condition": "blockCount == 0"
+  },
+  "scope_complete_through_zero_block_check": true,
+  "coverage_debt": [
+   {
+    "element": "node/derivation/batch_info.go:201-247",
+    "kind": "untranslated_remainder",
+    "reason": "after the zero-block check, tx decoding, per-block context decoding, block-number and tx-count checks, queue dequeue, and BatchInfo field updates are not reduced in E3"
+   }
+  ]
+ },
+ "retrieve_blob_bytes": {
+  "common_batch": {
+   "source": "common/batch/blob.go:45-54",
+   "loop_conditions": [
+    "i < 4096",
+    "blob[i * 32] != 0"
+   ],
+   "error_format": "invalid blob, found non-zero high order byte %x of field element %d",
+   "error_arguments": [
+    "data[i * 32]",
+    "i"
+   ],
+   "copy_calls": [
+    {
+     "arguments": [
+      "data[i * 31:i * 31 + 31]",
+      "blob[i * 32 + 1:i * 32 + 32]"
+     ]
+    }
+   ]
+  },
+  "common_blob": {
+   "source": "common/blob/payload.go:43-52",
+   "loop_conditions": [
+    "i < 4096",
+    "blob[i * 32] != 0"
+   ],
+   "error_format": "invalid blob, found non-zero high order byte %x of field element %d",
+   "error_arguments": [
+    "blob[i * 32]",
+    "i"
+   ],
+   "copy_calls": [
+    {
+     "arguments": [
+      "data[i * 31:i * 31 + 31]",
+      "blob[i * 32 + 1:i * 32 + 32]"
+     ]
+    }
+   ]
+  },
+  "differ": {
+   "structurally_identical_except_error_arguments": true,
+   "differences_derived_by_recursive_field_comparison": [
+    {
+     "field": "error_arguments",
+     "common_batch": [
+      "data[i * 32]",
+      "i"
+     ],
+     "common_blob": [
+      "blob[i * 32]",
+      "i"
+     ]
+    }
+   ],
+   "error_argument_difference_is_zero_bug": true
+  }
+ },
+ "hash_encoders": {
+  "DataHash": {
+   "source": "common/batch/batch_data.go:68-79",
+   "cached_hash_short_circuit": "cks.hash != nil",
+   "loop_condition": "i < cks.blockNum",
+   "concat_appends": [
+    {
+     "line": 75,
+     "arguments": [
+      "bz",
+      "cks.blockContexts[i * 60:i * 60 + 58]"
+     ]
+    },
+    {
+     "line": 77,
+     "arguments": [
+      "bz",
+      "cks.l1TxHashes"
+     ]
+    }
+   ],
+   "block_context_slices": [
+    {
+     "line": 75,
+     "expression": "cks.blockContexts[i * 60:i * 60 + 58]"
+    },
+    {
+     "line": null,
+     "expression": "hashArg[:]"
+    }
+   ],
+   "codec_format": {
+    "kind": "encoder",
+    "lang": "go-bytes",
+    "function": "batch.BatchData.DataHash",
+    "id": "morph-l2/common/batch.(morph-l2/common/batch.BatchData).DataHash",
+    "file": "common/batch/batch_data.go",
+    "line": 68,
+    "pkg": "morph-l2/common/batch",
+    "memory_init": "zeros",
+    "length": 1,
+    "composite": false,
+    "ops": [
+     {
+      "op": "append",
+      "dst": [
+       "phi",
+       [
+        [
+         "expr",
+         "nil"
+        ],
+        [
+         "expr",
+         "append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
+        ]
+       ]
+      ],
+      "src": [
+       {
+        "field": "blockContexts"
+       }
+      ],
+      "result": 12,
+      "in_loop": true,
+      "site": {
+       "file": "common/batch/batch_data.go",
+       "line": 75
+      }
+     },
+     {
+      "op": "append",
+      "dst": [
+       "phi",
+       [
+        [
+         "expr",
+         "nil"
+        ],
+        [
+         "expr",
+         "append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
+        ]
+       ]
+      ],
+      "src": [
+       {
+        "field": "l1TxHashes"
+       }
+      ],
+      "result": 35,
+      "in_loop": false,
+      "site": {
+       "file": "common/batch/batch_data.go",
+       "line": 77
+      }
+     },
+     {
+      "op": "set_byte",
+      "offset": 0,
+      "src": [
+       {
+        "expr": "append(phi(nil|append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])), *cks.l1TxHashes)"
+       }
+      ],
+      "byte": true,
+      "dst": [
+       "alloc",
+       36
+      ],
+      "site": {
+       "file": "common/batch/batch_data.go",
+       "line": 78
+      }
+     }
+    ],
+    "field_stores": []
+   },
+   "ops": [
+    {
+     "op": "append",
+     "dst": [
+      "phi",
+      [
+       [
+        "expr",
+        "nil"
+       ],
+       [
+        "expr",
+        "append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
+       ]
+      ]
+     ],
+     "src": [
+      {
+       "field": "blockContexts"
+      }
+     ],
+     "result": 12,
+     "in_loop": true,
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 75
+     }
+    },
+    {
+     "op": "append",
+     "dst": [
+      "phi",
+      [
+       [
+        "expr",
+        "nil"
+       ],
+       [
+        "expr",
+        "append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
+       ]
+      ]
+     ],
+     "src": [
+      {
+       "field": "l1TxHashes"
+      }
+     ],
+     "result": 35,
+     "in_loop": false,
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 77
+     }
+    },
+    {
+     "op": "set_byte",
+     "offset": 0,
+     "src": [
+      {
+       "expr": "append(phi(nil|append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])), *cks.l1TxHashes)"
+      }
+     ],
+     "byte": true,
+     "dst": [
+      "alloc",
+      36
+     ],
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 78
+     }
+    }
+   ],
+   "buffers": [
+    {
+     "slot": [
+      "alloc",
+      36
+     ],
+     "len": 1,
+     "len_expr": null
+    }
+   ],
+   "slice_partiality": {
+    "incomplete_full_context_predicate": "len(cks.blockContexts) < 60 * cks.blockNum",
+    "go_panic_condition": "for some i in [0, cks.blockNum), i*60+58 > len(cks.blockContexts)"
+   }
+  },
+  "DataHashV2": {
+   "source": "common/batch/batch_data.go:83-101",
+   "guards": [
+    {
+     "line": 85,
+     "expression": "len(cks.blockContexts) < 60"
+    },
+    {
+     "line": 94,
+     "expression": "heightErr != nil"
+    }
+   ],
+   "last_block_context_slice": [
+    {
+     "line": null,
+     "expression": "fmtArgs[:]"
+    },
+    {
+     "line": 90,
+     "expression": "cks.blockContexts[len(cks.blockContexts) - 60:]"
+    },
+    {
+     "line": null,
+     "expression": "fmtArgs[:]"
+    }
+   ],
+   "height_oracle": [
+    {
+     "callee": "morph-l2/common/batch.HeightFromBlockContextBytes",
+     "line": 93,
+     "arguments": [
+      "cks.blockContexts[len(cks.blockContexts) - 60:]"
+     ]
+    }
+   ],
+   "hash_call": [
+    {
+     "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchData).calculateHash",
+     "line": 100,
+     "arguments": [
+      "cks",
+      "height"
+     ]
+    }
+   ]
+  },
+  "calculateHash": {
+   "source": "common/batch/batch_data.go:103-111",
+   "codec_format": {
+    "kind": "encoder",
+    "lang": "go-bytes",
+    "function": "batch.BatchData.calculateHash",
+    "id": "morph-l2/common/batch.(morph-l2/common/batch.BatchData).calculateHash",
+    "file": "common/batch/batch_data.go",
+    "line": 103,
+    "pkg": "morph-l2/common/batch",
+    "memory_init": "zeros",
+    "length": 1,
+    "composite": false,
+    "ops": [
+     {
+      "op": "copy",
+      "offset": 0,
+      "dst": [
+       "makeslice"
+      ],
+      "byte": true,
+      "src": [
+       {
+        "call": "morph-l2/common/batch.Uint64ToBigEndianBytes"
+       }
+      ],
+      "site": {
+       "file": "common/batch/batch_data.go",
+       "line": 106
+      }
+     },
+     {
+      "op": "copy",
+      "offset": 8,
+      "dst": [
+       "makeslice"
+      ],
+      "byte": true,
+      "src": [
+       {
+        "call": "morph-l2/common/batch.Uint16ToBigEndianBytes"
+       }
+      ],
+      "site": {
+       "file": "common/batch/batch_data.go",
+       "line": 107
+      }
+     },
+     {
+      "op": "copy",
+      "offset": 10,
+      "dst": [
+       "makeslice"
+      ],
+      "byte": true,
+      "src": [
+       {
+        "field": "l1TxHashes"
+       }
+      ],
+      "site": {
+       "file": "common/batch/batch_data.go",
+       "line": 108
+      }
+     },
+     {
+      "op": "set_byte",
+      "offset": 0,
+      "src": [
+       {
+        "expr": "makeslice"
+       }
+      ],
+      "byte": true,
+      "dst": [
+       "alloc",
+       24
+      ],
+      "site": {
+       "file": "common/batch/batch_data.go",
+       "line": 110
+      }
+     }
+    ],
+    "field_stores": []
+   },
+   "layout_formula": "be64(height) ++ be16(cks.l1TxNum) ++ cks.l1TxHashes",
+   "ops": [
+    {
+     "op": "copy",
+     "offset": 0,
+     "dst": [
+      "makeslice"
+     ],
+     "byte": true,
+     "src": [
+      {
+       "call": "morph-l2/common/batch.Uint64ToBigEndianBytes"
+      }
+     ],
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 106
+     }
+    },
+    {
+     "op": "copy",
+     "offset": 8,
+     "dst": [
+      "makeslice"
+     ],
+     "byte": true,
+     "src": [
+      {
+       "call": "morph-l2/common/batch.Uint16ToBigEndianBytes"
+      }
+     ],
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 107
+     }
+    },
+    {
+     "op": "copy",
+     "offset": 10,
+     "dst": [
+      "makeslice"
+     ],
+     "byte": true,
+     "src": [
+      {
+       "field": "l1TxHashes"
+      }
+     ],
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 108
+     }
+    },
+    {
+     "op": "set_byte",
+     "offset": 0,
+     "src": [
+      {
+       "expr": "makeslice"
+      }
+     ],
+     "byte": true,
+     "dst": [
+      "alloc",
+      24
+     ],
+     "site": {
+      "file": "common/batch/batch_data.go",
+      "line": 110
+     }
+    }
+   ],
+   "buffers": [
+    {
+     "slot": [
+      "alloc",
+      7
+     ],
+     "len": null,
+     "len_expr": "10 + len(*cks.l1TxHashes)"
+    },
+    {
+     "slot": [
+      "alloc",
+      24
+     ],
+     "len": 1,
+     "len_expr": null
+    }
+   ],
+   "destination_slices": [
+    {
+     "line": 106,
+     "expression": "makeslice(10 + len(cks.l1TxHashes))[:8]"
+    },
+    {
+     "line": 107,
+     "expression": "makeslice(10 + len(cks.l1TxHashes))[8:10]"
+    },
+    {
+     "line": 108,
+     "expression": "makeslice(10 + len(cks.l1TxHashes))[10:]"
+    },
+    {
+     "line": null,
+     "expression": "hashArg[:]"
+    }
+   ],
+   "hash_oracle": [
+    {
+     "callee": "github.com/morph-l2/go-ethereum/crypto.Keccak256Hash",
+     "line": 110,
+     "arguments": [
+      "hashArg[:]"
+     ]
+    }
+   ]
+  },
+  "m2_coverage_reconciliation": {
+   "old_machine_debt": {
+    "element": "common/batch/batch_data.go:103 method BatchData.calculateHash",
+    "kind": "unmodelled_method",
+    "reason": "resolved in E3 as a byte-layout encoder; it has no BatchData slice/backing state transition"
+   },
+   "resolution": "The M2 go_batchdata slice/backing machine correctly classifies this read-only helper as outside its state-transition cone; M2 go_codecs also correctly recognizes its emitted byte-buffer encoder. E3 extracts its layout here, so it is not carried as unresolved E3 debt."
+  }
+ },
+ "size_estimators": {
+  "EstimateCompressedSizeWithNewPayload": {
+   "source": "common/batch/batch_data.go:124-135",
+   "limit": {
+    "expression": "maxBlobCount * MaxBlobBytesSize",
+    "ssa_expression": "maxBlobCount * 126976",
+    "constant": {
+     "name": "blob.MaxBlobBytesSize",
+     "value": 126976
+    }
+   },
+   "payload_concat": [
+    "cks.txsPayload",
+    "txPayload"
+   ],
+   "uncompressed_short_circuit": {
+    "line": 127,
+    "expression": "len(append(cks.txsPayload, txPayload)) <= maxBlobCount * 126976"
+   },
+   "compressed_result": "len(compressed) > maxBlobCount * 126976",
+   "compressor_oracle": [
+    {
+     "callee": "morph-l2/common/blob.CompressBatchBytes",
+     "line": 130,
+     "arguments": [
+      "append(cks.txsPayload, txPayload)"
+     ]
+    }
+   ],
+   "result_expressions": [
+    {
+     "line": 128,
+     "values": [
+      "False",
+      "nil"
+     ]
+    },
+    {
+     "line": 132,
+     "values": [
+      "False",
+      "compressErr"
+     ]
+    },
+    {
+     "line": 134,
+     "values": [
+      "len(compressed) > maxBlobCount * 126976",
+      "nil"
+     ]
+    }
+   ],
+   "combine_payloads": null,
+   "ownership": {
+    "source": "common/batch/batch_data.go:124-135",
+    "ssa_append": "append(cks.txsPayload, txPayload)",
+    "destination_backing_key_from_codecs": [
+     "field",
+     "txsPayload"
+    ],
+    "own_py_action": {
+     "name": "estimateCompressedSizeWithNewPayload",
+     "function": "BatchData.EstimateCompressedSizeWithNewPayload",
+     "src": "common/batch/batch_data.go:124-135",
+     "inputs": [
+      [
+       "txPayload",
+       "List<Nat>"
+      ]
+     ],
+     "guards": [
+      {
+       "let": "h1",
+       "expr": [
+        "call",
+        "go_append_heap",
+        "heap",
+        "txsPayload",
+        "txPayload",
+        "classes"
+       ],
+       "src": "common/batch/batch_data.go:126 append"
+      }
+     ],
+     "effects": {
+      "heap": "h1"
+     },
+     "dropped": [],
+     "complete": true,
+     "other_ops": []
+    },
+    "append_result_may_share_backing": true,
+    "aliasing_kind": "conditional_backing_array",
+    "updates_cks_txsPayload_header": false,
+    "capacity_condition": "len(cks.txsPayload) + len(txPayload) <= cap(cks.txsPayload)",
+    "interpretation": "Go append may reuse cks.txsPayload's backing array when capacity is sufficient, otherwise it allocates a new backing array; the SSA stores no updated txsPayload slice header, so the alias is only possible on the returned blobBytes view."
+   }
+  },
+  "WillExceedCompressedSizeLimit": {
+   "source": "common/batch/batch_data.go:149-161",
+   "limit": {
+    "expression": "maxBlobCount * MaxBlobBytesSize",
+    "ssa_expression": "maxBlobCount * 126976",
+    "constant": {
+     "name": "blob.MaxBlobBytesSize",
+     "value": 126976
+    }
+   },
+   "payload_concat": [
+    "cks.blockContexts",
+    "newBlockContext",
+    "cks.txsPayload",
+    "newTxPayload"
+   ],
+   "uncompressed_short_circuit": {
+    "line": 153,
+    "expression": "len(combinePayloads(cks, newBlockContext, newTxPayload)) <= maxBlobCount * 126976"
+   },
+   "compressed_result": "len(compressed) > maxBlobCount * 126976",
+   "compressor_oracle": [
+    {
+     "callee": "morph-l2/common/blob.CompressBatchBytes",
+     "line": 156,
+     "arguments": [
+      "combinePayloads(cks, newBlockContext, newTxPayload)"
+     ]
+    }
+   ],
+   "result_expressions": [
+    {
+     "line": 154,
+     "values": [
+      "False",
+      "nil"
+     ]
+    },
+    {
+     "line": 158,
+     "values": [
+      "False",
+      "fmt.Errorf('compression failed: %w', fmtArgs[:])"
+     ]
+    },
+    {
+     "line": 160,
+     "values": [
+      "len(compressed) > maxBlobCount * 126976",
+      "nil"
+     ]
+    }
+   ],
+   "combine_payloads": {
+    "source": "common/batch/batch_data.go:137-145",
+    "payload_concat": [
+     "cks.blockContexts",
+     "newBlockContext",
+     "cks.txsPayload",
+     "newTxPayload"
+    ],
+    "allocation_length": "len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload)",
+    "copy_order": [
+     {
+      "line": 140,
+      "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))",
+      "source": "cks.blockContexts"
+     },
+     {
+      "line": 141,
+      "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts):]",
+      "source": "newBlockContext"
+     },
+     {
+      "line": 142,
+      "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts) + len(newBlockContext):]",
+      "source": "cks.txsPayload"
+     },
+     {
+      "line": 143,
+      "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload):]",
+      "source": "newTxPayload"
+     }
+    ],
+    "returns": [
+     "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))"
+    ]
+   }
+  },
+  "combinePayloads": {
+   "source": "common/batch/batch_data.go:137-145",
+   "payload_concat": [
+    "cks.blockContexts",
+    "newBlockContext",
+    "cks.txsPayload",
+    "newTxPayload"
+   ],
+   "allocation_length": "len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload)",
+   "copy_order": [
+    {
+     "line": 140,
+     "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))",
+     "source": "cks.blockContexts"
+    },
+    {
+     "line": 141,
+     "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts):]",
+     "source": "newBlockContext"
+    },
+    {
+     "line": 142,
+     "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts) + len(newBlockContext):]",
+     "source": "cks.txsPayload"
+    },
+    {
+     "line": 143,
+     "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload):]",
+     "source": "newTxPayload"
+    }
+   ],
+   "returns": [
+    "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))"
+   ]
+  },
+  "batch_producer_calls": [
+   {
+    "caller": "CalculateCapWithProposalBlock",
+    "file": "common/batch/batch_cache.go",
+    "line": 1281,
+    "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchData).WillExceedCompressedSizeLimit",
+    "path_condition": [
+     "not (invoke.Len() == 0)",
+     "not (invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).1 != nil)",
+     "not (invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0 == nil)",
+     "not (big.Int).Uint64(types.Block).Header(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0).Number) != blockNumber)",
+     "blockNumber <= bc.lastPackedBlockHeight",
+     "not (blockNumber != 0)",
+     "not (bc.lastPackedBlockHeight != 0)",
+     "not (blockNumber > bc.lastPackedBlockHeight + 1)",
+     "bc.batchData == nil",
+     "not (batch.ParsingTxs(types.Block).Transactions(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0), bc.totalL1MessagePopped).4 != nil)",
+     "bc.isBatchUpgraded(types.Block).Header(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0).Time)"
+    ]
+   },
+   {
+    "caller": "CalculateCapWithProposalBlock",
+    "file": "common/batch/batch_cache.go",
+    "line": 1283,
+    "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchData).EstimateCompressedSizeWithNewPayload",
+    "path_condition": [
+     "not (invoke.Len() == 0)",
+     "not (invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).1 != nil)",
+     "not (invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0 == nil)",
+     "not (big.Int).Uint64(types.Block).Header(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0).Number) != blockNumber)",
+     "blockNumber <= bc.lastPackedBlockHeight",
+     "not (blockNumber != 0)",
+     "not (bc.lastPackedBlockHeight != 0)",
+     "not (blockNumber > bc.lastPackedBlockHeight + 1)",
+     "bc.batchData == nil",
+     "not (batch.ParsingTxs(types.Block).Transactions(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0), bc.totalL1MessagePopped).4 != nil)",
+     "not (bc.isBatchUpgraded(types.Block).Header(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0).Time))"
+    ]
+   }
+  ]
+ },
+ "decode_txs_from_bytes": {
+  "source": "common/batch/blob.go:117-166",
+  "stream_byte_address_from_binary_Read": "typeByte",
+  "dispatch_table": [
+   {
+    "condition": "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) == EOF",
+    "action": "terminate",
+    "result": "success",
+    "line": 126
+   },
+   {
+    "condition": "typeByte == 0",
+    "action": "terminate",
+    "result": "success",
+    "line": 131
+   },
+   {
+    "condition": "typeByte in {1,2,4}",
+    "action": "accept",
+    "decoder": "decodeTypedTx",
+    "path_conditions": [
+     [
+      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (typeByte == 0)",
+      "typeByte == 1"
+     ],
+     [
+      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (typeByte == 0)",
+      "not (typeByte == 1)",
+      "typeByte == 2"
+     ],
+     [
+      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (typeByte == 0)",
+      "not (typeByte == 1)",
+      "not (typeByte == 2)",
+      "typeByte == 4"
+     ]
+    ]
+   },
+   {
+    "condition": "typeByte in {127}",
+    "action": "accept",
+    "decoder": "decodeMorphTx",
+    "path_conditions": [
+     [
+      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (typeByte == 0)",
+      "not (typeByte == 1)",
+      "not (typeByte == 2)",
+      "not (typeByte == 4)",
+      "typeByte == 127"
+     ]
+    ]
+   },
+   {
+    "condition": "typeByte > 247",
+    "action": "accept: legacy RLP decode",
+    "decoder": "extractInnerTxFullBytes",
+    "path_conditions": [
+     [
+      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (typeByte == 0)",
+      "not (typeByte == 1)",
+      "not (typeByte == 2)",
+      "not (typeByte == 4)",
+      "not (typeByte == 127)",
+      "not (typeByte <= 247)"
+     ]
+    ]
+   },
+   {
+    "condition": "typeByte <= 247 after earlier equality cases",
+    "action": "error",
+    "line": 151,
+    "message": "not supported tx type: %d"
+   }
+  ],
+  "dispatch_conditions": [
+   {
+    "condition": "typeByte == 0",
+    "operator": "==",
+    "value": 0,
+    "line": 131,
+    "block": 4
+   },
+   {
+    "condition": "typeByte == 1",
+    "operator": "==",
+    "value": 1,
+    "line": 136,
+    "block": 6
+   },
+   {
+    "condition": "typeByte == 2",
+    "operator": "==",
+    "value": 2,
+    "line": 136,
+    "block": 9
+   },
+   {
+    "condition": "typeByte == 4",
+    "operator": "==",
+    "value": 4,
+    "line": 136,
+    "block": 10
+   },
+   {
+    "condition": "typeByte == 127",
+    "operator": "==",
+    "value": 127,
+    "line": 143,
+    "block": 11
+   },
+   {
+    "condition": "typeByte <= 247",
+    "operator": "<=",
+    "value": 247,
+    "line": 151,
+    "block": 14
+   }
+  ],
+  "accepted_byte_values_by_decoder_from_branch_paths": {
+   "decodeTypedTx": [
+    1,
+    2,
+    4
+   ],
+   "decodeMorphTx": [
+    127
+   ],
+   "extractInnerTxFullBytes": [],
+   "rlp.DecodeBytes": []
+  },
+  "byte_zero_termination": {
+   "condition": {
+    "condition": "typeByte == 0",
+    "operator": "==",
+    "value": 0,
+    "line": 131,
+    "block": 4
+   },
+   "success_paths": [
+    [
+     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "typeByte == 0"
+    ]
+   ]
+  },
+  "eof_termination": {
+   "condition": {
+    "condition": "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) == EOF",
+    "line": 126,
+    "block": 3
+   },
+   "success_paths": [
+    [
+     "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil",
+     "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) == EOF"
+    ]
+   ]
+  },
+  "error_routes": [
+   {
+    "line": 129,
+    "message": null,
+    "kind": "propagated_error",
+    "path_condition": [
+     "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil",
+     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) == EOF)"
+    ]
+   },
+   {
+    "line": 139,
+    "message": null,
+    "kind": "propagated_error",
+    "path_condition": [
+     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (typeByte == 0)",
+     "typeByte == 1",
+     "typedTxErr != nil"
+    ]
+   },
+   {
+    "line": 139,
+    "message": null,
+    "kind": "propagated_error",
+    "path_condition": [
+     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (typeByte == 0)",
+     "not (typeByte == 1)",
+     "typeByte == 2",
+     "typedTxErr != nil"
+    ]
+   },
+   {
+    "line": 139,
+    "message": null,
+    "kind": "propagated_error",
+    "path_condition": [
+     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (typeByte == 0)",
+     "not (typeByte == 1)",
+     "not (typeByte == 2)",
+     "typeByte == 4",
+     "typedTxErr != nil"
+    ]
+   },
+   {
+    "line": 146,
+    "message": null,
+    "kind": "propagated_error",
+    "path_condition": [
+     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (typeByte == 0)",
+     "not (typeByte == 1)",
+     "not (typeByte == 2)",
+     "not (typeByte == 4)",
+     "typeByte == 127",
+     "morphTxErr != nil"
+    ]
+   },
+   {
+    "line": 152,
+    "message": "not supported tx type: %d",
+    "kind": "fmt.Errorf",
+    "path_condition": [
+     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (typeByte == 0)",
+     "not (typeByte == 1)",
+     "not (typeByte == 2)",
+     "not (typeByte == 4)",
+     "not (typeByte == 127)",
+     "typeByte <= 247"
+    ]
+   },
+   {
+    "line": 156,
+    "message": null,
+    "kind": "propagated_error",
+    "path_condition": [
+     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (typeByte == 0)",
+     "not (typeByte == 1)",
+     "not (typeByte == 2)",
+     "not (typeByte == 4)",
+     "not (typeByte == 127)",
+     "not (typeByte <= 247)",
+     "innerTxErr != nil"
+    ]
+   },
+   {
+    "line": 160,
+    "message": null,
+    "kind": "propagated_error",
+    "path_condition": [
+     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (typeByte == 0)",
+     "not (typeByte == 1)",
+     "not (typeByte == 2)",
+     "not (typeByte == 4)",
+     "not (typeByte == 127)",
+     "not (typeByte <= 247)",
+     "not (innerTxErr != nil)",
+     "rlp.DecodeBytes(innerTxBytes, innerTx) != nil"
+    ]
+   }
+  ],
+  "decoder_calls": [
+   {
+    "callee": "morph-l2/common/batch.decodeTypedTx",
+    "line": 137
+   },
+   {
+    "callee": "morph-l2/common/batch.decodeMorphTx",
+    "line": 144
+   },
+   {
+    "callee": "morph-l2/common/batch.extractInnerTxFullBytes",
+    "line": 154
+   },
+   {
+    "callee": "github.com/morph-l2/go-ethereum/rlp.DecodeBytes",
+    "line": 159
+   }
+  ],
+  "per_type_decode_body": [
+   {
+    "element": "common/batch/blob.go:170-188",
+    "function": "decodeTypedTx",
+    "kind": "untranslated_decode_body",
+    "reason": "per-type decode body is not reduced in E3"
+   },
+   {
+    "element": "common/batch/blob.go:194-225",
+    "function": "decodeMorphTx",
+    "kind": "untranslated_decode_body",
+    "reason": "per-type decode body is not reduced in E3"
+   },
+   {
+    "element": "common/batch/blob.go:227-267",
+    "function": "extractInnerTxFullBytes",
+    "kind": "untranslated_decode_body",
+    "reason": "per-type decode body is not reduced in E3"
+   }
+  ],
+  "unsupported_branch": {
+   "condition": "typeByte <= 247",
+   "operator": "<=",
+   "value": 247,
+   "line": 151,
+   "block": 14
+  }
+ },
+ "coverage": {
+  "modelled": [
+   "node/derivation/batch_info.go:87 ParseBatch",
+   "common/batch/blob.go:45 RetrieveBlobBytes",
+   "common/blob/payload.go:43 RetrieveBlobBytes",
+   "common/batch/batch_data.go:68 DataHash",
+   "common/batch/batch_data.go:83 DataHashV2",
+   "common/batch/batch_data.go:103 calculateHash",
+   "common/batch/batch_data.go:124 EstimateCompressedSizeWithNewPayload",
+   "common/batch/batch_data.go:149 WillExceedCompressedSizeLimit",
+   "common/batch/batch_data.go:137 combinePayloads",
+   "common/batch/blob.go:117 DecodeTxsFromBytes"
+  ],
+  "debt": [
+   {
+    "element": "node/derivation/batch_info.go:201-247",
+    "kind": "untranslated_remainder",
+    "reason": "after the zero-block check, tx decoding, per-block context decoding, block-number and tx-count checks, queue dequeue, and BatchInfo field updates are not reduced in E3"
+   },
+   {
+    "element": "common/batch/blob.go:170-188",
+    "function": "decodeTypedTx",
+    "kind": "untranslated_decode_body",
+    "reason": "per-type decode body is not reduced in E3"
+   },
+   {
+    "element": "common/batch/blob.go:194-225",
+    "function": "decodeMorphTx",
+    "kind": "untranslated_decode_body",
+    "reason": "per-type decode body is not reduced in E3"
+   },
+   {
+    "element": "common/batch/blob.go:227-267",
+    "function": "extractInnerTxFullBytes",
+    "kind": "untranslated_decode_body",
+    "reason": "per-type decode body is not reduced in E3"
+   },
+   {
+    "element": "common/batch/batch_data.go:93",
+    "kind": "oracle_body",
+    "reason": "HeightFromBlockContextBytes parser body is an oracle"
+   },
+   {
+    "element": "node/derivation/batch_info.go:122",
+    "kind": "oracle_body",
+    "reason": "zstd.DecompressBatchBytes body is an oracle"
+   }
+  ]
+ }
+}

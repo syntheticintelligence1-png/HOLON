@@ -17,9 +17,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import codecs, model, own, tool
+from . import codecs, derivation, model, own, tool
 
 PACKAGES = ["morph-l2/common/batch", "morph-l2/node/types"]
+DERIVATION_PACKAGES = PACKAGES + ["morph-l2/common/blob", "morph-l2/node/derivation"]
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 EXTRACTED = REPO_ROOT / "spec" / "M2" / "extracted"
@@ -74,6 +75,28 @@ def _debt_items(codecs_cov, own_cov):
     return items
 
 
+def extract_derivation(morph: Path = None, out_dir: Path = None) -> dict:
+    """Write the independent M3 Go derivation facts/coverage output."""
+    morph = morph or morph_dir()
+    commit = target_commit(morph)
+    if not commit.startswith("3e44e79"):
+        raise SystemExit(f"M3 E3 requires Morph 3e44e79, got {commit}")
+    raw = tool.run_dump(morph, DERIVATION_PACKAGES)
+    facts = derivation.extract_derivation(model.Dump(raw), commit)
+    if out_dir is None:
+        facts_path = REPO_ROOT / "spec" / "M3" / "extracted" / "go_derivation.json"
+        cov_path = REPO_ROOT / "spec" / "M3" / "coverage" / "go_derivation.json"
+    else:
+        out_dir = Path(out_dir)
+        facts_path = out_dir / "go_derivation.json"
+        cov_path = out_dir / "go_derivation.coverage.json"
+    _write(facts_path, facts)
+    coverage = {"frontend": "go", "target_commit": commit,
+                "items": facts["coverage"]["debt"]}
+    _write(cov_path, coverage)
+    return {"facts": facts, "coverage": coverage}
+
+
 def extract(morph: Path = None, out_dir: Path = None) -> dict:
     morph = morph or morph_dir()
     commit = target_commit(morph)
@@ -112,6 +135,11 @@ def main(argv):
         print(f"go_batchdata.json: {len(out['machine']['machines'])} "
               f"machine(s), {n_act} actions")
         print(f"go.json coverage: {n_debt} debt items")
+        return 0
+    if cmd == "extract-derivation":
+        out = extract_derivation()
+        print(f"go_derivation.json: {len(out['facts']['parse_batch']['error_exits'])} ParseBatch exits, "
+              f"{len(out['coverage']['items'])} debt items")
         return 0
     if cmd == "dump":
         morph = morph_dir()
