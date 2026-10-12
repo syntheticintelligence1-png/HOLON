@@ -272,6 +272,11 @@
    "reason": "fee accounting not modelled"
   },
   {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:120 call target submitterContract",
+   "kind": "assumed",
+   "reason": "deployment-fixed address submitterContract assumed nonzero with code"
+  },
+  {
    "element": "contracts/contracts/l1/rollup/Rollup.sol:141 func initialize",
    "kind": "unmodelled_fn",
    "reason": "initializer; deployment wiring not modelled"
@@ -285,6 +290,16 @@
    "element": "contracts/contracts/l1/rollup/Rollup.sol:226 func importGenesisBatch",
    "kind": "unmodelled_fn",
    "reason": "genesis bootstrap; the initial state is post-genesis"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:263 call target messageQueue",
+   "kind": "assumed",
+   "reason": "deployment-fixed address messageQueue assumed nonzero with code"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:281 call target messageQueue",
+   "kind": "assumed",
+   "reason": "deployment-fixed address messageQueue assumed nonzero with code"
   },
   {
    "element": "contracts/contracts/l1/rollup/Rollup.sol:313 require incorrect parent batch hash",
@@ -305,6 +320,11 @@
    "element": "contracts/contracts/l1/rollup/Rollup.sol:357 call BatchHeaderCodecV0.computeBatchHash",
    "kind": "unmodelled_call",
    "reason": "call BatchHeaderCodecV0.computeBatchHash not translated"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:393 call target messageQueue",
+   "kind": "assumed",
+   "reason": "deployment-fixed address messageQueue assumed nonzero with code"
   },
   {
    "element": "contracts/contracts/l1/rollup/Rollup.sol:417 require incorrect batch header",
@@ -330,6 +350,11 @@
    "element": "contracts/contracts/l1/rollup/Rollup.sol:447 write batchChallengeReward",
    "kind": "unmodelled_write",
    "reason": "challenge deposit refunds inside the revert loop are reward accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:483 call target submitterContract",
+   "kind": "assumed",
+   "reason": "deployment-fixed address submitterContract assumed nonzero with code"
   },
   {
    "element": "contracts/contracts/l1/rollup/Rollup.sol:526 func addChallenger",
@@ -412,6 +437,11 @@
    "reason": "let dropped: name(s) ['idx'] have no bound model value"
   },
   {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:779 call target verifier",
+   "kind": "assumed",
+   "reason": "deployment-fixed address verifier assumed nonzero with code"
+  },
+  {
    "element": "contracts/contracts/l1/rollup/Rollup.sol:793 func _defenderWin",
    "kind": "unmodelled_write",
    "reason": "proveRemaining += and batchChallengeReward += are reward accounting"
@@ -435,6 +465,11 @@
    "element": "contracts/contracts/l1/rollup/Rollup.sol:806 ISubmitter.slash",
    "kind": "unmodelled_value",
    "reason": "slash deactivates the submitter; the returned reward feeds unmodelled accounting"
+  },
+  {
+   "element": "contracts/contracts/l1/rollup/Rollup.sol:806 call target submitterContract",
+   "kind": "assumed",
+   "reason": "deployment-fixed address submitterContract assumed nonzero with code"
   },
   {
    "element": "contracts/contracts/l1/rollup/Rollup.sol:806 func _challengerWin",

@@ -1,34 +1,54 @@
 {
   "artifacts": {
-    "law_name": "l_rt_latest",
+    "law_name": "cl_l_rt_latest",
     "laws": "gen/M3_router/L_rt_latest/LAWS.bend",
     "model": "gen/M3_router/model/mvrv.bend",
     "proof": "gen/M3_router/L_rt_latest/PROOF.bend"
   },
   "attempts": [
     {
-      "exit_code": 0,
+      "error": "SOME PROOFS FAIL\nError:\n- expected : 0n\n- observed : 3n\nLocation: Laws.l_rt_latest\n7 | def Laws.l_rt_latest():\n8>|   {==}\n  |   ^^^^\n9 |",
+      "exit_code": 1,
       "generator": "evaluate",
       "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "seconds": 0.124
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 1
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.132
+      "seconds": 0.098
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.134
+      "seconds": 0.158
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.132
+    "seconds": 0.098
   },
   "closed": true,
-  "difference": null,
-  "facts_sha256": "c2044f609253f2019acd3b332de96e486f15551c0824d707a34620082a4686e2",
+  "difference": {
+    "lhs": {
+      "error": "cannot decode (...a) => a.length < n ? run_lib((...b) => f(...a, ...b), n - a.length)\n    : f(...a)"
+    },
+    "rhs": 3
+  },
+  "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -37,15 +57,16 @@
   "law_id": "L_rt_latest",
   "maps_to": null,
   "premises": [],
+  "refuted_conjunct": 0,
   "replay": {
-    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "detail": "model-only pending replay: no M3 replay harness covers M3_router (audit R2)",
     "status": "not_run"
   },
   "rule": "PAR",
   "scope": "unbounded",
-  "statement_hash": "sha256:3dfcaba7e950b31258031abb2ed472833b6c166aa5218f6b6f890290e2f35383",
-  "status": "PROVED",
+  "statement_hash": "sha256:aba6836f2ddaf4ee0ea2ff08532ceca84ca190dfbbfc92a28597396b19fb6518",
+  "status": "REFUTED",
   "subform": "scenario",
-  "triage": "none",
-  "witness": null
+  "triage": "finding",
+  "witness": {}
 }

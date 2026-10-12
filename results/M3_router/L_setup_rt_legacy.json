@@ -1,34 +1,52 @@
 {
   "artifacts": {
-    "law_name": "l_setup_rt_legacy",
+    "law_name": "cl_l_setup_rt_legacy",
     "laws": "gen/M3_router/L_setup_rt_legacy/LAWS.bend",
     "model": "gen/M3_router/model/mvrv.bend",
     "proof": "gen/M3_router/L_setup_rt_legacy/PROOF.bend"
   },
   "attempts": [
     {
-      "exit_code": 0,
+      "error": "SOME PROOFS FAIL\nError:\n- expected : False{}\n- observed : True{}\nLocation: Laws.l_setup_rt_legacy\n7 | def Laws.l_setup_rt_legacy():\n8>|   {==}\n  |   ^^^^\n9 |",
+      "exit_code": 1,
       "generator": "evaluate",
       "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "seconds": 0.094
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 1
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.123
+      "seconds": 0.109
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.141
+      "seconds": 0.143
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.123
+    "seconds": 0.109
   },
   "closed": true,
-  "difference": null,
-  "facts_sha256": "c2044f609253f2019acd3b332de96e486f15551c0824d707a34620082a4686e2",
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -37,15 +55,16 @@
   "law_id": "L_setup_rt_legacy",
   "maps_to": null,
   "premises": [],
+  "refuted_conjunct": 0,
   "replay": {
-    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "detail": "model-only pending replay: no M3 replay harness covers M3_router (audit R2)",
     "status": "not_run"
   },
   "rule": "GUARD",
   "scope": "unbounded",
-  "statement_hash": "sha256:f72ce35ae89a3298f1e564ac9c676c4cfe2914380e41a8ba9dc149a464cc41b7",
-  "status": "PROVED",
+  "statement_hash": "sha256:27d3e0ae7f4b881f6116ce6a121df86079763868d0844260a9f71a0b08a27814",
+  "status": "REFUTED",
   "subform": "setup",
-  "triage": "none",
-  "witness": null
+  "triage": "finding",
+  "witness": {}
 }

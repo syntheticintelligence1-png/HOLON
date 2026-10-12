@@ -47,12 +47,57 @@
   "L_rt_before_start": {
    "triage": "none",
    "closed": true,
-   "why": "model-only: sentinel artefact of MVRV:118 not-found (coverage sentinel_value); the contract reverts; no replay"
+   "why": "PROVED under the R9 code-presence guard: the observer keeps the b_nf sentinel but the vap trace now reverts on rollup==address(0) before reaching it; was REFUTED (sentinel artefact of MVRV:118 not-found, coverage sentinel_value); no replay"
   },
   "L_cov_rt_vap_unregistered_fails": {
    "triage": "none",
    "closed": true,
-   "why": "model-only; the verifier-call oracle omits extcodesize, so the contract reverts (empty data) per replay/M3/mvrv_notfound_report.json; triage stays none, closed true"
+   "why": "now PROVED as predicted: the code-presence guard reverts vap(3,1) with empty data as on chain (replay/M3/mvrv_notfound_report.json); was REFUTED under the always-succeeds verifier-call oracle"
+  },
+  "L_cov_rt_vap_registered": {
+   "triage": "none",
+   "closed": true,
+   "why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding"
+  },
+  "L_rt_finalized_start": {
+   "triage": "none",
+   "closed": true,
+   "why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding"
+  },
+  "L_rt_latest": {
+   "triage": "none",
+   "closed": true,
+   "why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding"
+  },
+  "L_rt_latest2": {
+   "triage": "none",
+   "closed": true,
+   "why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding"
+  },
+  "L_rt_legacy": {
+   "triage": "none",
+   "closed": true,
+   "why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding"
+  },
+  "L_rt_same_start_replaces": {
+   "triage": "none",
+   "closed": true,
+   "why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding"
+  },
+  "L_setup_rt_latest": {
+   "triage": "none",
+   "closed": true,
+   "why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding"
+  },
+  "L_setup_rt_legacy": {
+   "triage": "none",
+   "closed": true,
+   "why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding"
+  },
+  "L_setup_rt_same_start_replaces": {
+   "triage": "none",
+   "closed": true,
+   "why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding"
   }
  },
  "M3_nat": {

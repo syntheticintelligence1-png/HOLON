@@ -75,10 +75,11 @@
  "reasons": {
   "1": "Ownable: caller is not the owner",
   "2": "initialized",
-  "3": "ErrorStartBatchIndexFinalized",
-  "4": "ErrorStartBatchIndexTooSmall",
-  "5": "ErrorZeroAddress",
-  "6": "ErrorVerifierNotFound"
+  "3": "call to address without code",
+  "4": "ErrorStartBatchIndexFinalized",
+  "5": "ErrorStartBatchIndexTooSmall",
+  "6": "ErrorZeroAddress",
+  "7": "ErrorVerifierNotFound"
  },
  "defs": {
   "get_verifier": {
@@ -219,11 +220,20 @@
     },
     {
      "require": [
+      "!=",
+      "rollup",
+      0
+     ],
+     "reason": 3,
+     "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149"
+    },
+    {
+     "require": [
       ">",
       "st",
       "lfi"
      ],
-     "reason": 3,
+     "reason": 4,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149"
     },
     {
@@ -246,7 +256,7 @@
        "s"
       ]
      ],
-     "reason": 4,
+     "reason": 5,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:152"
     },
     {
@@ -255,7 +265,7 @@
       "a",
       0
      ],
-     "reason": 5,
+     "reason": 6,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:153"
     }
    ],
@@ -389,7 +399,7 @@
        "idx"
       ]
      ],
-     "reason": 6,
+     "reason": 7,
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:118"
     },
     {
@@ -403,6 +413,15 @@
       "lvv"
      ],
      "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:136"
+    },
+    {
+     "require": [
+      "!=",
+      "v_verifier",
+      0
+     ],
+     "reason": 3,
+     "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:138"
     }
    ],
    "effects": {}
