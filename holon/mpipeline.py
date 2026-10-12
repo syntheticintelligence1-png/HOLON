@@ -223,9 +223,12 @@ class CompiledMachine:
         return {"instModule": str(art) if art else None,
                 "instances": [{"id": i["id"], "param": i["param"], "fn": i["fn"]} for i in insts], "fnTabs": self.m.fn_tabs}
 
-    def calls(self, calls: list) -> list:
+    def calls(self, calls: list, instances: bool = False) -> list:
+        """Evaluate model calls with machine.mjs. A function that threads oracle tables takes them as explicit
+        arguments; with instances=True (the M2 trace corpus of `holon replay`, whose calls pass no tables) every
+        lookup of a parameter with a sidecar instance is answered by that instance instead (oracle_runtime)."""
         req = {"module": str(self.artifact), "calls": calls}
-        orc = self.oracle_runtime()
+        orc = self.oracle_runtime() if instances else None
         if orc is not None:
             req["oracles"] = orc
         p = subprocess.run(["node", str(MACHINE_JS)], input=json.dumps(req), capture_output=True, text=True, timeout=600)

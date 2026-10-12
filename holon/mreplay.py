@@ -110,7 +110,7 @@ def model_logs(cm: CompiledMachine, traces: list[list[dict]]) -> list[list]:
                 expr = {"fn": "step", "args": [{"val": _act_val(cm.m, a)}, expr]}
         calls.append({"fn": "log_of", "args": [expr]})
     out = []
-    for tr, log in zip(traces, cm.calls(calls)):
+    for tr, log in zip(traces, cm.calls(calls, instances=True)):
         log = list(reversed(log))
         it = iter(log)
         out.append([None if a["op"].startswith("@") else next(it) for a in tr])
@@ -208,7 +208,7 @@ def fill_eta2_root(cm: CompiledMachine, runs: list[dict]) -> None:
                 expr = {"fn": "s0", "args": []}
                 for b in pre:
                     expr = {"fn": "step", "args": [{"val": _act_val(cm.m, b)}, expr]}
-                a["root"] = cm.calls([{"fn": "csr_last", "args": [expr]}])[0]
+                a["root"] = cm.calls([{"fn": "csr_last", "args": [expr]}], instances=True)[0]
 
 
 def random_corpus(cm: CompiledMachine, n: int, seed: int, length: tuple = (4, 12)) -> list[list[dict]]:
