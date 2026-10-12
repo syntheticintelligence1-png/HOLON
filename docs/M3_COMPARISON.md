@@ -93,7 +93,7 @@ Neither blind run found F1, F3, F5 (B2's attempt failed replay), F8, F11, F13 or
 
 ## Factory defects the blind runs exposed (open)
 
-- The trace-search policy covers only the Rollup and Go batch-data machines. Quantified laws on the Submitter, router or messenger cannot be refuted and come out UNKNOWN.
+- ~~The trace-search policy covers only the Rollup and Go batch-data machines. Quantified laws on the Submitter, router or messenger cannot be refuted and come out UNKNOWN.~~ Fixed in R6: `derivedPolicy` builds candidates from `facts.actions[*].inputs` for any machine, selected explicitly in `policyOf` (Rollup heuristics only when the facts contain a `commitBatch` action, derived candidates appended for uncovered ops). Rerunning M3_msg/M3_router/M3_nat flipped no status and added no GPRED miss.
 - The Go extractor emits identifiers with an apostrophe, and a `txsPayload` input shadows a state field, so the lifted Go facts don't compile in Bend. Both blind runs hit this.
 - The blind replay lineariser lacked `last_ok`.
 - `proj` erases the named registers. Its documentation misled B2 into three trivially false laws.
@@ -117,6 +117,7 @@ Neither blind run found F1, F3, F5 (B2's attempt failed replay), F8, F11, F13 or
 ## Coverage debt and gate state
 
 - **All M3 gates pass**, M3_nat, M3_msg, M3_router and M3_sorts, with 0 uncovered actions or registers. M0 and M1 pass too.
+- **R6 (derived search policy):** `policyOf` selection is now explicit — the Rollup hand policy applies only when the facts contain a `commitBatch` action; all other machines get `derivedPolicy`, candidates built from action input names/types alone (Nat dictionary from guards/effects/defs/state, Bool, `List<Nat>`), deterministic diagonal enumeration capped at 48 per action. Quantified trace laws on the Submitter, messenger and MVRV machines are refutable now (tests_m3/test_derived_policy.py: per machine a false forall-trace law that refutes with a model-checked witness, plus a determinism check). The policy is untrusted search guidance only. No status flipped in M3_msg/M3_router/M3_nat reruns; no new GPRED miss.
 - **R5 (def-param guards):** lets/guards referencing `defs_from` params had been silently dropped as unbound in every def. Params are now bound names during def translation, so `_computeBlobVersionedHash`'s blob requires reach `commitBatch`/`commitBatchWithProof` (Rollup.sol:913,915, verified against source). `mvrv.json` is byte-identical after the `bind_params` flag removal; the M3_nat rebind flipped no status. M2 regeneration drift is disclosed in `docs/M2_EXTRACTION_DRIFT.md`; `spec/M2/` stays at committed bytes.
 - **How the earlier G8 holes were closed:**
   - **Extraction fixes, so no hole is hidden** (`07d4905`, `8369b08`):
