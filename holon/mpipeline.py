@@ -416,11 +416,15 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             stmt_text = em.text
             exists = any(b["q"] == "exists" for b in law["statement"]["binders"])
             witness = None
+            witness_raw = None
             if exists:
                 s = cm.explore(law)
                 attempts.append({"kind": "strategy-search", "tried": s["tried"], "hit": s["witness"] is not None})
-                witness = s["witness"]
+                witness = witness_raw = s["witness"]
                 bound = s["bound"]
+                if witness is not None:   # oracle parameters (I12): the tables the witness denotes, as in counter-laws
+                    witness = mlaws.resolve_witness(cm.m, em.binders, witness,
+                                                    {p_: [k for k, _ in es] for p_, es in (s.get("tables") or {}).items()})
             for gname, g in mproofs.GENERATORS:
                 text = g(em, cm.m, imp, witness) if gname == "evaluate" else g(em, cm.m, imp)
                 if text is None:
@@ -432,7 +436,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                 if ok:
                     status, r = "PROVED", rr
                     if exists:
-                        rec["witness"] = witness
+                        rec["witness"] = witness_raw
                     break
             if status != "PROVED" and not exists:
                 got = param_search(em, cm, imp, ld, pd, cfg, attempts)

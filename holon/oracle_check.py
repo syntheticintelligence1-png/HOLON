@@ -46,7 +46,9 @@ ZERO_BLOB = "Hyp-Z0-kzg"
 IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 HYP_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]*")
 GROUND_BUILTINS = {"eq_nat", "eq_bool", "eq_nats"}
-MODEL_TERMS = {"var", "s0", "run", "step", "obs", "obsv", "act", "trace", "mig", "proj", "cat"}
+MODEL_TERMS = {"var", "s0", "run", "step", "obs", "obsv", "act", "trace", "mig", "proj", "cat", "plus"}
+# `plus` is not among the preregistered ground terms (nat, bool, nats, app of the parameter, eq_nat/eq_bool/eq_nats;
+# tests_m2/test_oracles.py docstring), so a predicate using it is not ground (I12 audit)
 
 
 # ---------------------------------------------------------------- real oracles available here (A4)
