@@ -124,5 +124,60 @@ class TestFixtureShape(unittest.TestCase):
                                  c["batch_index"] - 1)
 
 
+class TestModelBlobAtoms(unittest.TestCase):
+    def test_v2_local_relabel(self):
+        m = AtomMap()
+        h1, h2 = "0x" + "ab" * 32, "0x" + "cd" * 32
+        # commit-local: first-seen order, 0/1 are reserved (terminator, Z)
+        self.assertEqual(m.model_blob_atoms(2, [h1, h2, h1]), [2, 3, 2])
+        # a second commit relabels independently of the first and of the
+        # global atom map
+        self.assertEqual(m.model_blob_atoms(2, [h2, h1]), [2, 3])
+        # the local relabel must NOT register globals
+        self.assertIsNone(m.concrete(3))
+
+    def test_legacy_versions_stay_global(self):
+        m = AtomMap()
+        h = "0x" + "ab" * 32
+        self.assertEqual(m.model_blob_atoms(1, [h]), m.blob_atoms([h]))
+        self.assertEqual(m.model_blob_atoms(0, [h]), m.blob_atoms([h]))
+        self.assertEqual(m.model_blob_atoms(1, [h]), [m.atom(h)])
+
+
+def _machine_mjs() -> str | None:
+    try:
+        from holon.hist.replay import _find_artifact
+        return _find_artifact("morph_rollup")
+    except FileNotFoundError:
+        return None
+
+
+@unittest.skipUnless(_machine_mjs(),
+                     "no compiled morph_rollup.mjs under build/eval")
+class TestDBlobHashLocalAtoms(unittest.TestCase):
+    """The v2 aggregate on commit-local atoms: small Nat inputs must not hit
+    the benc_pair_overflow that global atoms (>=10000) trigger at k>=2."""
+
+    @classmethod
+    def setUpClass(cls):
+        from holon.hist.replay_model import ModelSession
+        cls.sess = ModelSession(machine_mjs=_machine_mjs())
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.sess.close()
+
+    def test_local_atoms_evaluate(self):
+        a = self.sess.mach("d_blob_hash", 2, [2, 3])
+        self.assertIsInstance(a, int)
+        # order and count sensitivity: the aggregate must distinguish them
+        self.assertNotEqual(a, self.sess.mach("d_blob_hash", 2, [3, 2]))
+        self.assertNotEqual(a, self.sess.mach("d_blob_hash", 2, [2]))
+
+    def test_four_local_atoms_do_not_crash(self):
+        a = self.sess.mach("d_blob_hash", 2, [2, 3, 4, 5])
+        self.assertIsInstance(a, int)
+
+
 if __name__ == "__main__":
     unittest.main()

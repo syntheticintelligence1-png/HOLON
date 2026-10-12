@@ -409,7 +409,15 @@ class Replay:
         bvhs = [canon_b32(h) for h in c.get("blob_versioned_hashes", [])]
         computed_bvh = self.oracle_bvh(ver_new, bvhs)
         stored_bvh = canon_b32(post.get("batchBlobVersionedHash", ZERO32))
-        blob_atoms = self.atoms.blob_atoms(bvhs)
+        # v2 feeds commit-LOCAL atoms (model_blob_atoms): the aggregate is
+        # symbolic and only compared inside this commit, so the relabel is
+        # sound and keeps b_enc inside Bend's 2^48 immediate. Legacy versions
+        # keep the global atoms (bvh IS the concrete atom, compared below).
+        blob_atoms = self.atoms.model_blob_atoms(ver_new, bvhs)
+        if ver_new == 2 and bvhs:
+            # audit trail for the local relabel: concrete hash -> local atom
+            res["blob_atom_map"] = {h: i + 2
+                                    for i, h in enumerate(dict.fromkeys(bvhs))}
         model_bvh_atom = self.machine("d_blob_hash", ver_new, blob_atoms)
         checks.add("bvh_stored_vs_contract", computed_bvh, stored_bvh,
                    "agree" if stored_bvh == computed_bvh else "real_defect",
@@ -425,7 +433,7 @@ class Replay:
                        f"d_blob_hash({ver_new}, {len(blob_atoms)} blobs)")
 
         # ---------- edge 4: transition ----------
-        blobs_for_model = blob_atoms
+        blobs_for_model = blob_atoms  # already model atoms (local for v2)
         state = self.pre_state(pre)
         who = self.atoms.atom(canon_addr(rec["from"]))
         parent_atom = parent_idx
@@ -492,8 +500,9 @@ class Replay:
                     evidence={"blobs": len(blobs_for_model),
                               "atoms": blobs_for_model,
                               "formula": "b_enc nests b_pair: value grows "
-                                         "~a^(2^k), exceeds Nat 2^48 for "
-                                         "k>=2 blob atoms"})
+                                         "~a^(2^k); commit-local atoms "
+                                         "2..k+1 overflow Nat 2^48 for "
+                                         "k>=5 blobs (k=4 peaks ~7.2e8)"})
             else:
                 checks.disagree("outcome", "oracle_mismatch", "Dec ctor",
                                 err)
@@ -579,7 +588,8 @@ class Replay:
         # concrete for legacy. Compare against the model's own d_blob_hash
         # output — the concrete stored value is checked in bvh_stored_vs_*
         model_bvh = self.machine("d_blob_hash", ver_new,
-                                 self.atoms.blob_atoms(
+                                 self.atoms.model_blob_atoms(
+                                     ver_new,
                                      [canon_b32(h) for h in
                                       c.get("blob_versioned_hashes", [])]))
         checks.add("post.bvh", model_bvh, new["bvh"],
