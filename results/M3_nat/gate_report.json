@@ -4,13 +4,1790 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_0_L_nat_defend_new_member",
+      "id": "CANARY_negated_0_L_cov_commitstate_after_revert",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/morph_rollup.json",
         "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_0_L_nat_defend_new_member",
+        "law_id": "CANARY_negated_0_L_cov_commitstate_after_revert",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 1
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          },
+                          {
+                            "act": "revertBatch",
+                            "args": {
+                              "count": {
+                                "nat": 1
+                              },
+                              "idx": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "commitState",
+                      "args": {
+                        "blobs": {
+                          "nats": []
+                        },
+                        "lbn": {
+                          "nat": 1
+                        },
+                        "n": {
+                          "nat": 1
+                        },
+                        "parent": {
+                          "nat": 0
+                        },
+                        "post": {
+                          "nat": 101
+                        },
+                        "prev": {
+                          "nat": 100
+                        },
+                        "ver": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_commitstate_after_revert"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_0_L_cov_commitstate_after_revert",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_0_L_cov_commitstate_after_revert",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 1
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          },
+                          {
+                            "act": "revertBatch",
+                            "args": {
+                              "count": {
+                                "nat": 1
+                              },
+                              "idx": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "commitState",
+                      "args": {
+                        "blobs": {
+                          "nats": []
+                        },
+                        "lbn": {
+                          "nat": 1
+                        },
+                        "n": {
+                          "nat": 1
+                        },
+                        "parent": {
+                          "nat": 0
+                        },
+                        "post": {
+                          "nat": 101
+                        },
+                        "prev": {
+                          "nat": 100
+                        },
+                        "ver": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_commitstate_after_revert"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_0_L_cov_commitstate_after_revert",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_0_L_cov_commitstate_after_revert",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 2
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          },
+                          {
+                            "act": "revertBatch",
+                            "args": {
+                              "count": {
+                                "nat": 1
+                              },
+                              "idx": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "commitState",
+                      "args": {
+                        "blobs": {
+                          "nats": []
+                        },
+                        "lbn": {
+                          "nat": 1
+                        },
+                        "n": {
+                          "nat": 1
+                        },
+                        "parent": {
+                          "nat": 0
+                        },
+                        "post": {
+                          "nat": 101
+                        },
+                        "prev": {
+                          "nat": 100
+                        },
+                        "ver": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_commitstate_after_revert"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_1_L_cov_delay_ok",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_1_L_cov_delay_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateRollupDelayPeriod",
+                      "args": {
+                        "p": {
+                          "nat": 30
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_delay_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_1_L_cov_delay_ok",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_1_L_cov_delay_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateRollupDelayPeriod",
+                      "args": {
+                        "p": {
+                          "nat": 30
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_delay_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_1_L_cov_delay_ok",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_1_L_cov_delay_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateRollupDelayPeriod",
+                      "args": {
+                        "p": {
+                          "nat": 30
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_delay_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_2_L_cov_finalize_after",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_2_L_cov_finalize_after",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 1
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          },
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 41
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "finalizeBatch",
+                      "args": {
+                        "idx": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_finalize_after"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_2_L_cov_finalize_after",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_2_L_cov_finalize_after",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 1
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          },
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 41
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "finalizeBatch",
+                      "args": {
+                        "idx": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_finalize_after"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_2_L_cov_finalize_after",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_2_L_cov_finalize_after",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 2
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          },
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 41
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "finalizeBatch",
+                      "args": {
+                        "idx": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_finalize_after"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_3_L_cov_finper_ok",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_3_L_cov_finper_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateFinalizePeriodSeconds",
+                      "args": {
+                        "p": {
+                          "nat": 50
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_finper_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_3_L_cov_finper_ok",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_3_L_cov_finper_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateFinalizePeriodSeconds",
+                      "args": {
+                        "p": {
+                          "nat": 50
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_finper_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_3_L_cov_finper_ok",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_3_L_cov_finper_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateFinalizePeriodSeconds",
+                      "args": {
+                        "p": {
+                          "nat": 50
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_finper_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_4_L_cov_init3_anyone",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_4_L_cov_init3_anyone",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "initialize3",
+                      "args": {
+                        "dly": {
+                          "nat": 5
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_init3_anyone"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_4_L_cov_init3_anyone",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_4_L_cov_init3_anyone",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "initialize3",
+                      "args": {
+                        "dly": {
+                          "nat": 5
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_init3_anyone"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_5_L_cov_revert_ok",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_5_L_cov_revert_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 1
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "revertBatch",
+                      "args": {
+                        "count": {
+                          "nat": 1
+                        },
+                        "idx": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_revert_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_5_L_cov_revert_ok",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_5_L_cov_revert_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 1
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "revertBatch",
+                      "args": {
+                        "count": {
+                          "nat": 1
+                        },
+                        "idx": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_revert_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_4_L_cov_revert_ok",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_4_L_cov_revert_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 2
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "revertBatch",
+                      "args": {
+                        "count": {
+                          "nat": 1
+                        },
+                        "idx": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_revert_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_6_L_cov_verifier_ok",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_6_L_cov_verifier_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateVerifier",
+                      "args": {
+                        "nv": {
+                          "nat": 8
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_verifier_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_6_L_cov_verifier_ok",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_6_L_cov_verifier_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateVerifier",
+                      "args": {
+                        "nv": {
+                          "nat": 8
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_verifier_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_5_L_cov_verifier_ok",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_5_L_cov_verifier_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateVerifier",
+                      "args": {
+                        "nv": {
+                          "nat": 8
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_verifier_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_7_L_cov_window_ok",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_7_L_cov_window_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateProofWindow",
+                      "args": {
+                        "w": {
+                          "nat": 20
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_window_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_7_L_cov_window_ok",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_7_L_cov_window_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateProofWindow",
+                      "args": {
+                        "w": {
+                          "nat": 20
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_window_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_6_L_cov_window_ok",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_6_L_cov_window_ok",
+        "milestone": "M3_nat",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "updateProofWindow",
+                      "args": {
+                        "w": {
+                          "nat": 20
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_window_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_8_L_nat_defend_new_member",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/morph_rollup.json",
+        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_8_L_nat_defend_new_member",
         "milestone": "M3_nat",
         "predicted": "PROVED",
         "rule": "NAT",
@@ -132,2671 +1909,15 @@
       "negated": true,
       "rejected": true,
       "source_law": "L_nat_defend_new_member"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_pin_const_0_L_nat_defend_new_member",
-      "kind": "pin_const",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_0_L_nat_defend_new_member",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "from": {
-                      "from": {
-                        "s0": {}
-                      },
-                      "run": {
-                        "trace": [
-                          {
-                            "act": "sendMessage",
-                            "args": {
-                              "who": {
-                                "nat": 5
-                              }
-                            }
-                          },
-                          {
-                            "act": "commitBatch",
-                            "args": {
-                              "blobs": {
-                                "nats": [
-                                  7
-                                ]
-                              },
-                              "lbn": {
-                                "nat": 1
-                              },
-                              "n": {
-                                "nat": 1
-                              },
-                              "parent": {
-                                "nat": 0
-                              },
-                              "post": {
-                                "nat": 101
-                              },
-                              "prev": {
-                                "nat": 100
-                              },
-                              "ver": {
-                                "nat": 1
-                              },
-                              "who": {
-                                "nat": 2
-                              }
-                            }
-                          },
-                          {
-                            "act": "initialize4",
-                            "args": {
-                              "exp": {
-                                "nat": 1
-                              },
-                              "nact": {
-                                "nats": [
-                                  7
-                                ]
-                              },
-                              "sub": {
-                                "nat": 9
-                              },
-                              "who": {
-                                "nat": 6
-                              }
-                            }
-                          },
-                          {
-                            "act": "challengeState",
-                            "args": {
-                              "idx": {
-                                "nat": 1
-                              },
-                              "value": {
-                                "nat": 1
-                              },
-                              "who": {
-                                "nat": 4
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    "step": {
-                      "act": "proveState",
-                      "args": {
-                        "idx": {
-                          "nat": 1
-                        },
-                        "proof": {
-                          "nat": 1
-                        },
-                        "who": {
-                          "nat": 7
-                        }
-                      }
-                    }
-                  }
-                ],
-                "fn": "last_ok"
-              },
-              {
-                "bool": false
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_nat_defend_new_member"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_swap_arg_0_L_nat_defend_new_member",
-      "kind": "swap_arg",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_swap_arg_0_L_nat_defend_new_member",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "from": {
-                      "from": {
-                        "s0": {}
-                      },
-                      "run": {
-                        "trace": [
-                          {
-                            "act": "sendMessage",
-                            "args": {
-                              "who": {
-                                "nat": 5
-                              }
-                            }
-                          },
-                          {
-                            "act": "commitBatch",
-                            "args": {
-                              "blobs": {
-                                "nats": [
-                                  7
-                                ]
-                              },
-                              "lbn": {
-                                "nat": 1
-                              },
-                              "n": {
-                                "nat": 2
-                              },
-                              "parent": {
-                                "nat": 0
-                              },
-                              "post": {
-                                "nat": 101
-                              },
-                              "prev": {
-                                "nat": 100
-                              },
-                              "ver": {
-                                "nat": 1
-                              },
-                              "who": {
-                                "nat": 2
-                              }
-                            }
-                          },
-                          {
-                            "act": "initialize4",
-                            "args": {
-                              "exp": {
-                                "nat": 1
-                              },
-                              "nact": {
-                                "nats": [
-                                  7
-                                ]
-                              },
-                              "sub": {
-                                "nat": 9
-                              },
-                              "who": {
-                                "nat": 6
-                              }
-                            }
-                          },
-                          {
-                            "act": "challengeState",
-                            "args": {
-                              "idx": {
-                                "nat": 1
-                              },
-                              "value": {
-                                "nat": 1
-                              },
-                              "who": {
-                                "nat": 4
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    "step": {
-                      "act": "proveState",
-                      "args": {
-                        "idx": {
-                          "nat": 1
-                        },
-                        "proof": {
-                          "nat": 1
-                        },
-                        "who": {
-                          "nat": 7
-                        }
-                      }
-                    }
-                  }
-                ],
-                "fn": "last_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_nat_defend_new_member"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_negated_1_L_nat_lcb",
-      "kind": "negated",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_1_L_nat_lcb",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [],
-                "obsv": "lcb_of",
-                "of": {
-                  "from": {
-                    "s0": {}
-                  },
-                  "run": {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "nat": 1
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_nat_lcb"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_pin_const_1_L_nat_lcb",
-      "kind": "pin_const",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_1_L_nat_lcb",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [],
-                "obsv": "lcb_of",
-                "of": {
-                  "from": {
-                    "s0": {}
-                  },
-                  "run": {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "nat": 2
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_nat_lcb"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_swap_arg_1_L_nat_lcb",
-      "kind": "swap_arg",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_swap_arg_1_L_nat_lcb",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [],
-                "obsv": "lcb_of",
-                "of": {
-                  "from": {
-                    "s0": {}
-                  },
-                  "run": {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 2
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "nat": 1
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_nat_lcb"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_negated_2_L_nat_slash_legacy_misses",
-      "kind": "negated",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_2_L_nat_slash_legacy_misses",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "nat": 7
-                  }
-                ],
-                "obsv": "active_has",
-                "of": {
-                  "from": {
-                    "s0": {}
-                  },
-                  "run": {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      },
-                      {
-                        "act": "wait",
-                        "args": {
-                          "dt": {
-                            "nat": 10
-                          }
-                        }
-                      },
-                      {
-                        "act": "proveState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "proof": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 7
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_nat_slash_legacy_misses"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_pin_const_2_L_nat_slash_legacy_misses",
-      "kind": "pin_const",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_2_L_nat_slash_legacy_misses",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "nat": 7
-                  }
-                ],
-                "obsv": "active_has",
-                "of": {
-                  "from": {
-                    "s0": {}
-                  },
-                  "run": {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      },
-                      {
-                        "act": "wait",
-                        "args": {
-                          "dt": {
-                            "nat": 10
-                          }
-                        }
-                      },
-                      {
-                        "act": "proveState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "proof": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 7
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "bool": false
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_nat_slash_legacy_misses"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_swap_arg_2_L_nat_slash_legacy_misses",
-      "kind": "swap_arg",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_swap_arg_2_L_nat_slash_legacy_misses",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "nat": 8
-                  }
-                ],
-                "obsv": "active_has",
-                "of": {
-                  "from": {
-                    "s0": {}
-                  },
-                  "run": {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      },
-                      {
-                        "act": "wait",
-                        "args": {
-                          "dt": {
-                            "nat": 10
-                          }
-                        }
-                      },
-                      {
-                        "act": "proveState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "proof": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 7
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_nat_slash_legacy_misses"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_negated_3_L_nat_slash_native_hits",
-      "kind": "negated",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_3_L_nat_slash_native_hits",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "nat": 7
-                  }
-                ],
-                "obsv": "active_has",
-                "of": {
-                  "from": {
-                    "s0": {}
-                  },
-                  "run": {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      },
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              8
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 2
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 1
-                          },
-                          "post": {
-                            "nat": 102
-                          },
-                          "prev": {
-                            "nat": 101
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 7
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 2
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      },
-                      {
-                        "act": "wait",
-                        "args": {
-                          "dt": {
-                            "nat": 10
-                          }
-                        }
-                      },
-                      {
-                        "act": "proveState",
-                        "args": {
-                          "idx": {
-                            "nat": 2
-                          },
-                          "proof": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 7
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "bool": false
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_nat_slash_native_hits"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_pin_const_3_L_nat_slash_native_hits",
-      "kind": "pin_const",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_3_L_nat_slash_native_hits",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "NAT",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "nat": 7
-                  }
-                ],
-                "obsv": "active_has",
-                "of": {
-                  "from": {
-                    "s0": {}
-                  },
-                  "run": {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      },
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              8
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 2
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 1
-                          },
-                          "post": {
-                            "nat": 102
-                          },
-                          "prev": {
-                            "nat": 101
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 7
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 2
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      },
-                      {
-                        "act": "wait",
-                        "args": {
-                          "dt": {
-                            "nat": 10
-                          }
-                        }
-                      },
-                      {
-                        "act": "proveState",
-                        "args": {
-                          "idx": {
-                            "nat": 2
-                          },
-                          "proof": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 7
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "scenario"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_nat_slash_native_hits"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_negated_4_L_setup_nat_cutover_admin_only",
-      "kind": "negated",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_4_L_setup_nat_cutover_admin_only",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_setup_nat_cutover_admin_only"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_pin_const_4_L_setup_nat_cutover_admin_only",
-      "kind": "pin_const",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_4_L_setup_nat_cutover_admin_only",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": false
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_setup_nat_cutover_admin_only"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_swap_arg_3_L_setup_nat_cutover_admin_only",
-      "kind": "swap_arg",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_swap_arg_3_L_setup_nat_cutover_admin_only",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 2
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_setup_nat_cutover_admin_only"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_negated_5_L_setup_nat_cutover_in_challenge",
-      "kind": "negated",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_5_L_setup_nat_cutover_in_challenge",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_setup_nat_cutover_in_challenge"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_pin_const_5_L_setup_nat_cutover_in_challenge",
-      "kind": "pin_const",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_5_L_setup_nat_cutover_in_challenge",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": false
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_setup_nat_cutover_in_challenge"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_swap_arg_4_L_setup_nat_cutover_in_challenge",
-      "kind": "swap_arg",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_swap_arg_4_L_setup_nat_cutover_in_challenge",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 2
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_setup_nat_cutover_in_challenge"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_negated_6_L_setup_nat_defend_legacy_blocked",
-      "kind": "negated",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_6_L_setup_nat_defend_legacy_blocked",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_setup_nat_defend_legacy_blocked"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_pin_const_6_L_setup_nat_defend_legacy_blocked",
-      "kind": "pin_const",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_6_L_setup_nat_defend_legacy_blocked",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": false
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_setup_nat_defend_legacy_blocked"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_swap_arg_5_L_setup_nat_defend_legacy_blocked",
-      "kind": "swap_arg",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_swap_arg_5_L_setup_nat_defend_legacy_blocked",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 2
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_setup_nat_defend_legacy_blocked"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_negated_7_L_setup_nat_lcb",
-      "kind": "negated",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_7_L_setup_nat_lcb",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_setup_nat_lcb"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_pin_const_7_L_setup_nat_lcb",
-      "kind": "pin_const",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_7_L_setup_nat_lcb",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": false
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_setup_nat_lcb"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_swap_arg_6_L_setup_nat_lcb",
-      "kind": "swap_arg",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_swap_arg_6_L_setup_nat_lcb",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 2
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_setup_nat_lcb"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {},
-      "id": "CANARY_negated_8_L_setup_nat_slash_legacy_misses",
-      "kind": "negated",
-      "law": {
-        "facts": "spec/M3/extracted/morph_rollup.json",
-        "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_8_L_setup_nat_slash_legacy_misses",
-        "milestone": "M3_nat",
-        "predicted": "PROVED",
-        "rule": "GUARD",
-        "statement": {
-          "assume": [],
-          "binders": [],
-          "claim": {
-            "eq": [
-              {
-                "args": [
-                  {
-                    "trace": [
-                      {
-                        "act": "sendMessage",
-                        "args": {
-                          "who": {
-                            "nat": 5
-                          }
-                        }
-                      },
-                      {
-                        "act": "commitBatch",
-                        "args": {
-                          "blobs": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "lbn": {
-                            "nat": 1
-                          },
-                          "n": {
-                            "nat": 1
-                          },
-                          "parent": {
-                            "nat": 0
-                          },
-                          "post": {
-                            "nat": 101
-                          },
-                          "prev": {
-                            "nat": 100
-                          },
-                          "ver": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 2
-                          }
-                        }
-                      },
-                      {
-                        "act": "initialize4",
-                        "args": {
-                          "exp": {
-                            "nat": 1
-                          },
-                          "nact": {
-                            "nats": [
-                              7
-                            ]
-                          },
-                          "sub": {
-                            "nat": 9
-                          },
-                          "who": {
-                            "nat": 6
-                          }
-                        }
-                      },
-                      {
-                        "act": "challengeState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "value": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 4
-                          }
-                        }
-                      },
-                      {
-                        "act": "wait",
-                        "args": {
-                          "dt": {
-                            "nat": 10
-                          }
-                        }
-                      },
-                      {
-                        "act": "proveState",
-                        "args": {
-                          "idx": {
-                            "nat": 1
-                          },
-                          "proof": {
-                            "nat": 1
-                          },
-                          "who": {
-                            "nat": 7
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "s0": {}
-                  }
-                ],
-                "fn": "runs_ok"
-              },
-              {
-                "bool": true
-              }
-            ]
-          }
-        },
-        "subform": "setup"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_setup_nat_slash_legacy_misses"
     }
   ],
   "checks": {
     "G1": {
-      "detail": "33 generated .bend files identical, summary identical",
+      "detail": "75 generated .bend files identical, summary identical",
       "passed": true
     },
     "G11": {
-      "detail": "inhabitance: 2/2 premise-bearing laws inhabited; 15 premise-free/skipped; points in results/M3_nat/g11_inhabitance.json",
+      "detail": "inhabitance: 2/2 premise-bearing laws inhabited; 36 premise-free/skipped; points in results/M3_nat/g11_inhabitance.json",
       "passed": true
     },
     "G11_names": {
@@ -2816,7 +1937,7 @@
       "passed": true
     },
     "G5": {
-      "detail": "16 proofs re-checked from scratch",
+      "detail": "37 proofs re-checked from scratch",
       "passed": true
     },
     "G6": {
@@ -2824,15 +1945,15 @@
       "passed": true
     },
     "G7": {
-      "detail": "dual-kernel: 16 proofs re-checked by BendTT (--verdict)",
+      "detail": "dual-kernel: 37 proofs re-checked by BendTT (--verdict)",
       "passed": true
     },
     "G8": {
-      "detail": "coverage hole: spec/M3/extracted/morph_rollup.json: action commitState is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: action commitBatchWithProof is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: action revertBatch is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: action finalizeBatch is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: action setPause is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: action initialize3 is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: action updateRollupDelayPeriod is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: action updateProofWindow is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: action updateFinalizePeriodSeconds is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: action updateVerifier is touched by no law and not in debt; coverage hole: spec/M3/extracted/morph_rollup.json: register fsr is touched by no law and not in debt",
-      "passed": false
+      "detail": "coverage of 1 facts files: 16 actions, 23 registers; 0 uncovered elements (incl. the log channel); report at results/M3_nat/coverage_report.json",
+      "passed": true
     },
     "G9": {
-      "detail": "17 records complete and consistent (v1 validated, v2 converts)",
+      "detail": "38 records complete and consistent (v1 validated, v2 converts)",
       "passed": true
     },
     "GENV": {
@@ -2840,10 +1961,10 @@
       "passed": true
     },
     "GPRED": {
-      "detail": "17 predictions checked; sha256 matches docs/M3_SPEC.md; misses: L_natr_slash_at_stake_native: predicted PROVED but status UNKNOWN",
+      "detail": "38 predictions checked; sha256 matches docs/M3_SPEC.md; misses: L_natr_slash_at_stake_native: predicted PROVED but status UNKNOWN",
       "passed": true
     }
   },
   "milestone": "M3_nat",
-  "passed": false
+  "passed": true
 }
