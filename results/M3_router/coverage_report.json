@@ -1031,7 +1031,11 @@
     "spec/M3/extracted/mvrv.json": {
       "actions": {
         "initialize": {
-          "direct": [],
+          "direct": [
+            "L_cov_rt_init_ok",
+            "L_cov_rt_init_once",
+            "L_cov_rt_init_owner"
+          ],
           "quantified": [],
           "registers": [
             "own",
@@ -1040,6 +1044,7 @@
         },
         "updateVerifier": {
           "direct": [
+            "L_cov_rt_vap_registered",
             "L_rt_before_start",
             "L_rt_finalized_start",
             "L_rt_latest",
@@ -1058,7 +1063,10 @@
           ]
         },
         "verifyAggregateProof": {
-          "direct": [],
+          "direct": [
+            "L_cov_rt_vap_registered",
+            "L_cov_rt_vap_unregistered_fails"
+          ],
           "quantified": [],
           "registers": [
             "lv",
@@ -1074,6 +1082,13 @@
         },
         "lv": {
           "how": {
+            "L_cov_rt_vap_registered": [
+              "action:updateVerifier",
+              "action:verifyAggregateProof"
+            ],
+            "L_cov_rt_vap_unregistered_fails": [
+              "action:verifyAggregateProof"
+            ],
             "L_rt_before_start": [
               "action:updateVerifier",
               "obsv:verifier_of"
@@ -1111,6 +1126,8 @@
             ]
           },
           "laws": [
+            "L_cov_rt_vap_registered",
+            "L_cov_rt_vap_unregistered_fails",
             "L_rt_before_start",
             "L_rt_finalized_start",
             "L_rt_latest",
@@ -1125,6 +1142,13 @@
         },
         "lvv": {
           "how": {
+            "L_cov_rt_vap_registered": [
+              "action:updateVerifier",
+              "action:verifyAggregateProof"
+            ],
+            "L_cov_rt_vap_unregistered_fails": [
+              "action:verifyAggregateProof"
+            ],
             "L_rt_before_start": [
               "action:updateVerifier",
               "obsv:verifier_of"
@@ -1162,6 +1186,8 @@
             ]
           },
           "laws": [
+            "L_cov_rt_vap_registered",
+            "L_cov_rt_vap_unregistered_fails",
             "L_rt_before_start",
             "L_rt_finalized_start",
             "L_rt_latest",
@@ -1176,6 +1202,18 @@
         },
         "own": {
           "how": {
+            "L_cov_rt_init_ok": [
+              "action:initialize"
+            ],
+            "L_cov_rt_init_once": [
+              "action:initialize"
+            ],
+            "L_cov_rt_init_owner": [
+              "action:initialize"
+            ],
+            "L_cov_rt_vap_registered": [
+              "action:updateVerifier"
+            ],
             "L_rt_before_start": [
               "action:updateVerifier"
             ],
@@ -1205,6 +1243,10 @@
             ]
           },
           "laws": [
+            "L_cov_rt_init_ok",
+            "L_cov_rt_init_once",
+            "L_cov_rt_init_owner",
+            "L_cov_rt_vap_registered",
             "L_rt_before_start",
             "L_rt_finalized_start",
             "L_rt_latest",
@@ -1217,21 +1259,27 @@
           ]
         },
         "rollup": {
-          "how": {},
-          "laws": []
+          "how": {
+            "L_cov_rt_init_ok": [
+              "action:initialize"
+            ],
+            "L_cov_rt_init_once": [
+              "action:initialize"
+            ],
+            "L_cov_rt_init_owner": [
+              "action:initialize"
+            ]
+          },
+          "laws": [
+            "L_cov_rt_init_ok",
+            "L_cov_rt_init_once",
+            "L_cov_rt_init_owner"
+          ]
         }
       },
-      "uncovered": [
-        "action initialize",
-        "action verifyAggregateProof",
-        "register rollup"
-      ]
+      "uncovered": []
     }
   },
   "milestone": "M3_router",
-  "uncovered": [
-    "spec/M3/extracted/mvrv.json: action initialize",
-    "spec/M3/extracted/mvrv.json: action verifyAggregateProof",
-    "spec/M3/extracted/mvrv.json: register rollup"
-  ]
+  "uncovered": []
 }

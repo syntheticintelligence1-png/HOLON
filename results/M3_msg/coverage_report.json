@@ -1057,6 +1057,7 @@
         },
         "sendMessage": {
           "direct": [
+            "L_cov_send2_dup",
             "L_msg_budget_blocks_sender",
             "L_msg_budget_exhausts",
             "L_msg_budget_owner_lifts",
@@ -1081,7 +1082,10 @@
           ]
         },
         "sendMessage2": {
-          "direct": [],
+          "direct": [
+            "L_cov_send2_dup",
+            "L_cov_send2_ok"
+          ],
           "quantified": [],
           "registers": [
             "mst",
@@ -1116,6 +1120,8 @@
         },
         "wait": {
           "direct": [
+            "L_cov_send2_dup",
+            "L_cov_send2_ok",
             "L_msg_budget_blocks_sender",
             "L_msg_budget_exhausts",
             "L_msg_budget_owner_lifts",
@@ -1297,6 +1303,13 @@
         },
         "mst": {
           "how": {
+            "L_cov_send2_dup": [
+              "action:sendMessage",
+              "action:sendMessage2"
+            ],
+            "L_cov_send2_ok": [
+              "action:sendMessage2"
+            ],
             "L_msg_budget_blocks_sender": [
               "action:replayMessage",
               "action:sendMessage"
@@ -1352,6 +1365,8 @@
             ]
           },
           "laws": [
+            "L_cov_send2_dup",
+            "L_cov_send2_ok",
             "L_msg_budget_blocks_sender",
             "L_msg_budget_exhausts",
             "L_msg_budget_owner_lifts",
@@ -1384,6 +1399,13 @@
         },
         "paused": {
           "how": {
+            "L_cov_send2_dup": [
+              "action:sendMessage",
+              "action:sendMessage2"
+            ],
+            "L_cov_send2_ok": [
+              "action:sendMessage2"
+            ],
             "L_msg_budget_blocks_sender": [
               "action:replayMessage",
               "action:sendMessage"
@@ -1439,6 +1461,8 @@
             ]
           },
           "laws": [
+            "L_cov_send2_dup",
+            "L_cov_send2_ok",
             "L_msg_budget_blocks_sender",
             "L_msg_budget_exhausts",
             "L_msg_budget_owner_lifts",
@@ -1507,6 +1531,15 @@
         },
         "t": {
           "how": {
+            "L_cov_send2_dup": [
+              "action:sendMessage",
+              "action:sendMessage2",
+              "action:wait"
+            ],
+            "L_cov_send2_ok": [
+              "action:sendMessage2",
+              "action:wait"
+            ],
             "L_msg_budget_blocks_sender": [
               "action:sendMessage",
               "action:wait"
@@ -1565,6 +1598,8 @@
             ]
           },
           "laws": [
+            "L_cov_send2_dup",
+            "L_cov_send2_ok",
             "L_msg_budget_blocks_sender",
             "L_msg_budget_exhausts",
             "L_msg_budget_owner_lifts",
@@ -1583,6 +1618,13 @@
         },
         "wl": {
           "how": {
+            "L_cov_send2_dup": [
+              "action:sendMessage",
+              "action:sendMessage2"
+            ],
+            "L_cov_send2_ok": [
+              "action:sendMessage2"
+            ],
             "L_msg_budget_blocks_sender": [
               "action:replayMessage",
               "action:sendMessage"
@@ -1643,6 +1685,8 @@
             ]
           },
           "laws": [
+            "L_cov_send2_dup",
+            "L_cov_send2_ok",
             "L_msg_budget_blocks_sender",
             "L_msg_budget_exhausts",
             "L_msg_budget_owner_lifts",
@@ -1660,13 +1704,9 @@
           ]
         }
       },
-      "uncovered": [
-        "action sendMessage2"
-      ]
+      "uncovered": []
     }
   },
   "milestone": "M3_msg",
-  "uncovered": [
-    "spec/M3/extracted/l1messenger.json: action sendMessage2"
-  ]
+  "uncovered": []
 }

@@ -4,13 +4,341 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_0_L_rt_latest",
+      "id": "CANARY_negated_0_L_cov_rt_init_ok",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_0_L_rt_latest",
+        "law_id": "CANARY_negated_0_L_cov_rt_init_ok",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "initialize",
+                      "args": {
+                        "r": {
+                          "nat": 5
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_rt_init_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_0_L_cov_rt_init_ok",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_0_L_cov_rt_init_ok",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "initialize",
+                      "args": {
+                        "r": {
+                          "nat": 5
+                        },
+                        "who": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_rt_init_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_0_L_cov_rt_init_ok",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_0_L_cov_rt_init_ok",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": []
+                      }
+                    },
+                    "step": {
+                      "act": "initialize",
+                      "args": {
+                        "r": {
+                          "nat": 5
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_rt_init_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_1_L_cov_rt_vap_registered",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_1_L_cov_rt_vap_registered",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "updateVerifier",
+                            "args": {
+                              "a": {
+                                "nat": 8
+                              },
+                              "lfi": {
+                                "nat": 0
+                              },
+                              "st": {
+                                "nat": 1
+                              },
+                              "v": {
+                                "nat": 0
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "verifyAggregateProof",
+                      "args": {
+                        "idx": {
+                          "nat": 2
+                        },
+                        "v": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_cov_rt_vap_registered"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_1_L_cov_rt_vap_registered",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_1_L_cov_rt_vap_registered",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "updateVerifier",
+                            "args": {
+                              "a": {
+                                "nat": 8
+                              },
+                              "lfi": {
+                                "nat": 0
+                              },
+                              "st": {
+                                "nat": 1
+                              },
+                              "v": {
+                                "nat": 0
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "verifyAggregateProof",
+                      "args": {
+                        "idx": {
+                          "nat": 2
+                        },
+                        "v": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_cov_rt_vap_registered"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_2_L_rt_latest",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_2_L_rt_latest",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -74,13 +402,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_0_L_rt_latest",
+      "id": "CANARY_pin_const_2_L_rt_latest",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_0_L_rt_latest",
+        "law_id": "CANARY_pin_const_2_L_rt_latest",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -144,13 +472,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_1_L_rt_latest2",
+      "id": "CANARY_negated_3_L_rt_latest2",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_1_L_rt_latest2",
+        "law_id": "CANARY_negated_3_L_rt_latest2",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -234,13 +562,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_1_L_rt_latest2",
+      "id": "CANARY_pin_const_3_L_rt_latest2",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_1_L_rt_latest2",
+        "law_id": "CANARY_pin_const_3_L_rt_latest2",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -324,13 +652,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_2_L_rt_legacy",
+      "id": "CANARY_negated_4_L_rt_legacy",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_2_L_rt_legacy",
+        "law_id": "CANARY_negated_4_L_rt_legacy",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -414,13 +742,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_2_L_rt_legacy",
+      "id": "CANARY_pin_const_4_L_rt_legacy",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_2_L_rt_legacy",
+        "law_id": "CANARY_pin_const_4_L_rt_legacy",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -504,13 +832,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_3_L_rt_same_start_replaces",
+      "id": "CANARY_negated_5_L_rt_same_start_replaces",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_3_L_rt_same_start_replaces",
+        "law_id": "CANARY_negated_5_L_rt_same_start_replaces",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -594,13 +922,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_3_L_rt_same_start_replaces",
+      "id": "CANARY_pin_const_5_L_rt_same_start_replaces",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_3_L_rt_same_start_replaces",
+        "law_id": "CANARY_pin_const_5_L_rt_same_start_replaces",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -684,13 +1012,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_4_L_rt_unregistered_zero",
+      "id": "CANARY_negated_6_L_rt_unregistered_zero",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_4_L_rt_unregistered_zero",
+        "law_id": "CANARY_negated_6_L_rt_unregistered_zero",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -733,13 +1061,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_4_L_rt_unregistered_zero",
+      "id": "CANARY_pin_const_6_L_rt_unregistered_zero",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_4_L_rt_unregistered_zero",
+        "law_id": "CANARY_pin_const_6_L_rt_unregistered_zero",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -782,13 +1110,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_5_L_setup_rt_latest",
+      "id": "CANARY_negated_7_L_setup_rt_latest",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_5_L_setup_rt_latest",
+        "law_id": "CANARY_negated_7_L_setup_rt_latest",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "GUARD",
@@ -844,13 +1172,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_5_L_setup_rt_latest",
+      "id": "CANARY_pin_const_7_L_setup_rt_latest",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_5_L_setup_rt_latest",
+        "law_id": "CANARY_pin_const_7_L_setup_rt_latest",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "GUARD",
@@ -906,13 +1234,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_6_L_setup_rt_legacy",
+      "id": "CANARY_negated_8_L_setup_rt_legacy",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_6_L_setup_rt_legacy",
+        "law_id": "CANARY_negated_8_L_setup_rt_legacy",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "GUARD",
@@ -988,13 +1316,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_6_L_setup_rt_legacy",
+      "id": "CANARY_pin_const_8_L_setup_rt_legacy",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_6_L_setup_rt_legacy",
+        "law_id": "CANARY_pin_const_8_L_setup_rt_legacy",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "GUARD",
@@ -1070,13 +1398,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_7_L_setup_rt_same_start_replaces",
+      "id": "CANARY_negated_9_L_setup_rt_same_start_replaces",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_7_L_setup_rt_same_start_replaces",
+        "law_id": "CANARY_negated_9_L_setup_rt_same_start_replaces",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "GUARD",
@@ -1152,13 +1480,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_7_L_setup_rt_same_start_replaces",
+      "id": "CANARY_pin_const_9_L_setup_rt_same_start_replaces",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_7_L_setup_rt_same_start_replaces",
+        "law_id": "CANARY_pin_const_9_L_setup_rt_same_start_replaces",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "GUARD",
@@ -1234,13 +1562,13 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_swap_arg_0_L_setup_rt_same_start_replaces",
+      "id": "CANARY_swap_arg_1_L_setup_rt_same_start_replaces",
       "kind": "swap_arg",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_swap_arg_0_L_setup_rt_same_start_replaces",
+        "law_id": "CANARY_swap_arg_1_L_setup_rt_same_start_replaces",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "GUARD",
@@ -1316,11 +1644,11 @@
   ],
   "checks": {
     "G1": {
-      "detail": "21 generated .bend files identical, summary identical",
+      "detail": "31 generated .bend files identical, summary identical",
       "passed": true
     },
     "G11": {
-      "detail": "inhabitance: 0/0 premise-bearing laws inhabited; 10 premise-free/skipped; points in results/M3_router/g11_inhabitance.json",
+      "detail": "inhabitance: 0/0 premise-bearing laws inhabited; 15 premise-free/skipped; points in results/M3_router/g11_inhabitance.json",
       "passed": true
     },
     "G11_names": {
@@ -1336,27 +1664,27 @@
       "passed": true
     },
     "G4": {
-      "detail": "17 canaries of kinds ['negated', 'pin_const', 'swap_arg'], all rejected",
+      "detail": "22 canaries of kinds ['negated', 'pin_const', 'swap_arg'], all rejected",
       "passed": true
     },
     "G5": {
-      "detail": "10 proofs re-checked from scratch",
+      "detail": "15 proofs re-checked from scratch",
       "passed": true
     },
     "G6": {
-      "detail": "1 REFUTED records: 0 replayed with matching witness sha256; 1 model-only pending replay",
+      "detail": "2 REFUTED records: 0 replayed with matching witness sha256; 2 model-only pending replay",
       "passed": true
     },
     "G7": {
-      "detail": "dual-kernel: 10 proofs re-checked by BendTT (--verdict)",
+      "detail": "dual-kernel: 15 proofs re-checked by BendTT (--verdict)",
       "passed": true
     },
     "G8": {
-      "detail": "coverage hole: spec/M3/extracted/mvrv.json: action initialize is touched by no law and not in debt; coverage hole: spec/M3/extracted/mvrv.json: action verifyAggregateProof is touched by no law and not in debt; coverage hole: spec/M3/extracted/mvrv.json: register rollup is touched by no law and not in debt",
-      "passed": false
+      "detail": "coverage of 1 facts files: 3 actions, 5 registers; 0 uncovered elements (incl. the log channel); report at results/M3_router/coverage_report.json",
+      "passed": true
     },
     "G9": {
-      "detail": "10 records complete and consistent (v1 validated, v2 converts)",
+      "detail": "15 records complete and consistent (v1 validated, v2 converts)",
       "passed": true
     },
     "GENV": {
@@ -1364,10 +1692,10 @@
       "passed": true
     },
     "GPRED": {
-      "detail": "10 predictions checked; sha256 matches docs/M3_SPEC.md; misses: L_rt_before_start: predicted PROVED but status REFUTED",
+      "detail": "15 predictions checked; sha256 matches docs/M3_SPEC.md; misses: L_cov_rt_vap_unregistered_fails: predicted PROVED but status REFUTED; L_rt_before_start: predicted PROVED but status REFUTED",
       "passed": true
     }
   },
   "milestone": "M3_router",
-  "passed": false
+  "passed": true
 }

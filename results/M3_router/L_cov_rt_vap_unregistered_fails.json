@@ -1,0 +1,70 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_cov_rt_vap_unregistered_fails",
+    "laws": "gen/M3_router/L_cov_rt_vap_unregistered_fails/LAWS.bend",
+    "model": "gen/M3_router/model/mvrv.bend",
+    "proof": "gen/M3_router/L_cov_rt_vap_unregistered_fails/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : True{}\n- observed : False{}\nLocation: Laws.l_cov_rt_vap_unregistered_fails\n7 | def Laws.l_cov_rt_vap_unregistered_fails():\n8>|   {==}\n  |   ^^^^\n9 |",
+      "exit_code": 1,
+      "generator": "evaluate",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "seconds": 0.137
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 1
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.101
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.134
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.101
+  },
+  "closed": true,
+  "difference": {
+    "lhs": true,
+    "rhs": false
+  },
+  "facts_sha256": "61f609230441c55350192bf2970feb9bb7cd2d70d22d2531e4f201f18b4789fc",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_cov_rt_vap_unregistered_fails",
+  "maps_to": null,
+  "premises": [],
+  "replay": {
+    "detail": "model-only pending replay: no M3 replay harness covers M3_router (audit R2)",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "statement_hash": "sha256:1b1a0ed6bfed40437ad9e33f5e79ed7bb97a60fb108eb73eb00a0935568bace4",
+  "status": "REFUTED",
+  "subform": "coverage_scenario",
+  "triage": "none",
+  "triage_why": "model-only: sentinel artefact of MVRV:118 not-found (coverage sentinel_value); the contract reverts; no replay",
+  "witness": {}
+}

@@ -1105,6 +1105,13 @@
         },
         "commitBatch": {
           "direct": [
+            "L_cov_commitstate_after_revert",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -1147,7 +1154,9 @@
           ]
         },
         "commitBatchWithProof": {
-          "direct": [],
+          "direct": [
+            "L_cov_cbwp_timing"
+          ],
           "quantified": [],
           "registers": [
             "D",
@@ -1171,7 +1180,10 @@
           ]
         },
         "commitState": {
-          "direct": [],
+          "direct": [
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash"
+          ],
           "quantified": [],
           "registers": [
             "D",
@@ -1196,7 +1208,10 @@
           ]
         },
         "finalizeBatch": {
-          "direct": [],
+          "direct": [
+            "L_cov_finalize_after",
+            "L_cov_finalize_window"
+          ],
           "quantified": [],
           "registers": [
             "chs",
@@ -1210,7 +1225,10 @@
           ]
         },
         "initialize3": {
-          "direct": [],
+          "direct": [
+            "L_cov_init3_anyone",
+            "L_cov_init3_zero"
+          ],
           "quantified": [],
           "registers": [
             "D"
@@ -1269,7 +1287,12 @@
           ]
         },
         "revertBatch": {
-          "direct": [],
+          "direct": [
+            "L_cov_commitstate_after_revert",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner"
+          ],
           "quantified": [],
           "registers": [
             "chs",
@@ -1285,6 +1308,15 @@
         },
         "sendMessage": {
           "direct": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -1311,7 +1343,11 @@
           ]
         },
         "setPause": {
-          "direct": [],
+          "direct": [
+            "L_cov_pause_blocks_commit",
+            "L_cov_pause_owner",
+            "L_cov_unpause_unpaused"
+          ],
           "quantified": [],
           "registers": [
             "bc",
@@ -1321,33 +1357,46 @@
           ]
         },
         "updateFinalizePeriodSeconds": {
-          "direct": [],
+          "direct": [
+            "L_cov_finper_ok",
+            "L_cov_finper_same"
+          ],
           "quantified": [],
           "registers": [
             "F"
           ]
         },
         "updateProofWindow": {
-          "direct": [],
+          "direct": [
+            "L_cov_window_ok",
+            "L_cov_window_same"
+          ],
           "quantified": [],
           "registers": [
             "W"
           ]
         },
         "updateRollupDelayPeriod": {
-          "direct": [],
+          "direct": [
+            "L_cov_delay_ok",
+            "L_cov_delay_same"
+          ],
           "quantified": [],
           "registers": [
             "D"
           ]
         },
         "updateVerifier": {
-          "direct": [],
+          "direct": [
+            "L_cov_verifier_ok",
+            "L_cov_verifier_owner"
+          ],
           "quantified": [],
           "registers": []
         },
         "wait": {
           "direct": [
+            "L_cov_finalize_after",
             "L_nat_slash_legacy_misses",
             "L_nat_slash_native_hits",
             "L_natr_slash_at_stake",
@@ -1365,6 +1414,46 @@
       "registers": {
         "D": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_delay_ok": [
+              "action:updateRollupDelayPeriod"
+            ],
+            "L_cov_delay_same": [
+              "action:updateRollupDelayPeriod"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_init3_anyone": [
+              "action:initialize3"
+            ],
+            "L_cov_init3_zero": [
+              "action:initialize3"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -1418,6 +1507,19 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_delay_ok",
+            "L_cov_delay_same",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_init3_anyone",
+            "L_cov_init3_zero",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -1439,6 +1541,40 @@
         },
         "F": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_finper_ok": [
+              "action:updateFinalizePeriodSeconds"
+            ],
+            "L_cov_finper_same": [
+              "action:updateFinalizePeriodSeconds"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -1492,6 +1628,17 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_finper_ok",
+            "L_cov_finper_same",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -1513,6 +1660,40 @@
         },
         "W": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch"
+            ],
+            "L_cov_window_ok": [
+              "action:updateProofWindow"
+            ],
+            "L_cov_window_same": [
+              "action:updateProofWindow"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -1587,6 +1768,17 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
+            "L_cov_window_ok",
+            "L_cov_window_same",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -1608,6 +1800,31 @@
         },
         "active": {
           "how": {
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch",
               "action:initialize4"
@@ -1688,6 +1905,14 @@
             ]
           },
           "laws": [
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -1709,6 +1934,41 @@
         },
         "bc": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch",
+              "action:setPause"
+            ],
+            "L_cov_pause_owner": [
+              "action:setPause"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch"
+            ],
+            "L_cov_unpause_unpaused": [
+              "action:setPause"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -1774,6 +2034,17 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_pause_owner",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
+            "L_cov_unpause_unpaused",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -1849,6 +2120,47 @@
         },
         "chs": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:revertBatch"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch",
+              "action:setPause"
+            ],
+            "L_cov_pause_owner": [
+              "action:setPause"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_unpause_unpaused": [
+              "action:setPause"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -1923,6 +2235,17 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_pause_owner",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
+            "L_cov_unpause_unpaused",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -1944,6 +2267,43 @@
         },
         "enq": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof",
+              "action:sendMessage"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:sendMessage"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState",
+              "action:sendMessage"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch",
               "action:sendMessage"
@@ -2014,6 +2374,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2034,11 +2403,60 @@
           ]
         },
         "fsr": {
-          "how": {},
-          "laws": []
+          "how": {
+            "L_cov_finalize_after": [
+              "action:finalizeBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:finalizeBatch"
+            ]
+          },
+          "laws": [
+            "L_cov_finalize_after",
+            "L_cov_finalize_window"
+          ]
         },
         "inch": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:revertBatch"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch",
+              "action:setPause"
+            ],
+            "L_cov_pause_owner": [
+              "action:setPause"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_unpause_unpaused": [
+              "action:setPause"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch",
               "action:initialize4"
@@ -2127,6 +2545,17 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_pause_owner",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
+            "L_cov_unpause_unpaused",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2211,6 +2640,40 @@
         },
         "lfi": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:revertBatch"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch",
               "action:initialize4"
@@ -2299,6 +2762,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2324,6 +2796,43 @@
         },
         "paused": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch",
+              "action:setPause"
+            ],
+            "L_cov_pause_owner": [
+              "action:setPause"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch"
+            ],
+            "L_cov_unpause_unpaused": [
+              "action:setPause"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -2398,6 +2907,17 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_pause_owner",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
+            "L_cov_unpause_unpaused",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2419,6 +2939,43 @@
         },
         "qlen": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof",
+              "action:sendMessage"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:sendMessage"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState",
+              "action:sendMessage"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch",
               "action:sendMessage"
@@ -2489,6 +3046,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2510,6 +3076,36 @@
         },
         "qpend": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -2563,6 +3159,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2584,6 +3189,40 @@
         },
         "rri": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:revertBatch"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch",
               "action:initialize4"
@@ -2672,6 +3311,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2693,6 +3341,38 @@
         },
         "s_bd": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:revertBatch"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -2746,6 +3426,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2767,6 +3456,38 @@
         },
         "s_bvh": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:revertBatch"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -2820,6 +3541,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2841,6 +3571,38 @@
         },
         "s_csr": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:revertBatch"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -2894,6 +3656,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2915,6 +3686,38 @@
         },
         "s_tag": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:revertBatch"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch"
             ],
@@ -2968,6 +3771,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -2989,6 +3801,46 @@
         },
         "t": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof",
+              "action:sendMessage"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:sendMessage"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState",
+              "action:sendMessage"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch",
+              "action:finalizeBatch",
+              "action:sendMessage",
+              "action:wait"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch",
+              "action:finalizeBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch",
               "action:sendMessage"
@@ -3086,6 +3938,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -3107,6 +3968,40 @@
         },
         "win": {
           "how": {
+            "L_cov_cbwp_timing": [
+              "action:commitBatchWithProof"
+            ],
+            "L_cov_commitstate_after_revert": [
+              "action:commitBatch",
+              "action:commitState",
+              "action:revertBatch"
+            ],
+            "L_cov_commitstate_nohash": [
+              "action:commitState"
+            ],
+            "L_cov_finalize_after": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_finalize_window": [
+              "action:commitBatch",
+              "action:finalizeBatch"
+            ],
+            "L_cov_pause_blocks_commit": [
+              "action:commitBatch"
+            ],
+            "L_cov_revert_count0": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_ok": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
+            "L_cov_revert_owner": [
+              "action:commitBatch",
+              "action:revertBatch"
+            ],
             "L_nat_cutover_admin_only": [
               "action:commitBatch",
               "action:initialize4"
@@ -3195,6 +4090,15 @@
             ]
           },
           "laws": [
+            "L_cov_cbwp_timing",
+            "L_cov_commitstate_after_revert",
+            "L_cov_commitstate_nohash",
+            "L_cov_finalize_after",
+            "L_cov_finalize_window",
+            "L_cov_pause_blocks_commit",
+            "L_cov_revert_count0",
+            "L_cov_revert_ok",
+            "L_cov_revert_owner",
             "L_nat_cutover_admin_only",
             "L_nat_cutover_in_challenge",
             "L_nat_cutover_mismatch",
@@ -3215,33 +4119,9 @@
           ]
         }
       },
-      "uncovered": [
-        "action commitState",
-        "action commitBatchWithProof",
-        "action revertBatch",
-        "action finalizeBatch",
-        "action setPause",
-        "action initialize3",
-        "action updateRollupDelayPeriod",
-        "action updateProofWindow",
-        "action updateFinalizePeriodSeconds",
-        "action updateVerifier",
-        "register fsr"
-      ]
+      "uncovered": []
     }
   },
   "milestone": "M3_nat",
-  "uncovered": [
-    "spec/M3/extracted/morph_rollup.json: action commitState",
-    "spec/M3/extracted/morph_rollup.json: action commitBatchWithProof",
-    "spec/M3/extracted/morph_rollup.json: action revertBatch",
-    "spec/M3/extracted/morph_rollup.json: action finalizeBatch",
-    "spec/M3/extracted/morph_rollup.json: action setPause",
-    "spec/M3/extracted/morph_rollup.json: action initialize3",
-    "spec/M3/extracted/morph_rollup.json: action updateRollupDelayPeriod",
-    "spec/M3/extracted/morph_rollup.json: action updateProofWindow",
-    "spec/M3/extracted/morph_rollup.json: action updateFinalizePeriodSeconds",
-    "spec/M3/extracted/morph_rollup.json: action updateVerifier",
-    "spec/M3/extracted/morph_rollup.json: register fsr"
-  ]
+  "uncovered": []
 }
