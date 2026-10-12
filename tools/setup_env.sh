@@ -46,5 +46,6 @@ if [ "${1:-}" = "--replay" ]; then
     git clone --filter=blob:none --no-checkout https://github.com/morph-l2/morph "$PREFIX/morph"
   fi
   git -C "$PREFIX/morph" checkout -q 3e44e795586af3e11285b603ab642c67823add51
+  (cd "$PREFIX/morph/contracts" && npm ci)
   echo "run: PATH=$PREFIX/foundry:\$PATH python -m holon replay --morph $PREFIX/morph --solc $PREFIX/solc-0.8.24"
 fi
