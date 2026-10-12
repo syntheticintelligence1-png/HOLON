@@ -31,6 +31,12 @@ model touches there.
 
 Every step of a facts-0.2 machine logs its outcome (O_Ok, or O_Rev with the failed guard's reason),
 so every TRANS edge writes the log; `step_writes` adds that write.
+
+Instrumentation (I14, the evidence calculus: which "*" terms are imprecise). A Walker whose
+`drop_kindless` is set records nothing at the kindless-builtin fallback: a state field passed directly
+to a target-library builtin that declares no access kind, whether read (`read`) or updated by an effect
+(`write`, role "opaque"). Everything else, control flow included, is unchanged, so the terms such a walk
+lacks are exactly those produced only at that fallback. The diagram build never sets the flag.
 """
 from __future__ import annotations
 
@@ -229,6 +235,12 @@ class Roles:
         if name in self.lib_kinds and self.lib_kinds[name] is None:
             self.opaque_used.add(name)
 
+    def kindless(self, name: str) -> bool:
+        """A target-library builtin that declares no access kind (its role is "opaque" because the library
+        gives no kind; never a generic builtin or a shadow projection)."""
+        return (name not in GENERIC_ROLES and name not in self.es and name in self.lib_kinds
+                and self.lib_kinds[name] is None)
+
     def role(self, name: str) -> str:
         if name in GENERIC_ROLES:
             return GENERIC_ROLES[name]
@@ -282,6 +294,11 @@ class Walker:
         self.reads: set[tuple[str, str]] = set()
         self.writes: set[tuple[str, str]] = set()
         self.defs_used: set[str] = set()
+        self.drop_kindless = False  # I14 instrumentation (module docstring); the diagram never sets it
+
+    def _fallback(self, role: str, name: str) -> bool:
+        """An access made at the kindless-builtin fallback that this walk does not record."""
+        return self.drop_kindless and role == "opaque" and self.roles.kindless(name)
 
     # ---------------------------------------------------------- keys
     def key(self, f: str, k) -> str:
@@ -366,7 +383,8 @@ class Walker:
             return
         for x, f in zip(args, fields):
             if f is not None:
-                self.reads.add((f, WHOLE))
+                if not self._fallback(role, name):
+                    self.reads.add((f, WHOLE))
                 if role == "opaque":
                     self.roles.note_opaque(name)
             else:
@@ -406,7 +424,8 @@ class Walker:
                 if role == "opaque":
                     self.roles.note_opaque(name)
                 if key is not None:
-                    self.writes.add((f, key))
+                    if not self._fallback(role, name):
+                        self.writes.add((f, key))
                     for j, x in enumerate(args):
                         if j != i:
                             self.read(x, sc)

@@ -41,8 +41,12 @@ class TestM2Outputs(unittest.TestCase):
             hyp = json.loads(h.read_text())
             next(iter(hyp.values()))["detail"] = "edited"
             h.write_text(json.dumps(hyp, indent=2, sort_keys=True) + "\n")
-            o = sorted((repo / "gen" / "M2" / "oracles").rglob("*.bend"))[0]
-            o.write_text(o.read_text() + "\n# edited\n")
+            # an edited instance law, or a planted stray one when no hyp hypothesis is modelled (gen/M2/oracles
+            # is then empty, F-M2-11): either way the regeneration names the file
+            bends = sorted((repo / "gen" / "M2" / "oracles").rglob("*.bend"))
+            o = bends[0] if bends else repo / "gen" / "M2" / "oracles" / "planted" / "PROOF.bend"
+            o.parent.mkdir(parents=True, exist_ok=True)
+            o.write_text((o.read_text() if o.exists() else "") + "\n# edited\n")
             diffs, _ = self.G.regenerate_m2_outputs("M2", repo, self.tmp / "b")
             for want in (f"gen/M2/diagram/{d.name}", "gen/M2/sorts/unions.json", "results/M2/hypotheses.json",
                          f"gen/M2/oracles/{o.relative_to(repo / 'gen' / 'M2' / 'oracles').as_posix()}"):

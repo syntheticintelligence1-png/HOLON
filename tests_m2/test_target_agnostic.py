@@ -69,6 +69,9 @@ def norm_record(f: Path, b: bytes) -> bytes:
         rec["kernels"] = [k for k in rec["kernels"] if k.get("name") != "lean4"]
         if rec.get("independence_class") == "I2" and lean[0].get("result") == "checked":
             rec["independence_class"] = "I1-shared"
+    # I14 adds the v2 evidence fields; without them the record is exactly the pinned one
+    for k in ("evidence_levels", "evidence_triage", "evidence_override"):
+        rec.pop(k, None)
     return json.dumps(s(rec), sort_keys=True).encode()
 
 

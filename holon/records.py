@@ -412,4 +412,14 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
         "non_vacuity": None,  # set by the pipeline from holon.inhabit (I3)
         "witness_provenance": wp,
         "filter_bin": fb,
+        **evidence_fields(law, rec, root),
     }
+
+
+def evidence_fields(law: dict, rec: dict, root: Path | str = ROOT) -> dict:
+    """I14: evidence_levels, evidence_triage and evidence_override, from the committed evidence set
+    (gen/M2/evidence.json for M0-M2) and config/evidence_overrides.json (holon.diagram.evidence.record_fields).
+    The frozen v1 `triage` is never touched. A law the set does not cover (planted mutations, toy targets) gets
+    null levels and the computed triage; nothing fails here, GEVID reports what is wrong."""
+    from .diagram.evidence import record_fields
+    return record_fields(law, rec.get("status"), root)
