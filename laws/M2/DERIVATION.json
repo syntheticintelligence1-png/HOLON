@@ -1,0 +1,825 @@
+{
+  "derive_version": "holon-derive/0.1",
+  "document": "derivation",
+  "inputs": [
+    {
+      "path": "facts/morph_header.json",
+      "sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80"
+    },
+    {
+      "path": "gen/M2/sorts/assignment.json",
+      "sha256": "1545a86fcb1cad3c8eeabda929ba1cfbada01b099e26a553d81405bc76ad687d"
+    },
+    {
+      "path": "spec/M1/facts/morph_batchdata.json",
+      "sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d"
+    },
+    {
+      "path": "spec/M1/facts/morph_rollup.json",
+      "sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f"
+    },
+    {
+      "path": "spec/M1/lib/morph_rollup.lib.json",
+      "sha256": "004d12f43d1074f0746bce4e2c5fb87df4b5a0dca1b720c3523d2a18971f46a0"
+    },
+    {
+      "path": "spec/M2/lib/oracles.json",
+      "sha256": "abce18c7863efe32154ef86eaf0f5ca51b111c06ff3739284172f7d8863ca5c1"
+    },
+    {
+      "path": "spec/M2/lib/sort_sites.json",
+      "sha256": "6ba1dba3cd28b6aaeb3fd4b9e72b922f13b0886ae656af60a255e9580a6acd9c"
+    },
+    {
+      "path": "spec/lib/go_slices.lib.json",
+      "sha256": "f5ddbe0ad4c6be7e89802f497e4c826cd68dbd8925bac014f506fc1867292df4"
+    }
+  ],
+  "laws": [
+    {
+      "basis": {
+        "expr": [
+          "-",
+          "idx",
+          [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ]
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:morph_rollup:bvh_at:6126d1f1",
+        "span": "morph_rollup:bvh_at"
+      },
+      "entry_points": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "commitBatch",
+          "at": "guards[4]",
+          "kind": "call",
+          "via": [
+            "bvh_at"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[11]",
+          "kind": "call",
+          "via": [
+            "bvh_at"
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "guards[7]",
+          "kind": "call",
+          "via": [
+            "bvh_at"
+          ]
+        }
+      ],
+      "law_id": "L_sort_site_def_bvh_at_6126d1f1",
+      "obligation": null,
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "Nat (unrefined)",
+      "statement_hash": "sha256:90b3e9b477dd29926dcb53c13068a1213348be3533d86b1af9b5edb748ee315a",
+      "subform": "site"
+    },
+    {
+      "basis": {
+        "expr": [
+          "-",
+          [
+            "-",
+            "idx",
+            [
+              "call",
+              "lci",
+              "lfi",
+              "win"
+            ]
+          ],
+          1
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:morph_rollup:bvh_at:e064679d",
+        "span": "morph_rollup:bvh_at"
+      },
+      "entry_points": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "commitBatch",
+          "at": "guards[4]",
+          "kind": "call",
+          "via": [
+            "bvh_at"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[11]",
+          "kind": "call",
+          "via": [
+            "bvh_at"
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "guards[7]",
+          "kind": "call",
+          "via": [
+            "bvh_at"
+          ]
+        }
+      ],
+      "law_id": "L_sort_site_def_bvh_at_e064679d",
+      "obligation": null,
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "Nat (unrefined)",
+      "statement_hash": "sha256:67c8f7820d0e37f56550ca235e8325d8fda5f53ca20aac16d8e8b3bfcd996941",
+      "subform": "site"
+    },
+    {
+      "basis": {
+        "expr": [
+          "-",
+          [
+            "+",
+            "lfi",
+            [
+              "call",
+              "len",
+              "win"
+            ]
+          ],
+          1
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:morph_rollup:lci:356891e4",
+        "span": "morph_rollup:lci"
+      },
+      "entry_points": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "proveState",
+        "revertBatch"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "challengeState",
+          "at": "guards[5]",
+          "kind": "call",
+          "via": [
+            "lci"
+          ]
+        },
+        {
+          "action": "challengeState",
+          "at": "guards[7]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "challengeState",
+          "at": "guards[9]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatch",
+          "at": "guards[16]",
+          "kind": "call",
+          "via": [
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatch",
+          "at": "guards[19]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatch",
+          "at": "guards[20]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatch",
+          "at": "guards[4]",
+          "kind": "call",
+          "via": [
+            "bvh_at",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[11]",
+          "kind": "call",
+          "via": [
+            "bvh_at",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[20]",
+          "kind": "call",
+          "via": [
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[23]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[24]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[2]",
+          "kind": "call",
+          "via": [
+            "lci"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[3]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "guards[15]",
+          "kind": "call",
+          "via": [
+            "lci"
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "guards[18]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "guards[19]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "guards[7]",
+          "kind": "call",
+          "via": [
+            "bvh_at",
+            "lci"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "effects.fsr",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[12]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[13]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[2]",
+          "kind": "call",
+          "via": [
+            "lci"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[4]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[7]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[9]",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "proveState",
+          "at": "effects.active",
+          "kind": "call",
+          "via": [
+            "w",
+            "lci"
+          ]
+        },
+        {
+          "action": "proveState",
+          "at": "guards[3]",
+          "kind": "call",
+          "via": [
+            "lci"
+          ]
+        },
+        {
+          "action": "revertBatch",
+          "at": "guards[2]",
+          "kind": "call",
+          "via": [
+            "lci"
+          ]
+        }
+      ],
+      "law_id": "L_sort_site_def_lci_356891e4",
+      "obligation": null,
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "Nat (unrefined)",
+      "statement_hash": "sha256:c1ce5dde66f609a11e9601a84897064d33cb3a503afd80db4f1de8c389b43eaf",
+      "subform": "site"
+    },
+    {
+      "basis": {
+        "expr": [
+          "-",
+          "idx",
+          "lfi"
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:morph_rollup:w:b4cd5068",
+        "span": "morph_rollup:w"
+      },
+      "entry_points": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "proveState"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "challengeState",
+          "at": "guards[7]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "challengeState",
+          "at": "guards[9]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "commitBatch",
+          "at": "guards[19]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "commitBatch",
+          "at": "guards[20]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "commitBatch",
+          "at": "guards[4]",
+          "kind": "call",
+          "via": [
+            "bvh_at",
+            "w"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[11]",
+          "kind": "call",
+          "via": [
+            "bvh_at",
+            "w"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[23]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[24]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[3]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "guards[18]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "guards[19]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "guards[7]",
+          "kind": "call",
+          "via": [
+            "bvh_at",
+            "w"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "effects.fsr",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[12]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[13]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[4]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[7]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[9]",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        },
+        {
+          "action": "proveState",
+          "at": "effects.active",
+          "kind": "call",
+          "via": [
+            "w"
+          ]
+        }
+      ],
+      "law_id": "L_sort_site_def_w_b4cd5068",
+      "obligation": null,
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "Nat (unrefined)",
+      "statement_hash": "sha256:c8a8fc4a3070a8536da27a556898fa4456c2e7f0c158b2f1d9683cb7d873ee65",
+      "subform": "site"
+    },
+    {
+      "basis": {
+        "expr": [
+          "-",
+          "btot",
+          "bn"
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325:f89daf17",
+        "span": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325"
+      },
+      "entry_points": [
+        "finalizeBatch"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "finalizeBatch",
+          "at": "guards[14]",
+          "kind": "occurrence"
+        }
+      ],
+      "law_id": "L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17",
+      "obligation": "sign",
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "SIdx[queue]",
+      "statement_hash": "sha256:264ad264e7241fc0747a292796fb118c6141e208aa25551cf6aafda0999bb007",
+      "subform": "site"
+    },
+    {
+      "basis": {
+        "expr": [
+          "-",
+          [
+            "+",
+            "W",
+            "cstart"
+          ],
+          "t"
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:363:1fc7f88a",
+        "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
+      },
+      "entry_points": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "commitBatch",
+          "at": "guards[23]",
+          "kind": "realization_check"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[27]",
+          "kind": "realization_check"
+        },
+        {
+          "action": "commitState",
+          "at": "guards[22]",
+          "kind": "realization_check"
+        }
+      ],
+      "law_id": "L_sort_site_rollup_363_1fc7f88a",
+      "obligation": "sign",
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "SDur",
+      "statement_hash": "sha256:043d0db032134f4e0f3050d4043d9d86425ebce8c30d330f7dc40b9b93de20ee",
+      "subform": "site"
+    },
+    {
+      "basis": {
+        "expr": [
+          "-",
+          "idx",
+          "lfi"
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:441:b4cd5068",
+        "span": "contracts/contracts/l1/rollup/Rollup.sol:441"
+      },
+      "entry_points": [
+        "revertBatch"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "revertBatch",
+          "at": "guards[6]",
+          "kind": "occurrence"
+        }
+      ],
+      "law_id": "L_sort_site_rollup_441_b4cd5068",
+      "obligation": null,
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "Nat (unrefined)",
+      "statement_hash": "sha256:db78c4e1f17504a44e736ed55c1692c2028b8e26063e319ca978be59255d827c",
+      "subform": "site"
+    },
+    {
+      "basis": {
+        "expr": [
+          "-",
+          "idx",
+          "lfi"
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:485-495:b4cd5068",
+        "span": "contracts/contracts/l1/rollup/Rollup.sol:485-495"
+      },
+      "entry_points": [
+        "challengeState"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "challengeState",
+          "at": "effects.win",
+          "kind": "occurrence"
+        }
+      ],
+      "law_id": "L_sort_site_rollup_485_495_b4cd5068",
+      "obligation": null,
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "Nat (unrefined)",
+      "statement_hash": "sha256:df656b68c5877967ee93fe780879ae3ca4362a036dd8713ee284ba3e50049de3",
+      "subform": "site"
+    },
+    {
+      "basis": {
+        "expr": [
+          "-",
+          "idx",
+          1
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:636:e68daf06",
+        "span": "contracts/contracts/l1/rollup/Rollup.sol:636"
+      },
+      "entry_points": [
+        "finalizeBatch"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "finalizeBatch",
+          "at": "guards[8]",
+          "kind": "realization_check"
+        }
+      ],
+      "law_id": "L_sort_site_rollup_636_e68daf06",
+      "obligation": null,
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "Nat (unrefined)",
+      "statement_hash": "sha256:26e1a84517073136fdd64b17d54e8f1b5d2ae27b4cef3daee4d46a686749354d",
+      "subform": "site"
+    },
+    {
+      "basis": {
+        "expr": [
+          "-",
+          "idx",
+          1
+        ],
+        "kind": "site",
+        "model": "morph_rollup",
+        "site_id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:644-660:e68daf06",
+        "span": "contracts/contracts/l1/rollup/Rollup.sol:644-660"
+      },
+      "entry_points": [
+        "finalizeBatch"
+      ],
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "hits": [
+        {
+          "action": "finalizeBatch",
+          "at": "effects.chs",
+          "kind": "occurrence"
+        }
+      ],
+      "law_id": "L_sort_site_rollup_644_660_e68daf06",
+      "obligation": null,
+      "realized_in": "Nat",
+      "rule": "SORT",
+      "sort": "Nat (unrefined)",
+      "statement_hash": "sha256:e79d1e76693ce2b2f048670ad62bd03339d82d3e866e58ab5f2e1119627ac514",
+      "subform": "site"
+    }
+  ],
+  "links": [],
+  "milestone": "M2",
+  "rule_catalog_version": "holon-rules/1.0",
+  "sorts_sha256": "24bc9c9372e7bfbf62c6d4a520bb58016137c7d1259867ba430bd7f8d5c19ae0"
+}

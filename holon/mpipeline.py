@@ -81,6 +81,12 @@ class CompiledMachine:
         m = Machine(facts, anchor or facts_path, oracles=oracles, m2plus=reach)
         text = m.generate(sha, reach)
         tag = ("-reach" if reach else "") + (f"-orc{hashlib.sha256(text.encode()).hexdigest()[:8]}" if oracles else "")
+        src, art = cls._compile(text, sha, tag, facts_path, cfg)
+        return cls(src, art, facts, m, Path(anchor or facts_path), cfg)
+
+    @staticmethod
+    def _compile(text: str, sha: str, tag: str, facts_path: Path, cfg: dict | None) -> tuple[Path, Path]:
+        """Write the model text to the build dir and compile it to an ES module (cached by the text's hash)."""
         src = bend.build_dir(ROOT) / "eval" / (sha[:16] + tag) / f"{model_name(facts_path)}.bend"
         src.parent.mkdir(parents=True, exist_ok=True)
         if not src.exists() or src.read_text() != text:
@@ -93,6 +99,22 @@ class CompiledMachine:
             if r.code != 0 or not art.exists():
                 raise RuntimeError(f"bend failed to compile {src}: {r.out[:2000]}")
             stamp.write_text(h)
+        return src, art
+
+    @classmethod
+    def instrumented(cls, milestone: str, facts_path: Path, derivation: dict, cfg: dict | None = None,
+                     anchor: Path | None = None, root: Path | None = None) -> "CompiledMachine":
+        """The instrumented model of a document (I15; holon.sorts.sites.instrumented_model with the milestone's
+        DERIVATION.json): the run's model, then the ghost section of its SORT-site laws. The machine is the run's
+        (holon.sorts.sites.run_machine), so every generator emits against the model above the marker."""
+        from .sorts import sites
+        root = Path(root or ROOT)
+        m, facts, text = sites.run_machine(milestone, Path(facts_path), root, anchor)
+        inst = sites.instrumented_model(Path(facts_path), derivation, root, anchor)
+        if not inst.startswith(text.rstrip("\n") + "\n\n" + sites.GHOST_MARKER + "\n"):
+            raise RuntimeError(f"{facts_path}: the instrumented model does not extend the run's model")
+        sha = F.sha256_file(facts_path)
+        src, art = cls._compile(inst, sha, f"-reach-inst{hashlib.sha256(inst.encode()).hexdigest()[:8]}", Path(facts_path), cfg)
         return cls(src, art, facts, m, Path(anchor or facts_path), cfg)
 
     # ------------------------------------------------------------ oracle parameters (I12)
@@ -137,14 +159,35 @@ class CompiledMachine:
                 "instModule": str(art) if art else None}
 
     def _req(self, law: dict, **kw) -> str:
-        """An explore.mjs request; hyp premises go as their predicates (the refuter evaluates premises)."""
+        """An explore.mjs request; hyp premises go as their predicates (the refuter evaluates premises). The ghost
+        predicates of the SORT-site terms a statement uses go along (req.sites, I15)."""
         if O.hyp_names(law):
             law = O.expand_hyps(law, self.m.orc)
         r = {"module": str(self.artifact), "facts": self.facts, "hints": self.hints(), "law": law, **kw}
         orc = self.oracle_req()
         if orc is not None:
             r["oracles"] = orc
+        sts = site_terms(law)
+        if sts:
+            r["sites"] = {sid: ghost_fns(sid, self.m) for sid in sts}
         return json.dumps(r)
+
+    def site_search(self, law: dict, mode: str, entries: list[str], stage: str = "S2", seeds: dict | None = None,
+                    s3max: int | None = None) -> dict:
+        """The SORT-site search of holon/js/explore.mjs (stages S1-S3, untrusted) for a site law: mode "refute" (a
+        witness per entry point where the ghost predicate is false) or "inhabit" (a reachable (s, a) that reaches a
+        hit)."""
+        sid = site_law(law)
+        g = ghost_fns(sid, self.m)
+        site = {"fn": g["site"], "hit": g["hit"], "entries": sorted(entries), "mode": mode, "stage": stage,
+                "seeds": seeds or {}}
+        if s3max is not None:
+            site["s3max"] = s3max
+        p = subprocess.run(["node", str(EXPLORE)], input=self._req(law, site=site, budget={}),
+                           capture_output=True, text=True, timeout=7200)
+        if p.returncode != 0:
+            raise RuntimeError(f"site search failed: {p.stderr[-2000:]}")
+        return json.loads(p.stdout)
 
     def evaluate(self, law: dict, assignment: dict) -> dict:
         """Premises and claims of a law at one assignment, on the compiled model."""
@@ -170,12 +213,83 @@ class CompiledMachine:
             raise RuntimeError(f"houdini failed: {p.stderr[-2000:]}")
         return json.loads(p.stdout)
 
-    def calls(self, calls: list) -> list:
-        p = subprocess.run(["node", str(MACHINE_JS)], input=json.dumps({"module": str(self.artifact), "calls": calls}),
-                           capture_output=True, text=True, timeout=600)
+    def oracle_runtime(self) -> dict | None:
+        """For machine.mjs and policy.mjs (holon/js/oracle_model.mjs): the model's oracle parameters answered by their
+        sidecar instances (the I12 design), and the tables each function threads (passed empty). None without
+        parameters (M0, M1)."""
+        if not self.m.oparams:
+            return None
+        art, insts, _ = self.instance_module()
+        return {"instModule": str(art) if art else None,
+                "instances": [{"id": i["id"], "param": i["param"], "fn": i["fn"]} for i in insts], "fnTabs": self.m.fn_tabs}
+
+    def calls(self, calls: list, instances: bool = False) -> list:
+        """Evaluate model calls with machine.mjs. A function that threads oracle tables takes them as explicit
+        arguments; with instances=True (the M2 trace corpus of `holon replay`, whose calls pass no tables) every
+        lookup of a parameter with a sidecar instance is answered by that instance instead (oracle_runtime)."""
+        req = {"module": str(self.artifact), "calls": calls}
+        orc = self.oracle_runtime() if instances else None
+        if orc is not None:
+            req["oracles"] = orc
+        p = subprocess.run(["node", str(MACHINE_JS)], input=json.dumps(req), capture_output=True, text=True, timeout=600)
         if p.returncode != 0:
             raise RuntimeError(p.stderr[-2000:])
         return json.loads(p.stdout)["results"]
+
+
+# ---------------------------------------------------------------- I15: SORT-site laws
+def site_terms(law: dict) -> list[str]:
+    """The site ids of the SORT-site terms ({"site": ID, "on", "from"}, or the at_site premise) a statement uses."""
+    out: list[str] = []
+
+    def walk(x):
+        if isinstance(x, dict):
+            for k in ("site", "at_site"):
+                if isinstance(x.get(k), str) and "on" in x and "from" in x and x[k] not in out:
+                    out.append(x[k])
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(law.get("statement", {}))
+    return out
+
+
+def site_law(law: dict) -> str | None:
+    """The site id of a SORT-site law (rule SORT, subform site, claim site(..) == true), else None."""
+    if law.get("rule") != "SORT" or law.get("subform") != "site":
+        return None
+    c = law.get("statement", {}).get("claim", {})
+    eq = c.get("eq") if isinstance(c, dict) else None
+    if not (isinstance(eq, list) and len(eq) == 2 and isinstance(eq[0], dict) and isinstance(eq[0].get("site"), str)):
+        return None
+    return eq[0]["site"]
+
+
+def ghost_fns(site_id: str, m: Machine) -> dict:
+    """The ghost predicates of a site in the instrumented model: site_<x>, hit_<x> and the tables they take."""
+    from .sorts.sites import ghost_x, law_id
+    x = ghost_x(law_id(site_id))
+    return {"site": f"site_{x}", "hit": f"hit_{x}", "tabs": list(m.threaded)}
+
+
+def derivation_of(milestone: str, root: Path | None = None) -> dict | None:
+    """laws/<M>/DERIVATION.json of the tree (holon derive, I15), or None."""
+    p = Path(root or ROOT) / "laws" / milestone / "DERIVATION.json"
+    return json.loads(p.read_text()) if p.exists() else None
+
+
+def has_sites(derivation: dict | None, facts_path: Path, root: Path | None = None) -> bool:
+    """Whether the derivation holds SORT-site laws of this document (so its run's model is instrumented)."""
+    if not derivation:
+        return False
+    try:
+        rel = Path(facts_path).resolve().relative_to(Path(root or ROOT).resolve()).as_posix()
+    except ValueError:
+        rel = Path(facts_path).as_posix()
+    return any(e.get("facts") == rel and e.get("rule") == "SORT" and e.get("subform") == "site"
+               for e in derivation.get("laws", []))
 
 
 def relpath(p: Path) -> str:
@@ -306,6 +420,12 @@ def scope_fields(law: dict, rec: dict) -> dict:
     return out
 
 
+def test_milestone(milestone: str) -> bool:
+    """A test milestone (T15, ...: a fixture run in a copy, never committed) rather than a target milestone M<n>."""
+    import re
+    return re.fullmatch(r"M\d+", milestone) is None
+
+
 def m2plus(milestone: str) -> bool:
     """Milestones after M1 (M2.., and the test milestones T*) use the core library and Reach (I8)."""
     return milestone not in ("M0", "M1")
@@ -319,6 +439,16 @@ def milestone_model(milestone: str, facts_path: Path, cfg: dict | None = None, a
     spec/M1/facts takes spec/M2/lib/oracles.json). M0 and M1: the model as bound. root: the tree F lives in."""
     orc = O.Oracles.for_milestone(milestone, anchor or facts_path, root or ROOT)
     return CompiledMachine.build(facts_path, cfg, reach=m2plus(milestone), anchor=anchor, oracles=orc)
+
+
+def run_model(milestone: str, facts_path: Path, cfg: dict | None = None, anchor: Path | None = None,
+              root: Path | None = None) -> CompiledMachine:
+    """The model `holon run` checks a document's laws against: milestone_model, followed, when laws/<M>/DERIVATION.json
+    holds SORT-site laws of the document, by their ghost section (the instrumented model, I15)."""
+    der = derivation_of(milestone, root) if m2plus(milestone) else None
+    if has_sites(der, anchor or facts_path, root):
+        return CompiledMachine.instrumented(milestone, facts_path, der, cfg, anchor=anchor, root=root)
+    return milestone_model(milestone, facts_path, cfg, anchor, root)
 
 
 def main_model(args) -> int:
@@ -390,11 +520,41 @@ def accepted(rr, proof: Path, laws_file: Path, em, proof_text: str) -> tuple[boo
     return True, None
 
 
+# what `holon run` writes under a milestone's gen dir, besides the law dirs gen/<m>/L* (audit F-M2-25): it removes and
+# rewrites only these; every other command's output there (diagram/, sorts/, oracles/, evidence.json) stays
+RUN_OUTPUTS = ("model", "core", "laws", "proofs")
+
+
+def clean_gen(gen: Path, only: list[str] | None = None) -> None:
+    """Remove what a run rewrites: gen/<m>/{model,core} and the law dirs (gen/<m>/L*, laws/<id>, proofs/<id>), all of
+    them, or with `only` (--laws) those of the listed laws."""
+    gen.mkdir(parents=True, exist_ok=True)
+    for x in ("model", "core"):
+        shutil.rmtree(gen / x, ignore_errors=True)
+    for x in ("laws", "proofs"):
+        if only is None:
+            shutil.rmtree(gen / x, ignore_errors=True)
+        else:
+            for lid in only:
+                shutil.rmtree(gen / x / lid, ignore_errors=True)
+    for x in sorted(gen.glob(ir.LAW_GLOB.replace(".json", ""))):
+        if only is not None and x.name not in only:
+            continue
+        if x.is_dir():
+            shutil.rmtree(x)
+        else:
+            x.unlink()
+
+
 def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str | None, no_registry: bool, log=print,
-           core: str = "import") -> dict:
+           core: str = "import", only: list[str] | None = None) -> dict:
     cfg = bend.config(ROOT)
     laws = ir.load_laws_any(milestone, ROOT)
     reg = ir.load_registry(milestone, ROOT)
+    if only is not None:
+        unknown = sorted(set(only) - {l["law_id"] for l in laws})
+        if unknown:
+            raise ValueError(f"--laws names laws that laws/{milestone} does not hold: {unknown}")
     primary = reg["facts"]
     override = Path(facts_path) if facts_path else None
     out_dir = Path(out or ROOT / "results" / milestone)
@@ -416,9 +576,9 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         triage = json.loads(tp.read_text()).get(milestone, {})
     report = None if no_registry else load_report(milestone, ROOT)
 
-    if gen.exists():
-        shutil.rmtree(gen)
+    clean_gen(gen, only)
     (gen / "model").mkdir(parents=True)
+    der = derivation_of(milestone) if m2plus(milestone) else None   # SORT-site laws and their entry points (I15)
     machines: dict = {}
     oracles_of: dict = {}   # law id -> the oracle sidecar of its facts (M2+, I12), for splits.json
     from .gen import core as C
@@ -438,7 +598,10 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             # search hints (I6 put them next to the facts; a mutated copy elsewhere would otherwise lose them)
             anchor = ROOT / primary if (override and fp == override) else None
             orc = O.Oracles.for_milestone(milestone, anchor or fp, ROOT)   # M0, M1 never read one (I12; F-M2-11)
-            cm_ = CompiledMachine.build(fp, cfg, reach=m2plus(milestone), anchor=anchor, oracles=orc)
+            if has_sites(der, anchor or fp):   # the instrumented model: the run's model and its ghost section (I15)
+                cm_ = CompiledMachine.instrumented(milestone, fp, der, cfg, anchor=anchor)
+            else:
+                cm_ = CompiledMachine.build(fp, cfg, reach=m2plus(milestone), anchor=anchor, oracles=orc)
             src = gen / "model" / f"{model_name(fp)}.bend"
             src.write_text(cm_.source.read_text())
             (gen / "model" / f"{model_name(fp)}.defs.json").write_text(bindings.dump(bindings.defs_index(src, cfg)))
@@ -452,6 +615,9 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
     neg_recs: dict = {}   # frozen negation laws (negation_of, holon.ir.negation_law), run first so the ∃-law links them
     for law in sorted(laws, key=lambda l: (not l.get("negation_of"), l["law_id"])):
         lid = law["law_id"]
+        if only is not None and lid not in only:
+            continue
+        sid = site_law(law) if m2plus(milestone) else None   # a SORT-site law (I15)
         cm, model_src, imp0, facts_sha = machine_for(law)
         d = gen / lid
         ld, pd, up = layout(milestone, gen, lid)   # I10: d for M0 and M1
@@ -503,7 +669,20 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                     if exists:
                         rec["witness"] = witness_raw
                     break
-            if status != "PROVED" and not exists:
+            if status != "PROVED" and sid is not None:   # I15: mirror the ghost chain (holon.gen.coercion)
+                text, why = mproofs.coercion_guard(em, cm.m, imp, cm.source.read_text())
+                if text is None:
+                    attempts.append({"kind": "proof", "generator": "coercion_guard", "error": f"does not apply: {why}"})
+                else:
+                    proof_f = write_pair(ld, pd, em.text, text)
+                    rr = bend.check(proof_f, cfg)
+                    ok, err = accepted(rr, proof_f, ld / "LAWS.bend", em, text)
+                    attempts.append({"kind": "proof", "generator": "coercion_guard", "exit_code": rr.code,
+                                     "marker": rr.marker, "seconds": rr.seconds, "basis": why,
+                                     **({} if ok else {"error": err})})
+                    if ok:
+                        status, r = "PROVED", rr
+            if status != "PROVED" and not exists and sid is None:
                 got = param_search(em, cm, imp, ld, pd, cfg, attempts)
                 if got is not None:
                     status, r = "PROVED", got
@@ -520,7 +699,22 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                 else:   # no frozen negation in this milestone: generated and decided here, labelled not frozen
                     rec["negation"] = decide_negation(law, cm, imp0, d / "neg", cfg)
                 attempts.append({"kind": "negation", "law_id": rec["negation"]["law_id"], "status": rec["negation"]["status"]})
-            if status != "PROVED" and not exists:
+            if status != "PROVED" and sid is not None:   # I15: one witness per entry point (S1-S3), each Bend-checked
+                status, r, em2, wits, bound = refute_site(law, em, cm, imp, d, ld, pd, cfg, attempts, shash, verdict,
+                                                          site_entries(der, lid), report)
+                rec["witnesses"] = wits
+                if status == "REFUTED":
+                    em = em2
+                    first = next(e for e in sorted(wits) if wits[e]["status"] == "REFUTED")
+                    w = wits[first]["witness"]
+                    rec["witness"] = w
+                    rec["difference"] = witness_difference(cm, law, w)
+                    t = triage.get(lid, {})
+                    rec["triage"] = t.get("triage", "finding")
+                    if t.get("why"):
+                        rec["triage_why"] = t["why"]
+                    rec["replay"] = replay_status(report, lid, w)
+            elif status != "PROVED" and not exists:
                 s = cm.explore(law)
                 bound = s["bound"]
                 attempts.append({"kind": "refute", "engine": "compiled-model trace search", "bound": s["bound"],
@@ -564,6 +758,12 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         except O.OracleError as e:
             attempts.append({"kind": "ir", "error": f"rejected by the oracle sidecar rules: {e}"})
             bound = "not searched: the statement's oracle premises do not resolve against the sidecar"
+        if sid is not None:
+            rec["site"] = sid
+            rec.setdefault("witnesses", {})
+            if status == "UNKNOWN" and not rec["witnesses"]:   # never searched (emission or IR failure)
+                rec["witnesses"] = {e: site_entry_record(None, bound or "not searched", None)
+                                    for e in site_entries(der, lid)}
         if status == "UNKNOWN":
             if "negation" in rec:   # keep the decided negation's files, drop everything else
                 for x in (ld / "LAWS.bend", pd / "PROOF.bend"):
@@ -588,7 +788,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         rec["status"] = status
         rec["attempts"] = attempts
         kbound["laws"][lid] = {"model": model_src.stem, "cone": law_cone(law, cm.facts, stmt_text, model_src, cfg)}
-        rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT))
+        rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT,
+                                     ledger_required=not test_milestone(milestone)))
         if law.get("ir_version") == "holon-ir/0.3":
             rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
         if law.get("negation_of"):
@@ -600,7 +801,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             # not a stand-in the model replaced by a parameter (abstractions, not_in_scope stand-ins)
             rec["ledger_assumptions"] = O.ledger_assumptions(rec["model_assumptions"], cm.oracles, cm.m)
             rec["model_assumptions"] = O.hypothesis_premises(law, cm.oracles)
-        rec["non_vacuity"] = inhabit.inhabit(law, milestone, ROOT, d, cfg, cm=cm, rec=rec)
+        rec["non_vacuity"] = inhabit.inhabit(law, milestone, ROOT, d, cfg, cm=cm, rec=rec,
+                                             entries=site_entries(der, lid) if sid is not None else None)
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:22s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")
@@ -610,6 +812,145 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         (out_dir / "splits.json").write_text(json.dumps(O.splits(laws, summary, oracles_of, milestone),
                                                         indent=2, sort_keys=True) + "\n")
     return summary
+
+
+# ---------------------------------------------------------------- I15: refutation per entry point
+S3_MAX = 20000   # spec/M2/predictions.json I15 thresholds: neighbourhood_prefixes_per_entry_point_max
+
+
+def site_entries(der: dict | None, lid: str) -> list[str]:
+    """A SORT-site law's entry points, sorted (laws/<M>/DERIVATION.json)."""
+    for e in (der or {}).get("laws", []):
+        if e.get("law_id") == lid:
+            return sorted(e.get("entry_points") or [])
+    raise ValueError(f"{lid}: no entry in DERIVATION.json (run `holon derive`)")
+
+
+def entry_replay(report: dict | None, lid: str, e: str, w: dict | None) -> dict:
+    """A per-entry witness's replay, from the committed replay report (replay/<m>/report.json, holon.mreplay), only
+    if the report replayed this witness."""
+    from .replay import witness_sha256
+    if w is None:
+        return {"status": "not_run", "detail": "no witness", "panic_site": None}
+    ent = (((report or {}).get("laws") or {}).get(lid) or {}).get("entries", {}).get(e)
+    if not isinstance(ent, dict):
+        return {"status": "not_run", "detail": "no replay report entry", "panic_site": None}
+    if ((report.get("entry_witness_sha256") or {}).get(lid) or {}).get(e) != witness_sha256(w):
+        return {"status": "not_run", "detail": "replay report is for a different witness", "panic_site": None}
+    return {"status": ent.get("status", "not_run"),
+            "detail": (f"real outcomes {ent.get('real')}; obstruction observed: {ent.get('obstruction_observed')} "
+                       f"@ target commit {str(report.get('morph_commit', ''))[:12]}")[:500],
+            "panic_site": ent.get("panic_site")}
+
+
+def site_entry_record(w: dict | None, bound: str, check, laws: Path | None = None, proof: Path | None = None,
+                      verdict: str = "not_run", stage: str | None = None, replay: dict | None = None) -> dict:
+    """One entry point's part of a SORT-site record ("witnesses"; tests_m2/test_sort_site_outcomes.py)."""
+    ok = check is not None and w is not None
+    return {"status": "REFUTED" if ok else "UNKNOWN", "witness": w if ok else None,
+            "laws": relpath(laws) if ok and laws else None, "proof": relpath(proof) if ok and proof else None,
+            "checker": {"exit_code": check.code, "marker": check.marker} if ok else None,
+            "verdict": verdict if ok else "not_run", "stage": stage if ok else None, "bound": bound,
+            "replay": replay or {"status": "not_run", "detail": "no witness", "panic_site": None}}
+
+
+def counter_text(law: dict, em2, cm: CompiledMachine, imp: str, w: dict, tables: dict | None) -> str:
+    """The counter-law proof of a witness (holon.gen.mproofs.counter), its oracle tables materialised at the points
+    the search's evaluation queried (I12: the sidecar instance applied there)."""
+    wr = mlaws.resolve_witness(cm.m, em2.binders, w, {p_: [k for k, _ in es] for p_, es in (tables or {}).items()})
+    tabs = mlaws.witness_tabs(cm.m, em2.binders, wr)
+    env = {n: mlaws.value_literal(cm.m, t, wr[n], tabs) for _, n, t in em2.binders}
+    lhs, _, ty = mlaws.Emitter(cm.m).claims(law["statement"], env, {n: ("State" if t == "Reach" else t)
+                                                                   for _, n, t in em2.binders})[0]
+    return mproofs.counter(em2, cm.m, imp, wr, lhs, ty)
+
+
+def refute_site(law: dict, em, cm: CompiledMachine, imp: str, d: Path, ld: Path, pd: Path, cfg: dict, attempts: list,
+                shash: str, verdict: bool, entries: list[str], report: dict | None):
+    """Refutation of a SORT-site law, once per entry point (sorted): S1+S2 for every entry point, then S3 for those
+    left without a checked witness, seeded by the checked ones (holon/js/explore.mjs). Each witness is a counter-law
+    checked by Bend (and BendTT when enabled) in proofs/<id>/entry_<e>/PROOF.bend, importing the law's LAWS.bend; the
+    primary witness (proofs/<id>/PROOF.bend) is the first entry point, sorted, with a checked counter-law.
+    Returns (status, primary check, emitted counter-law, witnesses by entry point, bound)."""
+    lid = law["law_id"]
+    em2 = mlaws.Emitter(cm.m).emit(law, imp, counter=True, note=shash)
+    for x in {d, ld, pd}:
+        shutil.rmtree(x, ignore_errors=True)
+    ld.mkdir(parents=True, exist_ok=True)
+    (ld / "LAWS.bend").write_text(em2.text)
+    got: dict = {}
+    bounds: dict = {}
+    eimp = "../" + imp   # proofs/<id>/entry_<e>/ lies one level below proofs/<id>/
+
+    def try_entry(e: str, found: dict, stage: str) -> None:
+        w, tables = found["witness"], found.get("tables")
+        de = pd / f"entry_{e}"
+        try:
+            text = counter_text(law, em2, cm, eimp, w, tables)
+        except (mlaws.Unsupported, ValueError, KeyError) as err:
+            attempts.append({"kind": "counter-law", "generator": "counter", "entry": e, "stage": stage,
+                             "error": f"inexpressible: {err}"})
+            return
+        de.mkdir(parents=True, exist_ok=True)
+        pf = de / "PROOF.bend"
+        pf.write_text(separated_proof(text, ld, de))
+        rr = bend.check(pf, cfg)
+        ok, why = accepted(rr, pf, ld / "LAWS.bend", em2, text)
+        attempts.append({"kind": "counter-law", "generator": "counter", "entry": e, "stage": stage,
+                         "exit_code": rr.code, "marker": rr.marker, "seconds": rr.seconds, **({} if ok else {"error": why})})
+        v = "not_run"
+        if ok and verdict:
+            vv = bend.check_verdict(pf, cfg)
+            v = "checked" if vv.ok else "failed"
+            attempts.append({"kind": "verdict", "entry": e, "kernel": "BendTT (Lean-proven)", "exit_code": vv.code,
+                             "marker": vv.marker, "seconds": vv.seconds})
+        if ok and v != "failed":
+            got[e] = {"witness": w, "tables": tables, "check": rr, "proof": pf, "verdict": v, "stage": stage}
+        else:
+            shutil.rmtree(de, ignore_errors=True)
+
+    s2 = cm.site_search(law, "refute", entries, "S2")
+    for e in entries:
+        f = s2["site"][e]
+        bounds[e] = f["bound"]
+        if f["witness"] is not None:
+            try_entry(e, f, "S2")
+    attempts.append({"kind": "refute", "engine": "SORT-site search (S1 boundary variants, S2 prefixes)",
+                     "tried": s2["tried"], "hit": {e: s2["site"][e]["witness"] is not None for e in entries},
+                     "notes": s2.get("notes", [])})
+    missing = [e for e in entries if e not in got]
+    if missing and got:
+        seeds = {e: got[e]["witness"][next(b["name"] for b in law["statement"]["binders"] if b["type"] == "Reach")]["run"]
+                 for e in sorted(got)}
+        s3 = cm.site_search(law, "refute", missing, "S3", seeds=seeds, s3max=S3_MAX)
+        for e in missing:
+            f = s3["site"][e]
+            bounds[e] = f["bound"]
+            if f["witness"] is not None:
+                try_entry(e, f, "S3")
+        attempts.append({"kind": "refute", "engine": "SORT-site search (S3 neighbourhood of the checked witnesses)",
+                         "tried": s3["tried"], "hit": {e: s3["site"][e]["witness"] is not None for e in missing},
+                         "notes": s3.get("notes", [])})
+    wits = {}
+    for e in entries:
+        g = got.get(e)
+        wits[e] = site_entry_record(g["witness"] if g else None, bounds.get(e, "not searched"), g["check"] if g else None,
+                                    ld / "LAWS.bend", g["proof"] if g else None, g["verdict"] if g else "not_run",
+                                    g["stage"] if g else None, entry_replay(report, lid, e, g["witness"] if g else None))
+    bound = "; ".join(f"{e}: {bounds.get(e, 'not searched')}" for e in entries)
+    if not got:
+        return "UNKNOWN", None, None, wits, bound
+    first = sorted(got)[0]
+    text = counter_text(law, em2, cm, imp, got[first]["witness"], got[first]["tables"])
+    pf = write_pair(ld, pd, em2.text, text)
+    rr = bend.check(pf, cfg)
+    ok, why = accepted(rr, pf, ld / "LAWS.bend", em2, text)
+    attempts.append({"kind": "counter-law", "generator": "counter", "entry": first, "primary": True,
+                     "exit_code": rr.code, "marker": rr.marker, "seconds": rr.seconds, **({} if ok else {"error": why})})
+    if not ok:   # the entry's own file checked; the primary copy must too, else nothing is claimed
+        return "UNKNOWN", None, None, {e: site_entry_record(None, bounds.get(e, "not searched"), None) for e in entries}, \
+            bound + f"; the primary counter-law copy was rejected: {why}"
+    return "REFUTED", rr, em2, wits, bound
 
 
 def param_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dict, attempts: list):

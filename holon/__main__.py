@@ -1,6 +1,7 @@
 """holon CLI.
 
   python -m holon run  --milestone M0 [--facts PATH] [--out DIR] [--gen-dir DIR] [--no-registry] [--core import|paste]
+                       [--laws ID,ID]   (M1+: decide only those laws; I15)
   python -m holon gate --milestone M0 [--root DIR] [--report PATH] [--checks G6,G9]
   python -m holon audit prereg --milestone M2 [--root DIR]
   python -m holon audit status [--json] [--root DIR]
@@ -14,6 +15,8 @@
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
   python -m holon diagram --milestone M2 [--out DIR] [--root DIR]   (one diagram per fact document)
   python -m holon sorts [--milestone M2] [--root DIR] [--out DIR] [--facts PATH ...]   (refined sorts, I13)
+  python -m holon derive --milestone M2 [--root DIR] [--out DIR] [--obstructions PATH] [--facts PATH ...]
+                         [--assignment PATH] [--against DIR --diff PATH]   (rules registry: laws/<M>/, I15)
   python -m holon native --milestone M0 [--out PATH]    (native C model, results/M2/native.json, I16)
   python -m holon evidence [--milestone M2] [--root DIR] [--out PATH]   (evidence set E1-E6, gen/M2/evidence.json, I14)
   python -m holon refine --milestone M0 [--edges E1,E2] [--out DIR] [--morph PATH] [--work DIR] [--fix C ..]
@@ -37,6 +40,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["sorts"]:  # likewise for holon.sorts
         from . import sorts
         return sorts.main(argv[1:])
+    if argv[:1] == ["derive"]:  # likewise for holon.rules (the rules registry, I15)
+        from . import rules
+        return rules.main(argv[1:])
     if argv[:1] == ["native"]:  # likewise for holon.model_native
         from . import model_native
         return model_native.main(argv[1:])
@@ -53,6 +59,8 @@ def main(argv=None) -> int:
     r.add_argument("--no-registry", action="store_true")
     r.add_argument("--core", choices=["import", "paste"], default="import",
                    help="M2+ milestones: import the core library (default) or paste it into each proof (baseline)")
+    r.add_argument("--laws", help="comma-separated law ids: decide only those laws (the registry is still checked whole; "
+                                  "state-machine milestones)")
     g = sub.add_parser("gate", help="re-check everything from scratch (G1-G5, G7, G11, GENV, canaries)")
     g.add_argument("--milestone", default="M0")
     g.add_argument("--root")

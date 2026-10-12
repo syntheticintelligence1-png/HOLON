@@ -29,7 +29,11 @@ core_and_lt_add, ...), now generated and checked once; transitivity (core_le_tra
 core_lt_of_lt_le); monotonicity of sums (core_le_add_mono); and the guard-to-subtraction shapes a SORT
 coercion guard rests on (a < b, b >= 1, b <= a, !(a < b), !(a > b) give the sign obligation of a
 subtraction: core_le_of_lt, core_one_le_of_lt, core_le_of_ge, core_le_of_not_lt, core_le_of_not_gt, and
-core_sub_add / core_sub_add_of_lt for the value of a non-truncated Nat.sub).
+core_sub_add / core_sub_add_of_lt for the value of a non-truncated Nat.sub). Since I15 also the shapes
+holon.gen.coercion (SORT-site coercion guards) needs to turn ONE passed condition into the obligation
+`is_le(subtrahend, minuend)`: core_le_of_gt (a > b), core_le_of_not_le and core_one_le_sub_of_not_le (a <= b failed,
+for b - a and (a - b) - 1); a hypothesis {X == False{}} whose X computes to True{} is closed ex falso through
+Equal.sym.
 
 Generated proofs of M2+ milestones import the core as `../core/PROOF.bend` (which imports
 `core/LAWS.bend`) and call a lemma through the core LAWS alias `C` (holon.gen.mproofs.core_ref), so the
@@ -104,6 +108,14 @@ CATALOG = [
     ("core_and_lt_add", [("", "b", "Bool"), ("+", "x", "Nat"), ("+", "t", "Nat"), ("+", "dt", "Nat")],
      [("e", "{Bool.and(b, Nat.is_lt(x, t)) == True{} : Bool}")],
      "{Bool.and(b, Nat.is_lt(x, Nat.add(t, dt))) == True{} : Bool}", "bool1"),
+    # ---- I15 (SORT-site coercion guards, holon.gen.mproofs.coercion_guard): one passed condition gives the sign
+    # obligation of a subtraction, `is_le(subtrahend, minuend)`, by ONE of these (or the earlier guard shapes)
+    ("core_le_of_gt", [("", "a", "Nat"), ("", "b", "Nat")], [("e", "{Nat.is_gt(a, b) == True{} : Bool}")],
+     _LE % ("b", "a"), "nat2"),
+    ("core_le_of_not_le", [("", "a", "Nat"), ("", "b", "Nat")], [("e", "{Nat.is_le(a, b) == False{} : Bool}")],
+     _LE % ("b", "a"), "nat2"),
+    ("core_one_le_sub_of_not_le", [("", "a", "Nat"), ("", "b", "Nat")], [("e", "{Nat.is_le(a, b) == False{} : Bool}")],
+     _LE % ("1n", "Nat.sub(a, b)"), "nat2"),
 ]
 
 HELPERS = ["def core_efq(-P: Type, x: Empty) -> P:", "  match x:", "",
@@ -440,6 +452,8 @@ class _Lemma:
                 out.append(f"core_efq({goal}, {hn}({{==}}))")
             else:
                 out.append(f"core_efq({goal}, {self.prefix}core_false_ne_true({hn}))")
+                if ht.rstrip().endswith("== False{} : Bool}"):   # {X == False{}} where X computes to True{} (I15)
+                    out.append(f"core_efq({goal}, {self.prefix}core_false_ne_true(Equal.sym(Bool, True{{}}, False{{}}, {hn})))")
         if k and all(c in _PRED for c in case):   # induction hypothesis at the predecessors
             args = [_PRED[c] for c in case] + [n for _, n, _ in self.bs[k:]]
             hargs = []

@@ -1,7 +1,7 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "title": "HOLON law IR (holon-ir/0.3): typed state-machine laws with function binders, CF/hyp premises and scope",
- "description": "Extends holon-ir/0.2 (I7): rule_catalog_version (hashed), Fn<A,B>, Bytes(n), List<Nat> and record-ref binder types (a record type of the law's facts, checked against them by holon.ir.check_binder_types: G3 and holon run), Reach, the application term {app: f, args}, premises {cf: {fn, set: [terms]}} (a finite set; global injectivity is rejected by holon.ir.check_premises, G3), {hyp: {name}} and {neq: [a, b]}, statement.scope (bounded{H} bounds every Trace binder to H actions; at_state{ref} is Unsupported until a generator resolves the state), structured maps_to, and the negation links of an existential law and its frozen negation subform (negation, negation_of: holon.ir.negation_law). The 0.3 statement hash covers the statement and the content hashes (refs) of the definitions it depends on, transitively (holon.gen.refs), not the facts bundle.",
+ "description": "Extends holon-ir/0.2 (I7): rule_catalog_version (hashed), Fn<A,B>, Bytes(n), List<Nat> and record-ref binder types (a record type of the law's facts, checked against them by holon.ir.check_binder_types: G3 and holon run), Reach, the application term {app: f, args}, premises {cf: {fn, set: [terms]}} (a finite set; global injectivity is rejected by holon.ir.check_premises, G3), {hyp: {name}} and {neq: [a, b]}, statement.scope (bounded{H} bounds every Trace binder to H actions; at_state{ref} is Unsupported until a generator resolves the state), structured maps_to, and the negation links of an existential law and its frozen negation subform (negation, negation_of: holon.ir.negation_law). The 0.3 statement hash covers the statement and the content hashes (refs) of the definitions it depends on, transitively (holon.gen.refs), not the facts bundle. I15 adds, additively, the SORT-site term {site: ID, on: A, from: S} (holon.sorts.sites): the Bool 'every evaluation of the subtraction site ID while action A runs from state S has minuend >= subtrahend', rendered site_ok[ID](A, S); its statement ref site:ID hashes the site's spec (basis and hit points) computed from the facts and the SORT-site sidecar (holon.gen.refs).",
  "type": "object",
  "required": [
   "ir_version",
@@ -353,6 +353,9 @@
     },
     {
      "$ref": "#/$defs/t_app"
+    },
+    {
+     "$ref": "#/$defs/t_site"
     }
    ]
   },
@@ -690,6 +693,28 @@
      "items": {
       "$ref": "#/$defs/term"
      }
+    }
+   }
+  },
+  "t_site": {
+   "type": "object",
+   "required": [
+    "site",
+    "on",
+    "from"
+   ],
+   "additionalProperties": false,
+   "description": "a SORT-site term (I15): the I13 site id <model>:<span>:<x8>, the action, the state",
+   "properties": {
+    "site": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_]+:[^ ]+:[0-9a-f]{8}$"
+    },
+    "on": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
     }
    }
   }

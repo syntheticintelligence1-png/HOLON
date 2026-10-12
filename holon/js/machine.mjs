@@ -4,10 +4,11 @@
 //   Value (JSON) = number (Nat) | boolean | [Value..] (List) | {"$": Ctor, field: Value, ..} | {"$fn"...} n/a
 // stdout: {"results": [Value | {"error": msg}, ..]}   (constructors decoded as {"$": name, ...fields})
 import { readFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
 
 const req = JSON.parse(readFileSync(0, "utf8"));
-const M = (await import(pathToFileURL(req.module).href)).default;
+// req.oracles (M2+ models with oracle parameters, I12/I15): lookups answered by the sidecar instances
+const { loadModel, tabsOf } = await import("./oracle_model.mjs");
+const M = await loadModel(req.module, req.oracles || null);
 
 export function encode(v) {
   if (typeof v === "number") return BigInt(v);
@@ -41,7 +42,7 @@ function evalExpr(e) {
   if (e && typeof e === "object" && "fn" in e) {
     const f = M[e.fn];
     if (typeof f !== "function") throw new Error("model has no function " + e.fn);
-    return f(...e.args.map(evalExpr));
+    return f(...e.args.map(evalExpr), ...tabsOf(req.oracles, e.fn));
   }
   if (e && typeof e === "object" && "val" in e) return encode(e.val);
   return encode(e);

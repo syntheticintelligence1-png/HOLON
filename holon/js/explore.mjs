@@ -31,8 +31,12 @@ if (ORC && Object.keys(PARAMS).length) {
   for (const p of Object.keys(PARAMS)) {
     const head = `function $ap_${p}$(`;
     if (src.split(head).length !== 2) { ok = false; break; }
+    // an override (globalThis.__HOLON_OVR[p], set by the SORT-site search, I15) answers every lookup of p with a
+    // concrete instance, whatever table the model threads; without one the table answers (I12)
     src = src.replace(head, `function $ap_${p}$__holon(`)
-      + `\nfunction $ap_${p}$(t, x) { globalThis.__HOLON_PROBE.push(["${p}", x]); return $ap_${p}$__holon(t, x); }\n`;
+      + `\nfunction $ap_${p}$(t, x) { globalThis.__HOLON_PROBE.push(["${p}", x]); `
+      + `const o = globalThis.__HOLON_OVR && globalThis.__HOLON_OVR["${p}"]; `
+      + `return o ? o(x) : $ap_${p}$__holon(t, x); }\n`;
   }
   globalThis.__HOLON_PROBE = PROBE;
   if (ok) M = (await import("data:text/javascript;base64," + Buffer.from(src).toString("base64"))).default;
@@ -209,8 +213,19 @@ function evalT(t, env) {
     return { ty: "?", v: f.v(x) };
   }
   if ("plus" in t) return { ty: "Nat", v: evalT(t.plus[0], env).v + evalT(t.plus[1], env).v };
+  if ("site" in t && "on" in t && "from" in t) {   // a SORT-site term (I15): site_<x> of the instrumented model
+    const g = (req.sites || {})[t.site];
+    if (!g) throw new Error(`no ghost predicate for the site ${t.site} (req.sites)`);
+    return { ty: "Bool", v: FN(g.site)(evalT(t.on, env).v, evalT(t.from, env).v, ...siteTabs(g)) };
+  }
   throw new Error("term " + JSON.stringify(t));
 }
+// the oracle tables a ghost predicate takes (the ones the model threads), from the statement's tables
+const siteTabs = (g) => (g.tabs || []).map((p) => {
+  if (CTX && CTX.tables[p]) return CTX.tables[p].host;
+  if (globalThis.__HOLON_OVR && globalThis.__HOLON_OVR[p]) return { $: "Nil" };   // answered by the override
+  throw new Error(`${g.site} needs the oracle table ${p}, which the statement does not bind`);
+});
 function reAct(a) { const o = { $: a.$ }; for (const [k, v] of Object.entries(a)) if (k !== "$") o[k] = enc(v); return o; }
 class Unassigned extends Error { constructor(v) { super("unassigned " + v); this.v = v; } }
 const val = (r) => (r.plain ? r.v : dec(r.v));
@@ -507,6 +522,147 @@ function finalTables(env) {
   LAST = null;
   withTables(env, () => { for (const p of assume) holdsRaw(p, env); for (const c of claims) holdsRaw(c, env); });
   return Object.fromEntries(ps.map((p) => [p, LAST.T[p].entries]));
+}
+// ---------------------------------------------------------------- SORT-site search (I15)
+// req.site = {"fn": site_<x>, "hit": hit_<x>, "entries": [entry points, sorted], "mode": "refute" | "inhabit",
+//             "stage": "S2" | "S3", "seeds": {entry point: prefix} (S3: Bend-checked witnesses of the other entry
+//             points), "s3max": prefixes per entry point (S3)}
+// Stages (the thresholds of spec/M2/predictions.json, key I15):
+//   S1 candidates at a state: the entry point's actions from the search policy, then, for each of them and each Nat
+//      input in input order, the variants v - 1 (when v >= 1), v + 1 and 0, without repeats (boundary values);
+//   S2 the reachable prefixes (BFS over successful policy actions; prefixDepth, maxPrefixes) in order: the first
+//      (prefix, candidate) where the ghost predicate is false (refute) / its at_site predicate true (inhabit);
+//   S3 (refute, only for entry points S2 left without a witness) for each seed (entry points sorted), each insertion
+//      position i of its prefix and each sequence of one or two successful policy actions at the state after
+//      prefix[:i] (BFS order), the prefix prefix[:i] ++ seq ++ prefix[i:] if all of its actions succeed, then S1's
+//      candidates there; at most s3max prefixes per entry point.
+// Every oracle parameter of the law is the sidecar's concrete instance (the I12 design; the empty table where a
+// parameter has none): a lookup override answers it while prefixes are explored and candidates evaluated. A witness's
+// tables are then materialised at the points its evaluation queries, and the predicate re-evaluated on them without
+// the override (untrusted: only a Bend-checked counter-law or inhabitant counts).
+function siteSearch(S) {
+  const bs = law.statement.binders;
+  const sB = bs.find((b) => b.type === "Reach" || b.type === "State");
+  const aB = bs.find((b) => b.type === "Act");
+  const pBs = bs.filter(isParamB);
+  const threaded = ORC ? ORC.threaded : [];
+  const OVR = {}, pvals = {};
+  for (const b of pBs) {
+    const ins = ((ORC && ORC.instances) || []).filter((i) => i.param === b.name && INST && typeof INST[i.fn] === "function");
+    if (ins.length) { pvals[b.name] = { instance: ins[0].id }; OVR[b.name] = (x) => INST[ins[0].fn](x); }
+    else { const cod = PARAMS[b.name].cod; pvals[b.name] = { table: [] }; OVR[b.name] = () => dflt(cod); }
+  }
+  for (const p of threaded) if (!OVR[p]) throw new Error(`the site law binds no oracle parameter ${p}, which the model threads`);
+  globalThis.__HOLON_OVR = OVR;
+  const nil = threaded.map(() => ({ $: "Nil" }));
+  const pred = (fn, a, st) => { tried++; PROBE.length = 0; return M[fn](mkAct(a), st, ...nil) === true; };
+  const want = S.mode === "inhabit";   // the value that makes a witness: hit true, or site false
+  const fn = want ? S.hit : S.fn;
+  const POL = new Map();
+  const pol = (st) => { const k = stateKey(st); if (!POL.has(k)) POL.set(k, policy(st)); return POL.get(k); };
+  function s1(st, e) {
+    const base = pol(st).filter((a) => a.op === e);
+    const out = [], seen = new Set();
+    const push = (a) => { const k = key(a); if (!seen.has(k)) { seen.add(k); out.push(a); } };
+    base.forEach(push);
+    for (const a of base) for (const [n, ty] of ACTIONS[e].inputs) {
+      if (ty !== "Nat") continue;
+      const v = a[n];
+      for (const w of [v >= 1 ? v - 1 : null, v + 1, 0]) if (w !== null) push({ ...a, [n]: w });
+    }
+    return out;
+  }
+  // a witness's tables, materialised at the points its evaluation queries (fixpoint), and its predicate value there
+  function materialise(trace, a) {
+    const pts = Object.fromEntries(threaded.map((p) => [p, new Map()]));
+    const collect = () => { let grew = false; for (const [p, x] of PROBE) { if (!(p in pts)) continue;
+      const d = dec(x), k = key(d); if (!pts[p].has(k)) { pts[p].set(k, d); grew = true; } } return grew; };
+    globalThis.__HOLON_OVR = OVR;
+    PROBE.length = 0;
+    M[fn](mkAct(a), M.run(toList(trace.map(mkAct)), s0, ...nil), ...nil);
+    collect();
+    globalThis.__HOLON_OVR = null;
+    let val = null, tabs = null;
+    for (let it = 0; it < 32; it++) {
+      tabs = Object.fromEntries(threaded.map((p) => [p, [...pts[p].values()].map((k) => [k, dec(OVR[p](enc(k)))])]));
+      const hosts = threaded.map((p) => toList(tabs[p].map(([k, v]) => ({ $: "HO_" + p, k: enc(k), v: enc(v) }))));
+      PROBE.length = 0;
+      val = M[fn](mkAct(a), M.run(toList(trace.map(mkAct)), s0, ...hosts), ...hosts) === true;
+      if (!collect()) break;
+    }
+    globalThis.__HOLON_OVR = OVR;
+    return { val, tabs: threaded.length ? tabs : null };
+  }
+  const W = (trace, a) => ({ [sB.name]: { run: trace }, [aB.name]: a, ...pvals });
+  const prefixBound = () => `S1+S2: reachable prefixes, BFS depth ${B.prefixDepth} over successful policy actions `
+    + `(<= ${B.maxPrefixes} states; ${prefixes().length} explored), at each the entry point's policy actions and their `
+    + `Nat boundary variants (v - 1 when v >= 1, v + 1, 0)` + (pBs.length ? `; oracle parameters: ${pBs.map((b) =>
+      `${b.name} = ${pvals[b.name].instance ? "the sidecar instance " + pvals[b.name].instance : "the empty table"}`).join(", ")}` : "");
+  const out = {};
+  if (S.mode === "inhabit") {
+    let hit = null;
+    for (const p of prefixes()) {
+      for (const e of S.entries) { for (const a of s1(p.state, e)) if (pred(fn, a, p.state)) { hit = { e, trace: p.trace, a }; break; } if (hit) break; }
+      if (hit) break;
+    }
+    let w = null, tabs = null;
+    if (hit) {
+      const m = materialise(hit.trace, hit.a);
+      if (m.val) { w = W(hit.trace, hit.a); tabs = m.tabs; }
+      else notes.push("the at_site witness did not hold on its materialised tables: dropped");
+    }
+    return { inhabit: { witness: w, entry: hit ? hit.e : null, tables: tabs, bound: prefixBound() }, tried };
+  }
+  for (const e of S.entries) {
+    let found = null, stage = S.stage, extra = "";
+    if (S.stage === "S2") {
+      for (const p of prefixes()) {
+        for (const a of s1(p.state, e)) if (!pred(fn, a, p.state)) { found = { trace: p.trace, a }; break; }
+        if (found) break;
+      }
+    } else {
+      const seen = new Set(), max = S.s3max || 20000;
+      let n = 0;
+      const seeds = Object.keys(S.seeds || {}).filter((x) => x !== e).sort();
+      outer:
+      for (const se of seeds) {
+        const pre = S.seeds[se];
+        for (let i = 0; i <= pre.length; i++) {
+          const base = runJ(pre.slice(0, i), s0);
+          const seqs = [];
+          for (const a1 of pol(base)) { const t1 = stepJ(a1, base); tried++; if (lastOk(t1)) seqs.push([[a1], t1]); }
+          const ones = seqs.slice();
+          for (const [[a1], t1] of ones) for (const a2 of pol(t1)) { const t2 = stepJ(a2, t1); tried++; if (lastOk(t2)) seqs.push([[a1, a2], t2]); }
+          for (const [seq, t] of seqs) {
+            let st = t, ok = true;
+            for (const a of pre.slice(i)) { st = stepJ(a, st); if (!lastOk(st)) { ok = false; break; } }
+            if (!ok) continue;
+            const tr = [...pre.slice(0, i), ...seq, ...pre.slice(i)];
+            const k = key(tr);
+            if (seen.has(k)) continue;
+            seen.add(k);
+            if (++n > max) break outer;
+            for (const a of s1(st, e)) if (!pred(fn, a, st)) { found = { trace: tr, a }; break outer; }
+          }
+        }
+      }
+      extra = `; S3: one or two successful policy actions inserted at every position of the prefixes of the checked `
+        + `witnesses of ${seeds.join(", ") || "no other entry point"} (<= ${max} prefixes; ${Math.min(n, max)} searched)`;
+    }
+    let w = null, tabs = null;
+    if (found) {
+      const m = materialise(found.trace, found.a);
+      if (!m.val) { w = W(found.trace, found.a); tabs = m.tabs; }
+      else notes.push(`${e}: the witness did not refute on its materialised tables: dropped`);
+    }
+    out[e] = { witness: w, stage: w ? stage : null, tables: tabs, bound: prefixBound() + extra };
+  }
+  return { site: out, tried };
+}
+if (req.site) {
+  const r = siteSearch(req.site);
+  process.stdout.write(JSON.stringify({ ...r, notes }));
+  process.exit(0);
 }
 if (req.evaluate) {
   // evaluate a law at a given assignment: {"premises": [bool], "claims": [bool]} (and, with oracle parameters,

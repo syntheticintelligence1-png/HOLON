@@ -65,8 +65,10 @@ def _base(rec: dict) -> dict:
             "parent_statement_hash": rec["statement_hash"], "bound": None}
 
 
-def inhabit(law: dict, m: str, root: Path, out_dir: Path, cfg: dict, cm=None, rec: dict | None = None) -> dict:
-    """The non_vacuity record of a law whose result record `rec` is finished."""
+def inhabit(law: dict, m: str, root: Path, out_dir: Path, cfg: dict, cm=None, rec: dict | None = None,
+            entries: list[str] | None = None) -> dict:
+    """The non_vacuity record of a law whose result record `rec` is finished. entries: a SORT-site law's entry points
+    (I15), where the at_site inhabitant is searched."""
     root, out_dir = Path(root), Path(out_dir)
     out = _base(rec)
     shutil.rmtree(out_dir / NV, ignore_errors=True)
@@ -79,6 +81,8 @@ def inhabit(law: dict, m: str, root: Path, out_dir: Path, cfg: dict, cm=None, re
         return {**out, "bound": "not attempted: the law is not PROVED"}
     if law["ir_version"] == "holon-ir/0.1":
         return _inhabit_01(law, m, root, out_dir, cfg, out)
+    if site_id(law) is not None:
+        return _inhabit_site(law, root, out_dir, cfg, cm, out, entries or [])
     return _inhabit_02(law, root, out_dir, cfg, cm, out)
 
 
@@ -271,10 +275,22 @@ def texts_02(law: dict, machine, model_stem: str, witness: dict) -> tuple[str, s
                                      note=f"non-vacuity of {law['law_id']} ({law_hash(law, machine.f, getattr(machine, 'orc', None))})")
     if getattr(machine, "oparams", None):
         witness = mlaws.resolve_witness(machine, em.binders, witness, premise_points(law, machine, witness))
-    proof = mproofs.evaluate(em, machine, imp, witness)
+    proof = _evaluate(em, machine, imp, witness)
     if proof is None:
         raise ValueError("no evaluation proof for the inhabitant")
     return em.name, em.text, proof
+
+
+def _evaluate(em, machine, imp: str, witness):
+    """mproofs.evaluate without the core library: an inhabitant is proved by computation and calls no core lemma, so
+    its text must not depend on the run's core mode (G11V regenerates it outside any run)."""
+    from .gen import mproofs
+    old = mproofs.CORE_MODE, mproofs.CORE_PASTE
+    mproofs.CORE_MODE, mproofs.CORE_PASTE = None, ""
+    try:
+        return mproofs.evaluate(em, machine, imp, witness)
+    finally:
+        mproofs.CORE_MODE, mproofs.CORE_PASTE = old
 
 
 def degenerate(cm, law: dict, witness: dict) -> bool | None:
@@ -332,6 +348,71 @@ def _inhabit_02(law: dict, root: Path, out_dir: Path, cfg: dict, cm, out: dict) 
     note = r.get("bound") if reach is not False else f"no reachable inhabitant within ({first}); constructed states"
     return {**out, "status": "inhabited", "law": _rel(out_dir / NV / "LAWS.bend", root), "witness": w,
             "reachable": reach, "degenerate": degenerate(cm, law, w), "bound": note}
+
+
+# ---------------------------------------------------------------- SORT-site laws (I15)
+def site_id(law: dict) -> str | None:
+    """The site of a SORT-site law (holon.mpipeline.site_law), else None."""
+    from .mpipeline import site_law
+    return site_law(law)
+
+
+def site_inhabitant_ir(law: dict) -> dict:
+    """The at_site premise of a SORT-site law as an existential statement: the parent's binders made existential,
+    and the claim hit_<x>(a, s[, tables]) == true ({"at_site": ID}, the site term's premise: holon.gen.mlaws). The
+    site term folds at_site in (∀p. at_site(p, s0, ℓ) → nonneg(d_ℓ)), so the Reach binder alone would be inhabited by
+    s0 and say nothing (whitepaper §12.3, L21)."""
+    st = law["statement"]
+    term = st["claim"]["eq"][0]
+    out = {"ir_version": law["ir_version"], "law_id": "NV_" + law["law_id"], "rule": law["rule"],
+           "facts": law.get("facts"), "facts_sha256": law["facts_sha256"],
+           "statement": {"binders": [{"q": "exists", "name": b["name"], "type": b["type"]} for b in st["binders"]],
+                         "claim": {"eq": [{"at_site": term["site"], "on": term["on"], "from": term["from"]},
+                                          {"bool": True}]}}}
+    if "rule_catalog_version" in law:
+        out["rule_catalog_version"] = law["rule_catalog_version"]
+    return out
+
+
+def texts_site(law: dict, machine, model_stem: str, witness: dict) -> tuple[str, str, str]:
+    """(law name, LAWS.bend, PROOF.bend) of a SORT-site law's at_site inhabitant: a pure function of the frozen IR,
+    the model and the witness (its oracle parameters are explicit tables), so G11V regenerates and compares both."""
+    from .gen import mlaws, mproofs
+    from .gen.refs import law_hash
+    imp = MODEL_IMPORT.format(model_stem)
+    em = mlaws.Emitter(machine).emit(site_inhabitant_ir(law), imp,
+                                     note=f"non-vacuity (at_site) of {law['law_id']} "
+                                          f"({law_hash(law, machine.f, getattr(machine, 'orc', None))})")
+    w = mlaws.resolve_witness(machine, em.binders, witness, {}) if getattr(machine, "oparams", None) else witness
+    proof = _evaluate(em, machine, imp, w)
+    if proof is None:
+        raise ValueError("no evaluation proof for the inhabitant")
+    return em.name, em.text, proof
+
+
+def _inhabit_site(law: dict, root: Path, out_dir: Path, cfg: dict, cm, out: dict, entries: list[str]) -> dict:
+    """A reachable (s, a) at which a's evaluation from s reaches a hit of the site (stages S1 and S2 of the SORT-site
+    search, holon/js/explore.mjs), proved like a counter-law: its state is a run from s0 with its R0/RStep chain."""
+    from .gen import mlaws
+    r = cm.site_search(law, "inhabit", entries)
+    got = r["inhabit"]
+    w = got["witness"]
+    if w is None:
+        return {**out, "bound": f"no reachable state and action reach a hit within: {got['bound']}"}
+    for b in law["statement"]["binders"]:   # an oracle parameter is the table of its instance at the queried points
+        if isinstance(w.get(b["name"]), dict) and set(w[b["name"]]) == {"instance"}:
+            w = {**w, b["name"]: {"table": [list(x) for x in (got.get("tables") or {}).get(b["name"], [])]}}
+    try:
+        name, laws_text, proof = texts_site(law, cm.m, Path(cm.source).stem, w)
+    except (mlaws.Unsupported, ValueError) as e:
+        return {**out, "bound": f"inhabitant inexpressible: {e}"}
+    ok, why = _check(out_dir / NV, name, laws_text, proof, cfg)
+    if not ok:
+        shutil.rmtree(out_dir / NV, ignore_errors=True)
+        return {**out, "witness": w, "bound": why}
+    return {**out, "status": "inhabited", "law": _rel(out_dir / NV / "LAWS.bend", root), "witness": w,
+            "reachable": True, "degenerate": None,
+            "bound": f"at_site inhabitant through {got['entry']}: {got['bound']}"}
 
 
 # ---------------------------------------------------------------- holon-ir/0.1
@@ -413,8 +494,10 @@ def expected_texts(law: dict, m: str, root: Path, rec: dict) -> tuple[str, str, 
     from .gen.oracles import Oracles
     from .mpipeline import m2plus
     orc = Oracles.for_milestone(m, root / law["facts"], root)
-    return texts_02(law, Machine(F.load(root / law["facts"]), root / law["facts"], oracles=orc, m2plus=m2plus(m)), model,
-                    rec["non_vacuity"]["witness"])
+    mach = Machine(F.load(root / law["facts"]), root / law["facts"], oracles=orc, m2plus=m2plus(m))
+    if site_id(law) is not None:
+        return texts_site(law, mach, model, rec["non_vacuity"]["witness"])
+    return texts_02(law, mach, model, rec["non_vacuity"]["witness"])
 
 
 def premise_mismatch(law: dict, m: str, root: Path, laws_text: str) -> str | None:
@@ -501,6 +584,12 @@ def g11v(gate) -> tuple[bool, str]:
             bad.append(f"{lid}: inhabitant cannot be regenerated from its IR and witness: {e}")
             continue
         laws_text, proof_text = (d / "LAWS.bend").read_text(), (d / "PROOF.bend").read_text()
+        if site_id(law) is not None:   # I15: the at_site premise hit_<x>, never Reach alone nor the site term itself
+            from .sorts.sites import ghost_x, law_id as site_law_id
+            x = ghost_x(site_law_id(site_id(law)))
+            if f"M.hit_{x}(" not in laws_text or f"M.site_{x}(" in laws_text:
+                bad.append(f"{lid}: the SORT-site inhabitant does not state the at_site premise hit_{x}")
+                continue
         if _body(laws_text) != _body(want_laws):
             bad.append(f"{lid}: inhabitant LAWS.bend is not the one generated from the parent's IR")
             continue

@@ -1,0 +1,694 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_sort_site_rollup_363_1fc7f88a",
+    "laws": "gen/M2/laws/L_sort_site_rollup_363_1fc7f88a/LAWS.bend",
+    "model": "gen/M2/model/morph_rollup.bend",
+    "proof": "gen/M2/proofs/L_sort_site_rollup_363_1fc7f88a/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "does not apply: gs_rollup_363_1fc7f88a_commitBatch_21: no passed condition implies Nat.is_le(t, Nat.add(W, g_Ch_s(nth_d(HCh, chs, bc, empty_ch()))))",
+      "generator": "coercion_guard",
+      "kind": "proof"
+    },
+    {
+      "error": "unsupported: reach_invariant needs exactly one forall Reach binder and no premises",
+      "generator": "reach_invariant",
+      "kind": "proof"
+    },
+    {
+      "entry": "commitBatch",
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.973,
+      "stage": "S2"
+    },
+    {
+      "entry": "commitBatch",
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.72
+    },
+    {
+      "entry": "commitBatchWithProof",
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.189,
+      "stage": "S2"
+    },
+    {
+      "entry": "commitBatchWithProof",
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.974
+    },
+    {
+      "engine": "SORT-site search (S1 boundary variants, S2 prefixes)",
+      "hit": {
+        "commitBatch": true,
+        "commitBatchWithProof": true,
+        "commitState": false
+      },
+      "kind": "refute",
+      "notes": [],
+      "tried": 107253
+    },
+    {
+      "entry": "commitState",
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.144,
+      "stage": "S3"
+    },
+    {
+      "entry": "commitState",
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 2.501
+    },
+    {
+      "engine": "SORT-site search (S3 neighbourhood of the checked witnesses)",
+      "hit": {
+        "commitState": true
+      },
+      "kind": "refute",
+      "notes": [],
+      "tried": 6261
+    },
+    {
+      "entry": "commitBatch",
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "primary": true,
+      "seconds": 1.052
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.455
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 1.052
+  },
+  "compiled_sha256": "f26fd644c4021e45fe858dd6fb4d0a0d2ec1bd203d1ff808b2f9ff3663d44f69",
+  "cone": [
+    "Dec_challengeState",
+    "Dec_commitBatch",
+    "Dec_commitBatchWithProof",
+    "Dec_commitState",
+    "Dec_finalizeBatch",
+    "Dec_proveState",
+    "Dec_revertBatch",
+    "Dec_sendMessage",
+    "Dec_setPause",
+    "Dec_wait",
+    "HAct",
+    "HBD",
+    "HCh",
+    "HEntry",
+    "HO_agg",
+    "HObs",
+    "HSt",
+    "Reach",
+    "ap_agg",
+    "b_any_go",
+    "b_any_open",
+    "b_blob_count",
+    "b_bump_f",
+    "b_bump_go",
+    "b_clear_chs",
+    "b_clear_go",
+    "b_es_bd",
+    "b_es_bvh",
+    "b_es_csr",
+    "b_es_tag",
+    "b_mem",
+    "b_nth",
+    "b_remove",
+    "b_set_nat",
+    "d_blob_hash",
+    "d_bvh_at",
+    "d_enq_first",
+    "d_in_win",
+    "d_lci",
+    "d_open_ch",
+    "d_tag_at",
+    "d_w",
+    "dec_challengeState_0",
+    "dec_challengeState_1",
+    "dec_challengeState_10",
+    "dec_challengeState_2",
+    "dec_challengeState_3",
+    "dec_challengeState_4",
+    "dec_challengeState_6",
+    "dec_challengeState_7",
+    "dec_challengeState_8",
+    "dec_challengeState_9",
+    "dec_commitBatchWithProof_0",
+    "dec_commitBatchWithProof_1",
+    "dec_commitBatchWithProof_12",
+    "dec_commitBatchWithProof_13",
+    "dec_commitBatchWithProof_14",
+    "dec_commitBatchWithProof_17",
+    "dec_commitBatchWithProof_18",
+    "dec_commitBatchWithProof_19",
+    "dec_commitBatchWithProof_21",
+    "dec_commitBatchWithProof_22",
+    "dec_commitBatchWithProof_23",
+    "dec_commitBatchWithProof_25",
+    "dec_commitBatchWithProof_27",
+    "dec_commitBatchWithProof_29",
+    "dec_commitBatchWithProof_30",
+    "dec_commitBatchWithProof_6",
+    "dec_commitBatchWithProof_7",
+    "dec_commitBatch_0",
+    "dec_commitBatch_1",
+    "dec_commitBatch_10",
+    "dec_commitBatch_13",
+    "dec_commitBatch_14",
+    "dec_commitBatch_15",
+    "dec_commitBatch_17",
+    "dec_commitBatch_18",
+    "dec_commitBatch_19",
+    "dec_commitBatch_2",
+    "dec_commitBatch_21",
+    "dec_commitBatch_23",
+    "dec_commitBatch_4",
+    "dec_commitBatch_6",
+    "dec_commitBatch_9",
+    "dec_commitState_0",
+    "dec_commitState_1",
+    "dec_commitState_11",
+    "dec_commitState_12",
+    "dec_commitState_13",
+    "dec_commitState_14",
+    "dec_commitState_16",
+    "dec_commitState_17",
+    "dec_commitState_18",
+    "dec_commitState_2",
+    "dec_commitState_20",
+    "dec_commitState_22",
+    "dec_commitState_5",
+    "dec_commitState_8",
+    "dec_finalizeBatch_0",
+    "dec_finalizeBatch_1",
+    "dec_finalizeBatch_10",
+    "dec_finalizeBatch_11",
+    "dec_finalizeBatch_14",
+    "dec_finalizeBatch_3",
+    "dec_finalizeBatch_4",
+    "dec_finalizeBatch_5",
+    "dec_finalizeBatch_6",
+    "dec_finalizeBatch_7",
+    "dec_finalizeBatch_8",
+    "dec_finalizeBatch_9",
+    "dec_proveState_0",
+    "dec_proveState_1",
+    "dec_proveState_2",
+    "dec_proveState_4",
+    "dec_proveState_5",
+    "dec_proveState_8",
+    "dec_proveState_9",
+    "dec_revertBatch_0",
+    "dec_revertBatch_1",
+    "dec_revertBatch_3",
+    "dec_revertBatch_4",
+    "dec_revertBatch_5",
+    "dec_setPause_0",
+    "dec_setPause_1",
+    "dec_setPause_2",
+    "decide_challengeState",
+    "decide_commitBatch",
+    "decide_commitBatchWithProof",
+    "decide_commitState",
+    "decide_finalizeBatch",
+    "decide_proveState",
+    "decide_revertBatch",
+    "decide_sendMessage",
+    "decide_setPause",
+    "decide_wait",
+    "empty_Ch",
+    "empty_Entry",
+    "empty_ch",
+    "empty_entry",
+    "eq_list_nat",
+    "exec_challengeState",
+    "exec_commitBatch",
+    "exec_commitBatchWithProof",
+    "exec_commitState",
+    "exec_finalizeBatch",
+    "exec_proveState",
+    "exec_revertBatch",
+    "exec_sendMessage",
+    "exec_setPause",
+    "exec_wait",
+    "g_Ch_c",
+    "g_Ch_f",
+    "g_Ch_s",
+    "g_Ch_w",
+    "g_Entry_bdf",
+    "g_Entry_bdo",
+    "g_Entry_bds",
+    "g_Entry_bvh",
+    "g_Entry_csr",
+    "g_Entry_n",
+    "g_Entry_post",
+    "g_Entry_prev",
+    "g_Entry_tag",
+    "g_Entry_tot",
+    "gs_rollup_363_1fc7f88a_commitBatch",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_0",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_1",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_12",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_13",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_14",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_17",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_18",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_19",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_21",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_22",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_23",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_25",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_6",
+    "gs_rollup_363_1fc7f88a_commitBatchWithProof_7",
+    "gs_rollup_363_1fc7f88a_commitBatch_0",
+    "gs_rollup_363_1fc7f88a_commitBatch_1",
+    "gs_rollup_363_1fc7f88a_commitBatch_10",
+    "gs_rollup_363_1fc7f88a_commitBatch_13",
+    "gs_rollup_363_1fc7f88a_commitBatch_14",
+    "gs_rollup_363_1fc7f88a_commitBatch_15",
+    "gs_rollup_363_1fc7f88a_commitBatch_17",
+    "gs_rollup_363_1fc7f88a_commitBatch_18",
+    "gs_rollup_363_1fc7f88a_commitBatch_19",
+    "gs_rollup_363_1fc7f88a_commitBatch_2",
+    "gs_rollup_363_1fc7f88a_commitBatch_21",
+    "gs_rollup_363_1fc7f88a_commitBatch_4",
+    "gs_rollup_363_1fc7f88a_commitBatch_6",
+    "gs_rollup_363_1fc7f88a_commitBatch_9",
+    "gs_rollup_363_1fc7f88a_commitState",
+    "gs_rollup_363_1fc7f88a_commitState_0",
+    "gs_rollup_363_1fc7f88a_commitState_1",
+    "gs_rollup_363_1fc7f88a_commitState_11",
+    "gs_rollup_363_1fc7f88a_commitState_12",
+    "gs_rollup_363_1fc7f88a_commitState_13",
+    "gs_rollup_363_1fc7f88a_commitState_14",
+    "gs_rollup_363_1fc7f88a_commitState_16",
+    "gs_rollup_363_1fc7f88a_commitState_17",
+    "gs_rollup_363_1fc7f88a_commitState_18",
+    "gs_rollup_363_1fc7f88a_commitState_2",
+    "gs_rollup_363_1fc7f88a_commitState_20",
+    "gs_rollup_363_1fc7f88a_commitState_5",
+    "gs_rollup_363_1fc7f88a_commitState_8",
+    "ite",
+    "nth_d",
+    "s0",
+    "set_d",
+    "site_rollup_363_1fc7f88a",
+    "step",
+    "step_challengeState",
+    "step_commitBatch",
+    "step_commitBatchWithProof",
+    "step_commitState",
+    "step_finalizeBatch",
+    "step_proveState",
+    "step_revertBatch",
+    "step_sendMessage",
+    "step_setPause",
+    "step_wait",
+    "tail0",
+    "with_Ch_f_w"
+  ],
+  "coverage": "pending:I19",
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "evidence_levels": [
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "E6"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "filter_bin": "finding",
+  "generator_sha256": "2073000d7f3a135c64d5311c878a702c99c72435177f582870b9706094472a01",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_sort_site_rollup_363_1fc7f88a",
+  "ledger_assumptions": [
+    "CF-keccak-headers",
+    "Hyp-Z0-kzg",
+    "abs-absolute-index-arrays",
+    "abs-nat-tokens",
+    "abs-post-genesis-initial",
+    "abs-window-shadow",
+    "oracle-ISubmitter",
+    "oracle-messenger",
+    "oracle-verifier",
+    "scope-rollup-coverage-debt"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "58afbcec6fd03529b2fac02a2914fdd060862c2b9e3b0c24183d435ac971c4fb",
+  "non_vacuity": {
+    "bound": "the accepted counter-law inhabits the premises",
+    "degenerate": null,
+    "law": "gen/M2/laws/L_sort_site_rollup_363_1fc7f88a/LAWS.bend",
+    "parent_statement_hash": "sha256:043d0db032134f4e0f3050d4043d9d86425ebce8c30d330f7dc40b9b93de20ee",
+    "reachable": null,
+    "status": "counter_witness",
+    "witness": null
+  },
+  "premises": [],
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [
+    "replay/M2/report.json#/refinement/per_action/challengeState",
+    "replay/M2/report.json#/refinement/per_action/commitBatch",
+    "replay/M2/report.json#/refinement/per_action/commitBatchWithProof",
+    "replay/M2/report.json#/refinement/per_action/commitState",
+    "replay/M2/report.json#/refinement/per_action/finalizeBatch",
+    "replay/M2/report.json#/refinement/per_action/proveState",
+    "replay/M2/report.json#/refinement/per_action/revertBatch",
+    "replay/M2/report.json#/refinement/per_action/sendMessage",
+    "replay/M2/report.json#/refinement/per_action/setPause",
+    "replay/M2/report.json#/refinement/per_action/wait"
+  ],
+  "replay": {
+    "detail": "commitBatch: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:363; commitBatchWithProof: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:363; commitState: rev panic:0x11 at contracts/contracts/l1/rollup/Rollup.sol:363 @ morph 3e44e795586a",
+    "status": "passed"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:363:1fc7f88a",
+  "statement": "\u2200 s: Reach, \u2200 a: Act, \u2200 agg: Fn<List<Nat>,Nat>. site_ok[morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:363:1fc7f88a](a, s) == true",
+  "statement_hash": "sha256:043d0db032134f4e0f3050d4043d9d86425ebce8c30d330f7dc40b9b93de20ee",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "REFUTED",
+  "subform": "site",
+  "triage": "finding",
+  "witness": {
+    "a": {
+      "blobs": [
+        27
+      ],
+      "lbn": 2,
+      "n": 0,
+      "op": "commitBatch",
+      "parent": 1,
+      "post": 123,
+      "prev": 110,
+      "ver": 1,
+      "who": 2
+    },
+    "agg": {
+      "instance": "agg"
+    },
+    "s": {
+      "run": [
+        {
+          "blobs": [
+            17
+          ],
+          "lbn": 1,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 110,
+          "prev": 100,
+          "ver": 1,
+          "who": 2
+        },
+        {
+          "idx": 1,
+          "op": "challengeState",
+          "value": 1,
+          "who": 4
+        },
+        {
+          "dt": 11,
+          "op": "wait"
+        }
+      ]
+    }
+  },
+  "witness_provenance": {
+    "solidity": "public_schedule"
+  },
+  "witnesses": {
+    "commitBatch": {
+      "bound": "S1+S2: reachable prefixes, BFS depth 3 over successful policy actions (<= 3000 states; 1914 explored), at each the entry point's policy actions and their Nat boundary variants (v - 1 when v >= 1, v + 1, 0); oracle parameters: agg = the sidecar instance agg",
+      "checker": {
+        "exit_code": 0,
+        "marker": "ALL PROOFS CHECK"
+      },
+      "laws": "gen/M2/laws/L_sort_site_rollup_363_1fc7f88a/LAWS.bend",
+      "proof": "gen/M2/proofs/L_sort_site_rollup_363_1fc7f88a/entry_commitBatch/PROOF.bend",
+      "replay": {
+        "detail": "real outcomes ['ok', 'ok', 'ok', 'rev panic:0x11']; obstruction observed: True @ target commit 3e44e795586a",
+        "panic_site": "contracts/contracts/l1/rollup/Rollup.sol:363",
+        "status": "passed"
+      },
+      "stage": "S2",
+      "status": "REFUTED",
+      "verdict": "checked",
+      "witness": {
+        "a": {
+          "blobs": [
+            27
+          ],
+          "lbn": 2,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 1,
+          "post": 123,
+          "prev": 110,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "instance": "agg"
+        },
+        "s": {
+          "run": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 11,
+              "op": "wait"
+            }
+          ]
+        }
+      }
+    },
+    "commitBatchWithProof": {
+      "bound": "S1+S2: reachable prefixes, BFS depth 3 over successful policy actions (<= 3000 states; 1914 explored), at each the entry point's policy actions and their Nat boundary variants (v - 1 when v >= 1, v + 1, 0); oracle parameters: agg = the sidecar instance agg",
+      "checker": {
+        "exit_code": 0,
+        "marker": "ALL PROOFS CHECK"
+      },
+      "laws": "gen/M2/laws/L_sort_site_rollup_363_1fc7f88a/LAWS.bend",
+      "proof": "gen/M2/proofs/L_sort_site_rollup_363_1fc7f88a/entry_commitBatchWithProof/PROOF.bend",
+      "replay": {
+        "detail": "real outcomes ['ok', 'ok', 'ok', 'rev panic:0x11']; obstruction observed: True @ target commit 3e44e795586a",
+        "panic_site": "contracts/contracts/l1/rollup/Rollup.sol:363",
+        "status": "passed"
+      },
+      "stage": "S2",
+      "status": "REFUTED",
+      "verdict": "checked",
+      "witness": {
+        "a": {
+          "blobs": [
+            27
+          ],
+          "lbn": 2,
+          "n": 0,
+          "op": "commitBatchWithProof",
+          "parent": 1,
+          "post": 123,
+          "prev": 110,
+          "proof": 1,
+          "ver": 1,
+          "who": 5
+        },
+        "agg": {
+          "instance": "agg"
+        },
+        "s": {
+          "run": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 21,
+              "op": "wait"
+            }
+          ]
+        }
+      }
+    },
+    "commitState": {
+      "bound": "S1+S2: reachable prefixes, BFS depth 3 over successful policy actions (<= 3000 states; 1914 explored), at each the entry point's policy actions and their Nat boundary variants (v - 1 when v >= 1, v + 1, 0); oracle parameters: agg = the sidecar instance agg; S3: one or two successful policy actions inserted at every position of the prefixes of the checked witnesses of commitBatch, commitBatchWithProof (<= 20000 prefixes; 61 searched)",
+      "checker": {
+        "exit_code": 0,
+        "marker": "ALL PROOFS CHECK"
+      },
+      "laws": "gen/M2/laws/L_sort_site_rollup_363_1fc7f88a/LAWS.bend",
+      "proof": "gen/M2/proofs/L_sort_site_rollup_363_1fc7f88a/entry_commitState/PROOF.bend",
+      "replay": {
+        "detail": "real outcomes ['ok', 'ok', 'ok', 'ok', 'ok', 'rev panic:0x11']; obstruction observed: True @ target commit 3e44e795586a",
+        "panic_site": "contracts/contracts/l1/rollup/Rollup.sol:363",
+        "status": "passed"
+      },
+      "stage": "S3",
+      "status": "REFUTED",
+      "verdict": "checked",
+      "witness": {
+        "a": {
+          "blobs": [],
+          "lbn": 2,
+          "n": 0,
+          "op": "commitState",
+          "parent": 1,
+          "post": 125,
+          "prev": 110,
+          "ver": 1,
+          "who": 2
+        },
+        "agg": {
+          "instance": "agg"
+        },
+        "s": {
+          "run": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "blobs": [
+                27
+              ],
+              "lbn": 2,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 1,
+              "post": 121,
+              "prev": 110,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "count": 1,
+              "idx": 2,
+              "op": "revertBatch",
+              "who": 1
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 11,
+              "op": "wait"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

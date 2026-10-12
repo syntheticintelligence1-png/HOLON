@@ -21,6 +21,12 @@ on which the compiled model shows the canary false. Kinds:
   core_omit    (M2+ milestones, I8) the core library with one lemma left unproved: a proof that calls it,
                the milestone's own when one does (its committed PROOF.bend), else a generated law restating
                the lemma and proved by calling it, must be rejected (holon.gate.g4_machine requires one).
+  drop_lemma   (SORT-site laws, I15) a PROVED law's coercion_guard proof with the first obligation a core
+               lemma discharges closed by `{==}` instead (holon.gen.coercion.canary_proof, mode drop): the
+               obligation does not compute to True for every value, so Bend must reject it.
+  force_coercion (SORT-site laws, I15) an UNKNOWN law's site with a coercion proof forced: every obligation no
+               passed condition implies closed by `{==}` (mode force). Bend must reject it.
+  A flip_const canary of a law coercion_guard proved is proved by coercion_guard's proof of the same site.
 
 Kinds are interleaved (one of each in turn) so the canary budget never starves a kind.
 """
@@ -117,8 +123,12 @@ def candidates(laws: list[dict], records: dict, m=None) -> list[tuple[str, str, 
     for law in laws:
         lid = law["law_id"]
         rec = records.get(lid)
+        if rec and rec["status"] == "UNKNOWN" and _site(law):   # I15: a coercion proof forced on an UNKNOWN site
+            out.append(("force_coercion", lid, copy.deepcopy(law), None))
         if not rec or rec["status"] != "PROVED":
             continue
+        if _site(law) and _generator(rec) == "coercion_guard":   # I15: the proof with its lemma call dropped
+            out.append(("drop_lemma", lid, copy.deepcopy(law), None))
         st = law["statement"]
         forall = all(b["q"] == "forall" for b in st["binders"])
         if law.get("subform") == "dead_residue":
@@ -167,6 +177,23 @@ def interleave(cands: list) -> list:
     return out
 
 
+def _site(law: dict) -> bool:
+    from .mpipeline import site_law
+    return site_law(law) is not None
+
+
+def _coercion(em, cm, imp: str, mode: str | None = None):
+    """coercion_guard's proof of a (mutant) SORT-site law, built from the claim's site term whatever its right side
+    (holon.gen.coercion); with mode, the canary variant: (text, altered obligations)."""
+    from .gen import coercion
+    lhs = em.claims[0][0]
+    hdr = mproofs._imports(imp)
+    if mode is None:
+        text, _, notes = coercion.proof(cm.source.read_text(), lhs, em.name, mproofs.law_params(em), hdr, mproofs.core_ref)
+        return text, notes
+    return coercion.canary_proof(cm.source.read_text(), lhs, em.name, mproofs.law_params(em), hdr, mproofs.core_ref, mode)
+
+
 def _proof_by(gname: str | None, em, cm, imp: str, d: Path, cfg: dict, tries: int = 24):
     """The source generator's proof of a mutant: (text, check result), or (None, None) when it does not apply.
     reach_invariant searches its slots as holon.mpipeline.reach_search does (no strengthening): every choice Bend
@@ -201,6 +228,14 @@ def _proof_by(gname: str | None, em, cm, imp: str, d: Path, cfg: dict, tries: in
             if r.ok:
                 return text, r
         return text, r
+    if gname == "coercion_guard":
+        from .gen.coercion import NoProof
+        try:
+            text, _ = _coercion(em, cm, imp)
+        except NoProof:
+            return None, None
+        (d / "PROOF.bend").write_text(text)
+        return text, bend.check(d / "PROOF.bend", cfg)
     g = dict(mproofs.GENERATORS).get(gname or "")
     if g is None:
         return None, None
@@ -281,6 +316,18 @@ def _run(cm, laws, records, workdir: Path, cfg: dict, max_n: int, imp: str) -> l
                     shutil.rmtree(d, ignore_errors=True)
                     continue
                 cex = s["witness"]
+            elif kind in ("drop_lemma", "force_coercion"):
+                from .gen.coercion import NoProof
+                em = E.emit(law, imp)
+                try:
+                    proof, altered = _coercion(em, cm, imp, "drop" if kind == "drop_lemma" else "force")
+                except NoProof:
+                    continue
+                # what the altered step claims: each obligation computes to True for every value of its variables
+                cex = {"obligations_closed_by_computation": altered,
+                       "why": "a Nat comparison of free variables does not compute to True{} for every value; "
+                              + ("the source proof discharged it by a passed condition and a core lemma"
+                                 if kind == "drop_lemma" else "no passed condition implies it (the law is UNKNOWN)")}
             else:
                 em = E.emit(law, imp)
                 proof = mproofs.noninterference(em, cm.m, imp)
