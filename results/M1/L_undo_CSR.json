@@ -11,20 +11,20 @@
       "generator": "noninterference",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.304
+      "seconds": 0.686
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.442
+      "seconds": 0.93
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.304
+    "seconds": 0.686
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -320,7 +320,18 @@
     "erase[s_csr](s1) == erase[s_csr](s2)"
   ],
   "record_version": "holon-record/0.2",
-  "refinement_refs": "pending:I16",
+  "refinement_refs": [
+    "replay/M1/report.json#/refinement/per_action/challengeState",
+    "replay/M1/report.json#/refinement/per_action/commitBatch",
+    "replay/M1/report.json#/refinement/per_action/commitBatchWithProof",
+    "replay/M1/report.json#/refinement/per_action/commitState",
+    "replay/M1/report.json#/refinement/per_action/finalizeBatch",
+    "replay/M1/report.json#/refinement/per_action/proveState",
+    "replay/M1/report.json#/refinement/per_action/revertBatch",
+    "replay/M1/report.json#/refinement/per_action/sendMessage",
+    "replay/M1/report.json#/refinement/per_action/setPause",
+    "replay/M1/report.json#/refinement/per_action/wait"
+  ],
   "replay": {
     "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
     "status": "not_run"

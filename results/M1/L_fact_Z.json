@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.318
+      "seconds": 0.388
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.42
+      "seconds": 0.762
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.318
+    "seconds": 0.388
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -290,7 +290,18 @@
     "new_hdr(step(c1, run(p, s0))) == new_hdr(step(c2, run(p, s0)))"
   ],
   "record_version": "holon-record/0.2",
-  "refinement_refs": "pending:I16",
+  "refinement_refs": [
+    "replay/M1/report.json#/refinement/per_action/challengeState",
+    "replay/M1/report.json#/refinement/per_action/commitBatch",
+    "replay/M1/report.json#/refinement/per_action/commitBatchWithProof",
+    "replay/M1/report.json#/refinement/per_action/commitState",
+    "replay/M1/report.json#/refinement/per_action/finalizeBatch",
+    "replay/M1/report.json#/refinement/per_action/proveState",
+    "replay/M1/report.json#/refinement/per_action/revertBatch",
+    "replay/M1/report.json#/refinement/per_action/sendMessage",
+    "replay/M1/report.json#/refinement/per_action/setPause",
+    "replay/M1/report.json#/refinement/per_action/wait"
+  ],
   "replay": {
     "detail": "go_consumer: ParseBatch on the parent header (batch index 0 as Go reads it): c1 (0 all-zero blobs) -> error: blobs length can not be zero; c2 (1 all-zero blob) -> error: decompress batch bytes error:morph da zstd decode: invalid frame; the all-zero blob's versioned hash is 0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014 (= ZERO_VERSIONED_HASH). derivation rejected both batches (messages: 'error: blobs length can not be zero' vs 'error: decompress batch bytes error:morph da zst",
     "status": "passed"
