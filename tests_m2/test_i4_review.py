@@ -185,11 +185,12 @@ class TestG6VerificationHoles(_Tamper):
         def edit(repo):
             f = repo / "laws" / "M1" / "L_sym_omega.json"
             law = load_json(f)
-            law["facts"] = "./" + law["facts"]
+            old = law["facts"]
+            law["facts"] = "./" + old
             write_json(f, law)
             r = repo / "laws" / "M1" / "REGISTRY.json"
             reg = load_json(r)
-            reg["facts_files"].append(law["facts"])
+            reg["facts_files"][law["facts"]] = reg["facts_files"][old]
             write_json(r, reg)
 
             def fn(d):
