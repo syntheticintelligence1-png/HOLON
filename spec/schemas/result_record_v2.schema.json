@@ -7,7 +7,7 @@
                "compiled_sha256", "generator_sha256", "cone", "ledger_match", "model_assumptions", "scope_v2", "kernels", "independence_class",
                "refinement_refs", "coverage", "non_vacuity", "witness_provenance", "filter_bin"],
   "properties": {
-    "law_id": {"type": "string", "pattern": "^L_[A-Za-z0-9_]+$"},
+    "law_id": {"type": "string", "pattern": "^L[0-9]?_[A-Za-z0-9_]+$"},
     "statement_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
     "facts_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "status": {"enum": ["PROVED", "REFUTED", "UNKNOWN"]},
@@ -30,6 +30,12 @@
         "horizon": {"type": ["string", "null"]},
         "at_state": {"enum": ["s0", "any", null]}
       }
+    },
+    "statement_scope": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {"kind": {"enum": ["unbounded", "bounded", "at_state"]}},
+      "description": "holon-ir/0.3 records (audit F-M2-01): the statement's IR scope, verbatim; scope and scope_v2 follow it, never the status"
     },
     "kernels": {
       "type": "array",
@@ -83,9 +89,18 @@
     {"if": {"properties": {"status": {"enum": ["PROVED", "UNKNOWN"]}}},
      "then": {"properties": {"witness_provenance": {"type": "null"}, "filter_bin": {"type": "null"}}}},
     {"if": {"properties": {"status": {"const": "UNKNOWN"}}},
-     "then": {"properties": {"independence_class": {"const": "none"}, "scope_v2": {"properties": {"kind": {"const": "bounded"}}}}}},
+     "then": {"properties": {"independence_class": {"const": "none"}}}},
     {"if": {"properties": {"status": {"enum": ["PROVED", "REFUTED"]}}},
-     "then": {"properties": {"independence_class": {"enum": ["I1", "I1-shared", "I2"]},
-                             "scope_v2": {"properties": {"kind": {"const": "unbounded"}}}}}}
+     "then": {"properties": {"independence_class": {"enum": ["I1", "I1-shared", "I2"]}}}},
+    {"$comment": "0.1/0.2 records (no statement_scope): scope_v2 is the search's, bounded exactly when UNKNOWN (M0/M1, pinned)",
+     "if": {"properties": {"status": {"const": "UNKNOWN"}, "statement_scope": {"type": "null"}}},
+     "then": {"properties": {"scope_v2": {"properties": {"kind": {"const": "bounded"}}}}}},
+    {"if": {"properties": {"status": {"enum": ["PROVED", "REFUTED"]}, "statement_scope": {"type": "null"}}},
+     "then": {"properties": {"scope_v2": {"properties": {"kind": {"const": "unbounded"}}}}}},
+    {"$comment": "0.3 records: scope comes from statement.scope, never from the status (whitepaper 8.6; audit F-M2-01)",
+     "if": {"required": ["statement_scope"], "properties": {"statement_scope": {"required": ["kind"], "properties": {"kind": {"const": "unbounded"}}}}},
+     "then": {"properties": {"scope": {"const": "unbounded"}, "scope_v2": {"properties": {"kind": {"const": "unbounded"}}}}}},
+    {"if": {"required": ["statement_scope"], "properties": {"statement_scope": {"required": ["kind"], "properties": {"kind": {"enum": ["bounded", "at_state"]}}}}},
+     "then": {"properties": {"scope": {"const": "bounded"}, "scope_v2": {"properties": {"kind": {"const": "bounded"}}}}}}
   ]
 }

@@ -1,0 +1,42 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_small_bounded_false",
+  "milestone": "T1",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Audit F-M2-01: false within its horizon (3 pushes make the counter 3). REFUTED by a witness of at most 3 actions.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "small",
+          "of": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "bounded",
+      "H": 3
+    }
+  }
+}

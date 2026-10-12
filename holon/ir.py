@@ -17,6 +17,11 @@ HASHED_KEYS = ("ir_version", "law_id", "rule", "facts_sha256", "statement")
 # holon-ir/0.3 (I7): the statement and the content hashes of the definitions it names, never a whole
 # facts bundle, so an extraction change outside a law's refs leaves its hash unchanged
 HASHED_KEYS_03 = ("ir_version", "law_id", "rule", "rule_catalog_version", "statement")
+# law files, and the result records named after them: L_* (0.1, 0.2) and, from 0.3, L3_*, L8_* etc.
+# (the 0.3 schema's law_id pattern ^L[0-9]?_). Every glob over laws/<m>/ or results/<m>/ uses this one.
+LAW_GLOB = "L*.json"
+# binder types every IR version may use; 0.3 adds Fn<A,B>, Bytes(n), List<Nat> and record refs (a facts type)
+BASE_TYPES = ("State", "Trace", "Act", "Nat", "Bool", "Reach", "List<Nat>")
 
 
 class IRError(ValueError):
@@ -59,6 +64,65 @@ def check_premises(law: dict) -> None:
             raise IRError(f"{law.get('law_id')}: unknown premise form {sorted(prem)}")
 
 
+def check_binder_types(law: dict, facts: dict | None) -> None:
+    """IR rule on binder types (0.3, audit F-M2-18): every binder type is a base type, Fn<A,B>, Bytes(n), or a
+    record ref, which must name a record type the law's facts declare. A ref naming no facts type is an
+    IRError (the schema can only check its shape)."""
+    import re
+    types = set((facts or {}).get("types", {}))
+    for b in law.get("statement", {}).get("binders", []):
+        t = str(b.get("type", ""))
+        if t in BASE_TYPES or t.startswith("Fn<") or re.fullmatch(r"Bytes\([0-9]+\)", t):
+            continue
+        if t not in types:
+            raise IRError(f"{law.get('law_id')}: binder {b.get('name')}: {t} is neither an IR type nor a record type "
+                          "of its facts")
+
+
+def scope_of(law: dict) -> dict:
+    """The statement's scope (0.3, whitepaper §8.6): {"kind": "unbounded"} when absent. bounded{H} bounds every
+    Trace binder to at most H actions; at_state{ref} states the claim at one referenced state."""
+    return dict(law.get("statement", {}).get("scope") or {"kind": "unbounded"})
+
+
+def negation_law(law: dict) -> dict:
+    """The negation subform of a purely existential law as its own law (BUILD_PLAN I7, audit F-M2-19): the same
+    binders made universal, the same scope, and the claim negated: an equation becomes an inequation, an
+    inequation an equation. Linked both ways: the result's negation_of is the law's id; the caller gives the
+    existential law `negation: <result id>` when it freezes both. Raises IRError when the negation is not a
+    statement of the IR: a law with a universal binder, with premises, or whose claim is a conjunction (its
+    negation is a disjunction), stays UNKNOWN with that reason (I7 fallback).
+
+    Machine-free (it reads only the IR), so `holon derive` and the rules engine can freeze the pair at derive
+    time. A {"neq": [a, b]} claim is emitted exactly as the pipeline's run-time negation was:
+    eq_T(a, b) == false, through the decidable equality of a's type (holon.gen.mlaws)."""
+    st = law.get("statement", {})
+    binders = st.get("binders", [])
+    lid = law.get("law_id")
+    if not binders or any(b.get("q") != "exists" for b in binders):
+        raise IRError(f"{lid}: a negation subform is generated for purely existential laws")
+    if st.get("assume"):
+        raise IRError(f"{lid}: an existential law takes no premises")
+    c = st.get("claim", {})
+    if "all" in c:
+        if len(c["all"]) != 1:
+            raise IRError(f"{lid}: the negation of a conjunction is a disjunction, which the IR cannot state")
+        c = c["all"][0]
+    if set(c) == {"eq"}:
+        neg_claim = {"neq": copy.deepcopy(c["eq"])}
+    elif set(c) == {"neq"}:
+        neg_claim = {"eq": copy.deepcopy(c["neq"])}
+    else:
+        raise IRError(f"{lid}: no negation of the claim form {sorted(c)}")
+    out = {k: copy.deepcopy(v) for k, v in law.items() if k not in ("notes", "negation", "predicted", "evidence")}
+    out["law_id"] = f"{lid}_neg"
+    out["negation_of"] = lid
+    out["statement"] = {"binders": [dict(b, q="forall") for b in binders], "assume": [], "claim": neg_claim,
+                        "scope": scope_of(law)}
+    out["notes"] = f"generated negation subform of {lid} (holon.ir.negation_law): for all binders, not the claim"
+    return out
+
+
 def laws_dir(milestone: str, root: Path | str | None = None) -> Path:
     return Path(root or ROOT) / "laws" / milestone
 
@@ -72,10 +136,15 @@ def load_laws(milestone: str = "M0", root: Path | str | None = None) -> list[dic
     return sorted(laws, key=lambda l: l["law_id"])
 
 
+def record_files(results: Path | str) -> list[Path]:
+    """The result records in a results directory, named like the law files load_laws_any reads (LAW_GLOB)."""
+    return sorted(Path(results).glob(LAW_GLOB))
+
+
 def load_laws_any(milestone: str, root: Path | str | None = None) -> list[dict]:
     """Laws of any supported IR version (0.2 adds state-machine statements)."""
     d = laws_dir(milestone, root)
-    laws = [json.loads(p.read_text()) for p in sorted(d.glob("L*.json"))]   # L_* and, from 0.3, L3_* etc.
+    laws = [json.loads(p.read_text()) for p in sorted(d.glob(LAW_GLOB))]   # L_* and, from 0.3, L3_* etc.
     for law in laws:
         if law.get("ir_version") not in IR_VERSIONS:
             raise ValueError(f"{law.get('law_id')}: unsupported IR version {law.get('ir_version')!r}")
@@ -84,13 +153,22 @@ def load_laws_any(milestone: str, root: Path | str | None = None) -> list[dict]:
 
 def ir_version_of(milestone: str, root: Path | str | None = None) -> str:
     vs = {l["ir_version"] for l in load_laws_any(milestone, root)}
+    if not vs:
+        raise ValueError(f"{milestone}: no law files under {laws_dir(milestone, root)}")
     if len(vs) != 1:
         raise ValueError(f"{milestone}: mixed IR versions {vs}")
     return vs.pop()
 
 
+class NoRegistry(FileNotFoundError):
+    """laws/<m>/REGISTRY.json does not exist: the milestone has no frozen laws to check."""
+
+
 def load_registry(milestone: str = "M0", root: Path | str | None = None) -> dict:
-    return json.loads((laws_dir(milestone, root) / "REGISTRY.json").read_text())
+    p = laws_dir(milestone, root) / "REGISTRY.json"
+    if not p.is_file():
+        raise NoRegistry(f"{p} does not exist: milestone {milestone} has no frozen laws (no registry to check)")
+    return json.loads(p.read_text())
 
 
 def rebind_facts(law: dict, facts_sha256: str) -> dict:
@@ -184,4 +262,7 @@ def render_statement(law: dict) -> str:
         binders = ", ".join(f"{b['name']}: {b['type']}" for b in st["forall"])
         head = f"∀ {binders}. "
     prem = " ∧ ".join(premises(law))
-    return head + (f"{prem} ⇒ " if prem else "") + render_prop(st["claim"])
+    sc = st.get("scope") or {}
+    tail = {"bounded": f"   [scope: bounded, every trace of at most {sc.get('H')} actions]",
+            "at_state": f"   [scope: at state {sc.get('ref')}]"}.get(sc.get("kind"), "")
+    return head + (f"{prem} ⇒ " if prem else "") + render_prop(st["claim"]) + tail

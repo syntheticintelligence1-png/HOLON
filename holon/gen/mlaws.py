@@ -151,8 +151,34 @@ class Emitter:
         sig = fn_sig(t)
         if sig:
             return f"{self.ty(sig[0])} -> {self.ty(sig[1])}"
+        if re.fullmatch(r"Bytes\([0-9]+\)", t):   # in the 0.3 schema, with no model type yet (audit F-M2-18)
+            raise Unsupported(f"{t}: Bytes(n) binders have no emitter mapping")
+        if t in self.m.types:   # a record ref: the facts record type (holon.ir.check_binder_types)
+            return f"{ALIAS}.H{t}"
         return {"State": f"{ALIAS}.HSt", "Trace": f"List<&2, {ALIAS}.HAct>", "Act": f"{ALIAS}.HAct", "Nat": "Nat",
                 "Bool": "Bool", "List<Nat>": "List<&2, Nat>", "Obs": f"List<&2, {ALIAS}.HObs>"}.get(t) or t
+
+    def scope_props(self, st: dict, binders: list, env: dict) -> tuple[list, list]:
+        """statement.scope (0.3, whitepaper §8.6; audit F-M2-01) as equations: (premises, claim conjuncts).
+        bounded{H}: every universal Trace binder p gets the premise len(p) <= H, every existential one the claim
+        conjunct len(p) <= H, so the kernel checks the horizon and a witness longer than H cannot refute the law.
+        at_state{ref} needs the referenced state, which nothing resolves yet: Unsupported, as is bounded{H} over a
+        Reach binder (Reach carries no step count) or over a statement without a Trace binder (nothing to bound)."""
+        sc = st.get("scope") or {"kind": "unbounded"}
+        kind = sc.get("kind", "unbounded")
+        if kind == "unbounded":
+            return [], []
+        if kind == "at_state":
+            raise Unsupported(f"scope at_state{{{sc.get('ref')}}}: the referenced state is not resolved by any generator yet")
+        if kind != "bounded" or not isinstance(sc.get("H"), int) or isinstance(sc.get("H"), bool) or sc["H"] < 0:
+            raise Unsupported(f"scope {sc}")
+        if any(t == "Reach" for _, _, t in binders):
+            raise Unsupported("bounded scope over a Reach binder: Reach carries no step count")
+        traces = [(qq, n) for qq, n, t in binders if t == "Trace"]
+        if not traces:
+            raise Unsupported("bounded scope bounds Trace binders, and the statement has none")
+        eq = lambda n: (f"Nat.is_le(List.length(&2, {ALIAS}.HAct, {env[n]}), {int(sc['H'])}n)", "True{}", "Bool")  # noqa: E731
+        return [eq(n) for qq, n in traces if qq == "forall"], [eq(n) for qq, n in traces if qq == "exists"]
 
     def view(self, fields: list) -> str:
         for f in fields:
@@ -363,8 +389,9 @@ class Emitter:
             if not has_exists or any(qq == "forall" for qq, _, _ in binders):
                 raise Unsupported("negation is generated for purely existential laws")
             return self.emit_negation(law, model_import, note)
-        assume = [x for p in st.get("assume", []) for x in self.premise_props(p, env, types)]
-        claims = self.claims(st, env, types)
+        scope_prem, scope_conj = self.scope_props(st, binders, env)
+        assume = [x for p in st.get("assume", []) for x in self.premise_props(p, env, types)] + scope_prem
+        claims = scope_conj + self.claims(st, env, types)
         if counter and len(claims) != 1:
             if conjunct is None or not 0 <= conjunct < len(claims):
                 raise Unsupported("counter-law of a conjunction needs its failing conjunct")

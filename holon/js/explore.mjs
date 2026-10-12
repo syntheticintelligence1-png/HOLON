@@ -235,6 +235,10 @@ function tryHolds(p, env) {
 // ---------------------------------------------------------------- binder enumeration
 const st = law.statement;
 const binders = st.binders;
+// statement.scope (holon-ir/0.3; audit F-M2-01): bounded{H} bounds every Trace binder to at most H actions, so a
+// longer trace is never proposed as a witness (the emitted law states the bound as a premise the kernel checks)
+const SCOPE_H = st.scope && st.scope.kind === "bounded" && Number.isInteger(st.scope.H) ? st.scope.H : null;
+const inScope = (raw) => SCOPE_H === null || !Array.isArray(raw) || raw.length <= SCOPE_H;
 // enumerate states and prefixes first, then actions and numbers, then continuation traces
 // key-order independent: does term t contain {kind: {var: v}, from: {s0: {}}}? (I6: a law in canonical,
 // sorted-key form must search exactly like the same law in authored key order)
@@ -273,6 +277,10 @@ function baseState(env) {
 }
 
 function candidates(b, env) {
+  const cs = candidatesAll(b, env);
+  return b.type === "Trace" && SCOPE_H !== null ? cs.filter((c) => inScope(c.raw)) : cs;
+}
+function candidatesAll(b, env) {
   if (isParamB(b)) return paramCands(b);
   if (b.type === "Fn<Nat,Nat>") return Object.keys(LAMS).map((lam) => fnVal({ lam }));
   // a Reach binder (I8) ranges over reachable states only: the prefixes, as traces from s0
@@ -380,7 +388,7 @@ function divergence(env, qname) {
   const L = evalT(l.from, env).v, R = evalT(r.from, env).v;
   let frontier = [{ tr: [], a: M.clear_log(L), b: M.clear_log(R) }];
   let nodes = 0;
-  for (let d = 0; d < B.suffixDepth; d++) {
+  for (let d = 0; d < Math.min(B.suffixDepth, SCOPE_H === null ? Infinity : SCOPE_H); d++) {
     const next = [];
     for (const n of frontier) {
       const seenHere = new Set();
@@ -413,7 +421,7 @@ function search(i, env, raw) {
   if (b.type === "Trace" && !isPrefixVar(b.name) && isObsSuffix(b.name) && i === forall.length - 1) {
     for (const p of assume) { const h = tryHolds(p, env); if (h === false) return null; }
     const q = divergence(env, b.name);
-    return q ? { ...raw, [b.name]: q } : null;
+    return q && inScope(q) ? { ...raw, [b.name]: q } : null;
   }
   for (const c of candidates(b, env)) {
     const env2 = { ...env, [b.name]: c };
@@ -459,7 +467,7 @@ function strategies() {
   let frontier = [{ tr: [], s: base }];
   const check = (tr) => { tried++; const env = { [v]: { ty: "Trace", v: toList(tr.map(mkAct)) } }; return claims.every((c) => holds(c, env)); };
   if (check([])) return { [v]: [] };
-  for (let d = 0; d < B.suffixDepth; d++) {
+  for (let d = 0; d < Math.min(B.suffixDepth, SCOPE_H === null ? Infinity : SCOPE_H); d++) {
     const next = [];
     for (const n of frontier) for (const a of policy(n.s)) {
       const s2 = stepJ(a, n.s);
@@ -521,6 +529,7 @@ const finite = (binders.every((b) => b.q === "exists") || binders.some((b) => b.
 let bound = finite ? `finite candidates: Act from the policy at s0, Nat 0..${B.natMax} plus premise-solved values, Bool, Fn<Nat,Nat> in {id, zero, succ}`
   : `prefixes: BFS depth ${B.prefixDepth} over policy actions (<= ${B.maxPrefixes} states); suffixes: divergence BFS depth ${B.suffixDepth}; Nat binders 0..${B.natMax} plus premise-solved values`;
 if (hasParams) bound += "; oracle parameters: the sidecar's concrete instances, then the empty table (tables at the points the statement queries)";
+if (SCOPE_H !== null) bound += `; scope bounded{H=${SCOPE_H}}: traces of at most ${SCOPE_H} actions`;
 const out = { witness, tried, bound, notes };
 if (witness && hasParams) out.tables = finalTables(envOf(witness));
 process.stdout.write(JSON.stringify(out));

@@ -1,0 +1,64 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_cf_model_nocf",
+  "milestone": "T1",
+  "rule": "FACT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/oracles/facts/toy_oracle.facts.json",
+  "facts_sha256": "",
+  "notes": "Audit F-M2-31: L3_cf_model without its CF premise. False: a hash table that collides on [1] and [2] (e.g. the empty table) gives both commits the same commitment, so the law is REFUTED. This is what makes L3_cf_model's proof depend on its premise.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "agg",
+        "type": "Fn<List<Nat>,Nat>"
+      },
+      {
+        "q": "forall",
+        "name": "dec",
+        "type": "Fn<Nat,Nat>"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "neq": [
+        {
+          "obsv": "com_of",
+          "of": {
+            "step": {
+              "act": "commit",
+              "args": {
+                "x": {
+                  "nat": 1
+                }
+              }
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "obsv": "com_of",
+          "of": {
+            "step": {
+              "act": "commit",
+              "args": {
+                "x": {
+                  "nat": 2
+                }
+              }
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

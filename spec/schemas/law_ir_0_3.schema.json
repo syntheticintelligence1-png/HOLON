@@ -1,7 +1,7 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "title": "HOLON law IR (holon-ir/0.3): typed state-machine laws with function binders, CF/hyp premises and scope",
- "description": "Extends holon-ir/0.2 (I7): rule_catalog_version (hashed), Fn<A,B> and Bytes(n) binder types, Reach, the application term {app: f, args}, premises {cf: {fn, set: [terms]}} (a finite set; global injectivity is rejected by holon.ir.check_premises, G3), {hyp: {name}} and {neq: [a, b]}, statement.scope, and structured maps_to. The 0.3 statement hash covers the statement and the content hashes (refs) of the definitions it names, not the facts bundle.",
+ "description": "Extends holon-ir/0.2 (I7): rule_catalog_version (hashed), Fn<A,B>, Bytes(n), List<Nat> and record-ref binder types (a record type of the law's facts, checked against them by holon.ir.check_binder_types: G3 and holon run), Reach, the application term {app: f, args}, premises {cf: {fn, set: [terms]}} (a finite set; global injectivity is rejected by holon.ir.check_premises, G3), {hyp: {name}} and {neq: [a, b]}, statement.scope (bounded{H} bounds every Trace binder to H actions; at_state{ref} is Unsupported until a generator resolves the state), structured maps_to, and the negation links of an existential law and its frozen negation subform (negation, negation_of: holon.ir.negation_law). The 0.3 statement hash covers the statement and the content hashes (refs) of the definitions it depends on, transitively (holon.gen.refs), not the facts bundle.",
  "type": "object",
  "required": [
   "ir_version",
@@ -103,6 +103,16 @@
   "rule_catalog_version": {
    "type": "string",
    "pattern": "^holon-rules/[0-9]+\\.[0-9]+$"
+  },
+  "negation": {
+   "type": "string",
+   "pattern": "^L[0-9]?_[A-Za-z0-9_]+$",
+   "description": "an existential law: the id of its frozen negation subform (a law of the same milestone whose negation_of names this law)"
+  },
+  "negation_of": {
+   "type": "string",
+   "pattern": "^L[0-9]?_[A-Za-z0-9_]+$",
+   "description": "a generated negation subform (holon.ir.negation_law): the id of the existential law it negates"
   }
  },
  "$defs": {
@@ -210,12 +220,18 @@
         "Act",
         "Nat",
         "Bool",
-        "Reach"
+        "Reach",
+        "List<Nat>"
        ]
       },
       {
        "type": "string",
        "pattern": "^(Fn<[A-Za-z0-9<>,()]+>|Bytes\\([0-9]+\\))$"
+      },
+      {
+       "type": "string",
+       "pattern": "^(?!(State|Trace|Act|Nat|Bool|Reach)$)[A-Z][A-Za-z0-9_]*$",
+       "description": "a record ref: a record type the law's facts declare (holon.ir.check_binder_types)"
       }
      ]
     }

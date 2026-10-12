@@ -290,6 +290,22 @@ def _act_obj(m, t, ty_env, witness):
     raise ValueError(t)
 
 
+def scope_fields(law: dict, rec: dict) -> dict:
+    """A 0.3 record's scope, from the statement and never from the status (whitepaper §8.6, audit F-M2-01):
+    scope is bounded iff statement.scope is not unbounded; statement_scope is the IR scope itself; scope_v2 gives
+    its kind and horizon. The search bound of an UNKNOWN law stays in `bound`. (0.1/0.2 records keep their
+    pinned M0/M1 meaning: scope there is the search's.)"""
+    sc = ir.scope_of(law)
+    kind = sc.get("kind")
+    horizon = (f"bounded: every trace of at most {sc.get('H')} actions" if kind == "bounded"
+               else f"at state {sc.get('ref')}" if kind == "at_state" else None)
+    out = {"scope": "unbounded" if kind == "unbounded" else "bounded", "statement_scope": sc,
+           "scope_v2": {"kind": "unbounded" if kind == "unbounded" else "bounded", "horizon": horizon}}
+    if kind != "unbounded" and not rec.get("bound"):
+        out["bound"] = horizon
+    return out
+
+
 def m2plus(milestone: str) -> bool:
     """Milestones after M1 (M2.., and the test milestones T*) use the core library and Reach (I8)."""
     return milestone not in ("M0", "M1")
@@ -328,6 +344,21 @@ def write_pair(laws_dir: Path, proofs_dir: Path, laws_text: str, proof_text: str
     (laws_dir / "LAWS.bend").write_text(laws_text)
     (proofs_dir / "PROOF.bend").write_text(separated_proof(proof_text, laws_dir, proofs_dir))
     return proofs_dir / "PROOF.bend"
+
+
+def accepted(rr, proof: Path, laws_file: Path, em, proof_text: str) -> tuple[bool, str | None]:
+    """(ok, error) at an acceptance point: Bend said ALL PROOFS CHECK, the law file states exactly the expected law,
+    the proof imports that law file (law_import_problem) and neither file uses an escape hatch."""
+    if not rr.ok:
+        return False, _first(rr.out)
+    if _law_names(em.text) != [em.name]:
+        return False, f"the law file does not state exactly {em.name}"
+    bad = law_import_problem(proof, laws_file)
+    if bad:
+        return False, bad
+    if bend.escape_hatches(proof_text + em.text):
+        return False, "escape hatch"
+    return True, None
 
 
 def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str | None, no_registry: bool, log=print,
@@ -388,7 +419,9 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
 
     summary = {}
     kbound = {"milestone": milestone, "laws": {}}
-    for law in laws:
+    by_id = {l["law_id"]: l for l in laws}
+    neg_recs: dict = {}   # frozen negation laws (negation_of, holon.ir.negation_law), run first so the ∃-law links them
+    for law in sorted(laws, key=lambda l: (not l.get("negation_of"), l["law_id"])):
         lid = law["law_id"]
         cm, model_src, imp0, facts_sha = machine_for(law)
         d = gen / lid
@@ -409,6 +442,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         stmt_text = records.ir_roots_text(law)
         try:
             ir.check_premises(law)
+            if law.get("ir_version") == "holon-ir/0.3":   # record-ref binder types name a facts type (F-M2-18)
+                ir.check_binder_types(law, cm.facts)
             if m2plus(milestone):
                 O.check_law(law, cm.oracles)
             E = mlaws.Emitter(cm.m)
@@ -429,10 +464,11 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                 text = g(em, cm.m, imp, witness) if gname == "evaluate" else g(em, cm.m, imp)
                 if text is None:
                     continue
-                rr = bend.check(write_pair(ld, pd, em.text, text), cfg)
-                ok = rr.ok and _law_names(em.text) == [em.name] and not bend.escape_hatches(text + em.text)
+                proof_f = write_pair(ld, pd, em.text, text)
+                rr = bend.check(proof_f, cfg)
+                ok, why = accepted(rr, proof_f, ld / "LAWS.bend", em, text)
                 attempts.append({"kind": "proof", "generator": gname, "exit_code": rr.code, "marker": rr.marker,
-                                 "seconds": rr.seconds, **({} if ok else {"error": _first(rr.out)})})
+                                 "seconds": rr.seconds, **({} if ok else {"error": why})})
                 if ok:
                     status, r = "PROVED", rr
                     if exists:
@@ -449,7 +485,11 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             if status != "PROVED" and exists:
                 # never REFUTED: a bounded negative search, and the generated negation decided instead
                 rec["bounded_negative"] = {"H": bound, "space": attempts[0]["tried"] if attempts else 0}
-                rec["negation"] = decide_negation(law, cm, imp0, d / "neg", cfg)
+                neg = by_id.get(law.get("negation") or "")
+                if neg is not None and neg.get("negation_of") == lid and lid + "_neg" in neg_recs:
+                    rec["negation"] = neg_recs[lid + "_neg"]   # the frozen negation, run as an ordinary law (F-M2-19)
+                else:   # no frozen negation in this milestone: generated and decided here, labelled not frozen
+                    rec["negation"] = decide_negation(law, cm, imp0, d / "neg", cfg)
                 attempts.append({"kind": "negation", "law_id": rec["negation"]["law_id"], "status": rec["negation"]["status"]})
             if status != "PROVED" and not exists:
                 s = cm.explore(law)
@@ -471,10 +511,11 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                     text = mproofs.counter(em2, cm.m, imp, wr, lhs, ty)
                     for x in {d, ld, pd}:
                         shutil.rmtree(x, ignore_errors=True)
-                    rr = bend.check(write_pair(ld, pd, em2.text, text), cfg)
-                    ok = rr.ok and _law_names(em2.text) == [em2.name] and not bend.escape_hatches(text + em2.text)
+                    proof_f = write_pair(ld, pd, em2.text, text)
+                    rr = bend.check(proof_f, cfg)
+                    ok, why = accepted(rr, proof_f, ld / "LAWS.bend", em2, text)
                     attempts.append({"kind": "counter-law", "generator": "counter", "exit_code": rr.code, "marker": rr.marker,
-                                     "seconds": rr.seconds, **({} if ok else {"error": _first(rr.out)})})
+                                     "seconds": rr.seconds, **({} if ok else {"error": why})})
                     if ok:
                         status, r, em = "REFUTED", rr, em2
                         rec["witness"] = w
@@ -513,10 +554,18 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                 rec["kernel"]["verdict"] = "checked" if v.ok else "failed"
                 attempts.append({"kind": "verdict", "kernel": "BendTT (Lean-proven)", "exit_code": v.code,
                                  "marker": v.marker, "seconds": v.seconds})
+        if law.get("ir_version") == "holon-ir/0.3":   # the statement's scope, separate from its status (F-M2-01)
+            rec.update(scope_fields(law, rec))
         rec["status"] = status
         rec["attempts"] = attempts
         kbound["laws"][lid] = {"model": model_src.stem, "cone": law_cone(law, cm.facts, stmt_text, model_src, cfg)}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT))
+        if law.get("ir_version") == "holon-ir/0.3":
+            rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
+        if law.get("negation_of"):
+            neg_recs[lid] = {"law_id": lid, "statement_hash": shash, "status": status, "frozen": True,
+                             "statement": rec["statement"], "laws": rec["artifacts"]["laws"],
+                             "proof": rec["artifacts"]["proof"], "generator": None, "attempts": []}
         if m2plus(milestone):   # §8.5: exactly the hypothesis premises, nothing else (I12)
             rec["model_assumptions"] = O.hypothesis_premises(law, cm.oracles)
         rec["non_vacuity"] = inhabit.inhabit(law, milestone, ROOT, d, cfg, cm=cm, rec=rec)
@@ -535,10 +584,11 @@ def param_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dic
     """mproofs.param_premise (I12): its candidates in order, Bend picks. Returns the accepted check, or None."""
     texts = mproofs.param_premise(em, cm.m, imp)
     for i, text in enumerate(texts or []):
-        rr = bend.check(write_pair(ld, pd, em.text, text), cfg)
-        ok = rr.ok and _law_names(em.text) == [em.name] and not bend.escape_hatches(text + em.text)
+        proof_f = write_pair(ld, pd, em.text, text)
+        rr = bend.check(proof_f, cfg)
+        ok, why = accepted(rr, proof_f, ld / "LAWS.bend", em, text)
         attempts.append({"kind": "proof", "generator": "param_premise", "candidate": i, "exit_code": rr.code,
-                         "marker": rr.marker, "seconds": rr.seconds, **({} if ok else {"error": _first(rr.out)})})
+                         "marker": rr.marker, "seconds": rr.seconds, **({} if ok else {"error": why})})
         if ok:
             return rr
     return None
@@ -562,11 +612,12 @@ def reach_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dic
             attempts.append({"kind": "proof", "generator": "reach_invariant", "error": f"unsupported: {e}"})
             return None
         choice: dict = {}
-        tries, rr, ok = 0, None, False
+        tries, rr, ok, why = 0, None, False, "not checked"
         for tries in range(1, max_tries + 1):
             text, slot_at = rp.render(choice)   # separated_proof keeps the line count, so slot lines hold
-            rr = bend.check(write_pair(ld, pd, em.text, text), cfg)
-            ok = rr.ok and _law_names(em.text) == [em.name] and not bend.escape_hatches(text + em.text)
+            proof_f = write_pair(ld, pd, em.text, text)
+            rr = bend.check(proof_f, cfg)
+            ok, why = accepted(rr, proof_f, ld / "LAWS.bend", em, text)
             if ok or rr.ok:
                 break
             mm = re.search(r"^\s*(\d+)>\|", rr.out, re.M)
@@ -582,7 +633,7 @@ def reach_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dic
         if houdini and mode == "strengthened":
             att["houdini"] = {"states": houdini["states"], "bound": houdini["bound"]}
         if not ok:
-            att["error"] = _first(rr.out) if rr else "not checked"
+            att["error"] = why
         attempts.append(att)
         if ok:
             return rr
@@ -610,16 +661,15 @@ def failing_conjunct(cm: CompiledMachine, law: dict, w: dict) -> int | None:
 def decide_negation(law: dict, cm: CompiledMachine, imp: str, d: Path, cfg: dict) -> dict:
     """Generate the negation of an existential law (for all binders, not claim) and try the proof
     generators on it. imp is relative to the law's directory, so the negation's import goes up one."""
-    E = mlaws.Emitter(cm.m)
     out = {"law_id": law["law_id"] + "_neg", "statement_hash": None, "status": "UNKNOWN", "laws": None, "proof": None,
-           "generator": None, "statement": None, "attempts": []}
+           "generator": None, "statement": None, "frozen": False, "attempts": []}
     try:
-        neg = E.negation_ir(law)
-        out["statement_hash"] = R.law_hash(neg, cm.facts)
+        neg = ir.negation_law(law)   # the generator I15's derive freezes the pair with (audit F-M2-19)
+        out["statement_hash"] = R.law_hash(neg, cm.facts, oracles=cm.oracles)
         out["statement"] = ir.render_statement(neg)
         nimp = "../" + imp
         em = mlaws.Emitter(cm.m).emit(neg, nimp, note=f"negation of {law['law_id']} ({out['statement_hash']})")
-    except mlaws.Unsupported as e:
+    except (mlaws.Unsupported, ir.IRError) as e:
         out["attempts"].append({"kind": "emit", "error": f"unsupported: {e}"})
         return out
     for gname, g in mproofs.GENERATORS:
@@ -632,9 +682,9 @@ def decide_negation(law: dict, cm: CompiledMachine, imp: str, d: Path, cfg: dict
         (d / "LAWS.bend").write_text(em.text)
         (d / "PROOF.bend").write_text(text)
         rr = bend.check(d / "PROOF.bend", cfg)
-        ok = rr.ok and _law_names(em.text) == [em.name] and not bend.escape_hatches(text + em.text)
+        ok, why = accepted(rr, d / "PROOF.bend", d / "LAWS.bend", em, text)
         out["attempts"].append({"kind": "proof", "generator": gname, "exit_code": rr.code, "marker": rr.marker,
-                                **({} if ok else {"error": _first(rr.out)})})
+                                **({} if ok else {"error": why})})
         if ok:
             if bend.verdict_enabled(cfg):
                 v = bend.check_verdict(d / "PROOF.bend", cfg)
@@ -648,23 +698,57 @@ def decide_negation(law: dict, cm: CompiledMachine, imp: str, d: Path, cfg: dict
     return out
 
 
-def check_registry_multi(laws: list[dict], reg: dict, milestone: str | None = None) -> None:
+def check_registry_multi(laws: list[dict], reg: dict, milestone: str | None = None, root: Path | None = None) -> None:
+    """The registry check of `holon run` and of gate G2, for every IR version: each facts file's sha256, the law
+    ids, each law's facts_sha256, and each statement hash (holon.gen.refs.law_hash: 0.3 with its refs into the
+    facts and the target library and, for M2+ milestones, the oracle sidecar). root: the tree checked."""
     from .pipeline import RegistryMismatch
+    root = Path(root or ROOT)
     problems = []
     files = reg.get("facts_files") or {reg["facts"]: reg["facts_sha256"]}
     for path, sha in files.items():
-        if F.sha256_file(ROOT / path) != sha:
+        if not (root / path).is_file():
+            problems.append(f"facts {path} does not exist")
+        elif F.sha256_file(root / path) != sha:
             problems.append(f"facts {path} hash differs from the registry")
     if sorted(reg["statements"]) != sorted(l["law_id"] for l in laws):
         problems.append("registry and laws/ list different law ids")
     for law in laws:
-        if files.get(law["facts"]) != law["facts_sha256"]:
+        rel = law.get("facts") or reg.get("facts")
+        if files.get(rel) != law["facts_sha256"]:
             problems.append(f"{law['law_id']}: facts_sha256 differs from its facts file")
-        orc = O.Oracles.for_facts(ROOT / law["facts"]) if milestone and m2plus(milestone) else None
-        if reg["statements"].get(law["law_id"]) != R.law_hash(law, F.load(ROOT / law["facts"]), oracles=orc):
+        if not (root / rel).is_file():
+            continue
+        orc = O.Oracles.for_facts(root / rel) if milestone and m2plus(milestone) else None
+        if reg["statements"].get(law["law_id"]) != R.law_hash(law, F.load(root / rel), oracles=orc, root=root):
             problems.append(f"{law['law_id']}: statement hash differs from the registry")
     if problems:
         raise RegistryMismatch("; ".join(problems))
+
+
+def law_import_problem(proof: Path, laws: Path) -> str | None:
+    """Every acceptance point (audit F-M2-07): a PROOF.bend counts only when it imports exactly its LAWS.bend, by
+    the relative path from the proof's directory, as Laws. Bend then requires every law of that module to be filled
+    (an unfilled one is a TODO, probe bend/notes/p_ir03_import_depth); a proof that imports no law checks
+    vacuously, since prover separation (I10) took away Bend's own "PROOF.bend must import ./LAWS.bend" rule for
+    files apart. None when the import is there, else the reason."""
+    import re
+    proof, laws = Path(proof), Path(laws)
+    want = Path(os.path.relpath(laws.resolve(), proof.resolve().parent)).as_posix()
+    ok = {want, "./" + want} if "/" not in want else {want}
+    try:
+        text = proof.read_text(errors="replace")
+    except OSError as e:
+        return f"cannot read {proof.name}: {e}"
+    found = []
+    for line in text.splitlines():
+        m = re.match(r"^import\s+(\S+)\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:#.*)?$", line)
+        if m and m.group(2) == "Laws":
+            found.append(m.group(1))
+    if found == [p for p in found if p in ok] and found:
+        return None
+    return (f"{proof.name} does not import its law ({want} as Laws; it imports {found or 'no law module'}): a proof "
+            "that never imports the law it claims proves nothing")
 
 
 def _law_names(text: str) -> list[str]:

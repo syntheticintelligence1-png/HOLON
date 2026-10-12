@@ -1,0 +1,82 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_cf_model",
+  "milestone": "T1",
+  "rule": "FACT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/oracles/facts/toy_oracle.facts.json",
+  "facts_sha256": "",
+  "notes": "Audit F-M2-31: CF through the model. The hash parameter agg is applied by the model's commit step at two points ([1] and [2]); CF(agg, {[1], [2]}) makes the two commitments differ. Its premise is inhabited by the oracle sidecar's concrete instance of agg (I12), not by the explorer's identity function. L3_cf_model_nocf, the same claim without the premise, is REFUTED: the premise carries the law.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "agg",
+        "type": "Fn<List<Nat>,Nat>"
+      },
+      {
+        "q": "forall",
+        "name": "dec",
+        "type": "Fn<Nat,Nat>"
+      }
+    ],
+    "assume": [
+      {
+        "cf": {
+          "fn": "agg",
+          "set": [
+            {
+              "nats": [
+                1
+              ]
+            },
+            {
+              "nats": [
+                2
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "claim": {
+      "neq": [
+        {
+          "obsv": "com_of",
+          "of": {
+            "step": {
+              "act": "commit",
+              "args": {
+                "x": {
+                  "nat": 1
+                }
+              }
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "obsv": "com_of",
+          "of": {
+            "step": {
+              "act": "commit",
+              "args": {
+                "x": {
+                  "nat": 2
+                }
+              }
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_small_bounded",
+  "milestone": "T1",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Audit F-M2-01: true within its horizon (a trace of at most 2 actions leaves the counter <= 2), false beyond it. Never REFUTED: a 3-action witness is outside the scope.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "small",
+          "of": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "bounded",
+      "H": 2
+    }
+  }
+}

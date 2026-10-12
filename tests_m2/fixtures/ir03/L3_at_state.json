@@ -1,0 +1,37 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_at_state",
+  "milestone": "T1",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Audit F-M2-01: a claim at one referenced state. No generator resolves a state ref yet, so the emitter rejects it as Unsupported (UNKNOWN with the reason), never a claim over every state.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "State"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "small",
+          "of": {
+            "var": "s"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "at_state",
+      "ref": "s0"
+    }
+  }
+}

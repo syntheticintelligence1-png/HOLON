@@ -1,0 +1,55 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_and_false_second",
+  "milestone": "T1",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Audit F-M2-31: a false conjunction whose first conjunct always holds, so the failing conjunct named by the counter-law is 1, not 0 (three pushes make the counter 3).",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "bool": true
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "obsv": "small",
+              "of": {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}
