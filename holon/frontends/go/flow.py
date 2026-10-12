@@ -288,6 +288,8 @@ class Flow:
             if self.fn.instr_reaches(s, s2) and self.fn.instr_reaches(s2, at):
                 return ("unknown", "memory")
         v = self.term(s.operands[1])
+        if v[:1] == ("zero",) and len(steps) > len(st):
+            return self.ctx.zero(at.type)  # a field or element of a composite zero value
         for step in steps[len(st):]:
             v = self.extend(v, step)
         return v

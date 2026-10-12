@@ -313,6 +313,8 @@ class Enumerator:
             v = os_.stores[best]
             if isinstance(v, Cell):
                 return ("unknown", "memory")
+            if isinstance(v, tuple) and v[:1] == ("zero",):
+                return self.ctx.zero(typ)
             if isinstance(v, tuple):
                 for step in path[len(best):]:
                     v = self.extend(v, step)
@@ -348,6 +350,8 @@ class Enumerator:
             return
         if path == ():
             whole = self.render(st, v) if not isinstance(v, tuple) else v
+            if whole[:1] == ("zero",):
+                whole = None  # a composite zero value: the memory reads as fresh zero memory
             st.mem[ptr.oid] = OState(whole, {}, frozenset())
             return
         stores = {q: x for q, x in old.stores.items() if not (len(q) > len(path) and q[:len(path)] == path)}
@@ -406,6 +410,8 @@ class Enumerator:
                 best = q
         if best is not None:
             v = os_.stores[best]
+            if isinstance(v, tuple) and v[:1] == ("zero",):
+                return ("const", 0)
             if isinstance(v, tuple):
                 for step in path[len(best):]:
                     v = self.extend(v, step)

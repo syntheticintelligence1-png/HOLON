@@ -333,7 +333,13 @@ class Reasoner:
     def __init__(self, facts=(), nonnil=lambda t: False):
         self.facts = list(facts)
         self.nonnil = nonnil
-        self.forms = {norm(f) for f in self.facts}
+        self.forms = set()
+        self.order = []      # the facts' normal forms in fact order (iteration never depends on hashing)
+        for f in self.facts:
+            n = norm(f)
+            if n not in self.forms:
+                self.forms.add(n)
+                self.order.append(n)
         self._iv = None
 
     def plus(self, atom) -> "Reasoner":
@@ -348,7 +354,7 @@ class Reasoner:
         hi: dict = {}
         ne: dict = {}
         vars_ = set()
-        for f in self.forms:
+        for f in self.order:
             if f[0] in ("le", "eq", "ne"):
                 for v, _ in f[1]:
                     vars_.add(v)
@@ -364,9 +370,9 @@ class Reasoner:
             return a if a is not None and a == b else None
 
         empty = set()
-        for _round in range(4):
+        for _round in range(32):
             changed = False
-            for f in self.forms:
+            for f in self.order:
                 if f[0] not in ("le", "eq", "ne"):
                     continue
                 rest = []
@@ -409,13 +415,14 @@ class Reasoner:
                         if int(r) not in s:
                             s.add(int(r))
                             changed = True
-            for v in list(lo) + list(hi):
+            for v in sorted(set(lo) | set(hi), key=key):
                 if v[:1] == ("cap",):
                     ll = lo.get(("len", v[1]))
                     if ll is not None and (lo.get(v) is None or ll > lo[v]):
                         lo[v] = ll
                         changed = True
-            for v, s in ne.items():
+            for v in sorted(ne, key=key):
+                s = ne[v]
                 while lo.get(v) is not None and lo[v] in s:
                     lo[v] += 1
                     changed = True
