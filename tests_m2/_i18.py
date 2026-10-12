@@ -651,9 +651,10 @@ def term_problems(t, where: str) -> list[str]:
         if not shape():
             bad.append(f"{w}: malformed {tag} term: {str(x)[:120]}")
             return
-        subs = {"field": [a[0]], "len": [a[0]], "cap": [a[0]], "index": a, "slice": [y for y in a if y is not None],
-                "op": a[1:], "unop": a[1:], "convert": a[1:], "iface": a[1:], "call": a[1], "result": a[:1],
-                "append": a, "alloc": [a[1]] if a[1] is not None else []}.get(tag, [])
+        subs = {"field": lambda: [a[0]], "len": lambda: [a[0]], "cap": lambda: [a[0]], "index": lambda: a,
+                "slice": lambda: [y for y in a if y is not None], "op": lambda: a[1:], "unop": lambda: a[1:],
+                "convert": lambda: a[1:], "iface": lambda: a[1:], "call": lambda: a[1], "result": lambda: a[:1],
+                "append": lambda: a, "alloc": lambda: [a[1]] if a[1] is not None else []}.get(tag, lambda: [])()
         for y in subs:
             chk(y, w)
     chk(t, where)
