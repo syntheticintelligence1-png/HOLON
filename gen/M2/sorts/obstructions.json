@@ -1,0 +1,182 @@
+{
+  "derive_version": "holon-derive/0.1",
+  "document": "obstructions",
+  "inputs": [
+    {
+      "path": "facts/morph_header.json",
+      "sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80"
+    },
+    {
+      "path": "gen/M2/sorts/assignment.json",
+      "sha256": "1545a86fcb1cad3c8eeabda929ba1cfbada01b099e26a553d81405bc76ad687d"
+    },
+    {
+      "path": "spec/M1/facts/morph_batchdata.json",
+      "sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d"
+    },
+    {
+      "path": "spec/M1/facts/morph_rollup.json",
+      "sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f"
+    },
+    {
+      "path": "spec/M1/lib/morph_rollup.lib.json",
+      "sha256": "004d12f43d1074f0746bce4e2c5fb87df4b5a0dca1b720c3523d2a18971f46a0"
+    },
+    {
+      "path": "spec/M2/lib/oracles.json",
+      "sha256": "abce18c7863efe32154ef86eaf0f5ca51b111c06ff3739284172f7d8863ca5c1"
+    },
+    {
+      "path": "spec/M2/lib/sort_sites.json",
+      "sha256": "6ba1dba3cd28b6aaeb3fd4b9e72b922f13b0886ae656af60a255e9580a6acd9c"
+    },
+    {
+      "path": "spec/lib/go_slices.lib.json",
+      "sha256": "f5ddbe0ad4c6be7e89802f497e4c826cd68dbd8925bac014f506fc1867292df4"
+    }
+  ],
+  "milestone": "M2",
+  "obstructions": [
+    {
+      "action": "commitBatch",
+      "at": "guards[5]",
+      "constrains": [
+        "n"
+      ],
+      "guard": "guards[6]",
+      "guard_span": "contracts/contracts/l1/rollup/Rollup.sol:262-266",
+      "id": "coherence:morph_rollup:commitBatch:guards[6]:guards[5]",
+      "kappa": [
+        "<",
+        [
+          "+",
+          "ef",
+          "D"
+        ],
+        "t"
+      ],
+      "kind": "coherence",
+      "model": "morph_rollup",
+      "registers": [
+        {
+          "label": "wcf8ad7dc",
+          "sort": "Idx[queue]_wcf8ad7dc",
+          "var": "qlen",
+          "writers": [
+            "sendMessage"
+          ]
+        },
+        {
+          "label": "fin",
+          "sort": "Idx[queue]_fin",
+          "var": "qpend",
+          "writers": [
+            "finalizeBatch"
+          ]
+        }
+      ],
+      "rho": [
+        ">",
+        "n",
+        0
+      ],
+      "span": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "via": [
+        "enq_first"
+      ]
+    },
+    {
+      "action": "commitBatchWithProof",
+      "at": "guards[4]",
+      "constrains": [
+        "n"
+      ],
+      "guard": "guards[6]",
+      "guard_span": "contracts/contracts/l1/rollup/Rollup.sol:397-399",
+      "id": "coherence:morph_rollup:commitBatchWithProof:guards[6]:guards[4]",
+      "kappa": "qd",
+      "kind": "coherence",
+      "model": "morph_rollup",
+      "registers": [
+        {
+          "label": "wcf8ad7dc",
+          "sort": "Idx[queue]_wcf8ad7dc",
+          "var": "qlen",
+          "writers": [
+            "sendMessage"
+          ]
+        },
+        {
+          "label": "fin",
+          "sort": "Idx[queue]_fin",
+          "var": "qpend",
+          "writers": [
+            "finalizeBatch"
+          ]
+        }
+      ],
+      "rho": [
+        "||",
+        "rd",
+        [
+          ">",
+          "n",
+          0
+        ]
+      ],
+      "span": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "via": [
+        "enq_first"
+      ]
+    },
+    {
+      "action": "commitState",
+      "at": "guards[10]",
+      "constrains": [
+        "n"
+      ],
+      "guard": "guards[11]",
+      "guard_span": "contracts/contracts/l1/rollup/Rollup.sol:262-266",
+      "id": "coherence:morph_rollup:commitState:guards[11]:guards[10]",
+      "kappa": [
+        "<",
+        [
+          "+",
+          "ef",
+          "D"
+        ],
+        "t"
+      ],
+      "kind": "coherence",
+      "model": "morph_rollup",
+      "registers": [
+        {
+          "label": "wcf8ad7dc",
+          "sort": "Idx[queue]_wcf8ad7dc",
+          "var": "qlen",
+          "writers": [
+            "sendMessage"
+          ]
+        },
+        {
+          "label": "fin",
+          "sort": "Idx[queue]_fin",
+          "var": "qpend",
+          "writers": [
+            "finalizeBatch"
+          ]
+        }
+      ],
+      "rho": [
+        ">",
+        "n",
+        0
+      ],
+      "span": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "via": [
+        "enq_first"
+      ]
+    }
+  ],
+  "sorts_sha256": "24bc9c9372e7bfbf62c6d4a520bb58016137c7d1259867ba430bd7f8d5c19ae0"
+}

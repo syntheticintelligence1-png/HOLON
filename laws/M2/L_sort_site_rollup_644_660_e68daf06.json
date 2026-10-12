@@ -1,0 +1,50 @@
+{
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sort_site_rollup_644_660_e68daf06",
+  "milestone": "M2",
+  "notes": "SORT-site law (holon.sorts.sites, rules R7-R10): every evaluation of the subtraction (idx - 1) at contracts/contracts/l1/rollup/Rollup.sol:644-660 (sort Nat (unrefined), realized in Nat, obligation none) while action a runs from a reachable state s has minuend >= subtrahend; entry points: finalizeBatch. Provenance: DERIVATION.json.",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/1.0",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "agg",
+        "q": "forall",
+        "type": "Fn<List<Nat>,Nat>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          },
+          "site": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:644-660:e68daf06"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "site"
+}
