@@ -1193,6 +1193,291 @@
         "disagreements_per_faithful_edge_max": 0,
         "unexplained_max": 0
       }
+    },
+    "I14": {
+      "title": "Evidence calculus (E1-E6) and frozen evidence set",
+      "plan": "docs/BUILD_PLAN.md#i14",
+      "prompt": "prompts/I14_evidence.md",
+      "predictions": [
+        {
+          "id": "I14-P1",
+          "claim": "(enc_sol, dec_go) and (enc_go_v1, dec_go) have E1 on all v0/v1 fields, operationalized per version and field by getter recovery over the layout algebra (rule E1 of the tests_m2/test_evidence.py contract): the evidence set holds one E1 inverse atom (CODEC.enc_sol, CODEC.dec_go) at each of versions 0, 1 and 2, recovering every active getter except sequencerSetVerifyHash (v0: the 10 other v0 fields; v1 and v2: those plus lastBlockNumber), because enc_sol stores 32 zero bytes at 185; one at version 1 for (CODEC.enc_go_v1, CODEC.dec_go) recovering every v1 field except version, and one at version 0 for (CODEC.enc_go_v0, CODEC.dec_go) recovering every v0 field except version, because the Go encoders write a constant version byte. So 'all v0/v1 fields' holds except exactly those two fields, each already a known obstruction (L_par_hdr_ssvh; the constant Go version byte of whitepaper 5.1).",
+          "check": "tests_m2/test_evidence.py::TestPredictions::test_e1_on_the_codec_pairs_field_by_field"
+        },
+        {
+          "id": "I14-P2",
+          "claim": "Exactly 7 E1 atoms, all in morph_header: the 5 inverse atoms of I14-P1 and two common-decoder atoms, (CODEC.enc_go_v0, CODEC.enc_sol) at version 0 on the 9 fields both recover and (CODEC.enc_go_v1, CODEC.enc_sol) at version 1 on 10 (batchIndex .. withdrawRootHash, parentBatchHash, lastBlockNumber); no E1 atom relates enc_sol and enc_go_v1 at version 2, since enc_go_v1's version label (I11: the constant it writes at the version slot) is 1.",
+          "check": "tests_m2/test_evidence.py::TestPredictions::test_e1_common_decoder_atoms_and_none_at_version_2"
+        },
+        {
+          "id": "I14-P3",
+          "claim": "(commit*, revertBatch) have E2 on the BVH residue: for each of commitBatch, commitState and commitBatchWithProof there is an E2 atom p = TRANS.revertBatch, q = TRANS.<commit>, via {carrier: s_bvh, writes: [\"*\"], reads: [\"parent+1\"]} (revertBatch writes the residue with s_bvh := concat(es_bvh(moved), s_bvh), a precise whole write through a generic builtin; each commit reads it through bvh_at at parent + 1); none of the three pairs is unresolved, and no E2 atom runs from a commit to revertBatch through s_bvh (revertBatch does not read it).",
+          "check": "tests_m2/test_evidence.py::TestPredictions::test_e2_on_the_bvh_residue"
+        },
+        {
+          "id": "I14-P4",
+          "claim": "The previous-state-root guard gives E3: one E3 atom at each reason-14 guard: commitBatch guards[19], commitState guards[18] and commitBatchWithProof guards[23], all at Rollup.sol:314, comparing get(w(lfi, win, parent), csr) with prev; and finalizeBatch guards[9] at Rollup.sol:635-638, comparing nth(fsr, idx - 1) with get(w(lfi, win, idx), prev).",
+          "check": "tests_m2/test_evidence.py::TestPredictions::test_previous_state_root_guards_give_e3"
+        },
+        {
+          "id": "I14-P5",
+          "claim": "Exactly 9 E3 atoms, all in morph_rollup: the 4 of I14-P4, parent == lci at Rollup.sol:312 in the three commits (guards[18], [17], [22]), lfi + 1 == idx at Rollup.sol:643 (finalizeBatch guards[11]) and qpend == btot - bn at L1MessageQueueWithGasPriceOracle.sol:325 (finalizeBatch guards[14]); comparisons with a literal or a parameter (rri == 0, who == OWNER, proof == 1, ...) give none, and morph_header and morph_batchdata give none.",
+          "check": "tests_m2/test_evidence.py::TestPredictions::test_the_e3_inventory"
+        },
+        {
+          "id": "I14-P6",
+          "claim": "Exactly 2 E4 atoms: (TRANS.commitBatch -> TRANS.commitBatchWithProof) and (TRANS.commitBatchWithProof -> TRANS.commitBatch), both for blob_hash(ver, blobs), stored by each in effects.win and recomputed by the other; no other stored call takes only action inputs.",
+          "check": "tests_m2/test_evidence.py::TestPredictions::test_the_e4_inventory"
+        },
+        {
+          "id": "I14-P7",
+          "claim": "Against I13's frozen assignment (t: Time, W: Dur, <commit>.cstart: Time): in each of the three commits, an E5 atom at the reason-16 guard (commitBatch guards[23], commitState guards[22], commitBatchWithProof guards[27]; op <=, operands t and W + cstart, sort Time, Rollup.sol:363) and one at the let prt (guards[24], [23], [28]; op -, operands W + cstart and t, sort Time, Rollup.sol:360-364); no E5 atom is located at LOAD.obs.tags_ok.",
+          "check": "tests_m2/test_evidence.py::TestPredictions::test_e5_at_the_signed_duration_site_and_not_at_the_ghost_tag_observer"
+        },
+        {
+          "id": "I14-P8",
+          "claim": "Exactly 3 E6 atoms in morph_header, between the three encoders (parallel Header -> Bytes CODEC edges whose cited code names share tokens under spec/M2/lib/evidence_lexical.json): (enc_go_v0, enc_go_v1) on batch, bytes, header; (enc_go_v0, enc_sol) and (enc_go_v1, enc_sol) on batch, header.",
+          "check": "tests_m2/test_evidence.py::TestPredictions::test_e6_between_the_header_encoders"
+        },
+        {
+          "id": "I14-P9",
+          "claim": "GEVID's verdict on the E5 claims, against I13's frozen assignment: L_sort_remaining's E5 is computed (no mismatch on E5): its statement names reason 16, hence the three commits, whose :363 guard and :360-364 let compare or subtract t and W + cstart, both Time. L_tag_BVH's E5 is not computed and GEVID lists it as missing: its statement names only the observer tags_ok, whose body tags_exact(win) holds no comparison, and the registers it is about (Entry.bvh, s_bvh) carry the union Dig[Agg] + Dig[VH], which is no identical refined sort (section 7.4).",
+          "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_gevid_verdicts_on_the_e5_claims"
+        },
+        {
+          "id": "I14-P10",
+          "claim": "GEVID on M0 is report-only and passes, and exactly two laws carry metadata evidence the frozen set does not compute: L_dom_hdr missing [E2] (its predicates name only dec_go, and no atom relates dec_go to itself) and L_par_hdr_v2 missing [E1] (the encoders' common-decoder E1 is at version 1; the law fixes version 2). Computed levels: L_dom_hdr []; L_par_hdr_ssvh, L_par_hdr_v0, L_par_hdr_v1 [E1, E6]; L_par_hdr_v2 [E6]; L_rt_go_v0, v1, v2 [E1, E2].",
+          "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_m0_report_shape"
+        },
+        {
+          "id": "I14-P11",
+          "claim": "GEVID on M1 is report-only and passes, and exactly two laws carry metadata evidence the frozen set does not compute: L_nat_eta2 missing [E2] (every write-then-read through eta2, legacy or csr_last passes win through a builtin that declares no access kind, so it is unresolved, not evidence) and L_tag_BVH missing [E2, E5] (E2 likewise through tags_exact; E5 as in I14-P9); L_fact_Z's E4 is computed; every other M1 law's metadata evidence is computed. No E2 atom ends at tags_ok, csr_last or new_hdr, and (commitBatch, tags_ok, win) is unresolved with imprecise [read].",
+          "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_m1_report_shape and tests_m2/test_evidence.py::TestPredictions::test_observer_reads_through_kindless_builtins_are_unresolved"
+        },
+        {
+          "id": "I14-P12",
+          "claim": "L_par_hdr_ssvh's evidence_triage is finding (its strongest computed level is E1, at version 1), against its v1 triage intent_question, and GEVID lists it as a divergence; its record carries evidence_triage finding next to the unchanged v1 triage.",
+          "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_ssvh_evidence_triage_is_finding_and_a_divergence"
+        },
+        {
+          "id": "I14-P13",
+          "claim": "The divergence list (laws whose evidence_triage differs from their v1 triage) is exactly L_par_hdr_ssvh (finding vs intent_question) and L_par_hdr_v2 (intent_question vs finding: at version 2 only E6 relates enc_sol and enc_go_v1); M1 has none (every REFUTED M1 law has strong evidence or none, and evidence_triage defaults to finding).",
+          "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_the_divergence_list"
+        },
+        {
+          "id": "I14-P14",
+          "kind": "construction",
+          "claim": "Construction check, not counted toward prediction accuracy: `python -m holon evidence --milestone M2` writes gen/M2/evidence.json in the contract's format (header, hashed inputs drawn only from the frozen set, the lexical sidecar as the only vocabulary, schema-valid, sorted unique ids derived from the via, endpoints that are edges and never STORE/LOAD aggregates, anchors that follow the diagrams), evidence_sha256 is the hash of its body and sorts_sha256 the frozen assignment's, two runs are byte-identical and equal the committed file, the build API renders the same bytes, and holon/diagram/evidence.py holds no target name derived from the fact documents and libraries, neither as a compound identifier anywhere nor, short names included, as a string literal; anchors.sites follows the frozen assignment's sites.",
+          "check": "tests_m2/test_evidence.py::TestEvidenceFile::test_cli_writes_the_document_with_its_header and tests_m2/test_evidence.py::TestEvidenceFile::test_inputs_are_hashed_and_the_only_vocabulary_is_the_lexical_sidecar and tests_m2/test_evidence.py::TestEvidenceFile::test_evidence_and_sorts_hashes and tests_m2/test_evidence.py::TestEvidenceFile::test_document_validates_against_the_evidence_schema and tests_m2/test_evidence.py::TestEvidenceFile::test_atom_ids_endpoints_and_order and tests_m2/test_evidence.py::TestEvidenceFile::test_anchors_follow_the_diagrams and tests_m2/test_evidence.py::TestEvidenceFile::test_two_runs_are_byte_identical_and_match_the_committed_file and tests_m2/test_evidence.py::TestEvidenceFile::test_build_api_equals_the_cli and tests_m2/test_evidence.py::TestEvidenceFile::test_the_pass_holds_no_target_name and tests_m2/test_evidence.py::TestEvidenceFile::test_the_pass_quotes_no_target_name"
+        },
+        {
+          "id": "I14-P15",
+          "kind": "construction",
+          "claim": "Construction check, not counted: the definitions are pinned on planted fixtures before the pass runs on Morph (tests_m2/fixtures/evidence/expected.json): the toy codec and toy machine give exactly the planted atoms of every level and the planted unresolved pairs (each planted-absent case absent), law_evidence gives the exact named/context/version/levels/max of 14 fixture laws, evidence_triage follows the table, the build is independent of document order, and holon.layout.recovers/evidence follow rule E1. On the Morph documents every atom is re-derived by an independent instrument (E1 from holon.layout.layout, E2 terms from the diagram, E3/E5 nodes from the facts, E6 from the documented tokenizer).",
+          "check": "tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_every_planted_atom_and_nothing_else and tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_unresolved_pairs_through_a_kindless_builtin and tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_levels_planted_absent_by_kind and tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_document_shape_on_the_fixture and tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_build_does_not_depend_on_the_order_of_the_documents and tests_m2/test_evidence_fixture.py::TestFixtureLaws::test_law_evidence_on_every_fixture_law and tests_m2/test_evidence_fixture.py::TestFixtureLaws::test_triage_table and tests_m2/test_evidence_fixture.py::TestLayoutAPI::test_recovers_and_evidence and tests_m2/test_evidence.py::TestSoundness::test_e1_atoms_equal_the_layout_algebra and tests_m2/test_evidence.py::TestSoundness::test_e2_atoms_use_terms_of_the_diagram and tests_m2/test_evidence.py::TestSoundness::test_e3_and_e5_atoms_point_at_their_nodes and tests_m2/test_evidence.py::TestSoundness::test_e6_atoms_equal_the_frozen_tokenizer"
+        },
+        {
+          "id": "I14-P16",
+          "kind": "construction",
+          "claim": "Construction check, not counted: GEVID is a gate check right after GREF; `holon gate --checks GEVID` passes report-only on copies of M0 and M1 with the same report as the API; it fails, naming what failed, on a tampered evidence file, a drifted input, a stale record field, a malformed override, an override on a law that is not REFUTED or names no law, and a registry whose evidence_sha256 differs; from M2 on it is enforcing (a planted law whose metadata evidence is not computed fails it, the same law with empty metadata passes); a planted holon-ir/0.3 SORT-site law with no evidence key (I15's form) passes enforcing mode, named through anchors.sites with every TRANS edge as context; a valid override is listed and moves the effective triage and the divergence list.",
+          "check": "tests_m2/test_evidence_gate.py::TestGateWiring::test_gevid_follows_gref_in_the_check_order and tests_m2/test_evidence_gate.py::TestGateWiring::test_the_gate_runs_gevid_report_only_on_m0_and_m1 and tests_m2/test_evidence_gate.py::TestGevidFailures::test_a_tampered_evidence_file_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_a_drifted_input_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_a_stale_record_field_fails_naming_the_law and tests_m2/test_evidence_gate.py::TestGevidFailures::test_a_malformed_override_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_an_override_on_a_law_that_is_not_refuted_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_an_override_naming_no_law_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_enforcing_from_m2_fails_on_a_metadata_mismatch and tests_m2/test_evidence_gate.py::TestGevidFailures::test_from_m2_the_registry_must_carry_the_evidence_sha and tests_m2/test_evidence_gate.py::TestOverrides::test_a_valid_override_is_listed_and_moves_the_divergence and tests_m2/test_evidence_gate.py::TestGevidFailures::test_an_ir_0_3_site_law_without_metadata_passes_enforcing"
+        },
+        {
+          "id": "I14-P17",
+          "kind": "construction",
+          "claim": "Construction check, not counted: every M0/M1 record carries evidence_levels, evidence_triage and evidence_override equal to the recomputation from the committed evidence set (no override committed), and the v2 schema requires the three fields and rejects malformed values. Whenever laws/M2/REGISTRY.json exists (I15), its evidence_sha256 equals gen/M2/evidence.json's, GEVID passes on M2, and every SORT-site law there carries no evidence key and names exactly its site's actions.",
+          "check": "tests_m2/test_evidence_gate.py::TestRecords::test_records_carry_the_recomputed_evidence_fields and tests_m2/test_evidence_gate.py::TestRecords::test_the_v2_schema_requires_the_fields and tests_m2/test_evidence_gate.py::TestRecords::test_no_override_is_committed and tests_m2/test_evidence_gate.py::TestRegistry::test_the_m2_registry_carries_the_evidence_sha_whenever_it_exists and tests_m2/test_evidence_gate.py::TestRegistry::test_m2_site_laws_name_their_actions_whenever_they_exist"
+        },
+        {
+          "id": "I14-P18",
+          "kind": "construction",
+          "claim": "Construction check, not counted (honesty): the evidence set is computed from the diagram and the frozen assignment only. On a copy mutated with I13's honesty mutations (tests_m2/test_sorts_honesty.py), the diagram and sorts regenerated each time: stripping every site annotation, note and sort-stating doc leaves the atoms, unresolved entries and anchors byte-equal (ids included); renaming the rollup facts' hand-chosen identifiers renames them and changes nothing else (ids and site hashes aside).",
+          "check": "tests_m2/test_evidence_honesty.py::TestEvidenceHonesty::test_stripping_hand_hints_changes_no_atom and tests_m2/test_evidence_honesty.py::TestEvidenceHonesty::test_renaming_fact_identifiers_renames_the_evidence_and_nothing_else"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I14-R1",
+          "claim": "The 24 M0/M1 statuses and statement hashes are unchanged.",
+          "check": "tests_m2/test_records_v2.py::TestRecordsV2::test_statuses_unchanged and tests_m2/test_records_v2.py::TestRecordsV2::test_statement_hashes_unchanged"
+        },
+        {
+          "id": "I14-R2",
+          "claim": "The v1 triage of every M0/M1 record is unchanged (frozen tests pin it to the predictions; evidence-derived values go only to v2 fields, BUILD_PLAN invariant 10).",
+          "check": "tests_m2/test_evidence_gate.py::TestRecords::test_v1_triage_is_unchanged"
+        },
+        {
+          "id": "I14-R3",
+          "claim": "gen/M0 and gen/M1 are byte-identical (GEN_PIN).",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged"
+        },
+        {
+          "id": "I14-R4",
+          "claim": "gen/M2/diagram and gen/M2/sorts are unchanged and regenerate byte for byte (the evidence set reads them; it never writes them).",
+          "check": "tests_m2/test_diagram.py::TestDiagramFiles::test_regeneration_is_byte_identical and tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files"
+        },
+        {
+          "id": "I14-R5",
+          "claim": "Gates M0 and M1 pass, with GEVID (report-only) among their checks.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M2/evidence.json",
+        "results/M0/",
+        "results/M1/",
+        "config/evidence_overrides.json"
+      ],
+      "tests": [
+        "tests_m2/test_evidence.py",
+        "tests_m2/test_evidence_fixture.py",
+        "tests_m2/test_evidence_gate.py",
+        "tests_m2/test_evidence_honesty.py"
+      ],
+      "thresholds": {}
+    },
+    "I15": {
+      "title": "Sorts II: per-site SORT laws and the rules registry (the first generated M2 laws)",
+      "plan": "docs/BUILD_PLAN.md#i15",
+      "prompt": "prompts/I15_sort_sites.md",
+      "predictions": [
+        {
+          "id": "I15-P1",
+          "claim": "Six of the ten site laws are PROVED by the new proof class coercion_guard, each proof calling a core lemma through the imported core library: L_sort_site_rollup_441_b4cd5068 (revertBatch let p = idx - lfi, a window offset, after the require idx > lfi at :441), L_sort_site_rollup_485_495_b4cd5068 (challengeState effect win offset idx - lfi, after lfi < idx at :476), L_sort_site_rollup_644_660_e68daf06 (finalizeBatch effect idx - 1, the checked deletes at :657-660, after idx >= 1 at :636 passed), L_sort_site_def_w_b4cd5068 (def w: idx - lfi under in_win, i.e. idx >= lfi), L_sort_site_def_bvh_at_6126d1f1 and L_sort_site_def_bvh_at_e064679d (def bvh_at: idx - lci and (idx - lci) - 1, both under !(idx <= lci)). Basis: in each, a condition the evaluation has already passed implies minuend >= subtrahend by one Nat lemma (gt->le, lt->le, ge->le, and_left then ge->le, not_le->le, not_le->1<=sub), true in every state, so no reachability argument is needed. Bend probes on a toy machine (scratch, not Morph) checked this proof shape, including the equation-carrying match on a guard's Bool, under bend and BendTT.",
+          "check": "tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_guard_implied_sites_are_proved_by_coercion_guard"
+        },
+        {
+          "id": "I15-P2",
+          "claim": "Two site laws stay UNKNOWN, with a bounded record and no witness at any entry point: L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17 (finalizeBatch btot - bn, SIdx[queue] sign site; true on reachable states because every window entry has tot = parent tot + n >= n, but no guard implies it) and L_sort_site_def_lci_356891e4 (def lci: (lfi + len(win)) - 1, reached from the seven actions that compute lci; true because the window is never empty, which no guard states). No witness exists, coercion_guard does not apply, and reach_invariant does not take a law with an Act binder; BUILD_PLAN I15 risks: an unguarded site without a witness stays UNKNOWN, with its bound (I40 revisits).",
+          "check": "tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_invariant_sites_stay_unknown_with_their_bound"
+        },
+        {
+          "id": "I15-P3",
+          "claim": "The :363 site (W + cstart - t, SDur, sign) yields ONE law, L_sort_site_rollup_363_1fc7f88a, with entry points commitBatch, commitBatchWithProof and commitState, each hit at its realization check (the facts' require !inch || t <= W + cstart, reason panic:0x11, at guards[23], guards[27] and guards[22]); it is REFUTED with one Bend-checked counter-law witness per entry point, and each witness replays on the real code at the pinned commit with every prefix step succeeding and the entry point reverting with Panic(0x11) raised at Rollup.sol:363 (located by solc's source map in a Foundry debugger dump). Scored: one law with exactly these three entry points and hits, a checked witness for each entry point, and each replaying with a Panic(0x11) located at Rollup.sol:363. Not scored (context, decided by the search): the commitBatch entry point's refutation mirrors the M1 witness of L_sort_remaining already recorded in results/M1, and the expected witness shapes are: commitBatch after [commit 1, challenge 1, wait 11] (the M1 L_sort_remaining shape), commitBatchWithProof after [commit 1, challenge 1, wait 21] (rollup delay passed), commitState after a prefix that also commits and reverts a later batch so that a blob hash is stored for the next index (5 actions, found by the neighbourhood stage S3 around the commitBatch witness). This localizes O27 to a site, where L_sort_remaining was stated over a reason code.",
+          "check": "tests_m2/test_sort_sites.py::TestPredictedDerivation::test_363_is_one_law_reached_from_the_three_commits_at_their_realization_checks and tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_363_is_refuted_with_one_checked_witness_per_entry_point and tests_m2/test_sort_site_outcomes.py::TestReplay::test_363_witnesses_replay_as_panic_0x11_at_rollup_363"
+        },
+        {
+          "id": "I15-P4",
+          "claim": "Contrary to the plan's expectation (':636 PROVED by coercion_guard'), the :636 site (finalizeBatch idx - 1 in finalizedStateRoots[_batchIndex - 1]) is REFUTED: the facts' require idx >= 1 (reason panic:0x11, span :636) models the real code's own checked subtraction, so the obligation is evaluated before it (rule R8), and finalizeBatch with idx = 0 from a state with lfi = 0 (s0) passes every earlier require and reaches it with 0 < 1; on the real code finalizeBatch(genesis header) reverts with Panic(0x11) raised at Rollup.sol:636, before the 'incorrect batch index' check at :643. The witness is found by the boundary variants of stage S1 (idx := v - 1 of the policy's idx = lfi + 1). The guard-implied idx - 1 site is the finalizeBatch effect site :644-660 (I15-P1). The finding is benign (the call reverts either way, with another reason) but it is a reachable underflow.",
+          "check": "tests_m2/test_sort_sites.py::TestPredictedDerivation::test_636_is_hit_before_its_realization_check and tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_636_is_refuted_by_finalize_batch_at_index_zero and tests_m2/test_sort_site_outcomes.py::TestReplay::test_636_witness_replays_as_panic_0x11_at_rollup_636"
+        },
+        {
+          "id": "I15-P5",
+          "claim": "Under MUT2 (spec/M1/mutations.json MUT2_cwp_no_underflow_check: commitBatchWithProof's :363 require := true), re-derived from the mutated facts with their regenerated sorts: the :363 law is still generated under the same id with entry points commitBatch and commitState, and the derive diff against the committed laws/M2 lists commitBatchWithProof as lost from it (and nothing gained); a new law L_sort_site_rollup_360_364_1fc7f88a (commitBatchWithProof's now unchecked W + cstart - t, span :360-364, hit at its occurrence guards[28]) is added with that single entry point. Run on the mutated model, the :363 law is REFUTED through commitBatch and commitState, one checked witness each, and the new law is REFUTED through commitBatchWithProof: the SORT-site law catches what the dropped require modelled.",
+          "check": "tests_m2/test_sort_sites.py::TestMut2Derivation::test_derive_diff_lists_commit_batch_with_proof_as_no_longer_reaching_363 and tests_m2/test_sort_site_outcomes.py::TestMut2Outcomes::test_363_still_refuted_through_the_two_unmutated_entry_points"
+        },
+        {
+          "id": "I15-P6",
+          "claim": "Coherence obstructions (rule R11: a guard kappa => rho whose rho constrains the action's inputs must not read a writer-labelled register the action does not write) appear exactly at the three enq_first call sites of the l1msg delay guard !(ef + D < t) || n > 0 and nowhere else: commitBatch guards[5] (for the require guards[6]), commitState guards[10] (guards[11]) and commitBatchWithProof guards[4] (guards[6]); each passes qlen (Idx[queue]_wcf8ad7dc, writers {sendMessage}) and qpend (Idx[queue]_fin, writers {finalizeBatch}) into enq_first, while rho (n > 0) constrains the commit family, which advances Entry.tot (Idx[queue]_inc); each lists constrains = [n]. The :363 require's rho reads no input, and setPause's kappa reads only Bool registers, so neither yields one (O16/O33 coherence, whitepaper §7.8).",
+          "check": "tests_m2/test_sort_sites.py::TestPredictedDerivation::test_coherence_obstructions_at_the_enq_first_call_sites"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I15-R1",
+          "claim": "M0 and M1 are untouched: gen/M0 and gen/M1 are byte-identical (I6 GEN_PIN), the M0/M1 records are unchanged modulo seconds and generator hash (I6 RECORDS_PIN), and gates M0 and M1 pass.",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged and tests_m2/test_target_agnostic.py::TestByteIdentity::test_records_unchanged_modulo_seconds_and_generator_hash and gate"
+        },
+        {
+          "id": "I15-R2",
+          "claim": "The I13 assignment is unchanged: gen/M2/sorts/{constraints, assignment, conflicts, unions, unresolved}.json regenerate byte for byte, and holon/sorts/*.py (now with sites.py and check.py) stays pure, target-agnostic Python under the I13 static check.",
+          "check": "tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files and tests_m2/test_sorts_unit.py::TestModules::test_sorts_code_is_pure_python_and_target_agnostic"
+        },
+        {
+          "id": "I15-R3",
+          "claim": "laws/M2/REGISTRY.json carries sorts_sha256 equal to gen/M2/sorts/assignment.json's (the I13 contract's conditional check now applies).",
+          "check": "tests_m2/test_sorts_morph.py::TestSortsContract::test_sorts_sha256_is_the_hash_of_the_frozen_assignment and tests_m2/test_sort_sites.py::TestDeriveContract::test_registry"
+        },
+        {
+          "id": "I15-R4",
+          "claim": "Exit (construction check, not a prediction): python -m holon derive --milestone M2 is byte-identical across two runs and reproduces the committed laws/M2/ and gen/M2/sorts/obstructions.json.",
+          "check": "tests_m2/test_sort_sites.py::TestDeriveContract::test_two_runs_are_byte_identical_and_match_the_committed_files"
+        },
+        {
+          "id": "I15-R5",
+          "claim": "Construction check: the derivation, the hit points and the obstructions follow rules R7-R11 as the prereg instrument tests_m2/_i15.py computes them from the facts and the frozen assignment; the statement hash covers the site's hit points; a stale assignment is refused; the toy fixture derives and decides every class as designed.",
+          "check": "tests_m2/test_sort_sites.py::TestDeriveContract::test_derivation_follows_the_rules and tests_m2/test_sort_sites.py::TestDeriveContract::test_site_spec_is_hashed and tests_m2/test_sort_sites.py::TestDeriveContract::test_derive_refuses_a_stale_assignment and tests_m2/test_sort_sites.py::TestObstructions::test_obstructions_follow_rule_r11 and tests_m2/test_sort_sites.py::TestToyDerivation::test_toy_laws_hits_and_obstruction and tests_m2/test_sort_site_outcomes.py::TestToyOutcomes::test_toy_statuses"
+        },
+        {
+          "id": "I15-R6",
+          "claim": "Construction check: the ghost instrumentation cannot change non-ghost behaviour: the instrumented model is the M2 model (for the rollup without oracle tables: the M1 model plus the Reach block) followed by a ghost section that nothing above it names, it adds no state, and Bend checks it; the committed gen/M2/model/morph_rollup.bend is that text.",
+          "check": "tests_m2/test_sort_sites.py::TestInstrumentedMorphModel::test_ghost_section_follows_the_m2_model_unchanged and tests_m2/test_sort_sites.py::TestToyDerivation::test_toy_instrumented_model_checks_and_leaves_the_model_alone and tests_m2/test_sort_site_outcomes.py::TestRecords::test_the_committed_model_is_the_instrumented_model"
+        },
+        {
+          "id": "I15-R7",
+          "claim": "Exit (construction check): new witnesses replay or are labelled: replay/M2/report.json binds every REFUTED per-entry witness, passed and observed, at the panic site the prereg instrument locates; the M2 refinement corpus (the M1 corpus rule on the same transition function) shows 0 disagreements.",
+          "check": "tests_m2/test_sort_site_outcomes.py::TestReplay::test_holon_replay_report_agrees_with_the_instrument and tests_m2/test_sort_site_outcomes.py::TestRecords::test_m2_refinement_corpus_agrees"
+        },
+        {
+          "id": "I15-R8",
+          "claim": "Construction check: every M2 record validates against v1 and v2, carries site and witnesses, keeps the ledger assumptions of its cone (F-M2-12) and names the M2 refinement corpus.",
+          "check": "tests_m2/test_sort_site_outcomes.py::TestRecords::test_every_m2_law_has_a_record_valid_under_v1_and_v2 and tests_m2/test_sort_site_outcomes.py::TestRecords::test_ledger_assumptions_survive and tests_m2/test_sort_site_outcomes.py::TestRecords::test_refinement_refs_name_the_m2_corpus"
+        },
+        {
+          "id": "I15-R9",
+          "claim": "Exit (construction check): python -m holon gate --milestone M2 passes, with G1, G2, G4 (at least 10 canaries of at least 3 kinds), G5, G6 and G9 run on the M2 laws.",
+          "check": "tests_m2/test_sort_site_outcomes.py::TestGateM2::test_gate_m2_passes"
+        },
+        {
+          "id": "I15-R10",
+          "claim": "The earlier M2 outputs survive holon run, derive and gate for M2: gen/M2/diagram regenerates byte for byte, gen/M2/sorts is I13's, and the I12 and I16 outputs under gen/M2 and results/M2 are not removed.",
+          "check": "tests_m2/test_diagram.py::TestDiagramFiles::test_regeneration_is_byte_identical and tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files"
+        },
+        {
+          "id": "I15-R11",
+          "claim": "Construction check (non-vacuity, I3 G11V, whitepaper 12.3 L21): the ghost section defines hit_<x>, the at_site premise of each site law, and every PROVED SORT-site law, on the Morph facts and on the toy, carries a Bend-checked inhabitant of it (exs s: Reach, a. hit_<x>(a, s) == True at a concrete reachable state and action), not merely of Reach; REFUTED laws point at their counter-law.",
+          "check": "tests_m2/test_sort_site_outcomes.py::TestRecords::test_proved_site_laws_are_not_vacuous and tests_m2/test_sort_site_outcomes.py::TestToyOutcomes::test_toy_statuses and tests_m2/test_sort_sites.py::TestInstrumentedMorphModel::test_ghost_section_follows_the_m2_model_unchanged and tests_m2/test_sort_sites.py::TestToyDerivation::test_toy_instrumented_model_checks_and_leaves_the_model_alone"
+        },
+        {
+          "id": "I15-R12",
+          "claim": "Construction check (honesty): derive reads spans, the reasons table, the sidecar and the frozen assignment only. On a copy mutated with I13's honesty mutations, stripping every site annotation, note and sort-stating doc changes no law, basis, entry point, hit or obstruction, and renaming the facts' hand-chosen identifiers renames them and changes nothing else; nothing under holon/ names a site span, a SORT-site law id or a site hash; holon/rules, holon/sorts/sites.py and holon/sorts/check.py name no target identifier and no revert-reason text.",
+          "check": "tests_m2/test_sort_sites.py::TestDeriveHonesty::test_stripping_hand_hints_changes_no_law_hit_or_obstruction and tests_m2/test_sort_sites.py::TestDeriveHonesty::test_renaming_fact_identifiers_renames_the_derivation_and_nothing_else and tests_m2/test_sort_sites.py::TestGenericCode::test_nothing_under_holon_names_a_site_span_or_site_law and tests_m2/test_sort_sites.py::TestGenericCode::test_the_rule_code_names_no_target_and_no_reason_text"
+        },
+        {
+          "id": "I15-R13",
+          "claim": "Construction check (ghost faithfulness and proof hygiene): with the toy's require idx > lfi replaced by true, the toy's window-offset law is REFUTED through revertTo with a checked witness; every coercion_guard proof imports and fills its own law (F-M2-07); holon run keeps what other commands wrote under its gen dir (F-M2-25: diagram/, sorts/, oracles/, evidence.json).",
+          "check": "tests_m2/test_sort_site_outcomes.py::TestToyOutcomes::test_toy_site_without_its_guard_is_refuted and tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_guard_implied_sites_are_proved_by_coercion_guard and tests_m2/test_sort_site_outcomes.py::TestToyOutcomes::test_toy_statuses"
+        }
+      ],
+      "outcome_paths": [
+        "laws/M2/",
+        "gen/M2/model/",
+        "gen/M2/core/",
+        "gen/M2/laws/",
+        "gen/M2/proofs/",
+        "gen/M2/L_",
+        "gen/M2/sorts/obstructions.json",
+        "results/M2/L_",
+        "results/M2/summary.json",
+        "results/M2/deps.json",
+        "results/M2/splits.json",
+        "results/M2/metrics.json",
+        "results/M2/metrics_timing.json",
+        "results/M2/gate_report.json",
+        "results/M2/gate_timing.json",
+        "replay/M2/report.json",
+        "spec/bindings/M2.json"
+      ],
+      "tests": [
+        "tests_m2/test_sort_sites.py",
+        "tests_m2/test_sort_site_outcomes.py"
+      ],
+      "thresholds": {
+        "laws_per_site": 1,
+        "boundary_variants": [
+          "v - 1 (when v >= 1)",
+          "v + 1",
+          "0"
+        ],
+        "neighbourhood_insertion_length_max": 2,
+        "neighbourhood_prefixes_per_entry_point_max": 20000,
+        "g4_canaries_min": 10,
+        "g4_canary_kinds_min": 3,
+        "m2_refinement_corpus": {
+          "traces": 300,
+          "seed": 20261011
+        }
+      }
     }
   }
 }

@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: MIT
+// I15 prereg instrument (tests_m2/_i15.py::run_site_instrument). Fixed at the I15 prereg; not part of holon.
+//
+// It replays ONE model trace on the REAL Rollup and L1MessageQueue at the pinned commit through the M1 trace
+// harness (a byte copy of replay/M1/solidity/HolonTraceReplay.t.sol, gate-checked since M1, taken at the I15 prereg:
+// tests_m2/fixtures/sort_sites/HolonTraceReplay.t.sol.txt, copied next to this file as HolonTraceReplay.t.sol): the
+// deployment and every step but the last run in setUp(), the last step alone in test_last_step(). A debugger
+// dump of test_last_step (forge test --debug --dump) therefore holds the last step's execution only, from which
+// tests_m2/_i15.py locates a Panic through solc's runtime source map. Step lines are the harness's own:
+//   HOLON <trace> <step> ok <hash>  |  HOLON <trace> <step> rev <reason>
+// $HOLON_SITE_TRACE names a JSON file {"data": [F, W, D, t0, r0, 1, nsteps, step words (13 each)...]}, the
+// harness's own encoding with exactly one trace.
+pragma solidity =0.8.24;
+
+import {HolonTraceReplayTest} from "./HolonTraceReplay.t.sol";
+
+contract HolonSiteInstrumentTest is HolonTraceReplayTest {
+    uint256[] internal sd;
+    uint256 internal lastAt;
+    uint256 internal nSteps;
+
+    function setUp() public {
+        uint256[] memory d = HV.parseJsonUintArray(HV.readFile(HV.envString("HOLON_SITE_TRACE")), ".data");
+        require(d.length >= 7 && d[5] == 1, "HOLON_SITE_TRACE must hold exactly one trace");
+        for (uint256 i = 0; i < d.length; i++) sd.push(d[i]);
+        nSteps = d[6];
+        require(nSteps >= 1 && d.length == 7 + nSteps * W, "HOLON_SITE_TRACE: bad length");
+        deploy(0, d[0], d[1], d[2], d[3], d[4]);
+        uint256 p = 7;
+        for (uint256 si = 0; si + 1 < nSteps; si++) {
+            step(0, si, d, p);
+            p += W;
+        }
+        lastAt = p;
+    }
+
+    function test_last_step() public {
+        step(0, nSteps - 1, sd, lastAt);
+    }
+}

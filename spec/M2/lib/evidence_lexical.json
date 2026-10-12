@@ -1,0 +1,24 @@
+{
+  "lexical_version": "holon-evidence-lexical/0.1",
+  "doc": "The only vocabulary of the E6 (lexical) level of the evidence calculus (whitepaper Def 4.5; BUILD_PLAN I14), frozen in the I14 preregistration before the evidence pass first ran on the Morph diagrams. E6 reads code identifiers only: the function names a CODEC edge's facts cite (source[].fn) and the action name of a TRANS edge (its component, which facts 0.2 take from the code). It never reads comments, docs, notes, `code` strings, law ids, or names a facts author chose for the model (codec model functions such as enc_sol, observers, migrations, consumers): hand-written transcriptions are not lexical evidence of the code. Two edges are lexically linked when they are parallel (same kind, same src carrier, same tgt carrier, one model) and their name tokens share at least one token.",
+  "names": {
+    "CODEC": "every string in the edge's source[].fn (the diagram copies the facts' source list)",
+    "TRANS": "the edge's component (the action name)"
+  },
+  "tokenize": {
+    "identifier": "[A-Za-z_][A-Za-z0-9_]*",
+    "split": "split each identifier at '_' (empty parts dropped) and at camelCase boundaries: before an uppercase letter preceded by a lowercase letter or a digit, and before an uppercase letter that is preceded by an uppercase letter and followed by a lowercase letter; a digit never starts a token (V1 stays one token)",
+    "case": "lower",
+    "min_length": 2,
+    "examples_before_stopwords": {
+      "_commitBatchWithBatchData (header build block)": ["commit", "batch", "with", "batch", "data", "header", "build", "block"],
+      "BatchHeaderV1.Bytes": ["batch", "header", "v1", "bytes"],
+      "commitBatchWithProof": ["commit", "batch", "with", "proof"],
+      "ABIEncode": ["abi", "encode"],
+      "txsPayloadV2": ["txs", "payload", "v2"],
+      "x_y": []
+    }
+  },
+  "stopwords": ["a", "an", "and", "as", "at", "by", "for", "from", "get", "in", "into", "is", "load", "of", "on", "or", "put", "read", "set", "store", "the", "to", "with", "write"],
+  "rule": "E6 atom (p, q), p < q by edge id, for two distinct parallel edges of one model whose token sets (tokens of all their names, stopwords removed) intersect; via = {\"tokens\": the intersection, sorted}"
+}

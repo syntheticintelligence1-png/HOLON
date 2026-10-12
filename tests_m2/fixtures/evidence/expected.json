@@ -1,0 +1,1713 @@
+{
+ "assignment": {
+  "models": {
+   "toy_codec": {
+    "assignment": {
+     "Header.a": "Mach(16)",
+     "Header.b": "Mach(16)",
+     "Header.c": "Mach(8)",
+     "Header.version": "Mach(8)"
+    }
+   },
+   "toy_machine": {
+    "assignment": {
+     "K": "Nat (unrefined)",
+     "buf": "Nat (unrefined)",
+     "checkValue.val": "Nat (unrefined)",
+     "dl": "Time",
+     "m1": "Mach(8)",
+     "m2": "Mach(8)",
+     "off": "Bool",
+     "on": "Bool",
+     "putValue.h": "Nat (unrefined)",
+     "putValue.val": "Nat (unrefined)",
+     "readBuf.i": "Nat (unrefined)",
+     "seen": "Nat (unrefined)",
+     "smudge.k": "Nat (unrefined)",
+     "store": "Nat (unrefined)",
+     "sync.x": "Nat (unrefined)",
+     "t": "Time",
+     "tick.dt": "Dur",
+     "u": "Dig[A] + Dig[B]",
+     "v": "Dig[A] + Dig[B]"
+    }
+   }
+  },
+  "sorts_sha256": null
+ },
+ "atoms": [
+  {
+   "level": "E1",
+   "model": "toy_codec",
+   "p": "CODEC.enc_sol_t",
+   "q": "CODEC.dec_t",
+   "src": null,
+   "via": {
+    "fields": [
+     "version",
+     "a"
+    ],
+    "kind": "inverse",
+    "not_recovered": [
+     "b"
+    ],
+    "version": 0
+   }
+  },
+  {
+   "level": "E1",
+   "model": "toy_codec",
+   "p": "CODEC.enc_sol_t",
+   "q": "CODEC.dec_t",
+   "src": null,
+   "via": {
+    "fields": [
+     "version",
+     "a",
+     "c"
+    ],
+    "kind": "inverse",
+    "not_recovered": [
+     "b"
+    ],
+    "version": 1
+   }
+  },
+  {
+   "level": "E1",
+   "model": "toy_codec",
+   "p": "CODEC.enc_go_t1",
+   "q": "CODEC.dec_t",
+   "src": null,
+   "via": {
+    "fields": [
+     "a",
+     "b",
+     "c"
+    ],
+    "kind": "inverse",
+    "not_recovered": [
+     "version"
+    ],
+    "version": 1
+   }
+  },
+  {
+   "level": "E1",
+   "model": "toy_codec",
+   "p": "CODEC.enc_go_t0",
+   "q": "CODEC.dec_t",
+   "src": null,
+   "via": {
+    "fields": [
+     "a",
+     "b"
+    ],
+    "kind": "inverse",
+    "not_recovered": [
+     "version"
+    ],
+    "version": 0
+   }
+  },
+  {
+   "level": "E1",
+   "model": "toy_codec",
+   "p": "CODEC.enc_go_t0",
+   "q": "CODEC.enc_sol_t",
+   "src": null,
+   "via": {
+    "decoder": "CODEC.dec_t",
+    "fields": [
+     "a"
+    ],
+    "kind": "common_decoder",
+    "version": 0
+   }
+  },
+  {
+   "level": "E1",
+   "model": "toy_codec",
+   "p": "CODEC.enc_go_t1",
+   "q": "CODEC.enc_sol_t",
+   "src": null,
+   "via": {
+    "decoder": "CODEC.dec_t",
+    "fields": [
+     "a",
+     "c"
+    ],
+    "kind": "common_decoder",
+    "version": 1
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_codec",
+   "p": "CODEC.enc_sol_t",
+   "q": "CODEC.dec_t",
+   "src": null,
+   "via": {
+    "carrier": "Bytes",
+    "reads": [
+     "0",
+     "1..2",
+     "3..4",
+     "5"
+    ],
+    "writes": [
+     "0",
+     "1..32",
+     "3..34",
+     "5"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_codec",
+   "p": "CODEC.enc_go_t1",
+   "q": "CODEC.dec_t",
+   "src": null,
+   "via": {
+    "carrier": "Bytes",
+    "reads": [
+     "0",
+     "1..2",
+     "3..4",
+     "5"
+    ],
+    "writes": [
+     "0",
+     "1..2",
+     "3..4",
+     "5"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_codec",
+   "p": "CODEC.enc_go_t0",
+   "q": "CODEC.dec_t",
+   "src": null,
+   "via": {
+    "carrier": "Bytes",
+    "reads": [
+     "0",
+     "1..2",
+     "3..4"
+    ],
+    "writes": [
+     "0",
+     "1..2",
+     "3..4"
+    ]
+   }
+  },
+  {
+   "level": "E6",
+   "model": "toy_codec",
+   "p": "CODEC.enc_go_t1",
+   "q": "CODEC.enc_sol_t",
+   "src": null,
+   "via": {
+    "tokens": [
+     "encode",
+     "header"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.putValue",
+   "q": "TRANS.checkValue",
+   "src": null,
+   "via": {
+    "carrier": "store",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.putValue",
+   "q": "TRANS.peekValue",
+   "src": null,
+   "via": {
+    "carrier": "store",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.putValue",
+   "q": "TRANS.zap",
+   "src": null,
+   "via": {
+    "carrier": "store",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.checkValue",
+   "q": "TRANS.peekValue",
+   "src": null,
+   "via": {
+    "carrier": "seen",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.checkValue",
+   "q": "TRANS.zap",
+   "src": null,
+   "via": {
+    "carrier": "seen",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.peekValue",
+   "q": "TRANS.peekValue",
+   "src": null,
+   "via": {
+    "carrier": "seen",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.peekValue",
+   "q": "TRANS.zap",
+   "src": null,
+   "via": {
+    "carrier": "seen",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.sync",
+   "q": "TRANS.sync",
+   "src": null,
+   "via": {
+    "carrier": "u",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.readBuf",
+   "q": "TRANS.sync",
+   "src": null,
+   "via": {
+    "carrier": "v",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.zap",
+   "q": "TRANS.sync",
+   "src": null,
+   "via": {
+    "carrier": "on",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.tick",
+   "q": "TRANS.putValue",
+   "src": null,
+   "via": {
+    "carrier": "t",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.tick",
+   "q": "TRANS.tick",
+   "src": null,
+   "via": {
+    "carrier": "t",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.tick",
+   "q": "TRANS.zap",
+   "src": null,
+   "via": {
+    "carrier": "t",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.tick",
+   "q": "LOAD.obs.late",
+   "src": null,
+   "via": {
+    "carrier": "t",
+    "reads": [
+     "*"
+    ],
+    "writes": [
+     "*"
+    ]
+   }
+  },
+  {
+   "level": "E2",
+   "model": "toy_machine",
+   "p": "TRANS.putValue",
+   "q": "TRANS.readBuf",
+   "src": null,
+   "via": {
+    "carrier": "buf",
+    "reads": [
+     "i"
+    ],
+    "writes": [
+     "len(buf)"
+    ]
+   }
+  },
+  {
+   "level": "E3",
+   "model": "toy_machine",
+   "p": "TRANS.checkValue",
+   "q": "TRANS.checkValue",
+   "src": "toy/T.sol:20",
+   "via": {
+    "operands": [
+     [
+      "call",
+      "digest",
+      "val"
+     ],
+     "store"
+    ],
+    "reason": 2,
+    "where": "guards[0].require"
+   }
+  },
+  {
+   "level": "E3",
+   "model": "toy_machine",
+   "p": "TRANS.peekValue",
+   "q": "TRANS.peekValue",
+   "src": "toy/T.sol:30",
+   "via": {
+    "operands": [
+     [
+      "call",
+      "digest",
+      "store"
+     ],
+     "seen"
+    ],
+    "reason": 3,
+    "where": "guards[0].require"
+   }
+  },
+  {
+   "level": "E3",
+   "model": "toy_machine",
+   "p": "TRANS.sync",
+   "q": "TRANS.sync",
+   "src": "toy/T.sol:40",
+   "via": {
+    "operands": [
+     "u",
+     "v"
+    ],
+    "reason": 4,
+    "where": "guards[0].require"
+   }
+  },
+  {
+   "level": "E3",
+   "model": "toy_machine",
+   "p": "TRANS.sync",
+   "q": "TRANS.sync",
+   "src": "toy/T.sol:42",
+   "via": {
+    "operands": [
+     "on",
+     "off"
+    ],
+    "reason": 6,
+    "where": "guards[2].require"
+   }
+  },
+  {
+   "level": "E4",
+   "model": "toy_machine",
+   "p": "TRANS.putValue",
+   "q": "TRANS.checkValue",
+   "src": null,
+   "via": {
+    "fn": "digest",
+    "recomputed": [
+     "guards[0].require"
+    ],
+    "stored": [
+     "effects.store"
+    ]
+   }
+  },
+  {
+   "level": "E5",
+   "model": "toy_machine",
+   "p": "TRANS.putValue",
+   "q": "TRANS.putValue",
+   "src": "toy/T.sol:11",
+   "via": {
+    "op": "<=",
+    "operands": [
+     "t",
+     "dl"
+    ],
+    "sort": "Time",
+    "where": "guards[1].require"
+   }
+  },
+  {
+   "level": "E5",
+   "model": "toy_machine",
+   "p": "TRANS.zap",
+   "q": "TRANS.zap",
+   "src": "toy/T.sol:70",
+   "via": {
+    "op": "<",
+    "operands": [
+     "t",
+     "dl"
+    ],
+    "sort": "Time",
+    "where": "guards[0].require"
+   }
+  },
+  {
+   "level": "E5",
+   "model": "toy_machine",
+   "p": "LOAD.obs.late",
+   "q": "LOAD.obs.late",
+   "src": null,
+   "via": {
+    "op": "<",
+    "operands": [
+     "dl",
+     "t"
+    ],
+    "sort": "Time",
+    "where": "body"
+   }
+  },
+  {
+   "level": "E6",
+   "model": "toy_machine",
+   "p": "TRANS.checkValue",
+   "q": "TRANS.peekValue",
+   "src": null,
+   "via": {
+    "tokens": [
+     "value"
+    ]
+   }
+  },
+  {
+   "level": "E6",
+   "model": "toy_machine",
+   "p": "TRANS.checkValue",
+   "q": "TRANS.putValue",
+   "src": null,
+   "via": {
+    "tokens": [
+     "value"
+    ]
+   }
+  },
+  {
+   "level": "E6",
+   "model": "toy_machine",
+   "p": "TRANS.peekValue",
+   "q": "TRANS.putValue",
+   "src": null,
+   "via": {
+    "tokens": [
+     "value"
+    ]
+   }
+  }
+ ],
+ "doc": "I14 evidence-calculus fixture (instrument fixed at the prereg). The two fact documents are built into diagrams by holon.diagram.build at test time; `assignment` is a planted sorts assignment (the shape of gen/M2/sorts/assignment.json) so that E5 does not depend on the I13 seed rules. `atoms` and `unresolved` are the exact evidence set of the two documents under the rules of tests_m2/test_evidence.py (every planted-absent case is an atom that must not appear); `laws` are fixture laws (facts_sha256 is filled at test time with the fixture file's sha256, except LF_uncovered) with the exact holon.diagram.evidence.law_evidence result; `triage` is the evidence_triage table (status, max level, value).",
+ "facts": {
+  "toy_codec": "tests_m2/fixtures/evidence/codec/toy_codec.json",
+  "toy_machine": "tests_m2/fixtures/evidence/machine/toy_machine.json"
+ },
+ "laws": [
+  {
+   "expect": {
+    "context": [],
+    "covered": true,
+    "levels": [
+     "E1",
+     "E6"
+    ],
+    "max": "E1",
+    "model": "toy_codec",
+    "named": [
+     "CODEC.enc_go_t1",
+     "CODEC.enc_sol_t"
+    ],
+    "version": 1
+   },
+   "law": {
+    "evidence": [
+     "E1"
+    ],
+    "facts": "tests_m2/fixtures/evidence/codec/toy_codec.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.1",
+    "law_id": "LF_par_v1",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [
+      {
+       "eq": [
+        {
+         "field": "version",
+         "of": {
+          "var": "h"
+         }
+        },
+        {
+         "bytes": "0x01"
+        }
+       ]
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_sol_t"
+       },
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_go_t1"
+       }
+      ]
+     },
+     "forall": [
+      {
+       "name": "h",
+       "type": "Header"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [],
+    "covered": true,
+    "levels": [
+     "E6"
+    ],
+    "max": "E6",
+    "model": "toy_codec",
+    "named": [
+     "CODEC.enc_go_t1",
+     "CODEC.enc_sol_t"
+    ],
+    "version": 0
+   },
+   "law": {
+    "evidence": [
+     "E1",
+     "E6"
+    ],
+    "facts": "tests_m2/fixtures/evidence/codec/toy_codec.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.1",
+    "law_id": "LF_par_v0_cross",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [
+      {
+       "eq": [
+        {
+         "field": "version",
+         "of": {
+          "var": "h"
+         }
+        },
+        {
+         "bytes": "0x00"
+        }
+       ]
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_sol_t"
+       },
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_go_t1"
+       }
+      ]
+     },
+     "forall": [
+      {
+       "name": "h",
+       "type": "Header"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [],
+    "covered": true,
+    "levels": [
+     "E1"
+    ],
+    "max": "E1",
+    "model": "toy_codec",
+    "named": [
+     "CODEC.enc_go_t0",
+     "CODEC.enc_sol_t"
+    ],
+    "version": 0
+   },
+   "law": {
+    "evidence": [
+     "E1"
+    ],
+    "facts": "tests_m2/fixtures/evidence/codec/toy_codec.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.1",
+    "law_id": "LF_par_legacy",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [
+      {
+       "eq": [
+        {
+         "field": "version",
+         "of": {
+          "var": "h"
+         }
+        },
+        {
+         "bytes": "0x00"
+        }
+       ]
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_sol_t"
+       },
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_go_t0"
+       }
+      ]
+     },
+     "forall": [
+      {
+       "name": "h",
+       "type": "Header"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [],
+    "covered": true,
+    "levels": [
+     "E1",
+     "E2"
+    ],
+    "max": "E1",
+    "model": "toy_codec",
+    "named": [
+     "CODEC.dec_t",
+     "CODEC.enc_sol_t"
+    ],
+    "version": 1
+   },
+   "law": {
+    "evidence": [
+     "E1",
+     "E2"
+    ],
+    "facts": "tests_m2/fixtures/evidence/codec/toy_codec.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.1",
+    "law_id": "LF_rt_v1",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [
+      {
+       "eq": [
+        {
+         "field": "version",
+         "of": {
+          "var": "h"
+         }
+        },
+        {
+         "bytes": "0x01"
+        }
+       ]
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "args": [
+           {
+            "var": "h"
+           }
+          ],
+          "call": "enc_sol_t"
+         }
+        ],
+        "call": "dec_t"
+       },
+       {
+        "some": {
+         "args": [
+          {
+           "var": "h"
+          }
+         ],
+         "call": "view_t"
+        }
+       }
+      ]
+     },
+     "forall": [
+      {
+       "name": "h",
+       "type": "Header"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [],
+    "covered": true,
+    "levels": [],
+    "max": null,
+    "model": "toy_codec",
+    "named": [
+     "CODEC.dec_t"
+    ],
+    "version": null
+   },
+   "law": {
+    "evidence": [
+     "E2"
+    ],
+    "facts": "tests_m2/fixtures/evidence/codec/toy_codec.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.1",
+    "law_id": "LF_dom",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "b"
+         }
+        ],
+        "call": "ok_sol_t"
+       },
+       {
+        "args": [
+         {
+          "var": "b"
+         }
+        ],
+        "call": "ok_go_t"
+       }
+      ]
+     },
+     "forall": [
+      {
+       "name": "b",
+       "type": "Bytes"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [],
+    "covered": true,
+    "levels": [],
+    "max": null,
+    "model": "toy_codec",
+    "named": [
+     "CODEC.enc_go_t0",
+     "CODEC.enc_go_t1"
+    ],
+    "version": null
+   },
+   "law": {
+    "evidence": [],
+    "facts": "tests_m2/fixtures/evidence/codec/toy_codec.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.1",
+    "law_id": "LF_go_pair",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_go_t0"
+       },
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_go_t1"
+       }
+      ]
+     },
+     "forall": [
+      {
+       "name": "h",
+       "type": "Header"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [],
+    "covered": false,
+    "levels": [],
+    "max": null,
+    "model": "toy_codec",
+    "named": [],
+    "version": null
+   },
+   "law": {
+    "evidence": [
+     "E1"
+    ],
+    "facts": "tests_m2/fixtures/evidence/codec/toy_codec.json",
+    "facts_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "ir_version": "holon-ir/0.1",
+    "law_id": "LF_uncovered",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [
+      {
+       "eq": [
+        {
+         "field": "version",
+         "of": {
+          "var": "h"
+         }
+        },
+        {
+         "bytes": "0x01"
+        }
+       ]
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_sol_t"
+       },
+       {
+        "args": [
+         {
+          "var": "h"
+         }
+        ],
+        "call": "enc_go_t1"
+       }
+      ]
+     },
+     "forall": [
+      {
+       "name": "h",
+       "type": "Header"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [
+     "TRANS.checkValue",
+     "TRANS.peekValue",
+     "TRANS.putValue",
+     "TRANS.readBuf",
+     "TRANS.smudge",
+     "TRANS.sync",
+     "TRANS.tick",
+     "TRANS.zap"
+    ],
+    "covered": true,
+    "levels": [
+     "E2",
+     "E5"
+    ],
+    "max": "E2",
+    "model": "toy_machine",
+    "named": [
+     "LOAD.obs.late"
+    ],
+    "version": null
+   },
+   "law": {
+    "evidence": [
+     "E2",
+     "E5"
+    ],
+    "facts": "tests_m2/fixtures/evidence/machine/toy_machine.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.2",
+    "law_id": "LF_obs_late",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [],
+     "binders": [
+      {
+       "name": "p",
+       "q": "forall",
+       "type": "Trace"
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "obsv": "late",
+        "of": {
+         "from": {
+          "s0": {}
+         },
+         "run": {
+          "var": "p"
+         }
+        }
+       },
+       {
+        "bool": false
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [
+     "TRANS.checkValue",
+     "TRANS.peekValue",
+     "TRANS.putValue",
+     "TRANS.readBuf",
+     "TRANS.smudge",
+     "TRANS.sync",
+     "TRANS.tick",
+     "TRANS.zap"
+    ],
+    "covered": true,
+    "levels": [
+     "E2",
+     "E3",
+     "E4",
+     "E6"
+    ],
+    "max": "E2",
+    "model": "toy_machine",
+    "named": [
+     "TRANS.checkValue"
+    ],
+    "version": null
+   },
+   "law": {
+    "evidence": [
+     "E3"
+    ],
+    "facts": "tests_m2/fixtures/evidence/machine/toy_machine.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.2",
+    "law_id": "LF_check",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [
+      {
+       "eq": [
+        {
+         "args": [
+          {
+           "var": "c"
+          }
+         ],
+         "fn": "is_checkValue"
+        },
+        {
+         "bool": true
+        }
+       ]
+      }
+     ],
+     "binders": [
+      {
+       "name": "p",
+       "q": "forall",
+       "type": "Trace"
+      },
+      {
+       "name": "c",
+       "q": "forall",
+       "type": "Act"
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "from": {
+            "s0": {}
+           },
+           "run": {
+            "var": "p"
+           }
+          },
+          "step": {
+           "var": "c"
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [],
+    "covered": true,
+    "levels": [
+     "E5"
+    ],
+    "max": "E5",
+    "model": "toy_machine",
+    "named": [
+     "TRANS.zap"
+    ],
+    "version": null
+   },
+   "law": {
+    "evidence": [
+     "E5"
+    ],
+    "facts": "tests_m2/fixtures/evidence/machine/toy_machine.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.2",
+    "law_id": "LF_zap",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [],
+     "binders": [
+      {
+       "name": "n",
+       "q": "forall",
+       "type": "Nat"
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "s0": {}
+          },
+          "step": {
+           "act": "zap",
+           "args": {}
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": false
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [
+     "TRANS.checkValue",
+     "TRANS.peekValue",
+     "TRANS.putValue",
+     "TRANS.readBuf",
+     "TRANS.smudge",
+     "TRANS.sync",
+     "TRANS.tick",
+     "TRANS.zap"
+    ],
+    "covered": true,
+    "levels": [],
+    "max": null,
+    "model": "toy_machine",
+    "named": [
+     "LOAD.obs.smeared"
+    ],
+    "version": null
+   },
+   "law": {
+    "evidence": [
+     "E2"
+    ],
+    "facts": "tests_m2/fixtures/evidence/machine/toy_machine.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.2",
+    "law_id": "LF_smeared",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [],
+     "binders": [
+      {
+       "name": "p",
+       "q": "forall",
+       "type": "Trace"
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "obsv": "smeared",
+        "of": {
+         "from": {
+          "s0": {}
+         },
+         "run": {
+          "var": "p"
+         }
+        }
+       },
+       {
+        "nats": []
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [
+     "TRANS.checkValue",
+     "TRANS.peekValue",
+     "TRANS.putValue",
+     "TRANS.readBuf",
+     "TRANS.smudge",
+     "TRANS.sync",
+     "TRANS.tick",
+     "TRANS.zap"
+    ],
+    "covered": true,
+    "levels": [
+     "E2",
+     "E5"
+    ],
+    "max": "E2",
+    "model": "toy_machine",
+    "named": [
+     "TRANS.zap"
+    ],
+    "version": null
+   },
+   "law": {
+    "evidence": [
+     "E5"
+    ],
+    "facts": "tests_m2/fixtures/evidence/machine/toy_machine.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.2",
+    "law_id": "LF_reason",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [],
+     "binders": [
+      {
+       "name": "p",
+       "q": "forall",
+       "type": "Trace"
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "s0": {}
+          },
+          "obs": {
+           "var": "p"
+          }
+         },
+         {
+          "nat": 9
+         }
+        ],
+        "fn": "no_code"
+       },
+       {
+        "bool": true
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [
+     "TRANS.checkValue",
+     "TRANS.peekValue",
+     "TRANS.putValue",
+     "TRANS.readBuf",
+     "TRANS.smudge",
+     "TRANS.sync",
+     "TRANS.tick",
+     "TRANS.zap"
+    ],
+    "covered": true,
+    "levels": [
+     "E2",
+     "E4",
+     "E5",
+     "E6"
+    ],
+    "max": "E2",
+    "model": "toy_machine",
+    "named": [
+     "LOAD.obs.smeared",
+     "TRANS.putValue",
+     "TRANS.readBuf",
+     "TRANS.smudge"
+    ],
+    "version": null
+   },
+   "law": {
+    "evidence": [
+     "E2"
+    ],
+    "facts": "tests_m2/fixtures/evidence/machine/toy_machine.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.2",
+    "law_id": "LF_proj",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [],
+     "binders": [
+      {
+       "name": "tr",
+       "q": "forall",
+       "type": "Trace"
+      },
+      {
+       "name": "s1",
+       "q": "forall",
+       "type": "State"
+      },
+      {
+       "name": "s2",
+       "q": "forall",
+       "type": "State"
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "of": {
+         "from": {
+          "var": "s1"
+         },
+         "run": {
+          "var": "tr"
+         }
+        },
+        "proj": [
+         "buf"
+        ]
+       },
+       {
+        "of": {
+         "from": {
+          "var": "s2"
+         },
+         "run": {
+          "var": "tr"
+         }
+        },
+        "proj": [
+         "buf"
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "expect": {
+    "context": [
+     "TRANS.checkValue",
+     "TRANS.peekValue",
+     "TRANS.putValue",
+     "TRANS.readBuf",
+     "TRANS.smudge",
+     "TRANS.sync",
+     "TRANS.tick",
+     "TRANS.zap"
+    ],
+    "covered": true,
+    "levels": [
+     "E2",
+     "E3",
+     "E4",
+     "E5",
+     "E6"
+    ],
+    "max": "E2",
+    "model": "toy_machine",
+    "named": [
+     "LOAD.obs.late",
+     "TRANS.checkValue",
+     "TRANS.peekValue",
+     "TRANS.putValue",
+     "TRANS.readBuf",
+     "TRANS.smudge",
+     "TRANS.sync",
+     "TRANS.tick",
+     "TRANS.zap"
+    ],
+    "version": null
+   },
+   "law": {
+    "evidence": [
+     "E1"
+    ],
+    "facts": "tests_m2/fixtures/evidence/machine/toy_machine.json",
+    "facts_sha256": "<sha256 of the facts file>",
+    "ir_version": "holon-ir/0.2",
+    "law_id": "LF_perm",
+    "milestone": "T0",
+    "rule": "PAR",
+    "statement": {
+     "assume": [
+      {
+       "eq": [
+        {
+         "args": [
+          {
+           "var": "a"
+          }
+         ],
+         "fn": "perm"
+        },
+        {
+         "bool": true
+        }
+       ]
+      }
+     ],
+     "binders": [
+      {
+       "name": "s",
+       "q": "forall",
+       "type": "State"
+      },
+      {
+       "name": "a",
+       "q": "forall",
+       "type": "Act"
+      }
+     ],
+     "claim": {
+      "eq": [
+       {
+        "obsv": "late",
+        "of": {
+         "from": {
+          "var": "s"
+         },
+         "step": {
+          "var": "a"
+         }
+        }
+       },
+       {
+        "bool": false
+       }
+      ]
+     }
+    }
+   }
+  }
+ ],
+ "triage": [
+  [
+   "PROVED",
+   "E1",
+   "none"
+  ],
+  [
+   "PROVED",
+   null,
+   "none"
+  ],
+  [
+   "UNKNOWN",
+   "E6",
+   "none"
+  ],
+  [
+   "REFUTED",
+   "E1",
+   "finding"
+  ],
+  [
+   "REFUTED",
+   "E2",
+   "finding"
+  ],
+  [
+   "REFUTED",
+   "E3",
+   "finding"
+  ],
+  [
+   "REFUTED",
+   "E4",
+   "finding"
+  ],
+  [
+   "REFUTED",
+   "E5",
+   "finding"
+  ],
+  [
+   "REFUTED",
+   "E6",
+   "intent_question"
+  ],
+  [
+   "REFUTED",
+   null,
+   "finding"
+  ]
+ ],
+ "unresolved": [
+  {
+   "carrier": "buf",
+   "imprecise": [
+    "read"
+   ],
+   "model": "toy_machine",
+   "p": "TRANS.putValue",
+   "q": "LOAD.obs.smeared"
+  },
+  {
+   "carrier": "buf",
+   "imprecise": [
+    "write"
+   ],
+   "model": "toy_machine",
+   "p": "TRANS.smudge",
+   "q": "TRANS.readBuf"
+  },
+  {
+   "carrier": "buf",
+   "imprecise": [
+    "read",
+    "write"
+   ],
+   "model": "toy_machine",
+   "p": "TRANS.smudge",
+   "q": "LOAD.obs.smeared"
+  }
+ ]
+}
