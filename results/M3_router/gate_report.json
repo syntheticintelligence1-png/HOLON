@@ -290,13 +290,286 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_2_L_rt_before_start",
+      "id": "CANARY_negated_2_L_init_cov_rt_vap_registered",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_2_L_rt_before_start",
+        "law_id": "CANARY_negated_2_L_init_cov_rt_vap_registered",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "initialize",
+                            "args": {
+                              "r": {
+                                "nat": 5
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "updateVerifier",
+                            "args": {
+                              "a": {
+                                "nat": 8
+                              },
+                              "lfi": {
+                                "nat": 0
+                              },
+                              "st": {
+                                "nat": 1
+                              },
+                              "v": {
+                                "nat": 0
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "verifyAggregateProof",
+                      "args": {
+                        "idx": {
+                          "nat": 2
+                        },
+                        "v": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_init_cov_rt_vap_registered"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_2_L_init_cov_rt_vap_registered",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_2_L_init_cov_rt_vap_registered",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "initialize",
+                            "args": {
+                              "r": {
+                                "nat": 5
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "updateVerifier",
+                            "args": {
+                              "a": {
+                                "nat": 8
+                              },
+                              "lfi": {
+                                "nat": 0
+                              },
+                              "st": {
+                                "nat": 1
+                              },
+                              "v": {
+                                "nat": 0
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "verifyAggregateProof",
+                      "args": {
+                        "idx": {
+                          "nat": 2
+                        },
+                        "v": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_init_cov_rt_vap_registered"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_1_L_init_cov_rt_vap_registered",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_1_L_init_cov_rt_vap_registered",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "initialize",
+                            "args": {
+                              "r": {
+                                "nat": 5
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          },
+                          {
+                            "act": "updateVerifier",
+                            "args": {
+                              "a": {
+                                "nat": 8
+                              },
+                              "lfi": {
+                                "nat": 0
+                              },
+                              "st": {
+                                "nat": 1
+                              },
+                              "v": {
+                                "nat": 0
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "verifyAggregateProof",
+                      "args": {
+                        "idx": {
+                          "nat": 2
+                        },
+                        "v": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 5
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "coverage_scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_init_cov_rt_vap_registered"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_3_L_init_rt_latest",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_3_L_init_rt_latest",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -311,7 +584,7 @@
                     "nat": 0
                   },
                   {
-                    "nat": 9
+                    "nat": 10
                   }
                 ],
                 "obsv": "verifier_of",
@@ -321,6 +594,17 @@
                   },
                   "run": {
                     "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
                       {
                         "act": "updateVerifier",
                         "args": {
@@ -346,7 +630,7 @@
                 }
               },
               {
-                "nat": 0
+                "nat": 3
               }
             ]
           }
@@ -355,18 +639,18 @@
       },
       "negated": true,
       "rejected": true,
-      "source_law": "L_rt_before_start"
+      "source_law": "L_init_rt_latest"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_2_L_rt_before_start",
+      "id": "CANARY_pin_const_3_L_init_rt_latest",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_2_L_rt_before_start",
+        "law_id": "CANARY_pin_const_3_L_init_rt_latest",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -381,7 +665,7 @@
                     "nat": 0
                   },
                   {
-                    "nat": 9
+                    "nat": 10
                   }
                 ],
                 "obsv": "verifier_of",
@@ -391,6 +675,17 @@
                   },
                   "run": {
                     "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
                       {
                         "act": "updateVerifier",
                         "args": {
@@ -416,7 +711,7 @@
                 }
               },
               {
-                "nat": 1
+                "nat": 4
               }
             ]
           }
@@ -425,18 +720,18 @@
       },
       "negated": false,
       "rejected": true,
-      "source_law": "L_rt_before_start"
+      "source_law": "L_init_rt_latest"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_negated_3_L_rt_unregistered_zero",
+      "id": "CANARY_negated_4_L_init_rt_latest2",
       "kind": "negated",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_3_L_rt_unregistered_zero",
+        "law_id": "CANARY_negated_4_L_init_rt_latest2",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -448,10 +743,10 @@
               {
                 "args": [
                   {
-                    "nat": 1
+                    "nat": 0
                   },
                   {
-                    "nat": 100
+                    "nat": 25
                   }
                 ],
                 "obsv": "verifier_of",
@@ -460,12 +755,64 @@
                     "s0": {}
                   },
                   "run": {
-                    "trace": []
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 15
+                          },
+                          "st": {
+                            "nat": 20
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
                   }
                 }
               },
               {
-                "nat": 0
+                "nat": 4
               }
             ]
           }
@@ -474,18 +821,18 @@
       },
       "negated": true,
       "rejected": true,
-      "source_law": "L_rt_unregistered_zero"
+      "source_law": "L_init_rt_latest2"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {},
-      "id": "CANARY_pin_const_3_L_rt_unregistered_zero",
+      "id": "CANARY_pin_const_4_L_init_rt_latest2",
       "kind": "pin_const",
       "law": {
         "facts": "spec/M3/extracted/mvrv.json",
         "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_pin_const_3_L_rt_unregistered_zero",
+        "law_id": "CANARY_pin_const_4_L_init_rt_latest2",
         "milestone": "M3_router",
         "predicted": "PROVED",
         "rule": "PAR",
@@ -497,10 +844,10 @@
               {
                 "args": [
                   {
-                    "nat": 1
+                    "nat": 0
                   },
                   {
-                    "nat": 100
+                    "nat": 25
                   }
                 ],
                 "obsv": "verifier_of",
@@ -509,12 +856,64 @@
                     "s0": {}
                   },
                   "run": {
-                    "trace": []
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 15
+                          },
+                          "st": {
+                            "nat": 20
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
                   }
                 }
               },
               {
-                "nat": 1
+                "nat": 5
               }
             ]
           }
@@ -523,16 +922,1104 @@
       },
       "negated": false,
       "rejected": true,
-      "source_law": "L_rt_unregistered_zero"
+      "source_law": "L_init_rt_latest2"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_5_L_init_rt_legacy",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_5_L_init_rt_legacy",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "nat": 0
+                  },
+                  {
+                    "nat": 15
+                  }
+                ],
+                "obsv": "verifier_of",
+                "of": {
+                  "from": {
+                    "s0": {}
+                  },
+                  "run": {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 15
+                          },
+                          "st": {
+                            "nat": 20
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "nat": 3
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_init_rt_legacy"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_5_L_init_rt_legacy",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_5_L_init_rt_legacy",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "nat": 0
+                  },
+                  {
+                    "nat": 15
+                  }
+                ],
+                "obsv": "verifier_of",
+                "of": {
+                  "from": {
+                    "s0": {}
+                  },
+                  "run": {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 15
+                          },
+                          "st": {
+                            "nat": 20
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "nat": 4
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_init_rt_legacy"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_6_L_init_rt_same_start_replaces",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_6_L_init_rt_same_start_replaces",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "nat": 0
+                  },
+                  {
+                    "nat": 10
+                  }
+                ],
+                "obsv": "verifier_of",
+                "of": {
+                  "from": {
+                    "s0": {}
+                  },
+                  "run": {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "nat": 4
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_init_rt_same_start_replaces"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_6_L_init_rt_same_start_replaces",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_6_L_init_rt_same_start_replaces",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "PAR",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "nat": 0
+                  },
+                  {
+                    "nat": 10
+                  }
+                ],
+                "obsv": "verifier_of",
+                "of": {
+                  "from": {
+                    "s0": {}
+                  },
+                  "run": {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "nat": 5
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_init_rt_same_start_replaces"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_7_L_init_setup_rt_latest",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_7_L_init_setup_rt_latest",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_init_setup_rt_latest"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_7_L_init_setup_rt_latest",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_7_L_init_setup_rt_latest",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_init_setup_rt_latest"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_2_L_init_setup_rt_latest",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_2_L_init_setup_rt_latest",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 2
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_init_setup_rt_latest"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_8_L_init_setup_rt_legacy",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_8_L_init_setup_rt_legacy",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 15
+                          },
+                          "st": {
+                            "nat": 20
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_init_setup_rt_legacy"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_8_L_init_setup_rt_legacy",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_8_L_init_setup_rt_legacy",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 15
+                          },
+                          "st": {
+                            "nat": 20
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_init_setup_rt_legacy"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_3_L_init_setup_rt_legacy",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_3_L_init_setup_rt_legacy",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 2
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 15
+                          },
+                          "st": {
+                            "nat": 20
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_init_setup_rt_legacy"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_9_L_init_setup_rt_same_start_replaces",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_9_L_init_setup_rt_same_start_replaces",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_init_setup_rt_same_start_replaces"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_9_L_init_setup_rt_same_start_replaces",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/mvrv.json",
+        "facts_sha256": "d083e6a294ba89b55392057b73f3cef06ef85fd35ad31b7298814fba0b998b68",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_9_L_init_setup_rt_same_start_replaces",
+        "milestone": "M3_router",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "initialize",
+                        "args": {
+                          "r": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 3
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateVerifier",
+                        "args": {
+                          "a": {
+                            "nat": 4
+                          },
+                          "lfi": {
+                            "nat": 5
+                          },
+                          "st": {
+                            "nat": 10
+                          },
+                          "v": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_init_setup_rt_same_start_replaces"
     }
   ],
   "checks": {
     "G1": {
-      "detail": "31 generated .bend files identical, summary identical",
+      "detail": "49 generated .bend files identical, summary identical",
       "passed": true
     },
     "G11": {
-      "detail": "inhabitance: 0/0 premise-bearing laws inhabited; 15 premise-free/skipped; points in results/M3_router/g11_inhabitance.json",
+      "detail": "inhabitance: 0/0 premise-bearing laws inhabited; 24 premise-free/skipped; points in results/M3_router/g11_inhabitance.json",
       "passed": true
     },
     "G11_names": {
@@ -548,11 +2035,11 @@
       "passed": true
     },
     "G4": {
-      "detail": "9 canaries, kinds ['negated', 'pin_const', 'swap_arg'], ACCEPTED: []",
-      "passed": false
+      "detail": "24 canaries of kinds ['negated', 'pin_const', 'swap_arg'], all rejected",
+      "passed": true
     },
     "G5": {
-      "detail": "15 proofs re-checked from scratch",
+      "detail": "24 proofs re-checked from scratch",
       "passed": true
     },
     "G6": {
@@ -560,7 +2047,7 @@
       "passed": true
     },
     "G7": {
-      "detail": "dual-kernel: 15 proofs re-checked by BendTT (--verdict)",
+      "detail": "dual-kernel: 24 proofs re-checked by BendTT (--verdict)",
       "passed": true
     },
     "G8": {
@@ -568,7 +2055,7 @@
       "passed": true
     },
     "G9": {
-      "detail": "15 records complete and consistent (v1 validated, v2 converts)",
+      "detail": "24 records complete and consistent (v1 validated, v2 converts)",
       "passed": true
     },
     "GENV": {
@@ -576,10 +2063,10 @@
       "passed": true
     },
     "GPRED": {
-      "detail": "15 predictions checked; sha256 matches docs/M3_SPEC.md; misses: L_cov_rt_vap_registered: predicted PROVED but status REFUTED; L_rt_finalized_start: predicted PROVED but status REFUTED; L_rt_latest: predicted PROVED but status REFUTED; L_rt_latest2: predicted PROVED but status REFUTED; L_rt_legacy: predicted PROVED but status REFUTED; L_rt_same_start_replaces: predicted PROVED but status REFUTED; L_setup_rt_latest: predicted PROVED but status REFUTED; L_setup_rt_legacy: predicted PROVED but status REFUTED; L_setup_rt_same_start_replaces: predicted PROVED but status REFUTED",
+      "detail": "24 predictions checked; sha256 matches docs/M3_SPEC.md; misses: L_cov_rt_vap_registered: predicted PROVED but status REFUTED; L_rt_finalized_start: predicted PROVED but status REFUTED; L_rt_latest: predicted PROVED but status REFUTED; L_rt_latest2: predicted PROVED but status REFUTED; L_rt_legacy: predicted PROVED but status REFUTED; L_rt_same_start_replaces: predicted PROVED but status REFUTED; L_setup_rt_latest: predicted PROVED but status REFUTED; L_setup_rt_legacy: predicted PROVED but status REFUTED; L_setup_rt_same_start_replaces: predicted PROVED but status REFUTED",
       "passed": true
     }
   },
   "milestone": "M3_router",
-  "passed": false
+  "passed": true
 }

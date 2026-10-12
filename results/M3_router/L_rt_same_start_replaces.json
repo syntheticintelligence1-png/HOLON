@@ -12,7 +12,7 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.104
+      "seconds": 0.136
     },
     {
       "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
@@ -26,20 +26,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.099
+      "seconds": 0.115
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.136
+      "seconds": 0.143
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.099
+    "seconds": 0.115
   },
   "closed": true,
   "difference": {
@@ -67,6 +67,7 @@
   "statement_hash": "sha256:4289a53f0c14c2b952c529f2c736a7201caa7d07b1b709a03bf8bb0edfeaff61",
   "status": "REFUTED",
   "subform": "scenario",
-  "triage": "finding",
+  "triage": "none",
+  "triage_why": "law trace omits initialize; contract reverts calling rollup==address(0); setup-order artefact, not a finding",
   "witness": {}
 }

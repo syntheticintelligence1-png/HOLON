@@ -1034,7 +1034,16 @@
           "direct": [
             "L_cov_rt_init_ok",
             "L_cov_rt_init_once",
-            "L_cov_rt_init_owner"
+            "L_cov_rt_init_owner",
+            "L_init_cov_rt_vap_registered",
+            "L_init_rt_finalized_start",
+            "L_init_rt_latest",
+            "L_init_rt_latest2",
+            "L_init_rt_legacy",
+            "L_init_rt_same_start_replaces",
+            "L_init_setup_rt_latest",
+            "L_init_setup_rt_legacy",
+            "L_init_setup_rt_same_start_replaces"
           ],
           "quantified": [],
           "registers": [
@@ -1045,6 +1054,15 @@
         "updateVerifier": {
           "direct": [
             "L_cov_rt_vap_registered",
+            "L_init_cov_rt_vap_registered",
+            "L_init_rt_finalized_start",
+            "L_init_rt_latest",
+            "L_init_rt_latest2",
+            "L_init_rt_legacy",
+            "L_init_rt_same_start_replaces",
+            "L_init_setup_rt_latest",
+            "L_init_setup_rt_legacy",
+            "L_init_setup_rt_same_start_replaces",
             "L_rt_before_start",
             "L_rt_finalized_start",
             "L_rt_latest",
@@ -1066,7 +1084,8 @@
         "verifyAggregateProof": {
           "direct": [
             "L_cov_rt_vap_registered",
-            "L_cov_rt_vap_unregistered_fails"
+            "L_cov_rt_vap_unregistered_fails",
+            "L_init_cov_rt_vap_registered"
           ],
           "quantified": [],
           "registers": [
@@ -1090,6 +1109,38 @@
             "L_cov_rt_vap_unregistered_fails": [
               "action:verifyAggregateProof"
             ],
+            "L_init_cov_rt_vap_registered": [
+              "action:updateVerifier",
+              "action:verifyAggregateProof"
+            ],
+            "L_init_rt_finalized_start": [
+              "action:updateVerifier"
+            ],
+            "L_init_rt_latest": [
+              "action:updateVerifier",
+              "obsv:verifier_of"
+            ],
+            "L_init_rt_latest2": [
+              "action:updateVerifier",
+              "obsv:verifier_of"
+            ],
+            "L_init_rt_legacy": [
+              "action:updateVerifier",
+              "obsv:verifier_of"
+            ],
+            "L_init_rt_same_start_replaces": [
+              "action:updateVerifier",
+              "obsv:verifier_of"
+            ],
+            "L_init_setup_rt_latest": [
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_legacy": [
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_same_start_replaces": [
+              "action:updateVerifier"
+            ],
             "L_rt_before_start": [
               "action:updateVerifier",
               "obsv:verifier_of"
@@ -1129,6 +1180,15 @@
           "laws": [
             "L_cov_rt_vap_registered",
             "L_cov_rt_vap_unregistered_fails",
+            "L_init_cov_rt_vap_registered",
+            "L_init_rt_finalized_start",
+            "L_init_rt_latest",
+            "L_init_rt_latest2",
+            "L_init_rt_legacy",
+            "L_init_rt_same_start_replaces",
+            "L_init_setup_rt_latest",
+            "L_init_setup_rt_legacy",
+            "L_init_setup_rt_same_start_replaces",
             "L_rt_before_start",
             "L_rt_finalized_start",
             "L_rt_latest",
@@ -1150,6 +1210,38 @@
             "L_cov_rt_vap_unregistered_fails": [
               "action:verifyAggregateProof"
             ],
+            "L_init_cov_rt_vap_registered": [
+              "action:updateVerifier",
+              "action:verifyAggregateProof"
+            ],
+            "L_init_rt_finalized_start": [
+              "action:updateVerifier"
+            ],
+            "L_init_rt_latest": [
+              "action:updateVerifier",
+              "obsv:verifier_of"
+            ],
+            "L_init_rt_latest2": [
+              "action:updateVerifier",
+              "obsv:verifier_of"
+            ],
+            "L_init_rt_legacy": [
+              "action:updateVerifier",
+              "obsv:verifier_of"
+            ],
+            "L_init_rt_same_start_replaces": [
+              "action:updateVerifier",
+              "obsv:verifier_of"
+            ],
+            "L_init_setup_rt_latest": [
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_legacy": [
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_same_start_replaces": [
+              "action:updateVerifier"
+            ],
             "L_rt_before_start": [
               "action:updateVerifier",
               "obsv:verifier_of"
@@ -1189,6 +1281,15 @@
           "laws": [
             "L_cov_rt_vap_registered",
             "L_cov_rt_vap_unregistered_fails",
+            "L_init_cov_rt_vap_registered",
+            "L_init_rt_finalized_start",
+            "L_init_rt_latest",
+            "L_init_rt_latest2",
+            "L_init_rt_legacy",
+            "L_init_rt_same_start_replaces",
+            "L_init_setup_rt_latest",
+            "L_init_setup_rt_legacy",
+            "L_init_setup_rt_same_start_replaces",
             "L_rt_before_start",
             "L_rt_finalized_start",
             "L_rt_latest",
@@ -1215,6 +1316,42 @@
             "L_cov_rt_vap_registered": [
               "action:updateVerifier"
             ],
+            "L_init_cov_rt_vap_registered": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_finalized_start": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_latest": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_latest2": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_legacy": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_same_start_replaces": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_latest": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_legacy": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_same_start_replaces": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
             "L_rt_before_start": [
               "action:updateVerifier"
             ],
@@ -1248,6 +1385,15 @@
             "L_cov_rt_init_once",
             "L_cov_rt_init_owner",
             "L_cov_rt_vap_registered",
+            "L_init_cov_rt_vap_registered",
+            "L_init_rt_finalized_start",
+            "L_init_rt_latest",
+            "L_init_rt_latest2",
+            "L_init_rt_legacy",
+            "L_init_rt_same_start_replaces",
+            "L_init_setup_rt_latest",
+            "L_init_setup_rt_legacy",
+            "L_init_setup_rt_same_start_replaces",
             "L_rt_before_start",
             "L_rt_finalized_start",
             "L_rt_latest",
@@ -1273,6 +1419,42 @@
             "L_cov_rt_vap_registered": [
               "action:updateVerifier"
             ],
+            "L_init_cov_rt_vap_registered": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_finalized_start": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_latest": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_latest2": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_legacy": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_rt_same_start_replaces": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_latest": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_legacy": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
+            "L_init_setup_rt_same_start_replaces": [
+              "action:initialize",
+              "action:updateVerifier"
+            ],
             "L_rt_before_start": [
               "action:updateVerifier"
             ],
@@ -1306,6 +1488,15 @@
             "L_cov_rt_init_once",
             "L_cov_rt_init_owner",
             "L_cov_rt_vap_registered",
+            "L_init_cov_rt_vap_registered",
+            "L_init_rt_finalized_start",
+            "L_init_rt_latest",
+            "L_init_rt_latest2",
+            "L_init_rt_legacy",
+            "L_init_rt_same_start_replaces",
+            "L_init_setup_rt_latest",
+            "L_init_setup_rt_legacy",
+            "L_init_setup_rt_same_start_replaces",
             "L_rt_before_start",
             "L_rt_finalized_start",
             "L_rt_latest",

@@ -108,4 +108,5 @@ R9 made 9 closed router laws REFUTED, because their traces start from `s0` witho
 - `spec/M3/laws_src/r9_init_laws.py` (lead-authored) generates `L_init_<id>` for each of them: the same statement with `initialize(who=1, r=5)` prepended to every trace rooted at `s0`.
 - Each keeps its original's prediction, because the deployed MVRV is initialised.
 - A miss is a published surprise, never a fix to the law.
+  - R9b run outcome (`laws/M3_router/L_init_*`, `spec/M3/laws_src/r9_init_laws.py`, preregistered at 88c29f3): all 9 initialised-restated laws PROVED, matching their predictions -- with `initialize(who=1, r=5)` prepended the claims hold, confirming the 9 uninitialised REFUTEDs are setup-order artefacts. GPRED reports only those 9 as published misses. G4 passes again: 24 canaries of kinds [negated, pin_const, swap_arg], all rejected.
 
