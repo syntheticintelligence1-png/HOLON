@@ -181,6 +181,23 @@ def law_count(text: str) -> int:
     return len(re.findall(r"^law\s+[A-Za-z0-9_.]+\s*:", text, re.M))
 
 
+def m2_model_params() -> set:
+    """The oracle parameters the M2 models take (audit M2/1 F-M2-11): those some expression of a fact document the
+    M2 sidecar names (`facts`) calls, in the milestone's model of it (holon.gen.oracles.params_used)."""
+    O, Mach, F = (holon_module(n) for n in ("holon.gen.oracles", "holon.gen.machine", "holon.facts"))
+    out: set = set()
+    for rel in load_json(M2_SIDECAR).get("facts", []):
+        fp = ROOT / rel
+        orc = O.Oracles.for_milestone("M2", fp, ROOT)
+        out |= O.params_used(Mach.Machine(F.load(fp), fp, oracles=orc, m2plus=True))
+    return out
+
+
+def m2_modelled_hyps() -> int:
+    return sum(1 for e in load_json(M2_SIDECAR)["oracles"]
+               if e["status"] == "modelled" and e["hypothesis"].get("kind") == "hyp")
+
+
 def m1_form(x: dict) -> dict:
     """The M1 form of a fixture law, for the M1-encoding baseline: M1 states no hash or oracle binder (its
     hashes are stand-ins compiled into the model, its CF assumptions ledger entries), so the Fn binders and
@@ -683,12 +700,15 @@ class TestMorphSidecar(unittest.TestCase):
 
     def test_hashes_are_modelled_cf_parameters_and_agg_is_the_m1_instance(self):
         es = self.doc()["oracles"]
+        used = m2_model_params()
+        self.assertIn("agg", used)   # the M2 Morph model is parametric in the blob-hash aggregate
         for name in ("agg", "header_presentation"):
             with self.subTest(oracle=name):
                 mine = [e for e in es if e["oracle"] == name]
                 self.assertTrue(mine)
                 for e in mine:
-                    self.assertEqual(e["status"], "modelled")
+                    # audit M2/1 F-M2-11: modelled exactly when an M2 model takes the parameter, else not_in_scope
+                    self.assertEqual(e["status"], "modelled" if e["parameter"]["name"] in used else "not_in_scope")
                     self.assertEqual(e["hypothesis"]["kind"], "cf")
         m1 = load_json(ROOT / "spec" / "M1" / "lib" / "morph_rollup.lib.json")["builtins"]["agg"]["bend"]
         self.assertEqual({e["instance"]["bend"] for e in es if e["oracle"] == "agg"}, {m1})
@@ -704,12 +724,17 @@ class TestMorphSidecar(unittest.TestCase):
                 self.assertTrue(any(lid in e.get("ledger", []) for e in es if e["oracle"] == name))
 
     def test_verifier_is_modelled(self):
-        """The proof == 1 rule is a modelled hyp hypothesis (its A4 label is in results/M2/hypotheses.json)."""
+        """The proof == 1 rule is a hyp hypothesis (its A4 label is in results/M2/hypotheses.json), modelled exactly
+        when an M2 model takes the verifier's parameter (audit M2/1 F-M2-11: the M1 facts state the rule inline, so
+        it is not_in_scope, with that reason)."""
         es = [e for e in self.doc()["oracles"] if e["oracle"] == "verifier"]
+        used = m2_model_params()
         self.assertTrue(es)
         for e in es:
-            self.assertEqual(e["status"], "modelled")
+            self.assertEqual(e["status"], "modelled" if e["parameter"]["name"] in used else "not_in_scope")
             self.assertEqual(e["hypothesis"]["kind"], "hyp")
+            if e["status"] == "not_in_scope":
+                self.assertTrue(e["reason"].strip())
 
 
 class TestHypotheses(unittest.TestCase):
@@ -737,8 +762,9 @@ class TestHypotheses(unittest.TestCase):
         hyps = load_json(HYPS)
         es = [e for e in load_json(M2_SIDECAR)["oracles"] if e["oracle"] == "verifier"]
         self.assertTrue(es)
-        for e in es:
-            self.assertEqual(hyps[e["hypothesis"]["id"]]["status"], "untestable_here")
+        for e in es:   # untestable_here when modelled; not_in_scope (with the entry's reason) when not (F-M2-11)
+            self.assertEqual(hyps[e["hypothesis"]["id"]]["status"],
+                             "untestable_here" if e["status"] == "modelled" else "not_in_scope")
 
     def test_checked_instances_check(self):
         """G11V: every instance law the file names is accepted by Bend."""
@@ -754,7 +780,9 @@ class TestHypotheses(unittest.TestCase):
                 self.assertEqual(code, 0, out[-800:])
                 self.assertTrue(out.strip().startswith("ALL PROOFS CHECK"), out[-800:])
                 n += 1
-        self.assertGreater(n, 0, "the verifier's hypothesis at least has a checked instance")
+        # every modelled hyp hypothesis has a checked instance law; audit M2/1 F-M2-11 left none modelled in M2 (the
+        # verifier is not_in_scope), and TestInstanceCheck keeps checking the instance laws of the fixture sidecar
+        self.assertEqual(n, m2_modelled_hyps(), "every modelled hyp hypothesis has a checked instance")
 
     def test_oracle_check_reproduces_and_keeps_zero_blob(self):
         """From I3's file (only Hyp-Z0-kzg), `holon oracle check --milestone M2` rebuilds the committed
@@ -773,7 +801,7 @@ class TestHypotheses(unittest.TestCase):
             def tree(r: Path) -> dict:
                 d = r / "gen" / "M2" / "oracles"
                 return {f.relative_to(d).as_posix(): f.read_bytes() for f in sorted(d.rglob("*")) if f.is_file()}
-            self.assertTrue(tree(ROOT))
+            self.assertEqual(bool(tree(ROOT)), m2_modelled_hyps() > 0)   # instance laws exist iff a hyp is modelled
             self.assertEqual(tree(repo), tree(ROOT))
         finally:
             shutil.rmtree(repo.parent, ignore_errors=True)

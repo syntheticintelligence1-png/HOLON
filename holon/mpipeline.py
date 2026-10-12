@@ -311,6 +311,34 @@ def m2plus(milestone: str) -> bool:
     return milestone not in ("M0", "M1")
 
 
+def milestone_model(milestone: str, facts_path: Path, cfg: dict | None = None, anchor: Path | None = None) -> CompiledMachine:
+    """The model milestone M compiles facts F to (audit M2/1 F-M2-11): for M2+ the Reach predicate (I8), permissions
+    from the permission guards (F-M2-26) and the milestone's oracle sidecar, so hashes and oracles are parameters
+    and their stand-ins survive only as instances (I12; holon.gen.oracles.Oracles.for_milestone: M2 over
+    spec/M1/facts takes spec/M2/lib/oracles.json). M0 and M1: the model as bound."""
+    orc = O.Oracles.for_milestone(milestone, anchor or facts_path, ROOT)
+    return CompiledMachine.build(facts_path, cfg, reach=m2plus(milestone), anchor=anchor, oracles=orc)
+
+
+def main_model(args) -> int:
+    """`holon model --milestone M --facts F [--out DIR]`: build milestone M's model of F, check it in Bend, print its
+    oracle parameters; with --out, write <DIR>/<model>.bend."""
+    cfg = bend.config(ROOT)
+    fp = (ROOT / args.facts) if not Path(args.facts).is_absolute() else Path(args.facts)
+    cm = milestone_model(args.milestone, fp, cfg)
+    r = bend.check(cm.source, cfg)
+    print(f"model {cm.source}")
+    print(f"oracle sidecar: {relpath(cm.oracles.path) if cm.oracles is not None else 'none'}; parameters "
+          f"{sorted(cm.m.oparams) or 'none'}; threaded through step and run: {cm.m.threaded or 'none'}")
+    if args.out:
+        out = Path(args.out)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / cm.source.name).write_text(cm.source.read_text())
+        print(f"wrote {out / cm.source.name}")
+    print(r.first_line)
+    return 0 if r.ok else 1
+
+
 # ---------------------------------------------------------------- I10: prover separation (whitepaper L14)
 LEGACY_LAYOUT = ("M0", "M1")   # their gen/ trees are pinned byte for byte (tests_m2/test_target_agnostic.py)
 
@@ -408,7 +436,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             # a --facts override stands in for the registry's facts: it takes their target libraries and
             # search hints (I6 put them next to the facts; a mutated copy elsewhere would otherwise lose them)
             anchor = ROOT / primary if (override and fp == override) else None
-            orc = O.Oracles.for_facts(anchor or fp) if m2plus(milestone) else None   # M0, M1 never read one (I12)
+            orc = O.Oracles.for_milestone(milestone, anchor or fp, ROOT)   # M0, M1 never read one (I12; F-M2-11)
             cm_ = CompiledMachine.build(fp, cfg, reach=m2plus(milestone), anchor=anchor, oracles=orc)
             src = gen / "model" / f"{model_name(fp)}.bend"
             src.write_text(cm_.source.read_text())
@@ -567,6 +595,9 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                              "statement": rec["statement"], "laws": rec["artifacts"]["laws"],
                              "proof": rec["artifacts"]["proof"], "generator": None, "attempts": []}
         if m2plus(milestone):   # §8.5: exactly the hypothesis premises, nothing else (I12)
+            # ... and the ledger cone stays, in its own field (F-M2-12): every ledger entry meeting the cone that is
+            # not a stand-in the model replaced by a parameter (abstractions, not_in_scope stand-ins)
+            rec["ledger_assumptions"] = O.ledger_assumptions(rec["model_assumptions"], cm.oracles, cm.m)
             rec["model_assumptions"] = O.hypothesis_premises(law, cm.oracles)
         rec["non_vacuity"] = inhabit.inhabit(law, milestone, ROOT, d, cfg, cm=cm, rec=rec)
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
@@ -719,7 +750,7 @@ def check_registry_multi(laws: list[dict], reg: dict, milestone: str | None = No
             problems.append(f"{law['law_id']}: facts_sha256 differs from its facts file")
         if not (root / rel).is_file():
             continue
-        orc = O.Oracles.for_facts(root / rel) if milestone and m2plus(milestone) else None
+        orc = O.Oracles.for_milestone(milestone, root / rel, root) if milestone else None
         if reg["statements"].get(law["law_id"]) != R.law_hash(law, F.load(root / rel), oracles=orc, root=root):
             problems.append(f"{law['law_id']}: statement hash differs from the registry")
     if problems:

@@ -356,13 +356,13 @@ def _kappa_shape(m: Machine, name: str):
         _, call, fld = get
         assert call[0] == "call" and m.lib.kind(call[1]) == "nth_default" and isinstance(call[2], str) \
             and isinstance(call[3], str)
-        return {"b": b, "x": x, "chs": call[2], "i": call[3], "f": fld, "t": t, "expr": e,
+        return {"b": b, "x": x, "xs": call[2], "i": call[3], "f": fld, "t": t, "expr": e,
                 "start": get, "deadline": plus, "nth": call[1]}
     except (AssertionError, ValueError, TypeError, IndexError):
         return None
 
 
-def _parse_guarded(em: EmittedM, claim_form: str):
+def _parse_guarded(em: EmittedM):
     fa = [(n, t) for qq, n, t in em.binders if qq == "forall"]
     if [t for _, t in fa] != ["State", "Act"] or len(em.assume) != 2 or len(em.claims) != 1:
         return None
@@ -394,7 +394,7 @@ def _ok_pat(m: Machine, act: dict) -> tuple[str, list]:
 def deadline(em: EmittedM, m: Machine, model_import: str) -> str | None:
     if CORE_MODE is not None:   # M2+: any conjunction of linear Nat comparisons, through the core library
         return deadline_linear(em, m, model_import)
-    p = _parse_guarded(em, "kappa")
+    p = _parse_guarded(em)
     if not p:
         return None
     s, a, kname, pname, c_l, c_r = p
@@ -404,9 +404,9 @@ def deadline(em: EmittedM, m: Machine, model_import: str) -> str | None:
     if not k:
         return None
     rec, fld = m.lib.builtins[k["nth"]]["type"], k["f"]
-    if m.stypes.get(k["chs"]) != f"List<{rec}>":
+    if m.stypes.get(k["xs"]) != f"List<{rec}>":
         return None
-    kfields = {k["b"], k["x"], k["chs"], k["i"], k["t"]}
+    kfields = {k["b"], k["x"], k["xs"], k["i"], k["t"]}
     dflt = m.lib.default_of(k["nth"])
     E = f"{ALIAS}.{m.lib.render(dflt, [])[0]}"
     get = lambda xs, j: f"{ALIAS}.g_{rec}_{fld}({ALIAS}.nth_d({ALIAS}.H{rec}, {xs}, {j}, {E}))"
@@ -448,15 +448,15 @@ def deadline(em: EmittedM, m: Machine, model_import: str) -> str | None:
             okbody = "h0"
         elif set(touched) == {k["t"]} and touched[k["t"]][0] == "+" and touched[k["t"]][1] == k["t"]:
             dt, _ = m.ex(touched[k["t"]][2], {**m.stypes, **dict(act["inputs"])})
-            okbody = (f"core_and_lt_add({bname(k['b'])}, Nat.add({bname(k['x'])}, {get(bname(k['chs']), bname(k['i']))}), "
+            okbody = (f"core_and_lt_add({bname(k['b'])}, Nat.add({bname(k['x'])}, {get(bname(k['xs']), bname(k['i']))}), "
                       f"{bname(k['t'])}, {dt}, h0)")
-        elif set(touched) == {k["chs"]} and touched[k["chs"]][0] == "call" \
-                and m.lib.kind(touched[k["chs"]][1]) == "set_default" and m.lib.default_of(touched[k["chs"]][1]) == dflt \
-                and touched[k["chs"]][2] == k["chs"] and touched[k["chs"]][4] == ["call", dflt]:
+        elif set(touched) == {k["xs"]} and touched[k["xs"]][0] == "call" \
+                and m.lib.kind(touched[k["xs"]][1]) == "set_default" and m.lib.default_of(touched[k["xs"]][1]) == dflt \
+                and touched[k["xs"]][2] == k["xs"] and touched[k["xs"]][4] == ["call", dflt]:
             lets_t = {g["let"]: None for g in act["guards"] if "let" in g}
             env = {**m.stypes, **dict(act["inputs"])}
-            ix, _ = m.ex(touched[k["chs"]][3], env)
-            okbody = (f"dl_and_lt_clear({bname(k['b'])}, {bname(k['x'])}, {bname(k['chs'])}, {ix}, {bname(k['i'])}, "
+            ix, _ = m.ex(touched[k["xs"]][3], env)
+            okbody = (f"dl_and_lt_clear({bname(k['b'])}, {bname(k['x'])}, {bname(k['xs'])}, {ix}, {bname(k['i'])}, "
                       f"{bname(k['t'])}, h0)")
             del lets_t
         else:
@@ -640,7 +640,7 @@ def deadline_linear(em: EmittedM, m: Machine, model_import: str) -> str | None:
     core_le_add_mono and core_le_refl); conjunctions by the generated dl_and (core_and_intro). Preserved by every
     permissionless action (Machine.permissionless: the permission guards in an M2+ model); any other action is
     excluded by the perm premise. None when an atom is touched in another way."""
-    p = _parse_guarded(em, "kappa")
+    p = _parse_guarded(em)
     if not p:
         return None
     s, a, kname, pname, c_l, c_r = p
@@ -717,7 +717,7 @@ def _inline(m: Machine, e, lets: dict, keep: set):
 
 
 def chain_revert(em: EmittedM, m: Machine, model_import: str) -> str | None:
-    p = _parse_guarded(em, "kappa")
+    p = _parse_guarded(em)
     if not p:
         return None
     s, a, kname, pname, c_l, c_r = p

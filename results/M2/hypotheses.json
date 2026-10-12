@@ -11,13 +11,12 @@
   },
   "CF-hdr": {
     "instance": {
-      "reason": "each law states its own finite set S; CF(p, S) is inhabited per law by the instance (holon.inhabit, non_vacuity.witness)",
-      "status": "per_premise"
+      "status": "not_applicable"
     },
     "kind": "cf",
     "oracle": "header_presentation",
-    "reason": "no implementation of the real header_presentation oracle is available here (the entry names no real_oracle): the hypothesis is checked only through its concrete instance (G11V)",
-    "status": "untestable_here"
+    "reason": "No fact document the M2 models are compiled from calls hdr_hash: spec/M1/facts/morph_rollup.json compares a presented parent header with the stored batch by index and field equality (parent == lci and the stored csr == prev, Rollup.sol:312-314), never by hashing the header's bytes, so no M2 model transition consults this parameter. Routing it needs a facts document whose commit actions hash the presented header (the extracted facts, BUILD_PLAN I17-I20), not an edit of the M1 facts (audit M2/1 F-M2-11). Until then the stand-in stays inside the model (ledger CF-keccak-headers).",
+    "status": "not_in_scope"
   },
   "Hyp-ISubmitter": {
     "instance": {
@@ -99,14 +98,12 @@
   },
   "HypV-proof1": {
     "instance": {
-      "law": "gen/M2/oracles/HypV-proof1/LAWS.bend",
-      "proof": "gen/M2/oracles/HypV-proof1/PROOF.bend",
-      "status": "checked"
+      "status": "not_applicable"
     },
     "kind": "hyp",
     "oracle": "verifier",
-    "reason": "no implementation of the real verifier oracle is available here (the entry names no real_oracle): the hypothesis is checked only through its concrete instance (G11V)",
-    "status": "untestable_here"
+    "reason": "No fact document the M2 models are compiled from calls verify: spec/M1/facts/morph_rollup.json states the verifier as the inline guards ['==', 'proof', 1] (commitBatchWithProof, reason 22) and ['||', 'timeout', ['==', 'proof', 1]] (proveState, reason 22), src 'oracle: IRollupVerifier.verifyAggregateProof', so no M2 model transition consults this parameter and the proof == 1 rule is a stand-in inside the model. Routing it needs a facts document whose actions call verify(proof) (the extracted facts, BUILD_PLAN I17-I20), not an edit of the M1 facts (audit M2/1 F-M2-11). Until then the stand-in stays inside the model (ledger oracle-verifier); the hypothesis and its instance are kept as the record of that rule.",
+    "status": "not_in_scope"
   },
   "HypZ": {
     "instance": {

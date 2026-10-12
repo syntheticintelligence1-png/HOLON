@@ -227,7 +227,7 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .gen.machine import Machine
     from .gen.oracles import Oracles
     from .mpipeline import m2plus
-    orc = Oracles.for_facts(fp) if m2plus(m) else None   # M2+ models take their oracles as parameters (I12)
+    orc = Oracles.for_milestone(m, fp, root)   # M2+ models take their oracles as parameters (I12; F-M2-11)
     try:
         return mlaws.Emitter(Machine(F.load(fp), fp, oracles=orc, m2plus=m2plus(m))).emit(law, imp, counter=counter,
                                                                                           note=ir.statement_hash(law),

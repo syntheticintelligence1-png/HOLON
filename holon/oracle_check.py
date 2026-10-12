@@ -124,6 +124,12 @@ def validate(doc: dict, root: Path = ROOT) -> list[str]:
         bad.append(f"oracles_version is not {O.SIDECAR_VERSION}")
     if not isinstance(doc.get("doc"), str):
         bad.append("doc: missing or not a string")
+    if "facts" in doc:   # a milestone-level sidecar names the facts files it applies to (F-M2-11)
+        fs = doc["facts"]
+        if not isinstance(fs, list) or not fs or not all(isinstance(x, str) for x in fs):
+            bad.append("facts: a non-empty list of repo-relative facts paths")
+        else:
+            bad += [f"facts: {x} does not exist under the root" for x in fs if not (Path(root) / x).is_file()]
     entries = doc.get("oracles")
     if not isinstance(entries, list) or not entries:
         return bad + ["oracles: missing or empty"]

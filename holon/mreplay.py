@@ -36,9 +36,8 @@ from .evidence import MODEL_ONLY, OBSERVED, own_go
 from .replay import _holon_lines, _run, _sol_deps, check_checkout, witness_sha256  # noqa: F401
 
 ROOT = Path(__file__).resolve().parents[1]
-OPS = {"commitBatch": 1, "commitState": 2, "commitBatchWithProof": 3, "revertBatch": 4, "challengeState": 5,
-       "proveState": 6, "finalizeBatch": 7, "setPause": 8, "sendMessage": 9, "wait": 10, "@legacy_eta2": 11}
-WIDTH = 13
+WIDTH = 13       # cells per step row: replay/M1/solidity/HolonTraceReplay.t.sol reads this many per step
+LIST_CELLS = 2   # a List<Nat> input is its length, then its first LIST_CELLS elements (the harness's blob slots)
 CHUNK = 25
 LINE = re.compile(r"HOLON (\d+) (\d+) (ok|rev) ?(.*)")
 HDR = re.compile(r"HOLON-HDR (\d+) (g|\d+) (\d+) (0x[0-9a-fA-F]*) (0x[0-9a-fA-F]{64}) (0x[0-9a-fA-F]{64})")
@@ -46,31 +45,50 @@ MISMATCH = re.compile(r"HOLON harness-mismatch (\d+) (\d+)")
 
 
 # ---------------------------------------------------------------- traces
-def encode_step(a: dict) -> list[int]:
-    op = OPS[a["op"]]
-    w = [0] * WIDTH
-    w[0] = op
-    if a["op"] in ("commitBatch", "commitState", "commitBatchWithProof"):
-        bl = a["blobs"]
-        w[1:12] = [a["who"], a["ver"], a["parent"], a["n"], a["lbn"], a["prev"], a["post"], len(bl),
-                   bl[0] if bl else 0, bl[1] if len(bl) > 1 else 0, a.get("proof", 0)]
-    elif a["op"] == "revertBatch":
-        w[1:4] = [a["who"], a["idx"], a["count"]]
-    elif a["op"] == "challengeState":
-        w[1:4] = [a["who"], a["idx"], a["value"]]
-    elif a["op"] == "proveState":
-        w[1:4] = [a["who"], a["idx"], a["proof"]]
-    elif a["op"] == "finalizeBatch":
-        w[1:3] = [a["who"], a["idx"]]
-    elif a["op"] == "setPause":
-        w[1:3] = [a["who"], 1 if a["status"] else 0]
-    elif a["op"] == "sendMessage":
-        w[1] = a["who"]
-    elif a["op"] == "wait":
-        w[1] = a["dt"]
-    elif a["op"] == "@legacy_eta2":
-        w[1] = a["root"]
-    return w
+def op_table(facts: dict) -> dict[str, int]:
+    """The harness op codes, generated from the facts (audit M2/1 F-M2-16; was a hand table): action i, in facts
+    order, is op i + 1; the deployment-history pseudo-step, every migration in facts order applied in that order
+    (`@legacy_eta2` for the Rollup), is the next one. The harness decodes the same numbering."""
+    ops = {a["name"]: i + 1 for i, a in enumerate(facts["actions"])}
+    migs = list(facts.get("migrations", {}))
+    if migs:
+        ops[history_op(facts)] = len(ops) + 1
+    return ops
+
+
+def history_op(facts: dict) -> str:
+    """The pseudo-step that applies every migration of the facts, in facts order."""
+    return "@" + "_".join(facts.get("migrations", {}))
+
+
+def _cells(ty: str, v) -> list[int]:
+    if ty == "Nat":
+        return [int(v)]
+    if ty == "Bool":
+        return [1 if v else 0]
+    if ty == "List<Nat>":
+        xs = [int(x) for x in v]
+        return [len(xs)] + [xs[i] if i < len(xs) else 0 for i in range(LIST_CELLS)]
+    raise ValueError(f"no harness encoding for an input of type {ty}")
+
+
+def encode_step(a: dict, facts: dict) -> list[int]:
+    """One harness row, generated from the facts: the op code, then the step's inputs in facts order (Nat as is, Bool
+    as 1/0, List<Nat> as its length and first LIST_CELLS elements), zero-padded to WIDTH. A pseudo-step's inputs are
+    its migrations' inputs, in facts order."""
+    ops = op_table(facts)
+    if a["op"].startswith("@"):
+        if a["op"] != history_op(facts):
+            raise ValueError(f"unknown pseudo-step {a['op']}")
+        ins = [x for mg in facts.get("migrations", {}).values() for x in mg.get("inputs", [])]
+    else:
+        ins = next(x for x in facts["actions"] if x["name"] == a["op"])["inputs"]
+    row = [ops[a["op"]]]
+    for n, ty in ins:
+        row += _cells(ty, a[n])
+    if len(row) > WIDTH:
+        raise ValueError(f"{a['op']}: {len(row)} cells exceed the harness row width {WIDTH}")
+    return row + [0] * (WIDTH - len(row))
 
 
 def model_logs(cm: CompiledMachine, traces: list[list[dict]]) -> list[list]:
@@ -79,8 +97,9 @@ def model_logs(cm: CompiledMachine, traces: list[list[dict]]) -> list[list]:
     for tr in traces:
         expr = {"fn": "s0", "args": []}
         for a in tr:
-            if a["op"] == "@legacy_eta2":
-                expr = {"fn": "mig_eta2", "args": [{"fn": "mig_legacy", "args": [expr]}, {"val": a["root"]}]}
+            if a["op"].startswith("@"):   # the deployment history: every migration, in facts order (history_op)
+                for name, mg in cm.facts.get("migrations", {}).items():
+                    expr = {"fn": "mig_" + name, "args": [expr] + [{"val": a[n]} for n, _ in mg.get("inputs", [])]}
             else:
                 expr = {"fn": "step", "args": [{"val": _act_val(cm.m, a)}, expr]}
         calls.append({"fn": "log_of", "args": [expr]})
@@ -245,7 +264,7 @@ def run_forge(morph: Path, work: Path, traces: list[list[dict]], facts: dict, fo
     for tr in traces:
         data.append(len(tr))
         for a in tr:
-            data += encode_step(a)
+            data += encode_step(a, facts)
     (proj / "holon_traces.json").write_text(json.dumps({"data": data}))
     cmd = [forge, "test", "--match-contract", "HolonTraceReplay", "-vv", "--offline"] + (["--use", solc] if solc else [])
     res: dict = {}

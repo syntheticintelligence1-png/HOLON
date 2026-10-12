@@ -100,6 +100,11 @@ def main(argv=None) -> int:
     rf.add_argument("--morph", help="morph checkout at the facts' commit (default: config replay.morph)")
     rf.add_argument("--work", help="scratch directory for the harness workspaces (default: a temporary directory)")
     rf.add_argument("--fix", action="append", help="a fix commit (40 lowercase hex) this run measures; repeatable")
+    md = sub.add_parser("model", help="build and check the model a milestone compiles a fact document to (M2+: "
+                                      "Reach, guard-derived permissions, the milestone's oracle parameters)")
+    md.add_argument("--milestone", default="M2")
+    md.add_argument("--facts", required=True, help="the fact document (repo-relative)")
+    md.add_argument("--out", help="directory to write <model>.bend into (default: print the build path only)")
     mt = sub.add_parser("metrics", help="write results/<M>/metrics.json and metrics_timing.json (I16)")
     mt.add_argument("--milestone", default="M0")
     mt.add_argument("--root")
@@ -140,6 +145,9 @@ def main(argv=None) -> int:
     if a.cmd == "metrics":
         from .metrics import main_metrics
         return main_metrics(a)
+    if a.cmd == "model":
+        from .mpipeline import main_model
+        return main_model(a)
     if a.cmd == "diagram":
         from . import diagram
         return diagram.run(a.milestone, a.out, a.root)

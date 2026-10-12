@@ -3,9 +3,12 @@
 
 The oracle records of a facts file F live in F/../../lib/oracles.json, next to its target libraries. They
 change no facts hash. Only M2+ milestones read them: the callers decide (holon.mpipeline.m2plus), M0 and M1
-never pass a sidecar, so their models and statements are unchanged.
+never pass a sidecar, so their models and statements are unchanged. A milestone's models over the facts of an
+earlier milestone take the milestone's own sidecar, spec/<M>/lib/oracles.json, when its `facts` list names
+them (Oracles.for_milestone; audit M2/1 F-M2-11: M2's Morph models over spec/M1/facts).
 
-  {"oracles_version": "holon-oracles/0.1", "doc": str, "oracles": [entry, ...]}
+  {"oracles_version": "holon-oracles/0.1", "doc": str, "facts": [repo-relative facts paths] (optional),
+   "oracles": [entry, ...]}
   entry = {"id", "oracle", "parameter": {"name", "type": "Fn<A,B>"}, "hypothesis": {"id", "doc", "kind": cf | hyp,
            "family", "predicate"}, "instance": {"bend", "doc"} | null, "status": modelled | not_in_scope, "reason",
            "ledger": [...]}
@@ -49,6 +52,12 @@ class OracleError(Exception):
 def sidecar_path(facts_path: Path | str) -> Path:
     """F/../../lib/oracles.json for a facts file F."""
     return Path(facts_path).resolve().parent.parent / SIDECAR
+
+
+def milestone_sidecar(milestone: str, root: Path | str) -> Path:
+    """spec/<M>/lib/oracles.json: a milestone's own sidecar (holon-oracles/0.1 with a `facts` list of the
+    repo-relative facts files it applies to; Oracles.for_milestone)."""
+    return Path(root) / "spec" / milestone / SIDECAR
 
 
 def load(path: Path | str) -> dict:
@@ -125,6 +134,29 @@ class Oracles:
         p = sidecar_path(facts_path)
         return cls(load(p), p) if p.exists() else None
 
+    @classmethod
+    def for_milestone(cls, milestone: str, facts_path: Path | str | None, root: Path | str | None = None) -> "Oracles | None":
+        """The sidecar the model of facts F takes in milestone M (audit M2/1 F-M2-11). None for M0 and M1, which never
+        read one. Otherwise F's own sidecar, F/../../lib/oracles.json, when it has one (fixtures; the facts of the
+        milestone itself, spec/M<k>/facts/); else the milestone-level sidecar spec/<M>/lib/oracles.json when its
+        `facts` list names F (repo-relative): a milestone's models over the facts of an earlier milestone (M2 over
+        spec/M1/facts, which may not be edited: their hash is in every M1 statement) take the milestone's oracles."""
+        if facts_path is None or milestone in ("M0", "M1"):
+            return None
+        own = cls.for_facts(facts_path)
+        if own is not None:
+            return own
+        root = Path(root) if root is not None else Path(__file__).resolve().parents[2]
+        p = milestone_sidecar(milestone, root)
+        if not p.exists():
+            return None
+        doc = load(p)
+        try:
+            rel = Path(facts_path).resolve().relative_to(root.resolve()).as_posix()
+        except ValueError:
+            return None
+        return cls(doc, p) if rel in (doc.get("facts") or []) else None
+
     def param_type(self, p: str) -> str:
         a, b = self.params[p]
         return f"Fn<{a},{b}>"
@@ -177,6 +209,65 @@ def hypothesis_premises(law: dict, orc: "Oracles | None") -> list[str]:
             if e is not None:
                 out.add(e["hypothesis"]["id"])
     return sorted(out)
+
+
+def params_used(machine) -> set:
+    """The oracle parameters a model takes: those some facts expression (an action, a def, an observer, a
+    migration) calls."""
+    if machine is None or not getattr(machine, "oparams", None):
+        return set()
+    out = set(machine.threaded) | {p for ps in machine.fn_tabs.values() for p in ps}
+    return out | set().union(set(), *(machine.def_uses(d) for d in machine.defs))
+
+
+def replaced_stand_ins(orc: "Oracles | None", machine) -> set:
+    """The ledger stand-ins a model replaces by parameters: the `ledger` of every modelled entry whose parameter
+    the model takes. A not_in_scope entry's stand-in, or a modelled parameter no facts expression calls, stays."""
+    used = params_used(machine)
+    return {x for e in (orc.entries if orc is not None else []) if e.get("status") == "modelled"
+            and e["parameter"]["name"] in used for x in e.get("ledger", [])}
+
+
+def ledger_assumptions(cone_entries: list[str], orc: "Oracles | None", machine) -> list[str]:
+    """(audit M2/1 F-M2-12) An M2+ record's ledger assumptions, kept beside its hypothesis premises
+    (model_assumptions, §8.5): the ledger entries that meet its cone (holon.records.model_assumptions) minus the
+    stand-ins the model replaces by parameters. Abstractions (abs-nat-tokens, ...) and the stand-ins still inside
+    the model (not_in_scope entries: ISubmitter, the messenger, ...) stay."""
+    gone = replaced_stand_ins(orc, machine)
+    return sorted(x for x in cone_entries if x not in gone)
+
+
+def ledger_problems(milestone: str, root: Path, laws: list[dict], records: dict) -> list[str]:
+    """G9 for M2+ milestones (F-M2-12): every record carries ledger_assumptions, equal to the recomputation from its
+    cone, its facts' ledger bundle and the milestone's sidecar; a record whose cone meets ledger stand-ins never
+    lists an empty set."""
+    from .. import facts as F
+    from .. import records as R
+    from .machine import Machine
+    bad, machines = [], {}
+    for law in laws:
+        rec = records.get(law["law_id"])
+        if rec is None:
+            continue
+        if not isinstance(rec.get("ledger_assumptions"), list):
+            bad.append(f"{law['law_id']}: an M2+ record lists no ledger_assumptions")
+            continue
+        fp = Path(root) / law["facts"]
+        if fp not in machines:
+            orc = Oracles.for_milestone(milestone, fp, root)
+            machines[fp] = (orc, Machine(F.load(fp), fp, oracles=orc, m2plus=True))
+        orc, m = machines[fp]
+        try:
+            b, _ = R.resolve_bundle(rec["facts_sha256"], law["facts"], root)
+        except R.LedgerError as e:
+            bad.append(f"{law['law_id']}: {e}")
+            continue
+        meets = sorted(e["id"] for e in b["entries"] if R._meets(e, set(rec.get("cone") or [])))
+        want = ledger_assumptions(meets, orc, m)
+        if rec["ledger_assumptions"] != want:
+            what = "lists no ledger assumption" if not rec["ledger_assumptions"] else f"lists {rec['ledger_assumptions']}"
+            bad.append(f"{law['law_id']}: {what}, but its cone meets the ledger stand-ins and abstractions {want}")
+    return bad
 
 
 def expand_hyps(law: dict, orc: "Oracles | None") -> dict:

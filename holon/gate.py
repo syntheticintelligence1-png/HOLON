@@ -428,7 +428,7 @@ class Gate:
                     rp = rp if isinstance(rp, dict) else {}
                 want = targets.get(rec.get("facts_sha256"), "")
                 if not isinstance(want, str) or not want or not commit.startswith(want):
-                    bad.append(f"{lid}: report is for morph {commit[:12] or '?'}, facts target {want or '?'}")
+                    bad.append(f"{lid}: report is for target commit {commit[:12] or '?'}, facts target {want or '?'}")
                 if not isinstance(rec.get("witness"), dict) or not rec.get("witness"):
                     bad.append(f"{lid}: the REFUTED record has no witness object")
                 elif not isinstance(hashes.get(lid), str) or re.fullmatch(r"[0-9a-f]{64}", hashes.get(lid)) is None:
@@ -623,7 +623,13 @@ class Gate:
                 errs = schema.errors(rec, sch)
                 if errs:
                     bad.append(f"{lid}: {name}: {errs[:3]}")
-        self.checks["G9"] = _res(not bad and n > 0, f"{n} records valid against v1 and v2" if not bad and n
+        from .mpipeline import m2plus
+        if m2plus(self.m):   # F-M2-12: an M2+ record keeps its ledger cone (holon.gen.oracles.ledger_problems)
+            from .gen.oracles import ledger_problems
+            bad += ledger_problems(self.m, self.root, ir.load_laws_any(self.m, self.root),
+                                   {k: v for k, v in self.records().items() if v})
+        self.checks["G9"] = _res(not bad and n > 0, f"{n} records valid against v1 and v2"
+                                 + ("; ledger_assumptions recomputed" if m2plus(self.m) else "") if not bad and n
                                  else "; ".join(bad) or "no records")
 
     def gref(self) -> None:
@@ -1016,7 +1022,10 @@ class Gate:
         from .gen import oracles as O
         bad, parsed = [], {}
         for law in ir.load_laws_any(self.m, self.root):
-            sp = O.sidecar_path(self.root / law.get("facts", ""))
+            fp = self.root / law.get("facts", "")
+            sp = O.sidecar_path(fp)
+            if not sp.exists() and O.Oracles.for_milestone(self.m, fp, self.root) is not None:
+                sp = O.milestone_sidecar(self.m, self.root)   # the milestone's own sidecar names fp (F-M2-11)
             if sp not in parsed:
                 parsed[sp] = None
                 if sp.exists():
@@ -1226,19 +1235,39 @@ class Gate:
         return out
 
     def g4_machine(self) -> None:
-        from .mcanary import run_canaries
-        from .mpipeline import CompiledMachine
+        """G4 for state-machine milestones (holon.mcanary). Each facts file's laws get canaries over that file's model,
+        built as the milestone builds it: for M2+ with Reach, guard-derived permissions and the milestone's oracle
+        parameters, and with the proof generators importing the core library. M2+ also needs the core-omit canary
+        (I8): a core with one lemma unproved must make the proof that calls it fail (audit M2/1 F-M2-06)."""
+        from . import mcanary
+        from .mpipeline import m2plus, milestone_model
         tmp = Path(tempfile.mkdtemp(prefix="holon-gate-g4m-"))
         try:
-            cm = CompiledMachine.build(self.facts_path, self.cfg)
             laws = ir.load_laws_any(self.m, self.root)
             recs = {k: v for k, v in self.records().items() if v}
-            self.canaries = run_canaries(cm, laws, recs, tmp, self.cfg)
+            primary = ir.load_registry(self.m, self.root).get("facts")
+            groups: dict = {}
+            for law in laws:
+                groups.setdefault(law.get("facts") or primary, []).append(law)
+            m2 = m2plus(self.m)
+            self.canaries = []
+            for i, (rel, group) in enumerate(sorted(groups.items())):
+                if len(self.canaries) >= MAX_CANARIES:
+                    break
+                cm = milestone_model(self.m, self.root / rel, self.cfg)
+                self.canaries += mcanary.run_canaries(cm, group, recs, tmp / f"f{i}", self.cfg,
+                                                      max_n=MAX_CANARIES - len(self.canaries), core=m2)
+            missing = []
+            if m2:
+                self.canaries.append(mcanary.core_omit(self.gen, laws, recs, tmp, self.cfg))
             kinds = {c["kind"] for c in self.canaries}
+            if m2 and "core_omit" not in kinds:
+                missing.append("core_omit")
             accepted = [c["id"] for c in self.canaries if not c["rejected"]]
-            ok = len(self.canaries) >= MIN_CANARIES and len(kinds) >= 3 and not accepted
+            ok = len(self.canaries) >= MIN_CANARIES and len(kinds) >= 3 and not accepted and not missing
             self.checks["G4"] = _res(ok, f"{len(self.canaries)} canaries of kinds {sorted(kinds)}, all rejected" if ok
                                      else f"{len(self.canaries)} canaries, kinds {sorted(kinds)}, ACCEPTED: {accepted}"
+                                     + (f", missing required kinds {missing}" if missing else "")
                                      + self.quarantine_accepted())
         except Exception as e:  # noqa: BLE001
             self.checks["G4"] = _res(False, f"error: {e}")

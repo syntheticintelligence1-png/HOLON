@@ -21,6 +21,8 @@
     "cone": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"}},
     "ledger_match": {"const": "exact", "description": "committed records match their ledger bundle by facts sha256; 'derived' (a run over facts derived from a registered file, e.g. planted mutations) never validates"},
     "model_assumptions": {"type": "array", "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*$"}},
+    "ledger_assumptions": {"type": "array", "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*$"},
+                           "description": "M2+ records only (audit M2/1 F-M2-12): the ledger entries meeting the cone that the model does not replace by an oracle parameter (abstractions, stand-ins still inside the model); model_assumptions holds the hypothesis premises (§8.5)"},
     "scope_v2": {
       "type": "object",
       "required": ["kind", "horizon", "at_state"],
