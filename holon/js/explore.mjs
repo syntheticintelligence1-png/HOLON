@@ -4,7 +4,8 @@
 // stdin: {"module": path, "facts": {...}, "law": {...IR...}, "budget": {...}}
 // stdout: {"witness": {binder: value} | null, "tried": n, "bound": "...", "notes": [..]}
 //
-// Values: Trace = [{"op": name, input: value..}], Act = {"op":..}, Nat = int, Bool, State = {"run": Trace}.
+// Values: Trace = [{"op": name, input: value..}], Act = {"op":..}, Nat = int, Bool, State = {"run": Trace},
+// Fn<Nat,Nat> = {"lam": "id" | "zero" | "succ"} (holon-ir/0.3: a small fixed family, enumerated in this order).
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
@@ -86,6 +87,10 @@ function prefixes() {
 
 // ---------------------------------------------------------------- IR evaluation
 const FN = (name) => { const f = M[name]; if (typeof f !== "function") throw new Error("no model fn " + name); return f; };
+// holon-ir/0.3 builtins (holon.gen.mlaws.BUILTINS): eq_nat is Nat.is_eq, the others are model functions
+const BUILTIN = { eq_nat: (x, y) => x === y, eq_bool: (x, y) => FN("eq_bool")(x, y), eq_nats: (x, y) => FN("eq_list_nat")(x, y) };
+const LAMS = { id: (x) => x, zero: (x) => 0n, succ: (x) => x + 1n };
+const fnVal = (raw) => ({ ty: "Fn", v: LAMS[raw.lam], raw });
 function evalT(t, env) {
   if ("var" in t) { const v = env[t.var]; if (v === undefined) throw new Unassigned(t.var); return v; }
   if ("nat" in t) return { ty: "Nat", v: BigInt(t.nat) };
@@ -105,7 +110,9 @@ function evalT(t, env) {
   if ("proj" in t) { const s = dec(evalT(t.of, env).v); for (const f of t.proj) delete s[f]; return { ty: "View", v: s, plain: true }; }
   if ("obsv" in t) return { ty: "?", v: FN(t.obsv)(evalT(t.of, env).v) };
   if ("mig" in t) return { ty: "State", v: FN("mig_" + t.mig)(evalT(t.of, env).v, ...(t.args || []).map((a) => evalT(a, env).v)) };
+  if ("fn" in t && t.fn in BUILTIN) return { ty: "Bool", v: BUILTIN[t.fn](...t.args.map((a) => evalT(a, env).v)) };
   if ("fn" in t) return { ty: "?", v: FN(t.fn)(...t.args.map((a) => evalT(a, env).v)) };
+  if ("app" in t) { const f = evalT({ var: t.app }, env).v; return { ty: "?", v: f(evalT(t.args[0], env).v) }; }
   if ("plus" in t) return { ty: "Nat", v: evalT(t.plus[0], env).v + evalT(t.plus[1], env).v };
   throw new Error("term " + JSON.stringify(t));
 }
@@ -113,6 +120,11 @@ function reAct(a) { const o = { $: a.$ }; for (const [k, v] of Object.entries(a)
 class Unassigned extends Error { constructor(v) { super("unassigned " + v); this.v = v; } }
 const val = (r) => (r.plain ? r.v : dec(r.v));
 function holds(p, env) {
+  if (p.cf) { // collision-freedom over a finite set: pairwise distinct images
+    const ks = p.cf.set.map((x) => key(val(evalT({ app: p.cf.fn, args: [x] }, env))));
+    return new Set(ks).size === ks.length;
+  }
+  if (p.neq) return key(val(evalT(p.neq[0], env))) !== key(val(evalT(p.neq[1], env)));
   const [a, b] = p.eq;
   return key(val(evalT(a, env))) === key(val(evalT(b, env)));
 }
@@ -132,6 +144,14 @@ const hasFromS0 = (t, kind, v) => {
   if (Object.keys(t).length === 2 && isVar(t[kind], v) && isS0(t.from)) return true;
   return Object.values(t).some((x) => hasFromS0(x, kind, v));
 };
+// a trace whose success from s0 the statement tests (runs_ok(p, s0)): failing traces are candidates too
+const isRunsOkVar = (v) => hasFromS0Fn(st, v);
+function hasFromS0Fn(t, v) {
+  if (Array.isArray(t)) return t.some((x) => hasFromS0Fn(x, v));
+  if (!t || typeof t !== "object") return false;
+  if (t.fn === "runs_ok" && Array.isArray(t.args) && t.args.length === 2 && isVar(t.args[0], v) && isS0(t.args[1])) return true;
+  return Object.values(t).some((x) => hasFromS0Fn(x, v));
+}
 const rank = (b) => (b.type === "State" || (b.type === "Trace" && (hasFromS0(law.statement, "run", b.name)
   || hasFromS0(law.statement, "obs", b.name)))) ? 0
   : b.type === "Act" ? 1 : b.type === "Nat" ? 2 : 3;
@@ -142,7 +162,7 @@ const mentions = (t, v) => JSON.stringify(t).includes(JSON.stringify({ var: v })
 const isPrefixVar = (v) => hasFromS0(st, "run", v);
 // a trace observed from the initial state: reachable prefixes, each possibly ending in one failing action
 const isObsPrefixVar = (v) => hasFromS0(st, "obs", v);
-const isObsSuffix = (v) => claims.length === 1 && claims[0].eq.every((s) => s.obs && JSON.stringify(s.obs) === JSON.stringify({ var: v }));
+const isObsSuffix = (v) => claims.length === 1 && Array.isArray(claims[0].eq) && claims[0].eq.every((s) => s.obs && JSON.stringify(s.obs) === JSON.stringify({ var: v }));
 
 function baseState(env) {
   for (const b of forall) if (b.type === "State" && env[b.name]) return env[b.name].v;
@@ -151,8 +171,9 @@ function baseState(env) {
 }
 
 function candidates(b, env) {
-  if (b.type === "Trace" && isPrefixVar(b.name)) return prefixes().map((p) => ({ ty: "Trace", v: toList(p.trace.map(mkAct)), raw: p.trace }));
-  if (b.type === "Trace" && isObsPrefixVar(b.name)) {
+  if (b.type === "Fn<Nat,Nat>") return Object.keys(LAMS).map((lam) => fnVal({ lam }));
+  if (b.type === "Trace" && isPrefixVar(b.name) && !isRunsOkVar(b.name)) return prefixes().map((p) => ({ ty: "Trace", v: toList(p.trace.map(mkAct)), raw: p.trace }));
+  if (b.type === "Trace" && (isObsPrefixVar(b.name) || isRunsOkVar(b.name))) {
     const out = [];
     for (const p of prefixes()) {
       out.push({ ty: "Trace", v: toList(p.trace.map(mkAct)), raw: p.trace });
@@ -305,8 +326,20 @@ function findRunBase(t, v) {
   }
   return null;
 }
+// exists laws over finite candidate sets (Act, Nat 0..natMax, Bool, Fn): enumerate, in candidate order
+function enumExists(ex, i, env, raw) {
+  if (i === ex.length) { tried++; return claims.every((c) => holds(c, env)) ? raw : null; }
+  const b = ex[i];
+  const cs = b.type === "Bool" ? [false, true].map((x) => ({ ty: "Bool", v: x, raw: x })) : candidates(b, env);
+  for (const c of cs) {
+    const r = enumExists(ex, i + 1, { ...env, [b.name]: c }, { ...raw, [b.name]: c.raw });
+    if (r) return r;
+  }
+  return null;
+}
 function strategies() {
   const ex = binders.filter((b) => b.q === "exists");
+  if (ex.length && ex.every((b) => ["Act", "Nat", "Bool", "Fn<Nat,Nat>"].includes(b.type))) return enumExists(ex, 0, {}, {});
   if (ex.length !== 1 || ex[0].type !== "Trace") return null;
   const v = ex[0].name;
   const base = evalT(findRunBase(st.claim, v), {}).v;
@@ -336,6 +369,7 @@ if (req.evaluate) {
     else if (b.type === "Nat") env[b.name] = { ty: "Nat", v: BigInt(w) };
     else if (b.type === "Bool") env[b.name] = { ty: "Bool", v: w };
     else if (b.type === "State") env[b.name] = { ty: "State", v: w.run ? runJ(w.run, s0) : enc(w.state) };
+    else if (b.type === "Fn<Nat,Nat>") env[b.name] = fnVal(w);
   }
   process.stdout.write(JSON.stringify({ premises: assume.map((p) => holds(p, env)), claims: claims.map((c) => holds(c, env)) }));
   process.exit(0);
@@ -343,5 +377,8 @@ if (req.evaluate) {
 let witness = null;
 if (binders.some((b) => b.q === "exists")) { witness = strategies(); notes.push("exists law: strategy search"); }
 else witness = search(0, {}, {});
-const bound = `prefixes: BFS depth ${B.prefixDepth} over policy actions (<= ${B.maxPrefixes} states); suffixes: divergence BFS depth ${B.suffixDepth}; Nat binders 0..${B.natMax} plus premise-solved values`;
+const finite = (binders.every((b) => b.q === "exists") || binders.some((b) => b.type.startsWith("Fn<")))
+  && binders.every((b) => ["Act", "Nat", "Bool", "Fn<Nat,Nat>"].includes(b.type));
+const bound = finite ? `finite candidates: Act from the policy at s0, Nat 0..${B.natMax} plus premise-solved values, Bool, Fn<Nat,Nat> in {id, zero, succ}`
+  : `prefixes: BFS depth ${B.prefixDepth} over policy actions (<= ${B.maxPrefixes} states); suffixes: divergence BFS depth ${B.suffixDepth}; Nat binders 0..${B.natMax} plus premise-solved values`;
 process.stdout.write(JSON.stringify({ witness, tried, bound, notes }));

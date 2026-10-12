@@ -16,7 +16,8 @@ Order: GENV, G2, G1, G3, G5, G11, G11V, G6, G9, G7, G4. The report is always wri
         names the laws and the definitions); self-certified until I10 and Q1
   G1    regeneration into a temp dir is byte-identical (gen/**/*.bend, summary.json, and every
         result record with `seconds` stripped and artifact paths normalised), from a fresh build dir
-  G3    no escape hatches in generated Bend; the checker reports no TODO / unsafe reliance
+  G3    no escape hatches in generated Bend; the checker reports no TODO / unsafe reliance; every law's
+        premises pass holon.ir.check_premises (no global injectivity)
   G5    every PROVED/REFUTED PROOF.bend re-checks: exit 0 and ALL PROOFS CHECK, each within
         bend.budget_s_per_file seconds (default 120); timings go to results/<m>/gate_timing.json
   G11   every law has a record; every checked LAWS.bend states exactly its expected law
@@ -692,6 +693,13 @@ class Gate:
             if "TODO found" in out or "rely on unsafe or foreign code" in out or "relies on unsafe" in out:
                 bad.append("checker reports an open goal or unsafe/foreign reliance")
                 break
+        # IR premise rules (I7, whitepaper L13): no premise states global injectivity, every cf premise
+        # names a Fn binder and a finite set
+        for law in ir.load_laws_any(self.m, self.root):
+            try:
+                ir.check_premises(law)
+            except ir.IRError as e:
+                bad.append(str(e))
         self.checks["G3"] = _res(not bad, "no escape hatches" if not bad else "; ".join(bad))
 
     def g11(self) -> None:

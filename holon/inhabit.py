@@ -136,8 +136,9 @@ def texts_02(law: dict, machine, model_stem: str, witness: dict) -> tuple[str, s
     IR, the model and the witness, so G11V can regenerate and compare both files."""
     from .gen import mlaws, mproofs
     imp = MODEL_IMPORT.format(model_stem)
+    from .gen.refs import law_hash
     em = mlaws.Emitter(machine).emit(inhabitant_ir(law), imp,
-                                     note=f"non-vacuity of {law['law_id']} ({ir.statement_hash(law)})")
+                                     note=f"non-vacuity of {law['law_id']} ({law_hash(law, machine.f)})")
     proof = mproofs.evaluate(em, machine, imp, witness)
     if proof is None:
         raise ValueError("no evaluation proof for the inhabitant")

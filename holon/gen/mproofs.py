@@ -17,6 +17,10 @@ on the statement's shape and on the machine's structure (reads, effects), never 
                   action down to the require whose condition kappa falsifies.
   counter         refutations: the witness for every binder, `{==}` for every premise, and the
                   claim's two sides separated through the model's equality function.
+  act_split       (holon-ir/0.3) one forall binder of type Act, no premises: match the action
+                  constructor, then `{==}` per conjunct in every case.
+  hyp             (holon-ir/0.3) the claim is one of the premises as rendered (for example a
+                  conjunct of a collision-freedom premise, in decidable form): return that hypothesis.
 """
 from __future__ import annotations
 
@@ -534,5 +538,39 @@ def chain_revert(em: EmittedM, m: Machine, model_import: str) -> str | None:
     return "\n".join(_imports(model_import) + [CORE] + out) + "\n"
 
 
+# ---------------------------------------------------------------- holon-ir/0.3: act_split, hyp
+def _tuple(parts: list[str]) -> str:
+    tup = parts[-1]
+    for p in reversed(parts[:-1]):
+        tup = f"({p}, {tup})"
+    return tup
+
+
+def act_split(em: EmittedM, m: Machine, model_import: str) -> str | None:
+    fa = [(n, t) for qq, n, t in em.binders if qq == "forall"]
+    if len(fa) != 1 or fa[0][1] != "Act" or em.assume or len(fa) != len(em.binders):
+        return None
+    v = bname(fa[0][0])
+    body = _tuple(["{==}"] * len(em.claims))
+    lines = [f"# class act_split: case split {v} by action constructor, then computation per conjunct",
+             f"def Laws.{em.name}({v}):", f"  match {v}:"]
+    for a in m.actions:
+        ins = [bname(n) for n, _ in a["inputs"]]
+        lines += [f"    case {ALIAS}.A_{a['name']}{{{', '.join('+' + i for i in ins)}}}:", f"      {body}"]
+    return "\n".join(_imports(model_import) + lines) + "\n"
+
+
+def hyp(em: EmittedM, m: Machine, model_import: str) -> str | None:
+    if len(em.claims) != 1 or any(qq != "forall" for qq, _, _ in em.binders):
+        return None
+    c = em.claims[0]
+    hit = next((i for i, a in enumerate(em.assume) if a == c), None)
+    if hit is None:
+        return None
+    params = [bname(n) for _, n, _ in em.binders] + [f"h{i}" for i in range(len(em.assume))]
+    lines = ["# class hyp: the claim is premise h%d as rendered" % hit, f"def Laws.{em.name}({', '.join(params)}):", f"  h{hit}"]
+    return "\n".join(_imports(model_import) + lines) + "\n"
+
+
 GENERATORS = [("evaluate", evaluate), ("nat_split", nat_split), ("noninterference", noninterference),
-              ("deadline", deadline), ("chain_revert", chain_revert)]
+              ("deadline", deadline), ("chain_revert", chain_revert), ("act_split", act_split), ("hyp", hyp)]

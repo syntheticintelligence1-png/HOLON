@@ -1,14 +1,29 @@
-"""Law emitter for holon-ir/0.2 (state-machine laws): IR -> LAWS.bend.
+"""Law emitter for holon-ir/0.2 and 0.3 (state-machine laws): IR -> LAWS.bend.
 
 Statement forms (all hashed, all frozen):
-  binders  [{"q": "forall"|"exists", "name", "type"}]   types: State, Trace, Act, Nat, Bool
-  assume   [prop]   hypotheses of a forall law (visible premise binders, never dropped)
+  binders  [{"q": "forall"|"exists", "name", "type"}]   types: State, Trace, Act, Nat, Bool, Fn<A,B> (0.3)
+  assume   [prem]   hypotheses of a forall law (visible premise binders, never dropped)
   claim    prop | {"all": [prop, ..]}
-  prop     {"eq": [term, term]}
+  prop     {"eq": [term, term]}  {"neq": [term, term]} (0.3)
+  prem     prop | {"cf": {"fn": h, "set": [term, ..]}} (0.3)
   term     {"var"} {"nat"} {"bool"} {"nats": [..]} {"s0": {}} {"run": T, "from": S} {"step": A, "from": S}
            {"obs": T, "from": S} {"trace": [A..]} {"cat": [T, T]} {"act": name, "args": {input: term}}
            {"proj": [fields], "of": S} {"obsv": name, "of": S} {"mig": name, "of": S, "args": [..]}
-           {"fn": name, "args": [..]} {"plus": [a, b]}
+           {"fn": name, "args": [..]} {"plus": [a, b]} {"app": h, "args": [..]} (0.3)
+
+holon-ir/0.3 (I7, whitepaper §8.9, §8.5):
+  * A Fn<A,B> binder is emitted erased (`for -h: A -> B`). Bend functions are Type, never Data, so a
+    binder of function type can be affine or erased but never reusable; a statement that applies h at
+    two points can only reason through equations about h (probe bend/notes/p_ir03_fn_verdict).
+  * An inequality a != b, and each pair {a, b} of a collision-freedom premise CF(h, S) (h(a) != h(b)),
+    is rendered in decidable form `eq_T(a, b) == False{}` through the type's equality function
+    (Nat.is_eq, M.eq_bool, M.eq_list_nat); the probe proves both forms agree on Nat. CF over a
+    non-finite set is rejected before emission (holon.ir.check_premises).
+  * IR builtins: eq_nat -> Nat.is_eq, eq_bool -> M.eq_bool, eq_nats -> M.eq_list_nat.
+  * A counter-law of a conjunction states the negation of one conjunct (the failing one, chosen by
+    evaluation at the witness): it implies the negation of the conjunction.
+  * The negation of an existential law (for all binders, not claim) is emitted with negate=True; it is
+    decided in place of the existential, which is never REFUTED (holon.mpipeline).
 
 `proj` is the relation of a non-interference law: the state with the named fields erased.
 Its View type and projection are emitted into LAWS.bend: they are part of the statement,
@@ -26,6 +41,27 @@ ALIAS = "M"
 
 class Unsupported(Exception):
     pass
+
+
+# IR builtins (holon-ir/0.3): name -> (Bend function, argument types, result type)
+BUILTINS = {"eq_nat": ("Nat.is_eq", ["Nat", "Nat"], "Bool"),
+            "eq_bool": (f"{ALIAS}.eq_bool", ["Bool", "Bool"], "Bool"),
+            "eq_nats": (f"{ALIAS}.eq_list_nat", ["List<Nat>", "List<Nat>"], "Bool")}
+# decidable equality per IR type: the builtin that renders a != b as eq(a, b) == False{}
+EQ_OF = {"Nat": "eq_nat", "Bool": "eq_bool", "List<Nat>": "eq_nats"}
+
+
+def fn_sig(t: str) -> tuple[str, str] | None:
+    """Fn<A,B> -> (A, B), splitting at the top-level comma; None for any other type."""
+    if not (t.startswith("Fn<") and t.endswith(">")):
+        return None
+    inner, depth = t[3:-1], 0
+    for i, ch in enumerate(inner):
+        depth += ch == "<"
+        depth -= ch == ">"
+        if ch == "," and depth == 0:
+            return inner[:i].strip(), inner[i + 1:].strip()
+    raise Unsupported(f"function type {t}")
 
 
 _MODEL_FN = re.compile(r"(?<![\w.])(d_\w+|g_\w+|b_\w+|with_\w+|dec_\w+|decide_\w+|nth_d|set_d|ite|tail0|last_d|"
@@ -66,6 +102,9 @@ class Emitter:
 
     # ------------------------------------------------------------ types
     def ty(self, t: str) -> str:
+        sig = fn_sig(t)
+        if sig:
+            return f"{self.ty(sig[0])} -> {self.ty(sig[1])}"
         return {"State": f"{ALIAS}.HSt", "Trace": f"List<&2, {ALIAS}.HAct>", "Act": f"{ALIAS}.HAct", "Nat": "Nat",
                 "Bool": "Bool", "List<Nat>": "List<&2, Nat>", "Obs": f"List<&2, {ALIAS}.HObs>"}.get(t) or t
 
@@ -160,6 +199,26 @@ class Emitter:
             if len(args) != len(mg.get("inputs", [])):
                 raise Unsupported(f"{t['mig']}: arity")
             return f"{ALIAS}.mig_{t['mig']}({', '.join([s] + args)})", "State"
+        if "app" in t:
+            h = t["app"]
+            sig = fn_sig(types.get(h, ""))
+            if sig is None:
+                raise Unsupported(f"application of {h}, which is not a Fn binder")
+            if len(t["args"]) != 1:
+                raise Unsupported(f"{h}: Fn<A,B> takes one argument")
+            x, tx = self.term(t["args"][0], env, types)
+            self.expect(tx, sig[0], t)
+            return f"{env[h]}({x})", sig[1]
+        if "fn" in t and t["fn"] in BUILTINS:
+            bfn, ats, rt = BUILTINS[t["fn"]]
+            if len(t["args"]) != len(ats):
+                raise Unsupported(f"{t['fn']}: arity")
+            xs = []
+            for x, at in zip(t["args"], ats):
+                xt, tx = self.term(x, env, types)
+                self.expect(tx, at, t)
+                xs.append(xt)
+            return f"{bfn}({', '.join(xs)})", rt
         if "fn" in t:
             name = t["fn"]
             if name not in self.fn_types:
@@ -179,6 +238,8 @@ class Emitter:
             raise Unsupported(f"ill-typed term (got {got}, want {want}): {t}")
 
     def prop(self, p: dict, env: dict, types: dict) -> tuple[str, str, str]:
+        if set(p) == {"neq"}:
+            return self.prop(self.decidable_ne(p["neq"][0], p["neq"][1], env, types), env, types)
         if set(p) != {"eq"}:
             raise Unsupported(f"proposition {p}")
         (a, ta), (b, tb) = (self.term(x, env, types) for x in p["eq"])
@@ -186,13 +247,37 @@ class Emitter:
             raise Unsupported(f"equation sides differ in type: {ta} / {tb}")
         return a, b, ta
 
+    def decidable_ne(self, a: dict, b: dict, env: dict, types: dict) -> dict:
+        """a != b as the IR equation eq_T(a, b) == false (T's decidable equality)."""
+        ta = self.term(a, env, types)[1]
+        if ta not in EQ_OF:
+            raise Unsupported(f"no decidable equality for {ta}")
+        return {"eq": [{"fn": EQ_OF[ta], "args": [a, b]}, {"bool": False}]}
+
+    def premise_props(self, p: dict, env: dict, types: dict) -> list:
+        """A premise as Bend equations: one, or one per pair of a CF set (in set order)."""
+        if set(p) == {"cf"}:
+            cf = p["cf"]
+            if not isinstance(cf.get("set"), list) or not cf["set"]:
+                raise Unsupported(f"cf over {cf.get('set')!r}: global injectivity is not a premise")
+            if fn_sig(types.get(cf["fn"], "")) is None:
+                raise Unsupported(f"cf over {cf['fn']}, which is not a Fn binder")
+            S = cf["set"]
+            app = lambda x: {"app": cf["fn"], "args": [x]}  # noqa: E731
+            return [self.prop(self.decidable_ne(app(S[i]), app(S[j]), env, types), env, types)
+                    for i in range(len(S)) for j in range(i + 1, len(S))]
+        return [self.prop(p, env, types)]
+
     def bend_ty(self, t: str) -> str:
         return t if t.startswith("V_") else self.ty(t)
 
     def claims(self, st: dict, env: dict, types: dict) -> list:
         c = st["claim"]
         ps = c["all"] if "all" in c else [c]
-        return [self.prop(p, env, types) for p in ps]
+        out = []
+        for p in ps:
+            out += self.premise_props(p, env, types)   # a cf claim (an inhabitant's) is one equation per pair
+        return out
 
     # ------------------------------------------------------------ statement helpers
     def view_defs(self) -> list[str]:
@@ -206,18 +291,27 @@ class Emitter:
                     f"      {v}{{{', '.join(bname(n) for n, _ in kept)}}}", ""]
         return out
 
-    def emit(self, law: dict, model_import: str, counter: bool = False, note: str = "") -> EmittedM:
+    def emit(self, law: dict, model_import: str, counter: bool = False, note: str = "",
+             conjunct: int | None = None, negate: bool = False) -> EmittedM:
+        """counter: the counter-law (of conjunct `conjunct` for a conjunction); negate: the negation
+        (for all binders, not claim) of an existential law, named <law_id>_neg."""
         st = law["statement"]
         binders = [(b["q"], b["name"], b["type"]) for b in st["binders"]]
         types = {n: t for _, n, t in binders}
         env = {n: bname(n) for _, n, _ in binders}
         has_exists = any(qq == "exists" for qq, _, _ in binders)
         if has_exists and (counter or st.get("assume")):
-            raise Unsupported("exists laws with premises or counter-laws of exists laws are not in holon-ir/0.2 M1")
-        assume = [self.prop(p, env, types) for p in st.get("assume", [])]
+            raise Unsupported("an existential law is never refuted (its negation is decided instead) and takes no premises")
+        if negate:
+            if not has_exists or any(qq == "forall" for qq, _, _ in binders):
+                raise Unsupported("negation is generated for purely existential laws")
+            return self.emit_negation(law, model_import, note)
+        assume = [x for p in st.get("assume", []) for x in self.premise_props(p, env, types)]
         claims = self.claims(st, env, types)
         if counter and len(claims) != 1:
-            raise Unsupported("counter-law of a conjunction")
+            if conjunct is None or not 0 <= conjunct < len(claims):
+                raise Unsupported("counter-law of a conjunction needs its failing conjunct")
+            claims = [claims[conjunct]]
         name = law_name(law["law_id"], counter)
         lines = ["# GENERATED by holon.gen.mlaws from the frozen law IR; do not edit.",
                  f"# law_id: {law['law_id']}   statement_hash: {note}", "import Base", f"import {model_import} as {ALIAS}", ""]
@@ -225,7 +319,8 @@ class Emitter:
         body = [f"law {name}:"]
         for qq, n, t in binders:
             kw = "exs" if (counter or qq == "exists") else "for"
-            body.append(f"  {kw} {'' if kw == 'exs' else '+'}{bname(n)}: {self.bend_ty(t)}")
+            mode = "" if kw == "exs" else ("-" if fn_sig(t) else "+")
+            body.append(f"  {kw} {mode}{bname(n)}: {self.bend_ty(t)}")
         for i, (a, b, t) in enumerate(assume):
             body.append(f"  {'exs' if counter else 'for'} h{i}: {{{a} == {b} : {self.bend_ty(t)}}}")
         if counter:
@@ -239,10 +334,46 @@ class Emitter:
         lines += body
         return EmittedM(name, "\n".join(lines) + "\n", binders, assume, claims, dict(self.views))
 
+    def negation_ir(self, law: dict) -> dict:
+        """The negation of a purely existential law as IR: the same binders made universal, and the
+        claim's conjuncts tested by their decidable equalities, whose conjunction is false."""
+        st = law["statement"]
+        types = {b["name"]: b["type"] for b in st["binders"]}
+        env = {n: bname(n) for n in types}
+        c = st["claim"]
+        ps = c["all"] if "all" in c else [c]
+        tests = []
+        for p in ps:
+            if set(p) != {"eq"}:
+                raise Unsupported(f"negation of {sorted(p)}")
+            ta = self.term(p["eq"][0], env, types)[1]
+            if ta not in EQ_OF:
+                raise Unsupported(f"no decidable equality for {ta}")
+            tests.append({"fn": EQ_OF[ta], "args": p["eq"]})
+        if len(tests) != 1:
+            raise Unsupported("negation of a conjunction")
+        neg = {k: v for k, v in law.items() if k not in ("notes",)}
+        neg["law_id"] = law["law_id"] + "_neg"
+        neg["statement"] = {"binders": [dict(b, q="forall") for b in st["binders"]], "assume": [],
+                            "claim": {"eq": [tests[0], {"bool": False}]}, "scope": st.get("scope", {"kind": "unbounded"})}
+        neg["notes"] = f"generated negation of {law['law_id']} (holon.gen.mlaws.negation_ir)"
+        return neg
+
+    def emit_negation(self, law: dict, model_import: str, note: str) -> EmittedM:
+        return Emitter(self.m).emit(self.negation_ir(law), model_import, note=note)
+
 
 # ---------------------------------------------------------------- witness literals
+# Fn witnesses (holon-ir/0.3): the explorer's small function family, as Bend lambdas
+FN_LITERALS = {"id": "x => x", "zero": "x => 0n", "succ": "x => 1n+x"}
+
+
 def value_literal(m: Machine, ty: str, v) -> str:
     """Bend literal (in the LAWS/PROOF module, model alias M) of a witness value."""
+    if fn_sig(ty):
+        if fn_sig(ty) != ("Nat", "Nat") or not isinstance(v, dict) or v.get("lam") not in FN_LITERALS:
+            raise Unsupported(f"no witness literal for {ty} = {v!r}")
+        return f"({FN_LITERALS[v['lam']]})"
     if ty == "Nat":
         return f"{int(v)}n"
     if ty == "Bool":

@@ -1,0 +1,681 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "HOLON law IR (holon-ir/0.3): typed state-machine laws with function binders, CF/hyp premises and scope",
+ "description": "Extends holon-ir/0.2 (I7): rule_catalog_version (hashed), Fn<A,B> and Bytes(n) binder types, Reach, the application term {app: f, args}, premises {cf: {fn, set: [terms]}} (a finite set; global injectivity is rejected by holon.ir.check_premises, G3), {hyp: {name}} and {neq: [a, b]}, statement.scope, and structured maps_to. The 0.3 statement hash covers the statement and the content hashes (refs) of the definitions it names, not the facts bundle.",
+ "type": "object",
+ "required": [
+  "ir_version",
+  "law_id",
+  "milestone",
+  "rule",
+  "rule_catalog_version",
+  "facts",
+  "statement"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "ir_version": {
+   "type": "string",
+   "const": "holon-ir/0.3"
+  },
+  "law_id": {
+   "type": "string",
+   "pattern": "^L[0-9]?_[A-Za-z0-9_]+$"
+  },
+  "milestone": {
+   "type": "string",
+   "pattern": "^[MT][0-9]+$"
+  },
+  "rule": {
+   "enum": [
+    "PAR",
+    "UNDO",
+    "NAT",
+    "SYM",
+    "FACT",
+    "SORT",
+    "DISCH",
+    "OWN",
+    "INTENT"
+   ]
+  },
+  "subform": {
+   "type": "string"
+  },
+  "facts": {
+   "type": "string",
+   "pattern": "\\.json$"
+  },
+  "facts_sha256": {
+   "type": "string",
+   "pattern": "^([0-9a-f]{64})?$"
+  },
+  "statement": {
+   "$ref": "#/$defs/statement"
+  },
+  "notes": {
+   "type": "string"
+  },
+  "maps_to": {
+   "oneOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "id"
+      ],
+      "properties": {
+       "id": {
+        "type": "string"
+       },
+       "role": {
+        "type": "string"
+       }
+      }
+     }
+    }
+   ]
+  },
+  "evidence": {
+   "type": "array",
+   "items": {
+    "enum": [
+     "E1",
+     "E2",
+     "E3",
+     "E4",
+     "E5",
+     "E6"
+    ]
+   }
+  },
+  "predicted": {
+   "enum": [
+    "PROVED",
+    "REFUTED",
+    "UNKNOWN"
+   ]
+  },
+  "rule_catalog_version": {
+   "type": "string",
+   "pattern": "^holon-rules/[0-9]+\\.[0-9]+$"
+  }
+ },
+ "$defs": {
+  "ident": {
+   "type": "string",
+   "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+  },
+  "statement": {
+   "type": "object",
+   "required": [
+    "binders",
+    "claim"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "binders": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/binder"
+     }
+    },
+    "assume": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/premise"
+     }
+    },
+    "claim": {
+     "$ref": "#/$defs/claim"
+    },
+    "scope": {
+     "oneOf": [
+      {
+       "type": "object",
+       "required": [
+        "kind"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "kind": {
+         "const": "unbounded"
+        }
+       }
+      },
+      {
+       "type": "object",
+       "required": [
+        "kind",
+        "H"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "kind": {
+         "const": "bounded"
+        },
+        "H": {
+         "type": "integer"
+        }
+       }
+      },
+      {
+       "type": "object",
+       "required": [
+        "kind",
+        "ref"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "kind": {
+         "const": "at_state"
+        },
+        "ref": {
+         "type": "string"
+        }
+       }
+      }
+     ]
+    }
+   }
+  },
+  "binder": {
+   "type": "object",
+   "required": [
+    "q",
+    "name",
+    "type"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "q": {
+     "enum": [
+      "forall",
+      "exists"
+     ]
+    },
+    "name": {
+     "$ref": "#/$defs/ident"
+    },
+    "type": {
+     "oneOf": [
+      {
+       "enum": [
+        "State",
+        "Trace",
+        "Act",
+        "Nat",
+        "Bool",
+        "Reach"
+       ]
+      },
+      {
+       "type": "string",
+       "pattern": "^(Fn<[A-Za-z0-9<>,()]+>|Bytes\\([0-9]+\\))$"
+      }
+     ]
+    }
+   }
+  },
+  "claim": {
+   "oneOf": [
+    {
+     "$ref": "#/$defs/prop"
+    },
+    {
+     "$ref": "#/$defs/conj"
+    }
+   ]
+  },
+  "conj": {
+   "type": "object",
+   "required": [
+    "all"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "all": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/prop"
+     }
+    }
+   }
+  },
+  "prop": {
+   "oneOf": [
+    {
+     "type": "object",
+     "required": [
+      "eq"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "eq": {
+       "type": "array",
+       "minItems": 2,
+       "maxItems": 2,
+       "items": {
+        "$ref": "#/$defs/term"
+       }
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "neq"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "neq": {
+       "type": "array",
+       "minItems": 2,
+       "maxItems": 2,
+       "items": {
+        "$ref": "#/$defs/term"
+       }
+      }
+     }
+    }
+   ]
+  },
+  "term": {
+   "oneOf": [
+    {
+     "$ref": "#/$defs/t_var"
+    },
+    {
+     "$ref": "#/$defs/t_nat"
+    },
+    {
+     "$ref": "#/$defs/t_bool"
+    },
+    {
+     "$ref": "#/$defs/t_nats"
+    },
+    {
+     "$ref": "#/$defs/t_s0"
+    },
+    {
+     "$ref": "#/$defs/t_run"
+    },
+    {
+     "$ref": "#/$defs/t_step"
+    },
+    {
+     "$ref": "#/$defs/t_obs"
+    },
+    {
+     "$ref": "#/$defs/t_trace"
+    },
+    {
+     "$ref": "#/$defs/t_cat"
+    },
+    {
+     "$ref": "#/$defs/t_act"
+    },
+    {
+     "$ref": "#/$defs/t_proj"
+    },
+    {
+     "$ref": "#/$defs/t_obsv"
+    },
+    {
+     "$ref": "#/$defs/t_mig"
+    },
+    {
+     "$ref": "#/$defs/t_fn"
+    },
+    {
+     "$ref": "#/$defs/t_plus"
+    },
+    {
+     "$ref": "#/$defs/t_app"
+    }
+   ]
+  },
+  "t_var": {
+   "type": "object",
+   "required": [
+    "var"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "var": {
+     "$ref": "#/$defs/ident"
+    }
+   }
+  },
+  "t_nat": {
+   "type": "object",
+   "required": [
+    "nat"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "nat": {
+     "type": "integer"
+    }
+   }
+  },
+  "t_bool": {
+   "type": "object",
+   "required": [
+    "bool"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "bool": {
+     "type": "boolean"
+    }
+   }
+  },
+  "t_nats": {
+   "type": "object",
+   "required": [
+    "nats"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "nats": {
+     "type": "array",
+     "items": {
+      "type": "integer"
+     }
+    }
+   }
+  },
+  "t_s0": {
+   "type": "object",
+   "required": [
+    "s0"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "s0": {
+     "type": "object",
+     "additionalProperties": false
+    }
+   }
+  },
+  "t_run": {
+   "type": "object",
+   "required": [
+    "run",
+    "from"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "run": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_step": {
+   "type": "object",
+   "required": [
+    "step",
+    "from"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "step": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_obs": {
+   "type": "object",
+   "required": [
+    "obs",
+    "from"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "obs": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_trace": {
+   "type": "object",
+   "required": [
+    "trace"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "trace": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_cat": {
+   "type": "object",
+   "required": [
+    "cat"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "cat": {
+     "type": "array",
+     "minItems": 2,
+     "maxItems": 2,
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_act": {
+   "type": "object",
+   "required": [
+    "act",
+    "args"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "act": {
+     "$ref": "#/$defs/ident"
+    },
+    "args": {
+     "type": "object",
+     "additionalProperties": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_proj": {
+   "type": "object",
+   "required": [
+    "proj",
+    "of"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "proj": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/ident"
+     }
+    },
+    "of": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_obsv": {
+   "type": "object",
+   "required": [
+    "obsv",
+    "of"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "obsv": {
+     "$ref": "#/$defs/ident"
+    },
+    "of": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_mig": {
+   "type": "object",
+   "required": [
+    "mig",
+    "of"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "mig": {
+     "$ref": "#/$defs/ident"
+    },
+    "of": {
+     "$ref": "#/$defs/term"
+    },
+    "args": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_fn": {
+   "type": "object",
+   "required": [
+    "fn",
+    "args"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "fn": {
+     "$ref": "#/$defs/ident"
+    },
+    "args": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_plus": {
+   "type": "object",
+   "required": [
+    "plus"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "plus": {
+     "type": "array",
+     "minItems": 2,
+     "maxItems": 2,
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "premise": {
+   "oneOf": [
+    {
+     "$ref": "#/$defs/prop"
+    },
+    {
+     "type": "object",
+     "required": [
+      "cf"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "cf": {
+       "type": "object",
+       "required": [
+        "fn",
+        "set"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "fn": {
+         "$ref": "#/$defs/ident"
+        },
+        "set": {
+         "oneOf": [
+          {
+           "type": "array",
+           "items": {
+            "$ref": "#/$defs/term"
+           }
+          },
+          {
+           "const": "*"
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "hyp"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "hyp": {
+       "type": "object",
+       "required": [
+        "name"
+       ],
+       "properties": {
+        "name": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   ]
+  },
+  "t_app": {
+   "type": "object",
+   "required": [
+    "app",
+    "args"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "app": {
+     "$ref": "#/$defs/ident"
+    },
+    "args": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  }
+ }
+}

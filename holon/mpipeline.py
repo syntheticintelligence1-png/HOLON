@@ -1,4 +1,4 @@
-"""`holon run` for state-machine milestones (holon-ir/0.2, M1 onward).
+"""`holon run` for state-machine milestones (holon-ir/0.2 and 0.3, M1 onward).
 
 Same contract as M0 (holon.pipeline): every frozen law ends PROVED, REFUTED or UNKNOWN,
 with a result record; Bend's verdict is final; witnesses come from the compiled model.
@@ -9,6 +9,12 @@ For each law, in law_id order:
   3. otherwise search the compiled model for a witness (holon/js/explore.mjs) and emit a
      counter-law; REFUTED iff Bend accepts it;
   4. otherwise UNKNOWN, with what was tried.
+
+holon-ir/0.3 (I7): a law whose premises the IR rejects (holon.ir.check_premises, e.g. global
+injectivity) is not run; the counter-law of a conjunction names the conjunct that fails at the
+witness (evaluated on the compiled model), recorded as failing_conjunct; an existential law is
+never REFUTED: when no witness is found it stays UNKNOWN with bounded_negative {H, space} and its
+generated negation (holon.gen.mlaws.negation_ir) is decided by the same proof generators.
 """
 from __future__ import annotations
 
@@ -21,6 +27,7 @@ from pathlib import Path
 from . import bend, bindings, inhabit, ir, records
 from . import facts as F
 from .gen import mlaws, mproofs
+from .gen import refs as R
 from .gen import targetlib
 from .gen.machine import Machine
 from .replay import replay_status, load_report
@@ -102,8 +109,9 @@ def _first(out: str, n: int = 14) -> str:
     return "\n".join(out.strip().splitlines()[:n])
 
 
-def witness_difference(cm: CompiledMachine, law: dict, witness: dict) -> dict | None:
-    """The claim's two sides at the witness, evaluated on the compiled model (decoded JSON)."""
+def witness_difference(cm: CompiledMachine, law: dict, witness: dict, conjunct: int | None = None) -> dict | None:
+    """The claim's two sides at the witness (of conjunct `conjunct` of a conjunction), evaluated on the
+    compiled model (decoded JSON)."""
     def to_js(t, ty_env):
         # IR term -> machine.mjs expression, with witness values substituted
         if "var" in t:
@@ -148,6 +156,10 @@ def witness_difference(cm: CompiledMachine, law: dict, witness: dict) -> dict | 
     ty_env = {b["name"]: b["type"] for b in st["binders"]}
     c = st["claim"]
     if "all" in c:
+        if conjunct is None:
+            return None
+        c = c["all"][conjunct]
+    if set(c) != {"eq"}:
         return None
     try:
         lhs, rhs = cm.calls([to_js(c["eq"][0], ty_env), to_js(c["eq"][1], ty_env)])
@@ -236,7 +248,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         cm, model_src, imp, facts_sha = machine_for(law)
         d = gen / lid
         attempts: list = []
-        rec = {"law_id": lid, "statement_hash": ir.statement_hash(law), "facts_sha256": facts_sha,
+        shash = R.law_hash(law, cm.facts)
+        rec = {"law_id": lid, "statement_hash": shash, "facts_sha256": facts_sha,
                "rule": law["rule"], "subform": law.get("subform"), "maps_to": law.get("maps_to"),
                "statement": ir.render_statement(law), "premises": ir.premises(law),
                "kernel": {"name": "bend", "version": kver, "verdict": "not_run"},
@@ -247,8 +260,9 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         bound = None
         stmt_text = records.ir_roots_text(law)
         try:
+            ir.check_premises(law)
             E = mlaws.Emitter(cm.m)
-            em = E.emit(law, imp, note=ir.statement_hash(law))
+            em = E.emit(law, imp, note=shash)
             stmt_text = em.text
             exists = any(b["q"] == "exists" for b in law["statement"]["binders"])
             witness = None
@@ -273,6 +287,11 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                     if exists:
                         rec["witness"] = witness
                     break
+            if status != "PROVED" and exists:
+                # never REFUTED: a bounded negative search, and the generated negation decided instead
+                rec["bounded_negative"] = {"H": bound, "space": attempts[0]["tried"] if attempts else 0}
+                rec["negation"] = decide_negation(law, cm, imp, d / "neg", cfg)
+                attempts.append({"kind": "negation", "law_id": rec["negation"]["law_id"], "status": rec["negation"]["status"]})
             if status != "PROVED" and not exists:
                 s = cm.explore(law)
                 bound = s["bound"]
@@ -280,9 +299,11 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                                  "tried": s["tried"], "hit": s["witness"] is not None})
                 if s["witness"] is not None:
                     w = s["witness"]
-                    em2 = mlaws.Emitter(cm.m).emit(law, imp, counter=True, note=ir.statement_hash(law))
+                    conj = failing_conjunct(cm, law, w)
+                    em2 = mlaws.Emitter(cm.m).emit(law, imp, counter=True, note=shash, conjunct=conj)
                     env = {n: mlaws.value_literal(cm.m, t, w[n]) for _, n, t in em2.binders}
-                    lhs, _, ty = mlaws.Emitter(cm.m).prop(law["statement"]["claim"], env, {n: t for _, n, t in em2.binders})
+                    E2 = mlaws.Emitter(cm.m)
+                    lhs, _, ty = E2.claims(law["statement"], env, {n: t for _, n, t in em2.binders})[conj or 0]
                     text = mproofs.counter(em2, cm.m, imp, w, lhs, ty)
                     shutil.rmtree(d, ignore_errors=True)
                     d.mkdir(parents=True)
@@ -295,7 +316,9 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                     if ok:
                         status, r, em = "REFUTED", rr, em2
                         rec["witness"] = w
-                        rec["difference"] = witness_difference(cm, law, w)
+                        if conj is not None:
+                            rec["failing_conjunct"] = conj
+                        rec["difference"] = witness_difference(cm, law, w, conj)
                         t = triage.get(lid, {})
                         rec["triage"] = t.get("triage", "finding")
                         if t.get("why"):
@@ -303,8 +326,15 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                         rec["replay"] = replay_status(report, lid, w)
         except mlaws.Unsupported as e:
             attempts.append({"kind": "emit", "error": f"unsupported statement form: {e}"})
+        except ir.IRError as e:
+            attempts.append({"kind": "ir", "error": f"rejected by the IR rules (G3): {e}"})
+            bound = "not searched: the IR rejects the statement"
         if status == "UNKNOWN":
-            shutil.rmtree(d, ignore_errors=True)
+            if "negation" in rec:   # keep the decided negation's files, drop everything else
+                for x in (d / "LAWS.bend", d / "PROOF.bend"):
+                    x.unlink(missing_ok=True)
+            else:
+                shutil.rmtree(d, ignore_errors=True)
             rec["scope"] = "bounded"
             rec["bound"] = bound or "not searched"
         else:
@@ -318,8 +348,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                                  "marker": v.marker, "seconds": v.seconds})
         rec["status"] = status
         rec["attempts"] = attempts
-        kbound["laws"][lid] = {"model": model_src.stem,
-                               "cone": bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))}
+        kbound["laws"][lid] = {"model": model_src.stem, "cone": law_cone(law, cm.facts, stmt_text, model_src, cfg)}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT))
         rec["non_vacuity"] = inhabit.inhabit(law, milestone, ROOT, d, cfg, cm=cm, rec=rec)
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
@@ -328,6 +357,65 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
     (out_dir / "deps.json").write_text(bindings.dump(bindings.dependents(kbound)))
     return summary
+
+
+def law_cone(law: dict, facts: dict, stmt_text: str, model_src: Path, cfg: dict) -> list[str]:
+    """The kernel cone of a statement. A holon-ir/0.3 statement that names no model definition at all
+    (only Fn binders and IR builtins, e.g. a collision-freedom law) has an empty cone; any other
+    statement with an empty cone is an emitter bug (bindings.BindingError)."""
+    from .gen.mlaws import BUILTINS
+    if law.get("ir_version") == "holon-ir/0.3" and set(R.refs(law, facts)) <= set(BUILTINS):
+        return []
+    return bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))
+
+
+def failing_conjunct(cm: CompiledMachine, law: dict, w: dict) -> int | None:
+    """The first conjunct of a conjunction that is false at the witness, on the compiled model."""
+    if "all" not in law["statement"]["claim"]:
+        return None
+    ev = cm.evaluate(law, w)
+    return next((i for i, ok in enumerate(ev["claims"]) if not ok), None)
+
+
+def decide_negation(law: dict, cm: CompiledMachine, imp: str, d: Path, cfg: dict) -> dict:
+    """Generate the negation of an existential law (for all binders, not claim) and try the proof
+    generators on it. imp is relative to the law's directory, so the negation's import goes up one."""
+    E = mlaws.Emitter(cm.m)
+    out = {"law_id": law["law_id"] + "_neg", "statement_hash": None, "status": "UNKNOWN", "laws": None, "proof": None,
+           "generator": None, "statement": None, "attempts": []}
+    try:
+        neg = E.negation_ir(law)
+        out["statement_hash"] = R.law_hash(neg, cm.facts)
+        out["statement"] = ir.render_statement(neg)
+        nimp = "../" + imp
+        em = mlaws.Emitter(cm.m).emit(neg, nimp, note=f"negation of {law['law_id']} ({out['statement_hash']})")
+    except mlaws.Unsupported as e:
+        out["attempts"].append({"kind": "emit", "error": f"unsupported: {e}"})
+        return out
+    for gname, g in mproofs.GENERATORS:
+        if gname == "evaluate":
+            continue
+        text = g(em, cm.m, nimp)
+        if text is None:
+            continue
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "LAWS.bend").write_text(em.text)
+        (d / "PROOF.bend").write_text(text)
+        rr = bend.check(d / "PROOF.bend", cfg)
+        ok = rr.ok and _law_names(em.text) == [em.name] and not bend.escape_hatches(text + em.text)
+        out["attempts"].append({"kind": "proof", "generator": gname, "exit_code": rr.code, "marker": rr.marker,
+                                **({} if ok else {"error": _first(rr.out)})})
+        if ok:
+            if bend.verdict_enabled(cfg):
+                v = bend.check_verdict(d / "PROOF.bend", cfg)
+                out["attempts"].append({"kind": "verdict", "exit_code": v.code, "marker": v.marker})
+                if not v.ok:
+                    continue
+            out.update({"status": "PROVED", "generator": gname, "laws": relpath(d / "LAWS.bend"),
+                        "proof": relpath(d / "PROOF.bend")})
+            return out
+    shutil.rmtree(d, ignore_errors=True)
+    return out
 
 
 def check_registry_multi(laws: list[dict], reg: dict) -> None:
@@ -342,7 +430,7 @@ def check_registry_multi(laws: list[dict], reg: dict) -> None:
     for law in laws:
         if files.get(law["facts"]) != law["facts_sha256"]:
             problems.append(f"{law['law_id']}: facts_sha256 differs from its facts file")
-        if reg["statements"].get(law["law_id"]) != ir.statement_hash(law):
+        if reg["statements"].get(law["law_id"]) != R.law_hash(law, F.load(ROOT / law["facts"])):
             problems.append(f"{law['law_id']}: statement hash differs from the registry")
     if problems:
         raise RegistryMismatch("; ".join(problems))
