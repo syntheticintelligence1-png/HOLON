@@ -71,7 +71,10 @@ def guard_classes(facts: dict) -> tuple[list[dict], dict[str, str]]:
         if "principal" not in a:
             raise PrincipalError(f"action {a['name']} names no principal")
         caller = any(n == CALLER for n, _ in a["inputs"])
-        by_guard.setdefault((caller, _key(permission_guards(a))), []).append(a)
+        # environment actions form their own class (checked below: no caller, no permission guard), so a
+        # target whose user actions take no caller input either (a toy machine) does not merge the two
+        env = class_id(a["principal"]) == ENVIRONMENT
+        by_guard.setdefault((caller, _key(permission_guards(a)), env), []).append(a)
     named: dict[str, list[tuple]] = {}
     for key, acts in by_guard.items():
         ids = sorted({class_id(a["principal"]) for a in acts})
