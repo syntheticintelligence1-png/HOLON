@@ -3,7 +3,6 @@ import Base
 import ../model/mvrv.bend as M
 import ./LAWS.bend as Laws
 
-# class counter: concrete witness, premises by computation, sides separated by an equality function
-def Laws.cl_l_cov_rt_vap_unregistered_fails():
-  e => (%e : M.is_true(M.eq_bool(_, M.last_ok(M.step(M.A_verifyAggregateProof{5n, 3n, 1n}, M.run(Nil{}, M.s0())))))
-  Unit{})
+# class evaluate: witnesses (if any), then every conjunct by computation
+def Laws.l_cov_rt_vap_unregistered_fails():
+  {==}

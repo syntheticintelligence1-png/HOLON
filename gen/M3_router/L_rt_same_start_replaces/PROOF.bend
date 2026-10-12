@@ -3,6 +3,7 @@ import Base
 import ../model/mvrv.bend as M
 import ./LAWS.bend as Laws
 
-# class evaluate: witnesses (if any), then every conjunct by computation
-def Laws.l_rt_same_start_replaces():
-  {==}
+# class counter: concrete witness, premises by computation, sides separated by an equality function
+def Laws.cl_l_rt_same_start_replaces():
+  e => (%e : M.is_true(Nat.is_eq(_, M.verifier_of(M.run([M.A_updateVerifier{1n, 0n, 10n, 3n, 5n}, M.A_updateVerifier{1n, 0n, 10n, 4n, 5n}], M.s0()), 0n, 10n)))
+  Unit{})
