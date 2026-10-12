@@ -160,6 +160,24 @@ class TestM3NatReplay(_ForgeRun):
         self.assertEqual(l[("natrslash", 2)][1], "false")
 
 
+def _bend_available() -> bool:
+    return bool(shutil.which("bend")) or (Path.home() / ".holon/bin/bend").exists()
+
+
+@unittest.skipUnless(_bend_available(), "needs the bend toolchain")
+class TestM3ModelOutcome(unittest.TestCase):
+    """tools/m3_model_outcome.py recomputes every stamped model_outcome and is idempotent."""
+
+    def test_reproduces_report_values(self):
+        r = subprocess.run(["python3", "tools/m3_model_outcome.py"], cwd=ROOT,
+                           capture_output=True, text=True, timeout=1200)
+        self.assertEqual(r.returncode, 0, r.stdout[-2000:] + r.stderr[-2000:])
+        c = subprocess.run(["python3", "tools/m3_model_outcome.py", "--check"], cwd=ROOT,
+                           capture_output=True, text=True, timeout=1200)
+        self.assertEqual(c.returncode, 0, f"stamping is not diff-free: {c.stdout[-2000:]}")
+        self.assertNotIn("DIFF", c.stdout)
+
+
 def _go_available() -> bool:
     if not shutil.which("go") and not Path("/usr/local/go/bin/go").exists():
         return False

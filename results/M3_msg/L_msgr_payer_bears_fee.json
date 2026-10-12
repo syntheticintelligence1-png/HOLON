@@ -12,7 +12,7 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.095
+      "seconds": 0.099
     },
     {
       "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
@@ -26,20 +26,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.109
+      "seconds": 0.112
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.134
+      "seconds": 0.149
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.109
+    "seconds": 0.112
   },
   "closed": true,
   "difference": {
@@ -68,6 +68,6 @@
   "status": "REFUTED",
   "subform": "obligation_scenario",
   "triage": "finding",
-  "triage_why": "replay agree: model and deployed code both let payer 6 replay a whitelisted-origin message for 0 wei; the O29 refund goes to the wrong party (origin, not payer)",
+  "triage_why": "replay agree: the fee waiver is keyed on the message origin _from, not on the replay payer; non-whitelisted payer 6 replays whitelisted origin 5's message for 0 wei (O29/F8)",
   "witness": {}
 }
