@@ -90,7 +90,7 @@
 ### 0.4 Human answers received
 
 The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
-- **Q5** is an unconditional, unbounded yes. On-chain historical replay is the make-or-break result, and data acquisition becomes the priority track `I23a`, which waits only on the environment's network policy.
+- **Q5** is an unconditional, unbounded yes. On-chain historical replay is the make-or-break result, and data acquisition becomes the priority track `I23a` (prereg key `I59`), which waits only on the environment's network policy.
 - **Q6:** 0.80.
 - **Q7:** ScrollChain, sealed in `spec/heldout/target.json`.
 - **Q9:** the default stands.

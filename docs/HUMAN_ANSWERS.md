@@ -21,7 +21,7 @@ Answers to `docs/BUILD_PLAN.md` §6, "Questions for the human". The human gave t
    - `laws/M2/`, `spec/M2/predictions.json`, `spec/schemas/`, `holon/audit/prereg.py`, `holon/statement_diff.py` and `docs/HUMAN_ANSWERS.md`.
 2. Run `python tools/freeze.py write` and commit `FROZEN.sha256` together with the change to `tools/freeze.py`.
 
-## I23a: historical data acquisition (added for Q5)
+## I23a: historical data acquisition (added for Q5; prereg key I59)
 
 - **Goal.** Fetch the complete on-chain history the replay needs, as soon as the environment allows the hosts.
 - **What it fetches:**
