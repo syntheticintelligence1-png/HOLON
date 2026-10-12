@@ -43,3 +43,13 @@ mutants, only against a fresh held-out set drawn after they are frozen.
 - **Threshold:** 0.80 on the 30 A3 mutants, reported separately as A3.
 - **Pipeline fixes:** fixes to extraction crashes found on A2 mutants (A001,
   `unbound variable next`) may land before the A3 draw. They apply equally to the baseline.
+
+## Pre-freeze record (before any A3 scoring)
+
+- **Baselines:** on the hand facts and the extracted facts, all 26 A3 laws come out `PROVED`, matching every prediction.
+- **A001 fix:** the extraction crash fix (`791eba6`) leaves the unmutated extraction byte-identical: baseline facts sha256 `edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0`. The A2 report is not re-scored.
+- **Held-out set:** `spec/M2/A3/mutants.json`, with pool 75 and seed 1397366245.
+- **Freezing:** A3 files are frozen by commit and the hashes below, as A2's are. They are not added to `tools/freeze.py` roots, which only Omar re-freezes.
+  - mutant-set sha256: `619d1db5ab75f21cc5b205f0446310e290f65effece99431c3bfd6da10b08c5a`
+  - `laws/A3/REGISTRY.json` sha256: `393ef84748d3aa131537110f32cda626ccebd8d7e37fff0518e71a761a2c642e`
+- **Smoke run:** only a 2-mutant run (`--limit 2`, report not committed, never final) was made before the full campaign.
