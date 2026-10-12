@@ -76,6 +76,28 @@ class TestDerivedPolicy(unittest.TestCase):
         c = policy_output(s, FACTS["mvrv"])
         self.assertEqual(a, c)
 
+    def test_list_nat_length_candidates(self):
+        """List<Nat> inputs get [] + singletons + Array(l).fill(m) in order."""
+        facts = {
+            "state": [["x", "Nat", ""]],
+            "actions": [{
+                "name": "put", "inputs": [["xs", "List<Nat>"]],
+                "guards": [{"require": ["<=", ["len", "xs"], 40]}],
+                "effects": {"x": ["+", "x", 5]},
+            }],
+            "defs": {},
+        }
+        code = (
+            'import {policyOf} from "file://%s";\n'
+            "console.log(JSON.stringify(policyOf(%s,%s)));"
+        ) % (LIB, json.dumps({"x": 0}), json.dumps(facts))
+        r = subprocess.run([NODE, "--input-type=module", "-e", code],
+                           capture_output=True, text=True, timeout=60)
+        assert r.returncode == 0, r.stderr
+        lists = [a["xs"] for a in json.loads(r.stdout)]
+        # D = {0,1,2,5,40}; m (smallest nonzero) = 1; L = {5,40}
+        self.assertEqual(lists, [[], [0], [1], [2], [1] * 5, [1] * 40])
+
     def test_derived_candidates_cover_machine_ops(self):
         s = {"own": 1, "rollup": 0, "lv": [], "lvv": [], "log": []}
         out = json.loads(policy_output(s, FACTS["mvrv"]))

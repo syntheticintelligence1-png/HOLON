@@ -69,7 +69,7 @@ class Renamer:
 
     def _claim(self, old: str, new: str) -> str:
         if new in self.owners and self.owners[new] != old:
-            raise LiftError(f"sanitiser collision: {old!r} and {self.owners[old if False else new]!r} both map to {new!r}")
+            raise LiftError(f"sanitiser collision: {old!r} and {self.owners[new]!r} both map to {new!r}")
         self.table[old] = new
         self.owners[new] = old
         return new

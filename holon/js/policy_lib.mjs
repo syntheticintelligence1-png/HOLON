@@ -48,11 +48,29 @@ function natDict(s, facts) {
 
 // Candidate values for one input type. Returns null when the type has no
 // derivable values (caller records an "untyped input" note once).
-function inputValues(ty, D) {
+function inputValues(ty, D, L) {
   if (ty === "Nat") return D;
   if (ty === "Bool") return [false, true];
-  if (ty === "List<Nat>") return [[], ...D.slice(0, 3).map((d) => [d])];
+  if (ty === "List<Nat>") {
+    const m = D.find((d) => d !== 0);
+    return [[], ...D.slice(0, 3).map((d) => [d]), ...(m === undefined ? [] : L.map((l) => Array(l).fill(m)))];
+  }
   return null;
+}
+
+// List lengths: every Nat literal in [2, 256] in the facts' guards, effects and
+// defs, sorted unique, capped at 6 preferring small.
+const LIST_LEN_CAP = 6;
+function listLengths(facts) {
+  const L = new Set();
+  const lit = (x) => {
+    if (typeof x === "number" && Number.isInteger(x) && x >= 2 && x <= 256) L.add(x);
+    else if (Array.isArray(x)) for (const y of x) lit(y);
+    else if (x && typeof x === "object") for (const y of Object.values(x)) lit(y);
+  };
+  for (const a of facts.actions || []) { lit(a.guards); lit(a.effects); }
+  for (const d of Object.values(facts.defs || {})) lit(d.body);
+  return [...L].sort((x, y) => x - y).slice(0, LIST_LEN_CAP);
 }
 
 // Deterministic diagonal enumeration of an input product: tuples ordered by
@@ -81,12 +99,13 @@ function diagonal(lists) {
 // diagonal product.
 export function derivedPolicy(s, facts) {
   const D = natDict(s, facts);
+  const L = listLengths(facts);
   const out = [];
   for (const a of facts.actions || []) {
     const lists = [];
     let ok = true;
     for (const [n, ty] of a.inputs || []) {
-      const l = inputValues(ty, D);
+      const l = inputValues(ty, D, L);
       if (l === null) { policyNotes.push(`untyped input: ${a.name}.${n} (${ty})`); ok = false; break; }
       lists.push(l);
     }
