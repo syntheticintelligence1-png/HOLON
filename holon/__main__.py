@@ -9,6 +9,7 @@
   python -m holon oracle zero-blob [--morph PATH]
   python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
   python -m holon replay [--milestone M] [--morph PATH] [--forge F] [--solc S] [--work DIR] [--write-pins]
+  python -m holon lean --milestone M0 [--json] [--jobs N]   (Lean 4 second kernel, I9)
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
   python -m holon diagram --milestone M2 [--out DIR] [--root DIR]   (one diagram per fact document)
 """
@@ -24,6 +25,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["checker-upgrade"]:  # its flags go to holon.checker_upgrade unparsed
         from . import checker_upgrade
         return checker_upgrade.main(argv[1:])
+    if argv[:1] == ["lean"]:  # likewise for holon.lean
+        from . import lean
+        return lean.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
@@ -64,6 +68,8 @@ def main(argv=None) -> int:
     rp.add_argument("--write-pins", action="store_true",
                     help="write the toolchain's current sha256 values into config/holon.json replay.* (a human "
                          "should review that change); without it, a missing or different pin refuses to run")
+    ln = sub.add_parser("lean", help="Lean 4 second kernel (M0): regenerate gen/<m>/lean and check every file")
+    ln.add_argument("rest", nargs=argparse.REMAINDER)
     lay = sub.add_parser("layout", help="print the symbolic byte layout of an encoder")
     lay.add_argument("fn")
     lay.add_argument("version", type=int)

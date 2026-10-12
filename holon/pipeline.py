@@ -15,7 +15,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from . import bend, bindings, inhabit, ir, records, refute
+from . import bend, bindings, inhabit, ir, lean, records, refute
 from .replay import load_report, replay_status
 from . import facts as F
 from .gen import laws as LG
@@ -138,12 +138,19 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
     triage = load_triage(milestone)
     report = None if no_registry else load_report(milestone, ROOT)
 
+    # the Lean second kernel's committed report (holon lean, I9), always read from the canonical
+    # gen/<m>/lean: a regeneration elsewhere (G1's --gen-dir) must give the same records
+    lean_report = lean.load_report(milestone, ROOT)
+
     # 1. the model, generated from the facts (and compiled for the refuter)
     name = model_name(facts_path)
-    if gen.exists():
-        shutil.rmtree(gen)
+    if gen.exists():  # everything but gen/<m>/lean, which `holon lean` owns (and regenerates)
+        for child in sorted(gen.iterdir()):
+            if child.name == lean.SUBDIR and child.is_dir():
+                continue
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
     model_src = gen / "model" / f"{name}.bend"
-    model_src.parent.mkdir(parents=True)
+    model_src.parent.mkdir(parents=True, exist_ok=True)
     model_src.write_text(G.generate(facts, facts_sha))
     compiled = CompiledModel.build(facts_path, cfg=cfg)
     model_import = f"../model/{name}.bend"
@@ -202,9 +209,12 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
         rec["attempts"] = attempts
         stext = statement_text(law, facts, model_import)
         kbound["laws"][lid] = {"model": name, "cone": bindings.kernel_cone(stext, kernel)}
+        # the lean4 kernel: checked only if the committed Lean report checked exactly the text emitted
+        # now for this law, facts, status and witness (holon.lean.kernel_entry)
+        lean_entry = lean.kernel_entry(law, facts, facts_sha, status, rec["witness"], lean_report, milestone)
         rec.update(records.v2_fields(law, rec, stext, model_src,
                                      ir.load_registry(milestone, ROOT).get("facts", "facts/morph_header.json"),
-                                     compiled.artifact, ROOT))
+                                     compiled.artifact, ROOT, lean_entry=lean_entry))
         rec["non_vacuity"] = inhabit.inhabit(law, milestone, ROOT, d, cfg, rec=rec)
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status

@@ -5,6 +5,12 @@ A v2 record keeps every §8.6 item in its own field, next to the frozen v1 field
   status, statement_hash (law hash), model_sha256 (model hash), premises, scope_v2,
   kernels, independence_class, refinement_refs, replay (witness replay status), coverage
 
+kernels lists bend2 (primary), BendTT (second; shares bend2's front end, so I1-shared) and, since I9, for
+holon-ir/0.1 laws, lean4 (second-independent: own emitters holon/gen/lean_*.py, Lean's elaborator and
+kernel). independence_class is I2 exactly when lean4 checked the same verdict: holon.lean.kernel_entry
+accepts the committed gen/<m>/lean/report.json only for the exact text emitted for this law, facts, status
+and witness, and G7 re-checks it from scratch.
+
 plus the cone of the law, its model_assumptions, the generator hash and the fields later
 iterations fill: non_vacuity (I3) and witness_provenance / filter_bin (I4, from the replay
 report through holon.filter) are filled; refinement_refs (I16) and coverage (I19) are still
@@ -314,7 +320,9 @@ def scope_v2(law: dict, rec: dict) -> dict:
     return {"kind": "unbounded", "horizon": None, "at_state": at}
 
 
-def kernels(rec: dict) -> list[dict]:
+def kernels(rec: dict, lean_entry: dict | None = None) -> list[dict]:
+    """bend2 (primary), BendTT (second, shares bend2's front end) and, for the laws the Lean emitters cover,
+    lean4 (second-independent: its own emitters, elaborator and kernel; holon.lean.kernel_entry)."""
     ver = rec["kernel"]["version"]
     checked = rec["status"] in ("PROVED", "REFUTED")
     out = [{"name": "bend2", "version": ver, "role": "primary", "result": "checked" if checked else "not_run"}]
@@ -323,21 +331,27 @@ def kernels(rec: dict) -> list[dict]:
         out.append({"name": "bendtt", "version": ver, "role": "second", "result": v, "shares_frontend_with": "bend2",
                     "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, "
                             "so agreement is not independent evidence (class I1-shared, not I2)"})
+    if lean_entry is not None:
+        out.append(dict(lean_entry))
     return out
 
 
-def independence_class(rec: dict) -> str:
+def independence_class(rec: dict, lean_entry: dict | None = None) -> str:
+    """I2 only when an independent kernel (lean4) re-checked the same verdict; BendTT alone is I1-shared."""
     if rec["status"] not in ("PROVED", "REFUTED"):
         return "none"
+    if lean_entry is not None and lean_entry.get("result") == "checked":
+        return "I2"
     return "I1-shared" if rec["kernel"].get("verdict") == "checked" else "I1"
 
 
 def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_facts: str | None,
-              compiled_path: Path | None, root: Path | str = ROOT) -> dict:
+              compiled_path: Path | None, root: Path | str = ROOT, lean_entry: dict | None = None) -> dict:
     """The v2 fields of a finished record (status, kernel, bound and replay already set).
 
     base_facts is the registered facts file (repo-relative) the run's facts stand for;
-    compiled_path is the compiled model the refuter executed."""
+    compiled_path is the compiled model the refuter executed; lean_entry is the record's lean4 kernel
+    entry (holon.lean.kernel_entry; None where the Lean emitters do not apply)."""
     model_text = Path(model_path).read_text()
     c = cone(statement_text, model_text)
     refuted = rec["status"] == "REFUTED"
@@ -357,8 +371,8 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
         "ledger_match": match,
         "model_assumptions": model_assumptions(b["facts_sha256"], set(c), root, base_facts),
         "scope_v2": scope_v2(law, rec),
-        "kernels": kernels(rec),
-        "independence_class": independence_class(rec),
+        "kernels": kernels(rec, lean_entry),
+        "independence_class": independence_class(rec, lean_entry),
         "refinement_refs": "pending:I16",
         "coverage": "pending:I19",
         "non_vacuity": None,  # set by the pipeline from holon.inhabit (I3)

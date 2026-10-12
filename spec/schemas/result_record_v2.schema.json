@@ -40,10 +40,16 @@
         "properties": {
           "name": {"enum": ["bend2", "bendtt", "lean4"]},
           "version": {"type": "string"},
-          "role": {"enum": ["primary", "second"]},
+          "role": {"enum": ["primary", "second", "second-independent"]},
           "result": {"enum": ["checked", "failed", "not_run"]},
           "shares_frontend_with": {"type": "string"},
-          "note": {"type": "string"}
+          "note": {"type": "string"},
+          "source": {"type": "string", "description": "lean4 (I9): the Lean file that carries the verdict, repo-relative"},
+          "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$",
+                            "description": "lean4 (I9): sha256 of the Lean text emitted for this law, facts, status and witness; checked only if gen/<m>/lean/report.json checked exactly this text"},
+          "theorem": {"type": "string", "description": "lean4 (I9): the theorem carrying the verdict (the law, or its counter-law)"},
+          "axioms": {"type": "array", "items": {"enum": ["propext", "Quot.sound"]},
+                     "description": "lean4 (I9): `#print axioms` of the checked theorems; only propext and Quot.sound are allowed"}
         }
       }
     },
