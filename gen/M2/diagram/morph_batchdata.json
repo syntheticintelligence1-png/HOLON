@@ -1,0 +1,983 @@
+{
+  "abstractions": [
+    {
+      "index": 0,
+      "ledger": [
+        "abs-go-heap"
+      ],
+      "text": "Go heap: a list of backing arrays (byte values as Nat). A slice is (backing, offset, len, cap); append writes in place when len + k <= cap, else allocates a new backing array."
+    },
+    {
+      "index": 1,
+      "ledger": [
+        "oracle-go-sizeclass-trunc512"
+      ],
+      "text": "Oracle (Go 1.24 runtime, runtime/slice.go nextslicecap + roundupsize for noscan byte slices): new capacity = smallest size class >= nextslicecap(newLen, oldCap). The class table (runtime/sizeclasses.go class_to_size) is in the state, truncated to classes <= 512 bytes: larger allocations are out of scope (the model then uses the exact requested capacity, which is wrong for real Go). The search policy keeps every slice below 512 bytes."
+    },
+    {
+      "index": 2,
+      "ledger": [
+        "abs-newbatchdata-cap0"
+      ],
+      "text": "NewBatchData's make([]byte, 0) slices have capacity 0 and no backing array (backing index 0 is never written while cap = 0)."
+    },
+    {
+      "index": 3,
+      "ledger": [
+        "scope-batchdata-unmodelled"
+      ],
+      "text": "l1TxHashes, blockNum and l1TxNum are not modelled (no aliasing relevant to TxsPayloadV2)."
+    }
+  ],
+  "base_types": {
+    "Arr": {
+      "doc": "a backing array",
+      "fields": [
+        [
+          "cells",
+          "List<Nat>"
+        ]
+      ],
+      "ghost": [],
+      "kind": "record"
+    },
+    "Sl": {
+      "doc": "Go slice header",
+      "fields": [
+        [
+          "b",
+          "Nat"
+        ],
+        [
+          "off",
+          "Nat"
+        ],
+        [
+          "len",
+          "Nat"
+        ],
+        [
+          "cap",
+          "Nat"
+        ]
+      ],
+      "ghost": [],
+      "kind": "record"
+    }
+  },
+  "carriers": [
+    {
+      "base_type": "Act",
+      "cls": "rep",
+      "doc": "the actions' inputs: everything any principal can submit (R^ext is the full input type)",
+      "id": "Act",
+      "interface": true,
+      "reach": "external",
+      "sort_ref": null,
+      "variants": {
+        "append": [
+          [
+            "bctx",
+            "List<Nat>"
+          ],
+          [
+            "payload",
+            "List<Nat>"
+          ]
+        ],
+        "txsPayloadV2": []
+      }
+    },
+    {
+      "base_type": "Obs",
+      "cls": "rep",
+      "doc": "observations: the outcome every step logs (O_Ok, or O_Rev with the failed guard's reason) and the observers' values",
+      "id": "Obs",
+      "interface": false,
+      "reach": "image",
+      "revert_variants": [],
+      "sort_ref": null
+    },
+    {
+      "base_type": "State",
+      "cls": "state",
+      "id": "State",
+      "initial": {
+        "doc": "NewBatchData() (batch_data.go:23-29)",
+        "pointer": "#/initial",
+        "sets": [
+          "classes",
+          "ctx",
+          "heap",
+          "live",
+          "log",
+          "snap",
+          "txp",
+          "view"
+        ]
+      },
+      "interface": false,
+      "product": [
+        "heap",
+        "ctx",
+        "txp",
+        "view",
+        "snap",
+        "live",
+        "classes",
+        "log"
+      ],
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "oracle: Go runtime size classes",
+      "ghost": false,
+      "id": "classes",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Sl",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "BatchData.blockContexts",
+      "ghost": false,
+      "id": "ctx",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Arr>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "Go heap (backing arrays)",
+      "ghost": false,
+      "id": "heap",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bool",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "GHOST: a caller holds the view",
+      "ghost": true,
+      "id": "live",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Obs>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "observations",
+      "ghost": false,
+      "id": "log",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "GHOST: contents of the view when it was returned",
+      "ghost": true,
+      "id": "snap",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Sl",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "BatchData.txsPayload",
+      "ghost": false,
+      "id": "txp",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Sl",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "the slice the last TxsPayloadV2 call returned",
+      "ghost": false,
+      "id": "view",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    }
+  ],
+  "coverage": {
+    "modelled": [
+      "NewBatchData",
+      "Append (blockContexts, txsPayload)",
+      "TxsPayloadV2"
+    ]
+  },
+  "coverage_debt": [
+    {
+      "kind": "ACCESS",
+      "what": "library builtin go_append_heap declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "ACCESS",
+      "what": "library builtin go_append_slice declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "ACCESS",
+      "what": "library builtin go_read declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/0",
+      "what": "Append l1TxHashes / counters"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/1",
+      "what": "Encode"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/2",
+      "what": "DataHash"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/3",
+      "what": "DataHashV2"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/4",
+      "what": "EstimateCompressedSizeWithNewPayload"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/5",
+      "what": "combinePayloads"
+    }
+  ],
+  "defs": {},
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [
+          [
+            "classes",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "classes",
+      "env": false,
+      "id": "LOAD.classes",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.append",
+        "TRANS.txsPayloadV2"
+      ],
+      "src": "classes",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "ctx",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "ctx",
+      "env": false,
+      "id": "LOAD.ctx",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.append",
+        "TRANS.txsPayloadV2"
+      ],
+      "src": "ctx",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "heap",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "heap",
+      "env": false,
+      "id": "LOAD.heap",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.view_intact",
+        "TRANS.append",
+        "TRANS.txsPayloadV2"
+      ],
+      "src": "heap",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "live",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "live",
+      "env": false,
+      "id": "LOAD.live",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.view_intact"
+      ],
+      "src": "live",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "log",
+      "env": false,
+      "id": "LOAD.log",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [],
+      "src": "log",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "heap",
+            "*"
+          ],
+          [
+            "live",
+            "*"
+          ],
+          [
+            "snap",
+            "*"
+          ],
+          [
+            "view",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "body": "!live||eq_nats(go_read(heap,view),snap)",
+      "component": "view_intact",
+      "defs": [],
+      "doc": "OWN-alias: while a caller holds the view, its contents are unchanged by writes not made through it",
+      "env": false,
+      "id": "LOAD.obs.view_intact",
+      "kind": "LOAD",
+      "model_fn": "view_intact",
+      "observer": true,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "Obs",
+      "type": "Bool",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "snap",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "snap",
+      "env": false,
+      "id": "LOAD.snap",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.view_intact"
+      ],
+      "src": "snap",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "txp",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "txp",
+      "env": false,
+      "id": "LOAD.txp",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.append",
+        "TRANS.txsPayloadV2"
+      ],
+      "src": "txp",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "view",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "view",
+      "env": false,
+      "id": "LOAD.view",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.view_intact"
+      ],
+      "src": "view",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "classes",
+      "env": false,
+      "id": "STORE.classes",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "classes",
+      "version": null,
+      "writers": []
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "ctx",
+            "*"
+          ]
+        ]
+      },
+      "component": "ctx",
+      "env": false,
+      "id": "STORE.ctx",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "ctx",
+      "version": null,
+      "writers": [
+        "TRANS.append"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "heap",
+            "*"
+          ]
+        ]
+      },
+      "component": "heap",
+      "env": false,
+      "id": "STORE.heap",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "heap",
+      "version": null,
+      "writers": [
+        "TRANS.append",
+        "TRANS.txsPayloadV2"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "live",
+            "*"
+          ]
+        ]
+      },
+      "component": "live",
+      "env": false,
+      "id": "STORE.live",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "live",
+      "version": null,
+      "writers": [
+        "TRANS.txsPayloadV2"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "log",
+            "*"
+          ]
+        ]
+      },
+      "component": "log",
+      "env": false,
+      "id": "STORE.log",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "log",
+      "version": null,
+      "writers": [
+        "TRANS.append",
+        "TRANS.txsPayloadV2"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "snap",
+            "*"
+          ]
+        ]
+      },
+      "component": "snap",
+      "env": false,
+      "id": "STORE.snap",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "snap",
+      "version": null,
+      "writers": [
+        "TRANS.txsPayloadV2"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "txp",
+            "*"
+          ]
+        ]
+      },
+      "component": "txp",
+      "env": false,
+      "id": "STORE.txp",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "txp",
+      "version": null,
+      "writers": [
+        "TRANS.append"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "view",
+            "*"
+          ]
+        ]
+      },
+      "component": "view",
+      "env": false,
+      "id": "STORE.view",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "view",
+      "version": null,
+      "writers": [
+        "TRANS.txsPayloadV2"
+      ]
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "classes",
+            "*"
+          ],
+          [
+            "ctx",
+            "*"
+          ],
+          [
+            "heap",
+            "*"
+          ],
+          [
+            "txp",
+            "*"
+          ]
+        ],
+        "writes": [
+          [
+            "ctx",
+            "*"
+          ],
+          [
+            "heap",
+            "*"
+          ],
+          [
+            "log",
+            "*"
+          ],
+          [
+            "txp",
+            "*"
+          ]
+        ]
+      },
+      "caller": null,
+      "component": "append",
+      "cost": 0,
+      "defs": [],
+      "delay": null,
+      "effects": {
+        "ctx": "c1",
+        "heap": "h2",
+        "txp": "t1"
+      },
+      "env": false,
+      "guards": [
+        {
+          "expr": "go_append_heap(heap,ctx,bctx,classes)",
+          "let": "h1",
+          "src": "common/batch/batch_data.go:35"
+        },
+        {
+          "expr": "go_append_slice(heap,ctx,bctx,classes)",
+          "let": "c1",
+          "src": "common/batch/batch_data.go:35"
+        },
+        {
+          "expr": "go_append_heap(h1,txp,payload,classes)",
+          "let": "h2",
+          "src": "common/batch/batch_data.go:36"
+        },
+        {
+          "expr": "go_append_slice(h1,txp,payload,classes)",
+          "let": "t1",
+          "src": "common/batch/batch_data.go:36"
+        }
+      ],
+      "id": "TRANS.append",
+      "inputs": [
+        [
+          "bctx",
+          "List<Nat>"
+        ],
+        [
+          "payload",
+          "List<Nat>"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "anyone (caller of the batch builder)",
+      "model_fn": "step_append",
+      "partial": false,
+      "permissionless": true,
+      "principal_class": "anyone",
+      "pseudo": false,
+      "reverts": [],
+      "source": "common/batch/batch_data.go:31-43 BatchData.Append",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "classes",
+            "*"
+          ],
+          [
+            "ctx",
+            "*"
+          ],
+          [
+            "heap",
+            "*"
+          ],
+          [
+            "txp",
+            "*"
+          ]
+        ],
+        "writes": [
+          [
+            "heap",
+            "*"
+          ],
+          [
+            "live",
+            "*"
+          ],
+          [
+            "log",
+            "*"
+          ],
+          [
+            "snap",
+            "*"
+          ],
+          [
+            "view",
+            "*"
+          ]
+        ]
+      },
+      "caller": null,
+      "component": "txsPayloadV2",
+      "cost": 0,
+      "defs": [],
+      "delay": null,
+      "effects": {
+        "heap": "h1",
+        "live": "true",
+        "snap": "go_read(h1,v)",
+        "view": "v"
+      },
+      "env": false,
+      "guards": [
+        {
+          "expr": "go_read(heap,txp)",
+          "let": "pb"
+        },
+        {
+          "expr": "go_append_heap(heap,ctx,pb,classes)",
+          "let": "h1",
+          "src": "common/batch/batch_data.go:119 append(cks.blockContexts, cks.txsPayload...)"
+        },
+        {
+          "expr": "go_append_slice(heap,ctx,pb,classes)",
+          "let": "v"
+        }
+      ],
+      "id": "TRANS.txsPayloadV2",
+      "inputs": [],
+      "kind": "TRANS",
+      "label": "anyone",
+      "model_fn": "step_txsPayloadV2",
+      "partial": false,
+      "permissionless": true,
+      "principal_class": "anyone",
+      "pseudo": false,
+      "reverts": [],
+      "source": "common/batch/batch_data.go:117-120 BatchData.TxsPayloadV2",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    }
+  ],
+  "explorer": {
+    "policy": "batchdata",
+    "search": {
+      "maxPrefixes": 4000,
+      "prefixDepth": 5
+    }
+  },
+  "facts": "spec/M1/facts/morph_batchdata.json",
+  "facts_sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d",
+  "facts_version": "holon-facts/0.2",
+  "index_terms": [],
+  "inputs": [
+    {
+      "path": "spec/M1/lib/morph_rollup.lib.json",
+      "sha256": "004d12f43d1074f0746bce4e2c5fb87df4b5a0dca1b720c3523d2a18971f46a0"
+    },
+    {
+      "path": "spec/ledger/assumptions.json",
+      "sha256": "1389db4452c0c034f3a05b3d7db921f1454e0a4cfeb16e2048df86bbec059838"
+    },
+    {
+      "path": "spec/lib/go_slices.lib.json",
+      "sha256": "f5ddbe0ad4c6be7e89802f497e4c826cd68dbd8925bac014f506fc1867292df4"
+    }
+  ],
+  "mapped_sections": {
+    "abstractions": "4 abstraction records with ledger links",
+    "actions": "2 TRANS edges with index-sensitive read/write sets; 1 principal class (anyone)",
+    "coverage": "6 coverage-debt entries (UNMODELLED); 3 modelled components listed",
+    "defs": "no definitions",
+    "extraction": "provenance.extraction: how the facts were obtained",
+    "ghost_state": "2 ghost carriers (snap, live)",
+    "initial": "S0: the initial state, generating Reach on carrier State",
+    "observers": "1 observation LOAD edge into Obs (LOAD.obs.<name>)",
+    "params": "no parameters",
+    "policy": "explorer.policy: the search-hint policy the refuter uses (configuration, not part of \ud835\udd07)",
+    "principals": "no concrete principals; the classes come from the actions",
+    "reasons": "no revert variants",
+    "search": "explorer.search: bounds of the refuter's prefix search (configuration, not part of \ud835\udd07)",
+    "state": "8 state carriers under the product carrier State, with a STORE/LOAD pair per field (STORE.<field>, LOAD.<field>)",
+    "target": "provenance.target: the code the facts describe",
+    "types": "2 record base types (Arr, Sl)"
+  },
+  "model": "morph_batchdata",
+  "principal_classes": [
+    {
+      "actions": [
+        "append",
+        "txsPayloadV2"
+      ],
+      "caller": null,
+      "caller_input": null,
+      "guard_reasons": [],
+      "id": "anyone",
+      "labels": [
+        "anyone",
+        "anyone (caller of the batch builder)"
+      ],
+      "params": [],
+      "permissionless": true,
+      "predicate": null,
+      "predicate_text": null,
+      "reads": []
+    }
+  ],
+  "principals": [],
+  "provenance": {
+    "extraction": {
+      "date": "2026-10-11",
+      "method": "hand-written from the real repo at the pinned commit (M1)"
+    },
+    "target": {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "repo": "morph-l2/morph",
+      "scope": "common/batch.BatchData: Append and TxsPayloadV2 over Go slices (OWN rule)"
+    }
+  }
+}

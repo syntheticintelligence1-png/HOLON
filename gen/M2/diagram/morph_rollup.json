@@ -1,0 +1,4970 @@
+{
+  "abstractions": [
+    {
+      "index": 0,
+      "ledger": [
+        "abs-nat-tokens"
+      ],
+      "text": "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH)."
+    },
+    {
+      "index": 1,
+      "ledger": [
+        "CF-keccak-headers"
+      ],
+      "text": "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI."
+    },
+    {
+      "index": 2,
+      "ledger": [],
+      "text": "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous)."
+    },
+    {
+      "index": 3,
+      "ledger": [
+        "abs-window-shadow"
+      ],
+      "text": "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes."
+    },
+    {
+      "index": 4,
+      "ledger": [
+        "abs-absolute-index-arrays"
+      ],
+      "text": "challenges and finalizedStateRoots are arrays indexed by absolute batch index."
+    },
+    {
+      "index": 5,
+      "ledger": [
+        "CF-keccak-blobhashes"
+      ],
+      "text": "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S)."
+    },
+    {
+      "index": 6,
+      "ledger": [
+        "oracle-ISubmitter",
+        "oracle-messenger",
+        "oracle-verifier"
+      ],
+      "text": "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue)."
+    },
+    {
+      "index": 7,
+      "ledger": [
+        "scope-rollup-coverage-debt"
+      ],
+      "text": "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
+    }
+  ],
+  "base_types": {
+    "BD": {
+      "fields": [
+        [
+          "o",
+          "Nat"
+        ],
+        [
+          "f",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "s",
+          "Nat"
+        ]
+      ],
+      "ghost": [],
+      "kind": "record"
+    },
+    "Ch": {
+      "doc": "BatchChallenge",
+      "fields": [
+        [
+          "c",
+          "Nat"
+        ],
+        [
+          "d",
+          "Nat"
+        ],
+        [
+          "s",
+          "Nat"
+        ],
+        [
+          "w",
+          "Bool"
+        ],
+        [
+          "f",
+          "Bool"
+        ]
+      ],
+      "ghost": [],
+      "kind": "record"
+    },
+    "Entry": {
+      "doc": "one committed batch: header fields + its per-index registers",
+      "doc_fields": {
+        "bdf": "batchDataStore.finalizeTimestamp",
+        "bdn": "batchDataStore.blockNumber",
+        "bdo": "batchDataStore.originTimestamp",
+        "bds": "batchDataStore.submitter (0 = address(0))",
+        "bvh": "batchBlobVersionedHashes",
+        "csr": "committedStateRoots",
+        "hb": "header bytes 57..89 (blob field)",
+        "tag": "GHOST: writer sort of bvh (1 = versioned hash, 2 = aggregate keccak); never read by modelled code"
+      },
+      "fields": [
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "tot",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "hb",
+          "Nat"
+        ],
+        [
+          "prev",
+          "Nat"
+        ],
+        [
+          "post",
+          "Nat"
+        ],
+        [
+          "lbn",
+          "Nat"
+        ],
+        [
+          "csr",
+          "Nat"
+        ],
+        [
+          "bvh",
+          "Nat"
+        ],
+        [
+          "tag",
+          "Nat"
+        ],
+        [
+          "bdo",
+          "Nat"
+        ],
+        [
+          "bdf",
+          "Nat"
+        ],
+        [
+          "bdn",
+          "Nat"
+        ],
+        [
+          "bds",
+          "Nat"
+        ]
+      ],
+      "ghost": [
+        "tag"
+      ],
+      "kind": "record"
+    }
+  },
+  "carriers": [
+    {
+      "base_type": "Act",
+      "cls": "rep",
+      "doc": "the actions' inputs: everything any principal can submit (R^ext is the full input type)",
+      "id": "Act",
+      "interface": true,
+      "reach": "external",
+      "sort_ref": null,
+      "variants": {
+        "challengeState": [
+          [
+            "who",
+            "Nat"
+          ],
+          [
+            "idx",
+            "Nat"
+          ],
+          [
+            "value",
+            "Nat"
+          ]
+        ],
+        "commitBatch": [
+          [
+            "who",
+            "Nat"
+          ],
+          [
+            "ver",
+            "Nat"
+          ],
+          [
+            "parent",
+            "Nat"
+          ],
+          [
+            "n",
+            "Nat"
+          ],
+          [
+            "lbn",
+            "Nat"
+          ],
+          [
+            "prev",
+            "Nat"
+          ],
+          [
+            "post",
+            "Nat"
+          ],
+          [
+            "blobs",
+            "List<Nat>"
+          ]
+        ],
+        "commitBatchWithProof": [
+          [
+            "who",
+            "Nat"
+          ],
+          [
+            "ver",
+            "Nat"
+          ],
+          [
+            "parent",
+            "Nat"
+          ],
+          [
+            "n",
+            "Nat"
+          ],
+          [
+            "lbn",
+            "Nat"
+          ],
+          [
+            "prev",
+            "Nat"
+          ],
+          [
+            "post",
+            "Nat"
+          ],
+          [
+            "blobs",
+            "List<Nat>"
+          ],
+          [
+            "proof",
+            "Nat"
+          ]
+        ],
+        "commitState": [
+          [
+            "who",
+            "Nat"
+          ],
+          [
+            "ver",
+            "Nat"
+          ],
+          [
+            "parent",
+            "Nat"
+          ],
+          [
+            "n",
+            "Nat"
+          ],
+          [
+            "lbn",
+            "Nat"
+          ],
+          [
+            "prev",
+            "Nat"
+          ],
+          [
+            "post",
+            "Nat"
+          ],
+          [
+            "blobs",
+            "List<Nat>"
+          ]
+        ],
+        "finalizeBatch": [
+          [
+            "who",
+            "Nat"
+          ],
+          [
+            "idx",
+            "Nat"
+          ]
+        ],
+        "proveState": [
+          [
+            "who",
+            "Nat"
+          ],
+          [
+            "idx",
+            "Nat"
+          ],
+          [
+            "proof",
+            "Nat"
+          ]
+        ],
+        "revertBatch": [
+          [
+            "who",
+            "Nat"
+          ],
+          [
+            "idx",
+            "Nat"
+          ],
+          [
+            "count",
+            "Nat"
+          ]
+        ],
+        "sendMessage": [
+          [
+            "who",
+            "Nat"
+          ]
+        ],
+        "setPause": [
+          [
+            "who",
+            "Nat"
+          ],
+          [
+            "status",
+            "Bool"
+          ]
+        ],
+        "wait": [
+          [
+            "dt",
+            "Nat"
+          ]
+        ]
+      }
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "rollupDelayPeriod",
+      "ghost": false,
+      "id": "D",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "finalizationPeriodSeconds",
+      "ghost": false,
+      "id": "F",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Obs",
+      "cls": "rep",
+      "doc": "observations: the outcome every step logs (O_Ok, or O_Rev with the failed guard's reason) and the observers' values",
+      "id": "Obs",
+      "interface": false,
+      "reach": "image",
+      "revert_variants": [
+        {
+          "code": 1,
+          "reason": "only active submitter allowed"
+        },
+        {
+          "code": 2,
+          "reason": "pending revert request"
+        },
+        {
+          "code": 3,
+          "reason": "Pausable: paused"
+        },
+        {
+          "code": 4,
+          "reason": "commitBatch requires no stored blob hash"
+        },
+        {
+          "code": 5,
+          "reason": "l1msg delay"
+        },
+        {
+          "code": 6,
+          "reason": "V2 requires at least 1 blob"
+        },
+        {
+          "code": 7,
+          "reason": "legacy batches support exactly 1 blob"
+        },
+        {
+          "code": 8,
+          "reason": "invalid version"
+        },
+        {
+          "code": 9,
+          "reason": "previous state root is zero"
+        },
+        {
+          "code": 10,
+          "reason": "new state root is zero"
+        },
+        {
+          "code": 11,
+          "reason": "batch already committed"
+        },
+        {
+          "code": 12,
+          "reason": "incorrect batch index"
+        },
+        {
+          "code": 14,
+          "reason": "incorrect previous state root"
+        },
+        {
+          "code": 15,
+          "reason": "message index out of range"
+        },
+        {
+          "code": 16,
+          "reason": "panic:0x11"
+        },
+        {
+          "code": 17,
+          "reason": "commitState must not carry blob"
+        },
+        {
+          "code": 18,
+          "reason": "no stored blob hash for this batch"
+        },
+        {
+          "code": 19,
+          "reason": "invalid timing"
+        },
+        {
+          "code": 20,
+          "reason": "must not carry blob when using stored blob hash"
+        },
+        {
+          "code": 21,
+          "reason": "Invalid batch proof"
+        },
+        {
+          "code": 22,
+          "reason": "invalid proof"
+        },
+        {
+          "code": 23,
+          "reason": "Ownable: caller is not the owner"
+        },
+        {
+          "code": 24,
+          "reason": "count must be nonzero"
+        },
+        {
+          "code": 25,
+          "reason": "incorrect batch hash"
+        },
+        {
+          "code": 26,
+          "reason": "reverting must start from the ending"
+        },
+        {
+          "code": 27,
+          "reason": "can only revert unFinalized batch"
+        },
+        {
+          "code": 28,
+          "reason": "only challenger allowed"
+        },
+        {
+          "code": 29,
+          "reason": "already in challenge"
+        },
+        {
+          "code": 30,
+          "reason": "batch already finalized"
+        },
+        {
+          "code": 31,
+          "reason": "batch not exist"
+        },
+        {
+          "code": 32,
+          "reason": "batch already challenged"
+        },
+        {
+          "code": 33,
+          "reason": "cannot challenge batch outside the challenge window"
+        },
+        {
+          "code": 34,
+          "reason": "insufficient value"
+        },
+        {
+          "code": 35,
+          "reason": "batch in challenge"
+        },
+        {
+          "code": 36,
+          "reason": "batch should be revert"
+        },
+        {
+          "code": 37,
+          "reason": "batch in challenge window"
+        },
+        {
+          "code": 38,
+          "reason": "batch already verified"
+        },
+        {
+          "code": 39,
+          "reason": "Pausable: not paused"
+        },
+        {
+          "code": 40,
+          "reason": "start index mismatch"
+        },
+        {
+          "code": 41,
+          "reason": "panic:0x11"
+        }
+      ],
+      "sort_ref": null
+    },
+    {
+      "base_type": "State",
+      "cls": "state",
+      "id": "State",
+      "initial": {
+        "doc": "after initialize(...) and importGenesisBatch at t = 10 (Rollup.sol:226-252)",
+        "pointer": "#/initial",
+        "sets": [
+          "D",
+          "F",
+          "W",
+          "active",
+          "bc",
+          "chals",
+          "chs",
+          "enq",
+          "fsr",
+          "inch",
+          "lfi",
+          "log",
+          "paused",
+          "qlen",
+          "qpend",
+          "rri",
+          "s_bd",
+          "s_bvh",
+          "s_csr",
+          "s_tag",
+          "t",
+          "win"
+        ]
+      },
+      "interface": false,
+      "product": [
+        "t",
+        "lfi",
+        "inch",
+        "bc",
+        "rri",
+        "paused",
+        "W",
+        "F",
+        "D",
+        "qlen",
+        "qpend",
+        "enq",
+        "active",
+        "chals",
+        "fsr",
+        "chs",
+        "win",
+        "s_csr",
+        "s_bd",
+        "s_bvh",
+        "s_tag",
+        "log"
+      ],
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "proofWindow",
+      "ghost": false,
+      "id": "W",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "ISubmitter active set",
+      "ghost": false,
+      "id": "active",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "batchChallenged",
+      "ghost": false,
+      "id": "bc",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "isChallenger",
+      "ghost": false,
+      "id": "chals",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Ch>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "challenges (absolute index)",
+      "ghost": false,
+      "id": "chs",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "L1MessageQueue.messageEnqueueTime",
+      "ghost": false,
+      "id": "enq",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "finalizedStateRoots (absolute index)",
+      "ghost": false,
+      "id": "fsr",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bool",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "inChallenge",
+      "ghost": false,
+      "id": "inch",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "lastFinalizedBatchIndex",
+      "ghost": false,
+      "id": "lfi",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Obs>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "observations (newest first)",
+      "ghost": false,
+      "id": "log",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "rep",
+      "consumer": "blobs_of",
+      "id": "out.blobs_of",
+      "interface": false,
+      "reach": "image",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "env",
+      "id": "param.AGG_BASE",
+      "interface": false,
+      "ledger": [],
+      "param": "AGG_BASE",
+      "reach": null,
+      "sort_ref": null,
+      "value": 1000
+    },
+    {
+      "base_type": "Nat",
+      "cls": "env",
+      "id": "param.DEP",
+      "interface": false,
+      "ledger": [],
+      "param": "DEP",
+      "reach": null,
+      "sort_ref": null,
+      "value": 1
+    },
+    {
+      "base_type": "Nat",
+      "cls": "env",
+      "id": "param.OWNER",
+      "interface": false,
+      "ledger": [],
+      "param": "OWNER",
+      "reach": null,
+      "sort_ref": null,
+      "value": 1
+    },
+    {
+      "base_type": "Nat",
+      "cls": "env",
+      "id": "param.Z",
+      "interface": false,
+      "ledger": [
+        "Hyp-Z0-kzg"
+      ],
+      "lexical": "ZERO_VERSIONED_HASH (Rollup.sol:24) = versioned hash of the all-zero blob (oracle-checked by holon: 0x01 || sha256(0xc0 || 0^47)[1:])",
+      "param": "Z",
+      "reach": null,
+      "sort_ref": null,
+      "value": 1
+    },
+    {
+      "base_type": "Bool",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "Pausable._paused",
+      "ghost": false,
+      "id": "paused",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "L1MessageQueue.messageQueue.length",
+      "ghost": false,
+      "id": "qlen",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "L1MessageQueue.pendingQueueIndex",
+      "ghost": false,
+      "id": "qpend",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "revertReqIndex",
+      "ghost": false,
+      "id": "rri",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<BD>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "batchDataStore residues at LCI+1..",
+      "ghost": false,
+      "id": "s_bd",
+      "interface": false,
+      "key_space": "slot",
+      "reach": "inductive",
+      "residue_of": "bd",
+      "slot_base": "lci+1",
+      "slot_base_from": {
+        "lockstep_with": [
+          "s_bvh",
+          "s_tag"
+        ]
+      },
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "batchBlobVersionedHashes residues at LCI+1..",
+      "ghost": false,
+      "id": "s_bvh",
+      "interface": false,
+      "key_space": "slot",
+      "reach": "inductive",
+      "residue_of": "bvh",
+      "slot_base": "lci+1",
+      "slot_base_from": {
+        "def": [
+          "bvh_at"
+        ],
+        "index_param": "idx"
+      },
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "committedStateRoots residues at LCI+1..",
+      "ghost": false,
+      "id": "s_csr",
+      "interface": false,
+      "key_space": "slot",
+      "reach": "inductive",
+      "residue_of": "csr",
+      "slot_base": "lci+1",
+      "slot_base_from": {
+        "lockstep_with": [
+          "s_bvh",
+          "s_tag"
+        ]
+      },
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Nat>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "GHOST tags of s_bvh",
+      "ghost": true,
+      "id": "s_tag",
+      "interface": false,
+      "key_space": "slot",
+      "reach": "inductive",
+      "residue_of": "tag",
+      "slot_base": "lci+1",
+      "slot_base_from": {
+        "def": [
+          "tag_at"
+        ],
+        "index_param": "idx"
+      },
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "env",
+      "component_of": "State",
+      "doc": "block.timestamp (environment)",
+      "ghost": false,
+      "id": "t",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Entry>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "batches LFI..LCI",
+      "ghost": false,
+      "id": "win",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    }
+  ],
+  "coverage": {
+    "modelled": [
+      "commitBatch",
+      "commitState",
+      "commitBatchWithProof",
+      "revertBatch",
+      "challengeState",
+      "proveState",
+      "finalizeBatch",
+      "setPause",
+      "L1MessageQueue.appendCrossDomainMessage",
+      "L1MessageQueue.popCrossDomainMessage",
+      "L1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+      "L1MessageQueue.getCrossDomainMessage (range)",
+      "initialize2"
+    ]
+  },
+  "coverage_debt": [
+    {
+      "kind": "ACCESS",
+      "what": "library builtin any_open declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "ACCESS",
+      "what": "library builtin bump_f declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "ACCESS",
+      "what": "library builtin clear_chs declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "ACCESS",
+      "what": "library builtin set_last_csr declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "ACCESS",
+      "what": "library builtin tags_exact declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "ACCESS",
+      "what": "library builtin win_last declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "ACCESS",
+      "what": "library builtin zero_csr declares no access kind: every state field passed to it is accessed whole (*)"
+    },
+    {
+      "kind": "HASH",
+      "ledger": "CF-keccak-blobhashes",
+      "what": "CF-keccak-blobhashes: keccak256 over the blob versioned hashes (version 2) is the injective stand-in agg(xs) = AGG_BASE + enc(xs): CF(keccak256, S) for every finite S."
+    },
+    {
+      "kind": "HASH",
+      "ledger": "CF-keccak-headers",
+      "what": "CF-keccak-headers: CF(keccak256, {stored headers, presented header}): header equality stands for committedBatches equality; a caller presents the stored header of the index it names, and committedBatches[k] != 0 iff k <= LCI (abstractions/2)."
+    },
+    {
+      "kind": "LEDGER",
+      "source": "#/abstractions/2",
+      "what": "abstraction 2 is cited by no ledger entry: committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous)."
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/0",
+      "what": "importGenesisBatch"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/1",
+      "what": "initialize"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/10",
+      "what": "updateRewardPercentage"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/11",
+      "what": "claimProveRemaining"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/12",
+      "what": "claimReward"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/13",
+      "what": "_defenderWin/_challengerWin accounting"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/14",
+      "what": "withdrawalRoots"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/15",
+      "what": "dataHash contents"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/16",
+      "what": "proveCommittedBatchState (view)"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/2",
+      "what": "initialize3"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/3",
+      "what": "initialize4"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/4",
+      "what": "updateProofWindow"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/5",
+      "what": "updateFinalizePeriodSeconds"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/6",
+      "what": "updateRollupDelayPeriod"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/7",
+      "what": "addChallenger"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/8",
+      "what": "removeChallenger"
+    },
+    {
+      "kind": "UNMODELLED",
+      "source": "#/coverage/debt/9",
+      "what": "updateVerifier"
+    }
+  ],
+  "defs": {
+    "blob_hash": {
+      "body": "ver==2?agg(blobs):nth(blobs,0)==0?Z:nth(blobs,0)",
+      "ghost": false,
+      "params": [
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "blobs",
+          "List<Nat>"
+        ]
+      ],
+      "sha256": "532f69885c97ecc0a173d30cfb99e7a1d9f9ece0c50d1f0323d6f81d04394cbb",
+      "type": "Nat"
+    },
+    "bvh_at": {
+      "body": "idx<lfi?0:idx<=lci?w.bvh:nth(s_bvh,idx-lci-1)",
+      "ghost": false,
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ],
+        [
+          "s_bvh",
+          "List<Nat>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "sha256": "183f024bd5663a51c60c75eec0ba27240c9d22bfd7b4f2399070e7069cc76e62",
+      "type": "Nat"
+    },
+    "enq_first": {
+      "body": "qpend<qlen&&nth(enq,qpend)!=0?nth(enq,qpend):t",
+      "ghost": false,
+      "params": [
+        [
+          "qpend",
+          "Nat"
+        ],
+        [
+          "qlen",
+          "Nat"
+        ],
+        [
+          "enq",
+          "List<Nat>"
+        ],
+        [
+          "t",
+          "Nat"
+        ]
+      ],
+      "sha256": "196f08abe7938224046c39ae8517f2a106fc7dc23a7bd3d8bee4e73d8e114099",
+      "type": "Nat"
+    },
+    "in_win": {
+      "body": "idx>=lfi&&idx<=lci",
+      "ghost": false,
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "sha256": "f8c9efeef564bd078ad15669042aefabc516582bd0b8f9140d33d9c5b0a2af42",
+      "type": "Bool"
+    },
+    "lci": {
+      "body": "lfi+len(win)-1",
+      "ghost": false,
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ]
+      ],
+      "sha256": "ea995c2953c1a80ca4f3be3fabb484dee64d2255e077a0ec2466cb45007fac14",
+      "type": "Nat"
+    },
+    "open_ch": {
+      "body": "nth_ch(chs,idx).c!=0&&!nth_ch(chs,idx).f",
+      "ghost": false,
+      "params": [
+        [
+          "chs",
+          "List<Ch>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "sha256": "41a5826747e058ce6b4e19dede2415f10f34a159c96c7c70f172608ad131e9b9",
+      "type": "Bool"
+    },
+    "tag_at": {
+      "body": "idx<lfi?0:idx<=lci?w.tag:nth(s_tag,idx-lci-1)",
+      "ghost": true,
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ],
+        [
+          "s_tag",
+          "List<Nat>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "sha256": "8f5cb186ef82225e5ea619ebb8d66c3894fd10ca1eff584170a2bfef67d03630",
+      "type": "Nat"
+    },
+    "w": {
+      "body": "in_win?win_at(win,idx-lfi):empty_entry()",
+      "ghost": false,
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "sha256": "9c5e53610362d07eb070b298974c62901ddc7d01a609ad87f6fb9fbbaf6b30d3",
+      "type": "Entry"
+    }
+  },
+  "diagram_version": "holon-diagram/0.1",
+  "disch": {
+    "cost": {
+      "commitBatchWithProof": 1000,
+      "sendMessage": 1
+    },
+    "cost_doc": "units: one L1 message = 1; one validity proof = 1000 (assumption c_proof >> c_msg: proving a batch costs far more than sending one L1 message)",
+    "delay": {
+      "action": "wait",
+      "input": "dt"
+    },
+    "doc": "cost model for discharge profiles (whitepaper Def 6.20): one unit per L1 message sent; delay is time waited"
+  },
+  "edges": [
+    {
+      "access": {
+        "reads": [
+          [
+            "Act",
+            "blobs"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "blobs_of",
+      "doc": "the blob sidecar a commit transaction delivers to L2 derivation (the consumer of FACT)",
+      "env": false,
+      "from_actions": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ],
+      "id": "CONS.blobs_of",
+      "input": "blobs",
+      "kind": "CONS",
+      "model_fn": "blobs_of",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "Act",
+      "tgt": "out.blobs_of",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "D",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "D",
+      "env": false,
+      "id": "LOAD.D",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState"
+      ],
+      "src": "D",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "F",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "F",
+      "env": false,
+      "id": "LOAD.F",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.commitBatch",
+        "TRANS.commitState"
+      ],
+      "src": "F",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "W",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "W",
+      "env": false,
+      "id": "LOAD.W",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.kappa",
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.proveState"
+      ],
+      "src": "W",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "active",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "active",
+      "env": false,
+      "id": "LOAD.active",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.commitBatch",
+        "TRANS.commitState",
+        "TRANS.proveState"
+      ],
+      "src": "active",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "bc",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "bc",
+      "env": false,
+      "id": "LOAD.bc",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.kappa",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.setPause"
+      ],
+      "src": "bc",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "chals",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "chals",
+      "env": false,
+      "id": "LOAD.chals",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.challengeState"
+      ],
+      "src": "chals",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "chs",
+            "*"
+          ],
+          [
+            "chs",
+            "bc"
+          ],
+          [
+            "chs",
+            "idx"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "chs",
+      "env": false,
+      "id": "LOAD.chs",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.kappa",
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.finalizeBatch",
+        "TRANS.proveState",
+        "TRANS.revertBatch"
+      ],
+      "src": "chs",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "enq",
+            "qpend"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "enq",
+      "env": false,
+      "id": "LOAD.enq",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState"
+      ],
+      "src": "enq",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "fsr",
+            "idx"
+          ],
+          [
+            "fsr",
+            "idx-1"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "fsr",
+      "env": false,
+      "id": "LOAD.fsr",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.finalizeBatch"
+      ],
+      "src": "fsr",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "inch",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "inch",
+      "env": false,
+      "id": "LOAD.inch",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.kappa",
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.revertBatch",
+        "TRANS.setPause"
+      ],
+      "src": "inch",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "lfi",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "lfi",
+      "env": false,
+      "id": "LOAD.lfi",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.lci_of",
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.finalizeBatch",
+        "TRANS.proveState",
+        "TRANS.revertBatch"
+      ],
+      "src": "lfi",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "log",
+      "env": false,
+      "id": "LOAD.log",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [],
+      "src": "log",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "win",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "body": "win_last(win).csr",
+      "component": "csr_last",
+      "defs": [],
+      "doc": null,
+      "env": false,
+      "id": "LOAD.obs.csr_last",
+      "kind": "LOAD",
+      "model_fn": "csr_last",
+      "observer": true,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "Obs",
+      "type": "Nat",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "W",
+            "*"
+          ],
+          [
+            "bc",
+            "*"
+          ],
+          [
+            "chs",
+            "bc"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "t",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "body": "inch&&W+nth_ch(chs,bc).s<t",
+      "component": "kappa",
+      "defs": [],
+      "doc": "DISCH guard kappa: an open challenge whose proof window has passed (the realize site at :363 underflows)",
+      "env": false,
+      "id": "LOAD.obs.kappa",
+      "kind": "LOAD",
+      "model_fn": "kappa",
+      "observer": true,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "Obs",
+      "type": "Bool",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "lfi",
+            "*"
+          ],
+          [
+            "win",
+            "#"
+          ]
+        ],
+        "writes": []
+      },
+      "body": "lci",
+      "component": "lci_of",
+      "defs": [
+        "lci"
+      ],
+      "doc": "LCI of a state",
+      "env": false,
+      "id": "LOAD.obs.lci_of",
+      "kind": "LOAD",
+      "model_fn": "lci_of",
+      "observer": true,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "Obs",
+      "type": "Nat",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "win",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "body": "hdr_of(win_last(win))",
+      "component": "new_hdr",
+      "defs": [],
+      "doc": "header of the newest batch (committedBatches[LCI] = keccak256 of it, under CF)",
+      "env": false,
+      "id": "LOAD.obs.new_hdr",
+      "kind": "LOAD",
+      "model_fn": "new_hdr",
+      "observer": true,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "Obs",
+      "type": "List<Nat>",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "win",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "body": "tags_exact(win)",
+      "component": "tags_ok",
+      "defs": [],
+      "doc": "Prop 6.19 ghost-tag exactness: every committed header's blob field has the sort its version implies (v2 <=> aggregate)",
+      "env": false,
+      "id": "LOAD.obs.tags_ok",
+      "kind": "LOAD",
+      "model_fn": "tags_ok",
+      "observer": true,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "Obs",
+      "type": "Bool",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "paused",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "paused",
+      "env": false,
+      "id": "LOAD.paused",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.finalizeBatch",
+        "TRANS.proveState",
+        "TRANS.setPause"
+      ],
+      "src": "paused",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "qlen",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "qlen",
+      "env": false,
+      "id": "LOAD.qlen",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.sendMessage"
+      ],
+      "src": "qlen",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "qpend",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "qpend",
+      "env": false,
+      "id": "LOAD.qpend",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.finalizeBatch"
+      ],
+      "src": "qpend",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "rri",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "rri",
+      "env": false,
+      "id": "LOAD.rri",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.finalizeBatch",
+        "TRANS.proveState",
+        "TRANS.revertBatch"
+      ],
+      "src": "rri",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "s_bd",
+      "env": false,
+      "id": "LOAD.s_bd",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [],
+      "src": "s_bd",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "s_bvh",
+            "parent+1"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "s_bvh",
+      "env": false,
+      "id": "LOAD.s_bvh",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState"
+      ],
+      "src": "s_bvh",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "s_csr",
+      "env": false,
+      "id": "LOAD.s_csr",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [],
+      "src": "s_csr",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "s_tag",
+            "parent+1"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "s_tag",
+      "env": false,
+      "id": "LOAD.s_tag",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState"
+      ],
+      "src": "s_tag",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "t",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "t",
+      "env": false,
+      "id": "LOAD.t",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.kappa",
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.finalizeBatch",
+        "TRANS.proveState",
+        "TRANS.sendMessage",
+        "TRANS.wait"
+      ],
+      "src": "t",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "win",
+            "#"
+          ],
+          [
+            "win",
+            "*"
+          ],
+          [
+            "win",
+            "idx-lfi"
+          ],
+          [
+            "win",
+            "idx-lfi.."
+          ],
+          [
+            "win",
+            "lci-lfi"
+          ],
+          [
+            "win",
+            "parent+1-lfi"
+          ],
+          [
+            "win",
+            "parent-lfi"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "win",
+      "env": false,
+      "id": "LOAD.win",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.csr_last",
+        "LOAD.obs.lci_of",
+        "LOAD.obs.new_hdr",
+        "LOAD.obs.tags_ok",
+        "MIG.eta2",
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.finalizeBatch",
+        "TRANS.proveState",
+        "TRANS.revertBatch"
+      ],
+      "src": "win",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "win",
+            "*"
+          ]
+        ],
+        "writes": [
+          [
+            "win",
+            "*"
+          ]
+        ]
+      },
+      "component": "eta2",
+      "defs": [],
+      "doc": "initialize2(_prevStateRoot): writes committedStateRoots[LCI] only if it is zero",
+      "effects": {
+        "win": "win_last(win).csr==0?set_last_csr(win,root):win"
+      },
+      "env": false,
+      "id": "MIG.eta2",
+      "inputs": [
+        [
+          "root",
+          "Nat"
+        ]
+      ],
+      "kind": "MIG",
+      "ledger": [],
+      "model_fn": "mig_eta2",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": "contracts/contracts/l1/rollup/Rollup.sol:188-195",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "s_csr",
+            "*"
+          ],
+          [
+            "win",
+            "*"
+          ]
+        ]
+      },
+      "component": "legacy",
+      "defs": [],
+      "doc": "state as written by Rollup before reinitializer(2): committedStateRoots did not exist (all zero)",
+      "effects": {
+        "s_csr": "zeros_like(s_csr)",
+        "win": "zero_csr(win)"
+      },
+      "env": false,
+      "id": "MIG.legacy",
+      "inputs": [],
+      "kind": "MIG",
+      "ledger": [
+        "abs-legacy-pseudo-migration"
+      ],
+      "model_fn": "mig_legacy",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": true,
+      "source": null,
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "D",
+      "env": false,
+      "id": "STORE.D",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "D",
+      "version": null,
+      "writers": []
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "F",
+      "env": false,
+      "id": "STORE.F",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "F",
+      "version": null,
+      "writers": []
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "W",
+      "env": false,
+      "id": "STORE.W",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "W",
+      "version": null,
+      "writers": []
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "active",
+            "*"
+          ]
+        ]
+      },
+      "component": "active",
+      "env": false,
+      "id": "STORE.active",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "active",
+      "version": null,
+      "writers": [
+        "TRANS.proveState"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "bc",
+            "*"
+          ]
+        ]
+      },
+      "component": "bc",
+      "env": false,
+      "id": "STORE.bc",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "bc",
+      "version": null,
+      "writers": [
+        "TRANS.challengeState"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "chals",
+      "env": false,
+      "id": "STORE.chals",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "chals",
+      "version": null,
+      "writers": []
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "chs",
+            "*"
+          ],
+          [
+            "chs",
+            "bc"
+          ],
+          [
+            "chs",
+            "idx"
+          ],
+          [
+            "chs",
+            "idx-1"
+          ]
+        ]
+      },
+      "component": "chs",
+      "env": false,
+      "id": "STORE.chs",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "chs",
+      "version": null,
+      "writers": [
+        "TRANS.challengeState",
+        "TRANS.finalizeBatch",
+        "TRANS.proveState",
+        "TRANS.revertBatch",
+        "TRANS.setPause"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "enq",
+            "len(enq)"
+          ]
+        ]
+      },
+      "component": "enq",
+      "env": false,
+      "id": "STORE.enq",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "enq",
+      "version": null,
+      "writers": [
+        "TRANS.sendMessage"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "fsr",
+            "idx"
+          ]
+        ]
+      },
+      "component": "fsr",
+      "env": false,
+      "id": "STORE.fsr",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "fsr",
+      "version": null,
+      "writers": [
+        "TRANS.finalizeBatch"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "inch",
+            "*"
+          ]
+        ]
+      },
+      "component": "inch",
+      "env": false,
+      "id": "STORE.inch",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "inch",
+      "version": null,
+      "writers": [
+        "TRANS.challengeState",
+        "TRANS.proveState",
+        "TRANS.revertBatch",
+        "TRANS.setPause"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "lfi",
+            "*"
+          ]
+        ]
+      },
+      "component": "lfi",
+      "env": false,
+      "id": "STORE.lfi",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "lfi",
+      "version": null,
+      "writers": [
+        "TRANS.finalizeBatch"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "log",
+            "*"
+          ]
+        ]
+      },
+      "component": "log",
+      "env": false,
+      "id": "STORE.log",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "log",
+      "version": null,
+      "writers": [
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.finalizeBatch",
+        "TRANS.proveState",
+        "TRANS.revertBatch",
+        "TRANS.sendMessage",
+        "TRANS.setPause",
+        "TRANS.wait"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "paused",
+            "*"
+          ]
+        ]
+      },
+      "component": "paused",
+      "env": false,
+      "id": "STORE.paused",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "paused",
+      "version": null,
+      "writers": [
+        "TRANS.setPause"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "qlen",
+            "*"
+          ]
+        ]
+      },
+      "component": "qlen",
+      "env": false,
+      "id": "STORE.qlen",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "qlen",
+      "version": null,
+      "writers": [
+        "TRANS.sendMessage"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "qpend",
+            "*"
+          ]
+        ]
+      },
+      "component": "qpend",
+      "env": false,
+      "id": "STORE.qpend",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "qpend",
+      "version": null,
+      "writers": [
+        "TRANS.finalizeBatch"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "rri",
+            "*"
+          ]
+        ]
+      },
+      "component": "rri",
+      "env": false,
+      "id": "STORE.rri",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "rri",
+      "version": null,
+      "writers": [
+        "TRANS.proveState",
+        "TRANS.revertBatch"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "s_bd",
+            "*"
+          ],
+          [
+            "s_bd",
+            "lci+1"
+          ]
+        ]
+      },
+      "component": "s_bd",
+      "env": false,
+      "id": "STORE.s_bd",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "s_bd",
+      "version": null,
+      "writers": [
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.revertBatch"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "s_bvh",
+            "*"
+          ],
+          [
+            "s_bvh",
+            "lci+1"
+          ]
+        ]
+      },
+      "component": "s_bvh",
+      "env": false,
+      "id": "STORE.s_bvh",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "s_bvh",
+      "version": null,
+      "writers": [
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.revertBatch"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "s_csr",
+            "*"
+          ],
+          [
+            "s_csr",
+            "lci+1"
+          ]
+        ]
+      },
+      "component": "s_csr",
+      "env": false,
+      "id": "STORE.s_csr",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "s_csr",
+      "version": null,
+      "writers": [
+        "MIG.legacy",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.revertBatch"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "s_tag",
+            "*"
+          ],
+          [
+            "s_tag",
+            "lci+1"
+          ]
+        ]
+      },
+      "component": "s_tag",
+      "env": false,
+      "id": "STORE.s_tag",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "s_tag",
+      "version": null,
+      "writers": [
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.revertBatch"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "t",
+            "*"
+          ]
+        ]
+      },
+      "component": "t",
+      "env": false,
+      "id": "STORE.t",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "t",
+      "version": null,
+      "writers": [
+        "TRANS.wait"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "win",
+            "*"
+          ],
+          [
+            "win",
+            "idx-lfi.."
+          ],
+          [
+            "win",
+            "len(win)"
+          ]
+        ]
+      },
+      "component": "win",
+      "env": false,
+      "id": "STORE.win",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "win",
+      "version": null,
+      "writers": [
+        "MIG.eta2",
+        "MIG.legacy",
+        "TRANS.challengeState",
+        "TRANS.commitBatch",
+        "TRANS.commitBatchWithProof",
+        "TRANS.commitState",
+        "TRANS.finalizeBatch",
+        "TRANS.revertBatch"
+      ]
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "W",
+            "*"
+          ],
+          [
+            "chals",
+            "*"
+          ],
+          [
+            "chs",
+            "idx"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "lfi",
+            "*"
+          ],
+          [
+            "paused",
+            "*"
+          ],
+          [
+            "rri",
+            "*"
+          ],
+          [
+            "t",
+            "*"
+          ],
+          [
+            "win",
+            "#"
+          ],
+          [
+            "win",
+            "idx-lfi"
+          ]
+        ],
+        "writes": [
+          [
+            "bc",
+            "*"
+          ],
+          [
+            "chs",
+            "idx"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "log",
+            "*"
+          ],
+          [
+            "win",
+            "*"
+          ]
+        ]
+      },
+      "caller": "who",
+      "component": "challengeState",
+      "cost": 0,
+      "defs": [
+        "in_win",
+        "lci",
+        "w"
+      ],
+      "delay": null,
+      "effects": {
+        "bc": "idx",
+        "chs": "set_ch(chs,idx,Ch{c:who,d:value,s:t,w:false,f:false})",
+        "inch": "true",
+        "win": "bump_f(win,idx-lfi,W)"
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:485-495 (finalizeTimestamp += proofWindow for every unfinalized i != idx)",
+      "env": false,
+      "guards": [
+        {
+          "reason": 28,
+          "require": "mem(who,chals)",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:126"
+        },
+        {
+          "reason": 2,
+          "require": "rri==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": "!paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "reason": 29,
+          "require": "!inch",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:475"
+        },
+        {
+          "reason": 30,
+          "require": "lfi<idx",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:476"
+        },
+        {
+          "expr": "lci",
+          "let": "lci"
+        },
+        {
+          "reason": 25,
+          "require": "idx<=lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:477"
+        },
+        {
+          "reason": 31,
+          "require": "w.bdo>0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:478 batchExist"
+        },
+        {
+          "reason": 32,
+          "require": "nth_ch(chs,idx).c==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:479"
+        },
+        {
+          "reason": 33,
+          "require": "w.bdf>t",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:481 batchInsideChallengeWindow"
+        },
+        {
+          "reason": 34,
+          "require": "value>=DEP",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:483"
+        }
+      ],
+      "id": "TRANS.challengeState",
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "idx",
+          "Nat"
+        ],
+        [
+          "value",
+          "Nat"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "challenger",
+      "model_fn": "step_challengeState",
+      "partial": false,
+      "permissionless": false,
+      "principal_class": "challenger",
+      "pseudo": false,
+      "reverts": [
+        2,
+        3,
+        25,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "source": "contracts/contracts/l1/rollup/Rollup.sol:471-496",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "D",
+            "*"
+          ],
+          [
+            "F",
+            "*"
+          ],
+          [
+            "W",
+            "*"
+          ],
+          [
+            "active",
+            "*"
+          ],
+          [
+            "bc",
+            "*"
+          ],
+          [
+            "chs",
+            "bc"
+          ],
+          [
+            "enq",
+            "qpend"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "lfi",
+            "*"
+          ],
+          [
+            "paused",
+            "*"
+          ],
+          [
+            "qlen",
+            "*"
+          ],
+          [
+            "qpend",
+            "*"
+          ],
+          [
+            "rri",
+            "*"
+          ],
+          [
+            "s_bvh",
+            "parent+1"
+          ],
+          [
+            "t",
+            "*"
+          ],
+          [
+            "win",
+            "#"
+          ],
+          [
+            "win",
+            "parent+1-lfi"
+          ],
+          [
+            "win",
+            "parent-lfi"
+          ]
+        ],
+        "writes": [
+          [
+            "log",
+            "*"
+          ],
+          [
+            "s_bd",
+            "lci+1"
+          ],
+          [
+            "s_bvh",
+            "lci+1"
+          ],
+          [
+            "s_csr",
+            "lci+1"
+          ],
+          [
+            "s_tag",
+            "lci+1"
+          ],
+          [
+            "win",
+            "len(win)"
+          ]
+        ]
+      },
+      "caller": "who",
+      "component": "commitBatch",
+      "cost": 0,
+      "defs": [
+        "blob_hash",
+        "bvh_at",
+        "enq_first",
+        "in_win",
+        "lci",
+        "w"
+      ],
+      "delay": null,
+      "effects": {
+        "s_bd": "tail(s_bd)",
+        "s_bvh": "tail(s_bvh)",
+        "s_csr": "tail(s_csr)",
+        "s_tag": "tail(s_tag)",
+        "win": "snoc(win,Entry{ver:ver,tot:tot+n,n:n,hb:bvh,prev:prev,post:post,lbn:lbn,csr:post,bvh:bvh,tag:tag,bdo:t,bdf:t+F+prt,bdn:lbn,bds:who})"
+      },
+      "env": false,
+      "guards": [
+        {
+          "reason": 1,
+          "require": "mem(who,active)",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "reason": 2,
+          "require": "rri==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": "!paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": "parent+1",
+          "let": "next",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:260"
+        },
+        {
+          "reason": 4,
+          "require": "bvh_at(lfi,win,s_bvh,next)==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:261"
+        },
+        {
+          "expr": "enq_first",
+          "let": "ef",
+          "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268"
+        },
+        {
+          "reason": 5,
+          "require": "!(ef+D<t)||n>0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266"
+        },
+        {
+          "expr": "nth(blobs,0)",
+          "let": "b0"
+        },
+        {
+          "expr": "nth(blobs,1)",
+          "let": "b1"
+        },
+        {
+          "reason": 6,
+          "require": "ver!=2||blob_count(blobs)>0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
+        },
+        {
+          "reason": 7,
+          "require": "ver==2||b1==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "expr": "blob_hash",
+          "let": "bvh",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:267"
+        },
+        {
+          "expr": "ver==2?2:1",
+          "let": "tag"
+        },
+        {
+          "reason": 8,
+          "require": "ver<=2",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "reason": 9,
+          "require": "prev!=0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "reason": 10,
+          "require": "post!=0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "expr": "lci",
+          "let": "lci"
+        },
+        {
+          "note": "committedBatches[parent+1] == 0 <=> parent+1 > LCI (committed indices are exactly 0..LCI)",
+          "reason": 11,
+          "require": "next>lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "reason": 12,
+          "require": "parent==lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "note": "parent == LCI is established, so the read is inside the window",
+          "reason": 14,
+          "require": "w(lfi,win,parent).csr==prev",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "expr": "w(lfi,win,parent).tot",
+          "let": "tot",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:316"
+        },
+        {
+          "note": "_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length",
+          "reason": 15,
+          "require": "tot+n<=qlen",
+          "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
+        },
+        {
+          "expr": "nth_ch(chs,bc).s",
+          "let": "cstart"
+        },
+        {
+          "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)",
+          "reason": 16,
+          "require": "!inch||t<=W+cstart",
+          "site": {
+            "expr": "W + cstart - t",
+            "kind": "realize",
+            "rule": "SORT",
+            "sort": "Dur(signed) realized in uint256"
+          },
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "expr": "inch?W+cstart-t:0",
+          "let": "prt",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364"
+        }
+      ],
+      "id": "TRANS.commitBatch",
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "parent",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "lbn",
+          "Nat"
+        ],
+        [
+          "prev",
+          "Nat"
+        ],
+        [
+          "post",
+          "Nat"
+        ],
+        [
+          "blobs",
+          "List<Nat>"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "active submitter",
+      "model_fn": "step_commitBatch",
+      "partial": false,
+      "permissionless": false,
+      "principal_class": "active_submitter",
+      "pseudo": false,
+      "reverts": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        14,
+        15,
+        16
+      ],
+      "source": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "D",
+            "*"
+          ],
+          [
+            "W",
+            "*"
+          ],
+          [
+            "bc",
+            "*"
+          ],
+          [
+            "chs",
+            "bc"
+          ],
+          [
+            "enq",
+            "qpend"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "lfi",
+            "*"
+          ],
+          [
+            "paused",
+            "*"
+          ],
+          [
+            "qlen",
+            "*"
+          ],
+          [
+            "qpend",
+            "*"
+          ],
+          [
+            "rri",
+            "*"
+          ],
+          [
+            "s_bvh",
+            "parent+1"
+          ],
+          [
+            "s_tag",
+            "parent+1"
+          ],
+          [
+            "t",
+            "*"
+          ],
+          [
+            "win",
+            "#"
+          ],
+          [
+            "win",
+            "lci-lfi"
+          ],
+          [
+            "win",
+            "parent+1-lfi"
+          ],
+          [
+            "win",
+            "parent-lfi"
+          ]
+        ],
+        "writes": [
+          [
+            "log",
+            "*"
+          ],
+          [
+            "s_bd",
+            "lci+1"
+          ],
+          [
+            "s_bvh",
+            "lci+1"
+          ],
+          [
+            "s_csr",
+            "lci+1"
+          ],
+          [
+            "s_tag",
+            "lci+1"
+          ],
+          [
+            "win",
+            "len(win)"
+          ]
+        ]
+      },
+      "caller": "who",
+      "component": "commitBatchWithProof",
+      "cost": 1000,
+      "defs": [
+        "blob_hash",
+        "bvh_at",
+        "enq_first",
+        "in_win",
+        "lci",
+        "tag_at",
+        "w"
+      ],
+      "delay": null,
+      "effects": {
+        "s_bd": "tail(s_bd)",
+        "s_bvh": "tail(s_bvh)",
+        "s_csr": "tail(s_csr)",
+        "s_tag": "tail(s_tag)",
+        "win": "snoc(win,Entry{ver:ver,tot:tot+n,n:n,hb:bvh,prev:prev,post:post,lbn:lbn,csr:post,bvh:bvh,tag:tag,bdo:t,bdf:t,bdn:lbn,bds:0})"
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:421 finalizeTimestamp = block.timestamp",
+      "env": false,
+      "guards": [
+        {
+          "reason": 2,
+          "require": "rri==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": "!paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": "lci",
+          "let": "lci0"
+        },
+        {
+          "expr": "w(lfi,win,lci0).bdo+D<t",
+          "let": "rd",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:389-390"
+        },
+        {
+          "expr": "enq_first",
+          "let": "ef"
+        },
+        {
+          "expr": "ef+D<t",
+          "let": "qd",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:393-395"
+        },
+        {
+          "reason": 5,
+          "require": "rd||!qd||n>0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:397-399"
+        },
+        {
+          "reason": 19,
+          "require": "rd||qd",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:400"
+        },
+        {
+          "expr": "parent+1",
+          "let": "next",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:403"
+        },
+        {
+          "expr": "nth(blobs,0)",
+          "let": "b0"
+        },
+        {
+          "expr": "nth(blobs,1)",
+          "let": "b1"
+        },
+        {
+          "expr": "bvh_at(lfi,win,s_bvh,next)",
+          "let": "stored"
+        },
+        {
+          "reason": 20,
+          "require": "stored==0||b0==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:406"
+        },
+        {
+          "reason": 6,
+          "require": "stored!=0||ver!=2||blob_count(blobs)>0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
+        },
+        {
+          "reason": 7,
+          "require": "stored!=0||ver==2||b1==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "expr": "stored!=0?stored:blob_hash",
+          "let": "bvh"
+        },
+        {
+          "expr": "stored!=0?tag_at(lfi,win,s_tag,next):ver==2?2:1",
+          "let": "tag"
+        },
+        {
+          "reason": 8,
+          "require": "ver<=2",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "reason": 9,
+          "require": "prev!=0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "reason": 10,
+          "require": "post!=0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "expr": "lci",
+          "let": "lci"
+        },
+        {
+          "note": "committedBatches[parent+1] == 0 <=> parent+1 > LCI (committed indices are exactly 0..LCI)",
+          "reason": 11,
+          "require": "next>lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "reason": 12,
+          "require": "parent==lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "note": "parent == LCI is established, so the read is inside the window",
+          "reason": 14,
+          "require": "w(lfi,win,parent).csr==prev",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "expr": "w(lfi,win,parent).tot",
+          "let": "tot",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:316"
+        },
+        {
+          "note": "_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length",
+          "reason": 15,
+          "require": "tot+n<=qlen",
+          "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
+        },
+        {
+          "expr": "nth_ch(chs,bc).s",
+          "let": "cstart"
+        },
+        {
+          "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)",
+          "reason": 16,
+          "require": "!inch||t<=W+cstart",
+          "site": {
+            "expr": "W + cstart - t",
+            "kind": "realize",
+            "rule": "SORT",
+            "sort": "Dur(signed) realized in uint256"
+          },
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "expr": "inch?W+cstart-t:0",
+          "let": "prt",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364"
+        },
+        {
+          "reason": 21,
+          "require": "proof!=0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+        },
+        {
+          "reason": 22,
+          "require": "proof==1",
+          "src": "oracle: IRollupVerifier.verifyAggregateProof"
+        }
+      ],
+      "id": "TRANS.commitBatchWithProof",
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "parent",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "lbn",
+          "Nat"
+        ],
+        [
+          "prev",
+          "Nat"
+        ],
+        [
+          "post",
+          "Nat"
+        ],
+        [
+          "blobs",
+          "List<Nat>"
+        ],
+        [
+          "proof",
+          "Nat"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "anyone",
+      "model_fn": "step_commitBatchWithProof",
+      "partial": false,
+      "permissionless": true,
+      "principal_class": "anyone",
+      "pseudo": false,
+      "reverts": [
+        2,
+        3,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        14,
+        15,
+        16,
+        19,
+        20,
+        21,
+        22
+      ],
+      "source": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "D",
+            "*"
+          ],
+          [
+            "F",
+            "*"
+          ],
+          [
+            "W",
+            "*"
+          ],
+          [
+            "active",
+            "*"
+          ],
+          [
+            "bc",
+            "*"
+          ],
+          [
+            "chs",
+            "bc"
+          ],
+          [
+            "enq",
+            "qpend"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "lfi",
+            "*"
+          ],
+          [
+            "paused",
+            "*"
+          ],
+          [
+            "qlen",
+            "*"
+          ],
+          [
+            "qpend",
+            "*"
+          ],
+          [
+            "rri",
+            "*"
+          ],
+          [
+            "s_bvh",
+            "parent+1"
+          ],
+          [
+            "s_tag",
+            "parent+1"
+          ],
+          [
+            "t",
+            "*"
+          ],
+          [
+            "win",
+            "#"
+          ],
+          [
+            "win",
+            "parent+1-lfi"
+          ],
+          [
+            "win",
+            "parent-lfi"
+          ]
+        ],
+        "writes": [
+          [
+            "log",
+            "*"
+          ],
+          [
+            "s_bd",
+            "lci+1"
+          ],
+          [
+            "s_bvh",
+            "lci+1"
+          ],
+          [
+            "s_csr",
+            "lci+1"
+          ],
+          [
+            "s_tag",
+            "lci+1"
+          ],
+          [
+            "win",
+            "len(win)"
+          ]
+        ]
+      },
+      "caller": "who",
+      "component": "commitState",
+      "cost": 0,
+      "defs": [
+        "bvh_at",
+        "enq_first",
+        "in_win",
+        "lci",
+        "tag_at",
+        "w"
+      ],
+      "delay": null,
+      "effects": {
+        "s_bd": "tail(s_bd)",
+        "s_bvh": "tail(s_bvh)",
+        "s_csr": "tail(s_csr)",
+        "s_tag": "tail(s_tag)",
+        "win": "snoc(win,Entry{ver:ver,tot:tot+n,n:n,hb:bvh,prev:prev,post:post,lbn:lbn,csr:post,bvh:bvh,tag:tag,bdo:t,bdf:t+F+prt,bdn:lbn,bds:who})"
+      },
+      "env": false,
+      "guards": [
+        {
+          "reason": 1,
+          "require": "mem(who,active)",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "reason": 2,
+          "require": "rri==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": "!paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": "nth(blobs,0)",
+          "let": "b0"
+        },
+        {
+          "expr": "nth(blobs,1)",
+          "let": "b1"
+        },
+        {
+          "reason": 17,
+          "require": "b0==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:276"
+        },
+        {
+          "expr": "parent+1",
+          "let": "next",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:278"
+        },
+        {
+          "expr": "bvh_at(lfi,win,s_bvh,next)",
+          "let": "bvh"
+        },
+        {
+          "reason": 18,
+          "require": "bvh!=0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:279"
+        },
+        {
+          "expr": "tag_at(lfi,win,s_tag,next)",
+          "let": "tag"
+        },
+        {
+          "expr": "enq_first",
+          "let": "ef",
+          "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268"
+        },
+        {
+          "reason": 5,
+          "require": "!(ef+D<t)||n>0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266"
+        },
+        {
+          "reason": 8,
+          "require": "ver<=2",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "reason": 9,
+          "require": "prev!=0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "reason": 10,
+          "require": "post!=0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "expr": "lci",
+          "let": "lci"
+        },
+        {
+          "note": "committedBatches[parent+1] == 0 <=> parent+1 > LCI (committed indices are exactly 0..LCI)",
+          "reason": 11,
+          "require": "next>lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "reason": 12,
+          "require": "parent==lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "note": "parent == LCI is established, so the read is inside the window",
+          "reason": 14,
+          "require": "w(lfi,win,parent).csr==prev",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "expr": "w(lfi,win,parent).tot",
+          "let": "tot",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:316"
+        },
+        {
+          "note": "_loadL1MessageHashes -> getCrossDomainMessage(i) requires i < messageQueue.length",
+          "reason": 15,
+          "require": "tot+n<=qlen",
+          "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
+        },
+        {
+          "expr": "nth_ch(chs,bc).s",
+          "let": "cstart"
+        },
+        {
+          "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)",
+          "reason": 16,
+          "require": "!inch||t<=W+cstart",
+          "site": {
+            "expr": "W + cstart - t",
+            "kind": "realize",
+            "rule": "SORT",
+            "sort": "Dur(signed) realized in uint256"
+          },
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "expr": "inch?W+cstart-t:0",
+          "let": "prt",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364"
+        }
+      ],
+      "id": "TRANS.commitState",
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "parent",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "lbn",
+          "Nat"
+        ],
+        [
+          "prev",
+          "Nat"
+        ],
+        [
+          "post",
+          "Nat"
+        ],
+        [
+          "blobs",
+          "List<Nat>"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "active submitter",
+      "model_fn": "step_commitState",
+      "partial": false,
+      "permissionless": false,
+      "principal_class": "active_submitter",
+      "pseudo": false,
+      "reverts": [
+        1,
+        2,
+        3,
+        5,
+        8,
+        9,
+        10,
+        11,
+        12,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "source": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "chs",
+            "idx"
+          ],
+          [
+            "fsr",
+            "idx"
+          ],
+          [
+            "fsr",
+            "idx-1"
+          ],
+          [
+            "lfi",
+            "*"
+          ],
+          [
+            "paused",
+            "*"
+          ],
+          [
+            "qpend",
+            "*"
+          ],
+          [
+            "rri",
+            "*"
+          ],
+          [
+            "t",
+            "*"
+          ],
+          [
+            "win",
+            "#"
+          ],
+          [
+            "win",
+            "idx-lfi"
+          ]
+        ],
+        "writes": [
+          [
+            "chs",
+            "idx-1"
+          ],
+          [
+            "fsr",
+            "idx"
+          ],
+          [
+            "lfi",
+            "*"
+          ],
+          [
+            "log",
+            "*"
+          ],
+          [
+            "qpend",
+            "*"
+          ],
+          [
+            "win",
+            "*"
+          ]
+        ]
+      },
+      "caller": "who",
+      "component": "finalizeBatch",
+      "cost": 0,
+      "defs": [
+        "in_win",
+        "lci",
+        "open_ch",
+        "w"
+      ],
+      "delay": null,
+      "effects": {
+        "chs": "set_ch(chs,idx-1,empty_ch())",
+        "fsr": "set_nat(fsr,idx,w.post)",
+        "lfi": "idx",
+        "qpend": "bn==0?qpend:btot",
+        "win": "drop(win,1)"
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:644-660 (deletes batchDataStore/committedStateRoots/batchBlobVersionedHashes/challenges at idx-1: the old window head)",
+      "env": false,
+      "guards": [
+        {
+          "reason": 2,
+          "require": "rri==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": "!paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": "lci",
+          "let": "lci"
+        },
+        {
+          "reason": 25,
+          "require": "idx<=lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:629"
+        },
+        {
+          "reason": 31,
+          "require": "idx>=lfi&&w.bdo>0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:630 batchExist (deleted below LFI)"
+        },
+        {
+          "reason": 35,
+          "require": "!open_ch",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:631"
+        },
+        {
+          "reason": 36,
+          "require": "!nth_ch(chs,idx).w",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:632"
+        },
+        {
+          "reason": 37,
+          "require": "!(w.bdf>t)",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:633"
+        },
+        {
+          "reason": 41,
+          "require": "idx>=1",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:636 (_batchIndex - 1, checked)"
+        },
+        {
+          "reason": 14,
+          "require": "nth(fsr,idx-1)==w.prev",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:635-638"
+        },
+        {
+          "reason": 38,
+          "require": "nth(fsr,idx)==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:640"
+        },
+        {
+          "reason": 12,
+          "require": "lfi+1==idx",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:643"
+        },
+        {
+          "expr": "w.n",
+          "let": "bn"
+        },
+        {
+          "expr": "w.tot",
+          "let": "btot"
+        },
+        {
+          "reason": 40,
+          "require": "bn==0||qpend==btot-bn",
+          "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325 popCrossDomainMessage"
+        }
+      ],
+      "id": "TRANS.finalizeBatch",
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "anyone",
+      "model_fn": "step_finalizeBatch",
+      "partial": false,
+      "permissionless": true,
+      "principal_class": "anyone",
+      "pseudo": false,
+      "reverts": [
+        2,
+        3,
+        12,
+        14,
+        25,
+        31,
+        35,
+        36,
+        37,
+        38,
+        40,
+        41
+      ],
+      "source": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "W",
+            "*"
+          ],
+          [
+            "active",
+            "*"
+          ],
+          [
+            "chs",
+            "idx"
+          ],
+          [
+            "lfi",
+            "*"
+          ],
+          [
+            "paused",
+            "*"
+          ],
+          [
+            "rri",
+            "*"
+          ],
+          [
+            "t",
+            "*"
+          ],
+          [
+            "win",
+            "#"
+          ],
+          [
+            "win",
+            "idx-lfi"
+          ]
+        ],
+        "writes": [
+          [
+            "active",
+            "*"
+          ],
+          [
+            "chs",
+            "idx"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "log",
+            "*"
+          ],
+          [
+            "rri",
+            "*"
+          ]
+        ]
+      },
+      "caller": "who",
+      "component": "proveState",
+      "cost": 0,
+      "defs": [
+        "in_win",
+        "lci",
+        "open_ch",
+        "w"
+      ],
+      "delay": null,
+      "effects": {
+        "active": "timeout?remove(w.bds,active):active",
+        "chs": "set_ch(chs,idx,ch{f:=true,w:=timeout})",
+        "inch": "false",
+        "rri": "timeout?idx:rri"
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:609-621, _challengerWin :803-808 (slash deactivates the batch submitter)",
+      "env": false,
+      "guards": [
+        {
+          "reason": 2,
+          "require": "rri==0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": "!paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "reason": 1,
+          "require": "mem(who,active)",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "expr": "lci",
+          "let": "lci"
+        },
+        {
+          "reason": 25,
+          "require": "idx<=lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:603"
+        },
+        {
+          "reason": 35,
+          "require": "open_ch",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:606"
+        },
+        {
+          "expr": "nth_ch(chs,idx)",
+          "let": "ch"
+        },
+        {
+          "expr": "ch.s+W<=t",
+          "let": "timeout",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:613"
+        },
+        {
+          "reason": 21,
+          "require": "timeout||proof!=0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+        },
+        {
+          "reason": 22,
+          "require": "timeout||proof==1",
+          "src": "oracle: IRollupVerifier.verifyAggregateProof"
+        }
+      ],
+      "id": "TRANS.proveState",
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "idx",
+          "Nat"
+        ],
+        [
+          "proof",
+          "Nat"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "active submitter",
+      "model_fn": "step_proveState",
+      "partial": false,
+      "permissionless": false,
+      "principal_class": "active_submitter",
+      "pseudo": false,
+      "reverts": [
+        1,
+        2,
+        3,
+        21,
+        22,
+        25,
+        35
+      ],
+      "source": "contracts/contracts/l1/rollup/Rollup.sol:595-622",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "chs",
+            "*"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "lfi",
+            "*"
+          ],
+          [
+            "rri",
+            "*"
+          ],
+          [
+            "win",
+            "#"
+          ],
+          [
+            "win",
+            "idx-lfi.."
+          ]
+        ],
+        "writes": [
+          [
+            "chs",
+            "*"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "log",
+            "*"
+          ],
+          [
+            "rri",
+            "*"
+          ],
+          [
+            "s_bd",
+            "*"
+          ],
+          [
+            "s_bvh",
+            "*"
+          ],
+          [
+            "s_csr",
+            "*"
+          ],
+          [
+            "s_tag",
+            "*"
+          ],
+          [
+            "win",
+            "idx-lfi.."
+          ]
+        ]
+      },
+      "caller": "who",
+      "component": "revertBatch",
+      "cost": 0,
+      "defs": [
+        "lci"
+      ],
+      "delay": null,
+      "effects": {
+        "chs": "clear_chs(chs,idx,lci)",
+        "inch": "inch&&!any_open(chs,idx,lci)",
+        "rri": "rri>0&&rri>=idx&&rri<=lci?0:rri",
+        "s_bd": "concat(es_bd(moved),s_bd)",
+        "s_bvh": "concat(es_bvh(moved),s_bvh)",
+        "s_csr": "concat(es_csr(moved),s_csr)",
+        "s_tag": "concat(es_tag(moved),s_tag)",
+        "win": "take(win,p)"
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:443-465 (loop clears committedBatches, refunds/ends open challenges, deletes challenges, resets revertReqIndex; CSR, BVH and batchDataStore are NOT cleared)",
+      "env": false,
+      "guards": [
+        {
+          "reason": 23,
+          "require": "who==OWNER",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "reason": 24,
+          "require": "count>0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:431"
+        },
+        {
+          "expr": "lci",
+          "let": "lci"
+        },
+        {
+          "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
+          "reason": 25,
+          "require": "idx<=lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:436"
+        },
+        {
+          "reason": 26,
+          "require": "idx+count>lci",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:439"
+        },
+        {
+          "reason": 27,
+          "require": "idx>lfi",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:441"
+        },
+        {
+          "expr": "idx-lfi",
+          "let": "p"
+        },
+        {
+          "expr": "drop(win,p)",
+          "let": "moved"
+        }
+      ],
+      "id": "TRANS.revertBatch",
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "idx",
+          "Nat"
+        ],
+        [
+          "count",
+          "Nat"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "owner",
+      "model_fn": "step_revertBatch",
+      "partial": false,
+      "permissionless": false,
+      "principal_class": "owner",
+      "pseudo": false,
+      "reverts": [
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "source": "contracts/contracts/l1/rollup/Rollup.sol:430-466",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "qlen",
+            "*"
+          ],
+          [
+            "t",
+            "*"
+          ]
+        ],
+        "writes": [
+          [
+            "enq",
+            "len(enq)"
+          ],
+          [
+            "log",
+            "*"
+          ],
+          [
+            "qlen",
+            "*"
+          ]
+        ]
+      },
+      "caller": "who",
+      "component": "sendMessage",
+      "cost": 1,
+      "defs": [],
+      "delay": null,
+      "effects": {
+        "enq": "snoc(enq,t)",
+        "qlen": "qlen+1"
+      },
+      "env": false,
+      "guards": [],
+      "id": "TRANS.sendMessage",
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "anyone (through the messenger; fee abstracted as one message cost)",
+      "model_fn": "step_sendMessage",
+      "partial": false,
+      "permissionless": true,
+      "principal_class": "anyone",
+      "pseudo": false,
+      "reverts": [],
+      "source": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288-301,366-379",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "bc",
+            "*"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "paused",
+            "*"
+          ]
+        ],
+        "writes": [
+          [
+            "chs",
+            "bc"
+          ],
+          [
+            "inch",
+            "*"
+          ],
+          [
+            "log",
+            "*"
+          ],
+          [
+            "paused",
+            "*"
+          ]
+        ]
+      },
+      "caller": "who",
+      "component": "setPause",
+      "cost": 0,
+      "defs": [],
+      "delay": null,
+      "effects": {
+        "chs": "status&&inch?set_ch(chs,bc,empty_ch()):chs",
+        "inch": "inch&&!status",
+        "paused": "status"
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:575-583 (pausing deletes the open challenge; finalizeTimestamp extensions stay)",
+      "env": false,
+      "guards": [
+        {
+          "reason": 23,
+          "require": "who==OWNER",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "reason": 3,
+          "require": "!status||!paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:94 _pause whenNotPaused"
+        },
+        {
+          "reason": 39,
+          "require": "status||paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:106 _unpause whenPaused"
+        }
+      ],
+      "id": "TRANS.setPause",
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "status",
+          "Bool"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "owner",
+      "model_fn": "step_setPause",
+      "partial": false,
+      "permissionless": false,
+      "principal_class": "owner",
+      "pseudo": false,
+      "reverts": [
+        3,
+        23,
+        39
+      ],
+      "source": "contracts/contracts/l1/rollup/Rollup.sol:573-588",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "t",
+            "*"
+          ]
+        ],
+        "writes": [
+          [
+            "log",
+            "*"
+          ],
+          [
+            "t",
+            "*"
+          ]
+        ]
+      },
+      "caller": null,
+      "component": "wait",
+      "cost": 0,
+      "defs": [],
+      "delay": "dt",
+      "effects": {
+        "t": "t+dt"
+      },
+      "env": true,
+      "guards": [],
+      "id": "TRANS.wait",
+      "inputs": [
+        [
+          "dt",
+          "Nat"
+        ]
+      ],
+      "kind": "TRANS",
+      "label": "environment",
+      "model_fn": "step_wait",
+      "partial": false,
+      "permissionless": true,
+      "principal_class": "environment",
+      "pseudo": false,
+      "reverts": [],
+      "source": "environment: time progress",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    }
+  ],
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "facts_version": "holon-facts/0.2",
+  "index_terms": [
+    [
+      "chs",
+      "bc"
+    ],
+    [
+      "chs",
+      "idx"
+    ],
+    [
+      "chs",
+      "idx-1"
+    ],
+    [
+      "enq",
+      "len(enq)"
+    ],
+    [
+      "enq",
+      "qpend"
+    ],
+    [
+      "fsr",
+      "idx"
+    ],
+    [
+      "fsr",
+      "idx-1"
+    ],
+    [
+      "s_bd",
+      "lci+1"
+    ],
+    [
+      "s_bvh",
+      "lci+1"
+    ],
+    [
+      "s_bvh",
+      "parent+1"
+    ],
+    [
+      "s_csr",
+      "lci+1"
+    ],
+    [
+      "s_tag",
+      "lci+1"
+    ],
+    [
+      "s_tag",
+      "parent+1"
+    ],
+    [
+      "win",
+      "idx-lfi"
+    ],
+    [
+      "win",
+      "idx-lfi.."
+    ],
+    [
+      "win",
+      "lci-lfi"
+    ],
+    [
+      "win",
+      "len(win)"
+    ],
+    [
+      "win",
+      "parent+1-lfi"
+    ],
+    [
+      "win",
+      "parent-lfi"
+    ]
+  ],
+  "inputs": [
+    {
+      "path": "spec/M1/lib/morph_rollup.lib.json",
+      "sha256": "004d12f43d1074f0746bce4e2c5fb87df4b5a0dca1b720c3523d2a18971f46a0"
+    },
+    {
+      "path": "spec/ledger/assumptions.json",
+      "sha256": "1389db4452c0c034f3a05b3d7db921f1454e0a4cfeb16e2048df86bbec059838"
+    },
+    {
+      "path": "spec/lib/go_slices.lib.json",
+      "sha256": "f5ddbe0ad4c6be7e89802f497e4c826cd68dbd8925bac014f506fc1867292df4"
+    }
+  ],
+  "mapped_sections": {
+    "abstractions": "8 abstraction records with ledger links (1 cited by no ledger entry: LEDGER debt)",
+    "actions": "10 TRANS edges with index-sensitive read/write sets (1 environment edge: wait); 5 principal classes (active_submitter, anyone, challenger, environment, owner)",
+    "constants_doc": "lexical sources (E6) on 1 parameter carrier (Z)",
+    "consumers": "1 CONS edge (blobs_of)",
+    "coverage": "17 coverage-debt entries (UNMODELLED); 13 modelled components listed",
+    "defs": "8 content-hashed definitions, attached to the edges whose expressions reach them",
+    "disch": "DISCH metadata: cost terms on 2 TRANS edges (commitBatchWithProof, sendMessage), delay input dt of wait; permissionless class and guard annotations on every TRANS edge",
+    "extraction": "provenance.extraction: how the facts were obtained",
+    "ghost_state": "1 ghost carrier (s_tag)",
+    "initial": "S0: the initial state, generating Reach on carrier State",
+    "migrations": "2 MIG edges (1 pseudo-migration, no code source: legacy)",
+    "observers": "5 observation LOAD edges into Obs (LOAD.obs.<name>)",
+    "params": "4 parameter carriers (env: AGG_BASE, DEP, OWNER, Z)",
+    "principals": "5 concrete principals (\u03a0 instances); the classes come from the actions' guards",
+    "reasons": "40 revert variants of carrier Obs (O_Rev codes)",
+    "shadow": "4 residue carriers (s_csr, s_bd, s_bvh, s_tag), keyed by absolute slot from base lci+1",
+    "state": "22 state carriers under the product carrier State, with a STORE/LOAD pair per field (STORE.<field>, LOAD.<field>)",
+    "target": "provenance.target: the code the facts describe",
+    "types": "3 record base types (BD, Ch, Entry)"
+  },
+  "model": "morph_rollup",
+  "principal_classes": [
+    {
+      "actions": [
+        "commitBatch",
+        "commitState",
+        "proveState"
+      ],
+      "caller": "Nat",
+      "caller_input": "who",
+      "guard_reasons": [
+        1
+      ],
+      "id": "active_submitter",
+      "labels": [
+        "active submitter"
+      ],
+      "params": [],
+      "permissionless": false,
+      "predicate": [
+        "call",
+        "mem",
+        "who",
+        "active"
+      ],
+      "predicate_text": "mem(who,active)",
+      "reads": [
+        "active"
+      ]
+    },
+    {
+      "actions": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "sendMessage"
+      ],
+      "caller": "Nat",
+      "caller_input": "who",
+      "guard_reasons": [],
+      "id": "anyone",
+      "labels": [
+        "anyone",
+        "anyone (through the messenger; fee abstracted as one message cost)"
+      ],
+      "params": [],
+      "permissionless": true,
+      "predicate": null,
+      "predicate_text": null,
+      "reads": []
+    },
+    {
+      "actions": [
+        "challengeState"
+      ],
+      "caller": "Nat",
+      "caller_input": "who",
+      "guard_reasons": [
+        28
+      ],
+      "id": "challenger",
+      "labels": [
+        "challenger"
+      ],
+      "params": [],
+      "permissionless": false,
+      "predicate": [
+        "call",
+        "mem",
+        "who",
+        "chals"
+      ],
+      "predicate_text": "mem(who,chals)",
+      "reads": [
+        "chals"
+      ]
+    },
+    {
+      "actions": [
+        "wait"
+      ],
+      "caller": null,
+      "caller_input": null,
+      "guard_reasons": [],
+      "id": "environment",
+      "labels": [
+        "environment"
+      ],
+      "params": [],
+      "permissionless": true,
+      "predicate": null,
+      "predicate_text": null,
+      "reads": []
+    },
+    {
+      "actions": [
+        "revertBatch",
+        "setPause"
+      ],
+      "caller": "Nat",
+      "caller_input": "who",
+      "guard_reasons": [
+        23
+      ],
+      "id": "owner",
+      "labels": [
+        "owner"
+      ],
+      "params": [
+        "OWNER"
+      ],
+      "permissionless": false,
+      "predicate": [
+        "==",
+        "who",
+        "OWNER"
+      ],
+      "predicate_text": "who==OWNER",
+      "reads": []
+    }
+  ],
+  "principals": [
+    {
+      "id": 1,
+      "name": "owner"
+    },
+    {
+      "id": 2,
+      "name": "submitter A"
+    },
+    {
+      "id": 3,
+      "name": "submitter B"
+    },
+    {
+      "id": 4,
+      "name": "challenger"
+    },
+    {
+      "id": 5,
+      "name": "anyone"
+    }
+  ],
+  "provenance": {
+    "extraction": {
+      "date": "2026-10-11",
+      "method": "hand-written from the real repo at the pinned commit (M1); line numbers are real-repo lines"
+    },
+    "target": {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "repo": "morph-l2/morph",
+      "scope": "Rollup batch lifecycle (commit x3, revert, challenge, prove, finalize, pause) + L1MessageQueue cursors"
+    }
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON protocol diagram (holon-diagram/0.1)",
+  "description": "One diagram per fact document (whitepaper §4 Defs 4.1-4.4 and 4.7, §8.3; BUILD_PLAN I11), written by `python -m holon diagram --milestone M2` to gen/M2/diagram/<model>.json. Access terms are [carrier, key] pairs: key is an index term rendered as infix text without spaces, \"*\" (every slot, or a whole scalar or record register) or \"#\" (the length only). Uses only the keywords of holon/schema.py and tests/reference/mini_schema.py.",
+  "type": "object",
+  "required": ["diagram_version", "model", "facts", "facts_sha256", "facts_version", "carriers", "edges",
+               "principal_classes", "index_terms", "coverage_debt", "mapped_sections", "provenance", "inputs"],
+  "additionalProperties": false,
+  "properties": {
+    "diagram_version": {"const": "holon-diagram/0.1"},
+    "model": {"type": "string", "pattern": "^[A-Za-z0-9_]+$"},
+    "facts": {"type": "string", "pattern": "^[^/].*\\.json$", "description": "repo-relative posix path of the fact document"},
+    "facts_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "facts_version": {"enum": ["holon-facts/0.1", "holon-facts/0.2"]},
+    "carriers": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/carrier"}},
+    "edges": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/edge"}},
+    "principal_classes": {"type": "array", "items": {"$ref": "#/$defs/principal_class"}},
+    "index_terms": {"type": "array", "items": {"$ref": "#/$defs/term"}},
+    "coverage_debt": {"type": "array", "items": {"$ref": "#/$defs/debt"}},
+    "mapped_sections": {
+      "type": "object",
+      "description": "every top-level facts section except facts_version -> what it became",
+      "additionalProperties": {"type": "string", "pattern": "\\S"}
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {"target": {"type": "object"}, "extraction": {"type": "object"}}
+    },
+    "inputs": {
+      "type": "array",
+      "description": "files besides the facts the diagram was built from (ledger, target libraries)",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "additionalProperties": false,
+        "properties": {"path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+      }
+    },
+    "base_types": {"type": "object", "additionalProperties": {"$ref": "#/$defs/base_type"}},
+    "predicates": {
+      "type": "object",
+      "description": "facts 0.1: validity predicates, the domains of interface carriers",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["carrier", "lang", "rules", "source"],
+        "properties": {"carrier": {"type": "string"}, "lang": {"type": "string"}, "rules": {"type": "array", "minItems": 1},
+                       "source": {"type": "array"}, "meaning": {"type": ["string", "null"]}}
+      }
+    },
+    "assumptions": {"type": "array", "items": {"$ref": "#/$defs/assumption"}},
+    "abstractions": {"type": "array", "items": {"$ref": "#/$defs/abstraction"}},
+    "defs": {"type": "object", "additionalProperties": {"$ref": "#/$defs/def"}},
+    "principals": {
+      "type": "array",
+      "description": "facts 0.2: concrete principal ids (Π instances)",
+      "items": {"type": "object", "required": ["id", "name"], "additionalProperties": false,
+                "properties": {"id": {"type": "integer"}, "name": {"type": "string"}}}
+    },
+    "disch": {"type": "object", "description": "facts 0.2: the DISCH cost model as given"},
+    "coverage": {"type": "object", "required": ["modelled"], "additionalProperties": false,
+                 "properties": {"modelled": {"type": "array", "items": {"type": "string"}}}},
+    "explorer": {"type": "object", "description": "refuter configuration (policy, search): not part of 𝔇",
+                 "additionalProperties": false, "properties": {"policy": {}, "search": {"type": "object"}}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_.]*$"},
+    "term": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {"type": "string", "pattern": "^\\S+$"}
+    },
+    "access": {
+      "type": "object",
+      "required": ["reads", "writes"],
+      "additionalProperties": false,
+      "properties": {
+        "reads": {"type": "array", "items": {"$ref": "#/$defs/term"}},
+        "writes": {"type": "array", "items": {"$ref": "#/$defs/term"}}
+      }
+    },
+    "carrier": {
+      "type": "object",
+      "description": "Def 4.1. Kind-specific keys: product (record and state products), key_space (sequences), domains (interface carriers of facts 0.1), projections, component_of, ghost, residue_of, slot_base, slot_base_from, param, value, lexical, initial, variants, revert_variants, consumer, doc, ledger.",
+      "required": ["id", "cls", "base_type", "sort_ref", "interface", "reach"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "cls": {"enum": ["rep", "state", "env", "digest", "buffer"]},
+        "base_type": {"type": "string", "pattern": "\\S"},
+        "sort_ref": {"type": ["string", "null"]},
+        "interface": {"type": "boolean"},
+        "reach": {"enum": ["external", "inductive", "image", null]},
+        "key_space": {"enum": ["position", "slot", "byte", null]},
+        "product": {"type": "array", "items": {"type": "string"}},
+        "domains": {"type": "array", "items": {"type": "string"}},
+        "ghost": {"type": "boolean"},
+        "residue_of": {"type": "string"},
+        "slot_base": {"type": "string", "pattern": "^\\S+$"}
+      },
+      "allOf": [
+        {"if": {"properties": {"interface": {"const": true}}}, "then": {"properties": {"reach": {"const": "external"}}}},
+        {"if": {"required": ["domains"]}, "then": {"properties": {"interface": {"const": true}}}},
+        {"if": {"properties": {"key_space": {"const": "slot"}}, "required": ["key_space"]},
+         "then": {"required": ["slot_base", "slot_base_from", "residue_of"]}}
+      ]
+    },
+    "edge": {
+      "type": "object",
+      "description": "Def 4.2. Kind-specific keys: CODEC fn_kind, lang, source, domain, conditional_writes; TRANS source, label, inputs, caller, guards, reverts, effects, defs, permissionless, cost, delay; MIG doc, source, inputs, effects, ledger; LOAD observer, type, body; STORE writers, initial; LOAD readers; CONS input, from_actions.",
+      "required": ["id", "kind", "src", "tgt", "component", "version", "partial", "env", "pseudo", "principal_class", "access"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["CODEC", "HASH", "STORE", "LOAD", "CONS", "TRANS", "MIG", "SYM"]},
+        "src": {"$ref": "#/$defs/id"},
+        "tgt": {"$ref": "#/$defs/id"},
+        "component": {"type": "string", "pattern": "\\S"},
+        "version": {"type": ["string", "null"]},
+        "partial": {"type": "boolean"},
+        "env": {"type": "boolean"},
+        "pseudo": {"type": "boolean"},
+        "principal_class": {"type": ["string", "null"]},
+        "access": {"$ref": "#/$defs/access"},
+        "cost": {"type": "integer"},
+        "delay": {"type": ["string", "null"]},
+        "permissionless": {"type": "boolean"},
+        "guards": {"type": "array", "items": {"$ref": "#/$defs/guard"}},
+        "reverts": {"type": "array", "items": {"type": "integer"}},
+        "defs": {"type": "array", "items": {"type": "string"}}
+      },
+      "allOf": [
+        {"if": {"properties": {"kind": {"const": "TRANS"}}},
+         "then": {"required": ["guards", "reverts", "effects", "inputs", "defs", "permissionless", "cost", "delay"],
+                  "properties": {"principal_class": {"type": "string"}}}},
+        {"if": {"properties": {"kind": {"enum": ["CODEC", "HASH", "STORE", "LOAD", "CONS", "MIG", "SYM"]}}},
+         "then": {"properties": {"principal_class": {"const": null}, "env": {"const": false}}}},
+        {"if": {"properties": {"kind": {"enum": ["CODEC", "HASH", "STORE", "LOAD", "CONS", "TRANS", "SYM"]}}},
+         "then": {"properties": {"pseudo": {"const": false}}}},
+        {"if": {"properties": {"kind": {"enum": ["HASH", "STORE", "LOAD", "CONS", "TRANS", "MIG", "SYM"]}}},
+         "then": {"properties": {"partial": {"const": false}}}},
+        {"if": {"properties": {"kind": {"const": "CODEC"}}}, "then": {"required": ["fn_kind", "lang", "source"]}},
+        {"if": {"properties": {"kind": {"const": "STORE"}}}, "then": {"required": ["writers"]}},
+        {"if": {"properties": {"kind": {"const": "MIG"}}}, "then": {"required": ["effects", "inputs"]}}
+      ]
+    },
+    "guard": {
+      "type": "object",
+      "oneOf": [
+        {"required": ["require", "reason"], "properties": {"require": {"type": "string"}, "reason": {"type": "integer"}}},
+        {"required": ["let", "expr"], "properties": {"let": {"type": "string"}, "expr": {"type": "string"}}}
+      ]
+    },
+    "principal_class": {
+      "type": "object",
+      "description": "§8.3: a caller type plus a permission predicate (a facts DSL guard expression; null for a class whose actions test no caller)",
+      "required": ["id", "labels", "caller", "caller_input", "predicate", "predicate_text", "guard_reasons", "reads",
+                   "params", "actions", "permissionless"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+        "labels": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "caller": {"type": ["string", "null"]},
+        "caller_input": {"type": ["string", "null"]},
+        "predicate": {"type": ["array", "string", "boolean", "null"]},
+        "predicate_text": {"type": ["string", "null"]},
+        "guard_reasons": {"type": "array", "items": {"type": "integer"}},
+        "reads": {"type": "array", "items": {"type": "string"}},
+        "params": {"type": "array", "items": {"type": "string"}},
+        "actions": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "permissionless": {"type": "boolean"}
+      }
+    },
+    "debt": {
+      "type": "object",
+      "required": ["kind", "what"],
+      "properties": {
+        "kind": {"enum": ["HASH", "UNMODELLED", "ACCESS", "LEDGER", "PRINCIPAL", "SHADOW"]},
+        "what": {"type": "string", "pattern": "\\S"},
+        "source": {"type": "string", "pattern": "^#/"},
+        "ledger": {"type": "string"}
+      }
+    },
+    "base_type": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {"kind": {"type": "string"}, "fields": {"type": "array"}, "doc": {"type": "string"}}
+    },
+    "assumption": {
+      "type": "object", "required": ["id", "text", "ledger"], "additionalProperties": false,
+      "properties": {"id": {"type": "string"}, "text": {"type": "string"}, "ledger": {"type": "array", "items": {"type": "string"}}}
+    },
+    "abstraction": {
+      "type": "object", "required": ["index", "text", "ledger"], "additionalProperties": false,
+      "properties": {"index": {"type": "integer"}, "text": {"type": "string"},
+                     "ledger": {"type": "array", "items": {"type": "string"}}}
+    },
+    "def": {
+      "type": "object", "required": ["sha256", "params", "type", "ghost", "body"], "additionalProperties": false,
+      "properties": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "params": {"type": "array"},
+                     "type": {"type": "string"}, "ghost": {"type": "boolean"}, "body": {"type": "string"}}
+    }
+  }
+}

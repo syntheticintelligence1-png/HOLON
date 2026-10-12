@@ -10,6 +10,7 @@
   python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
   python -m holon replay [--milestone M] [--morph PATH] [--forge F] [--solc S] [--work DIR] [--write-pins]
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
+  python -m holon diagram --milestone M2 [--out DIR] [--root DIR]   (one diagram per fact document)
 """
 from __future__ import annotations
 
@@ -67,6 +68,10 @@ def main(argv=None) -> int:
     lay.add_argument("fn")
     lay.add_argument("version", type=int)
     lay.add_argument("--facts", default="facts/morph_header.json")
+    dg = sub.add_parser("diagram", help="build the protocol diagram of every fact document (gen/<M>/diagram)")
+    dg.add_argument("--milestone", default="M2")
+    dg.add_argument("--out", help="output directory (default: <root>/gen/<milestone>/diagram)")
+    dg.add_argument("--root", help="repository root holding the fact documents (default: this checkout)")
     a = ap.parse_args(argv)
     if a.cmd == "run":
         from .pipeline import main_run
@@ -95,6 +100,9 @@ def main(argv=None) -> int:
     if a.cmd == "replay":
         from .replay import main_replay
         return main_replay(a)
+    if a.cmd == "diagram":
+        from . import diagram
+        return diagram.run(a.milestone, a.out, a.root)
     if a.cmd == "layout":
         from . import facts, layout
         for i, c in enumerate(layout.layout(facts.load(a.facts), a.fn, a.version)):
