@@ -1,0 +1,144 @@
+{
+ "round": 1,
+ "milestone": "M2",
+ "target_commit": "e453c1eb60877dac62e884a4b16f77a638dcb6c2",
+ "auditor": {
+  "session": "I6-I13 audit round (two same-family auditor agents, scopes I6-I9 and I10-I13)",
+  "family": "same",
+  "counts_toward_convergence": false
+ },
+ "attacks": [
+  {
+   "id": "A1",
+   "category": "statement_fidelity",
+   "tried": "Statement hashes and refs (holon/gen/refs.py) mutated per dependency: facts.disch, observer defs, library builtins, unrelated action src; statement.scope on a bounded toy law; IR 0.3 schema vs the I7 report; the core catalog extended with the lemmas DISCH and coercion guards need; STATEMENT_DIFF entries re-checked after facts changes; implication generator under binder renaming.",
+   "result": "finding",
+   "findings": [
+    "F-M2-01",
+    "F-M2-03",
+    "F-M2-04",
+    "F-M2-15",
+    "F-M2-17",
+    "F-M2-18",
+    "F-M2-19",
+    "F-M2-22",
+    "F-M2-23",
+    "F-M2-33",
+    "F-M2-34"
+   ]
+  },
+  {
+   "id": "A2",
+   "category": "gate_evasion",
+   "tried": "Full gate on toy IR 0.3 milestones (T7, T9) built from the I7/I8 fixtures; a proof file that never imports its law under the I10 separated layout; a weakened M1 law with a rewritten registry; comment-split law declarations in proofs/; G4 canary generation over every 0.3/Reach fixture; G7 with no lean4 kernel listed; Lean canaries with parse errors.",
+   "result": "finding",
+   "findings": [
+    "F-M2-02",
+    "F-M2-06",
+    "F-M2-07",
+    "F-M2-08",
+    "F-M2-10",
+    "F-M2-20",
+    "F-M2-21",
+    "F-M2-24",
+    "F-M2-32"
+   ]
+  },
+  {
+   "id": "A3",
+   "category": "model_vs_code",
+   "tried": "Morph-identifier grep (I6-P3) against the facts vocabulary; mcanary live fields vs Machine.reads; mreplay op table; principal classes vs permission guards; I12 sidecar lookup from the Morph facts; I13 sites against Rollup.sol and the facts (code subtraction vs model coordinate); builtin-name seeds; CODEC partiality.",
+   "result": "finding",
+   "findings": [
+    "F-M2-11",
+    "F-M2-14",
+    "F-M2-16",
+    "F-M2-26",
+    "F-M2-27",
+    "F-M2-28",
+    "F-M2-29",
+    "F-M2-30",
+    "F-M2-35",
+    "F-M2-36",
+    "F-M2-37"
+   ]
+  },
+  {
+   "id": "A4",
+   "category": "vacuity",
+   "tried": "G11V with a forged reachable flag on a constructed inhabitant (F-M1-05 replay); the I7 CF and existential fixtures.",
+   "result": "finding",
+   "findings": [
+    "F-M2-13",
+    "F-M2-31"
+   ]
+  },
+  {
+   "id": "A5",
+   "category": "determinism",
+   "tried": "Two regenerations of gen/M2/diagram and gen/M2/sorts (byte-identical); whether any gate check regenerates gen/M2/diagram, gen/M2/sorts and gen/M2/oracles.",
+   "result": "finding",
+   "findings": [
+    "F-M2-25"
+   ]
+  },
+  {
+   "id": "A6",
+   "category": "mutation_adequacy",
+   "tried": "erase_live canaries on non-Morph targets (toy queue, batchdata): the live-field list derived from a hard-coded Morph list yields nothing.",
+   "result": "finding",
+   "findings": [
+    "F-M2-05"
+   ]
+  },
+  {
+   "id": "A7",
+   "category": "bindings_ledger",
+   "tried": "binding_change entries vs holon bind --accept-change; model_assumptions of M2+ records vs the ledger cone of the same law under M1.",
+   "result": "finding",
+   "findings": [
+    "F-M2-09",
+    "F-M2-12"
+   ]
+  }
+ ],
+ "findings": [
+  "F-M2-01",
+  "F-M2-02",
+  "F-M2-03",
+  "F-M2-04",
+  "F-M2-05",
+  "F-M2-06",
+  "F-M2-07",
+  "F-M2-08",
+  "F-M2-09",
+  "F-M2-10",
+  "F-M2-11",
+  "F-M2-12",
+  "F-M2-13",
+  "F-M2-14",
+  "F-M2-15",
+  "F-M2-16",
+  "F-M2-17",
+  "F-M2-18",
+  "F-M2-19",
+  "F-M2-20",
+  "F-M2-21",
+  "F-M2-22",
+  "F-M2-23",
+  "F-M2-24",
+  "F-M2-25",
+  "F-M2-26",
+  "F-M2-27",
+  "F-M2-28",
+  "F-M2-29",
+  "F-M2-30",
+  "F-M2-31",
+  "F-M2-32",
+  "F-M2-33",
+  "F-M2-34",
+  "F-M2-35",
+  "F-M2-36",
+  "F-M2-37"
+ ]
+}

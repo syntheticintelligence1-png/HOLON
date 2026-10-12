@@ -16,8 +16,8 @@ SEVERITIES = ("high", "medium", "low")
 STATUSES = ("open", "fixed", "wontfix", "duplicate")
 
 
-def load(root: Path) -> tuple[list[dict], list[str]]:
-    p = root / "audit" / "findings.jsonl"
+def load(root: Path, path: str = "audit/findings.jsonl") -> tuple[list[dict], list[str]]:
+    p = root / path
     if not p.exists():
         return [], [f"{p.relative_to(root)} does not exist"]
     out, bad = [], []
@@ -49,8 +49,10 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="holon audit status", description=__doc__.splitlines()[0])
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--root", default=str(DEFAULT_ROOT))
+    ap.add_argument("--findings", default="audit/findings.jsonl",
+                    help="findings file relative to the root (the M2 round writes audit/M2_findings.jsonl)")
     a = ap.parse_args(argv)
-    findings, bad = load(Path(a.root).resolve())
+    findings, bad = load(Path(a.root).resolve(), a.findings)
     s = summary(findings)
     if bad:
         s["errors"] = bad
