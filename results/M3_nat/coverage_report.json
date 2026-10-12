@@ -1,0 +1,2906 @@
+{
+  "coverage_debt": [
+    {
+      "element": "_defenderWin/_challengerWin accounting",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "addChallenger",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "claimProveRemaining",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "claimReward",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "dataHash contents",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "importGenesisBatch",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "initialize",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "proveCommittedBatchState (view)",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "removeChallenger",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "updateRewardPercentage",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "withdrawalRoots",
+      "source": "spec/M3/extracted/morph_rollup.json"
+    },
+    {
+      "element": "batch.BatchCache.createBatchHeaderWithSequencerSetHash:1690",
+      "kind": "off_output_write",
+      "reason": "op writes buffer ('alloc', 5), not the returned bytes (input construction; modelled via the field precondition)",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:keccak256(_batchPtr, _headerLength)",
+      "kind": "edge",
+      "reason": "hash primitive is outside the byte-layout model; recorded as an edge fact",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:mstore(0x40, add(_batchPtr, _headerLength))",
+      "kind": "infrastructure",
+      "reason": "free-memory-pointer bump writes outside the tracked header buffer",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(_batchIndex == lastCommittedBatchIndex, \\\"incorrect batch index\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.postStateRoot != bytes32(0), \\\"new state root is zero\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.prevStateRoot != bytes32(0), \\\"previous state root is zer",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex + 1] == bytes32(0), \\\"batch already committ",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex] == _parentBatchHash, \\\"incorrect parent ba",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedStateRoots[_batchIndex] == batchDataInput.prevStateRoot, \\\"inco",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/assemble_header.json"
+    },
+    {
+      "element": "common/batch/batch_cache.go:127 func literal NewBatchCache$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_cache.go:131 func literal NewBatchCache$2",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_cache.go:666 func literal initAndSyncFromRollupLocked$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:103 method BatchData.calculateHash",
+      "kind": "unmodelled_method",
+      "reason": "method calculateHash not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:122 method BatchData.BlockNum",
+      "kind": "unmodelled_method",
+      "reason": "method BlockNum not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:149 method BatchData.WillExceedCompressedSizeLimit",
+      "kind": "unmodelled_method",
+      "reason": "method WillExceedCompressedSizeLimit not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:39 append BatchData.l1TxHashes",
+      "kind": "dropped_append",
+      "reason": "append outside tracked cone (in loop)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:64 method BatchData.IsEmpty",
+      "kind": "unmodelled_method",
+      "reason": "method IsEmpty not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_data.go:83 method BatchData.DataHashV2",
+      "kind": "unmodelled_method",
+      "reason": "method DataHashV2 not modelled (no append, no slice return)",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_query.go:59 func literal getLastFinalizeBatchHeaderFromRollupByIndex$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_storage.go:435 func literal indicesSnapshotWith$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "common/batch/batch_storage.go:473 func literal loadBatchIndices$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:114 func literal NewL2Block$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:133 func literal NewL2BlockV2$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:154 func literal NewSafeL2Block$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:172 func literal BlockNumber$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:190 func literal HeaderByNumber$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:209 func literal BlockByNumber$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:228 func literal CallContract$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:246 func literal CodeAt$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:264 func literal SetBlockTags$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:321 func literal AssembleL2BlockV2$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:78 func literal AssembleL2Block$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "node/types/retryable_client.go:96 func literal ValidateL2Block$1",
+      "kind": "anonymous",
+      "reason": "closure bodies not reduced",
+      "source": "spec/M2/coverage/go.json"
+    },
+    {
+      "element": "L_disch_stale",
+      "kind": "proof_template_unsupported",
+      "reason": "\u22a2 kappa (step a s) = true",
+      "source": "spec/M2/coverage/lean_m1.json"
+    },
+    {
+      "element": "L_disch_stale_commit",
+      "kind": "proof_template_unsupported",
+      "reason": "\u22a2 last_ok (step a s) = false",
+      "source": "spec/M2/coverage/lean_m1.json"
+    },
+    {
+      "element": "chain:0x542675e90e269f20ecbb9e0095d4751ac155b530 selector 0x134008d3",
+      "kind": "unresolved_selector",
+      "reason": "ProxyAdmin-owner aggregate/forwarder contract; embedded upgrade calls are recovered by selector scan, but the wrapper's own function signature is unidentified",
+      "source": "spec/M2/coverage/link.json"
+    },
+    {
+      "element": "chain:0x9e2fb684935a32ced121972f23bd0e4634377ca2->0xac3c379d772f3520b34690d32ba14510ab36c3fb",
+      "kind": "unverified_source",
+      "reason": "unverified implementation source: 0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "source": "spec/M2/coverage/link.json"
+    },
+    {
+      "element": "chain:0xb2f539aede77df4cd1d427d046bbbbd8db4cbaaf->0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "kind": "unverified_source",
+      "reason": "unverified implementation source: 0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "source": "spec/M2/coverage/link.json"
+    },
+    {
+      "element": "M1:L_disch_delay_nofree",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_delay_pay",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_delay_prove",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_delay_wait",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_stale",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_disch_stale_commit",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_fact_Z",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_nat_eta2",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_own_txspayload",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_sort_remaining",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_sym_omega",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_tag_BVH",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_undo_BD",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_undo_BVH",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_undo_CSR",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "M1:L_undo_cancel",
+      "kind": "law",
+      "reason": "holon-ir/0.2 machine law: Trace/Act/Nat binders and coinductive claims are outside the codec QF_UFBV fragment",
+      "source": "spec/M2/coverage/refuter.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:keccak256(_batchPtr, _headerLength)",
+      "kind": "edge",
+      "reason": "hash primitive is outside the byte-layout model; recorded as an edge fact",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:mstore(0x40, add(_batchPtr, _headerLength))",
+      "kind": "infrastructure",
+      "reason": "free-memory-pointer bump writes outside the tracked header buffer",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(_batchIndex == lastCommittedBatchIndex, \\\"incorrect batch index\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.postStateRoot != bytes32(0), \\\"new state root is zero\\\")",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(batchDataInput.prevStateRoot != bytes32(0), \\\"previous state root is zer",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex + 1] == bytes32(0), \\\"batch already committ",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedBatches[_batchIndex] == _parentBatchHash, \\\"incorrect parent ba",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "contracts/l1/rollup/Rollup.sol:require(committedStateRoots[_batchIndex] == batchDataInput.prevStateRoot, \\\"inco",
+      "kind": "precondition",
+      "reason": "input-validity constraint on Header fields, not a byte-layout op",
+      "source": "spec/M2/coverage/solidity_layout.json"
+    },
+    {
+      "element": "action:challengeState.effects.win",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitBatch.effects.win",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitBatch.guards[18]",
+      "kind": "spec_bound",
+      "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitBatch.guards[8]",
+      "kind": "spec_bound",
+      "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitBatch:ghost_tag",
+      "kind": "spec_bound",
+      "reason": "ghost tag twin has no source expression",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitBatchWithProof.effects.win",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitBatchWithProof.guards[14]",
+      "kind": "spec_bound",
+      "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitBatchWithProof.guards[23]",
+      "kind": "spec_bound",
+      "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitBatchWithProof:ghost_tag",
+      "kind": "spec_bound",
+      "reason": "ghost tag twin has no source expression",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitState.effects.win",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitState.guards[19]",
+      "kind": "spec_bound",
+      "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitState.guards[21]",
+      "kind": "spec_bound",
+      "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:commitState:ghost_tag",
+      "kind": "spec_bound",
+      "reason": "ghost tag twin has no source expression",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:finalizeBatch.effects.qpend",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:finalizeBatch.guards[14]",
+      "kind": "spec_bound",
+      "reason": "spec-provided guard (handler, ghost or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:revertBatch.effects.chs",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:revertBatch.effects.inch",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:revertBatch.effects.rri",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:revertBatch.effects.s_bd",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:revertBatch.effects.s_bvh",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:revertBatch.effects.s_csr",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:revertBatch.effects.s_tag",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:revertBatch.effects.win",
+      "kind": "spec_bound",
+      "reason": "spec-provided effect (handler or oracle rule), not AST-derived",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "action:wait",
+      "kind": "spec_bound",
+      "reason": "declared action; no AST source",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "batch entry bdf write at 'idx'",
+      "kind": "unmodelled_write",
+      "reason": "batchDataStore[k].bdf outside entry construction",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:102 func nextCrossDomainMessageIndex",
+      "kind": "unmodelled_fn",
+      "reason": "view; no transition effect",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:107 func getCrossDomainMessage",
+      "kind": "unmodelled_value",
+      "reason": "message hash payload not modelled; its index range require is lifted by the caller loop guard",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:113 func estimateCrossDomainMessageFee",
+      "kind": "unmodelled_fn",
+      "reason": "fee estimation not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:122 func calculateIntrinsicGasFee",
+      "kind": "unmodelled_value",
+      "reason": "intrinsic gas computation not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:130 func computeTransactionHash",
+      "kind": "unmodelled_value",
+      "reason": "queue entry hash contents not modelled (queue is length-only)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:270 func getMessageEnqueueTimestamp",
+      "kind": "unmodelled_fn",
+      "reason": "view; not on a modelled transition path",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:270 func popCrossDomainMessage require _count <= 256",
+      "kind": "subsumed_require",
+      "reason": "the 256-chunk loop bounds count <= 256 by construction",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:280 func setL2BaseFee",
+      "kind": "unmodelled_fn",
+      "reason": "fee accounting not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288 func appendCrossDomainMessage",
+      "kind": "folded_fn",
+      "reason": "modelled via _queueTransaction as sendMessage (onlyMessenger -> principal)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:305 func appendEnforcedTransaction",
+      "kind": "unmodelled_fn",
+      "reason": "enforced-tx gateway path not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:322 func popCrossDomainMessage require _msgSender == ROLLUP_CONTRACT",
+      "kind": "subsumed_require",
+      "reason": "internal call from finalizeBatch; caller identity is the contract",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:341 func updateMaxGasLimit",
+      "kind": "unmodelled_fn",
+      "reason": "parameter update (admin)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:351 func updateWhitelistChecker",
+      "kind": "unmodelled_fn",
+      "reason": "whitelist admin",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:375 computeTransactionHash",
+      "kind": "unmodelled_value",
+      "reason": "computeTransactionHash",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:383 func _validateGasLimit",
+      "kind": "unmodelled_fn",
+      "reason": "gas-limit accounting not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:90 storage __droppedMessageBitmap",
+      "kind": "unmodelled_storage",
+      "reason": "dropped-message bitmap not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:91 func initialize",
+      "kind": "unmodelled_fn",
+      "reason": "initializer; deployment wiring not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:91 storage __skippedMessageBitmap",
+      "kind": "unmodelled_storage",
+      "reason": "skipped-message bitmap not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:91 storage l2BaseFee",
+      "kind": "unmodelled_storage",
+      "reason": "fee accounting not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:141 func initialize",
+      "kind": "unmodelled_fn",
+      "reason": "initializer; deployment wiring not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:197 func initialize3",
+      "kind": "unmodelled_fn",
+      "reason": "upgrade initializer; admin bookkeeping",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:205 func initialize4",
+      "kind": "unmodelled_fn",
+      "reason": "upgrade initializer; admin bookkeeping",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:226 func importGenesisBatch",
+      "kind": "unmodelled_fn",
+      "reason": "genesis bootstrap; the initial state is post-genesis",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:313 require incorrect parent batch hash",
+      "kind": "subsumed_require",
+      "reason": "honest-header premise: presented parent header's hash matches committedBatches[parent] by CF",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:318 call _commitBatch",
+      "kind": "unmodelled_value",
+      "reason": "dataHash contents not modelled (the memory pipeline reduces to the queue range guard)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:340 write headerLength",
+      "kind": "unmodelled_value",
+      "reason": "V0/V1 header-length choice affects header bytes only, not modelled fields",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:357 call BatchHeaderCodecV0.computeBatchHash",
+      "kind": "unmodelled_call",
+      "reason": "call BatchHeaderCodecV0.computeBatchHash not translated",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:417 require incorrect batch header",
+      "kind": "subsumed_require",
+      "reason": "honest-header premise: presented header carries the just-committed index LCI",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:418 require incorrect batch hash",
+      "kind": "unbound_guard",
+      "reason": "guard dropped: name(s) ['idx'] have no bound model value (decoded from opaque header bytes or unmodelled locals)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:419 require incorrect batch hash",
+      "kind": "subsumed_require",
+      "reason": "honest-header premise",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:444 revert loop refunds",
+      "kind": "unmodelled_write",
+      "reason": "batchChallengeReward += challengeDeposit inside the loop is reward accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:447 write batchChallengeReward",
+      "kind": "unmodelled_write",
+      "reason": "challenge deposit refunds inside the revert loop are reward accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:499 func updateProofWindow",
+      "kind": "unmodelled_fn",
+      "reason": "parameter update (admin)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:508 func updateFinalizePeriodSeconds",
+      "kind": "unmodelled_fn",
+      "reason": "parameter update (admin)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:517 func updateRollupDelayPeriod",
+      "kind": "unmodelled_fn",
+      "reason": "parameter update (admin)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:526 func addChallenger",
+      "kind": "unmodelled_fn",
+      "reason": "challenger admin",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:540 func removeChallenger",
+      "kind": "unmodelled_fn",
+      "reason": "challenger admin",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:554 func updateVerifier",
+      "kind": "unmodelled_fn",
+      "reason": "verifier admin",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:563 func updateRewardPercentage",
+      "kind": "unmodelled_fn",
+      "reason": "parameter update (admin)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:578 write batchChallengeReward",
+      "kind": "unmodelled_write",
+      "reason": "reward/deposit accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:579 write batchChallengeReward",
+      "kind": "unmodelled_write",
+      "reason": "challenge deposit refund on pause is reward accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:648 BatchHeaderCodecV0.getWithdrawRootHash",
+      "kind": "unmodelled_value",
+      "reason": "header field BatchHeaderCodecV0.getWithdrawRootHash not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:648 map withdrawalRoots",
+      "kind": "unmodelled_write",
+      "reason": "withdrawalRoots not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:648 write withdrawalRoots",
+      "kind": "unmodelled_write",
+      "reason": "withdrawal roots",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:673 func claimReward",
+      "kind": "unmodelled_fn",
+      "reason": "reward/deposit accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:674 func claimProveRemaining",
+      "kind": "unmodelled_fn",
+      "reason": "reward/deposit accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:714 func proveCommittedBatchState",
+      "kind": "unmodelled_fn",
+      "reason": "view wrapper of _verifyProof; no writes",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:726 func _getProxyAdmin",
+      "kind": "unmodelled_fn",
+      "reason": "EIP-1967 admin slot not modelled",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:756 func _verifyProof keccak public-input hash",
+      "kind": "unmodelled_value",
+      "reason": "the public input hash is oracle-side; the verifier decision is the proof==1 oracle",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:765 let v_blobHashInput",
+      "kind": "unbound_value",
+      "reason": "let dropped: name(s) ['idx'] have no bound model value",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:793 func _defenderWin",
+      "kind": "unmodelled_write",
+      "reason": "proveRemaining += and batchChallengeReward += are reward accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:793 storage proofRewardPercent",
+      "kind": "unmodelled_read",
+      "reason": "reward/deposit accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:794 write proveRemaining",
+      "kind": "unmodelled_write",
+      "reason": "reward/deposit accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:795 write batchChallengeReward",
+      "kind": "unmodelled_write",
+      "reason": "reward/deposit accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:806 ISubmitter.slash",
+      "kind": "unmodelled_value",
+      "reason": "slash deactivates the submitter; the returned reward feeds unmodelled accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:806 func _challengerWin",
+      "kind": "unmodelled_write",
+      "reason": "batchChallengeReward += is reward accounting (slash's active-set effect IS modelled)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:807 write batchChallengeReward",
+      "kind": "unmodelled_write",
+      "reason": "reward/deposit accounting",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:812 func _transfer",
+      "kind": "unmodelled_fn",
+      "reason": "ETH transfer; only reachable from reward claims",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:819 func _getBatchVersion",
+      "kind": "abstracted_fn",
+      "reason": "version extraction is part of the header-load abstraction",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:836 func _loadBatchHeader",
+      "kind": "abstracted_fn",
+      "reason": "header byte decoding and validation are the honest-header premise; a presented header is the stored header of the index it names",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:870 asm blob collect",
+      "kind": "abstracted_asm",
+      "reason": "the blobhash-collection loop is modelled as blob_count blobs / agg blobs",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:870 assembly",
+      "kind": "abstracted_asm",
+      "reason": "asm statements outside the translated subset",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "contracts/contracts/l1/rollup/Rollup.sol:882 assembly",
+      "kind": "abstracted_asm",
+      "reason": "asm statements outside the translated subset",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.abstractions",
+      "kind": "spec_bound",
+      "reason": "model vocabulary declared in the spec, not derivable from the AST",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.constants_doc",
+      "kind": "spec_bound",
+      "reason": "model vocabulary declared in the spec, not derivable from the AST",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.consumers",
+      "kind": "spec_bound",
+      "reason": "cross-cutting model section has no source counterpart",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.coverage",
+      "kind": "spec_bound",
+      "reason": "cross-cutting model section has no source counterpart",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.disch",
+      "kind": "spec_bound",
+      "reason": "cross-cutting model section has no source counterpart",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.ghost_state",
+      "kind": "spec_bound",
+      "reason": "model vocabulary declared in the spec, not derivable from the AST",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.initial",
+      "kind": "spec_bound",
+      "reason": "model vocabulary declared in the spec, not derivable from the AST",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.migrations",
+      "kind": "spec_bound",
+      "reason": "declared environment actions; no source",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.observers",
+      "kind": "spec_bound",
+      "reason": "cross-cutting model section has no source counterpart",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.params",
+      "kind": "spec_bound",
+      "reason": "model vocabulary declared in the spec, not derivable from the AST",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.principals",
+      "kind": "spec_bound",
+      "reason": "model vocabulary declared in the spec, not derivable from the AST",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.shadow",
+      "kind": "spec_bound",
+      "reason": "model vocabulary declared in the spec, not derivable from the AST",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.state",
+      "kind": "spec_bound",
+      "reason": "model vocabulary declared in the spec, not derivable from the AST",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "facts.types",
+      "kind": "spec_bound",
+      "reason": "model vocabulary declared in the spec, not derivable from the AST",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "handler:_commitBatch",
+      "kind": "spec_bound",
+      "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "handler:_loadL1MessageHashes",
+      "kind": "spec_bound",
+      "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "handler:_popL1Messages",
+      "kind": "spec_bound",
+      "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "handler:assembly",
+      "kind": "spec_bound",
+      "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "handler:computeTransactionHash",
+      "kind": "spec_bound",
+      "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "handler:keccak256",
+      "kind": "spec_bound",
+      "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    },
+    {
+      "element": "site:{'rule': 'SORT', 'kind': 'realize', 'expr': 'W + cstart - t', 'sort': 'Dur(signed) realized in uint256'}",
+      "kind": "spec_bound",
+      "reason": "evaluator site label declared in spec",
+      "source": "spec/M2/coverage/solidity_transitions.json"
+    }
+  ],
+  "facts": {
+    "spec/M3/extracted/morph_rollup.json": {
+      "actions": {
+        "challengeState": {
+          "direct": [
+            "L_nat_cutover_in_challenge",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ],
+          "quantified": [],
+          "registers": [
+            "W",
+            "bc",
+            "chals",
+            "chs",
+            "inch",
+            "lfi",
+            "paused",
+            "rri",
+            "t",
+            "win"
+          ]
+        },
+        "commitBatch": {
+          "direct": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ],
+          "quantified": [],
+          "registers": [
+            "D",
+            "F",
+            "W",
+            "active",
+            "bc",
+            "chs",
+            "enq",
+            "inch",
+            "lfi",
+            "paused",
+            "qlen",
+            "qpend",
+            "rri",
+            "s_bd",
+            "s_bvh",
+            "s_csr",
+            "s_tag",
+            "t",
+            "win"
+          ]
+        },
+        "commitBatchWithProof": {
+          "direct": [],
+          "quantified": [],
+          "registers": [
+            "D",
+            "F",
+            "W",
+            "bc",
+            "chs",
+            "enq",
+            "inch",
+            "lfi",
+            "paused",
+            "qlen",
+            "qpend",
+            "rri",
+            "s_bd",
+            "s_bvh",
+            "s_csr",
+            "s_tag",
+            "t",
+            "win"
+          ]
+        },
+        "commitState": {
+          "direct": [],
+          "quantified": [],
+          "registers": [
+            "D",
+            "F",
+            "W",
+            "active",
+            "bc",
+            "chs",
+            "enq",
+            "inch",
+            "lfi",
+            "paused",
+            "qlen",
+            "qpend",
+            "rri",
+            "s_bd",
+            "s_bvh",
+            "s_csr",
+            "s_tag",
+            "t",
+            "win"
+          ]
+        },
+        "finalizeBatch": {
+          "direct": [],
+          "quantified": [],
+          "registers": [
+            "chs",
+            "fsr",
+            "lfi",
+            "paused",
+            "qpend",
+            "rri",
+            "t",
+            "win"
+          ]
+        },
+        "initialize3": {
+          "direct": [],
+          "quantified": [],
+          "registers": [
+            "D"
+          ]
+        },
+        "initialize4": {
+          "direct": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ],
+          "quantified": [],
+          "registers": [
+            "active",
+            "inch",
+            "lcb",
+            "lfi",
+            "rri",
+            "win"
+          ]
+        },
+        "proveState": {
+          "direct": [
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ],
+          "quantified": [],
+          "registers": [
+            "W",
+            "active",
+            "chs",
+            "inch",
+            "lfi",
+            "paused",
+            "rri",
+            "t",
+            "win"
+          ]
+        },
+        "revertBatch": {
+          "direct": [],
+          "quantified": [],
+          "registers": [
+            "chs",
+            "inch",
+            "lfi",
+            "rri",
+            "s_bd",
+            "s_bvh",
+            "s_csr",
+            "s_tag",
+            "win"
+          ]
+        },
+        "sendMessage": {
+          "direct": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ],
+          "quantified": [],
+          "registers": [
+            "enq",
+            "qlen",
+            "t"
+          ]
+        },
+        "setPause": {
+          "direct": [],
+          "quantified": [],
+          "registers": [
+            "bc",
+            "chs",
+            "inch",
+            "paused"
+          ]
+        },
+        "updateFinalizePeriodSeconds": {
+          "direct": [],
+          "quantified": [],
+          "registers": [
+            "F"
+          ]
+        },
+        "updateProofWindow": {
+          "direct": [],
+          "quantified": [],
+          "registers": [
+            "W"
+          ]
+        },
+        "updateRollupDelayPeriod": {
+          "direct": [],
+          "quantified": [],
+          "registers": [
+            "D"
+          ]
+        },
+        "updateVerifier": {
+          "direct": [],
+          "quantified": [],
+          "registers": []
+        },
+        "wait": {
+          "direct": [
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ],
+          "quantified": [],
+          "registers": [
+            "t"
+          ]
+        }
+      },
+      "kind": "machine",
+      "registers": {
+        "D": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "F": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "W": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "active": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState",
+              "obsv:active_has"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState",
+              "obsv:active_has"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "bc": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "chals": {
+          "how": {
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_in_challenge",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "chs": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "enq": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "fsr": {
+          "how": {},
+          "laws": []
+        },
+        "inch": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "lcb": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:initialize4"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:initialize4"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:initialize4"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:initialize4"
+            ],
+            "L_nat_defend_new_member": [
+              "action:initialize4"
+            ],
+            "L_nat_lcb": [
+              "action:initialize4",
+              "obsv:lcb_of"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:initialize4"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:initialize4"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:initialize4"
+            ],
+            "L_setup_nat_lcb": [
+              "action:initialize4"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:initialize4"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:initialize4"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "lfi": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "log": {
+          "how": {},
+          "laws": []
+        },
+        "paused": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "qlen": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "qpend": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "rri": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "s_bd": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "s_bvh": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "s_csr": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "s_tag": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_nat_defend_new_member": [
+              "action:commitBatch"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:commitBatch"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "t": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState",
+              "action:sendMessage"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState",
+              "action:sendMessage"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState",
+              "action:sendMessage",
+              "action:wait"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState",
+              "action:sendMessage",
+              "action:wait"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch",
+              "action:sendMessage"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState",
+              "action:sendMessage",
+              "action:wait"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:proveState",
+              "action:sendMessage",
+              "action:wait"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        },
+        "win": {
+          "how": {
+            "L_nat_cutover_admin_only": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_cutover_mismatch": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_defend_new_member": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_setup_nat_cutover_admin_only": [
+              "action:commitBatch"
+            ],
+            "L_setup_nat_cutover_in_challenge": [
+              "action:challengeState",
+              "action:commitBatch"
+            ],
+            "L_setup_nat_defend_legacy_blocked": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_lcb": [
+              "action:commitBatch",
+              "action:initialize4"
+            ],
+            "L_setup_nat_slash_legacy_misses": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ],
+            "L_setup_nat_slash_native_hits": [
+              "action:challengeState",
+              "action:commitBatch",
+              "action:initialize4",
+              "action:proveState"
+            ]
+          },
+          "laws": [
+            "L_nat_cutover_admin_only",
+            "L_nat_cutover_in_challenge",
+            "L_nat_cutover_mismatch",
+            "L_nat_defend_legacy_blocked",
+            "L_nat_defend_new_member",
+            "L_nat_lcb",
+            "L_nat_slash_legacy_misses",
+            "L_nat_slash_native_hits",
+            "L_setup_nat_cutover_admin_only",
+            "L_setup_nat_cutover_in_challenge",
+            "L_setup_nat_defend_legacy_blocked",
+            "L_setup_nat_lcb",
+            "L_setup_nat_slash_legacy_misses",
+            "L_setup_nat_slash_native_hits"
+          ]
+        }
+      },
+      "uncovered": [
+        "action commitState",
+        "action commitBatchWithProof",
+        "action revertBatch",
+        "action finalizeBatch",
+        "action setPause",
+        "action initialize3",
+        "action updateRollupDelayPeriod",
+        "action updateProofWindow",
+        "action updateFinalizePeriodSeconds",
+        "action updateVerifier",
+        "register fsr"
+      ]
+    }
+  },
+  "milestone": "M3_nat",
+  "uncovered": [
+    "spec/M3/extracted/morph_rollup.json: action commitState",
+    "spec/M3/extracted/morph_rollup.json: action commitBatchWithProof",
+    "spec/M3/extracted/morph_rollup.json: action revertBatch",
+    "spec/M3/extracted/morph_rollup.json: action finalizeBatch",
+    "spec/M3/extracted/morph_rollup.json: action setPause",
+    "spec/M3/extracted/morph_rollup.json: action initialize3",
+    "spec/M3/extracted/morph_rollup.json: action updateRollupDelayPeriod",
+    "spec/M3/extracted/morph_rollup.json: action updateProofWindow",
+    "spec/M3/extracted/morph_rollup.json: action updateFinalizePeriodSeconds",
+    "spec/M3/extracted/morph_rollup.json: action updateVerifier",
+    "spec/M3/extracted/morph_rollup.json: register fsr"
+  ]
+}

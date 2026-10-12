@@ -8,7 +8,7 @@
     "__isL1MessageDropped": [
       "declared at contracts/l1/L1CrossDomainMessenger.sol:45 (mapping(bytes32 => bool) public)",
       "read at contracts/l1/L1CrossDomainMessenger.sol:195 (require(!__isL1MessageDropped[hash], \"Message already dropped\"))",
-      "WRITERS: none — no function in the pinned contracts/ tree writes this mapping; there is no dropMessage function at all (only doc mentions in contracts/libraries/ICrossDomainMessenger.sol:55,65)"
+      "WRITERS: none \u2014 no function in the pinned contracts/ tree writes this mapping; there is no dropMessage function at all (only doc mentions in contracts/libraries/ICrossDomainMessenger.sol:55,65)"
     ],
     "consequence": "a message replayed maxReplayTimes times has no public exit path on the deployed system; only the owner can raise maxReplayTimes. The model's 'no exit' claim agrees with reality."
   },
@@ -25,7 +25,8 @@
         "HOLON budget 5 replay(Alice) Exceed maximum replay times",
         "HOLON budget 9 replay-after-owner-lift ok           (owner updateMaxReplayTimes(4), then Alice replay ok)"
       ],
-      "notes": "Third-party replays consume the original sender's replay budget; the default 3 is exhausted by Bob and Alice's own replay reverts. The owner's updateMaxReplayTimes(4) admits exactly one more replay."
+      "notes": "Third-party replays consume the original sender's replay budget; the default 3 is exhausted by Bob and Alice's own replay reverts. The owner's updateMaxReplayTimes(4) admits exactly one more replay.",
+      "statement_hash": "sha256:8d05e4e76861b8a1a8da9adb71a01c6611a222fe2224ffd92d61197a7785401a"
     },
     "L_msg_waiver_follows_origin": {
       "verdict": "agree",
@@ -35,7 +36,8 @@
         "HOLON waiver 3 send(Alice,fee) ok                    (dual: only Bob whitelisted; Alice pays fee)",
         "HOLON waiver 4 replay(Bob,0wei) Insufficient msg.value for fee"
       ],
-      "notes": "estimateCrossDomainMessageFee(_from, _newGasLimit) keys the whitelist waiver on the original sender, not the replay caller — whitelisted Alice's message replays free from any account, and Bob's whitelist status does not waive Alice's message."
+      "notes": "estimateCrossDomainMessageFee(_from, _newGasLimit) keys the whitelist waiver on the original sender, not the replay caller \u2014 whitelisted Alice's message replays free from any account, and Bob's whitelist status does not waive Alice's message.",
+      "statement_hash": "sha256:c329e9804ac017ee513c27223cda1c3c7213eccc39317b94a769d62c5a90794d"
     }
   },
   "forge_summary": "Suite result: ok. 2 passed; 0 failed; 0 skipped (test_L_msg_budget_blocks_sender gas 3287748, test_L_msg_waiver_follows_origin gas 2849304)"
