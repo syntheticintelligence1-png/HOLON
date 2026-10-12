@@ -1,0 +1,3956 @@
+{
+ "assumptions": [
+  {
+   "id": "go-append-growth",
+   "text": "The capacity append chooses when it grows is not modelled: a grown append's backing is fresh and its capacity is [\"unknown\", \"growth\"]."
+  },
+  {
+   "id": "go-errors-nonnil",
+   "text": "errors.New and fmt.Errorf return non-nil errors, and so does a package variable of an error type that the package initializer assigns from one of them."
+  },
+  {
+   "id": "go-nil-deref-not-modelled",
+   "text": "Nil pointer dereferences are not partiality sites."
+  },
+  {
+   "id": "go-opaque-calls",
+   "text": "Calls outside the analyzed packages that are not primitives are opaque: their results are call terms, and what they do to memory they can reach is unknown."
+  }
+ ],
+ "extraction": {
+  "config": {
+   "path": "spec/M2/lib/go_frontend.json",
+   "sha256": "5f948249c90f8ac6d5092db74fcf51a196cd8ed34584fe23982f926b0db98f5f"
+  },
+  "frontend": "go",
+  "frontend_version": "holon-go/0.1",
+  "inputs": [
+   {
+    "path": "common/blob/fee.go",
+    "sha256": "412245eb0da86c8039696ee9bab2d1e1735c4f69a91720f333c04f060d3c2435"
+   },
+   {
+    "path": "common/blob/payload.go",
+    "sha256": "014a899ace968f14542a372d4d8648ad133fe81da5d997c37ff70c8ee06aabcb"
+   },
+   {
+    "path": "common/codec/zstd/codec.go",
+    "sha256": "c11551504e0a780bbbe47da31e9bfac3dee710a5570d6ec4399e15a5a9f4844f"
+   }
+  ],
+  "method": "extracted",
+  "tool": {
+   "go": "go1.24.7",
+   "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+   "x_tools": "v0.36.0"
+  }
+ },
+ "facts_version": "holon-facts/0.3",
+ "go": {
+  "calls": {
+   "edges": [
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsLondon",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO1",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:67:19"
+    },
+    {
+     "callee": "morph-l2/common/blob.isTimestampForked",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO1",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:67:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsLondon",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO2",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:72:19"
+    },
+    {
+     "callee": "morph-l2/common/blob.isTimestampForked",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO2",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:72:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsLondon",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO3",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:77:19"
+    },
+    {
+     "callee": "morph-l2/common/blob.isTimestampForked",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO3",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:77:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsLondon",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO4",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:82:19"
+    },
+    {
+     "callee": "morph-l2/common/blob.isTimestampForked",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO4",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:82:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsLondon",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO5",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:87:19"
+    },
+    {
+     "callee": "morph-l2/common/blob.isTimestampForked",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO5",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:87:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsLondon",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsCancun",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:52:19"
+    },
+    {
+     "callee": "morph-l2/common/blob.isTimestampForked",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsCancun",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:52:45"
+    },
+    {
+     "callee": "morph-l2/common/blob.isBlockForked",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsLondon",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:92:22"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsLondon",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsOsaka",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:62:19"
+    },
+    {
+     "callee": "morph-l2/common/blob.isTimestampForked",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsOsaka",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:62:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsLondon",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsPrague",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:57:19"
+    },
+    {
+     "callee": "morph-l2/common/blob.isTimestampForked",
+     "callee_kind": "analyzed",
+     "caller": "(*morph-l2/common/blob.BlobFeeConfig).IsPrague",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:57:45"
+    },
+    {
+     "callee": "crypto/sha256.New",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.BlobHashes",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:244:22"
+    },
+    {
+     "callee": "github.com/morph-l2/go-ethereum/crypto/kzg4844.CalcBlobHashV1",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.BlobHashes",
+     "in_loops": [
+      "common/blob/fee.go:246"
+     ],
+     "kind": "call",
+     "site": "common/blob/fee.go:247:32"
+    },
+    {
+     "callee": "morph-l2/common/blob.MakeCellProof",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.BlobSidecarVersionToV1",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:302:31"
+    },
+    {
+     "callee": "morph-l2/common/codec/zstd.CompressBatchBytes",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.CompressBatchBytes",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/payload.go:108:54"
+    },
+    {
+     "callee": "fmt.Errorf",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.CompressBatchBytes",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/payload.go:110:25"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsOsaka",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.DetermineBlobVersion",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:290:54"
+    },
+    {
+     "callee": "(*math/big.Int).SetUint64",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:100:32"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO5",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:108:38"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO4",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:110:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO3",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:112:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO2",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:114:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsBPO1",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:116:45"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsOsaka",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:118:47"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsPrague",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:120:49"
+    },
+    {
+     "callee": "(*morph-l2/common/blob.BlobFeeConfig).IsCancun",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:122:49"
+    },
+    {
+     "callee": "github.com/morph-l2/go-ethereum/log.Warn",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:129:11"
+    },
+    {
+     "callee": "(*math/big.Int).SetUint64",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:133:32"
+    },
+    {
+     "callee": "(*math/big.Int).SetUint64",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:136:31"
+    },
+    {
+     "callee": "github.com/morph-l2/go-ethereum/log.Warn",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:98:11"
+    },
+    {
+     "callee": "fmt.Errorf",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.MakeBlobCanonical",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/payload.go:27:25"
+    },
+    {
+     "callee": "fmt.Errorf",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.MakeBlobCanonical",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/payload.go:38:25"
+    },
+    {
+     "callee": "fmt.Errorf",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.MakeBlobProof",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:255:25"
+    },
+    {
+     "callee": "github.com/morph-l2/go-ethereum/crypto/kzg4844.ComputeBlobProof",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.MakeBlobProof",
+     "in_loops": [
+      "common/blob/fee.go:258"
+     ],
+     "kind": "call",
+     "site": "common/blob/fee.go:259:41"
+    },
+    {
+     "callee": "fmt.Errorf",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.MakeBlobTxSidecar",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/payload.go:79:25"
+    },
+    {
+     "callee": "morph-l2/common/blob.makeBlobCommitment",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.MakeBlobTxSidecar",
+     "in_loops": [
+      "common/blob/payload.go:87"
+     ],
+     "kind": "call",
+     "site": "common/blob/payload.go:93:53"
+    },
+    {
+     "callee": "github.com/morph-l2/go-ethereum/crypto/kzg4844.ComputeCellProofs",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.MakeCellProof",
+     "in_loops": [
+      "common/blob/fee.go:271"
+     ],
+     "kind": "call",
+     "site": "common/blob/fee.go:272:47"
+    },
+    {
+     "callee": "fmt.Errorf",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.RetrieveBlobBytes",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/payload.go:47:26"
+    },
+    {
+     "callee": "(*math/big.Int).Cmp",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.isBlockForked",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/fee.go:143:14"
+    },
+    {
+     "callee": "morph-l2/common/blob.MakeBlobCanonical",
+     "callee_kind": "analyzed",
+     "caller": "morph-l2/common/blob.makeBlobCommitment",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/payload.go:55:32"
+    },
+    {
+     "callee": "github.com/morph-l2/go-ethereum/crypto/kzg4844.BlobToCommitment",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/blob.makeBlobCommitment",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/blob/payload.go:60:35"
+    },
+    {
+     "callee": "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/codec/zstd.CompressBatchBytes",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/codec/zstd/codec.go:9:39"
+    },
+    {
+     "callee": "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.DecompressMorphDABatch",
+     "callee_kind": "external",
+     "caller": "morph-l2/common/codec/zstd.DecompressBatchBytes",
+     "in_loops": [],
+     "kind": "call",
+     "site": "common/codec/zstd/codec.go:14:41"
+    }
+   ],
+   "flows": []
+  },
+  "codecs": {
+   "absences": [],
+   "decoders": [],
+   "encoders": [],
+   "matches": [],
+   "patches": [],
+   "predicates": []
+  },
+  "coverage": {
+   "debt": [
+    {
+     "function": "morph-l2/common/blob.GetBlobFeeDenominator",
+     "kind": "path_limit",
+     "what": "more than 512 paths: no path set; sites by dominator atoms",
+     "where": "common/blob/fee.go:96"
+    }
+   ],
+   "functions": 25,
+   "with_paths": 4
+  },
+  "functions": {
+   "(*morph-l2/common/blob.BlobFeeConfig).IsBPO1": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "c",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "num",
+      "type": "*math/big.Int"
+     },
+     {
+      "name": "time",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:66"
+   },
+   "(*morph-l2/common/blob.BlobFeeConfig).IsBPO2": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "c",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "num",
+      "type": "*math/big.Int"
+     },
+     {
+      "name": "time",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:71"
+   },
+   "(*morph-l2/common/blob.BlobFeeConfig).IsBPO3": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "c",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "num",
+      "type": "*math/big.Int"
+     },
+     {
+      "name": "time",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:76"
+   },
+   "(*morph-l2/common/blob.BlobFeeConfig).IsBPO4": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "c",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "num",
+      "type": "*math/big.Int"
+     },
+     {
+      "name": "time",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:81"
+   },
+   "(*morph-l2/common/blob.BlobFeeConfig).IsBPO5": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "c",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "num",
+      "type": "*math/big.Int"
+     },
+     {
+      "name": "time",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:86"
+   },
+   "(*morph-l2/common/blob.BlobFeeConfig).IsCancun": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "c",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "num",
+      "type": "*math/big.Int"
+     },
+     {
+      "name": "time",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:51"
+   },
+   "(*morph-l2/common/blob.BlobFeeConfig).IsLondon": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "c",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "num",
+      "type": "*math/big.Int"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:91"
+   },
+   "(*morph-l2/common/blob.BlobFeeConfig).IsOsaka": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "c",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "num",
+      "type": "*math/big.Int"
+     },
+     {
+      "name": "time",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:61"
+   },
+   "(*morph-l2/common/blob.BlobFeeConfig).IsPrague": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "c",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "num",
+      "type": "*math/big.Int"
+     },
+     {
+      "name": "time",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:56"
+   },
+   "morph-l2/common/blob.BlobHashes": {
+    "loop_free": false,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "blobs",
+      "type": "[]github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+     },
+     {
+      "name": "commitments",
+      "type": "[]github.com/morph-l2/go-ethereum/crypto/kzg4844.Commitment"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "loop",
+    "results": [
+     "[]github.com/morph-l2/go-ethereum/common.Hash"
+    ],
+    "sites": [
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t4",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ]
+       ],
+       [
+        "<",
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t4",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ],
+        [
+         "len",
+         [
+          "alloc",
+          "common/blob/fee.go:245:11",
+          [
+           "len",
+           [
+            "param",
+            "commitments"
+           ]
+          ]
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/fee.go:247:4:index",
+      "kind": "index",
+      "status": "open",
+      "witness": null
+     },
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t4",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ]
+       ],
+       [
+        "<",
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t4",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ],
+        [
+         "len",
+         [
+          "param",
+          "commitments"
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/fee.go:247:53:index",
+      "kind": "index",
+      "status": "safe",
+      "witness": null
+     }
+    ],
+    "span": "common/blob/fee.go:243"
+   },
+   "morph-l2/common/blob.BlobSidecarVersionToV1": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "sc",
+      "type": "*github.com/morph-l2/go-ethereum/core/types.BlobTxSidecar"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "error"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:297"
+   },
+   "morph-l2/common/blob.CompressBatchBytes": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "batchBytes",
+      "type": "[]byte"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "batchBytes"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "nil"
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "batchBytes"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "!=",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+          [
+           [
+            "param",
+            "batchBytes"
+           ]
+          ]
+         ],
+         1
+        ],
+        [
+         "nil"
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "nil"
+       ],
+       [
+        "call",
+        "fmt.Errorf",
+        [
+         [
+          "str",
+          "failed to compress batch bytes, err: %w"
+         ],
+         [
+          "slice",
+          [
+           "alloc",
+           "common/blob/payload.go:110:72",
+           [
+            "const",
+            1
+           ]
+          ],
+          null,
+          null,
+          null
+         ]
+        ]
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "batchBytes"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+          [
+           [
+            "param",
+            "batchBytes"
+           ]
+          ]
+         ],
+         1
+        ],
+        [
+         "nil"
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "result",
+        [
+         "call",
+         "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+         [
+          [
+           "param",
+           "batchBytes"
+          ]
+         ]
+        ],
+        0
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "[]byte",
+     "error"
+    ],
+    "sites": [],
+    "span": "common/blob/payload.go:104"
+   },
+   "morph-l2/common/blob.DetermineBlobVersion": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "head",
+      "type": "*github.com/morph-l2/go-ethereum/core/types.Header"
+     },
+     {
+      "name": "chainID",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "byte"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:282"
+   },
+   "morph-l2/common/blob.GetBlobFeeDenominator": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "blobFeeConfig",
+      "type": "*morph-l2/common/blob.BlobFeeConfig"
+     },
+     {
+      "name": "blockTime",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "path_limit",
+    "results": [
+     "*math/big.Int"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:96"
+   },
+   "morph-l2/common/blob.MakeBlobCanonical": {
+    "loop_free": false,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "blobBytes",
+      "type": "[]byte"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "loop",
+    "results": [
+     "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob",
+     "error"
+    ],
+    "sites": [
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t10",
+           "i"
+          ],
+          [
+           "const",
+           32
+          ]
+         ],
+         [
+          "const",
+          1
+         ]
+        ]
+       ],
+       [
+        "<=",
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t10",
+           "i"
+          ],
+          [
+           "const",
+           32
+          ]
+         ],
+         [
+          "const",
+          1
+         ]
+        ],
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t10",
+           "i"
+          ],
+          [
+           "const",
+           32
+          ]
+         ],
+         [
+          "const",
+          32
+         ]
+        ]
+       ],
+       [
+        "<=",
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t10",
+           "i"
+          ],
+          [
+           "const",
+           32
+          ]
+         ],
+         [
+          "const",
+          32
+         ]
+        ],
+        [
+         "const",
+         131072
+        ]
+       ]
+      ],
+      "id": "common/blob/payload.go:32:19:slice",
+      "kind": "slice",
+      "status": "safe",
+      "witness": null
+     },
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "var",
+         "t9",
+         "offset"
+        ]
+       ],
+       [
+        "<=",
+        [
+         "var",
+         "t9",
+         "offset"
+        ],
+        [
+         "len",
+         [
+          "param",
+          "blobBytes"
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/payload.go:32:46:slice",
+      "kind": "slice",
+      "status": "open",
+      "witness": null
+     }
+    ],
+    "span": "common/blob/payload.go:25"
+   },
+   "morph-l2/common/blob.MakeBlobProof": {
+    "loop_free": false,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "blobs",
+      "type": "[]github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+     },
+     {
+      "name": "commitment",
+      "type": "[]github.com/morph-l2/go-ethereum/crypto/kzg4844.Commitment"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "loop",
+    "results": [
+     "[]github.com/morph-l2/go-ethereum/crypto/kzg4844.Proof",
+     "error"
+    ],
+    "sites": [
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t15",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ]
+       ],
+       [
+        "<",
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t15",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ],
+        [
+         "len",
+         [
+          "param",
+          "blobs"
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/fee.go:259:48:index",
+      "kind": "index",
+      "status": "safe",
+      "witness": null
+     },
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t15",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ]
+       ],
+       [
+        "<",
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t15",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ],
+        [
+         "len",
+         [
+          "param",
+          "commitment"
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/fee.go:259:63:index",
+      "kind": "index",
+      "status": "open",
+      "witness": null
+     },
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t15",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ]
+       ],
+       [
+        "<",
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t15",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ],
+        [
+         "len",
+         [
+          "alloc",
+          "common/blob/fee.go:257:16",
+          [
+           "len",
+           [
+            "param",
+            "blobs"
+           ]
+          ]
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/fee.go:263:9:index",
+      "kind": "index",
+      "status": "open",
+      "witness": null
+     }
+    ],
+    "span": "common/blob/fee.go:253"
+   },
+   "morph-l2/common/blob.MakeBlobTxSidecar": {
+    "loop_free": false,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "blobBytes",
+      "type": "[]byte"
+     },
+     {
+      "name": "maxBlobs",
+      "type": "int"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "loop",
+    "results": [
+     "*github.com/morph-l2/go-ethereum/core/types.BlobTxSidecar",
+     "error"
+    ],
+    "sites": [
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "var",
+         "t41",
+         "i"
+        ]
+       ],
+       [
+        "<",
+        [
+         "var",
+         "t41",
+         "i"
+        ],
+        [
+         "len",
+         [
+          "alloc",
+          "common/blob/payload.go:85:21",
+          [
+           "op",
+           "/",
+           [
+            "op",
+            "-",
+            [
+             "op",
+             "+",
+             [
+              "len",
+              [
+               "param",
+               "blobBytes"
+              ]
+             ],
+             [
+              "const",
+              126976
+             ]
+            ],
+            [
+             "const",
+             1
+            ]
+           ],
+           [
+            "const",
+            126976
+           ]
+          ]
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/payload.go:93:24:index",
+      "kind": "index",
+      "status": "open",
+      "witness": null
+     },
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "*",
+         [
+          "var",
+          "t41",
+          "i"
+         ],
+         [
+          "const",
+          126976
+         ]
+        ]
+       ],
+       [
+        "<=",
+        [
+         "op",
+         "*",
+         [
+          "var",
+          "t41",
+          "i"
+         ],
+         [
+          "const",
+          126976
+         ]
+        ],
+        [
+         "var",
+         "t51",
+         "end"
+        ]
+       ],
+       [
+        "<=",
+        [
+         "var",
+         "t51",
+         "end"
+        ],
+        [
+         "cap",
+         [
+          "param",
+          "blobBytes"
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/payload.go:93:63:slice",
+      "kind": "slice",
+      "status": "open",
+      "witness": null
+     },
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "var",
+         "t41",
+         "i"
+        ]
+       ],
+       [
+        "<",
+        [
+         "var",
+         "t41",
+         "i"
+        ],
+        [
+         "len",
+         [
+          "alloc",
+          "common/blob/payload.go:84:21",
+          [
+           "op",
+           "/",
+           [
+            "op",
+            "-",
+            [
+             "op",
+             "+",
+             [
+              "len",
+              [
+               "param",
+               "blobBytes"
+              ]
+             ],
+             [
+              "const",
+              126976
+             ]
+            ],
+            [
+             "const",
+             1
+            ]
+           ],
+           [
+            "const",
+            126976
+           ]
+          ]
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/payload.go:93:8:index",
+      "kind": "index",
+      "status": "open",
+      "witness": null
+     }
+    ],
+    "span": "common/blob/payload.go:67"
+   },
+   "morph-l2/common/blob.MakeCellProof": {
+    "loop_free": false,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "blobs",
+      "type": "[]github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "loop",
+    "results": [
+     "[]github.com/morph-l2/go-ethereum/crypto/kzg4844.Proof",
+     "error"
+    ],
+    "sites": [
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t5",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ]
+       ],
+       [
+        "<",
+        [
+         "op",
+         "+",
+         [
+          "var",
+          "t5",
+          "rangeindex"
+         ],
+         [
+          "const",
+          1
+         ]
+        ],
+        [
+         "len",
+         [
+          "param",
+          "blobs"
+         ]
+        ]
+       ]
+      ],
+      "id": "common/blob/fee.go:271:23:index",
+      "kind": "index",
+      "status": "safe",
+      "witness": null
+     }
+    ],
+    "span": "common/blob/fee.go:269"
+   },
+   "morph-l2/common/blob.RetrieveBlobBytes": {
+    "loop_free": false,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "blob",
+      "type": "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "loop",
+    "results": [
+     "[]byte",
+     "error"
+    ],
+    "sites": [
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "*",
+         [
+          "var",
+          "t2",
+          "i"
+         ],
+         [
+          "const",
+          32
+         ]
+        ]
+       ],
+       [
+        "<",
+        [
+         "op",
+         "*",
+         [
+          "var",
+          "t2",
+          "i"
+         ],
+         [
+          "const",
+          32
+         ]
+        ],
+        [
+         "const",
+         131072
+        ]
+       ]
+      ],
+      "id": "common/blob/payload.go:46:10:index",
+      "kind": "index",
+      "status": "safe",
+      "witness": null
+     },
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "*",
+         [
+          "var",
+          "t2",
+          "i"
+         ],
+         [
+          "const",
+          32
+         ]
+        ]
+       ],
+       [
+        "<",
+        [
+         "op",
+         "*",
+         [
+          "var",
+          "t2",
+          "i"
+         ],
+         [
+          "const",
+          32
+         ]
+        ],
+        [
+         "const",
+         131072
+        ]
+       ]
+      ],
+      "id": "common/blob/payload.go:47:102:index",
+      "kind": "index",
+      "status": "safe",
+      "witness": null
+     },
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "*",
+         [
+          "var",
+          "t2",
+          "i"
+         ],
+         [
+          "const",
+          31
+         ]
+        ]
+       ],
+       [
+        "<=",
+        [
+         "op",
+         "*",
+         [
+          "var",
+          "t2",
+          "i"
+         ],
+         [
+          "const",
+          31
+         ]
+        ],
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t2",
+           "i"
+          ],
+          [
+           "const",
+           31
+          ]
+         ],
+         [
+          "const",
+          31
+         ]
+        ]
+       ],
+       [
+        "<=",
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t2",
+           "i"
+          ],
+          [
+           "const",
+           31
+          ]
+         ],
+         [
+          "const",
+          31
+         ]
+        ],
+        [
+         "const",
+         126976
+        ]
+       ]
+      ],
+      "id": "common/blob/payload.go:49:12:slice",
+      "kind": "slice",
+      "status": "safe",
+      "witness": null
+     },
+     {
+      "bound": [
+       [
+        "<=",
+        [
+         "const",
+         0
+        ],
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t2",
+           "i"
+          ],
+          [
+           "const",
+           32
+          ]
+         ],
+         [
+          "const",
+          1
+         ]
+        ]
+       ],
+       [
+        "<=",
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t2",
+           "i"
+          ],
+          [
+           "const",
+           32
+          ]
+         ],
+         [
+          "const",
+          1
+         ]
+        ],
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t2",
+           "i"
+          ],
+          [
+           "const",
+           32
+          ]
+         ],
+         [
+          "const",
+          32
+         ]
+        ]
+       ],
+       [
+        "<=",
+        [
+         "op",
+         "+",
+         [
+          "op",
+          "*",
+          [
+           "var",
+           "t2",
+           "i"
+          ],
+          [
+           "const",
+           32
+          ]
+         ],
+         [
+          "const",
+          32
+         ]
+        ],
+        [
+         "const",
+         131072
+        ]
+       ]
+      ],
+      "id": "common/blob/payload.go:49:32:slice",
+      "kind": "slice",
+      "status": "safe",
+      "witness": null
+     }
+    ],
+    "span": "common/blob/payload.go:43"
+   },
+   "morph-l2/common/blob.isBlockForked": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "s",
+      "type": "*math/big.Int"
+     },
+     {
+      "name": "head",
+      "type": "*math/big.Int"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:139"
+   },
+   "morph-l2/common/blob.isTimestampForked": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "s",
+      "type": "*uint64"
+     },
+     {
+      "name": "head",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "bool"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:146"
+   },
+   "morph-l2/common/blob.makeBlobCommitment": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "bz",
+      "type": "[]byte"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "result",
+         [
+          "call",
+          "morph-l2/common/blob.MakeBlobCanonical",
+          [
+           [
+            "param",
+            "bz"
+           ]
+          ]
+         ],
+         1
+        ],
+        [
+         "nil"
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "zero",
+        "github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+       ],
+       [
+        "zero",
+        "github.com/morph-l2/go-ethereum/crypto/kzg4844.Commitment"
+       ],
+       [
+        "result",
+        [
+         "call",
+         "morph-l2/common/blob.MakeBlobCanonical",
+         [
+          [
+           "param",
+           "bz"
+          ]
+         ]
+        ],
+        1
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "result",
+         [
+          "call",
+          "morph-l2/common/blob.MakeBlobCanonical",
+          [
+           [
+            "param",
+            "bz"
+           ]
+          ]
+         ],
+         1
+        ],
+        [
+         "nil"
+        ]
+       ],
+       [
+        "!=",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/go-ethereum/crypto/kzg4844.BlobToCommitment",
+          [
+           [
+            "result",
+            [
+             "call",
+             "morph-l2/common/blob.MakeBlobCanonical",
+             [
+              [
+               "param",
+               "bz"
+              ]
+             ]
+            ],
+            0
+           ]
+          ]
+         ],
+         1
+        ],
+        [
+         "nil"
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "unknown",
+        "opaque"
+       ],
+       [
+        "result",
+        [
+         "call",
+         "github.com/morph-l2/go-ethereum/crypto/kzg4844.BlobToCommitment",
+         [
+          [
+           "result",
+           [
+            "call",
+            "morph-l2/common/blob.MakeBlobCanonical",
+            [
+             [
+              "param",
+              "bz"
+             ]
+            ]
+           ],
+           0
+          ]
+         ]
+        ],
+        0
+       ],
+       [
+        "result",
+        [
+         "call",
+         "github.com/morph-l2/go-ethereum/crypto/kzg4844.BlobToCommitment",
+         [
+          [
+           "result",
+           [
+            "call",
+            "morph-l2/common/blob.MakeBlobCanonical",
+            [
+             [
+              "param",
+              "bz"
+             ]
+            ]
+           ],
+           0
+          ]
+         ]
+        ],
+        1
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "result",
+         [
+          "call",
+          "morph-l2/common/blob.MakeBlobCanonical",
+          [
+           [
+            "param",
+            "bz"
+           ]
+          ]
+         ],
+         1
+        ],
+        [
+         "nil"
+        ]
+       ],
+       [
+        "==",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/go-ethereum/crypto/kzg4844.BlobToCommitment",
+          [
+           [
+            "result",
+            [
+             "call",
+             "morph-l2/common/blob.MakeBlobCanonical",
+             [
+              [
+               "param",
+               "bz"
+              ]
+             ]
+            ],
+            0
+           ]
+          ]
+         ],
+         1
+        ],
+        [
+         "nil"
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "unknown",
+      "returns": [
+       [
+        "unknown",
+        "opaque"
+       ],
+       [
+        "result",
+        [
+         "call",
+         "github.com/morph-l2/go-ethereum/crypto/kzg4844.BlobToCommitment",
+         [
+          [
+           "result",
+           [
+            "call",
+            "morph-l2/common/blob.MakeBlobCanonical",
+            [
+             [
+              "param",
+              "bz"
+             ]
+            ]
+           ],
+           0
+          ]
+         ]
+        ],
+        0
+       ],
+       [
+        "result",
+        [
+         "call",
+         "github.com/morph-l2/go-ethereum/crypto/kzg4844.BlobToCommitment",
+         [
+          [
+           "result",
+           [
+            "call",
+            "morph-l2/common/blob.MakeBlobCanonical",
+            [
+             [
+              "param",
+              "bz"
+             ]
+            ]
+           ],
+           0
+          ]
+         ]
+        ],
+        1
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob",
+     "github.com/morph-l2/go-ethereum/crypto/kzg4844.Commitment",
+     "error"
+    ],
+    "sites": [],
+    "span": "common/blob/payload.go:54"
+   },
+   "morph-l2/common/blob.newUint64": {
+    "loop_free": true,
+    "package": "morph-l2/common/blob",
+    "params": [
+     {
+      "name": "val",
+      "type": "uint64"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "*uint64"
+    ],
+    "sites": [],
+    "span": "common/blob/fee.go:153"
+   },
+   "morph-l2/common/codec/zstd.CompressBatchBytes": {
+    "loop_free": true,
+    "package": "morph-l2/common/codec/zstd",
+    "params": [
+     {
+      "name": "batchBytes",
+      "type": "[]byte"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "batchBytes"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "nil"
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "batchBytes"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "unknown",
+      "returns": [
+       [
+        "result",
+        [
+         "call",
+         "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+         [
+          [
+           "param",
+           "batchBytes"
+          ]
+         ]
+        ],
+        0
+       ],
+       [
+        "result",
+        [
+         "call",
+         "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+         [
+          [
+           "param",
+           "batchBytes"
+          ]
+         ]
+        ],
+        1
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "[]byte",
+     "error"
+    ],
+    "sites": [],
+    "span": "common/codec/zstd/codec.go:5"
+   },
+   "morph-l2/common/codec/zstd.DecompressBatchBytes": {
+    "loop_free": true,
+    "package": "morph-l2/common/codec/zstd",
+    "params": [
+     {
+      "name": "compressedBytes",
+      "type": "[]byte"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [],
+      "end": "return",
+      "error": "unknown",
+      "returns": [
+       [
+        "result",
+        [
+         "call",
+         "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.DecompressMorphDABatch",
+         [
+          [
+           "param",
+           "compressedBytes"
+          ]
+         ]
+        ],
+        0
+       ],
+       [
+        "result",
+        [
+         "call",
+         "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.DecompressMorphDABatch",
+         [
+          [
+           "param",
+           "compressedBytes"
+          ]
+         ]
+        ],
+        1
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "[]byte",
+     "error"
+    ],
+    "sites": [],
+    "span": "common/codec/zstd/codec.go:13"
+   }
+  },
+  "loops": [
+   {
+    "cmp": "<",
+    "depth": 1,
+    "exits": [],
+    "fuel": [
+     "len",
+     [
+      "param",
+      "commitments"
+     ]
+    ],
+    "function": "morph-l2/common/blob.BlobHashes",
+    "init": [
+     "const",
+     0
+    ],
+    "iv": null,
+    "kind": "range",
+    "limit": [
+     "len",
+     [
+      "param",
+      "commitments"
+     ]
+    ],
+    "span": "common/blob/fee.go:246",
+    "step": 1
+   },
+   {
+    "cmp": "<",
+    "depth": 1,
+    "exits": [
+     "break"
+    ],
+    "fuel": [
+     "const",
+     4096
+    ],
+    "function": "morph-l2/common/blob.MakeBlobCanonical",
+    "init": [
+     "const",
+     0
+    ],
+    "iv": "i",
+    "kind": "counted",
+    "limit": [
+     "const",
+     4096
+    ],
+    "span": "common/blob/payload.go:31",
+    "step": 1
+   },
+   {
+    "cmp": "<",
+    "depth": 1,
+    "exits": [
+     "return"
+    ],
+    "fuel": [
+     "len",
+     [
+      "param",
+      "blobs"
+     ]
+    ],
+    "function": "morph-l2/common/blob.MakeBlobProof",
+    "init": [
+     "const",
+     0
+    ],
+    "iv": null,
+    "kind": "range",
+    "limit": [
+     "len",
+     [
+      "param",
+      "blobs"
+     ]
+    ],
+    "span": "common/blob/fee.go:258",
+    "step": 1
+   },
+   {
+    "cmp": "<",
+    "depth": 1,
+    "exits": [
+     "return"
+    ],
+    "fuel": [
+     "op",
+     "/",
+     [
+      "op",
+      "-",
+      [
+       "op",
+       "+",
+       [
+        "len",
+        [
+         "param",
+         "blobBytes"
+        ]
+       ],
+       [
+        "const",
+        126976
+       ]
+      ],
+      [
+       "const",
+       1
+      ]
+     ],
+     [
+      "const",
+      126976
+     ]
+    ],
+    "function": "morph-l2/common/blob.MakeBlobTxSidecar",
+    "init": [
+     "const",
+     0
+    ],
+    "iv": "i",
+    "kind": "counted",
+    "limit": [
+     "op",
+     "/",
+     [
+      "op",
+      "-",
+      [
+       "op",
+       "+",
+       [
+        "len",
+        [
+         "param",
+         "blobBytes"
+        ]
+       ],
+       [
+        "const",
+        126976
+       ]
+      ],
+      [
+       "const",
+       1
+      ]
+     ],
+     [
+      "const",
+      126976
+     ]
+    ],
+    "span": "common/blob/payload.go:87",
+    "step": 1
+   },
+   {
+    "cmp": "<",
+    "depth": 1,
+    "exits": [
+     "return"
+    ],
+    "fuel": [
+     "len",
+     [
+      "param",
+      "blobs"
+     ]
+    ],
+    "function": "morph-l2/common/blob.MakeCellProof",
+    "init": [
+     "const",
+     0
+    ],
+    "iv": null,
+    "kind": "range",
+    "limit": [
+     "len",
+     [
+      "param",
+      "blobs"
+     ]
+    ],
+    "span": "common/blob/fee.go:271",
+    "step": 1
+   },
+   {
+    "cmp": "<",
+    "depth": 1,
+    "exits": [
+     "return"
+    ],
+    "fuel": [
+     "const",
+     4096
+    ],
+    "function": "morph-l2/common/blob.RetrieveBlobBytes",
+    "init": [
+     "const",
+     0
+    ],
+    "iv": "i",
+    "kind": "counted",
+    "limit": [
+     "const",
+     4096
+    ],
+    "span": "common/blob/payload.go:45",
+    "step": 1
+   }
+  ],
+  "packages": [
+   {
+    "dir": "common/blob",
+    "files": [
+     "common/blob/fee.go",
+     "common/blob/payload.go"
+    ],
+    "path": "morph-l2/common/blob"
+   },
+   {
+    "dir": "common/codec/zstd",
+    "files": [
+     "common/codec/zstd/codec.go"
+    ],
+    "path": "morph-l2/common/codec/zstd"
+   }
+  ],
+  "slices": {
+   "lost_writes": [],
+   "results": [
+    {
+     "cases": [
+      {
+       "backing": [
+        "fresh",
+        "common/blob/fee.go:245:11"
+       ],
+       "cap": [
+        "len",
+        [
+         "param",
+         "commitments"
+        ]
+       ],
+       "cond": [
+        [
+         ">=",
+         [
+          "op",
+          "+",
+          [
+           "var",
+           "t4",
+           "rangeindex"
+          ],
+          [
+           "const",
+           1
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "commitments"
+          ]
+         ]
+        ]
+       ],
+       "len": [
+        "len",
+        [
+         "param",
+         "commitments"
+        ]
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      }
+     ],
+     "function": "morph-l2/common/blob.BlobHashes",
+     "result": 0
+    },
+    {
+     "cases": [
+      {
+       "backing": [
+        "none"
+       ],
+       "cap": [
+        "const",
+        0
+       ],
+       "cond": [
+        [
+         "==",
+         [
+          "len",
+          [
+           "param",
+           "batchBytes"
+          ]
+         ],
+         [
+          "const",
+          0
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        0
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      },
+      {
+       "backing": [
+        "none"
+       ],
+       "cap": [
+        "const",
+        0
+       ],
+       "cond": [
+        [
+         "!=",
+         [
+          "len",
+          [
+           "param",
+           "batchBytes"
+          ]
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "!=",
+         [
+          "result",
+          [
+           "call",
+           "morph-l2/common/codec/zstd.CompressBatchBytes",
+           [
+            [
+             "param",
+             "batchBytes"
+            ]
+           ]
+          ],
+          1
+         ],
+         [
+          "nil"
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        0
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      },
+      {
+       "backing": [
+        "none"
+       ],
+       "cap": [
+        "const",
+        0
+       ],
+       "cond": [
+        [
+         "!=",
+         [
+          "len",
+          [
+           "param",
+           "batchBytes"
+          ]
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "==",
+         [
+          "result",
+          [
+           "call",
+           "morph-l2/common/codec/zstd.CompressBatchBytes",
+           [
+            [
+             "param",
+             "batchBytes"
+            ]
+           ]
+          ],
+          1
+         ],
+         [
+          "nil"
+         ]
+        ],
+        [
+         "==",
+         [
+          "len",
+          [
+           "param",
+           "batchBytes"
+          ]
+         ],
+         [
+          "const",
+          0
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        0
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      },
+      {
+       "backing": [
+        "unknown",
+        "call"
+       ],
+       "cap": [
+        "cap",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+          [
+           [
+            "param",
+            "batchBytes"
+           ]
+          ]
+         ],
+         0
+        ]
+       ],
+       "cond": [
+        [
+         "!=",
+         [
+          "len",
+          [
+           "param",
+           "batchBytes"
+          ]
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "==",
+         [
+          "result",
+          [
+           "call",
+           "morph-l2/common/codec/zstd.CompressBatchBytes",
+           [
+            [
+             "param",
+             "batchBytes"
+            ]
+           ]
+          ],
+          1
+         ],
+         [
+          "nil"
+         ]
+        ],
+        [
+         "!=",
+         [
+          "len",
+          [
+           "param",
+           "batchBytes"
+          ]
+         ],
+         [
+          "const",
+          0
+         ]
+        ]
+       ],
+       "len": [
+        "len",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+          [
+           [
+            "param",
+            "batchBytes"
+           ]
+          ]
+         ],
+         0
+        ]
+       ],
+       "offset": [
+        "unknown",
+        "call"
+       ]
+      }
+     ],
+     "function": "morph-l2/common/blob.CompressBatchBytes",
+     "result": 0
+    },
+    {
+     "cases": [
+      {
+       "backing": [
+        "none"
+       ],
+       "cap": [
+        "const",
+        0
+       ],
+       "cond": [
+        [
+         "!=",
+         [
+          "len",
+          [
+           "param",
+           "blobs"
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "commitment"
+          ]
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        0
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      },
+      {
+       "backing": [
+        "fresh",
+        "common/blob/fee.go:257:16"
+       ],
+       "cap": [
+        "len",
+        [
+         "param",
+         "blobs"
+        ]
+       ],
+       "cond": [
+        [
+         "==",
+         [
+          "len",
+          [
+           "param",
+           "blobs"
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "commitment"
+          ]
+         ]
+        ],
+        [
+         ">=",
+         [
+          "op",
+          "+",
+          [
+           "var",
+           "t15",
+           "rangeindex"
+          ],
+          [
+           "const",
+           1
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "blobs"
+          ]
+         ]
+        ]
+       ],
+       "len": [
+        "len",
+        [
+         "param",
+         "blobs"
+        ]
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      },
+      {
+       "backing": [
+        "none"
+       ],
+       "cap": [
+        "const",
+        0
+       ],
+       "cond": [
+        [
+         "==",
+         [
+          "len",
+          [
+           "param",
+           "blobs"
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "commitment"
+          ]
+         ]
+        ],
+        [
+         "<",
+         [
+          "op",
+          "+",
+          [
+           "var",
+           "t15",
+           "rangeindex"
+          ],
+          [
+           "const",
+           1
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "blobs"
+          ]
+         ]
+        ],
+        [
+         "!=",
+         [
+          "result",
+          [
+           "call",
+           "github.com/morph-l2/go-ethereum/crypto/kzg4844.ComputeBlobProof",
+           [
+            [
+             "index",
+             [
+              "param",
+              "blobs"
+             ],
+             [
+              "op",
+              "+",
+              [
+               "var",
+               "t15",
+               "rangeindex"
+              ],
+              [
+               "const",
+               1
+              ]
+             ]
+            ],
+            [
+             "index",
+             [
+              "param",
+              "commitment"
+             ],
+             [
+              "op",
+              "+",
+              [
+               "var",
+               "t15",
+               "rangeindex"
+              ],
+              [
+               "const",
+               1
+              ]
+             ]
+            ]
+           ]
+          ],
+          1
+         ],
+         [
+          "nil"
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        0
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      }
+     ],
+     "function": "morph-l2/common/blob.MakeBlobProof",
+     "result": 0
+    },
+    {
+     "cases": [
+      {
+       "backing": [
+        "fresh",
+        "common/blob/fee.go:270:16"
+       ],
+       "cap": [
+        "op",
+        "*",
+        [
+         "len",
+         [
+          "param",
+          "blobs"
+         ]
+        ],
+        [
+         "const",
+         128
+        ]
+       ],
+       "cond": [
+        [
+         ">=",
+         [
+          "op",
+          "+",
+          [
+           "var",
+           "t5",
+           "rangeindex"
+          ],
+          [
+           "const",
+           1
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "blobs"
+          ]
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        0
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      },
+      {
+       "backing": [
+        "unknown",
+        "cycle"
+       ],
+       "cap": [
+        "cap",
+        [
+         "var",
+         "t4",
+         "proofs"
+        ]
+       ],
+       "cond": [
+        [
+         ">=",
+         [
+          "op",
+          "+",
+          [
+           "var",
+           "t5",
+           "rangeindex"
+          ],
+          [
+           "const",
+           1
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "blobs"
+          ]
+         ]
+        ],
+        [
+         "<=",
+         [
+          "op",
+          "+",
+          [
+           "len",
+           [
+            "var",
+            "t4",
+            "proofs"
+           ]
+          ],
+          [
+           "len",
+           [
+            "result",
+            [
+             "call",
+             "github.com/morph-l2/go-ethereum/crypto/kzg4844.ComputeCellProofs",
+             [
+              [
+               "alloc",
+               "common/blob/fee.go:271:9",
+               [
+                "const",
+                131072
+               ]
+              ]
+             ]
+            ],
+            0
+           ]
+          ]
+         ],
+         [
+          "cap",
+          [
+           "var",
+           "t4",
+           "proofs"
+          ]
+         ]
+        ]
+       ],
+       "len": [
+        "op",
+        "+",
+        [
+         "len",
+         [
+          "var",
+          "t4",
+          "proofs"
+         ]
+        ],
+        [
+         "len",
+         [
+          "result",
+          [
+           "call",
+           "github.com/morph-l2/go-ethereum/crypto/kzg4844.ComputeCellProofs",
+           [
+            [
+             "alloc",
+             "common/blob/fee.go:271:9",
+             [
+              "const",
+              131072
+             ]
+            ]
+           ]
+          ],
+          0
+         ]
+        ]
+       ],
+       "offset": [
+        "unknown",
+        "cycle"
+       ]
+      },
+      {
+       "backing": [
+        "fresh",
+        "common/blob/fee.go:276:18"
+       ],
+       "cap": [
+        "unknown",
+        "growth"
+       ],
+       "cond": [
+        [
+         ">=",
+         [
+          "op",
+          "+",
+          [
+           "var",
+           "t5",
+           "rangeindex"
+          ],
+          [
+           "const",
+           1
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "blobs"
+          ]
+         ]
+        ],
+        [
+         ">",
+         [
+          "op",
+          "+",
+          [
+           "len",
+           [
+            "var",
+            "t4",
+            "proofs"
+           ]
+          ],
+          [
+           "len",
+           [
+            "result",
+            [
+             "call",
+             "github.com/morph-l2/go-ethereum/crypto/kzg4844.ComputeCellProofs",
+             [
+              [
+               "alloc",
+               "common/blob/fee.go:271:9",
+               [
+                "const",
+                131072
+               ]
+              ]
+             ]
+            ],
+            0
+           ]
+          ]
+         ],
+         [
+          "cap",
+          [
+           "var",
+           "t4",
+           "proofs"
+          ]
+         ]
+        ]
+       ],
+       "len": [
+        "op",
+        "+",
+        [
+         "len",
+         [
+          "var",
+          "t4",
+          "proofs"
+         ]
+        ],
+        [
+         "len",
+         [
+          "result",
+          [
+           "call",
+           "github.com/morph-l2/go-ethereum/crypto/kzg4844.ComputeCellProofs",
+           [
+            [
+             "alloc",
+             "common/blob/fee.go:271:9",
+             [
+              "const",
+              131072
+             ]
+            ]
+           ]
+          ],
+          0
+         ]
+        ]
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      },
+      {
+       "backing": [
+        "none"
+       ],
+       "cap": [
+        "const",
+        0
+       ],
+       "cond": [
+        [
+         "<",
+         [
+          "op",
+          "+",
+          [
+           "var",
+           "t5",
+           "rangeindex"
+          ],
+          [
+           "const",
+           1
+          ]
+         ],
+         [
+          "len",
+          [
+           "param",
+           "blobs"
+          ]
+         ]
+        ],
+        [
+         "!=",
+         [
+          "result",
+          [
+           "call",
+           "github.com/morph-l2/go-ethereum/crypto/kzg4844.ComputeCellProofs",
+           [
+            [
+             "alloc",
+             "common/blob/fee.go:271:9",
+             [
+              "const",
+              131072
+             ]
+            ]
+           ]
+          ],
+          1
+         ],
+         [
+          "nil"
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        0
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      }
+     ],
+     "function": "morph-l2/common/blob.MakeCellProof",
+     "result": 0
+    },
+    {
+     "cases": [
+      {
+       "backing": [
+        "fresh",
+        "common/blob/payload.go:44:14"
+       ],
+       "cap": [
+        "const",
+        126976
+       ],
+       "cond": [
+        [
+         ">=",
+         [
+          "var",
+          "t2",
+          "i"
+         ],
+         [
+          "const",
+          4096
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        126976
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      },
+      {
+       "backing": [
+        "none"
+       ],
+       "cap": [
+        "const",
+        0
+       ],
+       "cond": [
+        [
+         "<",
+         [
+          "var",
+          "t2",
+          "i"
+         ],
+         [
+          "const",
+          4096
+         ]
+        ],
+        [
+         "!=",
+         [
+          "index",
+          [
+           "param",
+           "blob"
+          ],
+          [
+           "op",
+           "*",
+           [
+            "var",
+            "t2",
+            "i"
+           ],
+           [
+            "const",
+            32
+           ]
+          ]
+         ],
+         [
+          "const",
+          0
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        0
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      }
+     ],
+     "function": "morph-l2/common/blob.RetrieveBlobBytes",
+     "result": 0
+    },
+    {
+     "cases": [
+      {
+       "backing": [
+        "none"
+       ],
+       "cap": [
+        "const",
+        0
+       ],
+       "cond": [
+        [
+         "==",
+         [
+          "len",
+          [
+           "param",
+           "batchBytes"
+          ]
+         ],
+         [
+          "const",
+          0
+         ]
+        ]
+       ],
+       "len": [
+        "const",
+        0
+       ],
+       "offset": [
+        "const",
+        0
+       ]
+      },
+      {
+       "backing": [
+        "unknown",
+        "call"
+       ],
+       "cap": [
+        "cap",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+          [
+           [
+            "param",
+            "batchBytes"
+           ]
+          ]
+         ],
+         0
+        ]
+       ],
+       "cond": [
+        [
+         "!=",
+         [
+          "len",
+          [
+           "param",
+           "batchBytes"
+          ]
+         ],
+         [
+          "const",
+          0
+         ]
+        ]
+       ],
+       "len": [
+        "len",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch",
+          [
+           [
+            "param",
+            "batchBytes"
+           ]
+          ]
+         ],
+         0
+        ]
+       ],
+       "offset": [
+        "unknown",
+        "call"
+       ]
+      }
+     ],
+     "function": "morph-l2/common/codec/zstd.CompressBatchBytes",
+     "result": 0
+    },
+    {
+     "cases": [
+      {
+       "backing": [
+        "unknown",
+        "call"
+       ],
+       "cap": [
+        "cap",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.DecompressMorphDABatch",
+          [
+           [
+            "param",
+            "compressedBytes"
+           ]
+          ]
+         ],
+         0
+        ]
+       ],
+       "cond": [],
+       "len": [
+        "len",
+        [
+         "result",
+         [
+          "call",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.DecompressMorphDABatch",
+          [
+           [
+            "param",
+            "compressedBytes"
+           ]
+          ]
+         ],
+         0
+        ]
+       ],
+       "offset": [
+        "unknown",
+        "call"
+       ]
+      }
+     ],
+     "function": "morph-l2/common/codec/zstd.DecompressBatchBytes",
+     "result": 0
+    }
+   ],
+   "stores": [
+    {
+     "function": "morph-l2/common/blob.BlobSidecarVersionToV1",
+     "site": "common/blob/fee.go:306:6",
+     "target": [
+      "field",
+      [
+       "param",
+       "sc"
+      ],
+      "Version"
+     ],
+     "value": [
+      "const",
+      1
+     ]
+    },
+    {
+     "function": "morph-l2/common/blob.BlobSidecarVersionToV1",
+     "site": "common/blob/fee.go:307:6",
+     "target": [
+      "field",
+      [
+       "param",
+       "sc"
+      ],
+      "Proofs"
+     ],
+     "value": [
+      "result",
+      [
+       "call",
+       "morph-l2/common/blob.MakeCellProof",
+       [
+        [
+         "field",
+         [
+          "param",
+          "sc"
+         ],
+         "Blobs"
+        ]
+       ]
+      ],
+      0
+     ]
+    }
+   ],
+   "writes": []
+  }
+ },
+ "target": {
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph",
+  "scope": "go packages: morph-l2/common/blob, morph-l2/common/codec/zstd"
+ }
+}
