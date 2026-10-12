@@ -87,6 +87,18 @@
 
 ---
 
+### 0.4 Human answers received
+
+The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
+- **Q5** is an unconditional, unbounded yes. On-chain historical replay is the make-or-break result, and data acquisition becomes the priority track `I23a`, which waits only on the environment's network policy.
+- **Q6:** 0.80.
+- **Q7:** ScrollChain, sealed in `spec/heldout/target.json`.
+- **Q9:** the default stands.
+- **Q14b** and **Q14c:** yes.
+- **Q16:** yes.
+- **Q20:** N = 20.
+- **Q1:** yes, to be done by the human, with the steps in the record.
+
 ## 1. Where we are
 
 ### 1.1 Are M0 and M1 done?
@@ -1517,7 +1529,7 @@
 
 ## 6. Questions for the human
 
-1. **Freezing.** *Needed before:* nothing blocks on it, but every protection stays self-certified until it is answered.
+1. **Freezing.** *Answered: yes, by the human (steps in docs/HUMAN_ANSWERS.md).*  *Needed before:* nothing blocks on it, but every protection stays self-certified until it is answered.
    - Please add to `FROZEN.sha256`: `laws/M1/` (including `REGISTRY.json` and `BINDINGS.json`), `spec/M1/predictions.json`, `spec/M1/mutations.json`, `tests_m1/` and `whitepaper.md`.
    - Please consider extending `FROZEN_ROOTS` in `tools/freeze.py` to cover `laws/M*`, `spec/M*/predictions.json`, `spec/M*/preregistration.json`, `spec/schemas/`, `tests_m*`, `holon/audit/prereg.py`, `holon/statement_diff.py`, `keys/` and later `laws/CONTRACTS`.
 2. **M1 adjudication.**
@@ -1525,11 +1537,11 @@
    - (b) Does `go test` satisfy M1's "replays as a Foundry test" for the Go-only `L_own_txspayload`?
 3. **Signing.** A gpg key under a frozen `keys/`. Without one, weakening is rejected. Re-extraction and strengthening do not need it.
 4. **Schemas.** Should `result_record_v2` and `law_ir_0_3` be adopted into the frozen `schemas/`? That includes `filter_bin` values such as `intended_bounded`, `kernels[]`, `scope{kind,H}`, `refinement_refs`, `coverage` and the INTENT rule. *Needed before:* I33's adoption step.
-5. **M2 historical window.** Choose one: a snapshot from `tools/fetch_historical.py`, BigQuery credentials, or allow-listing one RPC host and one blob archive. Also: which block window, and is calldata-only acceptable?
-6. **Mutation-adequacy threshold.** Confirm or replace the proposed 0.80 of non-equivalent mutants in scope, sign off the operator catalog, and adjudicate equivalent mutants from the diffs before any run. *Needed before:* I22's prereg commit.
-7. **Held-out target.** Choose and seal it (for example Scroll's ScrollChain at a pinned commit, or a bridge). Is a public, clonable repo acceptable? *Needed before:* I49.
+5. **M2 historical window.** *Answered 2026-10-12: an unconditional yes for every source and the full window; see docs/HUMAN_ANSWERS.md.*  Choose one: a snapshot from `tools/fetch_historical.py`, BigQuery credentials, or allow-listing one RPC host and one blob archive. Also: which block window, and is calldata-only acceptable?
+6. **Mutation-adequacy threshold.** *Answered: 0.80.*  Confirm or replace the proposed 0.80 of non-equivalent mutants in scope, sign off the operator catalog, and adjudicate equivalent mutants from the diffs before any run. *Needed before:* I22's prereg commit.
+7. **Held-out target.** *Answered: ScrollChain, sealed in spec/heldout/target.json.*  Choose and seal it (for example Scroll's ScrollChain at a pinned commit, or a bridge). Is a public, clonable repo acceptable? *Needed before:* I49.
 8. **G7 promotion.** All PROVED laws, or a promoted subset? *Needed before:* I43.
-9. **Auditor family.** Is another model family available for audits and the blind rerun? If not, may same-family rounds count toward convergence? *Needed before:* I5.
+9. **Auditor family.** *Answered: the default stands (same-family, labelled).*  Is another model family available for audits and the blind rerun? If not, may same-family rounds count toward convergence? *Needed before:* I5.
 10. **Observation boundary for Thm 6.9.** Do public view getters count as observations? `L_undo_CSR`'s status depends on the answer; both boundaries can be run and reported.
 11. **L6 and L9 definitions.** *Needed before:* I54.
 12. **Legacy registry.** Is a labelled stand-in acceptable for O13 and O14, or should historical bytecode be fetched?
@@ -1541,19 +1553,19 @@
     - §8.8 recommends `bv_decide`, which adds an axiom (verified in Lean 4.34.0) and so conflicts with §8.5.
     - `whitepaper.md` was committed at `9ffdf77`, after M1. Can you confirm that §11.8 predates M1, for example from the zip's timestamp?
     - Also, outside the whitepaper: `docs/M1_REPORT.md:108` calls the D2 check "HypZ" and cites Rollup.sol:24 (the constant is at :25).
-14. **AGENTS rule 4.** Are these acceptable as "proofs come from generators"?
+14. **AGENTS rule 4.** *Answered: (b) and (c) yes.*  Are these acceptable as "proofs come from generators"?
     - (a) A core lemma library emitted by `holon/gen/core.py` from a reviewed catalog. *Needed before:* I8.
     - (b) Hand-proved meta-theorems (Thm 6.4, 6.6, 6.7). *Needed before:* I42.
     - (c) Agent-written proofs through an intake, as §10.4 envisions. *Needed before:* I41.
 15. **Gate semantics.** Is it acceptable to add new check keys (G6, G9, G11V, GEVID, G8, G10), and to list checks that do not apply to M0/M1 under a top-level `not_applicable` key rather than reporting a vacuous pass?
-16. **Installs and upstream.**
+16. **Installs and upstream.** *Answered: installs yes.* 
     - May `tools/setup_env.sh` install pinned z3-solver, slither-analyzer, hevm, echidna, medusa and halmos into `~/.holon/tools`?
     - Will you file the bend2/BendTT mismatch reproducer (`replay/M1/kernel_mismatch/`) upstream?
     - Do you want CI and branch protection?
 17. **Budget.** The plan implies about 23 sessions for M2, 23 for M3, 7 for M4 and 5 for M5.
 18. **Deployment history.** The on-chain upgrade timeline needs RPC. Is code-derived history (reinitializers plus storage-layout diffs across git tags) acceptable for M3's migrations? *Needed before:* I28.
 19. **M3 hand-written facts.** For components the extractors cannot reach, may a hand-written fact be used under a per-item waiver, flagged in coverage? Without waivers, those components stay coverage debt.
-20. **Corpus size.** Confirm N = 20 defects across at least 3 systems, or set another N. *Needed before:* I48.
+20. **Corpus size.** *Answered: N = 20.*  Confirm N = 20 defects across at least 3 systems, or set another N. *Needed before:* I48.
 
 ---
 
