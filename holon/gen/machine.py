@@ -17,6 +17,15 @@ Conventions of the generated model:
   * Nat is unbounded; `-` is truncated subtraction; checked arithmetic is an explicit require;
   * an action that fails a require leaves the state unchanged and logs O_Rev{code};
   * the log is newest-first.
+
+Hashes and oracles as parameters (I12; M2+ milestones, holon.gen.oracles). Given an oracle sidecar, a facts
+call ["call", p, x] to the parameter p of a modelled entry applies the model's oracle parameter, never a
+builtin: p is an oracle table (Data, so reusable), applied by `ap_p(t, x)`. Every generated function that
+evaluates such a call takes the tables it needs as trailing parameters (exec_<a> those of its effects,
+decide_<a> and its chain those of its guards, d_<name>, observers and migrations those of their bodies), and
+step, run, obs and runs_ok thread the tables of every parameter some action uses (`threaded`, in sidecar
+order). Reach is indexed by the threaded tables too. Without a sidecar (M0, M1, and M2+ facts that have none)
+the model is exactly as before.
 """
 from __future__ import annotations
 
@@ -163,6 +172,9 @@ def bt(t: str) -> str:
         return "HObs"
     if t == "Act":
         return "HAct"
+    m = re.fullmatch(r"Tab<(\w+)>", t)   # the oracle table of parameter p (I12)
+    if m:
+        return f"List<&2, HO_{m.group(1)}>"
     return "H" + t
 
 
@@ -186,9 +198,10 @@ def fresh(base: str, taken: set) -> str:
 
 
 class Machine:
-    def __init__(self, facts: dict, path: Path | str | None = None, lib: "Library | None" = None):
+    def __init__(self, facts: dict, path: Path | str | None = None, lib: "Library | None" = None, oracles=None):
         """`path` locates the facts' target libraries (holon.gen.targetlib); without it, only the
-        global libraries in spec/lib apply."""
+        global libraries in spec/lib apply. `oracles` is the facts' oracle sidecar
+        (holon.gen.oracles.Oracles), passed for M2+ milestones only."""
         self.f = facts
         self.params = facts.get("params", {})
         self.lib = lib if lib is not None else Library.for_facts(path, self.params)
@@ -206,6 +219,114 @@ class Machine:
         self.chains: dict[str, dict] = {}
         if "log" not in self.stypes:
             raise FactsError("a machine needs a log field")
+        self.orc = oracles
+        self.oparams: dict[str, tuple[str, str]] = dict(oracles.params) if oracles is not None else {}
+        self._def_uses: dict[str, set] = {}
+        self.tvar: dict[str, str] = {}
+        self.action_tabs: dict[str, list[str]] = {}
+        self.threaded: list[str] = []
+        self.fn_tabs: dict[str, list[str]] = {}
+        if self.oparams:
+            self._init_oracles()
+
+    # ------------------------------------------------------------ oracle parameters (I12)
+    def _init_oracles(self) -> None:
+        taken = set(KEYWORDS) | {bname(n) for n, _ in self.state} | {"a", "s", "p", "r", "e", "t", "x", "k", "v", "tr",
+                                                                     "rest", "d", "code", "c", "o", "l"}
+        for a in self.actions:
+            taken |= {bname(n) for n, _ in a["inputs"]} | {bname(g["let"]) for g in a["guards"] if "let" in g}
+        for d in self.defs.values():
+            taken |= {bname(n) for n, _ in d["params"]}
+        for mg in self.f.get("migrations", {}).values():
+            taken |= {bname(n) for n, _ in mg.get("inputs", [])}
+        names = set(self.f.get("observers", {})) | {"mig_" + n for n in self.f.get("migrations", {})}
+        for p, (A, B) in self.oparams.items():
+            if p in self.defs:
+                raise FactsError(f"oracle parameter {p} is also a facts def")
+            if "O_" + p in self.types or "ap_" + p in names:
+                raise FactsError(f"oracle parameter {p}: HO_{p} or ap_{p} names another definition")
+            if A not in ("Nat", "Bool", "List<Nat>"):
+                raise FactsError(f"oracle parameter {p}: no decidable key equality for {A}")
+            self.default_of(B)
+            self.tvar[p] = fresh(bname(p), taken)
+            taken.add(self.tvar[p])
+        for a in self.actions:
+            es = [g.get("expr", g.get("require")) for g in a["guards"]] + list(a["effects"].values())
+            self.action_tabs[a["name"]] = self.ordered(set().union(set(), *(self.uses(e) for e in es)))
+        self.threaded = self.ordered(set().union(set(), *self.action_tabs.values()))
+        self.fn_tabs = {n: list(self.threaded) for n in ("step", "run", "obs", "runs_ok")}
+        for n, o in self.f.get("observers", {}).items():
+            self.fn_tabs[n] = self.ordered(self.uses(o["body"]))
+        for n, mg in self.f.get("migrations", {}).items():
+            self.fn_tabs["mig_" + n] = self.ordered(set().union(set(), *(self.uses(e) for e in mg["effects"].values())))
+
+    def default_of(self, ty: str) -> str:
+        if ty == "Nat":
+            return "0n"
+        if ty == "Bool":
+            return "False{}"
+        if ty.startswith("List<"):
+            return "Nil{}"
+        if ty in self.types:
+            return f"empty_{ty}()"
+        raise FactsError(f"no default value for {ty}")
+
+    def ordered(self, ps) -> list[str]:
+        """Parameters in sidecar order."""
+        return [p for p in self.oparams if p in ps]
+
+    def def_uses(self, name: str) -> set:
+        if name not in self._def_uses:
+            self._def_uses[name] = set()   # facts defs do not recurse
+            self._def_uses[name] = self.uses(self.defs[name]["body"])
+        return self._def_uses[name]
+
+    def uses(self, e) -> set:
+        """The oracle parameters an expression applies, through the facts defs it calls."""
+        if not self.oparams or not isinstance(e, list) or not e:
+            return set()
+        op, *a = e
+        if op == "call":
+            name, *args = a
+            out = set().union(set(), *(self.uses(x) for x in args))
+            if name in self.defs:
+                out |= self.def_uses(name)
+            elif name in self.oparams:
+                out.add(name)
+            return out
+        if op == "get":
+            return self.uses(a[0])
+        if op == "mk":
+            return set().union(set(), *(self.uses(x) for x in a[1].values()))
+        if op == "with":
+            return self.uses(a[1]).union(*(self.uses(x) for x in a[2].values()))
+        if op == "list":
+            return set().union(set(), *(self.uses(x) for x in a[1:]))
+        return set().union(set(), *(self.uses(x) for x in a))
+
+    def tab_env(self, ps) -> dict[str, str]:
+        """Typing-environment entries of the tables of parameters ps (their variables)."""
+        return {self.tvar[p]: f"Tab<{p}>" for p in self.ordered(ps)}
+
+    def tab_params(self, ps) -> list[str]:
+        return [f"+{self.tvar[p]}: {bt(f'Tab<{p}>')}" for p in self.ordered(ps)]
+
+    def tab_args(self, ps) -> list[str]:
+        return [self.tvar[p] for p in self.ordered(ps)]
+
+    def gen_oracles(self) -> list[str]:
+        """The oracle table type and lookup of every modelled parameter."""
+        if not self.oparams:
+            return []
+        out = ["# oracle parameters (I12; holon.gen.oracles): a parameter p : Fn<A,B> is held as Data, a table of",
+               "# HO_p{k, v} entries; ap_p(t, x) is the v of the first entry whose k is x, else the default of B", ""]
+        eq = {"Nat": "Nat.is_eq", "Bool": "eq_bool", "List<Nat>": "eq_list_nat"}
+        for p, (A, B) in self.oparams.items():
+            out += [f"type HO_{p} is Data:", f"  HO_{p}{{k: {bt(A)}, v: {bt(B)}}}", "",
+                    f"def ap_{p}(t: List<&2, HO_{p}>, +x: {bt(A)}) -> {bt(B)}:", "  match t:", "    case Nil{}:",
+                    f"      {self.default_of(B)}", "    case Con{e, r}:", "      match e:", f"        case HO_{p}{{k, v}}:",
+                    f"          ite({bt(B)}, {eq[A]}(x, k), v, ap_{p}(r, x))", ""]
+        return out
 
     # ------------------------------------------------------------ builtins
     def builtin(self, name: str, args: list) -> tuple[str, str]:
@@ -301,7 +422,12 @@ class Machine:
                 for (pn, pt), (_, at) in zip(d["params"], cargs):
                     if pt != at:
                         raise FactsError(f"{name}: argument {pn} is {at}, expected {pt}")
-                return f"d_{name}({', '.join(x for x, _ in cargs)})", d["type"]
+                return f"d_{name}({', '.join([x for x, _ in cargs] + self.tab_args(self.def_uses(name)))})", d["type"]
+            if name in self.oparams:   # the model's oracle parameter, never a builtin (I12)
+                A, B = self.oparams[name]
+                if len(cargs) != 1 or cargs[0][1] != A:
+                    raise FactsError(f"{name}: the oracle parameter takes one {A}, got {[t for _, t in cargs]}")
+                return f"ap_{name}({self.tvar[name]}, {cargs[0][0]})", B
             return self.builtin(name, cargs)
         if op == "get":
             x, tx = self.ex(a[0], env)
@@ -362,7 +488,13 @@ class Machine:
             return set() if e in self.params else {e}
         op, *a = e
         if op == "call":
-            return set().union(*(self.fv(x) for x in a[1:])) if len(a) > 1 else set()
+            out = set().union(*(self.fv(x) for x in a[1:])) if len(a) > 1 else set()
+            if self.oparams:   # the tables a call applies are free in it (I12)
+                if a[0] in self.defs:
+                    out |= set(self.tab_args(self.def_uses(a[0])))
+                elif a[0] in self.oparams:
+                    out.add(self.tvar[a[0]])
+            return out
         if op == "get":
             return self.fv(a[0])
         if op == "mk":
@@ -423,7 +555,7 @@ class Machine:
             body, ty = self.ex(d["body"], env)
             if ty != d["type"]:
                 raise FactsError(f"def {name}: body is {ty}, declared {d['type']}")
-            params = ", ".join(f"+{bname(p)}: {bt(t)}" for p, t in d["params"])
+            params = ", ".join([f"+{bname(p)}: {bt(t)}" for p, t in d["params"]] + self.tab_params(self.def_uses(name)))
             out += [f"def d_{name}({params}) -> {bt(d['type'])}:", f"  {body}", ""]
         return out
 
@@ -450,8 +582,11 @@ class Machine:
         reads = [n for n, _ in self.state if n in guard_fv and n not in let_names]
         self.reads[name] = reads
         carried = [l for l in let_names if l in eff_fv]
+        # oracle tables (I12): those the guards apply go to decide and its chain, those the effects apply to exec
+        g_tabs = self.ordered(set().union(set(), *(self.uses(g.get("expr", g.get("require"))) for g in guards)))
+        e_tabs = self.ordered(set().union(set(), *(self.uses(e) for e in effects.values())))
         # typing environment for guards
-        env = {**{n: self.stypes[n] for n in reads}, **dict(inputs)}
+        env = {**{n: self.stypes[n] for n in reads}, **dict(inputs), **self.tab_env(g_tabs)}
         dec = f"Dec_{name}"
         rev, ok = f"D_{name}_Rev", f"D_{name}_Ok"
         # type the lets in order
@@ -524,12 +659,13 @@ class Machine:
         self.chains[name] = info
         for h in chain:  # children are appended before their callers: definition order
             out += h
-        dparams = ", ".join(f"+{bname(n)}: {bt(t)}" for n, t in [(r, self.stypes[r]) for r in reads] + inputs)
+        dparams = ", ".join([f"+{bname(n)}: {bt(t)}" for n, t in [(r, self.stypes[r]) for r in reads] + inputs]
+                            + self.tab_params(g_tabs))
         out += [f"def decide_{name}({dparams}) -> {dec}:"] + ["  " + l for l in top] + [""]
         # exec: field-wise effects
         fparams = ", ".join(f"+{bname(n)}: {bt(t)}" for n, t in self.state)
         iparams = ", ".join(f"+{bname(n)}: {bt(t)}" for n, t in inputs)
-        allp = ", ".join(p for p in (fparams, iparams) if p)
+        allp = ", ".join(p for p in (fparams, iparams, ", ".join(self.tab_params(e_tabs))) if p)
         eenv = {**self.stypes, **dict(inputs), **{l: lets_t[l] for l in carried}}
         new_fields = []
         for n, t in self.state:
@@ -542,41 +678,49 @@ class Machine:
                 new_fields.append(x)
             else:
                 new_fields.append(bname(n))
-        taken = {bname(n) for n, _ in self.state} | {bname(n) for n, _ in inputs} | {bname(l) for l in carried}
+        taken = {bname(n) for n, _ in self.state} | {bname(n) for n, _ in inputs} | {bname(l) for l in carried} \
+            | set(self.tab_args(g_tabs + e_tabs))
         dv, cv, sv = fresh("d", taken), fresh("code", taken), fresh("s", taken)
         unchanged = ", ".join(f"Con{{O_Rev{{{cv}}}, log}}" if n == "log" else bname(n) for n, _ in self.state)
         out += [f"def exec_{name}({dv}: {dec}, {allp}) -> HSt:", f"  match {dv}:", f"    case {rev}{{{cv}}}:",
                 f"      HSt{{{unchanged}}}", f"    case {ok}{{" + ", ".join("+" + bname(l) for l in carried) + "}:",
                 f"      HSt{{{', '.join(new_fields)}}}", ""]
         spat = ", ".join("+" + bname(n) for n, _ in self.state)
-        dargs = ", ".join(bname(x) for x in reads + [n for n, _ in inputs])
+        dargs = ", ".join([bname(x) for x in reads + [n for n, _ in inputs]] + self.tab_args(g_tabs))
         fargs = ", ".join(bname(n) for n, _ in self.state)
-        iargs = ", ".join(bname(n) for n, _ in inputs)
+        a_tabs = self.ordered(set(g_tabs) | set(e_tabs))
+        iparams = ", ".join(x for x in (iparams, ", ".join(self.tab_params(a_tabs))) if x)
+        iargs = ", ".join([bname(n) for n, _ in inputs] + self.tab_args(e_tabs))
         out += [f"def step_{name}({sv}: HSt{', ' + iparams if iparams else ''}) -> HSt:", f"  match {sv}:", f"    case HSt{{{spat}}}:",
                 f"      exec_{name}(decide_{name}({dargs}), {fargs}{', ' + iargs if iargs else ''})", ""]
         return out
 
     def gen_dispatch(self) -> list[str]:
-        out = ["def step(a: HAct, s: HSt) -> HSt:", "  match a:"]
+        T = "".join(", " + x for x in self.tab_params(self.threaded))   # the threaded oracle tables (I12)
+        TA = "".join(", " + x for x in self.tab_args(self.threaded))
+        out = [f"def step(a: HAct, s: HSt{T}) -> HSt:", "  match a:"]
         for a in self.actions:
             ins = [bname(n) for n, _ in a["inputs"]]
-            ins = [fresh(i, {"a", "s"}) for i in ins]   # pattern binders are positional: rename away from a, s
+            # pattern binders are positional: rename away from a, s (and the tables)
+            ins = [fresh(i, {"a", "s"} | set(self.tab_args(self.threaded))) for i in ins]
+            args = ins + self.tab_args(self.action_tabs.get(a["name"], []))
             out += [f"    case A_{a['name']}{{{', '.join('+' + i for i in ins)}}}:",
-                    f"      step_{a['name']}(s{', ' + ', '.join(ins) if ins else ''})"]
-        out += ["", "def run(tr: List<&2, HAct>, s: HSt) -> HSt:", "  match tr:", "    case Nil{}:", "      s", "    case Con{a, rest}:",
-                "      run(rest, step(a, s))", ""]
+                    f"      step_{a['name']}(s{', ' + ', '.join(args) if args else ''})"]
+        out += ["", f"def run(tr: List<&2, HAct>, s: HSt{T}) -> HSt:", "  match tr:", "    case Nil{}:", "      s",
+                "    case Con{a, rest}:", f"      run(rest, step(a, s{TA}){TA})", ""]
         spat = ", ".join(bname(n) for n, _ in self.state)
         cleared = ", ".join("Nil{}" if n == "log" else bname(n) for n, _ in self.state)
         out += ["def clear_log(s: HSt) -> HSt:", "  match s:", f"    case HSt{{{spat}}}:", f"      HSt{{{cleared}}}", ""]
         out += ["def log_of(s: HSt) -> List<&2, HObs>:", "  match s:", f"    case HSt{{{spat}}}:", "      log", ""]
         out += ["# observations of tr from s: the log tr produces (newest first)",
-                "def obs(tr: List<&2, HAct>, s: HSt) -> List<&2, HObs>:", "  log_of(run(tr, clear_log(s)))", ""]
+                f"def obs(tr: List<&2, HAct>, s: HSt{T}) -> List<&2, HObs>:", f"  log_of(run(tr, clear_log(s){TA}))", ""]
         out += ["def ok_head(l: List<&2, HObs>) -> Bool:", "  match l:", "    case Nil{}:", "      False{}", "    case Con{o, t}:",
                 "      match o:", "        case O_Ok{}:", "          True{}", "        case O_Rev{c}:", "          False{}", "",
                 "# the last action applied to s succeeded", "def last_ok(s: HSt) -> Bool:", "  ok_head(log_of(s))", "",
                 "def all_ok(l: List<&2, HObs>) -> Bool:", "  match l:", "    case Nil{}:", "      True{}", "    case Con{o, t}:",
                 "      match o:", "        case O_Ok{}:", "          all_ok(t)", "        case O_Rev{c}:", "          False{}", "",
-                "# every action of tr succeeds from s", "def runs_ok(tr: List<&2, HAct>, s: HSt) -> Bool:", "  all_ok(obs(tr, s))", "",
+                "# every action of tr succeeds from s", f"def runs_ok(tr: List<&2, HAct>, s: HSt{T}) -> Bool:",
+                f"  all_ok(obs(tr, s{TA}))", "",
                 "def no_code(l: List<&2, HObs>, +k: Nat) -> Bool:", "  match l:", "    case Nil{}:", "      True{}",
                 "    case Con{o, t}:", "      match o:", "        case O_Ok{}:", "          no_code(t, k)", "        case O_Rev{c}:",
                 "          Bool.and(Bool.not(Nat.is_eq(c, k)), no_code(t, k))", "",
@@ -628,7 +772,8 @@ class Machine:
             body, ty = self.ex(o["body"], dict(self.stypes))
             if ty != o["type"]:
                 raise FactsError(f"observer {name}: {ty} vs {o['type']}")
-            out += [f"# {o.get('doc', '')}".replace("?", ""), f"def {name}(s: HSt) -> {bt(ty)}:", "  match s:",
+            T = "".join(", " + x for x in self.tab_params(self.fn_tabs.get(name, [])))
+            out += [f"# {o.get('doc', '')}".replace("?", ""), f"def {name}(s: HSt{T}) -> {bt(ty)}:", "  match s:",
                     f"    case HSt{{{spat}}}:", f"      {body}", ""]
         for name, m in self.f.get("migrations", {}).items():
             ins = [(n, t) for n, t in m.get("inputs", [])]
@@ -642,7 +787,8 @@ class Machine:
                     new.append(x)
                 else:
                     new.append(bname(n))
-            ip = "".join(f", +{bname(n)}: {bt(t)}" for n, t in ins)
+            ip = "".join(f", +{bname(n)}: {bt(t)}" for n, t in ins) + \
+                "".join(", " + x for x in self.tab_params(self.fn_tabs.get("mig_" + name, [])))
             out += [f"# migration: {m.get('doc', '')}".replace("?", ""), f"def mig_{name}(s: HSt{ip}) -> HSt:", "  match s:",
                     f"    case HSt{{{spat}}}:", f"      HSt{{{', '.join(new)}}}", ""]
         return out
@@ -684,6 +830,12 @@ class Machine:
         """The reachable set as an inductive predicate (whitepaper §8.3 R; I8): Reach<s> holds for s0 and
         is closed under step. The index is a parameter carrying its equation (the encoding Bend accepts
         for value-indexed families); emitted for M2+ milestones only, so gen/M0 and gen/M1 are unchanged."""
+        if self.threaded:   # indexed by the threaded oracle tables too (I12)
+            idx = ", ".join(f"-{self.tvar[p]}: {bt(f'Tab<{p}>')}" for p in self.threaded)
+            args = ", ".join(self.tab_args(self.threaded))
+            return ["# the reachable states: s0, and one step from a reachable state (I8), for given oracle tables (I12)",
+                    f"type Reach<{idx}, -s: HSt> is Type:", "  R0{e: {s == s0() : HSt}}",
+                    f"  RStep{{a: HAct, p: HSt, r: Reach<{args}, p>, e: {{s == step(a, p, {args}) : HSt}}}}", ""]
         return ["# the reachable states: s0, and one step from a reachable state (I8)",
                 "type Reach<-s: HSt> is Type:", "  R0{e: {s == s0() : HSt}}",
                 "  RStep{a: HAct, p: HSt, r: Reach<p>, e: {s == step(a, p) : HSt}}", ""]
@@ -692,6 +844,7 @@ class Machine:
         body = []
         body += self.gen_types()
         body += self.gen_record_lib()
+        body += self.gen_oracles()
         body += self.gen_defs()
         acts = []
         for a in self.actions:
@@ -708,5 +861,5 @@ class Machine:
         return "\n".join(text).rstrip() + "\n"
 
 
-def generate(facts: dict, facts_sha256: str, path: Path | str | None = None, reach: bool = False) -> str:
-    return Machine(facts, path).generate(facts_sha256, reach)
+def generate(facts: dict, facts_sha256: str, path: Path | str | None = None, reach: bool = False, oracles=None) -> str:
+    return Machine(facts, path, oracles=oracles).generate(facts_sha256, reach)

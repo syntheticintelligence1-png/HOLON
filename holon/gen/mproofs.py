@@ -21,11 +21,18 @@ on the statement's shape and on the machine's structure (reads, effects), never 
                   constructor, then `{==}` per conjunct in every case.
   hyp             (holon-ir/0.3) the claim is one of the premises as rendered (for example a
                   conjunct of a collision-freedom premise, in decidable form): return that hypothesis.
+  param_premise   (I12) every binder is a forall oracle parameter (a table): each conjunct of the claim
+                  is closed by computation ({==}) or is a premise once both are computed (the model runs
+                  on the tables until only lookups ap_p(p, x) remain); its candidates are {==}, h0, h1, ..
+                  and Bend picks (holon.mpipeline.param_search). Not in GENERATORS: it yields candidates.
+
+Witnesses over oracle parameters (I12) are resolved tables (holon.gen.mlaws.resolve_param); a witness dict
+may carry "$defs" (name -> Bend def of a sidecar instance), which the proof file defines before using them.
 """
 from __future__ import annotations
 
 from .machine import Machine, bname, bt, fresh
-from .mlaws import ALIAS, EmittedM, Unsupported, binder_parts, q, reach_name, value_literal
+from .mlaws import ALIAS, EmittedM, Unsupported, binder_parts, q, reach_name, value_literal, witness_tabs
 
 CORE = '''\
 # ---- core lemmas (Nat / Bool / lists), proved here by induction; no axioms
@@ -140,12 +147,19 @@ def evaluate(em: EmittedM, m: Machine, model_import: str, witness: dict | None =
     ex = [(n, t) for qq, n, t in em.binders if qq == "exists"]
     if ex and witness is None:
         return None
-    parts = [x for n, t in ex for x in binder_parts(m, t, witness[n])] + ["{==}"] * len(em.claims)
+    tabs = witness_tabs(m, em.binders, witness) if witness else ""
+    parts = [x for n, t in ex for x in binder_parts(m, t, witness[n], tabs)] + ["{==}"] * len(em.claims)
     tup = parts[-1]
     for p in reversed(parts[:-1]):
         tup = f"({p}, {tup})"
     lines = ["# class evaluate: witnesses (if any), then every conjunct by computation", f"def Laws.{em.name}():", f"  {tup}"]
-    return "\n".join(_imports(model_import) + lines) + "\n"
+    return "\n".join(_imports(model_import) + _witness_defs(witness) + lines) + "\n"
+
+
+def _witness_defs(witness: dict | None) -> list[str]:
+    """The defs a resolved witness needs (the sidecar instances it applies, I12), each once, by name."""
+    defs = (witness or {}).get("$defs") or {}
+    return [line for name in sorted(defs) for line in defs[name].rstrip("\n").split("\n") + [""]]
 
 
 def nat_split(em: EmittedM, m: Machine, model_import: str, depth: int = 1) -> str | None:
@@ -214,13 +228,15 @@ def counter(em: EmittedM, m: Machine, model_import: str, witness: dict, lhs_at: 
         helpers, eqfn = _eq_defs(m, ty, em.views[ty])
     if eqfn is None:
         raise Unsupported(f"no equality function for {ty}")
-    parts = [x for _, n, t in em.binders for x in binder_parts(m, t, witness[n])] + ["{==}"] * len(em.assume)
+    tabs = witness_tabs(m, em.binders, witness)
+    parts = [x for _, n, t in em.binders for x in binder_parts(m, t, witness[n], tabs)] + ["{==}"] * len(em.assume)
     refute = f"e => (%e : {ALIAS}.is_true({eqfn}(_, {lhs_at}))\n  Unit{{}})"
     tup = refute
     for p in reversed(parts):
         tup = f"({p}, {tup})"
-    lines = helpers + ["# class counter: concrete witness, premises by computation, sides separated by an equality function",
-                       f"def Laws.{em.name}():", f"  {tup}"]
+    lines = helpers + _witness_defs(witness) + [
+        "# class counter: concrete witness, premises by computation, sides separated by an equality function",
+        f"def Laws.{em.name}():", f"  {tup}"]
     return "\n".join(_imports(model_import) + lines) + "\n"
 
 
@@ -593,6 +609,30 @@ GENERATORS = [("evaluate", evaluate), ("nat_split", nat_split), ("noninterferenc
               ("deadline", deadline), ("chain_revert", chain_revert), ("act_split", act_split), ("hyp", hyp)]
 
 
+# ---------------------------------------------------------------- I12: param_premise
+PARAM_PREMISE_MAX = 64
+
+
+def param_premise(em: EmittedM, m: Machine, model_import: str) -> list[str] | None:
+    """Candidate proofs of a law whose binders are all forall oracle parameters (tables): the claim's conjuncts
+    each closed by {==} or by a premise h_i, which Bend accepts when the two agree once the model has run on the
+    tables (only lookups ap_p(p, x) remain). Candidates in order: {==} first, then h0, h1, ..; at most
+    PARAM_PREMISE_MAX. None when the class does not apply."""
+    import itertools
+    from .mlaws import fn_sig
+    if not m.oparams or not em.binders or any(qq != "forall" or n not in m.oparams or not fn_sig(t)
+                                             for qq, n, t in em.binders):
+        return None
+    cands = ["{==}"] + [f"h{i}" for i in range(len(em.assume))]
+    params = [bname(n) for _, n, _ in em.binders] + [f"h{i}" for i in range(len(em.assume))]
+    out = []
+    for combo in itertools.islice(itertools.product(cands, repeat=len(em.claims)), PARAM_PREMISE_MAX):
+        lines = ["# class param_premise: each conjunct by computation or by a premise, once the model has run on the "
+                 "oracle tables", f"def Laws.{em.name}({', '.join(params)}):", f"  {_tuple(list(combo))}"]
+        out.append("\n".join(_imports(model_import) + lines) + "\n")
+    return out
+
+
 # ---------------------------------------------------------------- holon-ir/0.3: reach_invariant (I8)
 class ReachProof:
     """A Reach induction proof with open choice slots (whitepaper §8.3 R, §10.3).
@@ -609,6 +649,8 @@ class ReachProof:
         rb = [(qq, n, t) for qq, n, t in em.binders if t == "Reach"]
         if len(rb) != 1 or len(em.binders) != 1 or rb[0][0] != "forall" or em.assume:
             raise Unsupported("reach_invariant needs exactly one forall Reach binder and no premises")
+        if m.threaded:
+            raise Unsupported("reach_invariant over a model that threads oracle tables is not generated yet (I12)")
         self.em, self.m, self.imp = em, m, model_import
         self.v = bname(rb[0][1])
         self.rv = reach_name(rb[0][1])

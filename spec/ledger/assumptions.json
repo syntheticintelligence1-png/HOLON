@@ -250,5 +250,15 @@
         }
       ]
     }
+  ],
+  "encodings": [
+    {
+      "id": "oracle-tables",
+      "kind": "abstraction",
+      "applies_to": "M2+ models generated with an oracle sidecar (holon.gen.oracles, holon.gen.machine; I12)",
+      "source": "holon/gen/oracles.py",
+      "text": "A hash or oracle parameter p : Fn<A,B> is held as Data, an oracle table (List<&2, HO_p> of HO_p{k, v} entries, applied by ap_p: the v of the first entry whose k is x, else the default of B), because a Bend function value is Type, never Data, and cannot be reused by step and run. Laws quantify over all tables. Locality: every function agrees with some table on any finite set of points (its graph there), and a statement's evaluation (Bend is total) queries p at finitely many points; running with the graph of f on the queried points makes the same queries and gets the same answers, step by step. So a law proved for all tables holds for every function f, and a table that refutes a law is itself a function. Not a premise and not an axiom: no law assumes anything about tables beyond its own CF and hyp premises, which are the record's model_assumptions (§8.5).",
+      "introduced_by": ["HO_*", "ap_*"]
+    }
   ]
 }

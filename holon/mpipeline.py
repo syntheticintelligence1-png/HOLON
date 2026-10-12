@@ -15,6 +15,16 @@ injectivity) is not run; the counter-law of a conjunction names the conjunct tha
 witness (evaluated on the compiled model), recorded as failing_conjunct; an existential law is
 never REFUTED: when no witness is found it stays UNKNOWN with bounded_negative {H, space} and its
 generated negation (holon.gen.mlaws.negation_ir) is decided by the same proof generators.
+
+Hashes and oracles as parameters (I12; M2+ milestones): the model of a facts file with an oracle sidecar
+(holon.gen.oracles) takes its hashes and oracles as parameters (oracle tables). A law whose hyp premises do
+not resolve against the sidecar is not run. Its statement hash covers the hypotheses it names
+(holon.gen.refs.law_hash(.., oracles=)); a law over the parameters alone is tried by param_premise
+(mproofs) after the other classes; the refuter's candidates for a parameter are the sidecar's concrete
+instances, then the empty table, and a counter-law supplies the table its witness denotes at the points
+the statement queries, carrying the law's hypothesis premises as `exs hN` lines; model_assumptions is
+exactly the set of hypothesis premises (§8.5); and the run writes <out>/splits.json (holon-splits/0.1:
+hypothesis splits are law pairs, found from statements).
 """
 from __future__ import annotations
 
@@ -28,6 +38,7 @@ from pathlib import Path
 from . import bend, bindings, inhabit, ir, records
 from . import facts as F
 from .gen import mlaws, mproofs
+from .gen import oracles as O
 from .gen import refs as R
 from .gen import targetlib
 from .gen.machine import Machine
@@ -45,9 +56,13 @@ def model_name(facts_path: Path) -> str:
 
 
 class CompiledMachine:
-    def __init__(self, source: Path, artifact: Path, facts: dict, machine: Machine, facts_path: Path | None = None):
+    def __init__(self, source: Path, artifact: Path, facts: dict, machine: Machine, facts_path: Path | None = None,
+                 cfg: dict | None = None):
         self.source, self.artifact, self.facts, self.m = source, artifact, facts, machine
         self.facts_path = Path(facts_path) if facts_path else None
+        self.oracles = machine.orc
+        self.cfg = cfg
+        self._inst = None
 
     def hints(self) -> str | None:
         """The facts' untrusted search-hints module (holon.gen.targetlib), or None for the generic policy."""
@@ -56,15 +71,17 @@ class CompiledMachine:
 
     @classmethod
     def build(cls, facts_path: Path, cfg: dict | None = None, reach: bool = False,
-              anchor: Path | None = None) -> "CompiledMachine":
+              anchor: Path | None = None, oracles=None) -> "CompiledMachine":
         """reach: emit the Reach predicate (M2+ milestones, I8). anchor: the facts file whose target
         libraries and search hints apply (holon.gen.targetlib), when facts_path stands in for it (a
-        `--facts` override such as a mutated copy); by default facts_path itself."""
+        `--facts` override such as a mutated copy); by default facts_path itself. oracles: the facts'
+        oracle sidecar (M2+ milestones, I12)."""
         facts = F.load(facts_path)
         sha = F.sha256_file(facts_path)
-        m = Machine(facts, anchor or facts_path)
+        m = Machine(facts, anchor or facts_path, oracles=oracles)
         text = m.generate(sha, reach)
-        src = bend.build_dir(ROOT) / "eval" / (sha[:16] + ("-reach" if reach else "")) / f"{model_name(facts_path)}.bend"
+        tag = ("-reach" if reach else "") + (f"-orc{hashlib.sha256(text.encode()).hexdigest()[:8]}" if oracles else "")
+        src = bend.build_dir(ROOT) / "eval" / (sha[:16] + tag) / f"{model_name(facts_path)}.bend"
         src.parent.mkdir(parents=True, exist_ok=True)
         if not src.exists() or src.read_text() != text:
             src.write_text(text)
@@ -76,20 +93,69 @@ class CompiledMachine:
             if r.code != 0 or not art.exists():
                 raise RuntimeError(f"bend failed to compile {src}: {r.out[:2000]}")
             stamp.write_text(h)
-        return cls(src, art, facts, m, Path(anchor or facts_path))
+        return cls(src, art, facts, m, Path(anchor or facts_path), cfg)
+
+    # ------------------------------------------------------------ oracle parameters (I12)
+    def instance_module(self) -> tuple[Path | None, list[dict], list[str]]:
+        """(compiled module, [{id, param, fn}], notes): the model plus one inst_<entry> def per sidecar instance,
+        compiled for the refuter (untrusted search: an instance that does not compile is not tried)."""
+        if self._inst is not None:
+            return self._inst
+        orc = self.m.orc
+        items = [(e, O.inst_name(e["id"])) for e in (orc.entries if orc else [])
+                 if e in orc.instances(e["parameter"]["name"])]
+        model_text = self.source.read_text()
+
+        def compiled(sel):
+            text = model_text + "\n" + "\n".join(mlaws.instance_def(self.m, e, n, qualified=False) for e, n in sel)
+            h = hashlib.sha256(text.encode()).hexdigest()
+            src = self.source.parent / f"{self.source.stem}.inst-{h[:12]}.bend"
+            art = src.with_suffix(".mjs")
+            if not art.exists():
+                src.write_text(text)
+                r = bend.run([src.name, "-o", art.name], cwd=src.parent, cfg=self.cfg)
+                if r.code != 0 or not art.exists():
+                    return None
+            return art
+        notes: list[str] = []
+        art = compiled(items) if items else None
+        if items and art is None:
+            good = [x for x in items if compiled([x]) is not None]
+            notes = [f"the instance of {e['id']} does not compile with the model: not tried" for e, n in items if (e, n) not in good]
+            items = good
+            art = compiled(items) if items else None
+        self._inst = (art, [{"id": e["id"], "param": e["parameter"]["name"], "fn": n} for e, n in items], notes)
+        return self._inst
+
+    def oracle_req(self) -> dict | None:
+        """What the refuter needs to know of the oracle parameters (holon/js/explore.mjs)."""
+        if not self.m.oparams:
+            return None
+        art, insts, _ = self.instance_module()
+        return {"params": {p: {"type": f"Fn<{a},{b}>", "dom": a, "cod": b} for p, (a, b) in self.m.oparams.items()},
+                "threaded": list(self.m.threaded), "fnTabs": self.m.fn_tabs, "instances": insts,
+                "instModule": str(art) if art else None}
+
+    def _req(self, law: dict, **kw) -> str:
+        """An explore.mjs request; hyp premises go as their predicates (the refuter evaluates premises)."""
+        if O.hyp_names(law):
+            law = O.expand_hyps(law, self.m.orc)
+        r = {"module": str(self.artifact), "facts": self.facts, "hints": self.hints(), "law": law, **kw}
+        orc = self.oracle_req()
+        if orc is not None:
+            r["oracles"] = orc
+        return json.dumps(r)
 
     def evaluate(self, law: dict, assignment: dict) -> dict:
         """Premises and claims of a law at one assignment, on the compiled model."""
-        p = subprocess.run(["node", str(EXPLORE)], input=json.dumps({"module": str(self.artifact), "facts": self.facts, "hints": self.hints(),
-                                                                     "law": law, "evaluate": assignment}),
+        p = subprocess.run(["node", str(EXPLORE)], input=self._req(law, evaluate=assignment),
                            capture_output=True, text=True, timeout=600)
         if p.returncode != 0:
             raise RuntimeError(f"evaluate failed: {p.stderr[-2000:]}")
         return json.loads(p.stdout)
 
     def explore(self, law: dict, budget: dict | None = None) -> dict:
-        p = subprocess.run(["node", str(EXPLORE)], input=json.dumps({"module": str(self.artifact), "facts": self.facts, "hints": self.hints(),
-                                                                     "law": law, "budget": budget or {}}),
+        p = subprocess.run(["node", str(EXPLORE)], input=self._req(law, budget=budget or {}),
                            capture_output=True, text=True, timeout=3600)
         if p.returncode != 0:
             raise RuntimeError(f"explore failed: {p.stderr[-2000:]}")
@@ -169,6 +235,13 @@ def witness_difference(cm: CompiledMachine, law: dict, witness: dict, conjunct: 
         raise ValueError(t)
     st = law["statement"]
     ty_env = {b["name"]: b["type"] for b in st["binders"]}
+    if any(n in cm.m.oparams and t.startswith("Fn<") for n, t in ty_env.items()):   # oracle parameters (I12)
+        try:
+            sides = (cm.evaluate(law, witness).get("sides") or [])
+        except RuntimeError:
+            return None
+        i = conjunct or 0
+        return {"lhs": sides[i][0], "rhs": sides[i][1]} if i < len(sides) and sides[i] else None
     c = st["claim"]
     if "all" in c:
         if conjunct is None:
@@ -272,7 +345,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
     if no_registry:
         laws = [ir.rebind_facts(l, F.sha256_file(fpath_of(l))) for l in laws]
     else:
-        check_registry_multi(laws, reg)
+        check_registry_multi(laws, reg, milestone)
     kver = bend.version(cfg)
     if kver != cfg["bend"]["pinned_version"]:
         raise RuntimeError(f"bend {kver} is not the pinned {cfg['bend']['pinned_version']}")
@@ -287,6 +360,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         shutil.rmtree(gen)
     (gen / "model").mkdir(parents=True)
     machines: dict = {}
+    oracles_of: dict = {}   # law id -> the oracle sidecar of its facts (M2+, I12), for splits.json
     from .gen import core as C
     mproofs.CORE_MODE, mproofs.CORE_PASTE = None, ""
     if m2plus(milestone):
@@ -303,7 +377,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             # a --facts override stands in for the registry's facts: it takes their target libraries and
             # search hints (I6 put them next to the facts; a mutated copy elsewhere would otherwise lose them)
             anchor = ROOT / primary if (override and fp == override) else None
-            cm_ = CompiledMachine.build(fp, cfg, reach=m2plus(milestone), anchor=anchor)
+            orc = O.Oracles.for_facts(anchor or fp) if m2plus(milestone) else None   # M0, M1 never read one (I12)
+            cm_ = CompiledMachine.build(fp, cfg, reach=m2plus(milestone), anchor=anchor, oracles=orc)
             src = gen / "model" / f"{model_name(fp)}.bend"
             src.write_text(cm_.source.read_text())
             (gen / "model" / f"{model_name(fp)}.defs.json").write_text(bindings.dump(bindings.defs_index(src, cfg)))
@@ -320,7 +395,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         ld, pd, up = layout(milestone, gen, lid)   # I10: d for M0 and M1
         imp = f"{up}model/{model_src.name}"         # the model, from ld and pd (imp0 from d)
         attempts: list = []
-        shash = R.law_hash(law, cm.facts)
+        oracles_of[lid] = cm.oracles
+        shash = R.law_hash(law, cm.facts, oracles=cm.oracles)
         rec = {"law_id": lid, "statement_hash": shash, "facts_sha256": facts_sha,
                "rule": law["rule"], "subform": law.get("subform"), "maps_to": law.get("maps_to"),
                "statement": ir.render_statement(law), "premises": ir.premises(law),
@@ -333,6 +409,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         stmt_text = records.ir_roots_text(law)
         try:
             ir.check_premises(law)
+            if m2plus(milestone):
+                O.check_law(law, cm.oracles)
             E = mlaws.Emitter(cm.m)
             em = E.emit(law, imp, note=shash)
             stmt_text = em.text
@@ -356,6 +434,10 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                     if exists:
                         rec["witness"] = witness
                     break
+            if status != "PROVED" and not exists:
+                got = param_search(em, cm, imp, ld, pd, cfg, attempts)
+                if got is not None:
+                    status, r = "PROVED", got
             if status != "PROVED" and not exists and any(b["type"] == "Reach" for b in law["statement"]["binders"]):
                 got = reach_search(em, cm, imp, ld, pd, cfg, attempts)
                 if got is not None:
@@ -374,11 +456,15 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                     w = s["witness"]
                     conj = failing_conjunct(cm, law, w)
                     em2 = mlaws.Emitter(cm.m).emit(law, imp, counter=True, note=shash, conjunct=conj)
-                    env = {n: mlaws.value_literal(cm.m, t, w[n]) for _, n, t in em2.binders}
+                    # oracle parameters (I12): the tables the witness denotes, at the points the statement queries
+                    wr = mlaws.resolve_witness(cm.m, em2.binders, w, {p_: [k for k, _ in es]
+                                                                     for p_, es in (s.get("tables") or {}).items()})
+                    tabs = mlaws.witness_tabs(cm.m, em2.binders, wr)
+                    env = {n: mlaws.value_literal(cm.m, t, wr[n], tabs) for _, n, t in em2.binders}
                     E2 = mlaws.Emitter(cm.m)
                     lhs, _, ty = E2.claims(law["statement"], env, {n: ("State" if t == "Reach" else t)
                                                                    for _, n, t in em2.binders})[conj or 0]
-                    text = mproofs.counter(em2, cm.m, imp, w, lhs, ty)
+                    text = mproofs.counter(em2, cm.m, imp, wr, lhs, ty)
                     for x in {d, ld, pd}:
                         shutil.rmtree(x, ignore_errors=True)
                     rr = bend.check(write_pair(ld, pd, em2.text, text), cfg)
@@ -401,6 +487,9 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         except ir.IRError as e:
             attempts.append({"kind": "ir", "error": f"rejected by the IR rules (G3): {e}"})
             bound = "not searched: the IR rejects the statement"
+        except O.OracleError as e:
+            attempts.append({"kind": "ir", "error": f"rejected by the oracle sidecar rules: {e}"})
+            bound = "not searched: the statement's oracle premises do not resolve against the sidecar"
         if status == "UNKNOWN":
             if "negation" in rec:   # keep the decided negation's files, drop everything else
                 for x in (ld / "LAWS.bend", pd / "PROOF.bend"):
@@ -424,13 +513,31 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         rec["attempts"] = attempts
         kbound["laws"][lid] = {"model": model_src.stem, "cone": law_cone(law, cm.facts, stmt_text, model_src, cfg)}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT))
+        if m2plus(milestone):   # §8.5: exactly the hypothesis premises, nothing else (I12)
+            rec["model_assumptions"] = O.hypothesis_premises(law, cm.oracles)
         rec["non_vacuity"] = inhabit.inhabit(law, milestone, ROOT, d, cfg, cm=cm, rec=rec)
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         summary[lid] = status
         log(f"{lid:22s} {status:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
     (out_dir / "deps.json").write_text(bindings.dump(bindings.dependents(kbound)))
+    if m2plus(milestone):   # hypothesis splits are law pairs (I12)
+        (out_dir / "splits.json").write_text(json.dumps(O.splits(laws, summary, oracles_of, milestone),
+                                                        indent=2, sort_keys=True) + "\n")
     return summary
+
+
+def param_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dict, attempts: list):
+    """mproofs.param_premise (I12): its candidates in order, Bend picks. Returns the accepted check, or None."""
+    texts = mproofs.param_premise(em, cm.m, imp)
+    for i, text in enumerate(texts or []):
+        rr = bend.check(write_pair(ld, pd, em.text, text), cfg)
+        ok = rr.ok and _law_names(em.text) == [em.name] and not bend.escape_hatches(text + em.text)
+        attempts.append({"kind": "proof", "generator": "param_premise", "candidate": i, "exit_code": rr.code,
+                         "marker": rr.marker, "seconds": rr.seconds, **({} if ok else {"error": _first(rr.out)})})
+        if ok:
+            return rr
+    return None
 
 
 def reach_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dict, attempts: list, max_tries: int = 120):
@@ -537,7 +644,7 @@ def decide_negation(law: dict, cm: CompiledMachine, imp: str, d: Path, cfg: dict
     return out
 
 
-def check_registry_multi(laws: list[dict], reg: dict) -> None:
+def check_registry_multi(laws: list[dict], reg: dict, milestone: str | None = None) -> None:
     from .pipeline import RegistryMismatch
     problems = []
     files = reg.get("facts_files") or {reg["facts"]: reg["facts_sha256"]}
@@ -549,7 +656,8 @@ def check_registry_multi(laws: list[dict], reg: dict) -> None:
     for law in laws:
         if files.get(law["facts"]) != law["facts_sha256"]:
             problems.append(f"{law['law_id']}: facts_sha256 differs from its facts file")
-        if reg["statements"].get(law["law_id"]) != R.law_hash(law, F.load(ROOT / law["facts"])):
+        orc = O.Oracles.for_facts(ROOT / law["facts"]) if milestone and m2plus(milestone) else None
+        if reg["statements"].get(law["law_id"]) != R.law_hash(law, F.load(ROOT / law["facts"]), oracles=orc):
             problems.append(f"{law['law_id']}: statement hash differs from the registry")
     if problems:
         raise RegistryMismatch("; ".join(problems))

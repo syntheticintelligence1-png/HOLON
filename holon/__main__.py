@@ -7,6 +7,7 @@
   python -m holon audit regress --from A --to B [--json] [--root DIR]
   python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon oracle zero-blob [--morph PATH]
+  python -m holon oracle check --milestone M2 [--root DIR]   (oracle sidecar hypotheses: A4, G11V; I12)
   python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
   python -m holon replay [--milestone M] [--morph PATH] [--forge F] [--solc S] [--work DIR] [--write-pins]
   python -m holon lean --milestone M0 [--json] [--jobs N]   (Lean 4 second kernel, I9)
@@ -51,8 +52,9 @@ def main(argv=None) -> int:
     bd.add_argument("--milestone", default="M0")
     bd.add_argument("--root")
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
-    orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2, results/M2/hypotheses.json)")
-    orc.add_argument("which", choices=["zero-blob"])
+    orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
+                                        "(the oracle sidecar's hypotheses, I12); both write results/M2/hypotheses.json")
+    orc.add_argument("which", choices=["zero-blob", "check"])
     orc.add_argument("rest", nargs=argparse.REMAINDER)
     cu = sub.add_parser("checker-upgrade", help="re-run gates and runs under a candidate checker; report every diff")
     cu.add_argument("rest", nargs=argparse.REMAINDER)
@@ -93,6 +95,9 @@ def main(argv=None) -> int:
         from .bindings import main_bind
         return main_bind(a)
     if a.cmd == "oracle":
+        if a.which == "check":
+            from . import oracle_check
+            return oracle_check.main(a.rest)
         from .oracles import zero_blob
         return zero_blob.main(a.rest)
     if a.cmd == "checker-upgrade":

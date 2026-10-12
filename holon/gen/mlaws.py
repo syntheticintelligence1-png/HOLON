@@ -25,6 +25,17 @@ holon-ir/0.3 (I7, whitepaper §8.9, §8.5):
   * The negation of an existential law (for all binders, not claim) is emitted with negate=True; it is
     decided in place of the existential, which is never REFUTED (holon.mpipeline).
 
+Hashes and oracles as parameters (I12; holon.gen.oracles). Over a model generated with an oracle sidecar
+(M2+ milestones), a Fn<A,B> binder named like a modelled parameter p *is* that parameter: it is emitted as
+the oracle table it ranges over (`for +p: List<&2, M.HO_p>`, Data, so reusable), `{"app": p, ..}` is the
+lookup `M.ap_p(p, x)`, and every run/step/obs/obsv/mig/runs_ok term passes the tables the model function
+takes (Machine.fn_tabs), each the law's binder of that name; a statement that needs a table it does not
+bind is Unsupported. A premise {"hyp": {"name": H}} is rendered from H's predicate in the sidecar: its
+premises, over the law's binder of H's parameter, each emitted like any other premise. A Fn binder that is
+no modelled parameter keeps its I7 meaning (an erased function binder). Witness values of a parameter are
+tables: a sidecar instance (resolve_param: the instance function, inst_<entry>, defined in the proof file
+from the entry's template, applied at the points the statement queries) or an explicit table.
+
 `proj` is the relation of a non-interference law: the state with the named fields erased.
 Its View type and projection are emitted into LAWS.bend: they are part of the statement,
 so a proof file can neither define nor change them.
@@ -65,7 +76,7 @@ def fn_sig(t: str) -> tuple[str, str] | None:
 
 
 _MODEL_FN = re.compile(r"(?<![\w.])(d_\w+|g_\w+|b_\w+|with_\w+|dec_\w+|decide_\w+|nth_d|set_d|ite|tail0|last_d|"
-                       r"empty_\w+|eq_bool|eq_list_nat)\(")
+                       r"empty_\w+|eq_bool|eq_list_nat|ap_\w+)\(")
 
 
 def q(t: str) -> str:
@@ -105,6 +116,36 @@ class Emitter:
             fn_types[c] = "List<Nat>"
         self.fn_types = fn_types
 
+    # ------------------------------------------------------------ oracle parameters (I12)
+    def is_param(self, n: str, types: dict) -> bool:
+        """Is binder n a modelled oracle parameter of the model (a Fn binder named like one)?"""
+        t = types.get(n, "")
+        if n not in self.m.oparams or not fn_sig(t):
+            return False
+        if fn_sig(t) != self.m.oparams[n]:
+            raise Unsupported(f"binder {n}: {t} is named like the oracle parameter {n} of another type")
+        return True
+
+    def tabs(self, fn: str, env: dict, types: dict) -> str:
+        """The oracle tables model function `fn` takes, as trailing arguments: the law's binders of those names."""
+        out = ""
+        for p in self.m.fn_tabs.get(fn, []):
+            if not self.is_param(p, types):
+                raise Unsupported(f"{fn} runs the parametric model, but the statement binds no oracle parameter {p}")
+            out += f", {env[p]}"
+        return out
+
+    def hyp_props(self, name: str, env: dict, types: dict) -> list:
+        """A {"hyp": {"name": H}} premise: H's predicate from the oracle sidecar, over the law's binder of H's
+        parameter, as Bend equations."""
+        orc = self.m.orc
+        e = orc.hyp_entry(name) if orc is not None else None
+        if e is None:
+            raise Unsupported(f"hyp premise {name!r} names no modelled kind-hyp hypothesis of the oracle sidecar")
+        if not self.is_param(e["parameter"]["name"], types):
+            raise Unsupported(f"hyp premise {name!r} constrains {e['parameter']['name']}, which the statement does not bind")
+        return [x for q_ in e["hypothesis"]["predicate"] for x in self.premise_props(q_, env, types)]
+
     # ------------------------------------------------------------ types
     def ty(self, t: str) -> str:
         sig = fn_sig(t)
@@ -139,19 +180,19 @@ class Emitter:
             s, ts = self.term(t["from"], env, types)
             self.expect(tt, "Trace", t)
             self.expect(ts, "State", t)
-            return f"{ALIAS}.run({tr}, {s})", "State"
+            return f"{ALIAS}.run({tr}, {s}{self.tabs('run', env, types)})", "State"
         if "step" in t:
             a, ta = self.term(t["step"], env, types)
             s, ts = self.term(t["from"], env, types)
             self.expect(ta, "Act", t)
             self.expect(ts, "State", t)
-            return f"{ALIAS}.step({a}, {s})", "State"
+            return f"{ALIAS}.step({a}, {s}{self.tabs('step', env, types)})", "State"
         if "obs" in t:
             tr, tt = self.term(t["obs"], env, types)
             s, ts = self.term(t["from"], env, types)
             self.expect(tt, "Trace", t)
             self.expect(ts, "State", t)
-            return f"{ALIAS}.obs({tr}, {s})", "Obs"
+            return f"{ALIAS}.obs({tr}, {s}{self.tabs('obs', env, types)})", "Obs"
         if "trace" in t:
             items = []
             for a in t["trace"]:
@@ -189,7 +230,7 @@ class Emitter:
                 raise Unsupported(f"unknown observer {t['obsv']}")
             s, ts = self.term(t["of"], env, types)
             self.expect(ts, "State", t)
-            return f"{ALIAS}.{t['obsv']}({s})", o["type"]
+            return f"{ALIAS}.{t['obsv']}({s}{self.tabs(t['obsv'], env, types)})", o["type"]
         if "mig" in t:
             mg = self.m.f.get("migrations", {}).get(t["mig"])
             if mg is None:
@@ -203,7 +244,7 @@ class Emitter:
                 args.append(xt)
             if len(args) != len(mg.get("inputs", [])):
                 raise Unsupported(f"{t['mig']}: arity")
-            return f"{ALIAS}.mig_{t['mig']}({', '.join([s] + args)})", "State"
+            return f"{ALIAS}.mig_{t['mig']}({', '.join([s] + args)}{self.tabs('mig_' + t['mig'], env, types)})", "State"
         if "app" in t:
             h = t["app"]
             sig = fn_sig(types.get(h, ""))
@@ -213,6 +254,8 @@ class Emitter:
                 raise Unsupported(f"{h}: Fn<A,B> takes one argument")
             x, tx = self.term(t["args"][0], env, types)
             self.expect(tx, sig[0], t)
+            if self.is_param(h, types):   # the oracle table's lookup (I12)
+                return f"{ALIAS}.ap_{h}({env[h]}, {x})", sig[1]
             return f"{env[h]}({x})", sig[1]
         if "fn" in t and t["fn"] in BUILTINS:
             bfn, ats, rt = BUILTINS[t["fn"]]
@@ -229,7 +272,7 @@ class Emitter:
             if name not in self.fn_types:
                 raise Unsupported(f"unknown model function {name}")
             args = [self.term(x, env, types)[0] for x in t["args"]]
-            return f"{ALIAS}.{name}({', '.join(args)})", self.fn_types[name]
+            return f"{ALIAS}.{name}({', '.join(args)}{self.tabs(name, env, types)})", self.fn_types[name]
         if "plus" in t:
             (x, tx), (y, ty_) = (self.term(z, env, types) for z in t["plus"])
             self.expect(tx, "Nat", t)
@@ -260,7 +303,10 @@ class Emitter:
         return {"eq": [{"fn": EQ_OF[ta], "args": [a, b]}, {"bool": False}]}
 
     def premise_props(self, p: dict, env: dict, types: dict) -> list:
-        """A premise as Bend equations: one, or one per pair of a CF set (in set order)."""
+        """A premise as Bend equations: one, one per pair of a CF set (in set order), or those of a hypothesis'
+        predicate (I12)."""
+        if set(p) == {"hyp"}:
+            return self.hyp_props(p["hyp"].get("name"), env, types)
         if set(p) == {"cf"}:
             cf = p["cf"]
             if not isinstance(cf.get("set"), list) or not cf["set"]:
@@ -275,6 +321,12 @@ class Emitter:
 
     def bend_ty(self, t: str) -> str:
         return t if t.startswith("V_") else self.ty(t)
+
+    def binder_ty(self, n: str, t: str, types: dict) -> str:
+        """A binder's Bend type: an oracle parameter is its table (I12)."""
+        if self.is_param(n, types):
+            return f"List<&2, {ALIAS}.HO_{n}>"
+        return self.bend_ty(t)
 
     def claims(self, st: dict, env: dict, types: dict) -> list:
         c = st["claim"]
@@ -324,12 +376,14 @@ class Emitter:
         body = [f"law {name}:"]
         for qq, n, t in binders:
             kw = "exs" if (counter or qq == "exists") else "for"
-            if t == "Reach":   # the state, then its reachability evidence (I8)
+            if t == "Reach":   # the state, then its reachability evidence (I8), for the law's oracle tables (I12)
+                idx = "".join(f"{x.lstrip(', ')}, " for x in [self.tabs("step", env, types)] if x)
                 body.append(f"  {kw} {'' if kw == 'exs' else '+'}{bname(n)}: {ALIAS}.HSt")
-                body.append(f"  {kw} {reach_name(n)}: {ALIAS}.Reach<{bname(n)}>")
+                body.append(f"  {kw} {reach_name(n)}: {ALIAS}.Reach<{idx}{bname(n)}>")
                 continue
-            mode = "" if kw == "exs" else ("-" if fn_sig(t) else "+")
-            body.append(f"  {kw} {mode}{bname(n)}: {self.bend_ty(t)}")
+            param = self.is_param(n, types)
+            mode = "" if kw == "exs" else ("-" if fn_sig(t) and not param else "+")
+            body.append(f"  {kw} {mode}{bname(n)}: {self.binder_ty(n, t, types)}")
         for i, (a, b, t) in enumerate(assume):
             body.append(f"  {'exs' if counter else 'for'} h{i}: {{{a} == {b} : {self.bend_ty(t)}}}")
         if counter:
@@ -377,30 +431,108 @@ class Emitter:
 FN_LITERALS = {"id": "x => x", "zero": "x => 0n", "succ": "x => 1n+x"}
 
 
-def reach_chain(m: Machine, trace: list) -> str:
-    """Reach evidence for run(trace, s0): R0 at s0, then one RStep per action, each equation by computation."""
+def reach_chain(m: Machine, trace: list, tabs: str = "") -> str:
+    """Reach evidence for run(trace, s0): R0 at s0, then one RStep per action, each equation by computation.
+    tabs: the oracle tables the model threads (I12), as trailing arguments `, t1, t2`."""
     acts = [value_literal(m, "Act", a) for a in trace]
     r = f"{ALIAS}.R0{{{{==}}}}"
     for i, a in enumerate(acts):
-        prev = value_literal(m, "State", {"run": trace[:i]})
+        prev = value_literal(m, "State", {"run": trace[:i]}, tabs)
         r = f"{ALIAS}.RStep{{{a}, {prev}, {r}, {{==}}}}"
     return r
 
 
-def binder_parts(m: Machine, ty: str, v) -> list[str]:
+def binder_parts(m: Machine, ty: str, v, tabs: str = "") -> list[str]:
     """The proof-tuple parts a witness contributes for one binder: a Reach binder gives its state and
     its evidence chain; any other binder gives its value."""
     if ty == "Reach":
         if not (isinstance(v, dict) and set(v) == {"run"}):
             raise Unsupported("a Reach witness is a trace from s0")
-        return [value_literal(m, "State", v), reach_chain(m, v["run"])]
-    return [value_literal(m, ty, v)]
+        return [value_literal(m, "State", v, tabs), reach_chain(m, v["run"], tabs)]
+    return [value_literal(m, ty, v, tabs)]
 
 
-def value_literal(m: Machine, ty: str, v) -> str:
-    """Bend literal (in the LAWS/PROOF module, model alias M) of a witness value."""
+def resolve_param(m: Machine, p: str, v, points: list | None, defs: dict) -> dict:
+    """A recorded witness value of oracle parameter p, as the table the proof supplies (I12):
+    {"instance": entry id} is the entry's instance function (its def added to `defs`, name -> text) applied at
+    `points` (the points the statement queries); {"table": [[k, v], ..]} is that explicit table."""
+    if not isinstance(v, dict):
+        raise Unsupported(f"no witness literal for parameter {p} = {v!r}")
+    if "table" in v:
+        return {"$param": p, "$table": [list(x) for x in v["table"]], "$inst": None}
+    if "instance" not in v or m.orc is None:
+        raise Unsupported(f"no witness literal for parameter {p} = {v!r}")
+    from .oracles import inst_name
+    e = m.orc.by_id.get(v["instance"])
+    if e is None or e.get("status") != "modelled" or e["parameter"]["name"] != p or e not in m.orc.instances(p):
+        raise Unsupported(f"{v['instance']!r} is no modelled instance of parameter {p}")
+    name = inst_name(e["id"])
+    if points:   # the empty table needs no instance applied
+        defs[name] = instance_def(m, e, name, qualified=True)
+    return {"$param": p, "$table": [[k, None] for k in (points or [])], "$inst": name}
+
+
+def resolve_witness(m: Machine, binders, w: dict, points: dict | None) -> dict:
+    """A recorded witness with every oracle parameter's value resolved to the table the proof supplies
+    (resolve_param), the instance defs it needs under "$defs". points: {parameter: [point, ..]}."""
+    out, defs = dict(w), {}
+    for _, n, t in binders:
+        if n in m.oparams and fn_sig(t) and n in w:
+            out[n] = resolve_param(m, n, w[n], (points or {}).get(n, []), defs)
+    if defs:
+        out["$defs"] = defs
+    return out
+
+
+def instance_def(m: Machine, e: dict, name: str, qualified: bool) -> str:
+    """The Bend def of an entry's concrete instance, from its template (facts parameters from the machine).
+    qualified: for a law or proof file that imports the model as M (model names get the alias)."""
+    from .oracles import render_template
+    A, B = m.oparams[e["parameter"]["name"]]
+    body = render_template(e["instance"]["bend"], ["x"], m.params)
+    sig = f"def {name}(x: {bt(A)}) -> {bt(B)}:"
+    if qualified:
+        body, sig = qualify_model(m, body), q(sig)
+    return f"# the concrete instance of {e['id']} (oracle sidecar)\n{sig}\n  {body}\n"
+
+
+def qualify_model(m: Machine, text: str) -> str:
+    """Qualify, with the model alias, every call of a top-level definition of the generated model (prelude,
+    target libraries, record helpers) and every generated type or constructor."""
+    names = model_names(m)
+    out = q(text)
+    return re.sub(r"(?<![\w.])([A-Za-z_]\w*)\(", lambda mm: (f"{ALIAS}.{mm.group(1)}(" if mm.group(1) in names
+                                                         else mm.group(0)), out)
+
+
+def model_names(m: Machine) -> set:
+    if getattr(m, "_model_names", None) is None:
+        from .machine import PRELUDE_HEAD, PRELUDE_TAIL
+        text = PRELUDE_HEAD + "".join(m.lib.prelude) + PRELUDE_TAIL + "\n".join(Machine(m.f, lib=m.lib).gen_record_lib())
+        m._model_names = set(re.findall(r"^def\s+(\w+)\(", text, re.M))
+    return m._model_names
+
+
+def witness_tabs(m: Machine, binders, resolved: dict) -> str:
+    """The table literals of the threaded parameters, from a resolved witness (for run terms in witnesses)."""
+    lit = {n: value_literal(m, t, resolved[n]) for _, n, t in binders
+           if isinstance(resolved.get(n), dict) and "$param" in resolved[n]}
+    return "".join(f", {lit[p]}" for p in m.threaded if p in lit)
+
+
+def value_literal(m: Machine, ty: str, v, tabs: str = "") -> str:
+    """Bend literal (in the LAWS/PROOF module, model alias M) of a witness value. tabs: the threaded oracle
+    tables, for states given as runs from s0 (I12)."""
     if ty == "Reach":
-        return binder_parts(m, ty, v)[0]
+        return binder_parts(m, ty, v, tabs)[0]
+    if fn_sig(ty) and isinstance(v, dict) and "$param" in v:   # an oracle table (I12; resolve_param)
+        p = v["$param"]
+        A, B = m.oparams[p]
+        items = []
+        for k, val in v["$table"]:
+            kl = value_literal(m, A, k)
+            items.append(f"{ALIAS}.HO_{p}{{{kl}, {v['$inst'] + '(' + kl + ')' if v['$inst'] else value_literal(m, B, val)}}}")
+        return "[" + ", ".join(items) + "]" if items else "Nil{}"
     if fn_sig(ty):
         if fn_sig(ty) != ("Nat", "Nat") or not isinstance(v, dict) or v.get("lam") not in FN_LITERALS:
             raise Unsupported(f"no witness literal for {ty} = {v!r}")
@@ -409,6 +541,8 @@ def value_literal(m: Machine, ty: str, v) -> str:
         return f"{int(v)}n"
     if ty == "Bool":
         return "True{}" if v else "False{}"
+    if ty == "List<Nat>":
+        return "[" + ", ".join(f"{int(x)}n" for x in v) + "]" if v else "Nil{}"
     if ty == "Act":
         return q(m.act_literal(v))
     if ty == "Trace":
@@ -416,7 +550,7 @@ def value_literal(m: Machine, ty: str, v) -> str:
         return "[" + ", ".join(items) + "]" if items else "Nil{}"
     if ty == "State":
         if set(v) == {"run"}:
-            return f"{ALIAS}.run({value_literal(m, 'Trace', v['run'])}, {ALIAS}.s0())"
+            return f"{ALIAS}.run({value_literal(m, 'Trace', v['run'])}, {ALIAS}.s0(){tabs})"
         if set(v) == {"state"}:
             st = v["state"]
             return q(f"HSt{{{', '.join(m.literal(t, st[n]) for n, t in m.state)}}}")

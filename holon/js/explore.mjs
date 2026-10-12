@@ -6,11 +6,38 @@
 //
 // Values: Trace = [{"op": name, input: value..}], Act = {"op":..}, Nat = int, Bool, State = {"run": Trace},
 // Fn<Nat,Nat> = {"lam": "id" | "zero" | "succ"} (holon-ir/0.3: a small fixed family, enumerated in this order).
+//
+// Oracle parameters (I12; req.oracles, from holon.mpipeline.CompiledMachine.oracle_req): a Fn binder named like a
+// modelled parameter p ranges over oracle tables. Its candidates are the sidecar's concrete instances of p, in
+// sidecar order (computed by the instance module req.oracles.instModule: the model plus one inst_<entry> def per
+// instance), then the empty table; a witness value is {"instance": entry id} or {"table": [[k, v], ..]}. An
+// instance is materialised as the table of its values at the points the statement queries: the evaluation runs on
+// an instrumented copy of the compiled model whose lookups ap_p log their argument (values unchanged), and is
+// repeated with the instance's values at every logged point until no new point appears. The output then also
+// holds `tables`: {p: [[k, v], ..]}, the table each parameter's witness denotes. Reachable prefixes of a model
+// that threads tables are explored with the empty tables (a heuristic: a state binder is re-run from its trace
+// under the candidate tables when the statement is evaluated).
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 const req = JSON.parse(readFileSync(0, "utf8"));
-const M = (await import(pathToFileURL(req.module).href)).default;
+let M = (await import(pathToFileURL(req.module).href)).default;
+const ORC = req.oracles || null;
+const PARAMS = ORC ? ORC.params : {};
+const PROBE = [];
+if (ORC && Object.keys(PARAMS).length) {
+  let src = readFileSync(req.module, "utf8");
+  let ok = true;
+  for (const p of Object.keys(PARAMS)) {
+    const head = `function $ap_${p}$(`;
+    if (src.split(head).length !== 2) { ok = false; break; }
+    src = src.replace(head, `function $ap_${p}$__holon(`)
+      + `\nfunction $ap_${p}$(t, x) { globalThis.__HOLON_PROBE.push(["${p}", x]); return $ap_${p}$__holon(t, x); }\n`;
+  }
+  globalThis.__HOLON_PROBE = PROBE;
+  if (ok) M = (await import("data:text/javascript;base64," + Buffer.from(src).toString("base64"))).default;
+}
+const INST = ORC && ORC.instModule ? (await import(pathToFileURL(ORC.instModule).href)).default : null;
 const facts = req.facts;
 const law = req.law;
 const B = Object.assign({ prefixDepth: 3, suffixDepth: 4, natMax: 5, maxNodes: 400000, maxPrefixes: 3000 }, req.facts.search || {}, req.budget || {});
@@ -46,7 +73,9 @@ const canon = (v) => (Array.isArray(v) ? v.map(canon)
   : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v);
 const key = (v) => JSON.stringify(canon(v), (_, x) => (typeof x === "bigint" ? `${x}n` : x));
 const s0 = M.s0();
-const stepJ = (a, s) => M.step(mkAct(a), s);
+// a model that threads oracle tables is stepped with the empty tables while prefixes are explored (I12)
+const DEFAULT_TABS = (ORC ? ORC.threaded : []).map(() => ({ $: "Nil" }));
+const stepJ = (a, s) => M.step(mkAct(a), s, ...DEFAULT_TABS);
 const runJ = (tr, s) => tr.reduce((st, a) => stepJ(a, st), s);
 const lastOk = (s) => M.last_ok(s);
 
@@ -91,15 +120,77 @@ const FN = (name) => { const f = M[name]; if (typeof f !== "function") throw new
 const BUILTIN = { eq_nat: (x, y) => x === y, eq_bool: (x, y) => FN("eq_bool")(x, y), eq_nats: (x, y) => FN("eq_list_nat")(x, y) };
 const LAMS = { id: (x) => x, zero: (x) => 0n, succ: (x) => x + 1n };
 const fnVal = (raw) => ({ ty: "Fn", v: LAMS[raw.lam], raw });
+// ---------------------------------------------------------------- oracle parameters (I12)
+const isParamB = (b) => b.type.startsWith("Fn<") && PARAMS[b.name] !== undefined && PARAMS[b.name].type === b.type;
+function dflt(ty) {
+  if (ty === "Nat") return 0n;
+  if (ty === "Bool") return false;
+  if (ty.startsWith("List<")) return { $: "Nil" };
+  return FN("empty_" + ty)();
+}
+function instCand(p, i) { return { ty: "Param", p, v: (x) => INST[i.fn](x), raw: { instance: i.id } }; }
+function tableCand(p, entries) {
+  const cod = PARAMS[p].cod;
+  return { ty: "Param", p, table: entries, raw: { table: entries },
+    v: (x) => { const hit = entries.find(([k]) => key(k) === key(dec(x))); return hit ? enc(hit[1]) : dflt(cod); } };
+}
+function paramCands(b) {
+  const fixed = (B.fixed || {})[b.name];
+  const insts = ((ORC && ORC.instances) || []).filter((i) => i.param === b.name && INST && typeof INST[i.fn] === "function");
+  if (fixed) {
+    if (fixed.table) return [tableCand(b.name, fixed.table)];
+    return insts.filter((i) => i.id === fixed.instance).map((i) => instCand(b.name, i));
+  }
+  return [...insts.map((i) => instCand(b.name, i)), tableCand(b.name, [])];
+}
+let CTX = null;   // {tables: {p: {entries, host}}} while a statement is evaluated
+let LAST = null;
+class NoFix extends Error {}
+const paramsIn = (env) => Object.keys(env).filter((k) => env[k] && env[k].ty === "Param");
+function hostTable(c, pts) {
+  const entries = c.table ? c.table : [...pts.values()].map((k) => [k, dec(c.v(enc(k)))]);
+  return { entries, host: toList(entries.map(([k, v]) => ({ $: "HO_" + c.p, k: enc(k), v: enc(v) }))) };
+}
+// evaluate thunk with every parameter's table materialised at the points the evaluation queries (fixpoint)
+function withTables(env, thunk) {
+  const ps = paramsIn(env);
+  if (!ps.length || CTX) return thunk();
+  const Q = Object.fromEntries(ps.map((p) => [p, new Map()]));
+  for (let it = 0; it < 32; it++) {
+    const T = Object.fromEntries(ps.map((p) => [p, hostTable(env[p], Q[p])]));
+    PROBE.length = 0;
+    CTX = { tables: T };
+    let r, err = null;
+    try { r = thunk(); } catch (e) { err = e; } finally { CTX = null; }
+    let grew = false;
+    for (const [p, x] of PROBE) {
+      if (!(p in Q) || env[p].table) continue;
+      const d = dec(x), k = key(d);
+      if (!Q[p].has(k)) { Q[p].set(k, d); grew = true; }
+    }
+    if (!grew) { if (err) throw err; LAST = { T }; return r; }
+  }
+  notes.push("oracle query points did not converge within 32 rounds");
+  throw new NoFix("no fixpoint");
+}
+const tabArgs = (name) => ((ORC && ORC.fnTabs[name]) || []).map((p) => {
+  if (!CTX || !CTX.tables[p]) throw new Error(`${name} needs the oracle table ${p}, which the statement does not bind`);
+  return CTX.tables[p].host;
+});
 function evalT(t, env) {
-  if ("var" in t) { const v = env[t.var]; if (v === undefined) throw new Unassigned(t.var); return v; }
+  if ("var" in t) {
+    const v = env[t.var]; if (v === undefined) throw new Unassigned(t.var);
+    // a state reached by a trace is re-run under the candidate tables (I12)
+    if (v.trace && CTX && DEFAULT_TABS.length) return { ...v, v: M.run(v.trace, s0, ...tabArgs("run")) };
+    return v;
+  }
   if ("nat" in t) return { ty: "Nat", v: BigInt(t.nat) };
   if ("bool" in t) return { ty: "Bool", v: t.bool };
   if ("nats" in t) return { ty: "List<Nat>", v: enc(t.nats) };
   if ("s0" in t) return { ty: "State", v: s0 };
-  if ("run" in t) return { ty: "State", v: M.run(evalT(t.run, env).v, evalT(t.from, env).v) };
-  if ("step" in t) return { ty: "State", v: M.step(evalT(t.step, env).v, evalT(t.from, env).v) };
-  if ("obs" in t) return { ty: "Obs", v: M.obs(evalT(t.obs, env).v, evalT(t.from, env).v) };
+  if ("run" in t) return { ty: "State", v: M.run(evalT(t.run, env).v, evalT(t.from, env).v, ...tabArgs("run")) };
+  if ("step" in t) return { ty: "State", v: M.step(evalT(t.step, env).v, evalT(t.from, env).v, ...tabArgs("step")) };
+  if ("obs" in t) return { ty: "Obs", v: M.obs(evalT(t.obs, env).v, evalT(t.from, env).v, ...tabArgs("obs")) };
   if ("trace" in t) return { ty: "Trace", v: toList(t.trace.map((a) => evalT(a, env).v)) };
   if ("cat" in t) { const [x, y] = t.cat.map((z) => dec(evalT(z, env).v)); return { ty: "Trace", v: toList([...x, ...y].map(reAct)) }; }
   if ("act" in t) {
@@ -108,18 +199,23 @@ function evalT(t, env) {
     return { ty: "Act", v: o };
   }
   if ("proj" in t) { const s = dec(evalT(t.of, env).v); for (const f of t.proj) delete s[f]; return { ty: "View", v: s, plain: true }; }
-  if ("obsv" in t) return { ty: "?", v: FN(t.obsv)(evalT(t.of, env).v) };
-  if ("mig" in t) return { ty: "State", v: FN("mig_" + t.mig)(evalT(t.of, env).v, ...(t.args || []).map((a) => evalT(a, env).v)) };
+  if ("obsv" in t) return { ty: "?", v: FN(t.obsv)(evalT(t.of, env).v, ...tabArgs(t.obsv)) };
+  if ("mig" in t) return { ty: "State", v: FN("mig_" + t.mig)(evalT(t.of, env).v, ...(t.args || []).map((a) => evalT(a, env).v), ...tabArgs("mig_" + t.mig)) };
   if ("fn" in t && t.fn in BUILTIN) return { ty: "Bool", v: BUILTIN[t.fn](...t.args.map((a) => evalT(a, env).v)) };
-  if ("fn" in t) return { ty: "?", v: FN(t.fn)(...t.args.map((a) => evalT(a, env).v)) };
-  if ("app" in t) { const f = evalT({ var: t.app }, env).v; return { ty: "?", v: f(evalT(t.args[0], env).v) }; }
+  if ("fn" in t) return { ty: "?", v: FN(t.fn)(...t.args.map((a) => evalT(a, env).v), ...tabArgs(t.fn)) };
+  if ("app" in t) {
+    const f = evalT({ var: t.app }, env), x = evalT(t.args[0], env).v;
+    if (f.ty === "Param") PROBE.push([t.app, x]);   // a point the statement queries (I12)
+    return { ty: "?", v: f.v(x) };
+  }
   if ("plus" in t) return { ty: "Nat", v: evalT(t.plus[0], env).v + evalT(t.plus[1], env).v };
   throw new Error("term " + JSON.stringify(t));
 }
 function reAct(a) { const o = { $: a.$ }; for (const [k, v] of Object.entries(a)) if (k !== "$") o[k] = enc(v); return o; }
 class Unassigned extends Error { constructor(v) { super("unassigned " + v); this.v = v; } }
 const val = (r) => (r.plain ? r.v : dec(r.v));
-function holds(p, env) {
+function holds(p, env) { return withTables(env, () => holdsRaw(p, env)); }
+function holdsRaw(p, env) {
   if (p.cf) { // collision-freedom over a finite set: pairwise distinct images
     const ks = p.cf.set.map((x) => key(val(evalT({ app: p.cf.fn, args: [x] }, env))));
     return new Set(ks).size === ks.length;
@@ -128,7 +224,13 @@ function holds(p, env) {
   const [a, b] = p.eq;
   return key(val(evalT(a, env))) === key(val(evalT(b, env)));
 }
-function tryHolds(p, env) { try { return holds(p, env); } catch (e) { if (e instanceof Unassigned) return null; throw e; } }
+function tryHolds(p, env) {
+  try { return holds(p, env); } catch (e) {
+    if (e instanceof Unassigned) return null;
+    if (e instanceof NoFix) return false;   // oracle query points did not converge: the candidate is skipped (I12)
+    throw e;
+  }
+}
 
 // ---------------------------------------------------------------- binder enumeration
 const st = law.statement;
@@ -171,9 +273,10 @@ function baseState(env) {
 }
 
 function candidates(b, env) {
+  if (isParamB(b)) return paramCands(b);
   if (b.type === "Fn<Nat,Nat>") return Object.keys(LAMS).map((lam) => fnVal({ lam }));
   // a Reach binder (I8) ranges over reachable states only: the prefixes, as traces from s0
-  if (b.type === "Reach") return prefixes().map((p) => ({ ty: "State", v: p.state, raw: { run: p.trace } }));
+  if (b.type === "Reach") return prefixes().map((p) => ({ ty: "State", v: p.state, raw: { run: p.trace }, trace: traceOf(p) }));
   if (b.type === "Trace" && isPrefixVar(b.name) && !isRunsOkVar(b.name)) return prefixes().map((p) => ({ ty: "Trace", v: toList(p.trace.map(mkAct)), raw: p.trace }));
   if (b.type === "Trace" && (isObsPrefixVar(b.name) || isRunsOkVar(b.name))) {
     const out = [];
@@ -201,17 +304,20 @@ function candidates(b, env) {
       if (l.proj && r.proj && r.of.var === b.name && l.of.var && env[l.of.var]) {
         const base = dec(env[l.of.var].v);
         const same = (prefixesByProj(l.proj).get(projKey(base, l.proj)) || [])
-          .map((q) => ({ ty: "State", v: q.state, raw: { run: q.trace } }));
+          .map((q) => ({ ty: "State", v: q.state, raw: { run: q.trace }, trace: traceOf(q) }));
         if (B.noPerturb) return same;  // reachable pairs only (a first pass that prefers run(p, s0) witnesses)
         return [...same, ...perturb(base, l.proj).map((st) => ({ ty: "State", v: enc(st), raw: { state: st } }))];
       }
     }
     // a prefix state is reachable: report it as the trace from s0 that reaches it (run(p, s0))
-    return prefixes().map((p) => ({ ty: "State", v: p.state, raw: { run: p.trace } }));
+    return prefixes().map((p) => ({ ty: "State", v: p.state, raw: { run: p.trace }, trace: traceOf(p) }));
   }
   if (b.type === "Trace") return suffixes(baseState(env)).map((tr) => ({ ty: "Trace", v: toList(tr.map(mkAct)), raw: tr }));
   return [];
 }
+
+// a prefix's trace, kept (as a host list) only when the model threads oracle tables (I12)
+function traceOf(p) { return DEFAULT_TABS.length ? toList(p.trace.map(mkAct)) : undefined; }
 
 // the declared type of each state field (facts "state": [name, type, doc]); perturbations respect it
 const FIELD_TYPE = Object.fromEntries((facts.state || []).map((x) => [x[0], x[1]]));
@@ -296,9 +402,11 @@ function divergence(env, qname) {
 
 function search(i, env, raw) {
   if (i === forall.length) {
-    for (const p of assume) if (!holds(p, env)) return null;
-    tried++;
-    for (const c of claims) if (!holds(c, env)) return raw;
+    try {
+      for (const p of assume) if (!holds(p, env)) return null;
+      tried++;
+      for (const c of claims) if (!holds(c, env)) return raw;
+    } catch (e) { if (e instanceof NoFix) return null; throw e; }   // no fixpoint: never a witness (I12)
     return null;
   }
   const b = forall[i];
@@ -330,7 +438,10 @@ function findRunBase(t, v) {
 }
 // exists laws over finite candidate sets (Act, Nat 0..natMax, Bool, Fn): enumerate, in candidate order
 function enumExists(ex, i, env, raw) {
-  if (i === ex.length) { tried++; return claims.every((c) => holds(c, env)) ? raw : null; }
+  if (i === ex.length) {
+    tried++;
+    try { return claims.every((c) => holds(c, env)) ? raw : null; } catch (e) { if (e instanceof NoFix) return null; throw e; }
+  }
   const b = ex[i];
   const cs = b.type === "Bool" ? [false, true].map((x) => ({ ty: "Bool", v: x, raw: x })) : candidates(b, env);
   for (const c of cs) {
@@ -341,7 +452,7 @@ function enumExists(ex, i, env, raw) {
 }
 function strategies() {
   const ex = binders.filter((b) => b.q === "exists");
-  if (ex.length && ex.every((b) => ["Act", "Nat", "Bool", "Fn<Nat,Nat>"].includes(b.type))) return enumExists(ex, 0, {}, {});
+  if (ex.length && ex.every((b) => ["Act", "Nat", "Bool", "Fn<Nat,Nat>"].includes(b.type) || isParamB(b))) return enumExists(ex, 0, {}, {});
   if (ex.length !== 1 || ex[0].type !== "Trace") return null;
   const v = ex[0].name;
   const base = evalT(findRunBase(st.claim, v), {}).v;
@@ -361,26 +472,55 @@ function strategies() {
   }
   return null;
 }
-if (req.evaluate) {
-  // evaluate a law at a given assignment: {"premises": [bool], "claims": [bool]}
+// the environment of an assignment (a witness as recorded)
+function envOf(asg) {
   const env = {};
   for (const b of binders) {
-    const w = req.evaluate[b.name];
-    if (b.type === "Trace") env[b.name] = { ty: "Trace", v: toList(w.map(mkAct)) };
+    const w = asg[b.name];
+    if (w === undefined) continue;
+    if (isParamB(b)) {
+      if (w.table) env[b.name] = tableCand(b.name, w.table);
+      else { const i = ((ORC && ORC.instances) || []).find((x) => x.id === w.instance && INST && INST[x.fn]);
+        if (!i) throw new Error(`no compiled instance ${JSON.stringify(w)} of ${b.name}`); env[b.name] = instCand(b.name, i); }
+    } else if (b.type === "Trace") env[b.name] = { ty: "Trace", v: toList(w.map(mkAct)) };
     else if (b.type === "Act") env[b.name] = { ty: "Act", v: mkAct(w) };
     else if (b.type === "Nat") env[b.name] = { ty: "Nat", v: BigInt(w) };
     else if (b.type === "Bool") env[b.name] = { ty: "Bool", v: w };
-    else if (b.type === "State" || b.type === "Reach") env[b.name] = { ty: "State", v: w.run ? runJ(w.run, s0) : enc(w.state) };
+    else if (b.type === "State" || b.type === "Reach") env[b.name] = { ty: "State", v: w.run ? runJ(w.run, s0) : enc(w.state),
+      trace: w.run ? traceOf({ trace: w.run }) : undefined };
     else if (b.type === "Fn<Nat,Nat>") env[b.name] = fnVal(w);
   }
-  process.stdout.write(JSON.stringify({ premises: assume.map((p) => holds(p, env)), claims: claims.map((c) => holds(c, env)) }));
+  return env;
+}
+// the table each parameter's witness denotes, over every premise and claim of the statement (I12)
+function finalTables(env) {
+  const ps = paramsIn(env);
+  if (!ps.length) return null;
+  LAST = null;
+  withTables(env, () => { for (const p of assume) holdsRaw(p, env); for (const c of claims) holdsRaw(c, env); });
+  return Object.fromEntries(ps.map((p) => [p, LAST.T[p].entries]));
+}
+if (req.evaluate) {
+  // evaluate a law at a given assignment: {"premises": [bool], "claims": [bool]} (and, with oracle parameters,
+  // "sides": each claim's two sides, and "tables")
+  const env = envOf(req.evaluate);
+  const out = { premises: assume.map((p) => holds(p, env)), claims: claims.map((c) => holds(c, env)) };
+  if (paramsIn(env).length) {
+    out.tables = finalTables(env);
+    out.sides = claims.map((c) => (c.eq ? withTables(env, () => c.eq.map((s) => val(evalT(s, env)))) : null));
+  }
+  process.stdout.write(JSON.stringify(out));
   process.exit(0);
 }
 let witness = null;
 if (binders.some((b) => b.q === "exists")) { witness = strategies(); notes.push("exists law: strategy search"); }
 else witness = search(0, {}, {});
+const hasParams = binders.some(isParamB);
 const finite = (binders.every((b) => b.q === "exists") || binders.some((b) => b.type.startsWith("Fn<")))
-  && binders.every((b) => ["Act", "Nat", "Bool", "Fn<Nat,Nat>"].includes(b.type));
-const bound = finite ? `finite candidates: Act from the policy at s0, Nat 0..${B.natMax} plus premise-solved values, Bool, Fn<Nat,Nat> in {id, zero, succ}`
+  && binders.every((b) => ["Act", "Nat", "Bool", "Fn<Nat,Nat>"].includes(b.type) || isParamB(b));
+let bound = finite ? `finite candidates: Act from the policy at s0, Nat 0..${B.natMax} plus premise-solved values, Bool, Fn<Nat,Nat> in {id, zero, succ}`
   : `prefixes: BFS depth ${B.prefixDepth} over policy actions (<= ${B.maxPrefixes} states); suffixes: divergence BFS depth ${B.suffixDepth}; Nat binders 0..${B.natMax} plus premise-solved values`;
-process.stdout.write(JSON.stringify({ witness, tried, bound, notes }));
+if (hasParams) bound += "; oracle parameters: the sidecar's concrete instances, then the empty table (tables at the points the statement queries)";
+const out = { witness, tried, bound, notes };
+if (witness && hasParams) out.tables = finalTables(envOf(witness));
+process.stdout.write(JSON.stringify(out));

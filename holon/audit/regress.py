@@ -92,15 +92,21 @@ class History:
 
 def law_hash(hist: History, commit: str, path: str, data: bytes) -> str:
     import hashlib
+    from ..gen.oracles import OracleError
     from ..gen.refs import law_hash as lh
     try:
         law = parse_json(data)
         facts = None
+        orc = None
         if law.get("ir_version") == "holon-ir/0.3":
             fb = hist.blob(commit, law.get("facts", ""))
             facts = parse_json(fb) if fb is not None else {}
-        return lh(law, facts)
-    except (ValueError, KeyError, TypeError, AttributeError):
+            if any("hyp" in p for p in law["statement"].get("assume", [])):   # I12: the hypotheses it names
+                from pathlib import PurePosixPath
+                sb = hist.blob(commit, (PurePosixPath(law["facts"]).parent.parent / "lib" / "oracles.json").as_posix())
+                orc = parse_json(sb) if sb is not None else None
+        return lh(law, facts, orc)
+    except (ValueError, KeyError, TypeError, AttributeError, OracleError):
         return "invalid:sha256:" + hashlib.sha256(data).hexdigest()
 
 

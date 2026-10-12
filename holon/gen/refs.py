@@ -13,6 +13,10 @@ leaves its hash unchanged.
   step                run, step, obs and the model functions over traces (runs_ok, last_ok, no_code,
                       perm, cost, elapsed): the state declaration, initial state, params, types, defs
                       and every action (the transition function reads them all)
+  hyp H (premise)     hyp:H, the entry of the oracle sidecar whose hypothesis is H, restricted to
+                      {parameter, hypothesis} (I12; holon.gen.oracles.Oracles.hyp_ref): editing a hypothesis
+                      restales exactly the laws that name it; an instance, a doc, a ledger citation or a
+                      not_in_scope entry changes no hash. Without a sidecar the ref is the hash of null.
 """
 from __future__ import annotations
 
@@ -42,6 +46,8 @@ def _names(t, out: set) -> None:
                 out.add(("step", "step"))
         if "s0" in t:
             out.add(("s0", "s0"))
+        if isinstance(t.get("hyp"), dict) and isinstance(t["hyp"].get("name"), str):
+            out.add(("hyp", t["hyp"]["name"]))
         for v in t.values():
             _names(v, out)
     elif isinstance(t, list):
@@ -49,16 +55,20 @@ def _names(t, out: set) -> None:
             _names(v, out)
 
 
-def refs(law: dict, facts: dict) -> dict:
-    """{definition name: content hash} for every model definition the statement names."""
+def refs(law: dict, facts: dict, oracles=None) -> dict:
+    """{definition name: content hash} for every model definition the statement names; `oracles` is the parsed
+    sidecar (holon.gen.oracles.Oracles or its JSON document) that hyp premises refer to."""
     from .mlaws import BUILTINS
     names: set = set()
     _names(law["statement"], names)
     acts = {a["name"]: a for a in facts.get("actions", [])}
     step_src = {k: facts.get(k) for k in ("state", "initial", "params", "types", "defs", "actions")}
     out = {}
+    orc = _oracles(oracles)
     for kind, n in sorted(names):
-        if kind == "obsv":
+        if kind == "hyp":
+            out["hyp:" + n] = orc.hyp_ref(n) if orc is not None else _h(None)
+        elif kind == "obsv":
             out[n] = _h(facts.get("observers", {}).get(n))
         elif kind == "mig":
             out["mig_" + n] = _h(facts.get("migrations", {}).get(n))
@@ -81,8 +91,16 @@ def refs(law: dict, facts: dict) -> dict:
     return out
 
 
-def law_hash(law: dict, facts: dict | None) -> str:
-    """The law's statement hash: 0.1/0.2 over the hashed keys; 0.3 with its refs into `facts`."""
+def _oracles(oracles):
+    if oracles is None or hasattr(oracles, "hyp_ref"):
+        return oracles
+    from .oracles import Oracles
+    return Oracles(oracles)
+
+
+def law_hash(law: dict, facts: dict | None, oracles=None) -> str:
+    """The law's statement hash: 0.1/0.2 over the hashed keys; 0.3 with its refs into `facts` and, for hyp
+    premises, into the oracle sidecar `oracles` (I12)."""
     if law.get("ir_version") == "holon-ir/0.3":
-        return ir.statement_hash(law, refs=refs(law, facts or {}))
+        return ir.statement_hash(law, refs=refs(law, facts or {}, oracles))
     return ir.statement_hash(law)

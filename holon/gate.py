@@ -732,6 +732,7 @@ class Gate:
                 ir.check_premises(law)
             except ir.IRError as e:
                 bad.append(str(e))
+        bad += self.oracle_rules()
         for f in laws_in_proofs(self.gen):   # prover separation (I10, L14): no law under proofs/
             bad.append(f"{f.relative_to(self.root)}: declares a law under proofs/")
         # Lean G3 (I9): the generated Lean files, comments removed, hold none of holon.lean.FORBIDDEN
@@ -743,6 +744,30 @@ class Gate:
                 bad.append(f"{f.relative_to(self.root)}: {hits}")
         extra = f"; {len(lean_files)} Lean files free of forbidden tactics and commands" if lean_files else ""
         self.checks["G3"] = _res(not bad, "no escape hatches" + extra if not bad else "; ".join(bad))
+
+    def oracle_rules(self) -> list[str]:
+        """G3 for M2+ milestones (I12): every oracle sidecar of the laws' facts passes holon.oracle_check.validate
+        (no global injectivity in any predicate) and every law's hyp premises resolve against it. M0 and M1
+        never read a sidecar."""
+        from .mpipeline import m2plus
+        if not m2plus(self.m):
+            return []
+        from . import oracle_check
+        from .gen import oracles as O
+        bad, parsed = [], {}
+        for law in ir.load_laws_any(self.m, self.root):
+            sp = O.sidecar_path(self.root / law.get("facts", ""))
+            if sp not in parsed:
+                parsed[sp] = None
+                if sp.exists():
+                    probs = oracle_check.validate(O.load(sp), self.root)
+                    bad += [f"{sp}: {x}" for x in probs]
+                    parsed[sp] = None if probs else O.Oracles(O.load(sp), sp)
+            try:
+                O.check_law(law, parsed[sp])
+            except O.OracleError as e:
+                bad.append(f"{law['law_id']}: {e}")
+        return bad
 
     def g11(self) -> None:
         bad = []

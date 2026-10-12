@@ -1,0 +1,141 @@
+{
+  "oracles_version": "holon-oracles/0.1",
+  "doc": "Oracle records of the Morph M2 models (I12; format in the docstring of tests_m2/test_oracles.py and holon/gen/oracles.py). For M2 facts F (spec/M2/facts/*.json) this is F/../../lib/oracles.json. A modelled entry's parameter is a parameter of the generated model, held as an oracle table (Bend function values are Type, never Data; the plan's fallback, BUILD_PLAN I12), and its hypothesis is a premise of the laws that need it: a CF premise over a finite set the law states (kind cf), or a hyp premise naming the hypothesis (kind hyp). Never global injectivity, never an axiom. A concrete instance only serves refutation and inhabitation (G11V). An entry may name, in real_oracle, an implementation of the real oracle available here, against which `holon oracle check` tests the hypothesis (A4). Covers the five M1 stand-ins (cited in ledger) and the whitepaper §11.1 oracle list.",
+  "oracles": [
+    {
+      "id": "agg",
+      "oracle": "agg",
+      "parameter": {"name": "agg", "type": "Fn<List<Nat>,Nat>"},
+      "hypothesis": {"id": "CF-agg", "kind": "cf",
+                     "doc": "CF(agg, S) for every finite S: keccak256 over the blob versioned hashes of a batch (agg, version 2 headers) maps the elements of S to pairwise different values. Each law states its own finite S as a cf premise."},
+      "instance": {"bend": "Nat.add(${param:AGG_BASE:1000}n, b_enc($0))",
+                   "doc": "the M1 stand-in agg(xs) = AGG_BASE + enc(xs), injective (spec/M1/lib/morph_rollup.lib.json)"},
+      "status": "modelled",
+      "real_oracle": "keccak256",
+      "ledger": ["CF-keccak-blobhashes"]
+    },
+    {
+      "id": "header_presentation",
+      "oracle": "header_presentation",
+      "parameter": {"name": "hdr_hash", "type": "Fn<List<Nat>,Nat>"},
+      "hypothesis": {"id": "CF-hdr", "kind": "cf",
+                     "doc": "CF(hdr_hash, S) for every finite S: keccak256 over a batch header's bytes (committedBatches[k] = keccak256(header)) maps the headers of S to pairwise different values, so a presented header whose hash equals the stored one is the stored header. Each law states its own finite S."},
+      "instance": {"bend": "b_enc($0)",
+                   "doc": "an injective encoding of the header's tokens: header equality, as the M1 model compares a presented header with the stored one (CF-keccak-headers)"},
+      "status": "modelled",
+      "real_oracle": "keccak256",
+      "ledger": ["CF-keccak-headers"]
+    },
+    {
+      "id": "ISubmitter",
+      "oracle": "ISubmitter",
+      "parameter": {"name": "submitter"},
+      "hypothesis": {"id": "Hyp-ISubmitter",
+                     "doc": "isActive(a) holds exactly for the staked, unslashed submitters; challengeDeposit() = DEP; a lost challenge slashes, and so deactivates, the batch's submitter."},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "ISubmitter is stateful: isActive changes with staking and with the slashing the rollup itself triggers (_challengerWin), so it is not a function of its arguments that a model could take as a parameter. M2 keeps the M1 stand-in inside the model (active-list membership, challengeDeposit = DEP, a slash removes the submitter from the active list; ledger oracle-ISubmitter) until the staking contract is extracted (BUILD_PLAN I36).",
+      "ledger": ["oracle-ISubmitter"]
+    },
+    {
+      "id": "verifier",
+      "oracle": "verifier",
+      "parameter": {"name": "verify", "type": "Fn<Nat,Bool>"},
+      "hypothesis": {"id": "HypV-proof1", "kind": "hyp", "family": "HypV",
+                     "doc": "The M1 verifier rule, IRollupVerifier.verifyAggregateProof as a stand-in that accepts iff proof == 1, on the proof tokens the models use: proof 1 is accepted and proof 2 is rejected (proof 0 never reaches the verifier: Rollup.sol:758 requires proof != 0). A rule of the stand-in, not a property of the real verifier.",
+                     "predicate": [{"eq": [{"app": "verify", "args": [{"nat": 1}]}, {"bool": true}]},
+                                   {"eq": [{"app": "verify", "args": [{"nat": 2}]}, {"bool": false}]}]},
+      "instance": {"bend": "Nat.is_eq($0, 1n)", "doc": "accept iff proof == 1 (the M1 stand-in)"},
+      "status": "modelled",
+      "ledger": ["oracle-verifier"]
+    },
+    {
+      "id": "messenger",
+      "oracle": "messenger",
+      "parameter": {"name": "messenger"},
+      "hypothesis": {"id": "Hyp-messenger",
+                     "doc": "sendMessage enqueues exactly one L1 message, at the next queue index."},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "The messenger's modelled behaviour is a state update of the rollup's own message queue (sendMessage appends one message): part of the transition, not a value the model queries. M2 keeps the M1 stand-in inside the model (ledger oracle-messenger) until the messenger and the queue are extracted (BUILD_PLAN I36).",
+      "ledger": ["oracle-messenger"]
+    },
+    {
+      "id": "compression_codec",
+      "oracle": "compression_codec",
+      "parameter": {"name": "codec"},
+      "hypothesis": {"id": "HypZ",
+                     "doc": "Dec(Enc x ++ 0^k) = x: the batch compression codec decodes an encoding padded with zeros (whitepaper §8.5)."},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "No M2 model calls the compression codec: batch data are opaque tokens. The Go codec is modelled at loop granularity, with HypZ as its hypothesis, in BUILD_PLAN I38.",
+      "ledger": []
+    },
+    {
+      "id": "circuits",
+      "oracle": "circuits",
+      "parameter": {"name": "circuit"},
+      "hypothesis": {"id": "HypC",
+                     "doc": "The zkEVM circuits accept a batch proof only for a valid transition of its public input."},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "The circuits are not modelled: the verifier entry's proof == 1 rule stands in for them. The public input and HypC are extracted in BUILD_PLAN I37.",
+      "ledger": []
+    },
+    {
+      "id": "KZG",
+      "oracle": "KZG",
+      "parameter": {"name": "kzg"},
+      "hypothesis": {"id": "Hyp-Z0-kzg",
+                     "doc": "The KZG versioned hash of the all-zero blob, 0x01 || sha256(0xc0 || 0^47)[1:], is the value of ZERO_VERSIONED_HASH (Rollup.sol:25) and EmptyVersionedHash (common/blob/payload.go:22) (D2, whitepaper §11.6)."},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "KZG commitments and point-evaluation proofs are not model parameters: blob versioned hashes are opaque tokens in every M2 model. The one KZG fact a model uses, the zero blob's versioned hash (D2), is checked against the code by `holon oracle zero-blob` and recorded under Hyp-Z0-kzg in results/M2/hypotheses.json (ledger Hyp-Z0-kzg).",
+      "ledger": ["Hyp-Z0-kzg"]
+    },
+    {
+      "id": "transaction_codec",
+      "oracle": "transaction_codec",
+      "parameter": {"name": "tx_codec"},
+      "hypothesis": {"id": "HypT",
+                     "doc": "The L2 transaction codec decodes every encoding it produces."},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "Transactions are opaque tokens in every M2 model. The Go transaction codec is extracted with the Go frontend (BUILD_PLAN I18).",
+      "ledger": []
+    },
+    {
+      "id": "L2_predeploys",
+      "oracle": "L2_predeploys",
+      "parameter": {"name": "predeploys"},
+      "hypothesis": {"id": "HypP",
+                     "doc": "The L2 predeploy contracts at their reserved addresses behave as specified."},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "No M2 model reaches L2 state: the predeploys lie outside the M2 bundle (the L1 rollup contract and the batch data).",
+      "ledger": []
+    },
+    {
+      "id": "fetcher",
+      "oracle": "fetcher",
+      "parameter": {"name": "fetch"},
+      "hypothesis": {"id": "HypF",
+                     "doc": "The node's L1 fetcher returns the batch data and headers the chain committed, in order."},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "The node's L1 fetcher lies outside the M2 bundle: the models take batch data as action inputs.",
+      "ledger": []
+    },
+    {
+      "id": "sealing_loop",
+      "oracle": "sealing_loop",
+      "parameter": {"name": "seal"},
+      "hypothesis": {"id": "HypSeal",
+                     "doc": "The sequencer's sealing loop seals every block it is handed into a batch, in order, within the batch size bound."},
+      "instance": null,
+      "status": "not_in_scope",
+      "reason": "The sequencer's sealing loop is not modelled: batches enter the models as action inputs.",
+      "ledger": []
+    }
+  ]
+}

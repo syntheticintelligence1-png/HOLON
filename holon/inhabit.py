@@ -14,6 +14,14 @@ IR, whose claim is the conjunction of the parent's premises, proved at a concret
                 the model's getters, `M.get_<field>(h) == [bytes]`, at the header carrying
                 the pin bytes and zeros elsewhere.
 
+  oracle parameters (I12, holon.gen.oracles)  a parameter that a hypothesis premise constrains (a cf
+                premise over it, or a hyp premise naming a hypothesis of it) takes the concrete instance of
+                the entry whose hypothesis it is, and only that: the search may not pick another value.
+                The witness records it as {"instance": <entry id>}; the proof supplies the instance's
+                table at the points the premises query (premise_points), the instance defined in the proof
+                from the entry's template. A parameter no premise mentions takes the empty table. An
+                instance that violates its hypothesis yields no inhabitant (status unknown).
+
 A REFUTED law needs nothing more: its accepted counter-law already inhabits its premises.
 The non_vacuity record: {status, law, witness, reachable, degenerate, parent_statement_hash,
 bound}, with status inhabited | counter_witness | no_premises | unknown.
@@ -21,6 +29,7 @@ bound}, with status inhabited | counter_witness | no_premises | unknown.
 from __future__ import annotations
 
 import copy
+import json
 import re
 import shutil
 from pathlib import Path
@@ -91,6 +100,7 @@ def _check(d: Path, name: str, laws_text: str, proof_text: str, cfg: dict) -> tu
 
 # ---------------------------------------------------------------- holon-ir/0.2
 DEFAULTS = {"Trace": [], "Nat": 0, "Bool": False}
+EMPTY_TABLE = {"table": []}   # the default value of an oracle parameter (I12)
 
 
 def _vars(t) -> set[str]:
@@ -101,17 +111,127 @@ def _vars(t) -> set[str]:
     return set()
 
 
-def free_binders(law: dict) -> list[dict]:
-    """Binders no premise mentions and whose type has a default value: any value inhabits them."""
-    used = _vars(law["statement"].get("assume", []))
-    return [b for b in law["statement"]["binders"] if b["name"] not in used and b["type"] in DEFAULTS]
+def _is_param(b: dict, machine) -> bool:
+    return machine is not None and b["name"] in getattr(machine, "oparams", {}) and str(b["type"]).startswith("Fn<")
 
 
-def search_law(law: dict) -> dict:
+def _mentioned_params(law: dict, machine) -> set[str]:
+    """Oracle parameters the premises mention: applied, the function of a cf premise, or a hyp premise's (I12)."""
+    if machine is None or not getattr(machine, "oparams", None):
+        return set()
+    out: set = set()
+
+    def walk(x):
+        if isinstance(x, dict):
+            if isinstance(x.get("app"), str):
+                out.add(x["app"])
+            if isinstance(x.get("cf"), dict):
+                out.add(x["cf"].get("fn"))
+            if isinstance(x.get("hyp"), dict) and machine.orc is not None:
+                e = machine.orc.hyp_entry(x["hyp"].get("name"))
+                if e is not None:
+                    out.add(e["parameter"]["name"])
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(law["statement"].get("assume", []))
+    return out
+
+
+def free_binders(law: dict, machine=None) -> list[dict]:
+    """Binders no premise mentions and whose type has a default value: any value inhabits them. With the
+    machine of a parametric model (I12), an oracle parameter no premise mentions is free too (the empty table)."""
+    used = _vars(law["statement"].get("assume", [])) | _mentioned_params(law, machine)
+    return [b for b in law["statement"]["binders"] if b["name"] not in used
+            and (b["type"] in DEFAULTS or _is_param(b, machine))]
+
+
+def default_of(b: dict, machine=None):
+    return EMPTY_TABLE if _is_param(b, machine) else DEFAULTS[b["type"]]
+
+
+def constrained_instances(law: dict, machine) -> dict:
+    """{parameter: {"instance": entry id}} for every oracle parameter a hypothesis premise constrains: the
+    instance of the entry whose hypothesis it is (I12). ValueError when a parameter has none, or two."""
+    orc = getattr(machine, "orc", None)
+    out: dict = {}
+    for p in law["statement"].get("assume", []):
+        if "hyp" in p:
+            e = orc.hyp_entry(p["hyp"]["name"]) if orc is not None else None
+            if e is None:
+                raise ValueError(f"hyp premise {p['hyp']['name']!r} names no modelled hypothesis")
+        elif "cf" in p and orc is not None and p["cf"].get("fn") in machine.oparams:
+            e = orc.cf_entry(p["cf"]["fn"])
+            if e is None:
+                raise ValueError(f"cf premise over {p['cf']['fn']}: the parameter has no kind-cf entry")
+        else:
+            continue
+        par = e["parameter"]["name"]
+        if e not in orc.instances(par):
+            raise ValueError(f"entry {e['id']} has no concrete instance")
+        if out.get(par, e["id"]) != e["id"]:
+            raise ValueError(f"premises constrain {par} by the hypotheses of two entries ({out[par]}, {e['id']}): "
+                             "no one instance satisfies both by construction")
+        out[par] = e["id"]
+    return {par: {"instance": i} for par, i in sorted(out.items())}
+
+
+def premise_points(law: dict, machine, witness: dict) -> dict:
+    """{parameter: [point, ..]}: the points at which the premises (hyp premises expanded) apply each oracle
+    parameter, in first-occurrence order, with the witness's values for the other binders (I12). Static:
+    a point that needs the model or another oracle answer to compute raises mlaws.Unsupported."""
+    from .gen import oracles as O
+    from .gen.mlaws import Unsupported
+    types = {b["name"]: b["type"] for b in law["statement"]["binders"]}
+    ex = O.expand_hyps(law, machine.orc) if O.hyp_names(law) else law
+    out: dict = {}
+
+    def value(tm):
+        if "nat" in tm:
+            return int(tm["nat"])
+        if "bool" in tm:
+            return bool(tm["bool"])
+        if "nats" in tm:
+            return [int(x) for x in tm["nats"]]
+        if "plus" in tm:
+            return value(tm["plus"][0]) + value(tm["plus"][1])
+        if "var" in tm and types.get(tm["var"]) in ("Nat", "Bool", "List<Nat>"):
+            return witness[tm["var"]]
+        raise Unsupported(f"an oracle point that is not a literal: {json.dumps(tm, sort_keys=True)}")
+
+    def add(p, x):
+        if p in machine.oparams:
+            pts = out.setdefault(p, [])
+            if x not in pts:
+                pts.append(x)
+
+    def walk(x):
+        if isinstance(x, dict):
+            if isinstance(x.get("app"), str):
+                add(x["app"], value(x["args"][0]))
+            if isinstance(x.get("cf"), dict) and isinstance(x["cf"].get("set"), list):
+                for s in x["cf"]["set"]:
+                    add(x["cf"]["fn"], value(s))
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(ex["statement"].get("assume", []))
+    return out
+
+
+def search_law(law: dict, machine=None) -> dict:
     """The parent with its claim replaced, so any refutation the search finds satisfies the premises;
-    binders no premise mentions are left out of the search (they get default values)."""
+    binders no premise mentions are left out of the search (they get default values). Hyp premises are
+    expanded into their predicates (I12), which the search evaluates."""
+    from .gen import oracles as O
     s = copy.deepcopy(law)
-    free = {b["name"] for b in free_binders(law)}
+    if O.hyp_names(law) and machine is not None:
+        s = O.expand_hyps(s, machine.orc)
+    free = {b["name"] for b in free_binders(law, machine)}
     s["statement"]["binders"] = [b for b in s["statement"]["binders"] if b["name"] not in free]
     states = [b["name"] for b in s["statement"]["binders"] if b["type"] == "State"]
     if len(states) >= 2:
@@ -140,12 +260,15 @@ MODEL_IMPORT = "../../model/{}.bend"   # an inhabitant lives in <gen>/<law>/nonv
 
 def texts_02(law: dict, machine, model_stem: str, witness: dict) -> tuple[str, str, str]:
     """(law name, LAWS.bend, PROOF.bend) of a holon-ir/0.2 inhabitant: a pure function of the frozen
-    IR, the model and the witness, so G11V can regenerate and compare both files."""
+    IR, the model and the witness, so G11V can regenerate and compare both files. Oracle parameters (I12)
+    are supplied as the tables their witness values denote at premise_points."""
     from .gen import mlaws, mproofs
     imp = MODEL_IMPORT.format(model_stem)
     from .gen.refs import law_hash
     em = mlaws.Emitter(machine).emit(inhabitant_ir(law), imp,
-                                     note=f"non-vacuity of {law['law_id']} ({law_hash(law, machine.f)})")
+                                     note=f"non-vacuity of {law['law_id']} ({law_hash(law, machine.f, getattr(machine, 'orc', None))})")
+    if getattr(machine, "oparams", None):
+        witness = mlaws.resolve_witness(machine, em.binders, witness, premise_points(law, machine, witness))
     proof = mproofs.evaluate(em, machine, imp, witness)
     if proof is None:
         raise ValueError("no evaluation proof for the inhabitant")
@@ -157,7 +280,7 @@ def degenerate(cm, law: dict, witness: dict) -> bool | None:
     states = [b["name"] for b in law["statement"]["binders"] if b["type"] == "State"]
     if len(states) < 2:
         return None
-    sl = search_law(law)
+    sl = search_law(law, cm.m)
     ev = cm.evaluate(sl, {b["name"]: witness[b["name"]] for b in sl["statement"]["binders"]})
     return bool(ev["claims"][0])
 
@@ -166,23 +289,42 @@ def _inhabit_02(law: dict, root: Path, out_dir: Path, cfg: dict, cm, out: dict) 
     from .gen import mlaws
     if any(b["q"] != "forall" for b in law["statement"]["binders"]):
         return {**out, "bound": "not attempted: only universal laws with premises need an inhabitant"}
-    sl = search_law(law)
-    r = cm.explore(sl, {"noPerturb": True})  # first: only reachable states (run(p, s0))
-    first = r.get("bound")
-    if r.get("witness") is None:
-        r = cm.explore(sl)                    # then constructed states too (recorded as unreachable)
+    try:   # oracle parameters a hypothesis constrains take the instance of its entry, and only that (I12)
+        fixed = constrained_instances(law, cm.m) if getattr(cm.m, "oparams", None) else {}
+    except ValueError as e:
+        return {**out, "bound": f"no inhabitant by construction: {e}"}
+    sl = search_law(law, cm.m)
+    extra = {"fixed": fixed} if fixed else {}
+    insts = ", ".join(v["instance"] for v in fixed.values())
+    if fixed and {x["name"] for x in sl["statement"]["binders"]} <= set(fixed):
+        # nothing left to search: the instances are the witness, and Bend alone decides whether they satisfy
+        # the premises (an instance that violates its hypothesis gives an inhabitant that does not check)
+        r = {"witness": dict(fixed), "bound": f"the concrete instances ({insts}) of the hypotheses' entries"}
+        first = r["bound"]
+    else:
+        r = cm.explore(sl, {"noPerturb": True, **extra})  # first: only reachable states (run(p, s0))
+        first = r.get("bound")
+        if r.get("witness") is None:
+            r = cm.explore(sl, extra or None)     # then constructed states too (recorded as unreachable)
     w = r.get("witness")
     if w is None:
-        return {**out, "bound": r.get("bound") or "no assignment satisfying the premises in the searched space"}
-    w = {**w, **{b["name"]: DEFAULTS[b["type"]] for b in free_binders(law)}}
+        why = r.get("bound") or "no assignment satisfying the premises in the searched space"
+        if fixed:
+            why = f"the concrete instances ({insts}) do not satisfy the premises within the searched space ({why})"
+        return {**out, "bound": why}
+    w = {**w, **{b["name"]: default_of(b, cm.m) for b in free_binders(law, cm.m)}}
+    # a failed inhabitant built on a sidecar instance claims nothing: no witness is recorded for it (I12)
+    failed_w = None if fixed else w
     try:
         name, laws_text, proof = texts_02(law, cm.m, Path(cm.source).stem, w)
     except (mlaws.Unsupported, ValueError) as e:
-        return {**out, "witness": w, "bound": f"inhabitant inexpressible: {e}"}
+        return {**out, "witness": failed_w, "bound": f"inhabitant inexpressible: {e}"}
     ok, why = _check(out_dir / NV, name, laws_text, proof, cfg)
     if not ok:
         shutil.rmtree(out_dir / NV, ignore_errors=True)
-        return {**out, "witness": w, "bound": why}
+        if fixed:
+            why = f"the inhabitant on the concrete instances ({insts}) does not check: {why}"
+        return {**out, "witness": failed_w, "bound": why}
     states = [b["name"] for b in law["statement"]["binders"] if b["type"] in ("State", "Reach")]
     reach = all(set(w[x]) == {"run"} for x in states) if states else None
     note = r.get("bound") if reach is not False else f"no reachable inhabitant within ({first}); constructed states"
@@ -266,7 +408,11 @@ def expected_texts(law: dict, m: str, root: Path, rec: dict) -> tuple[str, str, 
         fpath = root / ir.load_registry(m, root).get("facts", "facts/morph_header.json")
         return texts_01(law, F.load(fpath), model, rec["non_vacuity"]["witness"])
     from .gen.machine import Machine
-    return texts_02(law, Machine(F.load(root / law["facts"]), root / law["facts"]), model, rec["non_vacuity"]["witness"])
+    from .gen.oracles import Oracles
+    from .mpipeline import m2plus
+    orc = Oracles.for_facts(root / law["facts"]) if m2plus(m) else None
+    return texts_02(law, Machine(F.load(root / law["facts"]), root / law["facts"], oracles=orc), model,
+                    rec["non_vacuity"]["witness"])
 
 
 def premise_mismatch(law: dict, m: str, root: Path, laws_text: str) -> str | None:
@@ -348,7 +494,10 @@ def g11v(gate) -> tuple[bool, str]:
             if len(states) >= 2:
                 fp = gate.root / law["facts"]
                 if fp not in machines:
-                    machines[fp] = CompiledMachine.build(fp, gate.cfg)
+                    from .gen.oracles import Oracles
+                    from .mpipeline import m2plus
+                    machines[fp] = CompiledMachine.build(fp, gate.cfg, reach=m2plus(gate.m),
+                                                         oracles=Oracles.for_facts(fp) if m2plus(gate.m) else None)
                 if degenerate(machines[fp], law, nv["witness"]) is not False:
                     bad.append(f"{lid}: inhabitant is degenerate (its two states are equal)")
                     continue

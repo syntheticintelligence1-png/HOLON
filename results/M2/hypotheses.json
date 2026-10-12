@@ -1,4 +1,33 @@
 {
+  "CF-agg": {
+    "detail": "keccak256 (Ethereum Keccak-256 of holon/keccak.py, over the domain value's 32-byte words) gives 273 pairwise different images on the fixed sample of List<Nat> (a test on a sample, not a proof)",
+    "instance": {
+      "reason": "each law states its own finite set S; CF(p, S) is inhabited per law by the instance (holon.inhabit, non_vacuity.witness)",
+      "status": "per_premise"
+    },
+    "kind": "cf",
+    "oracle": "agg",
+    "status": "checked"
+  },
+  "CF-hdr": {
+    "detail": "keccak256 (Ethereum Keccak-256 of holon/keccak.py, over the domain value's 32-byte words) gives 273 pairwise different images on the fixed sample of List<Nat> (a test on a sample, not a proof)",
+    "instance": {
+      "reason": "each law states its own finite set S; CF(p, S) is inhabited per law by the instance (holon.inhabit, non_vacuity.witness)",
+      "status": "per_premise"
+    },
+    "kind": "cf",
+    "oracle": "header_presentation",
+    "status": "checked"
+  },
+  "Hyp-ISubmitter": {
+    "instance": {
+      "status": "not_applicable"
+    },
+    "kind": null,
+    "oracle": "ISubmitter",
+    "reason": "ISubmitter is stateful: isActive changes with staking and with the slashing the rollup itself triggers (_challengerWin), so it is not a function of its arguments that a model could take as a parameter. M2 keeps the M1 stand-in inside the model (active-list membership, challengeDeposit = DEP, a slash removes the submitter from the active list; ledger oracle-ISubmitter) until the staking contract is extracted (BUILD_PLAN I36).",
+    "status": "not_in_scope"
+  },
   "Hyp-Z0-kzg": {
     "computed": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014",
     "go": {
@@ -13,5 +42,79 @@
       "value": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
     },
     "status": "checked"
+  },
+  "Hyp-messenger": {
+    "instance": {
+      "status": "not_applicable"
+    },
+    "kind": null,
+    "oracle": "messenger",
+    "reason": "The messenger's modelled behaviour is a state update of the rollup's own message queue (sendMessage appends one message): part of the transition, not a value the model queries. M2 keeps the M1 stand-in inside the model (ledger oracle-messenger) until the messenger and the queue are extracted (BUILD_PLAN I36).",
+    "status": "not_in_scope"
+  },
+  "HypC": {
+    "instance": {
+      "status": "not_applicable"
+    },
+    "kind": null,
+    "oracle": "circuits",
+    "reason": "The circuits are not modelled: the verifier entry's proof == 1 rule stands in for them. The public input and HypC are extracted in BUILD_PLAN I37.",
+    "status": "not_in_scope"
+  },
+  "HypF": {
+    "instance": {
+      "status": "not_applicable"
+    },
+    "kind": null,
+    "oracle": "fetcher",
+    "reason": "The node's L1 fetcher lies outside the M2 bundle: the models take batch data as action inputs.",
+    "status": "not_in_scope"
+  },
+  "HypP": {
+    "instance": {
+      "status": "not_applicable"
+    },
+    "kind": null,
+    "oracle": "L2_predeploys",
+    "reason": "No M2 model reaches L2 state: the predeploys lie outside the M2 bundle (the L1 rollup contract and the batch data).",
+    "status": "not_in_scope"
+  },
+  "HypSeal": {
+    "instance": {
+      "status": "not_applicable"
+    },
+    "kind": null,
+    "oracle": "sealing_loop",
+    "reason": "The sequencer's sealing loop is not modelled: batches enter the models as action inputs.",
+    "status": "not_in_scope"
+  },
+  "HypT": {
+    "instance": {
+      "status": "not_applicable"
+    },
+    "kind": null,
+    "oracle": "transaction_codec",
+    "reason": "Transactions are opaque tokens in every M2 model. The Go transaction codec is extracted with the Go frontend (BUILD_PLAN I18).",
+    "status": "not_in_scope"
+  },
+  "HypV-proof1": {
+    "instance": {
+      "law": "gen/M2/oracles/HypV-proof1/LAWS.bend",
+      "proof": "gen/M2/oracles/HypV-proof1/PROOF.bend",
+      "status": "checked"
+    },
+    "kind": "hyp",
+    "oracle": "verifier",
+    "reason": "no implementation of the real verifier oracle is available here (the entry names no real_oracle): the hypothesis is checked only through its concrete instance (G11V)",
+    "status": "untestable_here"
+  },
+  "HypZ": {
+    "instance": {
+      "status": "not_applicable"
+    },
+    "kind": null,
+    "oracle": "compression_codec",
+    "reason": "No M2 model calls the compression codec: batch data are opaque tokens. The Go codec is modelled at loop granularity, with HypZ as its hypothesis, in BUILD_PLAN I38.",
+    "status": "not_in_scope"
   }
 }
