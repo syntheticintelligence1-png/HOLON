@@ -10,9 +10,16 @@ history.
 Reported:
   hash_changes  every statement-hash change of a law file laws/<M>/L*.json between A and B: for each commit
                 in A..B that changes the file, the hash before and after it. Hashes are holon.ir.statement_hash
-                of each version (0.3 laws with their refs into the facts file at that commit). A law added in
-                A..B is not a change; a law deleted in A..B is reported with new = null; a version that does
-                not parse hashes as "invalid:<sha256 of its bytes>".
+                of each version (0.3 laws with their refs into the facts file, the target library and the oracle
+                sidecar at that commit). A law added in A..B is not a change (see additions); a law deleted in A..B
+                is reported with new = null; a version that does not parse hashes as "invalid:<sha256 of its
+                bytes>". covered_by: the laws/STATEMENT_DIFF.jsonl lines at B whose entry carries exactly the two
+                statements (holon.statement_diff.covers); [] when no entry covers the change (since the M2/1 audit,
+                F-M2-34).
+  additions     every law file added in A..B: {"milestone", "law_id", "commit"} (the law set grows; no hash change)
+  transitions   per law, what its result record says at A and at B, where it differs: status, the kernels and
+                their results ("name:result"), independence_class and premises (whitepaper §9.5 A3: law sets,
+                premises and proof strengths across commits)
   laws          for every law file at B, keyed "<M>/<law_id>":
                   law_commit         the first commit adding laws/<M>/<law_id>.json
                   result_commit      the first commit adding results/<M>/<law_id>.json (null if none)
@@ -90,6 +97,22 @@ class History:
         return a != b and self.git.run("merge-base", "--is-ancestor", a, b).returncode == 0
 
 
+def lib_docs_at(hist: History, commit: str, facts_rel: str) -> list[dict]:
+    """The target-library documents of a facts file as they were at a commit (holon.gen.targetlib.lib_files: the
+    global spec/lib/*.lib.json, then those of the facts' milestone, each sorted)."""
+    from pathlib import PurePosixPath
+    mine = (PurePosixPath(facts_rel).parent.parent / "lib").as_posix()
+    out = []
+    for d in ["spec/lib"] + ([mine] if mine != "spec/lib" else []):
+        names = sorted(p for p in hist.git.out("ls-tree", "--name-only", commit, "--", d + "/").splitlines()
+                       if p.endswith(".lib.json"))
+        for p in names:
+            b = hist.blob(commit, p)
+            if b is not None:
+                out.append(parse_json(b))
+    return out
+
+
 def law_hash(hist: History, commit: str, path: str, data: bytes) -> str:
     import hashlib
     from ..gen.oracles import OracleError
@@ -98,20 +121,38 @@ def law_hash(hist: History, commit: str, path: str, data: bytes) -> str:
         law = parse_json(data)
         facts = None
         orc = None
+        lib = None
         if law.get("ir_version") == "holon-ir/0.3":
             fb = hist.blob(commit, law.get("facts", ""))
             facts = parse_json(fb) if fb is not None else {}
-            if any("hyp" in p for p in law["statement"].get("assume", [])):   # I12: the hypotheses it names
+            lib = lib_docs_at(hist, commit, law.get("facts", ""))
+            if law.get("milestone") not in ("M0", "M1"):   # I12: the sidecar of an M2+ model (hyp refs, parameters)
                 from pathlib import PurePosixPath
                 sb = hist.blob(commit, (PurePosixPath(law["facts"]).parent.parent / "lib" / "oracles.json").as_posix())
                 orc = parse_json(sb) if sb is not None else None
-        return lh(law, facts, orc)
-    except (ValueError, KeyError, TypeError, AttributeError, OracleError):
+        return lh(law, facts, orc, lib=lib)
+    except (ValueError, KeyError, TypeError, AttributeError, OracleError, Fatal):
         return "invalid:sha256:" + hashlib.sha256(data).hexdigest()
 
 
+def statement_entries(hist: History) -> list[tuple[int, dict]]:
+    """(line number, entry) of laws/STATEMENT_DIFF.jsonl at B."""
+    b = hist.blob(hist.to, "laws/STATEMENT_DIFF.jsonl")
+    out = []
+    for n, line in enumerate((b or b"").decode("utf-8", errors="replace").splitlines(), start=1):
+        try:
+            e = json.loads(line) if line.strip() else None
+        except ValueError:
+            e = None
+        if isinstance(e, dict):
+            out.append((n, e))
+    return out
+
+
 def hash_changes(hist: History, frm: str) -> list[dict]:
+    from ..statement_diff import covers
     git, to = hist.git, hist.to
+    entries = statement_entries(hist)
 
     def law_paths(rev: str) -> set[str]:
         return {p for p in git.out("ls-tree", "-r", "--name-only", rev, "--", "laws/").splitlines() if _LAW_FILE.match(p)}
@@ -122,12 +163,66 @@ def hash_changes(hist: History, frm: str) -> list[dict]:
         m, lid = _LAW_FILE.match(path).groups()
         b = hist.blob(frm, path)
         prev = law_hash(hist, frm, path, b) if b is not None else None
+        prev_ir = _ir(b)
         for c in hist.log(f"{frm}..{to}", "--", path):
             data = hist.blob(c, path)
             h = law_hash(hist, c, path, data) if data is not None else None
             if prev is not None and h != prev:
-                out.append({"milestone": m, "law_id": lid, "old": prev, "new": h, "commit": c[:SHORT]})
-            prev = h
+                ch = {"law_id": lid, "old": prev_ir, "new": _ir(data)}
+                cov = [n for n, e in entries if ch["old"] is not None and covers(e, ch)]
+                out.append({"milestone": m, "law_id": lid, "old": prev, "new": h, "commit": c[:SHORT], "covered_by": cov})
+            prev, prev_ir = h, _ir(data)
+    return out
+
+
+def _ir(data: bytes | None):
+    try:
+        x = parse_json(data) if data is not None else None
+    except ValueError:
+        return None
+    return x if isinstance(x, dict) else None
+
+
+def additions(hist: History, frm: str) -> list[dict]:
+    """Law files added in A..B (the law set grows)."""
+    out = []
+    text = hist.git.out("log", "--topo-order", "--reverse", "--no-renames", "--diff-filter=A", "--format=C %H",
+                        "--name-only", f"{frm}..{hist.to}", "--", "laws/")
+    commit = None
+    for line in text.splitlines():
+        if line.startswith("C "):
+            commit = line[2:].strip()
+        elif line.strip() and commit and _LAW_FILE.match(line.strip()):
+            m, lid = _LAW_FILE.match(line.strip()).groups()
+            out.append({"milestone": m, "law_id": lid, "commit": commit[:SHORT]})
+    return out
+
+
+def _strength(rec) -> dict | None:
+    if not isinstance(rec, dict):
+        return None
+    ks = rec.get("kernels")
+    kernels = sorted(f"{k.get('name')}:{k.get('result')}" for k in ks if isinstance(k, dict)) if isinstance(ks, list) \
+        else [f"{(rec.get('kernel') or {}).get('name')}:{(rec.get('kernel') or {}).get('verdict')}"]
+    return {"status": rec.get("status"), "kernels": kernels, "independence_class": rec.get("independence_class"),
+            "premises": rec.get("premises")}
+
+
+def transitions(hist: History, frm: str, law_keys: list[str]) -> list[dict]:
+    """Per law at B: the fields of _strength that differ between its result record at A and at B."""
+    out = []
+    for key in law_keys:
+        m, lid = key.split("/", 1)
+        rel = f"results/{m}/{lid}.json"
+        a, b = _strength(_ir(hist.blob(frm, rel))), _strength(_ir(hist.blob(hist.to, rel)))
+        if a == b:
+            continue
+        row = {"law": key}
+        for f in ("status", "kernels", "independence_class", "premises"):
+            va, vb = (a or {}).get(f), (b or {}).get(f)
+            if va != vb:
+                row[f] = [va, vb]
+        out.append(row)
     return out
 
 
@@ -181,7 +276,8 @@ def audit(root: Path, frm: str, to: str) -> dict:
         law_c, res_c, pred_c = adds.get(path), adds.get(f"results/{m}/{lid}.json"), preds[m].get(lid)
         laws[f"{m}/{lid}"] = {"law_commit": law_c and law_c[:SHORT], "result_commit": res_c and res_c[:SHORT],
                               "prediction_commit": pred_c and pred_c[:SHORT], "flag": flag(hist, law_c, res_c, pred_c)}
-    return {"from": a[:SHORT], "to": b[:SHORT], "hash_changes": hash_changes(hist, a), "laws": laws}
+    return {"from": a[:SHORT], "to": b[:SHORT], "hash_changes": hash_changes(hist, a), "laws": laws,
+            "additions": additions(hist, a), "transitions": transitions(hist, a, sorted(laws))}
 
 
 def main(argv: list[str]) -> int:
@@ -201,7 +297,14 @@ def main(argv: list[str]) -> int:
         return 0
     print(f"A3 {rep['from']}..{rep['to']}: {len(rep['hash_changes'])} statement-hash changes")
     for h in rep["hash_changes"]:
-        print(f"  {h['milestone']}/{h['law_id']} at {h['commit']}: {h['old']} -> {h['new']}")
+        cov = f"covered by STATEMENT_DIFF line(s) {h['covered_by']}" if h["covered_by"] else "NOT covered by any entry"
+        print(f"  {h['milestone']}/{h['law_id']} at {h['commit']}: {h['old']} -> {h['new']} ({cov})")
+    print(f"{len(rep['additions'])} law files added: "
+          + ", ".join(f"{x['milestone']}/{x['law_id']}@{x['commit']}" for x in rep["additions"][:40])
+          + (" ..." if len(rep["additions"]) > 40 else ""))
+    print(f"{len(rep['transitions'])} laws whose status, kernels, independence class or premises changed")
+    for t in rep["transitions"]:
+        print(f"  {t['law']}: " + "; ".join(f"{k} {v[0]} -> {v[1]}" for k, v in t.items() if k != "law"))
     counts = {f: sum(1 for r in rep["laws"].values() if r["flag"] == f) for f in FLAGS}
     print(f"{len(rep['laws'])} laws: " + ", ".join(f"{f} {n}" for f, n in counts.items() if n))
     for k, r in rep["laws"].items():
