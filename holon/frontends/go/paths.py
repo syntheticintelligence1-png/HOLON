@@ -27,7 +27,7 @@ class Ptr:
         self.oid, self.path, self.typ = oid, path, typ
 
 
-class Sl:
+class SliceVal:
     __slots__ = ("oid", "path", "lo", "hi", "mx", "typ")
 
     def __init__(self, oid, path, lo, hi, mx, typ):
@@ -193,7 +193,7 @@ class Enumerator:
                 err = "unknown"
         lay = []
         for i, v in enumerate(vals):
-            if isinstance(v, Sl):
+            if isinstance(v, SliceVal):
                 ob = self.objs[v.oid]
                 if ob.own and ob.n is not None and v.path == () and self.ty.byte_array_len(ob.typ) is not None \
                         and v.lo == C0 and v.hi == const(ob.n):
@@ -244,7 +244,7 @@ class Enumerator:
             return v
         if isinstance(v, (Ptr, LVal)):
             return self.loc_term(st, v.oid, v.path)
-        if isinstance(v, Sl):
+        if isinstance(v, SliceVal):
             base = self.loc_term(st, v.oid, v.path)
             n = self.arr_len(v.oid, v.path)
             nn = const(n) if n is not None else None
@@ -264,7 +264,7 @@ class Enumerator:
         return None
 
     def av_len(self, v):
-        if isinstance(v, Sl):
+        if isinstance(v, SliceVal):
             return op("-", v.hi, v.lo)
         if isinstance(v, tuple):
             return self.lengths.len_(v)
@@ -275,7 +275,7 @@ class Enumerator:
         return ("len", ("unknown", "value"))
 
     def av_cap(self, v):
-        if isinstance(v, Sl):
+        if isinstance(v, SliceVal):
             return op("-", v.mx, v.lo)
         if isinstance(v, tuple):
             return self.lengths.cap_(v)
@@ -384,7 +384,7 @@ class Enumerator:
         st.mem[oid] = OState(old.whole, dict(old.stores), old.havoc | {path})
 
     def havoc_value(self, st: PState, v) -> None:
-        if isinstance(v, (Ptr, Sl, LVal)):
+        if isinstance(v, (Ptr, SliceVal, LVal)):
             self.havoc(st, v.oid, v.path)
         elif isinstance(v, Tup):
             for x in v.items:
@@ -418,7 +418,7 @@ class Enumerator:
                 return ("byte", v, idx)
             if isinstance(v, LVal):
                 return self.cell_at(st, v.oid, v.path + path[len(best):], idx)
-            if isinstance(v, (Ptr, Sl)):
+            if isinstance(v, (Ptr, SliceVal)):
                 return UNKNOWN_CELL
             return UNKNOWN_CELL
         if os_.whole is not None:
@@ -429,7 +429,7 @@ class Enumerator:
         return ("const", 0)
 
     def src_cell(self, st: PState, src, k: int):
-        if isinstance(src, Sl):
+        if isinstance(src, SliceVal):
             lo = src.lo
             if not is_const(lo):
                 return UNKNOWN_CELL
@@ -585,7 +585,7 @@ class Enumerator:
             a, v = V(ops[0]), V(ops[1])
             if isinstance(a, Ptr):
                 self.store(st, a, v)
-            elif isinstance(v, (Ptr, Sl, LVal)):
+            elif isinstance(v, (Ptr, SliceVal, LVal)):
                 pass  # a local address escapes into other memory; its contents stay modelled
             return None
         if o == "UnOp":
@@ -614,7 +614,7 @@ class Enumerator:
             xa, xb = V(ops[0]), V(ops[1])
             if b in ("==", "!=", "<", "<=", ">", ">="):
                 for p, q in ((xa, xb), (xb, xa)):
-                    if isinstance(p, (Ptr, Sl)) and q == NIL and b in ("==", "!="):
+                    if isinstance(p, (Ptr, SliceVal)) and q == NIL and b in ("==", "!="):
                         env[ins.name] = ("bool", b == "!=")
                         return None
                 if isinstance(xa, Cmp) or isinstance(xb, Cmp):
@@ -678,7 +678,7 @@ class Enumerator:
         if o == "IndexAddr":
             x = V(ops[0])
             it = R(V(ops[1]))
-            if isinstance(x, Sl):
+            if isinstance(x, SliceVal):
                 k = plus(x.lo, it)
                 env[ins.name] = Ptr(x.oid, x.path + (("index", k[1] if is_const(k) else k),),
                                     ty.pointer_elem(ins.type))
@@ -712,9 +712,9 @@ class Enumerator:
             mx = R(V(ops[3])) if ops[3] else None
             if isinstance(x, Ptr) and ty.array_len(x.typ) is not None:
                 n = const(ty.array_len(x.typ))
-                env[ins.name] = Sl(x.oid, x.path, lo or C0, hi or n, mx or n, ins.type)
-            elif isinstance(x, Sl):
-                env[ins.name] = Sl(x.oid, x.path, plus(x.lo, lo) if lo else x.lo,
+                env[ins.name] = SliceVal(x.oid, x.path, lo or C0, hi or n, mx or n, ins.type)
+            elif isinstance(x, SliceVal):
+                env[ins.name] = SliceVal(x.oid, x.path, plus(x.lo, lo) if lo else x.lo,
                                    plus(x.lo, hi) if hi else x.hi, plus(x.lo, mx) if mx else x.mx, ins.type)
             else:
                 xt = R(x)
@@ -754,7 +754,7 @@ class Enumerator:
             n = cp[1] if is_const(cp) else None
             root = ("alloc", site_pos(ins), ln)
             oid = self.new_obj(st, fr, ins, ins.type, n, root)
-            env[ins.name] = Sl(oid, (), C0, ln, cp, ins.type)
+            env[ins.name] = SliceVal(oid, (), C0, ln, cp, ins.type)
             return None
         if o in ("MakeMap", "MakeChan"):
             env[ins.name] = ("alloc", site_pos(ins), None)
@@ -813,7 +813,7 @@ class Enumerator:
                 env[name] = self.av_cap(args[0])
             elif b == "append":
                 x = args[0]
-                if isinstance(x, Sl) and x.mx != x.hi:
+                if isinstance(x, SliceVal) and x.mx != x.hi:
                     self.havoc(st, x.oid, x.path)
                 env[name] = ("append", R(x), R(args[1]))
             elif b == "copy":
@@ -881,7 +881,7 @@ class Enumerator:
         return None
 
     def put(self, st: PState, dst, v, order: str, nb: int) -> None:
-        if not isinstance(dst, Sl):
+        if not isinstance(dst, SliceVal):
             return
         if not is_const(dst.lo):
             self.havoc(st, dst.oid, dst.path)
@@ -898,7 +898,7 @@ class Enumerator:
     def copy(self, st: PState, dst, src):
         nd, ns = self.av_len(dst), self.av_len(src)
         n = min(nd[1], ns[1]) if is_const(nd) and is_const(ns) else None
-        if isinstance(dst, Sl):
+        if isinstance(dst, SliceVal):
             if not is_const(dst.lo):
                 self.havoc(st, dst.oid, dst.path)
             elif n is not None:
