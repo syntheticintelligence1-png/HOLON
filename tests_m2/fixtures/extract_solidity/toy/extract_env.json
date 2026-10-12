@@ -1,0 +1,17 @@
+{
+  "sidecar_version": 1,
+  "frontend": "solidity",
+  "doc": "Planted fixture (HOLON I17 prereg): an encoder whose stored bytes depend on a state variable (Toy._emitEnv branches on `last`), so after projection (rule J1) two ok paths with the empty condition write different bytes. The extraction must fail with exit 3 naming the edge (rule J4), never pick one.",
+  "target": {"repo": "holon-test/toy-packet", "commit": null, "scope": "toy packet codec (planted fixture, failure case)"},
+  "output": "tests_m2/fixtures/extract_solidity/toy/toy_env.extracted.json",
+  "sources": ["src/Toy.sol"],
+  "compiler": {"version": "0.8.24", "settings": {"evmVersion": "cancun", "optimizer": {"enabled": false}}},
+  "edges": {
+    "enc_env": {
+      "kind": "encoder",
+      "from": "EnvIn",
+      "entry": {"contract": "Toy", "function": "_emitEnv"},
+      "sink": ["src/Toy.sol:129", "src/PktCodec.sol:73"]
+    }
+  }
+}

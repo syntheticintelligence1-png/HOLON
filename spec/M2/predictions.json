@@ -1478,6 +1478,327 @@
           "seed": 20261011
         }
       }
+    },
+    "I17": {
+      "title": "Solidity frontend I: compile, AST/Yul walk, layouts (holon-facts/0.3)",
+      "plan": "docs/BUILD_PLAN.md#i17",
+      "prompt": "prompts/I17_solidity_layout.md",
+      "predictions": [
+        {
+          "id": "I17-P1",
+          "claim": "The extracted enc_sol layout equals the frozen facts/morph_header.json layout cell for cell for versions 0, 1 and 2, modulo a bijective renaming of field names: at each version the active ok path's layout (rule W11, cut to its length) has the frozen length (249, 257, 257) and, at every byte, the frozen state: the same constant where the frozen facts hold a constant (the 32 zero bytes at 185..216: sequencerSetVerifyHash is never an input, the code stores bytes32(0), which is the obstruction of L_par_hdr_ssvh), no unknown byte, and a field byte with the same byte index where the frozen facts hold a field byte. Derived by reading BatchHeaderCodecV0.store* (mstore8 at 0; mstore of shl(192, x) at 1, 9, 17; mstore of a bytes32 at 25, 57, 89, 121, 153, 185, 217), BatchHeaderCodecV1.storeLastBlockNumber (mstore of shl(192, x) at 249) and the header block of Rollup._commitBatchWithBatchData (:330-357: _headerLength 249, or 257 when version >= 1; the stores in that order; the V1 store under the same condition): later writes override the trailing zeros of the 8-byte stores, and the last 32-byte store of version 0 ends exactly at 248.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_enc_sol_layout_equals_the_frozen_layout_per_version_modulo_field_names"
+        },
+        {
+          "id": "I17-P2",
+          "claim": "The renaming of I17-P1 is the identity: naming a field after the formal parameter of the store function that writes it, without its leading underscores (rule N1: _version, _batchIndex, _l1MessagePopped, _totalL1MessagePopped, _dataHash, _blobVersionedHash, _prevStateHash, _postStateHash, _withdrawRootHash, _parentBatchHash, _lastBlockNumber), gives exactly the frozen field names, so the extracted layouts of versions 0, 1 and 2 equal the frozen ones as written.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_extracted_field_names_are_the_frozen_names"
+        },
+        {
+          "id": "I17-P3",
+          "claim": "enc_sol is a Maybe<Bytes> encoder whose revert paths (rule J1: requires before the sink whose condition mentions only fields) are exactly three: [!(version <= 2)] 'invalid version' at Rollup.sol:293, [version <= 2, !(prevStateHash != 0)] 'previous state root is zero' at :294 and [version <= 2, prevStateHash != 0, !(postStateHash != 0)] 'new state root is zero' at :295 (the requires on the parent header and on storage at :309-314 are environment guards and are projected away). So enc_sol is None for every version byte 3..255, where the frozen domain (version_le 2) agrees, and also None at versions 0..2 whenever a state root is zero, which the frozen enc_sol (defined on every header of version <= 2) does not state: the frozen M0 witness of L_par_hdr_v2 (version 2, both roots zero) lies outside the extracted domain, the witness of L_par_hdr_ssvh (version 1, all bytes 0xff) inside. A difference to report about the frozen facts (a Question for the human), not an extractor bug; no frozen law changes (L_par_hdr_v0/v1 hold on the larger frozen domain). Prior record: the three requires themselves are recorded as commit-path revert codes 8-10 in spec/M1/facts/morph_rollup.json (hand-written M1 facts); what is predicted is that the extracted enc_sol edge, built by rules J1-J2 without reading any fact document, carries exactly these three as its partiality and nothing else.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_enc_sol_is_partial_exactly_on_three_field_conditions"
+        },
+        {
+          "id": "I17-P4",
+          "claim": "The plan's prediction: the unsupported-Yul debt list is empty for the store sequences. enc_sol and load_sol each have debt [] and exact true (rule D2): between the mload(0x40) that allocates the sink's region and the keccak256 sink, every statement is a supported Solidity statement and every Yul call is one of mstore, mstore8, add, shl, calldatacopy, keccak256 (BatchHeaderCodecV0/V1.store*, loadAndValidate, computeBatchHash).",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_store_sequences_carry_no_debt"
+        },
+        {
+          "id": "I17-P5",
+          "claim": "The whole enc_sol walk records exactly one debt entry, {kind loop, construct ForStatement, src Rollup.sol:936-943, fn Rollup._loadL1MessageHashes, stack [Rollup.sol:318-322, Rollup.sol:879, Rollup.sol:936-943]}: the unchecked loop that loads L1 message hashes through an external call, before the header region is allocated, so outside the store sequence; the load_sol walk records none.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_walk_debt_is_exactly_the_message_hash_loop"
+        },
+        {
+          "id": "I17-P6",
+          "claim": "Walk inventory (rules W8-W10 before projection): the enc_sol walk enters exactly 22 functions (Rollup._commitBatchWithBatchData, _loadBatchHeader, _getBatchVersion, _commitBatch, _loadL1MessageHashes; BatchHeaderCodecV0.loadAndValidate, computeBatchHash, getBatchIndex, getTotalL1MessagePopped and its 11 store functions; BatchHeaderCodecV1.loadAndValidate and storeLastBlockNumber), reaches exactly 3 keccak256 sinks (the parent header hash, stack [:309, :849, V0:242]; the data hash, [:318-322, :883]; the selected header hash, [:357, V0:242]) and counts 8 ok, 15 revert and 0 other paths (3 field requires; 4 loader reverts; 4 storage requires on each of the 2 parent-header paths; 2 parent paths x 2 for numL1Messages == 0 x 2 for version >= 1 reaching the sink); the load_sol walk enters 5 functions, reaches 1 sink and counts 2 ok, 4 revert, 0 other.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_walk_inventory"
+        },
+        {
+          "id": "I17-P7",
+          "claim": "enc_sol has exactly two ok paths after projection and merging (rules J1-J2), told apart by version >= 1 alone: the :333 and :353 conditions coincide, the numL1Messages == 0 early return of _loadL1MessageHashes (a condition on the field l1MessagePopped) merges away, no environment conjunct survives. Conditions [version <= 2, prevStateHash != 0, postStateHash != 0] plus version >= 1 (length 257, 12 ops) or !(version >= 1) (length 249, the first 11): ops in program order mstore8 at 0 (storeVersion, called at :342), mstore at 1, 9, 17 (shl(192) stores at :343-345), 25, 57, 89, 121, 153 (:346-350), 185 with 32 zero bytes (storeSequencerSetVerifyHash(_batchPtr, bytes32(0)) at :351), 217 (:352) and, on the first path, 249 (BatchHeaderCodecV1.storeLastBlockNumber at :354), each with its origin function, its Yul span in the codec library and its stack; the free-pointer update at :338 is no op.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_enc_sol_ok_paths_and_their_ops"
+        },
+        {
+          "id": "I17-P8",
+          "claim": "The domain and length checks of the Solidity header loader are recovered as partiality equal to the frozen ok_sol: load_sol (Rollup._loadBatchHeader) has exactly 2 ok and 4 revert paths, 'Empty batch header' (:825), 'batch header length too small' (BatchHeaderCodecV0.sol:32), 'batch header length is incorrect' (BatchHeaderCodecV1.sol:35) and 'Unsupported batch version' (:844), and for every first byte 0..255 and every length in thresholds.loader_grid_lengths it is defined exactly where the frozen ok_sol is true (version 0: length >= 249; versions 1 and 2: length == 257; otherwise never).",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_load_sol_partiality_equals_the_frozen_ok_sol"
+        },
+        {
+          "id": "I17-P9",
+          "claim": "calldatacopy cells: each load_sol ok path holds exactly one op, calldatacopy at offset 0 with width and length ['len', 'batchHeader'] and src [{input batchHeader, from 0, len ['len', 'batchHeader']}], from BatchHeaderCodecV0.loadAndValidate (V0:36 via :839) on the version-0 path and BatchHeaderCodecV1.loadAndValidate (V1:39 via :842) on the version-1/2 path (no equality is substituted: the 257 stays a path condition); on the grid every ok input's layout is ['input', 'batchHeader', k] for every k below its length, the identity on calldata (whitepaper 10.2: positions map to calldata).",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_load_sol_layout_is_the_calldata_copy"
+        },
+        {
+          "id": "I17-P10",
+          "claim": "The extracted Header record holds 11 fields, the frozen Header fields in the frozen order with the frozen widths minus sequencerSetVerifyHash (no input reaches byte 185); value types (rule N2) uint8, uint256, uint16, uint256, bytes32 x6, uint64, so the width obligations (A-width:Header: value type wider than the stored width) are exactly batchIndex and totalL1MessagePopped (uint256 locals stored as shl(192, x)), while version (uint8 in one byte), l1MessagePopped (uint16) and lastBlockNumber (uint64) fit: the frozen A-width and A-version assumptions name five fields, the extraction two.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_header_record_and_width_obligations"
+        },
+        {
+          "id": "I17-P11",
+          "kind": "construction",
+          "claim": "Construction check, not counted: `python -m holon extract solidity --milestone M2` writes spec/M2/facts/morph_header.extracted.json in the contract's holon-facts/0.3 shape (header, toolchain sha equal to the replay pin, every solc input unit hashed, the sidecar hashed, canonical bytes, no absolute path or date, spans inside their files, edge and path keys as fixed, assumptions A-dirty, A-env, A-implicit, A-width:Header), valid under spec/schemas/facts_0_3.schema.json (which rejects an unknown outcome, a missing facts_version and an unknown src item, and is the shared envelope: a document in I18's Go shape validates, one with another or an unknown frontend, without its go object or with a top-level functions key does not); two runs are byte-identical and equal the committed file (the plan's exit); --check exits 0 on it and 1 on a stale file without writing.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestDocument::test_cli_writes_the_document and tests_m2/test_extract_solidity_layout.py::TestDocument::test_header_toolchain_and_inputs and tests_m2/test_extract_solidity_layout.py::TestDocument::test_document_validates_against_the_0_3_schema and tests_m2/test_extract_solidity_layout.py::TestDocument::test_the_0_3_schema_is_the_shared_envelope and tests_m2/test_extract_solidity_layout.py::TestDocument::test_canonical_bytes_no_absolute_path_no_time and tests_m2/test_extract_solidity_layout.py::TestDocument::test_two_runs_are_byte_identical_and_match_the_committed_file and tests_m2/test_extract_solidity_layout.py::TestDocument::test_check_mode and tests_m2/test_extract_solidity_layout.py::TestDocument::test_edge_shapes_and_spans and tests_m2/test_extract_solidity_layout.py::TestDocument::test_assumptions"
+        },
+        {
+          "id": "I17-P12",
+          "kind": "construction",
+          "claim": "Construction check, not counted: refusals write nothing: a solc whose sha256 differs from config replay.solc_sha256 and a source tree that is not a checkout at the sidecar's commit exit 2; a selected sink that no path reaches exits 3 naming the edge. The CLI is the one shared with I18, `holon extract <frontend> ...`: holon.frontends.main dispatches to holon.frontends.<frontend>.main with no registry (an in-process probe module receives the remaining arguments), and a missing, option-like or unknown frontend (the old `--frontend` spelling included) exits 2 with 'unknown frontend', writing nothing.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestRefusals::test_a_solc_whose_sha_differs_from_the_pin_is_refused and tests_m2/test_extract_solidity_layout.py::TestRefusals::test_a_source_tree_not_at_the_target_commit_is_refused and tests_m2/test_extract_solidity_layout.py::TestRefusals::test_a_sink_never_reached_is_an_extraction_error_naming_the_edge and tests_m2/test_extract_solidity_layout.py::TestDispatch::test_the_dispatch_is_generic and tests_m2/test_extract_solidity_layout.py::TestDispatch::test_an_unknown_or_missing_frontend_is_refused"
+        },
+        {
+          "id": "I17-P13",
+          "kind": "construction",
+          "claim": "Construction check, not counted: G1 covers the extraction: holon.gate.regenerate_m2_outputs regenerates spec/M2/facts/morph_header.extracted.json through holon.frontends.regenerate, names it in its note, reports no difference on the committed tree and reports the file when it is tampered with; holon.frontends.sidecars finds the sidecar and render reproduces the committed bytes; holon.diagram.fact_documents skips *.extracted.json (I17's and I18's), so the diagram, sorts, evidence and derive inputs do not change.",
+          "check": "tests_m2/test_extract_solidity_layout.py::TestG1Coverage::test_g1_regenerates_and_compares_the_extracted_facts and tests_m2/test_extract_solidity_layout.py::TestG1Coverage::test_frontends_regenerate_and_sidecars and tests_m2/test_extract_solidity_layout.py::TestFactDocuments::test_extracted_documents_are_not_fact_documents"
+        },
+        {
+          "id": "I17-P14",
+          "kind": "construction",
+          "claim": "Construction check, not counted (honesty): holon/frontends/__init__.py and holon/frontends/solidity/* hold no distinctive name the pinned codec sources declare, no frozen function or field name, no sidecar edge name, no revert text of Rollup.sol or the codec libraries, neither 249 nor 257, no .sol:<line> span and no 'morph'; they import no fact or result reader, and I17's own modules no analysis tool (a later lazily imported SlithIR module of I19 may); under an audit hook the extraction opens inside the checkout only holon/, config/, spec/schemas/ and the sidecar (the toy only its fixture besides) and runs the pinned solc; a copy with poisoned fact documents and a poisoned committed extraction yields the committed bytes; the sidecar states no field name, layout constant or integer other than its version; and the extraction follows the code: on a scratch copy of the pinned contracts with storeBlobVersionedHash's offset 57 -> 58, BatchHeaderCodecV0.BATCH_HEADER_LENGTH 249 -> 250, the version bound 2 -> 3 and the formal _withdrawRootHash renamed _exitRootHash (sidecar copy with commit null), the document differs from the committed one exactly in that op's offset, the version-0 ok length and loader bound, the invalid-version condition and the field name, and nowhere else.",
+          "check": "tests_m2/test_extract_solidity_honesty.py::TestGenericFrontendCode::test_frontend_code_holds_no_target_vocabulary and tests_m2/test_extract_solidity_honesty.py::TestGenericFrontendCode::test_frontend_code_imports_no_fact_reader_and_no_analysis_tool and tests_m2/test_extract_solidity_honesty.py::TestExtractionReads::test_the_extraction_opens_no_fact_document and tests_m2/test_extract_solidity_honesty.py::TestExtractionReads::test_the_toy_extraction_opens_only_the_toy and tests_m2/test_extract_solidity_honesty.py::TestExtractionReads::test_poisoned_fact_documents_change_no_byte and tests_m2/test_extract_solidity_honesty.py::TestSidecar::test_the_sidecar_states_no_layout_fact and tests_m2/test_extract_solidity_honesty.py::TestMutations::test_a_mutated_codec_moves_the_extraction_and_nothing_else"
+        },
+        {
+          "id": "I17-P15",
+          "kind": "construction",
+          "claim": "Construction check, not counted: the planted toy (tests_m2/fixtures/extract_solidity/toy) extracts exactly as tests_m2/fixtures/extract_solidity/toy/expected.json states, written by hand at the prereg: types and value types (kind is uint8 through _stamp's uint256 formal), assumptions, every edge's revert and ok paths with their ops, the per-kind layouts of enc_toy (None from kind 4), the loader grid of load_toy, the YulSwitch debt and all-unknown layout of enc_bad (exact false), every walk's functions, path counts, sinks and debt; byte-identical runs; and the environment-dependent enc_env fails with exit 3 naming it.",
+          "check": "tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_document_header and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_types_and_fields and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_assumptions and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_edges_paths_and_debt and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_layouts_per_selector and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_loader_grid and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_walks and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_two_runs_are_byte_identical and tests_m2/test_extract_solidity_toy.py::TestToyFailure::test_an_environment_dependent_layout_is_an_error_naming_the_edge"
+        },
+        {
+          "id": "I17-P16",
+          "kind": "construction",
+          "claim": "Construction check, not counted: tools/setup_env.sh --extract installs thresholds.tool_pins into a venv at ${HOLON_PREFIX:-~/.holon}/tools/extract from the hash-pinned tools/extract-requirements.txt, and they are installed there (outside the repo); the extraction loads none of slither, crytic_compile, z3 or solcx; config/holon.json extract.sources maps the sidecar's repository to the replay checkout.",
+          "check": "tests_m2/test_extract_toolchain.py::TestSetupScript::test_setup_env_has_an_extract_option and tests_m2/test_extract_toolchain.py::TestSetupScript::test_requirements_are_hash_pinned_and_hold_the_tool_pins and tests_m2/test_extract_toolchain.py::TestInstalled::test_the_pinned_tools_are_installed_under_holon_tools and tests_m2/test_extract_toolchain.py::TestNoToolDependency::test_the_extraction_loads_neither_slither_nor_z3 and tests_m2/test_extract_toolchain.py::TestNoToolDependency::test_config_names_the_source_checkout_by_repository"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I17-R1",
+          "claim": "M0 and M1 are untouched: gen/M0 and gen/M1 are byte-identical (I6 GEN_PIN), the M0/M1 records are unchanged modulo seconds and generator hash (RECORDS_PIN), and gates M0 and M1 pass.",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged and tests_m2/test_target_agnostic.py::TestByteIdentity::test_records_unchanged_modulo_seconds_and_generator_hash and gate"
+        },
+        {
+          "id": "I17-R2",
+          "claim": "With spec/M2/facts/morph_header.extracted.json committed, gen/M2/diagram, gen/M2/sorts and gen/M2/evidence.json regenerate byte for byte (fact_documents skips extracted documents; once I15 has merged, laws/M2 likewise).",
+          "check": "tests_m2/test_diagram.py::TestDiagramFiles::test_regeneration_is_byte_identical and tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files and tests_m2/test_evidence.py::TestEvidenceFile::test_two_runs_are_byte_identical_and_match_the_committed_file"
+        },
+        {
+          "id": "I17-R3",
+          "claim": "The exhaustive target-agnostic grep (F-M2-14) stays green over every module of holon/, the new frontend modules included.",
+          "check": "tests_m2/test_target_agnostic_exhaustive.py::TestNoMorphIdentifierAnywhere::test_generic_code_holds_no_morph_identifier"
+        },
+        {
+          "id": "I17-R4",
+          "claim": "No frozen file changes (FROZEN.sha256 manifest).",
+          "check": "tests/test_00_freeze.py::TestFreeze::test_manifest_matches"
+        },
+        {
+          "id": "I17-R5",
+          "claim": "The I16 refinement records are untouched: 0 disagreements on every codec edge, including enc_sol against its own Solidity implementation (the frozen enc_sol the extraction is compared with already refines the real code).",
+          "check": "tests_m2/test_refinement.py::TestAgreement::test_zero_disagreements_on_every_edge"
+        }
+      ],
+      "outcome_paths": [
+        "spec/M2/facts/morph_header.extracted.json"
+      ],
+      "tests": [
+        "tests_m2/test_extract_solidity_layout.py",
+        "tests_m2/test_extract_solidity_toy.py",
+        "tests_m2/test_extract_solidity_honesty.py",
+        "tests_m2/test_extract_toolchain.py"
+      ],
+      "thresholds": {
+        "versions_compared": [
+          0,
+          1,
+          2
+        ],
+        "version_bytes": [
+          0,
+          255
+        ],
+        "loader_grid_lengths": [
+          0,
+          1,
+          2,
+          248,
+          249,
+          250,
+          256,
+          257,
+          258,
+          300
+        ],
+        "max_paths_per_walk": 4096,
+        "max_call_depth": 16,
+        "tool_pins": {
+          "slither-analyzer": "0.11.6",
+          "crytic-compile": "0.4.2",
+          "z3-solver": "4.16.0.0"
+        }
+      }
+    },
+    "I18": {
+      "title": "Go frontend: codecs, partiality, slice headers, pipelines, loop bounds",
+      "plan": "docs/BUILD_PLAN.md#i18",
+      "prompt": "prompts/I18_go_frontend.md",
+      "predictions": [
+        {
+          "id": "I18-P1",
+          "claim": "The extracted layouts equal the frozen ones (enc_go_v0, enc_go_v1). (morph-l2/common/batch.BatchHeaderV0).Bytes and (...BatchHeaderV1).Bytes each have exactly two return paths: the cache path, cond [[\">\", len(b.EncodedBytes), 0]], returning a view of b.EncodedBytes (V1 tests its own EncodedBytes field, which shadows the embedded V0's), and the layout path, cond [[\"<=\", len(b.EncodedBytes), 0]], returning a fresh buffer allocated at batch_header.go:216 / :244 of length and capacity 249 / 257. That buffer gives each encoder exactly one layout, exact, equal cell for cell to the frozen facts' layout under the field map of facts/morph_header.json types.Header (frozen field -> the Go field named first in its \"go\" text): cell 0 is [\"const\", 0] / [\"const\", 1], every other cell is byte k of a field of the receiver, reached through the embedded BatchHeaderV0 in V1 for every field except LastBlockNumber; no path panics. Prior evidence: results/M2/refinement/enc_go_v0.json and enc_go_v1.json (I16) sampled the frozen layouts against the real Bytes() with 0 disagreements; what is predicted is that the static extraction from SSA, which never reads the frozen facts, reproduces them exactly.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedCodecs::test_encoder_layouts_equal_the_frozen_layouts"
+        },
+        {
+          "id": "I18-P2",
+          "claim": "Decoder partiality equals ok_go on every length constant +-1. Probes (tests_m2/_i18.probes): every getter offset and offset + width of the frozen dec_go and every ok_go length (1, 9, 17, 25, 57, 89, 121, 153, 185, 217, 249, 257), each -1, 0, +1, plus 0, 1, 2 (36 lengths), byte 0 in 0, 1, 2, 3, 255, cap = len and len + 16 (352 probes). On every probe exactly one extracted path of each function holds; for validate (frozen ok_go), Hash and the 12 frozen dec_go getters (each mapped to the BatchHeaderBytes method its frozen code names: Version, BatchIndex, L1MessagePopped, TotalL1MessagePopped, DataHash, BlobCommitHash, PrevStateRoot, PostStateRoot, WithdrawalRoot, SequencerSetVerifyHash, ParentBatchHash, LastBlockNumber) that path returns a nil error iff frozen ok_go holds and the getter's frozen when holds (LastBlockNumber: version >= 1), except Version, which the frozen ok_go 'empty' rule names: nil iff length >= 1; otherwise a non-nil error; no holding path panics. Every frozen getter's extracted reads are exactly [(offset, width)] of the frozen getter. Prior evidence: results/M2/refinement/dec_go.json and ok_go.json (I16) sampled these on a boundary corpus; predicted here is the static, exact partiality.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedCodecs::test_decoder_partiality_equals_ok_go_on_every_length_constant_plus_minus_one"
+        },
+        {
+          "id": "I18-P3",
+          "claim": "BatchHeaderBytes in morph-l2/common/batch has exactly 14 decoders: the 12 frozen getters' methods, BlobVersionedHash and BlobHashesHash (both reading (57, 32)). On every I18-P2 probe BlobVersionedHash returns nil iff ok_go and byte 0 < 2, BlobHashesHash iff ok_go and byte 0 >= 2, and BlobCommitHash (it dispatches to one of the two on Version()) iff ok_go, never panicking.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedCodecs::test_the_other_header_getters"
+        },
+        {
+          "id": "I18-P4",
+          "claim": "There is no v2 encoder in the codec package (O2, recorded as an absence). validate is a tagged predicate, tag_index 0, accepting exactly (0, 249), (1, 257), (2, 257); the encoder matches are V0.Bytes for (0, 249), V1.Bytes for (1, 257) and, for (2, 257), only morph-l2/morph-deployer/morph-chain-ops/genesis.GenesisBatchHeader, so morph_batch's absences are exactly one: version 2 at length 257, elsewhere [GenesisBatchHeader]. The version-2 bytes the batch producer emits come from a patch of V1.Bytes (I18-R2), which is no encoder layout of its own. The deprecated duplicate decoder in morph-l2/node/types has no encoder in its package: three absences, (0, 249) elsewhere [V0.Bytes], (1, 257) [V1.Bytes], (2, 257) [GenesisBatchHeader].",
+          "check": "tests_m2/test_extract_go.py::TestPredictedCodecs::test_no_v2_encoder_in_the_codec_package"
+        },
+        {
+          "id": "I18-P5",
+          "claim": "New, narrowing O2's 'no v2 encoder' to the codec package: ops/l2-genesis's GenesisBatchHeader (morph-l2/morph-deployer/morph-chain-ops/genesis, batch.go:31-67) is a standalone version-2 encoder. Every layout it has is 257 bytes from its own make at batch.go:53 with cell 0 [\"const\", 2]; cells 1..24 [\"const\", 0] (PutUint64 of constant 0); 25..56 bytes 0..31 of a call of github.com/morph-l2/go-ethereum/crypto.Keccak256Hash; 57..88 bytes 0..31 of the package variable emptyBlobVersionedHash; 89..120 [\"const\", 0]; 121..152 bytes 0..31 of field Root of the parameter genesisHeader; 153..248 [\"const\", 0]; 249..256 bytes 0..7 of a call of (*math/big.Int).Uint64 on genesisHeader.Number. All its return paths return a nil error. Nothing in the repo records this encoder.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedCodecs::test_a_standalone_version_2_encoder_exists_outside_the_codec_package"
+        },
+        {
+          "id": "I18-P6",
+          "claim": "Block-context codec (D3, whose case-study state is none): morph-l2/common/batch.HeightFromBlockContextBytes is a decoder reading exactly [(0, 8, be_uint)], ok iff len == 60 on lengths 0, 7, 8, 9, 59, 60, 61. Both block-context encoders, BuildBlockContext (common/batch, batch_cache.go:1826) and (*WrappedBlock).BlockContextBytes (node/types, consensus_message.go:106, through the inlined Uint64ToBigEndianBytes / Uint16ToBigEndianBytes), have only 60-byte layouts: cells 0..7 the block number (bytes of header.Number.Uint64() / of wb.Number), 8..15 header.Time / wb.Timestamp, 48..55 the GasLimit field, 56..57 and 58..59 bytes of uint16(txsNum) and uint16(l1MsgNum); each has a layout on the path where its BaseFee field is nil, with cells 16..47 [\"const\", 0]. So the height decoder reads exactly the 8 bytes the encoders write for the block number.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedCodecs::test_block_context_codec"
+        },
+        {
+          "id": "I18-P7",
+          "claim": "The deprecated duplicate decoder in morph-l2/node/types decodes exactly like common/batch: for the 16 BatchHeaderBytes methods both packages define (validate, Bytes, Hash, Version and the 12 getters other than BlobCommitHash, which node/types lacks), the extracted paths are equal once the package path is replaced and spans are blanked.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedCodecs::test_node_types_decodes_like_common_batch"
+        },
+        {
+          "id": "I18-P8",
+          "claim": "The TxsPayloadV2 result shares backing with the spare capacity of blockContexts (O36's precondition). (*BatchData).TxsPayloadV2's result has exactly two backing cases. In place, under len(X) + len(Y) <= cap(X) with X = cks.blockContexts and Y = cks.txsPayload: backing [\"of\", X], offset 0, len len(X) + len(Y), cap cap(X). Grow: fresh at batch_data.go:119, cap [\"unknown\", \"growth\"]. TxsPayloadV2's only write is the in-place append writing [len(X), len(X) + len(Y)) of X's backing, and it stores nothing, so the view's tail is X's spare capacity, beyond the field's len; (*BatchData).Append's in-place append at batch_data.go:35 writes the same backing from len(X) and stores the result back into the field. A view held across Append is therefore overwritten (the M1 law L_own_txspayload, replayed on Go, shows the consequence; here it is the extracted precondition).",
+          "check": "tests_m2/test_extract_go.py::TestPredictedSlices::test_txspayloadv2_result_shares_the_spare_capacity_of_block_contexts"
+        },
+        {
+          "id": "I18-P9",
+          "claim": "In common/batch/batch_data.go the in-place writes into parameter-rooted backings are exactly five appends: Append at :35 (blockContexts), :36 (txsPayload) and :39 (l1TxHashes, inside the loop), TxsPayloadV2 at :119 (blockContexts) and EstimateCompressedSizeWithNewPayload at :126 (txsPayload: a second method that writes a field's spare capacity without storing the field). DataHash, Encode, calculateHash and combinePayloads write only buffers they allocate.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedSlices::test_batch_data_write_inventory"
+        },
+        {
+          "id": "I18-P10",
+          "claim": "O37 (value-receiver cache write is lost; case-study state none): morph_batch's lost writes are exactly the two stores b.EncodedBytes = batchBytes in BatchHeaderV0.Bytes (batch_header.go:228) and BatchHeaderV1.Bytes (:258), each into the method's own copy of its value receiver b, field path [EncodedBytes]. Prior record: whitepaper.md (§11.3 O37, Appendix A F12.3) states that the value-receiver header cache write is lost; predicted is the extractor's static lost-write inventory (exactly these two stores, nothing else in morph_batch), which nothing in the repo records.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedSlices::test_value_receiver_cache_writes_are_lost"
+        },
+        {
+          "id": "I18-P11",
+          "claim": "O4 / F3 localized (case-study state none): morph-l2/common/batch.RetrieveBlobBytes (blob.go:45-54) has four bounds sites, exactly one open: the index data[i*32] in the error branch at blob.go:49, with witness {var i, min 3968, max 4095} (data has 4096 * 31 = 126976 bytes and i ranges over 0..4095 under the loop at :47); blob[i*32] at :48 and the two slices of the copy at :51 are safe. The fixed copy morph-l2/common/blob.RetrieveBlobBytes (payload.go:43-52) indexes the 131072-byte blob in its error message instead, and its four sites are all safe. Prior record: docs/build_plan/gap_map.json (O4) and whitepaper App. A F3 / §11.3 O4 state the open index from 3968 at common/batch/blob.go:45-54 and that the common/blob copy is defined; predicted is that the static extractor, reading no document, lists exactly these four sites per copy with exactly this status and witness range.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedPartiality::test_the_blob_retrieval_error_path_indexes_past_the_buffer_from_word_3968"
+        },
+        {
+          "id": "I18-P12",
+          "claim": "O4's consumer chain: the call edges include (*Derivation).Start -go-> Start$1 (derivation.go:200), Start$1 -> derivationBlock (:207), derivationBlock -> fetchRollupDataByTxHash (:380, :428, :456), fetchRollupDataByTxHash -> parseBatch (:599), parseBatch -> (*BatchInfo).ParseBatch (:715) and ParseBatch -> morph-l2/common/batch.RetrieveBlobBytes (batch_info.go:116, callee analyzed) inside the range loop over batch.Sidecar.Blobs (in_loops [batch_info.go:114]); ParseBatch does not call the fixed morph-l2/common/blob.RetrieveBlobBytes. So the derivation loop reaches the open site of I18-P11 with blob bytes from L1. Prior record: docs/build_plan/gap_map.json (O4) names the caller node/derivation/batch_info.go:116; the chain from (*Derivation).Start, the edge kinds and in_loops are not recorded.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedCalls::test_the_derivation_loop_reaches_the_open_site"
+        },
+        {
+          "id": "I18-P13",
+          "claim": "TxsPayloadV2's consumers: it has exactly two call sites in the analyzed packages, (*BatchCache).handleBatchSealing (batch_cache.go:1581), where the result's only use is argument 0 of morph-l2/common/blob.CompressBatchBytes (not common/batch's own CompressBatchBytes), and (*Derivation).rebuildBlob (verify_local.go:186), where its uses are argument 0 of morph-l2/common/blob.CompressBatchBytes (:189) and len. Into that CompressBatchBytes the parameter's uses are len and argument 0 of morph-l2/common/codec/zstd.CompressBatchBytes, whose parameter's uses are len and argument 0 of the external github.com/morph-l2/morph-da-codec/bindings/codec/zstd.CompressMorphDABatch (the skeleton producer -> compressor -> external codec).",
+          "check": "tests_m2/test_extract_go.py::TestPredictedCalls::test_txspayloadv2_consumers"
+        },
+        {
+          "id": "I18-P14",
+          "claim": "Loop bounds as fuel, exactly these loops in these functions (tests_m2/_i18.EXPECTED_LOOPS): (*BatchData).Append range over l1TxHashes (batch_data.go:38, fuel len(l1TxHashes), no exit); (*BatchData).DataHash i < int(cks.blockNum) (:74, fuel that limit); common/batch and common/blob MakeBlobCanonical i < 4096 (blob.go:33, payload.go:31, exits break) and RetrieveBlobBytes i < 4096 (blob.go:47, payload.go:45, exits return); both MakeBlobTxSidecar i < (len(blobBytes) + 126976 - 1) / 126976 (blob.go:89, payload.go:87, exits return); DecodeTxsFromBytes `for {}` (blob.go:120) unbounded, fuel null, exits return, with a loop_bound coverage debt; ParsingTxs range over transactions (batch_cache.go:1755, exits return); aggregateBlobHashes range over hashes (:1791, no exit); (*BatchInfo).ParseBatch range over batch.Sidecar.Blobs (batch_info.go:114) and i < int(blockCount) with blockCount a phi (:209), both exits return; (*Derivation).rebuildBlob n from batchInfo.firstBlockNumber while n <= batchInfo.lastBlockNumber (verify_local.go:159), fuel last - first + 1, exits return.",
+          "check": "tests_m2/test_extract_go.py::TestPredictedLoops::test_loop_bounds"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I18-R1",
+          "claim": "M0, M1 and the earlier M2 outputs do not change: gen/M0 and gen/M1 are byte-identical (I6 GEN_PIN), the M0/M1 records are unchanged modulo seconds and generator hash, gen/M2/diagram, gen/M2/sorts and gen/M2/evidence.json regenerate byte for byte, and the extracted documents are not fact documents of M2 (holon.diagram.fact_documents('M2') lists no *.extracted.json and still lists the three hand documents).",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged and tests_m2/test_target_agnostic.py::TestByteIdentity::test_records_unchanged_modulo_seconds_and_generator_hash and tests_m2/test_diagram.py::TestDiagramFiles::test_regeneration_is_byte_identical and tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files and tests_m2/test_evidence.py::TestEvidenceFile::test_two_runs_are_byte_identical_and_match_the_committed_file and tests_m2/test_extract_go.py::TestExtraction::test_extracted_documents_are_not_fact_documents_of_m2"
+        },
+        {
+          "id": "I18-R2",
+          "claim": "Recorded in docs/CASESTUDY.md (L_par_hdr_v2, citing batch_cache.go:1727-1731): version-2 headers are built by patching byte 0 of BatchHeaderV1.Bytes(). Extracted: morph_batch has exactly one patch, (*BatchCache).createBatchHeaderWithSequencerSetHash calling BatchHeaderV1.Bytes, storing 2 at index 0 (batch_cache.go:1730) and returning the result, under a guard on isBatchV2Upgraded.",
+          "check": "tests_m2/test_extract_go.py::TestRegressions::test_version_2_headers_are_patched_v1_encodings"
+        },
+        {
+          "id": "I18-R3",
+          "claim": "Recorded in results/M1/L_own_txspayload.json (triage_why: both in-repo callers consume the view immediately): held_across and opaque_between are empty at both TxsPayloadV2 call sites.",
+          "check": "tests_m2/test_extract_go.py::TestRegressions::test_txspayloadv2_views_are_not_held_across_a_write"
+        },
+        {
+          "id": "I18-R4",
+          "claim": "Exit (construction check): `python -m holon extract go --milestone M2` writes the five documents in the contract's format (holon-facts/0.3 envelope, frontend go, provenance hashed against the pinned checkout, the generic and primitive assumptions, the term/atom/cell grammar and orderings), they validate against spec/schemas/facts_0_3_go.schema.json (and against I17's spec/schemas/facts_0_3.schema.json whenever it exists), and two runs are byte-identical and equal the committed files.",
+          "check": "tests_m2/test_extract_go.py::TestExtraction::test_cli_writes_one_document_per_config_entry and tests_m2/test_extract_go.py::TestExtraction::test_envelope_and_provenance and tests_m2/test_extract_go.py::TestExtraction::test_assumptions and tests_m2/test_extract_go.py::TestExtraction::test_documents_validate_against_the_go_schema and tests_m2/test_extract_go.py::TestExtraction::test_documents_validate_against_the_shared_envelope_whenever_it_exists and tests_m2/test_extract_go.py::TestExtraction::test_terms_atoms_cells_and_sections_follow_the_grammar and tests_m2/test_extract_go.py::TestExtraction::test_two_runs_are_byte_identical_and_match_the_committed_files",
+          "kind": "construction"
+        },
+        {
+          "id": "I18-R5",
+          "claim": "Construction check (toolchain): holon/frontends/go/ssadump is exactly main.go, go.mod and go.sum, requiring golang.org/x/tools v0.36.0 with the go.sum hashes verified at the prereg (it resolved through the proxy into a scratch module cache, so no vendored tree); no vendor directory, bun configuration or built binary under holon/frontends; the helper is built into ~/.holon/tools/ssadump/<key>/ and prints a deterministic, relative holon-ssadump/0.1 document; a go that is not the pinned version is refused with exit 2 and nothing written; the frozen hygiene scan passes.",
+          "check": "tests_m2/test_extract_go_honesty.py::TestToolchainPin::test_ssadump_holds_exactly_the_pinned_module and tests_m2/test_extract_go_honesty.py::TestToolchainPin::test_no_vendored_tree_and_no_bun_configuration and tests_m2/test_extract_go_honesty.py::TestToolchainPin::test_a_go_that_is_not_the_pinned_version_is_refused and tests_m2/test_extract_go_toy.py::TestSsadumpHelper::test_the_helper_is_generic_relative_and_deterministic and tests/test_12_hygiene.py::TestHygiene::test_no_bun_config_in_repo",
+          "kind": "construction"
+        },
+        {
+          "id": "I18-R6",
+          "claim": "Construction check (planted fixture, expected by construction): on tests_m2/fixtures/go_frontend/toy the extraction gives the planted layouts (tags 7, 8 and the standalone 9), partiality on every toy probe, decoders, the tagged predicate with its matches and its one absence (tag 9, elsewhere use.Stamp), the patch, the open site of Scan from i = 12 and Unsafe's open slice, the safe sites of ScanSafe and the getters, backing cases, writes, stores and lost writes, the call edges (primitive, dynamic, external, in_loops), the flows (Hold held across Add; Copy is no view), the loop table and Forever's loop_bound debt; two runs are byte-identical.",
+          "check": "tests_m2/test_extract_go_toy.py::TestToyDocuments::test_two_documents_valid_and_deterministic and tests_m2/test_extract_go_toy.py::TestToyDocuments::test_primitive_assumption and tests_m2/test_extract_go_toy.py::TestToyDocuments::test_functions_and_path_reasons and tests_m2/test_extract_go_toy.py::TestToyCodecs::test_encoder_layouts and tests_m2/test_extract_go_toy.py::TestToyCodecs::test_partiality_on_probes and tests_m2/test_extract_go_toy.py::TestToyCodecs::test_decoders_predicates_matches_absences and tests_m2/test_extract_go_toy.py::TestToyCodecs::test_patch and tests_m2/test_extract_go_toy.py::TestToyPartialitySites::test_scan_is_open_from_word_12_and_scansafe_is_safe and tests_m2/test_extract_go_toy.py::TestToyPartialitySites::test_unsafe_and_sum and tests_m2/test_extract_go_toy.py::TestToySlices::test_backing_results and tests_m2/test_extract_go_toy.py::TestToySlices::test_writes_stores_lost_writes and tests_m2/test_extract_go_toy.py::TestToyCalls::test_edges and tests_m2/test_extract_go_toy.py::TestToyCalls::test_flows and tests_m2/test_extract_go_toy.py::TestToyLoops::test_loops_and_debt",
+          "kind": "construction"
+        },
+        {
+          "id": "I18-R7",
+          "claim": "Construction check (honesty): the audited Morph run opens, lists and executes nothing under the repository outside holon/, the sidecar, config/holon.json and spec/schemas/ (no frozen facts, no outcome, no earlier output); holon/frontends/go/ holds no sidecar name, Morph identifier, header or blob constant, span or test-oracle import; the sidecar is the only target vocabulary; a semantically mutated copy of the source moves the layouts, accepted points, absences and the O4 site accordingly; renaming six identifiers to same-length tokens renames the output and changes nothing else.",
+          "check": "tests_m2/test_extract_go.py::TestHonesty::test_the_extraction_reads_no_frozen_fact_and_no_outcome and tests_m2/test_extract_go_honesty.py::TestGenericCode::test_the_frontend_holds_no_target_vocabulary and tests_m2/test_extract_go_honesty.py::TestGenericCode::test_the_sidecar_is_the_only_target_vocabulary and tests_m2/test_extract_go_honesty.py::TestMutations::test_a_mutated_source_moves_the_extraction and tests_m2/test_extract_go_honesty.py::TestMutations::test_renaming_identifiers_renames_the_extraction_and_nothing_else",
+          "kind": "construction"
+        },
+        {
+          "id": "I18-R8",
+          "claim": "Construction check (soundness against the real code): on every I18-P2 probe, the 17 BatchHeaderBytes methods the prereg Go instrument calls have the outcome (ok, err, panic) the extracted paths give.",
+          "check": "tests_m2/test_extract_go.py::TestReplay::test_extracted_decoder_partiality_agrees_with_the_real_code",
+          "kind": "construction"
+        },
+        {
+          "id": "I18-R9",
+          "claim": "Recorded, not counted (reclassified from a prediction by the prereg review): whitepaper.md Appendix A F3 ('the Go blob-retrieval error path indexes out of bounds for non-canonical elements at index >= 3968'), §11.3 O4 and docs/build_plan/gap_map.json (O4: common/batch/blob.go:45-54 formats data[i*32] with len(data) = 4096*31; the common/blob copy is defined) already state this outcome. Observed on the real code: with the prereg Go instrument, on kzg blobs whose field element e has a non-zero high-order byte, the real common/batch RetrieveBlobBytes returns an error for e = 0 and 3967 and panics for e = 3968 (runtime error: index out of range [126976] with length 126976) and e = 4095 ([131040] with length 126976); the real common/blob RetrieveBlobBytes returns an error for all four.",
+          "check": "tests_m2/test_extract_go.py::TestReplay::test_the_real_retrieval_panics_from_word_3968"
+        }
+      ],
+      "outcome_paths": [
+        "spec/M2/facts/morph_batch.go.extracted.json",
+        "spec/M2/facts/morph_blob.go.extracted.json",
+        "spec/M2/facts/morph_derivation.go.extracted.json",
+        "spec/M2/facts/morph_genesis.go.extracted.json",
+        "spec/M2/facts/morph_nodetypes.go.extracted.json"
+      ],
+      "tests": [
+        "tests_m2/test_extract_go.py",
+        "tests_m2/test_extract_go_toy.py",
+        "tests_m2/test_extract_go_honesty.py"
+      ],
+      "thresholds": {
+        "go_version": "go version go1.24.7 linux/amd64",
+        "x_tools": "v0.36.0",
+        "max_paths": 512,
+        "inline_depth": 4,
+        "flow_depth": 3,
+        "probe_versions": [
+          0,
+          1,
+          2,
+          3,
+          255
+        ],
+        "probe_cap_extra": 16,
+        "o4_words": [
+          0,
+          3967,
+          3968,
+          4095
+        ]
+      }
     }
   }
 }

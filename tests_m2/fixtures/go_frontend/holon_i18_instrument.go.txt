@@ -1,0 +1,151 @@
+// HOLON I18 prereg instrument (tests_m2/_i18.py run_go_instrument), fixed at the I18 prereg and independent
+// of holon/frontends/go. The test copies it into a scratch copy of morph common/batch at the pinned commit as
+// holon_i18_instrument_test.go and runs
+//   (cd common && HOLON_I18_IN=… HOLON_I18_OUT=… go test ./batch -run '^TestHolonI18Instrument$' -count=1 -v)
+// It calls the real code and records what happens; it compares nothing.
+//
+// Input ($HOLON_I18_IN):  {"probes": [[len, cap, byte0], ...], "words": [e, ...]}
+//   probe: b := make([]byte, len, cap); b[0] = byte0 when len >= 1; every other byte 0.
+//   word e: a kzg4844.Blob whose byte e*32 (the high-order byte of field element e) is 1, every other byte 0.
+// Output ($HOLON_I18_OUT): {"decoders": {method: [outcome per probe]},
+//                           "retrieve": {"common/batch": [outcome per word], "common/blob": [outcome per word]}}
+//   outcome: "ok" (no error), "err" (a non-nil error) or "panic: <recovered value>".
+package batch
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"testing"
+
+	cblob "morph-l2/common/blob"
+
+	"github.com/morph-l2/go-ethereum/crypto/kzg4844"
+)
+
+func holonI18Outcome(f func() error) (out string) {
+	defer func() {
+		if r := recover(); r != nil {
+			out = fmt.Sprintf("panic: %v", r)
+		}
+	}()
+	if err := f(); err != nil {
+		return "err"
+	}
+	return "ok"
+}
+
+func holonI18Decoders() map[string]func(b BatchHeaderBytes) error {
+	return map[string]func(b BatchHeaderBytes) error{
+		"validate": func(b BatchHeaderBytes) error { return b.validate() },
+		"Bytes":    func(b BatchHeaderBytes) error { _ = b.Bytes(); return nil },
+		"Hash":     func(b BatchHeaderBytes) error { _, err := b.Hash(); return err },
+		"Version":  func(b BatchHeaderBytes) error { _, err := b.Version(); return err },
+		"BatchIndex": func(b BatchHeaderBytes) error {
+			_, err := b.BatchIndex()
+			return err
+		},
+		"L1MessagePopped": func(b BatchHeaderBytes) error {
+			_, err := b.L1MessagePopped()
+			return err
+		},
+		"TotalL1MessagePopped": func(b BatchHeaderBytes) error {
+			_, err := b.TotalL1MessagePopped()
+			return err
+		},
+		"DataHash": func(b BatchHeaderBytes) error {
+			_, err := b.DataHash()
+			return err
+		},
+		"BlobVersionedHash": func(b BatchHeaderBytes) error {
+			_, err := b.BlobVersionedHash()
+			return err
+		},
+		"BlobHashesHash": func(b BatchHeaderBytes) error {
+			_, err := b.BlobHashesHash()
+			return err
+		},
+		"BlobCommitHash": func(b BatchHeaderBytes) error {
+			_, err := b.BlobCommitHash()
+			return err
+		},
+		"PrevStateRoot": func(b BatchHeaderBytes) error {
+			_, err := b.PrevStateRoot()
+			return err
+		},
+		"PostStateRoot": func(b BatchHeaderBytes) error {
+			_, err := b.PostStateRoot()
+			return err
+		},
+		"WithdrawalRoot": func(b BatchHeaderBytes) error {
+			_, err := b.WithdrawalRoot()
+			return err
+		},
+		"SequencerSetVerifyHash": func(b BatchHeaderBytes) error {
+			_, err := b.SequencerSetVerifyHash()
+			return err
+		},
+		"ParentBatchHash": func(b BatchHeaderBytes) error {
+			_, err := b.ParentBatchHash()
+			return err
+		},
+		"LastBlockNumber": func(b BatchHeaderBytes) error {
+			_, err := b.LastBlockNumber()
+			return err
+		},
+	}
+}
+
+func TestHolonI18Instrument(t *testing.T) {
+	var in struct {
+		Probes [][3]int `json:"probes"`
+		Words  []int    `json:"words"`
+	}
+	raw, err := os.ReadFile(os.Getenv("HOLON_I18_IN"))
+	if err != nil {
+		t.Fatalf("read input: %v", err)
+	}
+	if err := json.Unmarshal(raw, &in); err != nil {
+		t.Fatalf("parse input: %v", err)
+	}
+	decoders := map[string][]string{}
+	for name, f := range holonI18Decoders() {
+		res := make([]string, 0, len(in.Probes))
+		for _, p := range in.Probes {
+			if p[0] < 0 || p[1] < p[0] {
+				t.Fatalf("bad probe %v", p)
+			}
+			b := make([]byte, p[0], p[1])
+			if p[0] > 0 {
+				b[0] = byte(p[2])
+			}
+			hb := BatchHeaderBytes(b)
+			res = append(res, holonI18Outcome(func() error { return f(hb) }))
+		}
+		decoders[name] = res
+	}
+	retrieve := map[string][]string{"common/batch": {}, "common/blob": {}}
+	for _, e := range in.Words {
+		if e < 0 || e >= 4096 {
+			t.Fatalf("bad word %d", e)
+		}
+		var blob kzg4844.Blob
+		blob[e*32] = 1
+		own, other := blob, blob
+		retrieve["common/batch"] = append(retrieve["common/batch"], holonI18Outcome(func() error {
+			_, err := RetrieveBlobBytes(&own)
+			return err
+		}))
+		retrieve["common/blob"] = append(retrieve["common/blob"], holonI18Outcome(func() error {
+			_, err := cblob.RetrieveBlobBytes(&other)
+			return err
+		}))
+	}
+	out, err := json.Marshal(map[string]interface{}{"decoders": decoders, "retrieve": retrieve})
+	if err != nil {
+		t.Fatalf("encode output: %v", err)
+	}
+	if err := os.WriteFile(os.Getenv("HOLON_I18_OUT"), out, 0o644); err != nil {
+		t.Fatalf("write output: %v", err)
+	}
+}

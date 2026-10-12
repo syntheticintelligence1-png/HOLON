@@ -1,0 +1,27 @@
+{
+  "config_version": "holon-go-frontend/0.1",
+  "doc": "Config of the planted toy (tests_m2/test_extract_go_toy.py). Same format as spec/M2/lib/go_frontend.json. The package toy.local/fixture/prim is in no document, so its ToWord is a call outside the analyzed packages whose semantics this config declares (a to_array primitive of width 4).",
+  "target": {
+    "repo": "holon/toy-fixture",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "source": {
+    "path": "tests_m2/fixtures/go_frontend/toy"
+  },
+  "documents": {
+    "toy_codec": ["toy.local/fixture/codec"],
+    "toy_use": ["toy.local/fixture/use"]
+  },
+  "primitives": {
+    "toy.local/fixture/prim.ToWord": {
+      "kind": "to_array",
+      "width": 4,
+      "text": "ToWord(b) is the 4-byte array holding b right-aligned; for len(b) == 4 element k is b[k]."
+    }
+  },
+  "limits": {
+    "max_paths": 512,
+    "inline_depth": 4,
+    "flow_depth": 3
+  }
+}

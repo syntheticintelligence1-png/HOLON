@@ -1,0 +1,31 @@
+{
+  "sidecar_version": 1,
+  "frontend": "solidity",
+  "doc": "The only target-facing input of the I17 Solidity frontend (holon/frontends/solidity), frozen in the I17 preregistration before any extraction ran (BUILD_PLAN 0.1: instruments are inputs). It names what to extract, never what the extraction says: the source unit to compile, the compiler settings, and per edge its kind, its input, the entry function the walker starts from and the selected sink, a keccak256 named by its call stack of source spans from the entry (rule W10 of tests_m2/test_extract_solidity_layout.py). It holds no offset, width, length, field name, condition or revert reason: those come from the compiler's AST and inline-assembly Yul of the pinned checkout. Edge names are the labels the frozen M0 facts use for the same code (enc_sol) or new ones (load_sol), so that the tests can compare.",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "scope": "batch header codec, Solidity side: the commit-path header encoder and the header loader"
+  },
+  "output": "spec/M2/facts/morph_header.extracted.json",
+  "sources": ["contracts/contracts/l1/rollup/Rollup.sol"],
+  "compiler": {
+    "version": "0.8.24",
+    "settings": {"evmVersion": "cancun", "optimizer": {"enabled": false}}
+  },
+  "edges": {
+    "enc_sol": {
+      "kind": "encoder",
+      "from": "Header",
+      "entry": {"contract": "Rollup", "function": "_commitBatchWithBatchData"},
+      "sink": ["contracts/contracts/l1/rollup/Rollup.sol:357", "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"]
+    },
+    "load_sol": {
+      "kind": "loader",
+      "from": "Bytes",
+      "input": "_batchHeader",
+      "entry": {"contract": "Rollup", "function": "_loadBatchHeader"},
+      "sink": ["contracts/contracts/l1/rollup/Rollup.sol:849", "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"]
+    }
+  }
+}

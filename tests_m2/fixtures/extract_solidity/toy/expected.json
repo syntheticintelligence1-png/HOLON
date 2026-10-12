@@ -1,0 +1,1106 @@
+{
+  "assumptions": [
+    {
+      "id": "A-dirty"
+    },
+    {
+      "id": "A-env"
+    },
+    {
+      "id": "A-implicit"
+    },
+    {
+      "fields": [
+        "seq"
+      ],
+      "id": "A-width:Pkt",
+      "record": "Pkt"
+    }
+  ],
+  "doc": "Expected extraction of the planted toy (tests_m2/fixtures/extract_solidity/toy/src), derived by hand from the toy source and the rules of tests_m2/test_extract_solidity_layout.py before any extractor existed. Sets, not orders, are compared for paths, sinks and debt; ops are compared in program order. A layout run [kind, name, from, count] expands to count cells (field: [\"field\", name, from + k]; const: [\"const\", name]; unknown: [\"unknown\"]).",
+  "edges": {
+    "enc_bad": {
+      "debt": [
+        {
+          "construct": "YulSwitch",
+          "fn": "Toy._emitBad",
+          "kind": "construct",
+          "src": "src/Toy.sol:105-111",
+          "stack": [
+            "src/Toy.sol:105-111"
+          ]
+        }
+      ],
+      "entry_fn": "Toy._emitBad",
+      "exact": false,
+      "from": "BadIn",
+      "kind": "encoder",
+      "lang": "solidity-evm-memory",
+      "layouts": {
+        "*": [
+          [
+            "unknown",
+            null,
+            0,
+            32
+          ]
+        ]
+      },
+      "memory_init": "dirty",
+      "oks": [
+        {
+          "cond": [],
+          "length": 32,
+          "ops": [],
+          "outcome": "ok"
+        }
+      ],
+      "reverts": [],
+      "selector": null,
+      "sink": {
+        "op": "keccak256",
+        "stack": [
+          "src/Toy.sol:112"
+        ]
+      },
+      "to": "Bytes",
+      "walk": {
+        "debt": [
+          {
+            "construct": "YulSwitch",
+            "fn": "Toy._emitBad",
+            "kind": "construct",
+            "src": "src/Toy.sol:105-111",
+            "stack": [
+              "src/Toy.sol:105-111"
+            ]
+          }
+        ],
+        "functions": [
+          "Toy._emitBad"
+        ],
+        "paths": {
+          "ok": 1,
+          "other": 0,
+          "revert": 0
+        },
+        "sinks": [
+          {
+            "op": "keccak256",
+            "selected": true,
+            "stack": [
+              "src/Toy.sol:112"
+            ]
+          }
+        ]
+      }
+    },
+    "enc_toy": {
+      "debt": [],
+      "entry_fn": "Toy._emitPkt",
+      "exact": true,
+      "from": "Pkt",
+      "kind": "encoder",
+      "lang": "solidity-evm-memory",
+      "layouts": {
+        "0": [
+          [
+            "field",
+            "kind",
+            0,
+            1
+          ],
+          [
+            "field",
+            "seq",
+            0,
+            8
+          ],
+          [
+            "field",
+            "flags",
+            0,
+            4
+          ],
+          [
+            "const",
+            0,
+            4
+          ],
+          [
+            "field",
+            "root",
+            0,
+            32
+          ]
+        ],
+        "1": [
+          [
+            "field",
+            "kind",
+            0,
+            1
+          ],
+          [
+            "field",
+            "seq",
+            0,
+            8
+          ],
+          [
+            "field",
+            "flags",
+            0,
+            4
+          ],
+          [
+            "const",
+            0,
+            4
+          ],
+          [
+            "field",
+            "root",
+            0,
+            32
+          ]
+        ],
+        "2": [
+          [
+            "field",
+            "kind",
+            0,
+            1
+          ],
+          [
+            "field",
+            "seq",
+            0,
+            8
+          ],
+          [
+            "field",
+            "flags",
+            0,
+            4
+          ],
+          [
+            "const",
+            0,
+            4
+          ],
+          [
+            "field",
+            "root",
+            0,
+            32
+          ],
+          [
+            "field",
+            "extra",
+            0,
+            8
+          ]
+        ],
+        "3": [
+          [
+            "field",
+            "kind",
+            0,
+            1
+          ],
+          [
+            "field",
+            "seq",
+            0,
+            8
+          ],
+          [
+            "field",
+            "flags",
+            0,
+            4
+          ],
+          [
+            "const",
+            0,
+            4
+          ],
+          [
+            "field",
+            "root",
+            0,
+            32
+          ],
+          [
+            "field",
+            "extra",
+            0,
+            8
+          ]
+        ]
+      },
+      "memory_init": "dirty",
+      "none_from": 4,
+      "oks": [
+        {
+          "cond": [
+            [
+              "<=",
+              "kind",
+              3
+            ],
+            [
+              "!=",
+              "root",
+              0
+            ],
+            [
+              ">=",
+              "kind",
+              2
+            ]
+          ],
+          "length": 57,
+          "ops": [
+            {
+              "offset": 0,
+              "op": "mstore8",
+              "origin": {
+                "fn": "PktCodec.putKind",
+                "src": "src/PktCodec.sol:37",
+                "stack": [
+                  "src/Toy.sol:48",
+                  "src/Toy.sol:65",
+                  "src/PktCodec.sol:37"
+                ]
+              },
+              "src": [
+                {
+                  "field": "kind",
+                  "from": 0,
+                  "len": 1
+                }
+              ],
+              "width": 1
+            },
+            {
+              "offset": 1,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putSeq",
+                "src": "src/PktCodec.sol:43",
+                "stack": [
+                  "src/Toy.sol:49",
+                  "src/PktCodec.sol:43"
+                ]
+              },
+              "src": [
+                {
+                  "field": "seq",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 9,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putFlags",
+                "src": "src/PktCodec.sol:49",
+                "stack": [
+                  "src/Toy.sol:50",
+                  "src/PktCodec.sol:49"
+                ]
+              },
+              "src": [
+                {
+                  "field": "flags",
+                  "from": 0,
+                  "len": 4
+                },
+                {
+                  "zeros": 28
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 13,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putPad",
+                "src": "src/PktCodec.sol:55",
+                "stack": [
+                  "src/Toy.sol:51",
+                  "src/PktCodec.sol:55"
+                ]
+              },
+              "src": [
+                {
+                  "zeros": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 17,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putRoot",
+                "src": "src/PktCodec.sol:61",
+                "stack": [
+                  "src/Toy.sol:52",
+                  "src/PktCodec.sol:61"
+                ]
+              },
+              "src": [
+                {
+                  "zeros": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 17,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putRoot",
+                "src": "src/PktCodec.sol:61",
+                "stack": [
+                  "src/Toy.sol:53",
+                  "src/PktCodec.sol:61"
+                ]
+              },
+              "src": [
+                {
+                  "field": "root",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 49,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putExtra",
+                "src": "src/PktCodec.sol:67",
+                "stack": [
+                  "src/Toy.sol:55",
+                  "src/PktCodec.sol:67"
+                ]
+              },
+              "src": [
+                {
+                  "field": "extra",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            }
+          ],
+          "outcome": "ok"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "kind",
+              3
+            ],
+            [
+              "!=",
+              "root",
+              0
+            ],
+            [
+              "!",
+              [
+                ">=",
+                "kind",
+                2
+              ]
+            ]
+          ],
+          "length": 49,
+          "ops": [
+            {
+              "offset": 0,
+              "op": "mstore8",
+              "origin": {
+                "fn": "PktCodec.putKind",
+                "src": "src/PktCodec.sol:37",
+                "stack": [
+                  "src/Toy.sol:48",
+                  "src/Toy.sol:65",
+                  "src/PktCodec.sol:37"
+                ]
+              },
+              "src": [
+                {
+                  "field": "kind",
+                  "from": 0,
+                  "len": 1
+                }
+              ],
+              "width": 1
+            },
+            {
+              "offset": 1,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putSeq",
+                "src": "src/PktCodec.sol:43",
+                "stack": [
+                  "src/Toy.sol:49",
+                  "src/PktCodec.sol:43"
+                ]
+              },
+              "src": [
+                {
+                  "field": "seq",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 9,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putFlags",
+                "src": "src/PktCodec.sol:49",
+                "stack": [
+                  "src/Toy.sol:50",
+                  "src/PktCodec.sol:49"
+                ]
+              },
+              "src": [
+                {
+                  "field": "flags",
+                  "from": 0,
+                  "len": 4
+                },
+                {
+                  "zeros": 28
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 13,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putPad",
+                "src": "src/PktCodec.sol:55",
+                "stack": [
+                  "src/Toy.sol:51",
+                  "src/PktCodec.sol:55"
+                ]
+              },
+              "src": [
+                {
+                  "zeros": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 17,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putRoot",
+                "src": "src/PktCodec.sol:61",
+                "stack": [
+                  "src/Toy.sol:52",
+                  "src/PktCodec.sol:61"
+                ]
+              },
+              "src": [
+                {
+                  "zeros": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 17,
+              "op": "mstore",
+              "origin": {
+                "fn": "PktCodec.putRoot",
+                "src": "src/PktCodec.sol:61",
+                "stack": [
+                  "src/Toy.sol:53",
+                  "src/PktCodec.sol:61"
+                ]
+              },
+              "src": [
+                {
+                  "field": "root",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            }
+          ],
+          "outcome": "ok"
+        }
+      ],
+      "reverts": [
+        {
+          "cond": [
+            [
+              "!",
+              [
+                "<=",
+                "kind",
+                3
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "bad kind",
+          "src": "src/Toy.sol:29"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "kind",
+              3
+            ],
+            [
+              "!",
+              [
+                "!=",
+                "root",
+                0
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "zero root",
+          "src": "src/Toy.sol:30"
+        }
+      ],
+      "selector": "kind",
+      "sink": {
+        "op": "keccak256",
+        "stack": [
+          "src/Toy.sol:57",
+          "src/PktCodec.sol:73"
+        ]
+      },
+      "to": "Maybe<Bytes>",
+      "walk": {
+        "debt": [
+          {
+            "construct": "ForStatement",
+            "fn": "Toy._mix",
+            "kind": "loop",
+            "src": "src/Toy.sol:91-93",
+            "stack": [
+              "src/Toy.sol:35",
+              "src/Toy.sol:91-93"
+            ]
+          }
+        ],
+        "functions": [
+          "PktCodec.digest",
+          "PktCodec.getSeq",
+          "PktCodec.load",
+          "PktCodec.loadLong",
+          "PktCodec.putExtra",
+          "PktCodec.putFlags",
+          "PktCodec.putKind",
+          "PktCodec.putPad",
+          "PktCodec.putRoot",
+          "PktCodec.putSeq",
+          "Toy._emitPkt",
+          "Toy._loadPkt",
+          "Toy._mix",
+          "Toy._stamp"
+        ],
+        "paths": {
+          "ok": 8,
+          "other": 0,
+          "revert": 10
+        },
+        "sinks": [
+          {
+            "op": "keccak256",
+            "selected": false,
+            "stack": [
+              "src/Toy.sol:31",
+              "src/Toy.sol:79",
+              "src/PktCodec.sol:73"
+            ]
+          },
+          {
+            "op": "keccak256",
+            "selected": false,
+            "stack": [
+              "src/Toy.sol:35",
+              "src/Toy.sol:96"
+            ]
+          },
+          {
+            "op": "keccak256",
+            "selected": true,
+            "stack": [
+              "src/Toy.sol:57",
+              "src/PktCodec.sol:73"
+            ]
+          }
+        ]
+      }
+    },
+    "load_toy": {
+      "debt": [],
+      "entry_fn": "Toy._loadPkt",
+      "exact": true,
+      "from": "Bytes",
+      "grid": {
+        "lengths": [
+          0,
+          1,
+          48,
+          49,
+          50,
+          56,
+          57,
+          58,
+          100
+        ],
+        "rule": "L == 0: empty; b0 in {0,1}: ok iff L >= 49 else pkt short; b0 in {2,3}: ok iff L == 57 else pkt length; b0 >= 4: unknown kind"
+      },
+      "input": "prev",
+      "kind": "loader",
+      "lang": "solidity-evm-memory",
+      "memory_init": "dirty",
+      "oks": [
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "prev"
+              ],
+              0
+            ],
+            [
+              "<",
+              [
+                "byte",
+                "prev",
+                0
+              ],
+              2
+            ],
+            [
+              ">=",
+              [
+                "len",
+                "prev"
+              ],
+              49
+            ]
+          ],
+          "length": [
+            "len",
+            "prev"
+          ],
+          "ops": [
+            {
+              "offset": 0,
+              "op": "calldatacopy",
+              "origin": {
+                "fn": "PktCodec.load",
+                "src": "src/PktCodec.sol:14",
+                "stack": [
+                  "src/Toy.sol:73",
+                  "src/PktCodec.sol:14"
+                ]
+              },
+              "src": [
+                {
+                  "from": 0,
+                  "input": "prev",
+                  "len": [
+                    "len",
+                    "prev"
+                  ]
+                }
+              ],
+              "width": [
+                "len",
+                "prev"
+              ]
+            }
+          ],
+          "outcome": "ok"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "prev"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "<",
+                [
+                  "byte",
+                  "prev",
+                  0
+                ],
+                2
+              ]
+            ],
+            [
+              "||",
+              [
+                "==",
+                [
+                  "byte",
+                  "prev",
+                  0
+                ],
+                2
+              ],
+              [
+                "==",
+                [
+                  "byte",
+                  "prev",
+                  0
+                ],
+                3
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                "prev"
+              ],
+              57
+            ]
+          ],
+          "length": [
+            "len",
+            "prev"
+          ],
+          "ops": [
+            {
+              "offset": 0,
+              "op": "calldatacopy",
+              "origin": {
+                "fn": "PktCodec.loadLong",
+                "src": "src/PktCodec.sol:24",
+                "stack": [
+                  "src/Toy.sol:75",
+                  "src/PktCodec.sol:24"
+                ]
+              },
+              "src": [
+                {
+                  "from": 0,
+                  "input": "prev",
+                  "len": [
+                    "len",
+                    "prev"
+                  ]
+                }
+              ],
+              "width": [
+                "len",
+                "prev"
+              ]
+            }
+          ],
+          "outcome": "ok"
+        }
+      ],
+      "reverts": [
+        {
+          "cond": [
+            [
+              "!",
+              [
+                ">",
+                [
+                  "len",
+                  "prev"
+                ],
+                0
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "empty",
+          "src": "src/Toy.sol:69"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "prev"
+              ],
+              0
+            ],
+            [
+              "<",
+              [
+                "byte",
+                "prev",
+                0
+              ],
+              2
+            ],
+            [
+              "!",
+              [
+                ">=",
+                [
+                  "len",
+                  "prev"
+                ],
+                49
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "pkt short",
+          "src": "src/PktCodec.sol:11"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "prev"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "<",
+                [
+                  "byte",
+                  "prev",
+                  0
+                ],
+                2
+              ]
+            ],
+            [
+              "||",
+              [
+                "==",
+                [
+                  "byte",
+                  "prev",
+                  0
+                ],
+                2
+              ],
+              [
+                "==",
+                [
+                  "byte",
+                  "prev",
+                  0
+                ],
+                3
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "len",
+                  "prev"
+                ],
+                57
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "pkt length",
+          "src": "src/PktCodec.sol:21"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "prev"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "<",
+                [
+                  "byte",
+                  "prev",
+                  0
+                ],
+                2
+              ]
+            ],
+            [
+              "!",
+              [
+                "||",
+                [
+                  "==",
+                  [
+                    "byte",
+                    "prev",
+                    0
+                  ],
+                  2
+                ],
+                [
+                  "==",
+                  [
+                    "byte",
+                    "prev",
+                    0
+                  ],
+                  3
+                ]
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "unknown kind",
+          "src": "src/Toy.sol:77"
+        }
+      ],
+      "sink": {
+        "op": "keccak256",
+        "stack": [
+          "src/Toy.sol:79",
+          "src/PktCodec.sol:73"
+        ]
+      },
+      "to": "Maybe<Bytes>",
+      "walk": {
+        "debt": [],
+        "functions": [
+          "PktCodec.digest",
+          "PktCodec.load",
+          "PktCodec.loadLong",
+          "Toy._loadPkt"
+        ],
+        "paths": {
+          "ok": 2,
+          "other": 0,
+          "revert": 4
+        },
+        "sinks": [
+          {
+            "op": "keccak256",
+            "selected": true,
+            "stack": [
+              "src/Toy.sol:79",
+              "src/PktCodec.sol:73"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "failure": {
+    "exit": 3,
+    "names": "enc_env",
+    "sidecar": "tests_m2/fixtures/extract_solidity/toy/extract_env.json"
+  },
+  "frontend_version": "holon-frontend-solidity/0.1",
+  "inputs": [
+    "src/PktCodec.sol",
+    "src/Toy.sol"
+  ],
+  "types": {
+    "BadIn": {
+      "fields": [],
+      "kind": "record"
+    },
+    "Bytes": {
+      "kind": "bytes"
+    },
+    "Pkt": {
+      "fields": [
+        {
+          "name": "kind",
+          "truncates": false,
+          "value_bits": 8,
+          "value_type": "uint8",
+          "width": 1
+        },
+        {
+          "name": "seq",
+          "truncates": true,
+          "value_bits": 256,
+          "value_type": "uint256",
+          "width": 8
+        },
+        {
+          "name": "flags",
+          "truncates": false,
+          "value_bits": 32,
+          "value_type": "uint32",
+          "width": 4
+        },
+        {
+          "name": "root",
+          "truncates": false,
+          "value_bits": 256,
+          "value_type": "bytes32",
+          "width": 32
+        },
+        {
+          "name": "extra",
+          "truncates": false,
+          "value_bits": 64,
+          "value_type": "uint64",
+          "width": 8
+        }
+      ],
+      "kind": "record"
+    }
+  }
+}

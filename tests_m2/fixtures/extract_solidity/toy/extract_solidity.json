@@ -1,0 +1,30 @@
+{
+  "sidecar_version": 1,
+  "frontend": "solidity",
+  "doc": "Planted fixture (HOLON I17 prereg): a toy packet codec written for the test, not target code. Its extraction is known by construction and stated in expected.json; tests_m2/test_extract_solidity_toy.py runs it with --source tests_m2/fixtures/extract_solidity/toy and --out in a scratch directory. commit null: the toy is not a git checkout, so no commit is checked.",
+  "target": {"repo": "holon-test/toy-packet", "commit": null, "scope": "toy packet codec (planted fixture)"},
+  "output": "tests_m2/fixtures/extract_solidity/toy/toy.extracted.json",
+  "sources": ["src/Toy.sol"],
+  "compiler": {"version": "0.8.24", "settings": {"evmVersion": "cancun", "optimizer": {"enabled": false}}},
+  "edges": {
+    "enc_toy": {
+      "kind": "encoder",
+      "from": "Pkt",
+      "entry": {"contract": "Toy", "function": "_emitPkt"},
+      "sink": ["src/Toy.sol:57", "src/PktCodec.sol:73"]
+    },
+    "load_toy": {
+      "kind": "loader",
+      "from": "Bytes",
+      "input": "_prev",
+      "entry": {"contract": "Toy", "function": "_loadPkt"},
+      "sink": ["src/Toy.sol:79", "src/PktCodec.sol:73"]
+    },
+    "enc_bad": {
+      "kind": "encoder",
+      "from": "BadIn",
+      "entry": {"contract": "Toy", "function": "_emitBad"},
+      "sink": ["src/Toy.sol:112"]
+    }
+  }
+}

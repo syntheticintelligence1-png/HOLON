@@ -1,0 +1,40 @@
+{
+  "config_version": "holon-go-frontend/0.1",
+  "doc": "Target sidecar of the I18 Go frontend (frozen at the I18 prereg; contract: the docstring of tests_m2/test_extract_go.py). It is the only place the Morph vocabulary of the Go extraction lives: which Go packages are extracted into which document of spec/M2/facts/<stem>.go.extracted.json, where the source tree is found, and the declared semantics of the dependency functions the frontend treats as primitives (each one used becomes a go-prim:<name> assumption of the document). holon/frontends/go/ holds none of these names. Every package of every document is loaded and analyzed in every run, whichever documents are written.",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "source": {
+    "config": "config/holon.json",
+    "key": ["replay", "morph"]
+  },
+  "documents": {
+    "morph_batch": ["morph-l2/common/batch"],
+    "morph_blob": ["morph-l2/common/blob", "morph-l2/common/codec/zstd"],
+    "morph_derivation": ["morph-l2/node/derivation"],
+    "morph_genesis": ["morph-l2/morph-deployer/morph-chain-ops/genesis"],
+    "morph_nodetypes": ["morph-l2/node/types"]
+  },
+  "primitives": {
+    "github.com/morph-l2/go-ethereum/common.BytesToHash": {
+      "kind": "to_array",
+      "width": 32,
+      "text": "BytesToHash(b) is the 32-byte array holding b right-aligned (common/types.go: SetBytes crops b to its last 32 bytes, then copies it to h[32-len(b):]); for len(b) == 32 element k is b[k]."
+    },
+    "github.com/morph-l2/go-ethereum/crypto.Keccak256Hash": {
+      "kind": "hash",
+      "text": "Keccak256Hash(data...) is the keccak-256 digest of the concatenated arguments: an opaque HASH sink; it reads its arguments and retains none of them."
+    },
+    "(github.com/morph-l2/go-ethereum/common.Hash).Bytes": {
+      "kind": "array_bytes",
+      "width": 32,
+      "text": "Hash.Bytes() has a value receiver and returns h[:], a 32-byte slice over the receiver's copy: a fresh backing array whose element k is h[k]."
+    }
+  },
+  "limits": {
+    "max_paths": 512,
+    "inline_depth": 4,
+    "flow_depth": 3
+  }
+}
