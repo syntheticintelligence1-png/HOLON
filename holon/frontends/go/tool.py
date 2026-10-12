@@ -76,7 +76,8 @@ def build_tool() -> Path:
     return binary
 
 
-def run_dump(morph_dir: Path, packages: list[str], cache: bool = True) -> dict:
+def run_dump(morph_dir: Path, packages: list[str], cache: bool = True,
+             debug: bool = False) -> dict:
     """Run gossa over ``packages`` under ``morph_dir``; returns the dump dict.
 
     The dump is cached per (morph_dir, packages, tool-hash) so repeated
@@ -85,7 +86,7 @@ def run_dump(morph_dir: Path, packages: list[str], cache: bool = True) -> dict:
     binary = build_tool()
     tag = _source_hash()
     key = hashlib.sha256(
-        (str(morph_dir.resolve()) + "|" + "|".join(packages)).encode()
+        (str(morph_dir.resolve()) + "|" + "|".join(packages) + f"|debug={debug}").encode()
     ).hexdigest()[:16]
     out = _cache_dir() / f"gossa-out-{tag}-{key}.json"
     if cache and out.exists():
@@ -102,6 +103,7 @@ def run_dump(morph_dir: Path, packages: list[str], cache: bool = True) -> dict:
     env.setdefault("GOMODCACHE", str(Path(gopath) / "pkg" / "mod"))
     proc = subprocess.run(
         [str(binary), "--dir", str(morph_dir)]
+        + (["--debug"] if debug else [])
         + sum((["--pkg", p] for p in packages), [])
         + ["--out", str(out)],
         env=env, capture_output=True, text=True,

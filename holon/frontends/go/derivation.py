@@ -50,115 +50,50 @@ def _alloc_aliases(fn):
 
 
 def _call_label(callee):
-    table = (
-        ("BatchHeaderBytes).BatchIndex", "parentHeader.BatchIndex"),
-        ("BatchHeaderBytes).TotalL1MessagePopped", "parentHeader.TotalL1MessagePopped"),
-        ("BatchHeaderBytes).Version", "parentHeader.Version"),
-        ("BatchHeaderBytes).LastBlockNumber", "parentHeader.LastBlockNumber"),
-        ("zstd.DecompressBatchBytes", "zstd.DecompressBatchBytes"),
-        ("derivation.BlockContext).Decode", "BlockContext.Decode"),
-        ("common/batch.RetrieveBlobBytes", "batch.RetrieveBlobBytes"),
-        ("common/blob.RetrieveBlobBytes", "blob.RetrieveBlobBytes"),
-        ("common/batch.DecodeTxsFromBytes", "batch.DecodeTxsFromBytes"),
-        ("binary.BigEndian.Uint16", "be16"),
-        ("binary.BigEndian.Uint64", "be64"),
-        ("binary.Read", "binary.Read"),
-        ("rlp.DecodeBytes", "rlp.DecodeBytes"),
-        ("decodeTypedTx", "decodeTypedTx"),
-        ("decodeMorphTx", "decodeMorphTx"),
-        ("extractInnerTxFullBytes", "extractInnerTxFullBytes"),
-        ("CompressBatchBytes", "CompressBatchBytes"),
-        ("combinePayloads", "combinePayloads"),
-        ("HeightFromBlockContextBytes", "HeightFromBlockContextBytes"),
-        ("Uint64ToBigEndianBytes", "be64"),
-        ("Uint16ToBigEndianBytes", "be16"),
-        ("crypto.Keccak256Hash", "Keccak256Hash"),
-        ("fmt.Errorf", "fmt.Errorf"),
-    )
-    for needle, name in table:
-        if needle in callee:
-            return name
-    return callee.rsplit("/", 1)[-1]
-
-
-def _result_names(callee):
-    """Return names for result .0/.1 of a two-result oracle/call."""
-    if "BatchIndex" in callee:
-        return "parentIndex", "parentIndexErr"
-    if "TotalL1MessagePopped" in callee:
-        return "parentTotalL1Popped", "parentTotalL1PoppedErr"
-    if "BatchHeaderBytes).Version" in callee:
-        return "parentVersion", "parentVersionErr"
-    if "BatchHeaderBytes).LastBlockNumber" in callee:
-        return "parentLastBlock", "parentLastBlockErr"
-    if "DecompressBatchBytes" in callee:
-        return "batchBytes", "decompressErr"
-    if "RetrieveBlobBytes" in callee:
-        return "blobBytes", "retrieveBlobErr"
-    if "DecodeTxsFromBytes" in callee:
-        return "decodedTxs", "decodeTxsErr"
-    if "decodeTypedTx" in callee:
-        return "typedTx", "typedTxErr"
-    if "decodeMorphTx" in callee:
-        return "morphTx", "morphTxErr"
-    if "extractInnerTxFullBytes" in callee:
-        return "innerTxBytes", "innerTxErr"
-    if "HeightFromBlockContextBytes" in callee:
-        return "height", "heightErr"
-    if "CompressBatchBytes" in callee:
-        return "compressed", "compressErr"
-    return None, None
+    """Render a canonical callee id without per-callee aliases."""
+    if callee.startswith("builtin."):
+        return callee.split(".", 1)[1]
+    tail = callee.rsplit("/", 1)[-1]
+    if ")." in tail:
+        recv, meth = tail.rsplit(").", 1)
+        recv = recv.split(".")[-1].lstrip("*(")
+        return f"{recv}.{meth}"
+    parts = tail.split(".")
+    return ".".join(parts[-2:]) if len(parts) > 1 else tail
 
 
 def _local_names(fn):
-    """Semantic names for phis, cycle cells, allocations, and selector loads."""
+    """Name SSA values from the dump's DebugRef records."""
     alloc_names = dict(_alloc_aliases(fn))
     named_exprs = {}
     cycle_names = {}
     dyn_names = {}
 
-    if fn.name == "ParseBatch":
-        alloc_names.update({171: "startBlock", 373: "block", 89: "blob_i"})
-        phi_names = {82: "compressed", 85: "i_prev", 133: "computedBlockCount",
-                     255: "blockCount", 258: "rawBlockContexts", 260: "txsData",
-                     363: "txsNum", 366: "l1MsgNum", 369: "i"}
-        cycle_names = {82: "compressed", 85: "i_prev", 363: "txsNum",
-                       366: "l1MsgNum", 369: "i"}
-        if fn.instr(84):
-            named_exprs[M.expr(fn, 84)] = "i"
-    elif fn.name == "RetrieveBlobBytes":
-        alloc_names.update({1: "data", 24: "fmtArgs"})
-        phi_names = {7: "i"}
-        cycle_names = {7: "i"}
-        named_exprs[("slice", ("alloc", 1), ("nil",),
-                     ("const", 126976, "int", ""), ("nil",))] = "data"
-    elif fn.name == "DecodeTxsFromBytes":
-        alloc_names.update({10: "typeByte", 2: "txs", 62: "tx", 74: "tx",
-                            101: "innerTx", 111: "tx"})
-        phi_names = {9: "txs"}
-        cycle_names = {6: "txs", 7: "txs", 8: "txs", 9: "txs"}
-    elif fn.name == "DataHash":
-        alloc_names.update({36: "hashArg"})
-        phi_names = {13: "bz", 16: "i"}
-        cycle_names = {13: "bz", 16: "i"}
-    elif fn.name == "DataHashV2":
-        alloc_names.update({10: "fmtArgs", 37: "fmtArgs"})
-        phi_names = {}
-    elif fn.name == "calculateHash":
-        alloc_names.update({24: "hashArg"})
-        phi_names = {}
-    elif fn.name == "combinePayloads":
-        phi_names = {}
-    else:
-        phi_names = {}
-        # Any remaining argument slices used only for fmt.Errorf are fmtArgs.
-        for i in fn.d["instrs"]:
-            if i["op"] == "alloc" and ("any" in i.get("type", "")):
-                alloc_names[i["id"]] = "fmtArgs"
+    for ref in fn.d.get("debug_refs", []):
+        name = ref.get("name")
+        vid = ref.get("value")
+        ins = fn.instr(vid)
+        if not name or ins is None or not ref.get("is_var"):
+            continue
+        if ref.get("is_addr"):
+            if ins["op"] == "alloc":
+                alloc_names[vid] = name
+            continue
+        if ins["op"] == "const":
+            continue
+        named_exprs[M.expr(fn, vid)] = name
+        if ins["op"] == "phi":
+            cycle_names[vid] = name
 
-    for iid, name in phi_names.items():
-        if fn.instr(iid):
-            named_exprs[M.expr(fn, iid)] = name
+    # Anonymous variadic vectors have no source identifier; name their role,
+    # not a per-function SSA id, so unrelated instruction shifts do not leak
+    # into extracted expressions.
+    for ins in fn.d["instrs"]:
+        if ins["op"] != "call" or not ins.get("fn", "").endswith("fmt.Errorf"):
+            continue
+        e = M.expr(fn, ins["id"])
+        if len(e[2]) > 1 and e[2][1][0] == "slice" and e[2][1][1][0] == "alloc":
+            alloc_names[e[2][1][1][1]] = "fmtArgs"
 
     # Dynamic calls are encoded as dyn.*tNNN.  Resolve each to the nearest
     # earlier function-valued load in the same block (e.g. bc.isBatchUpgraded).
@@ -201,7 +136,7 @@ def _expr_text(e, alloc_names=None, named_exprs=None, cycle_names=None,
     if tag == "global":
         return e[1]
     if tag == "alloc":
-        return alloc_names.get(e[1], f"alloc{e[1]}")
+        return alloc_names.get(e[1], f"v{e[1]}")
     if tag in ("call", "builtin"):
         name = dyn_names.get(e[1], _call_label(e[1]))
         return f"{name}(" + ", ".join(rec(a) for a in e[2]) + ")"
@@ -220,13 +155,7 @@ def _expr_text(e, alloc_names=None, named_exprs=None, cycle_names=None,
     if tag == "cast":
         return rec(e[2])
     if tag == "extract":
-        base, idx = e[1], e[2]
-        if base and base[0] == "call":
-            r0, r1 = _result_names(base[1])
-            named = r0 if idx == 0 else r1
-            if named:
-                return named
-        return f"{rec(base)}.{idx}"
+        return f"{rec(e[1])}.{e[2]}"
     if tag == "phi":
         return "phi(" + "|".join(rec(a) for a in e[1]) + ")"
     if tag == "makeslice":
@@ -250,6 +179,12 @@ def _names(fn):
 
 def _text(fn, e):
     return _expr_text(e, *_names(fn))
+
+
+def _text_unnamed(fn, e):
+    names = _names(fn)
+    named = {k: v for k, v in names[1].items() if k != e}
+    return _expr_text(e, names[0], named, names[2], names[3])
 
 
 def _cond_text(fn, c):
@@ -365,11 +300,40 @@ def _phi_branches(fn, seq, phi_id):
     target = ins["block"]
     out = []
     for pred, vid in ins.get("edges") or []:
+        e = M.expr(fn, vid)
         out.append({"predecessor_block": pred,
                     "path_condition": _path(fn, _edge_conditions(fn, seq, pred, target)),
-                    "value": _text(fn, M.expr(fn, vid)),
+                    "value": _text_unnamed(fn, e),
+                    "source_name": _text(fn, e),
                     "line": _expr_line(fn, vid)})
     return out
+
+
+def _named_instrs(fn, name, op=None):
+    ids = []
+    for ref in fn.d.get("debug_refs", []):
+        if ref.get("name") != name or ref.get("value") in ids:
+            continue
+        ins = fn.instr(ref["value"])
+        if ins is not None and (op is None or ins["op"] == op):
+            ids.append(ref["value"])
+    return sorted(ids)
+
+
+def _subst_expr(e, old, new):
+    if e == old:
+        return new
+    if not isinstance(e, tuple):
+        return e
+    return tuple(_subst_expr(x, old, new) if isinstance(x, tuple) else x
+                 for x in e)
+
+
+def _field_slice_base(e):
+    e = M.strip_loads(e)
+    if e and e[0] in ("field", "fieldaddr"):
+        return e
+    return None
 
 
 def _first_call(fn, needle):
@@ -408,19 +372,29 @@ def _parse_batch(fn):
             continue
         dst, src = M.expr(fn, ins["args"][0]), M.expr(fn, ins["args"][1])
         if C.field_of(dst, slots) == "batchIndex":
-            batch_index.append({"line": _line(fn, ins), "expression": _text(fn, src)})
+            batch_index.append({"line": _line(fn, ins),
+                                "expression": _text_unnamed(fn, src),
+                                "source_name": _text(fn, src)})
 
+    block_count_phis = _named_instrs(fn, "blockCount", "phi")
+    raw_context_phis = _named_instrs(fn, "rawBlockContexts", "phi")
+    txs_data_phis = _named_instrs(fn, "txsData", "phi")
+    bc_len_ids = _named_instrs(fn, "bcLen")
+    bc_len_ins = fn.instr(bc_len_ids[0]) if bc_len_ids else None
     block_count = {
-        "initial_or_version_derived": _phi_branches(fn, seq, 133),
-        "calldata_or_version_derived": _phi_branches(fn, seq, 255),
+        "initial_or_version_derived": _phi_branches(fn, seq, block_count_phis[0]) if block_count_phis else [],
+        "calldata_or_version_derived": _phi_branches(fn, seq, block_count_phis[1]) if len(block_count_phis) > 1 else [],
     }
-    raw_contexts = _phi_branches(fn, seq, 258)
-    txs_data = _phi_branches(fn, seq, 260)
-    bc_len_ins = next((i for i in fn.d["instrs"] if i["op"] == "binop" and
-                       len(i.get("args") or []) == 2 and i["args"][0] == 133 and
-                       M.const_val(M.expr(fn, i["args"][1])) == 60), None)
-    zero_if = next((i for i in fn.d["instrs"] if i["op"] == "if" and
-                    _text(fn, M.expr(fn, i.get("cond"))) == "blockCount == 0"), None)
+    raw_contexts = _phi_branches(fn, seq, raw_context_phis[0]) if raw_context_phis else []
+    txs_data = _phi_branches(fn, seq, txs_data_phis[0]) if txs_data_phis else []
+    zero_if = None
+    if len(block_count_phis) > 1:
+        count_e = M.expr(fn, block_count_phis[1])
+        zero_if = next((i for i in fn.d["instrs"] if i["op"] == "if" and
+                        M.expr(fn, i.get("cond"))[0] == "binop" and
+                        M.expr(fn, i.get("cond"))[1] == "==" and
+                        M.expr(fn, i.get("cond"))[2] == count_e and
+                        M.const_val(M.expr(fn, i.get("cond"))[3]) == 0), None)
     tail_instrs = [i for i in fn.d["instrs"] if _line(fn, i) and _line(fn, i) >= boundary]
     debt = [{"element": f"{fn.file}:{boundary}-{max((_line(fn, i) or boundary for i in tail_instrs), default=boundary)}",
              "kind": "untranslated_remainder",
@@ -433,7 +407,7 @@ def _parse_batch(fn):
         ("blobCount", first_expr(lambda i: i["op"] == "call" and i.get("fn") == "builtin.len")),
         ("parentIndex", first_expr(lambda i: i["op"] == "extract" and "BatchIndex" in _text(fn, M.expr(fn, i["args"][0])))),
         ("parentTotalL1Popped", first_expr(lambda i: i["op"] == "extract" and "TotalL1MessagePopped" in _text(fn, M.expr(fn, i["args"][0])))),
-        ("parentVersion", first_expr(lambda i: i["op"] == "extract" and "parentHeader.Version" in _text(fn, M.expr(fn, i["args"][0])))),
+        ("parentVersion", first_expr(lambda i: i["op"] == "extract" and ".Version" in M.expr(fn, i["args"][0])[1])),
         ("parentLastBlock", first_expr(lambda i: i["op"] == "extract" and "LastBlockNumber" in _text(fn, M.expr(fn, i["args"][0])))),
         ("batch.Version", first_expr(lambda i: i["op"] == "fieldaddr" and i.get("name") == "Version")),
         ("batch.LastBlockNumber", first_expr(lambda i: i["op"] == "fieldaddr" and i.get("name") == "LastBlockNumber")),
@@ -461,7 +435,8 @@ def _parse_batch(fn):
             "batchIndex": batch_index,
             "blockCount": block_count,
             "bcLen": {"line": _line(fn, bc_len_ins),
-                      "expression": _text(fn, M.expr(fn, bc_len_ins["id"])) if bc_len_ins else None},
+                      "expression": _text_unnamed(fn, M.expr(fn, bc_len_ins["id"])) if bc_len_ins else None,
+                      "source_name": _text(fn, M.expr(fn, bc_len_ins["id"])) if bc_len_ins else None},
             "rawBlockContexts": raw_contexts,
             "txsData": txs_data,
         },
@@ -479,6 +454,38 @@ def _codec_entry(fn, ops):
             "ops": ops, "field_stores": []}
 
 
+def _slice_partiality(fn):
+    """Derive the loop slice's panic predicate from its SSA operands."""
+    slice_ins = next((i for i in fn.d["instrs"] if i["op"] == "slice" and
+                      fn.blocks.get(i["block"], {}).get("loop")), None)
+    if slice_ins is None:
+        return None
+    base, lo, hi = M.expr(fn, slice_ins["args"][0]), M.expr(fn, slice_ins["args"][1]), M.expr(fn, slice_ins["args"][2])
+    if lo[0] != "binop" or lo[1] != "*" or hi[0] != "binop":
+        return None
+    index_e, factor_e = lo[2], lo[3]
+    loop_if = next((i for i in fn.d["instrs"] if i["op"] == "if" and
+                    (e := M.expr(fn, i.get("cond")))[0] == "binop" and e[1] == "<" and
+                    e[2] == index_e), None)
+    if loop_if is None or M.const_val(factor_e) is None:
+        return None
+    bound_e = M.expr(fn, loop_if["cond"])[3]
+    one = ("const", 1, bound_e[2] if bound_e[0] == "const" else "int", "")
+    max_i = ("binop", "-", bound_e, one)
+    max_hi = _subst_expr(hi, index_e, max_i)
+    len_base = ("builtin", "len", (base,))
+    panic = ("binop", ">", max_hi, len_base)
+    incomplete = ("binop", "<", len_base, ("binop", "*", factor_e, bound_e))
+    panic_text = (_text(fn, max_hi) if max_hi == hi else
+                  f"({_text(fn, bound_e)} - 1) * {_text(fn, factor_e)} + "
+                  f"{_text(fn, hi[3])} > {_text(fn, len_base)}")
+    return {"slice": _text(fn, M.expr(fn, slice_ins["id"])),
+            "loop_bound": _text(fn, bound_e),
+            "incomplete_full_context_predicate": _text(fn, incomplete),
+            "maximal_index": _text(fn, max_i),
+            "go_panic_condition": panic_text}
+
+
 def _data_hash(fn):
     seq, _ = M.walk_seq(fn)
     ops, _aux, buffers = C.codec_ops(fn, seq)
@@ -487,7 +494,7 @@ def _data_hash(fn):
                   for i in fn.d["instrs"] if i["op"] == "if"]
     slices = [{"line": _line(fn, i), "expression": _text(fn, M.expr(fn, i["id"]))}
               for i in fn.d["instrs"] if i["op"] == "slice"]
-    return {
+    out = {
         "source": f"{fn.file}:{fn.line}-{fn.d.get('end_line')}",
         "cached_hash_short_circuit": next((c["expression"] for c in conditions if "hash" in c["expression"]), None),
         "loop_condition": next((c["expression"] for c in conditions if "blockNum" in c["expression"]), None),
@@ -498,11 +505,15 @@ def _data_hash(fn):
         "ops": ops,
         "buffers": [{"slot": list(k), "len": v.get("len"), "len_expr": v.get("len_expr")}
                     for k, v in buffers.items()],
-        "slice_partiality": {
-            "incomplete_full_context_predicate": "len(cks.blockContexts) < 60 * cks.blockNum",
-            "go_panic_condition": "for some i in [0, cks.blockNum), i*60+58 > len(cks.blockContexts)",
-        },
     }
+    partiality = _slice_partiality(fn)
+    if partiality is None:
+        out["coverage_debt"] = [{"element": f"{fn.file}:{fn.line}-{fn.d.get('end_line')}",
+                                 "kind": "underived_partiality",
+                                 "reason": "could not derive loop slice high bound against base length"}]
+    else:
+        out["slice_partiality"] = partiality
+    return out
 
 
 def _data_hash_v2(fn):
@@ -524,9 +535,12 @@ def _calculate_hash(fn):
     calls = _call_records(fn)
     slices = [{"line": _line(fn, i), "expression": _text(fn, M.expr(fn, i["id"]))}
               for i in fn.d["instrs"] if i["op"] == "slice"]
+    copies = [c for c in calls if c["callee"] == "builtin.copy"]
+    layout_parts = [c["arguments"][1] for c in copies if len(c["arguments"]) > 1]
     return {"source": f"{fn.file}:{fn.line}-{fn.d.get('end_line')}",
             "codec_format": _codec_entry(fn, ops),
-            "layout_formula": "be64(height) ++ be16(cks.l1TxNum) ++ cks.l1TxHashes",
+            "layout_parts": layout_parts,
+            "layout_formula": " ++ ".join(layout_parts) if layout_parts else None,
             "ops": ops,
             "buffers": [{"slot": list(k), "len": v.get("len"), "len_expr": v.get("len_expr")}
                         for k, v in buffers.items()],
@@ -546,25 +560,35 @@ def _combine_payloads(fn):
     allocation = next((i for i in fn.d["instrs"] if i["op"] == "makeslice"), None)
     return {"source": f"{fn.file}:{fn.line}-{fn.d.get('end_line')}",
             "payload_concat": [c["source"] for c in copies],
-            "allocation_length": _text(fn, M.expr(fn, allocation["args"][0])) if allocation else None,
+            "allocation_length": _text_unnamed(fn, M.expr(fn, allocation["args"][0])) if allocation else None,
             "copy_order": copies,
             "returns": [_text(fn, M.expr(fn, a)) for i in fn.d["instrs"] if i["op"] == "return"
                         for a in (i.get("args") or [])]}
 
 
-def _estimator(fn, combine=None):
+def _estimator(fn, combine=None, dump=None):
     calls = _call_records(fn)
     conditions = [{"line": _expr_line(fn, i["cond"]), "expression": _text(fn, M.expr(fn, i["cond"]))}
                   for i in fn.d["instrs"] if i["op"] == "if"]
     appends = [c for c in calls if c["callee"] == "builtin.append"]
     compressor = [c for c in calls if "CompressBatchBytes" in c["callee"]]
-    limit_text = next((c["expression"].split(" <= ", 1)[1] for c in conditions
-                       if " <= " in c["expression"]), None)
+    limit_e = next((M.expr(fn, i["cond"])[3] for i in fn.d["instrs"]
+                    if i["op"] == "if" and M.expr(fn, i.get("cond"))[0] == "binop" and
+                    M.expr(fn, i["cond"])[1] == "<="), None)
     limit = None
-    if limit_text:
-        limit = {"expression": limit_text.replace("126976", "MaxBlobBytesSize"),
-                 "ssa_expression": limit_text,
-                 "constant": {"name": "blob.MaxBlobBytesSize", "value": 126976}}
+    if limit_e is not None:
+        consts = [c for c in (dump.consts if dump is not None else [])
+                  if c["name"] == "MaxBlobBytesSize"]
+        limit = {"ssa_expression": _text_unnamed(fn, limit_e)}
+        for c in consts:
+            target = ("const", int(c["value"]), "int", "")
+            renamed = _subst_expr(limit_e, target, ("global", f"blob.{c['name']}"))
+            if renamed != limit_e:
+                limit["expression"] = _text_unnamed(fn, renamed)
+                limit["constant"] = c
+                break
+        else:
+            limit["expression"] = limit["ssa_expression"]
     if combine is not None:
         payload = combine["payload_concat"]
     elif appends:
@@ -591,16 +615,30 @@ def _ownership(dump, estimator_fn):
     action = next((a for a in actions if a.get("name") == "estimateCompressedSizeWithNewPayload"), None)
     append = next((i for i in estimator_fn.d["instrs"] if i["op"] == "call" and i.get("fn") == "builtin.append"), None)
     args = append.get("args", []) if append else []
-    backing = C.buffer_key(M.expr(estimator_fn, args[0])) if args else None
+    dst_e = M.expr(estimator_fn, args[0]) if args else None
+    src_e = M.expr(estimator_fn, args[1]) if len(args) > 1 else None
+    backing = C.buffer_key(dst_e) if dst_e else None
+    field_base = _field_slice_base(dst_e)
+    allocates = dst_e is not None and any(e[0] in ("alloc", "makeslice") for e in _all_expr(dst_e))
+    may_share = bool(field_base is not None and not allocates)
+    updates_header = False
+    if field_base is not None:
+        for ins in estimator_fn.d["instrs"]:
+            if ins["op"] == "store" and len(ins.get("args") or []) == 2 and \
+               M.expr(estimator_fn, ins["args"][0]) == field_base:
+                updates_header = True
+                break
+    dst_text = _text(estimator_fn, dst_e)
+    src_text = _text(estimator_fn, src_e)
     return {"source": f"{estimator_fn.file}:{estimator_fn.line}-{estimator_fn.d.get('end_line')}",
-            "ssa_append": _text(estimator_fn, M.expr(estimator_fn, append["id"])) if append else None,
+            "ssa_append": _text_unnamed(estimator_fn, M.expr(estimator_fn, append["id"])) if append else None,
             "destination_backing_key_from_codecs": list(backing) if isinstance(backing, tuple) else backing,
             "own_py_action": action,
-            "append_result_may_share_backing": True,
-            "aliasing_kind": "conditional_backing_array",
-            "updates_cks_txsPayload_header": False,
-            "capacity_condition": "len(cks.txsPayload) + len(txPayload) <= cap(cks.txsPayload)",
-            "interpretation": "Go append may reuse cks.txsPayload's backing array when capacity is sufficient, otherwise it allocates a new backing array; the SSA stores no updated txsPayload slice header, so the alias is only possible on the returned blobBytes view."}
+            "append_result_may_share_backing": may_share,
+            "aliasing_kind": {"destination": "loaded_field_slice" if field_base is not None else "unknown",
+                              "fresh_alloc": allocates, "may_share_backing": may_share},
+            "updates_header": updates_header,
+            "capacity_condition": f"len({dst_text}) + len({src_text}) <= cap({dst_text})" if dst_e and src_e else None}
 
 
 def _decode_txs(fn):
@@ -628,7 +666,8 @@ def _decode_txs(fn):
     for conds, ins in _walk_seq(seq):
         if ins["op"] == "call" and any(x in ins.get("fn", "") for x in
                                         ("decodeTypedTx", "decodeMorphTx", "extractInnerTxFullBytes", "rlp.DecodeBytes")):
-            routes.setdefault(_call_label(ins.get("fn")), []).append(_path(fn, conds))
+            routes.setdefault(_call_label(ins.get("fn")).rsplit(".", 1)[-1],
+                              []).append(_path(fn, conds))
     route_bytes = {}
     for name, route_list in routes.items():
         values = []
@@ -688,38 +727,66 @@ def _decode_txs(fn):
             "unsupported_branch": unsupported}
 
 
+def _fmt_arg_exprs(fn, fmt_e, line):
+    if len(fmt_e[2]) < 2 or fmt_e[2][1][0] != "slice" or fmt_e[2][1][1][0] != "alloc":
+        return []
+    aid = fmt_e[2][1][1][1]
+    out = []
+    for ins in fn.d["instrs"]:
+        if ins["op"] != "store" or _line(fn, ins) != line:
+            continue
+        args = ins.get("args") or []
+        if len(args) != 2:
+            continue
+        dst = M.expr(fn, args[0])
+        if dst[0] == "indexaddr" and dst[1] == ("alloc", aid):
+            out.append(M.expr(fn, args[1]))
+    return out
+
+
 def _twin_summary(fn):
     calls = _call_records(fn)
+    seq, _ = M.walk_seq(fn)
     guards = [_text(fn, M.expr(fn, i["cond"])) for i in fn.d["instrs"] if i["op"] == "if"]
     copies = [c for c in calls if c["callee"] == "builtin.copy"]
     fmt = next((i for i in fn.d["instrs"] if i["op"] == "call" and i.get("fn", "").endswith("fmt.Errorf")), None)
     message = None
     error_args = []
+    unchecked = None
     if fmt:
         fmt_e = M.expr(fn, fmt["id"])
         args = fmt.get("args") or []
         if args:
             message = M.const_val(M.expr(fn, args[0]))
-        error_args = _fmt_args(fn, fmt_e, _line(fn, fmt))
+        arg_exprs = _fmt_arg_exprs(fn, fmt_e, _line(fn, fmt))
+        error_args = [_text(fn, e) for e in arg_exprs]
+        conds = _conditions_for_ins(seq, fmt["id"])
+        guard = next((c for c in reversed(conds) if c[0] == "binop" and c[1] in ("!=", "==")), None)
+        if guard is not None and arg_exprs:
+            operand = M.strip_loads(M.strip_casts(guard[2]))
+            reported = M.strip_loads(M.strip_casts(arg_exprs[0]))
+            unchecked = {"guard_operand": _text(fn, guard[2]),
+                         "reported_operand": _text(fn, arg_exprs[0]),
+                         "error_reports_unchecked_value": reported != operand}
     return {"source": f"{fn.file}:{fn.line}-{fn.d.get('end_line')}",
             "loop_conditions": guards,
             "error_format": message,
             "error_arguments": error_args,
+            "unchecked_error_operand": unchecked,
             "copy_calls": [{"arguments": c["arguments"]} for c in copies]}
 
 
 def _twin_diff(a, b):
     differences = []
-    for key in ("loop_conditions", "error_format", "error_arguments", "copy_calls"):
+    for key in ("loop_conditions", "error_format", "error_arguments", "unchecked_error_operand", "copy_calls"):
         if a[key] != b[key]:
             differences.append({"field": key, "common_batch": a[key], "common_blob": b[key]})
     structural_keys = ("loop_conditions", "error_format", "copy_calls")
     return {"structurally_identical_except_error_arguments": all(a[k] == b[k] for k in structural_keys),
             "differences_derived_by_recursive_field_comparison": differences,
-            "error_argument_difference_is_zero_bug": bool(
-                len(differences) == 1 and differences[0]["field"] == "error_arguments" and
-                "data[" in str(differences[0]["common_batch"]) and
-                "blob[" in str(differences[0]["common_blob"]))}
+            "error_reports_unchecked_value": {
+                "common_batch": (a.get("unchecked_error_operand") or {}).get("error_reports_unchecked_value"),
+                "common_blob": (b.get("unchecked_error_operand") or {}).get("error_reports_unchecked_value")}}
 
 
 def _producer_sites(dump):
@@ -740,7 +807,7 @@ def extract_derivation(dump: M.Dump, target_commit: str) -> dict:
     parse = _find_fn(dump, "ParseBatch", "node/derivation/batch_info.go")
     batch_twin = _find_fn(dump, "RetrieveBlobBytes", "common/batch/blob.go")
     blob_twin = _find_fn(dump, "RetrieveBlobBytes", "common/blob/payload.go")
-    data_hash = _find_fn(dump, "DataHash", "common/batch/batch_data.go")
+    data_hash_fn = _find_fn(dump, "DataHash", "common/batch/batch_data.go")
     data_hash_v2 = _find_fn(dump, "DataHashV2", "common/batch/batch_data.go")
     calculate_hash = _find_fn(dump, "calculateHash", "common/batch/batch_data.go")
     estimate = _find_fn(dump, "EstimateCompressedSizeWithNewPayload", "common/batch/batch_data.go")
@@ -751,7 +818,8 @@ def extract_derivation(dump: M.Dump, target_commit: str) -> dict:
     batch_summary = _twin_summary(batch_twin)
     blob_summary = _twin_summary(blob_twin)
     comp = _combine_payloads(combine)
-    est_fact = _estimator(estimate)
+    data_hash = _data_hash(data_hash_fn)
+    est_fact = _estimator(estimate, dump=dump)
     est_fact["ownership"] = _ownership(dump, estimate)
     parse_fact = _parse_batch(parse)
     decode_fact = _decode_txs(decode)
@@ -765,7 +833,7 @@ def extract_derivation(dump: M.Dump, target_commit: str) -> dict:
 
     h_oracle = next(c for c in _call_records(data_hash_v2) if "HeightFromBlockContextBytes" in c["callee"])
     zstd_oracle = next(c for c in _call_records(parse) if "DecompressBatchBytes" in c["callee"])
-    coverage = parse_fact["coverage_debt"] + decode_bodies + [
+    coverage = parse_fact["coverage_debt"] + data_hash.get("coverage_debt", []) + decode_bodies + [
         {"element": f"{data_hash_v2.file}:{h_oracle['line']}", "kind": "oracle_body",
          "reason": "HeightFromBlockContextBytes parser body is an oracle"},
         {"element": f"{parse.file}:{zstd_oracle['line']}", "kind": "oracle_body",
@@ -773,7 +841,7 @@ def extract_derivation(dump: M.Dump, target_commit: str) -> dict:
     ]
     return {
         "format": "holon-extracted/go-derivation/0.1",
-        "extractor": "holon.frontends.go.derivation (gossa-dump/0.1)",
+        "extractor": "holon.frontends.go.derivation (gossa-dump/0.2)",
         "target": {"repo": "morph-l2/morph", "commit": target_commit,
                    "packages": ["morph-l2/common/batch", "morph-l2/node/types",
                                 "morph-l2/common/blob", "morph-l2/node/derivation"]},
@@ -784,7 +852,7 @@ def extract_derivation(dump: M.Dump, target_commit: str) -> dict:
             "differ": _twin_diff(batch_summary, blob_summary),
         },
         "hash_encoders": {
-            "DataHash": _data_hash(data_hash),
+            "DataHash": data_hash,
             "DataHashV2": _data_hash_v2(data_hash_v2),
             "calculateHash": _calculate_hash(calculate_hash),
             "m2_coverage_reconciliation": {
@@ -796,13 +864,13 @@ def extract_derivation(dump: M.Dump, target_commit: str) -> dict:
         },
         "size_estimators": {
             "EstimateCompressedSizeWithNewPayload": est_fact,
-            "WillExceedCompressedSizeLimit": _estimator(will_exceed, comp),
+            "WillExceedCompressedSizeLimit": _estimator(will_exceed, comp, dump),
             "combinePayloads": comp,
             "batch_producer_calls": _producer_sites(dump),
         },
         "decode_txs_from_bytes": decode_fact,
         "coverage": {"modelled": [f"{fn.file}:{fn.line} {fn.name}" for fn in
-                                   (parse, batch_twin, blob_twin, data_hash, data_hash_v2,
+                                   (parse, batch_twin, blob_twin, data_hash_fn, data_hash_v2,
                                     calculate_hash, estimate, will_exceed, combine, decode)],
                      "debt": coverage},
     }

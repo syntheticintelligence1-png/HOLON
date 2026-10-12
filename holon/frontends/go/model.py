@@ -68,6 +68,7 @@ class Dump:
     def __init__(self, d: dict):
         self.format = d["dump_version"]
         self.module = ""
+        self.consts = d.get("consts", [])
         self.funcs = {f["id"]: Fn(f) for f in d["functions"]}
         self.by_short = {}
         for f in self.funcs.values():

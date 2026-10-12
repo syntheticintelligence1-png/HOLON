@@ -81,7 +81,7 @@ def extract_derivation(morph: Path = None, out_dir: Path = None) -> dict:
     commit = target_commit(morph)
     if not commit.startswith("3e44e79"):
         raise SystemExit(f"M3 E3 requires Morph 3e44e79, got {commit}")
-    raw = tool.run_dump(morph, DERIVATION_PACKAGES)
+    raw = tool.run_dump(morph, DERIVATION_PACKAGES, debug=True)
     facts = derivation.extract_derivation(model.Dump(raw), commit)
     if out_dir is None:
         facts_path = REPO_ROOT / "spec" / "M3" / "extracted" / "go_derivation.json"

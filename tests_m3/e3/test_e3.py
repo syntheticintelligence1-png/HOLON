@@ -30,7 +30,7 @@ def _copy_morph(dst):
 def _derivation(morph, commit="mutant"):
     from holon.frontends.go import derivation, model, tool
     from holon.frontends.go.__main__ import DERIVATION_PACKAGES
-    raw = tool.run_dump(Path(morph), DERIVATION_PACKAGES)
+    raw = tool.run_dump(Path(morph), DERIVATION_PACKAGES, debug=True)
     return derivation.extract_derivation(model.Dump(raw), commit)
 
 
@@ -99,7 +99,23 @@ class TestE3Extraction(unittest.TestCase):
         f = self._mutant_facts(mutate)
         differ = f["retrieve_blob_bytes"]["differ"]
         self.assertNotEqual(differ, self.committed["retrieve_blob_bytes"]["differ"])
-        self.assertFalse(differ["error_argument_difference_is_zero_bug"])
+        self.assertFalse(
+            differ["error_reports_unchecked_value"]["common_batch"])
+
+    def test_mutant_parse_batch_value_id_shift(self):
+        def mutate(m):
+            p = m / "node/derivation/batch_info.go"
+            text = p.read_text()
+            old = "func (bi *BatchInfo) ParseBatch(batch geth.RPCRollupBatch) error {\n"
+            self.assertIn(old, text)
+            p.write_text(text.replace(
+                old, old + "\t_ = len(batch.Sidecar.Blobs)\n", 1))
+        f = self._mutant_facts(mutate)
+
+        def exits(facts):
+            return [{k: v for k, v in e.items() if k != "line"}
+                    for e in facts["parse_batch"]["error_exits"]]
+        self.assertEqual(exits(self.committed), exits(f))
 
     def test_mutant_combine_payloads_term(self):
         def mutate(m):

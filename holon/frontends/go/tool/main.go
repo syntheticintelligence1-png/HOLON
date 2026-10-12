@@ -29,23 +29,41 @@ type Dump struct {
 	Version  string   `json:"dump_version"`
 	GoVer    string   `json:"go"`
 	Packages []string `json:"packages"`
+	Consts   []Const  `json:"consts,omitempty"`
 	Funcs    []Func   `json:"functions"`
 }
 
 type Func struct {
-	ID        string    `json:"id"`
-	Pkg       string    `json:"pkg"`
-	Name      string    `json:"name"`
-	Recv      *Recv     `json:"recv,omitempty"`
-	Signature string    `json:"signature"`
-	File      string    `json:"file"`
-	Line      int       `json:"line"`
-	EndLine   int       `json:"end_line"`
-	Exported  bool      `json:"exported"`
-	Blocks    []Block   `json:"blocks"`
-	Instrs    []Instr   `json:"instrs"`
-	FreeVars  []string  `json:"free_vars,omitempty"`
-	Anonymous bool      `json:"anonymous,omitempty"`
+	ID        string     `json:"id"`
+	Pkg       string     `json:"pkg"`
+	Name      string     `json:"name"`
+	Recv      *Recv      `json:"recv,omitempty"`
+	Signature string     `json:"signature"`
+	File      string     `json:"file"`
+	Line      int        `json:"line"`
+	EndLine   int        `json:"end_line"`
+	Exported  bool       `json:"exported"`
+	Blocks    []Block    `json:"blocks"`
+	Instrs    []Instr    `json:"instrs"`
+	DebugRefs []DebugRef `json:"debug_refs,omitempty"`
+	FreeVars  []string   `json:"free_vars,omitempty"`
+	Anonymous bool       `json:"anonymous,omitempty"`
+}
+
+type DebugRef struct {
+	Value  int    `json:"value"`
+	Name   string `json:"name,omitempty"`
+	Expr   string `json:"expr,omitempty"`
+	IsAddr bool   `json:"is_addr,omitempty"`
+	IsVar  bool   `json:"is_var,omitempty"`
+	Line   int    `json:"line,omitempty"`
+}
+
+type Const struct {
+	Name  string `json:"name"`
+	Pkg   string `json:"pkg"`
+	Type  string `json:"type"`
+	Value any    `json:"value"`
 }
 
 type Recv struct {
@@ -55,16 +73,16 @@ type Recv struct {
 }
 
 type Block struct {
-	ID      int     `json:"id"`
-	Instrs  []int   `json:"instrs"`
-	Succs   []Edge  `json:"succs"`
-	Comment string  `json:"comment,omitempty"`
-	Loop    bool    `json:"loop,omitempty"`
+	ID      int    `json:"id"`
+	Instrs  []int  `json:"instrs"`
+	Succs   []Edge `json:"succs"`
+	Comment string `json:"comment,omitempty"`
+	Loop    bool   `json:"loop,omitempty"`
 }
 
 type Edge struct {
 	To  int    `json:"to"`
-	Tag string   `json:"tag"`
+	Tag string `json:"tag"`
 }
 
 // Instr is one SSA instruction (or a value-producing one). Fields are
@@ -108,9 +126,10 @@ func calleeID(call *ssa.CallCommon) string {
 }
 
 // fnID renders a *ssa.Function canonically:
-//   pkgpath.Name              for package funcs
-//   pkgpath.(RecvType).Method for methods (recv type without *)
-//   builtin.<name>            for builtins (handled by caller)
+//
+//	pkgpath.Name              for package funcs
+//	pkgpath.(RecvType).Method for methods (recv type without *)
+//	builtin.<name>            for builtins (handled by caller)
 func fnID(fn *ssa.Function) string {
 	pkg := ""
 	if fn.Pkg != nil {
@@ -132,6 +151,15 @@ func fnID(fn *ssa.Function) string {
 
 // canonicalEndian maps the encoding/binary endianness concrete type to the
 // exported package-level variable it is reached through.
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
 func canonicalCallee(id string) string {
 	for _, e := range []string{"BigEndian", "LittleEndian"} {
 		lower := strings.ToLower(e[:1]) + e[1:]
@@ -166,6 +194,7 @@ func main() {
 	flag.Var(&pats, "pkg", "package pattern (repeatable)")
 	flag.StringVar(&out, "out", "", "output JSON path")
 	pretty := flag.Bool("pretty", false, "indent JSON")
+	debug := flag.Bool("debug", false, "include DebugRef local-name bindings and package constants")
 	flag.Parse()
 	if dir == "" || out == "" || len(pats) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: gossa --dir DIR --pkg PATTERN [--pkg ...] --out FILE")
@@ -188,7 +217,12 @@ func main() {
 	if packages.PrintErrors(initial) > 0 {
 		fail(fmt.Errorf("package loading failed"))
 	}
-	prog, _ := ssautil.Packages(initial, ssa.InstantiateGenerics)
+	prog, ssaPkgs := ssautil.Packages(initial, ssa.InstantiateGenerics)
+	if *debug {
+		for _, p := range ssaPkgs {
+			p.SetDebugMode(true)
+		}
+	}
 	prog.Build()
 
 	want := map[string]bool{}
@@ -215,7 +249,24 @@ func main() {
 	}
 	sort.Slice(funcs, func(i, j int) bool { return fnID(funcs[i]) < fnID(funcs[j]) })
 
-	d := Dump{Tool: "holon/frontends/go/tool", Version: "gossa-dump/0.1", GoVer: goVer(), Packages: pats}
+	version := "gossa-dump/0.1"
+	if *debug {
+		version = "gossa-dump/0.2"
+	}
+	d := Dump{Tool: "holon/frontends/go/tool", Version: version, GoVer: goVer(), Packages: pats}
+	if *debug {
+		for _, p := range ssaPkgs {
+			if !want[p.Pkg.Path()] {
+				continue
+			}
+			for _, name := range sortedKeys(p.Members) {
+				if c, ok := p.Members[name].(*ssa.NamedConst); ok {
+					d.Consts = append(d.Consts, Const{Name: name, Pkg: p.Pkg.Path(),
+						Type: c.Type().String(), Value: c.Value.Value.ExactString()})
+				}
+			}
+		}
+	}
 	for _, f := range funcs {
 		d.Funcs = append(d.Funcs, dumpFunc(prog, f, abs))
 	}

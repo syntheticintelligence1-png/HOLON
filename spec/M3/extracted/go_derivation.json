@@ -1,6 +1,6 @@
 {
  "format": "holon-extracted/go-derivation/0.1",
- "extractor": "holon.frontends.go.derivation (gossa-dump/0.1)",
+ "extractor": "holon.frontends.go.derivation (gossa-dump/0.2)",
  "target": {
   "repo": "morph-l2/morph",
   "commit": "3e44e795586af3e11285b603ab642c67823add51",
@@ -15,10 +15,10 @@
   "source": "node/derivation/batch_info.go:87-248",
   "abstract_inputs": {
    "blobCount": "len(batch.Sidecar.Blobs)",
-   "parentIndex": "parentIndex",
-   "parentTotalL1Popped": "parentTotalL1Popped",
+   "parentIndex": "parentBatchIndex",
+   "parentTotalL1Popped": "parentTotalL1MessagePopped",
    "parentVersion": "parentVersion",
-   "parentLastBlock": "parentLastBlock",
+   "parentLastBlock": "parentBatchBlock",
    "batch.Version": "batch.Version",
    "batch.LastBlockNumber": "batch.LastBlockNumber",
    "batch.BlockContexts": "batch.BlockContexts",
@@ -34,19 +34,19 @@
    },
    {
     "line": 93,
-    "expression": "parentIndexErr != nil"
+    "expression": "err != nil"
    },
    {
     "line": 97,
-    "expression": "parentTotalL1PoppedErr != nil"
+    "expression": "err != nil"
    },
    {
     "line": 117,
-    "expression": "retrieveBlobErr != nil"
+    "expression": "err != nil"
    },
    {
     "line": 123,
-    "expression": "decompressErr != nil"
+    "expression": "err != nil"
    },
    {
     "line": 128,
@@ -54,7 +54,7 @@
    },
    {
     "line": 130,
-    "expression": "parentVersionErr != nil"
+    "expression": "err != nil"
    },
    {
     "line": 166,
@@ -70,11 +70,11 @@
    },
    {
     "line": 152,
-    "expression": "parentLastBlockErr != nil"
+    "expression": "err != nil"
    },
    {
     "line": 141,
-    "expression": "BlockContext.Decode(startBlock, batchBytes[:60]) != nil"
+    "expression": "err != nil"
    },
    {
     "line": 146,
@@ -82,7 +82,7 @@
    },
    {
     "line": 157,
-    "expression": "batch.LastBlockNumber < parentLastBlock"
+    "expression": "batch.LastBlockNumber < parentBatchBlock"
    },
    {
     "line": 170,
@@ -94,28 +94,28 @@
    },
    {
     "line": 185,
-    "expression": "computedBlockCount > len(batchBytes) / 60"
+    "expression": "blockCount > len(batchBytes) / 60"
    },
    {
     "line": 174,
-    "expression": "len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2])"
+    "expression": "len(batch.BlockContexts) < 2 + 60 * blockCount"
    }
   ],
   "oracles": [
    {
-    "oracle": "parentHeader.BatchIndex",
+    "oracle": "BatchHeaderBytes.BatchIndex",
     "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
     "line": 92,
     "arguments": [
-     "batch.ParentBatchHeader"
+     "parentBatchHeader"
     ]
    },
    {
-    "oracle": "parentHeader.TotalL1MessagePopped",
+    "oracle": "BatchHeaderBytes.TotalL1MessagePopped",
     "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
     "line": 96,
     "arguments": [
-     "batch.ParentBatchHeader"
+     "parentBatchHeader"
     ]
    },
    {
@@ -127,19 +127,19 @@
     ]
    },
    {
-    "oracle": "parentHeader.Version",
+    "oracle": "BatchHeaderBytes.Version",
     "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchHeaderBytes).Version",
     "line": 129,
     "arguments": [
-     "batch.ParentBatchHeader"
+     "parentBatchHeader"
     ]
    },
    {
-    "oracle": "parentHeader.LastBlockNumber",
+    "oracle": "BatchHeaderBytes.LastBlockNumber",
     "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
     "line": 151,
     "arguments": [
-     "batch.ParentBatchHeader"
+     "parentBatchHeader"
     ]
    },
    {
@@ -178,97 +178,97 @@
     "line": 94,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "parentIndexErr != nil"
+     "err != nil"
     ],
     "kind": "fmt.Errorf",
     "message": "decode batch header index error:%v",
     "arguments": [
-     "parentIndexErr"
+     "err"
     ],
     "returned": [
-     "fmt.Errorf('decode batch header index error:%v', alloc24[:])"
+     "fmt.Errorf('decode batch header index error:%v', fmtArgs[:])"
     ]
    },
    {
     "line": 98,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "parentTotalL1PoppedErr != nil"
+     "not (err != nil)",
+     "err != nil"
     ],
     "kind": "fmt.Errorf",
     "message": "decode batch header totalL1MessagePopped error:%v",
     "arguments": [
-     "parentTotalL1PoppedErr"
+     "err"
     ],
     "returned": [
-     "fmt.Errorf('decode batch header totalL1MessagePopped error:%v', alloc39[:])"
+     "fmt.Errorf('decode batch header totalL1MessagePopped error:%v', fmtArgs[:])"
     ]
    },
    {
     "line": 118,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "i < len(batch.Sidecar.Blobs)",
-     "retrieveBlobErr != nil"
+     "err != nil"
     ],
     "kind": "propagated_error",
     "message": null,
     "arguments": [],
     "returned": [
-     "retrieveBlobErr"
+     "err"
     ]
    },
    {
     "line": 124,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "decompressErr != nil"
+     "err != nil"
     ],
     "kind": "fmt.Errorf",
     "message": "decompress batch bytes error:%v",
     "arguments": [
-     "decompressErr"
+     "err"
     ],
     "returned": [
-     "fmt.Errorf('decompress batch bytes error:%v', alloc110[:])"
+     "fmt.Errorf('decompress batch bytes error:%v', fmtArgs[:])"
     ]
    },
    {
     "line": 131,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "parentVersionErr != nil"
+     "err != nil"
     ],
     "kind": "fmt.Errorf",
     "message": "decode batch header version error:%v",
     "arguments": [
-     "parentVersionErr"
+     "err"
     ],
     "returned": [
-     "fmt.Errorf('decode batch header version error:%v', alloc139[:])"
+     "fmt.Errorf('decode batch header version error:%v', fmtArgs[:])"
     ]
    },
    {
     "line": 138,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "not (parentVersionErr != nil)",
+     "not (err != nil)",
      "parentVersion == 0",
      "len(batchBytes) < 60"
     ],
@@ -278,45 +278,45 @@
      "len(batchBytes)"
     ],
     "returned": [
-     "fmt.Errorf('decompressed batch too short for start block context: have %d, need 60', alloc162[:])"
+     "fmt.Errorf('decompressed batch too short for start block context: have %d, need 60', fmtArgs[:])"
     ]
    },
    {
     "line": 142,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "not (parentVersionErr != nil)",
+     "not (err != nil)",
      "parentVersion == 0",
      "not (len(batchBytes) < 60)",
-     "BlockContext.Decode(startBlock, batchBytes[:60]) != nil"
+     "err != nil"
     ],
     "kind": "fmt.Errorf",
     "message": "decode chunk block context error:%v",
     "arguments": [
-     "BlockContext.Decode(startBlock, batchBytes[:60])"
+     "err"
     ],
     "returned": [
-     "fmt.Errorf('decode chunk block context error:%v', alloc178[:])"
+     "fmt.Errorf('decode chunk block context error:%v', fmtArgs[:])"
     ]
    },
    {
     "line": 147,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "not (parentVersionErr != nil)",
+     "not (err != nil)",
      "parentVersion == 0",
      "not (len(batchBytes) < 60)",
-     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "not (err != nil)",
      "batch.LastBlockNumber < startBlock.Number"
     ],
     "kind": "fmt.Errorf",
@@ -326,68 +326,68 @@
      "startBlock.Number"
     ],
     "returned": [
-     "fmt.Errorf('invalid batch: lastBlockNumber %d < start block %d', alloc197[:])"
+     "fmt.Errorf('invalid batch: lastBlockNumber %d < start block %d', fmtArgs[:])"
     ]
    },
    {
     "line": 153,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "not (parentVersionErr != nil)",
+     "not (err != nil)",
      "not (parentVersion == 0)",
-     "parentLastBlockErr != nil"
+     "err != nil"
     ],
     "kind": "fmt.Errorf",
     "message": "decode batch header lastBlockNumber error:%v",
     "arguments": [
-     "parentLastBlockErr"
+     "err"
     ],
     "returned": [
-     "fmt.Errorf('decode batch header lastBlockNumber error:%v', alloc217[:])"
+     "fmt.Errorf('decode batch header lastBlockNumber error:%v', fmtArgs[:])"
     ]
    },
    {
     "line": 158,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "not (parentVersionErr != nil)",
+     "not (err != nil)",
      "not (parentVersion == 0)",
-     "not (parentLastBlockErr != nil)",
-     "batch.LastBlockNumber < parentLastBlock"
+     "not (err != nil)",
+     "batch.LastBlockNumber < parentBatchBlock"
     ],
     "kind": "fmt.Errorf",
     "message": "invalid batch: lastBlockNumber %d < parent lastBlockNumber %d",
     "arguments": [
      "batch.LastBlockNumber",
-     "parentLastBlock"
+     "parentBatchBlock"
     ],
     "returned": [
-     "fmt.Errorf('invalid batch: lastBlockNumber %d < parent lastBlockNumber %d', alloc232[:])"
+     "fmt.Errorf('invalid batch: lastBlockNumber %d < parent lastBlockNumber %d', fmtArgs[:])"
     ]
    },
    {
     "line": 171,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "not (parentVersionErr != nil)",
+     "not (err != nil)",
      "parentVersion == 0",
      "not (len(batchBytes) < 60)",
-     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "not (err != nil)",
      "not (batch.LastBlockNumber < startBlock.Number)",
      "batch.BlockContexts != nil",
      "len(batch.BlockContexts) < 2"
@@ -398,81 +398,81 @@
      "len(batch.BlockContexts)"
     ],
     "returned": [
-     "fmt.Errorf('calldata block contexts too short for block count prefix: have %d, need 2', alloc273[:])"
+     "fmt.Errorf('calldata block contexts too short for block count prefix: have %d, need 2', fmtArgs[:])"
     ]
    },
    {
     "line": 175,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "not (parentVersionErr != nil)",
+     "not (err != nil)",
      "parentVersion == 0",
      "not (len(batchBytes) < 60)",
-     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "not (err != nil)",
      "not (batch.LastBlockNumber < startBlock.Number)",
      "batch.BlockContexts != nil",
      "not (len(batch.BlockContexts) < 2)",
-     "len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2])"
+     "len(batch.BlockContexts) < 2 + 60 * blockCount"
     ],
     "kind": "fmt.Errorf",
     "message": "calldata block contexts too short: have %d, need %d",
     "arguments": [
      "len(batch.BlockContexts)",
-     "2 + 60 * be16(BigEndian, batch.BlockContexts[:2])"
+     "2 + 60 * blockCount"
     ],
     "returned": [
-     "fmt.Errorf('calldata block contexts too short: have %d, need %d', alloc307[:])"
+     "fmt.Errorf('calldata block contexts too short: have %d, need %d', fmtArgs[:])"
     ]
    },
    {
     "line": 186,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "not (parentVersionErr != nil)",
+     "not (err != nil)",
      "parentVersion == 0",
      "not (len(batchBytes) < 60)",
-     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "not (err != nil)",
      "not (batch.LastBlockNumber < startBlock.Number)",
      "not (batch.BlockContexts != nil)",
-     "computedBlockCount > len(batchBytes) / 60"
+     "blockCount > len(batchBytes) / 60"
     ],
     "kind": "fmt.Errorf",
     "message": "decompressed batch too short for block contexts: have %d, need %d blocks",
     "arguments": [
      "len(batchBytes)",
-     "computedBlockCount"
+     "blockCount"
     ],
     "returned": [
-     "fmt.Errorf('decompressed batch too short for block contexts: have %d, need %d blocks', alloc329[:])"
+     "fmt.Errorf('decompressed batch too short for block contexts: have %d, need %d blocks', fmtArgs[:])"
     ]
    },
    {
     "line": 198,
     "path_condition": [
      "not (len(batch.Sidecar.Blobs) == 0)",
-     "not (parentIndexErr != nil)",
-     "not (parentTotalL1PoppedErr != nil)",
+     "not (err != nil)",
+     "not (err != nil)",
      "not (i < len(batch.Sidecar.Blobs))",
-     "not (decompressErr != nil)",
+     "not (err != nil)",
      "batch.Version > 0",
-     "not (parentVersionErr != nil)",
+     "not (err != nil)",
      "parentVersion == 0",
      "not (len(batchBytes) < 60)",
-     "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+     "not (err != nil)",
      "not (batch.LastBlockNumber < startBlock.Number)",
      "batch.BlockContexts != nil",
      "not (len(batch.BlockContexts) < 2)",
-     "not (len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2]))",
+     "not (len(batch.BlockContexts) < 2 + 60 * blockCount)",
      "blockCount == 0"
     ],
     "kind": "fmt.Errorf",
@@ -487,7 +487,8 @@
    "batchIndex": [
     {
      "line": 102,
-     "expression": "parentIndex + 1"
+     "expression": "parentBatchIndex + 1",
+     "source_name": "batchIndex"
     }
    ],
    "blockCount": {
@@ -496,48 +497,51 @@
       "predecessor_block": 13,
       "path_condition": [
        "not (len(batch.Sidecar.Blobs) == 0)",
-       "not (parentIndexErr != nil)",
-       "not (parentTotalL1PoppedErr != nil)",
+       "not (err != nil)",
+       "not (err != nil)",
        "not (i < len(batch.Sidecar.Blobs))",
-       "not (decompressErr != nil)",
+       "not (err != nil)",
        "not (batch.Version > 0)"
       ],
       "value": "0",
+      "source_name": "0",
       "line": null
      },
      {
       "predecessor_block": 25,
       "path_condition": [
        "not (len(batch.Sidecar.Blobs) == 0)",
-       "not (parentIndexErr != nil)",
-       "not (parentTotalL1PoppedErr != nil)",
+       "not (err != nil)",
+       "not (err != nil)",
        "not (i < len(batch.Sidecar.Blobs))",
-       "not (decompressErr != nil)",
+       "not (err != nil)",
        "batch.Version > 0",
-       "not (parentVersionErr != nil)",
+       "not (err != nil)",
        "parentVersion == 0",
        "not (len(batchBytes) < 60)",
-       "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+       "not (err != nil)",
        "not (batch.LastBlockNumber < startBlock.Number)"
       ],
       "value": "batch.LastBlockNumber - startBlock.Number + 1",
+      "source_name": "blockCount",
       "line": 149
      },
      {
       "predecessor_block": 29,
       "path_condition": [
        "not (len(batch.Sidecar.Blobs) == 0)",
-       "not (parentIndexErr != nil)",
-       "not (parentTotalL1PoppedErr != nil)",
+       "not (err != nil)",
+       "not (err != nil)",
        "not (i < len(batch.Sidecar.Blobs))",
-       "not (decompressErr != nil)",
+       "not (err != nil)",
        "batch.Version > 0",
-       "not (parentVersionErr != nil)",
+       "not (err != nil)",
        "not (parentVersion == 0)",
-       "not (parentLastBlockErr != nil)",
-       "not (batch.LastBlockNumber < parentLastBlock)"
+       "not (err != nil)",
+       "not (batch.LastBlockNumber < parentBatchBlock)"
       ],
-      "value": "batch.LastBlockNumber - parentLastBlock",
+      "value": "batch.LastBlockNumber - parentBatchBlock",
+      "source_name": "blockCount",
       "line": 160
      }
     ],
@@ -546,89 +550,94 @@
       "predecessor_block": 36,
       "path_condition": [
        "not (len(batch.Sidecar.Blobs) == 0)",
-       "not (parentIndexErr != nil)",
-       "not (parentTotalL1PoppedErr != nil)",
+       "not (err != nil)",
+       "not (err != nil)",
        "not (i < len(batch.Sidecar.Blobs))",
-       "not (decompressErr != nil)",
+       "not (err != nil)",
        "batch.Version > 0",
-       "not (parentVersionErr != nil)",
+       "not (err != nil)",
        "parentVersion == 0",
        "not (len(batchBytes) < 60)",
-       "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+       "not (err != nil)",
        "not (batch.LastBlockNumber < startBlock.Number)",
        "batch.BlockContexts != nil",
        "not (len(batch.BlockContexts) < 2)",
-       "not (len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2]))"
+       "not (len(batch.BlockContexts) < 2 + 60 * blockCount)"
       ],
-      "value": "be16(BigEndian, batch.BlockContexts[:2])",
+      "value": "BigEndian.Uint16(BigEndian, batch.BlockContexts[:2])",
+      "source_name": "blockCount",
       "line": 173
      },
      {
       "predecessor_block": 38,
       "path_condition": [
        "not (len(batch.Sidecar.Blobs) == 0)",
-       "not (parentIndexErr != nil)",
-       "not (parentTotalL1PoppedErr != nil)",
+       "not (err != nil)",
+       "not (err != nil)",
        "not (i < len(batch.Sidecar.Blobs))",
-       "not (decompressErr != nil)",
+       "not (err != nil)",
        "batch.Version > 0",
-       "not (parentVersionErr != nil)",
+       "not (err != nil)",
        "parentVersion == 0",
        "not (len(batchBytes) < 60)",
-       "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+       "not (err != nil)",
        "not (batch.LastBlockNumber < startBlock.Number)",
        "not (batch.BlockContexts != nil)",
-       "not (computedBlockCount > len(batchBytes) / 60)"
+       "not (blockCount > len(batchBytes) / 60)"
       ],
-      "value": "computedBlockCount",
+      "value": "phi(0|blockCount|blockCount)",
+      "source_name": "blockCount",
       "line": 127
      }
     ]
    },
    "bcLen": {
     "line": 188,
-    "expression": "computedBlockCount * 60"
+    "expression": "blockCount * 60",
+    "source_name": "bcLen"
    },
    "rawBlockContexts": [
     {
      "predecessor_block": 36,
      "path_condition": [
       "not (len(batch.Sidecar.Blobs) == 0)",
-      "not (parentIndexErr != nil)",
-      "not (parentTotalL1PoppedErr != nil)",
+      "not (err != nil)",
+      "not (err != nil)",
       "not (i < len(batch.Sidecar.Blobs))",
-      "not (decompressErr != nil)",
+      "not (err != nil)",
       "batch.Version > 0",
-      "not (parentVersionErr != nil)",
+      "not (err != nil)",
       "parentVersion == 0",
       "not (len(batchBytes) < 60)",
-      "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+      "not (err != nil)",
       "not (batch.LastBlockNumber < startBlock.Number)",
       "batch.BlockContexts != nil",
       "not (len(batch.BlockContexts) < 2)",
-      "not (len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2]))"
+      "not (len(batch.BlockContexts) < 2 + 60 * blockCount)"
      ],
-     "value": "batch.BlockContexts[2:60 * be16(BigEndian, batch.BlockContexts[:2]) + 2]",
+     "value": "batch.BlockContexts[2:60 * blockCount + 2]",
+     "source_name": "rawBlockContexts",
      "line": 177
     },
     {
      "predecessor_block": 38,
      "path_condition": [
       "not (len(batch.Sidecar.Blobs) == 0)",
-      "not (parentIndexErr != nil)",
-      "not (parentTotalL1PoppedErr != nil)",
+      "not (err != nil)",
+      "not (err != nil)",
       "not (i < len(batch.Sidecar.Blobs))",
-      "not (decompressErr != nil)",
+      "not (err != nil)",
       "batch.Version > 0",
-      "not (parentVersionErr != nil)",
+      "not (err != nil)",
       "parentVersion == 0",
       "not (len(batchBytes) < 60)",
-      "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+      "not (err != nil)",
       "not (batch.LastBlockNumber < startBlock.Number)",
       "not (batch.BlockContexts != nil)",
-      "not (computedBlockCount > len(batchBytes) / 60)"
+      "not (blockCount > len(batchBytes) / 60)"
      ],
-     "value": "batchBytes[:computedBlockCount * 60]",
+     "value": "batchBytes[:bcLen]",
+     "source_name": "rawBlockContexts",
      "line": null
     }
    ],
@@ -637,41 +646,43 @@
      "predecessor_block": 36,
      "path_condition": [
       "not (len(batch.Sidecar.Blobs) == 0)",
-      "not (parentIndexErr != nil)",
-      "not (parentTotalL1PoppedErr != nil)",
+      "not (err != nil)",
+      "not (err != nil)",
       "not (i < len(batch.Sidecar.Blobs))",
-      "not (decompressErr != nil)",
+      "not (err != nil)",
       "batch.Version > 0",
-      "not (parentVersionErr != nil)",
+      "not (err != nil)",
       "parentVersion == 0",
       "not (len(batchBytes) < 60)",
-      "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+      "not (err != nil)",
       "not (batch.LastBlockNumber < startBlock.Number)",
       "batch.BlockContexts != nil",
       "not (len(batch.BlockContexts) < 2)",
-      "not (len(batch.BlockContexts) < 2 + 60 * be16(BigEndian, batch.BlockContexts[:2]))"
+      "not (len(batch.BlockContexts) < 2 + 60 * blockCount)"
      ],
-     "value": "batchBytes",
+     "value": "zstd.DecompressBatchBytes(compressed).0",
+     "source_name": "batchBytes",
      "line": null
     },
     {
      "predecessor_block": 38,
      "path_condition": [
       "not (len(batch.Sidecar.Blobs) == 0)",
-      "not (parentIndexErr != nil)",
-      "not (parentTotalL1PoppedErr != nil)",
+      "not (err != nil)",
+      "not (err != nil)",
       "not (i < len(batch.Sidecar.Blobs))",
-      "not (decompressErr != nil)",
+      "not (err != nil)",
       "batch.Version > 0",
-      "not (parentVersionErr != nil)",
+      "not (err != nil)",
       "parentVersion == 0",
       "not (len(batchBytes) < 60)",
-      "not (BlockContext.Decode(startBlock, batchBytes[:60]) != nil)",
+      "not (err != nil)",
       "not (batch.LastBlockNumber < startBlock.Number)",
       "not (batch.BlockContexts != nil)",
-      "not (computedBlockCount > len(batchBytes) / 60)"
+      "not (blockCount > len(batchBytes) / 60)"
      ],
-     "value": "batchBytes[computedBlockCount * 60:]",
+     "value": "batchBytes[bcLen:]",
+     "source_name": "txsData",
      "line": 190
     }
    ]
@@ -701,6 +712,11 @@
     "data[i * 32]",
     "i"
    ],
+   "unchecked_error_operand": {
+    "guard_operand": "blob[i * 32]",
+    "reported_operand": "data[i * 32]",
+    "error_reports_unchecked_value": true
+   },
    "copy_calls": [
     {
      "arguments": [
@@ -721,6 +737,11 @@
     "blob[i * 32]",
     "i"
    ],
+   "unchecked_error_operand": {
+    "guard_operand": "blob[i * 32]",
+    "reported_operand": "blob[i * 32]",
+    "error_reports_unchecked_value": false
+   },
    "copy_calls": [
     {
      "arguments": [
@@ -743,9 +764,25 @@
       "blob[i * 32]",
       "i"
      ]
+    },
+    {
+     "field": "unchecked_error_operand",
+     "common_batch": {
+      "guard_operand": "blob[i * 32]",
+      "reported_operand": "data[i * 32]",
+      "error_reports_unchecked_value": true
+     },
+     "common_blob": {
+      "guard_operand": "blob[i * 32]",
+      "reported_operand": "blob[i * 32]",
+      "error_reports_unchecked_value": false
+     }
     }
    ],
-   "error_argument_difference_is_zero_bug": true
+   "error_reports_unchecked_value": {
+    "common_batch": true,
+    "common_blob": false
+   }
   }
  },
  "hash_encoders": {
@@ -776,7 +813,7 @@
     },
     {
      "line": null,
-     "expression": "hashArg[:]"
+     "expression": "v37[:]"
     }
    ],
    "codec_format": {
@@ -802,7 +839,7 @@
         ],
         [
          "expr",
-         "append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
+         "append(cycle#14, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
         ]
        ]
       ],
@@ -811,7 +848,7 @@
         "field": "blockContexts"
        }
       ],
-      "result": 12,
+      "result": 13,
       "in_loop": true,
       "site": {
        "file": "common/batch/batch_data.go",
@@ -829,7 +866,7 @@
         ],
         [
          "expr",
-         "append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
+         "append(cycle#14, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
         ]
        ]
       ],
@@ -850,13 +887,13 @@
       "offset": 0,
       "src": [
        {
-        "expr": "append(phi(nil|append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])), *cks.l1TxHashes)"
+        "expr": "append(phi(nil|append(cycle#14, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])), *cks.l1TxHashes)"
        }
       ],
       "byte": true,
       "dst": [
        "alloc",
-       36
+       37
       ],
       "site": {
        "file": "common/batch/batch_data.go",
@@ -878,7 +915,7 @@
        ],
        [
         "expr",
-        "append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
+        "append(cycle#14, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
        ]
       ]
      ],
@@ -887,7 +924,7 @@
        "field": "blockContexts"
       }
      ],
-     "result": 12,
+     "result": 13,
      "in_loop": true,
      "site": {
       "file": "common/batch/batch_data.go",
@@ -905,7 +942,7 @@
        ],
        [
         "expr",
-        "append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
+        "append(cycle#14, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])"
        ]
       ]
      ],
@@ -926,13 +963,13 @@
      "offset": 0,
      "src": [
       {
-       "expr": "append(phi(nil|append(cycle#13, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])), *cks.l1TxHashes)"
+       "expr": "append(phi(nil|append(cycle#14, *cks.blockContexts[phi(0|cycle#16 + 1) * 60:phi(0|cycle#16 + 1) * 60 + 58])), *cks.l1TxHashes)"
       }
      ],
      "byte": true,
      "dst": [
       "alloc",
-      36
+      37
      ],
      "site": {
       "file": "common/batch/batch_data.go",
@@ -944,15 +981,18 @@
     {
      "slot": [
       "alloc",
-      36
+      37
      ],
      "len": 1,
      "len_expr": null
     }
    ],
    "slice_partiality": {
+    "slice": "cks.blockContexts[i * 60:i * 60 + 58]",
+    "loop_bound": "cks.blockNum",
     "incomplete_full_context_predicate": "len(cks.blockContexts) < 60 * cks.blockNum",
-    "go_panic_condition": "for some i in [0, cks.blockNum), i*60+58 > len(cks.blockContexts)"
+    "maximal_index": "cks.blockNum - 1",
+    "go_panic_condition": "(cks.blockNum - 1) * 60 + 58 > len(cks.blockContexts)"
    }
   },
   "DataHashV2": {
@@ -964,7 +1004,7 @@
     },
     {
      "line": 94,
-     "expression": "heightErr != nil"
+     "expression": "err != nil"
     }
    ],
    "last_block_context_slice": [
@@ -974,7 +1014,7 @@
     },
     {
      "line": 90,
-     "expression": "cks.blockContexts[len(cks.blockContexts) - 60:]"
+     "expression": "lastBlockContext"
     },
     {
      "line": null,
@@ -986,7 +1026,7 @@
      "callee": "morph-l2/common/batch.HeightFromBlockContextBytes",
      "line": 93,
      "arguments": [
-      "cks.blockContexts[len(cks.blockContexts) - 60:]"
+      "lastBlockContext"
      ]
     }
    ],
@@ -1077,7 +1117,7 @@
       "byte": true,
       "dst": [
        "alloc",
-       24
+       27
       ],
       "site": {
        "file": "common/batch/batch_data.go",
@@ -1087,7 +1127,12 @@
     ],
     "field_stores": []
    },
-   "layout_formula": "be64(height) ++ be16(cks.l1TxNum) ++ cks.l1TxHashes",
+   "layout_parts": [
+    "batch.Uint64ToBigEndianBytes(height)",
+    "batch.Uint16ToBigEndianBytes(cks.l1TxNum)",
+    "cks.l1TxHashes"
+   ],
+   "layout_formula": "batch.Uint64ToBigEndianBytes(height) ++ batch.Uint16ToBigEndianBytes(cks.l1TxNum) ++ cks.l1TxHashes",
    "ops": [
     {
      "op": "copy",
@@ -1151,7 +1196,7 @@
      "byte": true,
      "dst": [
       "alloc",
-      24
+      27
      ],
      "site": {
       "file": "common/batch/batch_data.go",
@@ -1171,7 +1216,7 @@
     {
      "slot": [
       "alloc",
-      24
+      27
      ],
      "len": 1,
      "len_expr": null
@@ -1180,19 +1225,19 @@
    "destination_slices": [
     {
      "line": 106,
-     "expression": "makeslice(10 + len(cks.l1TxHashes))[:8]"
+     "expression": "hashData[:8]"
     },
     {
      "line": 107,
-     "expression": "makeslice(10 + len(cks.l1TxHashes))[8:10]"
+     "expression": "hashData[8:10]"
     },
     {
      "line": 108,
-     "expression": "makeslice(10 + len(cks.l1TxHashes))[10:]"
+     "expression": "hashData[10:]"
     },
     {
      "line": null,
-     "expression": "hashArg[:]"
+     "expression": "v27[:]"
     }
    ],
    "hash_oracle": [
@@ -1200,7 +1245,7 @@
      "callee": "github.com/morph-l2/go-ethereum/crypto.Keccak256Hash",
      "line": 110,
      "arguments": [
-      "hashArg[:]"
+      "v27[:]"
      ]
     }
    ]
@@ -1218,11 +1263,13 @@
   "EstimateCompressedSizeWithNewPayload": {
    "source": "common/batch/batch_data.go:124-135",
    "limit": {
-    "expression": "maxBlobCount * MaxBlobBytesSize",
     "ssa_expression": "maxBlobCount * 126976",
+    "expression": "maxBlobCount * blob.MaxBlobBytesSize",
     "constant": {
-     "name": "blob.MaxBlobBytesSize",
-     "value": 126976
+     "name": "MaxBlobBytesSize",
+     "pkg": "morph-l2/common/blob",
+     "type": "untyped int",
+     "value": "126976"
     }
    },
    "payload_concat": [
@@ -1231,15 +1278,15 @@
    ],
    "uncompressed_short_circuit": {
     "line": 127,
-    "expression": "len(append(cks.txsPayload, txPayload)) <= maxBlobCount * 126976"
+    "expression": "len(blobBytes) <= limit"
    },
-   "compressed_result": "len(compressed) > maxBlobCount * 126976",
+   "compressed_result": "len(compressed) > limit",
    "compressor_oracle": [
     {
      "callee": "morph-l2/common/blob.CompressBatchBytes",
      "line": 130,
      "arguments": [
-      "append(cks.txsPayload, txPayload)"
+      "blobBytes"
      ]
     }
    ],
@@ -1255,13 +1302,13 @@
      "line": 132,
      "values": [
       "False",
-      "compressErr"
+      "err"
      ]
     },
     {
      "line": 134,
      "values": [
-      "len(compressed) > maxBlobCount * 126976",
+      "len(compressed) > limit",
       "nil"
      ]
     }
@@ -1306,20 +1353,25 @@
      "other_ops": []
     },
     "append_result_may_share_backing": true,
-    "aliasing_kind": "conditional_backing_array",
-    "updates_cks_txsPayload_header": false,
-    "capacity_condition": "len(cks.txsPayload) + len(txPayload) <= cap(cks.txsPayload)",
-    "interpretation": "Go append may reuse cks.txsPayload's backing array when capacity is sufficient, otherwise it allocates a new backing array; the SSA stores no updated txsPayload slice header, so the alias is only possible on the returned blobBytes view."
+    "aliasing_kind": {
+     "destination": "loaded_field_slice",
+     "fresh_alloc": false,
+     "may_share_backing": true
+    },
+    "updates_header": false,
+    "capacity_condition": "len(cks.txsPayload) + len(txPayload) <= cap(cks.txsPayload)"
    }
   },
   "WillExceedCompressedSizeLimit": {
    "source": "common/batch/batch_data.go:149-161",
    "limit": {
-    "expression": "maxBlobCount * MaxBlobBytesSize",
     "ssa_expression": "maxBlobCount * 126976",
+    "expression": "maxBlobCount * blob.MaxBlobBytesSize",
     "constant": {
-     "name": "blob.MaxBlobBytesSize",
-     "value": 126976
+     "name": "MaxBlobBytesSize",
+     "pkg": "morph-l2/common/blob",
+     "type": "untyped int",
+     "value": "126976"
     }
    },
    "payload_concat": [
@@ -1330,15 +1382,15 @@
    ],
    "uncompressed_short_circuit": {
     "line": 153,
-    "expression": "len(combinePayloads(cks, newBlockContext, newTxPayload)) <= maxBlobCount * 126976"
+    "expression": "len(combinedBytes) <= limit"
    },
-   "compressed_result": "len(compressed) > maxBlobCount * 126976",
+   "compressed_result": "len(compressed) > limit",
    "compressor_oracle": [
     {
      "callee": "morph-l2/common/blob.CompressBatchBytes",
      "line": 156,
      "arguments": [
-      "combinePayloads(cks, newBlockContext, newTxPayload)"
+      "combinedBytes"
      ]
     }
    ],
@@ -1360,7 +1412,7 @@
     {
      "line": 160,
      "values": [
-      "len(compressed) > maxBlobCount * 126976",
+      "len(compressed) > limit",
       "nil"
      ]
     }
@@ -1377,27 +1429,27 @@
     "copy_order": [
      {
       "line": 140,
-      "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))",
+      "destination": "combined",
       "source": "cks.blockContexts"
      },
      {
       "line": 141,
-      "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts):]",
+      "destination": "combined[len(cks.blockContexts):]",
       "source": "newBlockContext"
      },
      {
       "line": 142,
-      "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts) + len(newBlockContext):]",
+      "destination": "combined[len(cks.blockContexts) + len(newBlockContext):]",
       "source": "cks.txsPayload"
      },
      {
       "line": 143,
-      "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload):]",
+      "destination": "combined[len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload):]",
       "source": "newTxPayload"
      }
     ],
     "returns": [
-     "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))"
+     "combined"
     ]
    }
   },
@@ -1413,27 +1465,27 @@
    "copy_order": [
     {
      "line": 140,
-     "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))",
+     "destination": "combined",
      "source": "cks.blockContexts"
     },
     {
      "line": 141,
-     "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts):]",
+     "destination": "combined[len(cks.blockContexts):]",
      "source": "newBlockContext"
     },
     {
      "line": 142,
-     "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts) + len(newBlockContext):]",
+     "destination": "combined[len(cks.blockContexts) + len(newBlockContext):]",
      "source": "cks.txsPayload"
     },
     {
      "line": 143,
-     "destination": "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))[len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload):]",
+     "destination": "combined[len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload):]",
      "source": "newTxPayload"
     }
    ],
    "returns": [
-    "makeslice(len(cks.blockContexts) + len(newBlockContext) + len(cks.txsPayload) + len(newTxPayload))"
+    "combined"
    ]
   },
   "batch_producer_calls": [
@@ -1444,16 +1496,16 @@
     "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchData).WillExceedCompressedSizeLimit",
     "path_condition": [
      "not (invoke.Len() == 0)",
-     "not (invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).1 != nil)",
-     "not (invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0 == nil)",
-     "not (big.Int).Uint64(types.Block).Header(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0).Number) != blockNumber)",
+     "not (err != nil)",
+     "not (block == nil)",
+     "not (Int.Uint64(header.Number) != blockNumber)",
      "blockNumber <= bc.lastPackedBlockHeight",
      "not (blockNumber != 0)",
      "not (bc.lastPackedBlockHeight != 0)",
      "not (blockNumber > bc.lastPackedBlockHeight + 1)",
      "bc.batchData == nil",
-     "not (batch.ParsingTxs(types.Block).Transactions(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0), bc.totalL1MessagePopped).4 != nil)",
-     "bc.isBatchUpgraded(types.Block).Header(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0).Time)"
+     "not (err != nil)",
+     "bc.isBatchUpgraded(header.Time)"
     ]
    },
    {
@@ -1463,16 +1515,16 @@
     "callee": "morph-l2/common/batch.(morph-l2/common/batch.BatchData).EstimateCompressedSizeWithNewPayload",
     "path_condition": [
      "not (invoke.Len() == 0)",
-     "not (invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).1 != nil)",
-     "not (invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0 == nil)",
-     "not (big.Int).Uint64(types.Block).Header(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0).Number) != blockNumber)",
+     "not (err != nil)",
+     "not (block == nil)",
+     "not (Int.Uint64(header.Number) != blockNumber)",
      "blockNumber <= bc.lastPackedBlockHeight",
      "not (blockNumber != 0)",
      "not (bc.lastPackedBlockHeight != 0)",
      "not (blockNumber > bc.lastPackedBlockHeight + 1)",
      "bc.batchData == nil",
-     "not (batch.ParsingTxs(types.Block).Transactions(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0), bc.totalL1MessagePopped).4 != nil)",
-     "not (bc.isBatchUpgraded(types.Block).Header(invoke.BlockByNumber(context.Background(), big.NewInt(blockNumber)).0).Time))"
+     "not (err != nil)",
+     "not (bc.isBatchUpgraded(header.Time))"
     ]
    }
   ]
@@ -1482,7 +1534,7 @@
   "stream_byte_address_from_binary_Read": "typeByte",
   "dispatch_table": [
    {
-    "condition": "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) == EOF",
+    "condition": "err == EOF",
     "action": "terminate",
     "result": "success",
     "line": 126
@@ -1499,18 +1551,18 @@
     "decoder": "decodeTypedTx",
     "path_conditions": [
      [
-      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (err != nil)",
       "not (typeByte == 0)",
       "typeByte == 1"
      ],
      [
-      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (err != nil)",
       "not (typeByte == 0)",
       "not (typeByte == 1)",
       "typeByte == 2"
      ],
      [
-      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (err != nil)",
       "not (typeByte == 0)",
       "not (typeByte == 1)",
       "not (typeByte == 2)",
@@ -1524,7 +1576,7 @@
     "decoder": "decodeMorphTx",
     "path_conditions": [
      [
-      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (err != nil)",
       "not (typeByte == 0)",
       "not (typeByte == 1)",
       "not (typeByte == 2)",
@@ -1539,7 +1591,7 @@
     "decoder": "extractInnerTxFullBytes",
     "path_conditions": [
      [
-      "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+      "not (err != nil)",
       "not (typeByte == 0)",
       "not (typeByte == 1)",
       "not (typeByte == 2)",
@@ -1610,7 +1662,7 @@
     127
    ],
    "extractInnerTxFullBytes": [],
-   "rlp.DecodeBytes": []
+   "DecodeBytes": []
   },
   "byte_zero_termination": {
    "condition": {
@@ -1622,21 +1674,21 @@
    },
    "success_paths": [
     [
-     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (err != nil)",
      "typeByte == 0"
     ]
    ]
   },
   "eof_termination": {
    "condition": {
-    "condition": "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) == EOF",
+    "condition": "err == EOF",
     "line": 126,
     "block": 3
    },
    "success_paths": [
     [
-     "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil",
-     "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) == EOF"
+     "err != nil",
+     "err == EOF"
     ]
    ]
   },
@@ -1646,8 +1698,8 @@
     "message": null,
     "kind": "propagated_error",
     "path_condition": [
-     "binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil",
-     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) == EOF)"
+     "err != nil",
+     "not (err == EOF)"
     ]
    },
    {
@@ -1655,10 +1707,10 @@
     "message": null,
     "kind": "propagated_error",
     "path_condition": [
-     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (err != nil)",
      "not (typeByte == 0)",
      "typeByte == 1",
-     "typedTxErr != nil"
+     "err != nil"
     ]
    },
    {
@@ -1666,11 +1718,11 @@
     "message": null,
     "kind": "propagated_error",
     "path_condition": [
-     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (err != nil)",
      "not (typeByte == 0)",
      "not (typeByte == 1)",
      "typeByte == 2",
-     "typedTxErr != nil"
+     "err != nil"
     ]
    },
    {
@@ -1678,12 +1730,12 @@
     "message": null,
     "kind": "propagated_error",
     "path_condition": [
-     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (err != nil)",
      "not (typeByte == 0)",
      "not (typeByte == 1)",
      "not (typeByte == 2)",
      "typeByte == 4",
-     "typedTxErr != nil"
+     "err != nil"
     ]
    },
    {
@@ -1691,13 +1743,13 @@
     "message": null,
     "kind": "propagated_error",
     "path_condition": [
-     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (err != nil)",
      "not (typeByte == 0)",
      "not (typeByte == 1)",
      "not (typeByte == 2)",
      "not (typeByte == 4)",
      "typeByte == 127",
-     "morphTxErr != nil"
+     "err != nil"
     ]
    },
    {
@@ -1705,7 +1757,7 @@
     "message": "not supported tx type: %d",
     "kind": "fmt.Errorf",
     "path_condition": [
-     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (err != nil)",
      "not (typeByte == 0)",
      "not (typeByte == 1)",
      "not (typeByte == 2)",
@@ -1719,14 +1771,14 @@
     "message": null,
     "kind": "propagated_error",
     "path_condition": [
-     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (err != nil)",
      "not (typeByte == 0)",
      "not (typeByte == 1)",
      "not (typeByte == 2)",
      "not (typeByte == 4)",
      "not (typeByte == 127)",
      "not (typeByte <= 247)",
-     "innerTxErr != nil"
+     "err != nil"
     ]
    },
    {
@@ -1734,15 +1786,15 @@
     "message": null,
     "kind": "propagated_error",
     "path_condition": [
-     "not (binary.Read(bytes.NewReader(txsBytes), BigEndian, typeByte) != nil)",
+     "not (err != nil)",
      "not (typeByte == 0)",
      "not (typeByte == 1)",
      "not (typeByte == 2)",
      "not (typeByte == 4)",
      "not (typeByte == 127)",
      "not (typeByte <= 247)",
-     "not (innerTxErr != nil)",
-     "rlp.DecodeBytes(innerTxBytes, innerTx) != nil"
+     "not (err != nil)",
+     "err != nil"
     ]
    }
   ],

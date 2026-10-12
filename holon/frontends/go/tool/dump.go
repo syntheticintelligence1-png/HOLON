@@ -227,6 +227,15 @@ func dumpFunc(prog *ssa.Program, f *ssa.Function, root string) Func {
 			case *ssa.Next:
 				in = Instr{Op: "next", Args: refs(i.Iter)}
 			case *ssa.DebugRef:
+				name := ""
+				_, isVar := i.Object().(*types.Var)
+				if i.Object() != nil {
+					name = i.Object().Name()
+				}
+				out.DebugRefs = append(out.DebugRefs, DebugRef{
+					Value: ref(i.X), Name: name, Expr: types.ExprString(i.Expr),
+					IsAddr: i.IsAddr, IsVar: isVar, Line: fset.Position(i.Pos()).Line,
+				})
 				continue
 			default:
 				in = Instr{Op: "unknown", Name: fmt.Sprintf("%T", ins)}
