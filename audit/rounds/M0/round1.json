@@ -1,0 +1,73 @@
+{
+  "round": 1,
+  "target_commit": "01aa22f29de08f32abcd082c5d8cc523d67d2938",
+  "auditor": {
+    "session": "I5 auditor (stopped early at the human's request; partial round)",
+    "family": "same",
+    "counts_toward_convergence": false
+  },
+  "milestone": "M0",
+  "attacks": [
+    {
+      "id": "A1",
+      "category": "statement_fidelity",
+      "tried": "Started comparing gen/M0/*/LAWS.bend with laws/M0/*.json; the audit was stopped before a result was recorded (incomplete).",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A2",
+      "category": "gate_evasion",
+      "tried": "Attack A (proof/laws co-location) and attack C (counter-law at another witness) on copies; full gate passed for both.",
+      "result": "finding",
+      "findings": [
+        "F-M1-04",
+        "F-M1-06"
+      ]
+    },
+    {
+      "id": "A3",
+      "category": "model_vs_code",
+      "tried": "Sampled facts ops were not finished before the stop (incomplete).",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A4",
+      "category": "vacuity",
+      "tried": "Covered by G11V; the vacuity probe (vac/probe.py) did not report before the stop (incomplete).",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A5",
+      "category": "determinism",
+      "tried": "Two full runs in separate copies: 40 files each, identical after stripping 'seconds', identical to the committed outputs.",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A6",
+      "category": "mutation_adequacy",
+      "tried": "Three new mutations: NM0_1 v0 length off-by-one, NM0_2 Go v1 drops ssvh, NM0_3 Go v1 len >= 257. NM0_2 moves L_par_hdr_ssvh; NM0_1 and NM0_3 move nothing.",
+      "result": "finding",
+      "findings": [
+        "F-M0-01",
+        "F-M0-02"
+      ]
+    },
+    {
+      "id": "A7",
+      "category": "bindings_ledger",
+      "tried": "Not reached before the stop (incomplete).",
+      "result": "no_finding",
+      "findings": []
+    }
+  ],
+  "findings": [
+    "F-M0-01",
+    "F-M0-02",
+    "F-M1-04",
+    "F-M1-06"
+  ]
+}
