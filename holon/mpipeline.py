@@ -55,11 +55,14 @@ class CompiledMachine:
         return str(h) if h else None
 
     @classmethod
-    def build(cls, facts_path: Path, cfg: dict | None = None, reach: bool = False) -> "CompiledMachine":
-        """reach: emit the Reach predicate (M2+ milestones, I8)."""
+    def build(cls, facts_path: Path, cfg: dict | None = None, reach: bool = False,
+              anchor: Path | None = None) -> "CompiledMachine":
+        """reach: emit the Reach predicate (M2+ milestones, I8). anchor: the facts file whose target
+        libraries and search hints apply (holon.gen.targetlib), when facts_path stands in for it (a
+        `--facts` override such as a mutated copy); by default facts_path itself."""
         facts = F.load(facts_path)
         sha = F.sha256_file(facts_path)
-        m = Machine(facts, facts_path)
+        m = Machine(facts, anchor or facts_path)
         text = m.generate(sha, reach)
         src = bend.build_dir(ROOT) / "eval" / (sha[:16] + ("-reach" if reach else "")) / f"{model_name(facts_path)}.bend"
         src.parent.mkdir(parents=True, exist_ok=True)
@@ -73,7 +76,7 @@ class CompiledMachine:
             if r.code != 0 or not art.exists():
                 raise RuntimeError(f"bend failed to compile {src}: {r.out[:2000]}")
             stamp.write_text(h)
-        return cls(src, art, facts, m, Path(facts_path))
+        return cls(src, art, facts, m, Path(anchor or facts_path))
 
     def evaluate(self, law: dict, assignment: dict) -> dict:
         """Premises and claims of a law at one assignment, on the compiled model."""
@@ -297,7 +300,10 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
     def machine_for(law: dict):
         fp = fpath_of(law)
         if fp not in machines:
-            cm_ = CompiledMachine.build(fp, cfg, reach=m2plus(milestone))
+            # a --facts override stands in for the registry's facts: it takes their target libraries and
+            # search hints (I6 put them next to the facts; a mutated copy elsewhere would otherwise lose them)
+            anchor = ROOT / primary if (override and fp == override) else None
+            cm_ = CompiledMachine.build(fp, cfg, reach=m2plus(milestone), anchor=anchor)
             src = gen / "model" / f"{model_name(fp)}.bend"
             src.write_text(cm_.source.read_text())
             (gen / "model" / f"{model_name(fp)}.defs.json").write_text(bindings.dump(bindings.defs_index(src, cfg)))
