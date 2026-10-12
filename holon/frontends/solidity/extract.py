@@ -126,7 +126,7 @@ def principal_of(fn, spec):
 
 
 def _merge_ch(merge_state, k, conds, rec, tr):
-    """Merge a ch_rec write into pending set_ch state.
+    """Merge a record write (ch_rec) into pending set_ch/set_rec state.
 
     merge_state[k] = {"nm": base-name, "fields": {f: e}, "replace": mk-record}.
     """
@@ -139,6 +139,7 @@ def _merge_ch(merge_state, k, conds, rec, tr):
         return
     if isinstance(rec, list) and rec[0] == "with":
         st["nm"] = rec[2] if isinstance(rec[2], str) else "ch"
+        st["rec"] = rec[1]
         for m, v in rec[3].items():
             if conds:
                 ctor = next((c for c in tr.spec["struct_ctors"].values() if c.get("record") == rec[1]), {})
@@ -171,20 +172,22 @@ def compose_effects(tr, writes):
             eff[f] = simplify(e) if isinstance(e, list) else e
         elif kind == "ch_rec":
             _, f, k, conds, rec = w
-            field_prov.setdefault("chs", []).append(wp)
-            key = canon(k)
+            tgt = f["field"]
+            field_prov.setdefault(tgt, []).append(wp)
+            key = (tgt, canon(k))
             if key not in merges:
-                merge_order.append((key, k))
+                merge_order.append((key, tgt, k, f.get("record", "Ch")))
             _merge_ch(merges.setdefault(key, {}), k, conds, rec, tr)
-    for key, k in merge_order:
+    for key, tgt, k, rname in merge_order:
         st = merges[key]
+        op = "set_ch" if rname == "Ch" else "set_rec"
         if st.get("replace") is not None:
             rec = st["replace"]
             if st["fields"]:
                 rec = ["with", tr.spec["struct_ctors"][rec[1]]["record"], rec[2], {**rec[3], **st["fields"]}] if rec[0] == "mk" else rec
-            eff["chs"] = ["call", "set_ch", "chs", k, rec]
+            eff[tgt] = ["call", op, tgt, k, rec]
         else:
-            eff["chs"] = ["call", "set_ch", "chs", k, ["with", "Ch", st.get("nm", "ch"), st["fields"]]]
+            eff[tgt] = ["call", op, tgt, k, ["with", rname, st.get("nm", "ch"), st["fields"]]]
     # materialize a constructed window entry
     a = tr.action_spec
     if tr.new_entry is not None:
@@ -213,9 +216,10 @@ def extract(world, spec, out_path=None, cov_path=None):
 
     # ---- defs: scaffold + extracted-from-source helpers
     defs = scaffold_defs(spec)
+    defs = {k: v for k, v in defs.items() if k in spec.get("defs_scaffold", [])}
     defs_prov = {k: "spec" for k in defs}
     def_debt = []
-    for dname, d in spec["defs_from"].items():
+    for dname, d in spec.get("defs_from", {}).items():
         cname, fname = d["fn"]
         tr = Translator(world, spec)
         tr.reasons = {}
@@ -270,7 +274,14 @@ def extract(world, spec, out_path=None, cov_path=None):
                 if isinstance(v, list):
                     v = tr.rewrite_lets(v)
                 body = v if not isinstance(v, tuple) else None
-        if body is None and d.get("body") is not None:
+        if d.get("body_forced") and d.get("body") is not None:
+            # spec-declared body wins even when an AST derivation exists but is
+            # partial (e.g. an unsupported loop leaves a shadow-local unbound).
+            body = d["body"]
+            defs_prov[dname] = "spec"
+            def_debt.append({"element": f"defs.{dname}.body", "kind": "spec_bound",
+                             "reason": "AST derivation partial or unsupported; spec-declared explicit value"})
+        elif body is None and d.get("body") is not None:
             body = d["body"]
             defs_prov[dname] = "spec"
             def_debt.append({"element": f"defs.{dname}.body", "kind": "spec_bound",
@@ -378,7 +389,7 @@ def extract(world, spec, out_path=None, cov_path=None):
         "reasons": {str(i): s for s, i in reasons.items()},
         "defs": defs,
         "actions": actions,
-        "migrations": spec["migrations_declared"],
+        "migrations": spec.get("migrations_declared", {}),
         "observers": spec["observers"],
         "disch": spec["disch"],
         "consumers": spec["consumers"],
@@ -397,7 +408,9 @@ def extract(world, spec, out_path=None, cov_path=None):
 
 def main(argv=None):
     import sys
-    spec = load_spec()
+    argv = sys.argv[1:] if argv is None else argv
+    spec_path = argv[0] if argv else None
+    spec = load_spec(spec_path)
     morph = os.environ.get(spec["morph_root_env"], spec["morph_root_default"])
     morph = os.path.expanduser(morph)
     world = astload.run_solc(spec, morph)

@@ -1,0 +1,996 @@
+{
+ "facts_version": "holon-facts/0.2",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "scope": "Submitter.sol: registration, stake, withdrawal, slashing for batch submitters"
+ },
+ "extraction": {
+  "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
+ },
+ "abstractions": [],
+ "params": {
+  "OWNER": 1,
+  "LFI": 7,
+  "LCI": 9,
+  "rollupContract": 6
+ },
+ "constants_doc": {},
+ "types": {},
+ "state": [
+  [
+   "t",
+   "Nat",
+   "block.timestamp (environment)"
+  ],
+  [
+   "own",
+   "Nat",
+   "OwnableUpgradeable._owner"
+  ],
+  [
+   "min_stake",
+   "Nat",
+   "minimumStake"
+  ],
+  [
+   "dep",
+   "Nat",
+   "challengeDeposit"
+  ],
+  [
+   "rew",
+   "Nat",
+   "rewardPercentage"
+  ],
+  [
+   "srem",
+   "Nat",
+   "slashRemaining"
+  ],
+  [
+   "reg",
+   "List<Nat>",
+   "registered (role set)"
+  ],
+  [
+   "stake",
+   "List<Nat>",
+   "stakeOf"
+  ],
+  [
+   "wdr",
+   "List<Nat>",
+   "withdrawing (role set)"
+  ],
+  [
+   "wbi",
+   "List<Nat>",
+   "withdrawalBatchIndex"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "event log"
+  ]
+ ],
+ "ghost_state": [],
+ "shadow": {},
+ "initial": {
+  "t": 0,
+  "own": 1,
+  "min_stake": 1,
+  "dep": 1,
+  "rew": 10,
+  "srem": 0,
+  "reg": [
+   2,
+   3
+  ],
+  "stake": [
+   5,
+   7
+  ],
+  "wdr": [],
+  "wbi": [],
+  "log": []
+ },
+ "principals": {
+  "1": "owner",
+  "5": "anyone"
+ },
+ "reasons": {
+  "1": "invalid owner",
+  "2": "invalid rollup contract",
+  "3": "invalid minimum stake",
+  "4": "invalid challenge deposit",
+  "5": "invalid reward percentage",
+  "6": "invalid submitter",
+  "7": "not stakeable",
+  "8": "below minimum stake",
+  "9": "not withdrawable",
+  "10": "invalid receiver",
+  "11": "not withdrawing",
+  "12": "withdrawal batch not finalized",
+  "13": "only rollup contract",
+  "14": "panic:0x11",
+  "15": "no slash remaining"
+ },
+ "defs": {
+  "is_active": {
+   "params": [
+    [
+     "reg",
+     "List<Nat>"
+    ],
+    [
+     "wdr",
+     "List<Nat>"
+    ],
+    [
+     "stake",
+     "List<Nat>"
+    ],
+    [
+     "min_stake",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "&&",
+    [
+     "&&",
+     [
+      "call",
+      "mem",
+      "sub",
+      "reg"
+     ],
+     [
+      "!",
+      [
+       "call",
+       "mem",
+       "sub",
+       "wdr"
+      ]
+     ]
+    ],
+    [
+     ">=",
+     [
+      "call",
+      "nth",
+      "stake",
+      "sub"
+     ],
+     "min_stake"
+    ]
+   ],
+   "src": null
+  }
+ },
+ "actions": [
+  {
+   "name": "initialize",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:43-68",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "owner_",
+     "Nat"
+    ],
+    [
+     "rollup_",
+     "Nat"
+    ],
+    [
+     "mins_",
+     "Nat"
+    ],
+    [
+     "dep_",
+     "Nat"
+    ],
+    [
+     "rew_",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "!=",
+      "owner_",
+      0
+     ],
+     "reason": 1,
+     "src": "contracts/l1/rollup/Submitter.sol:50"
+    },
+    {
+     "require": [
+      "&&",
+      [
+       "!=",
+       "rollup_",
+       0
+      ],
+      [
+       ">",
+       "rollup_",
+       0
+      ]
+     ],
+     "reason": 2,
+     "src": "contracts/l1/rollup/Submitter.sol:51"
+    },
+    {
+     "require": [
+      ">",
+      "mins_",
+      0
+     ],
+     "reason": 3,
+     "src": "contracts/l1/rollup/Submitter.sol:52"
+    },
+    {
+     "require": [
+      ">",
+      "dep_",
+      0
+     ],
+     "reason": 4,
+     "src": "contracts/l1/rollup/Submitter.sol:53"
+    },
+    {
+     "require": [
+      "&&",
+      [
+       ">",
+       "rew_",
+       0
+      ],
+      [
+       "<=",
+       "rew_",
+       100
+      ]
+     ],
+     "reason": 5,
+     "src": "contracts/l1/rollup/Submitter.sol:54"
+    }
+   ],
+   "effects": {
+    "min_stake": "mins_",
+    "dep": "dep_",
+    "rew": "rew_"
+   }
+  },
+  {
+   "name": "addSubmitter",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:74-81",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "&&",
+      [
+       "!=",
+       "sub",
+       0
+      ],
+      [
+       "!",
+       [
+        "call",
+        "mem",
+        "sub",
+        "reg"
+       ]
+      ],
+      [
+       "!",
+       [
+        "call",
+        "mem",
+        "sub",
+        "wdr"
+       ]
+      ],
+      [
+       "==",
+       [
+        "call",
+        "nth",
+        "stake",
+        "sub"
+       ],
+       0
+      ]
+     ],
+     "reason": 6,
+     "src": "contracts/l1/rollup/Submitter.sol:75"
+    }
+   ],
+   "effects": {
+    "reg": [
+     "?",
+     [
+      "call",
+      "mem",
+      "sub",
+      "reg"
+     ],
+     "reg",
+     [
+      "call",
+      "snoc",
+      "reg",
+      "sub"
+     ]
+    ]
+   }
+  },
+  {
+   "name": "removeSubmitter",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:83-91",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "&&",
+      [
+       "call",
+       "mem",
+       "sub",
+       "reg"
+      ],
+      [
+       "!",
+       [
+        "call",
+        "mem",
+        "sub",
+        "wdr"
+       ]
+      ]
+     ],
+     "reason": 6,
+     "src": "contracts/l1/rollup/Submitter.sol:84"
+    },
+    {
+     "let": "vamount",
+     "expr": [
+      "call",
+      "nth",
+      "stake",
+      "sub"
+     ],
+     "src": "contracts/l1/rollup/Submitter.sol:86"
+    }
+   ],
+   "effects": {
+    "reg": [
+     "call",
+     "remove",
+     "sub",
+     "reg"
+    ],
+    "wdr": [
+     "?",
+     [
+      ">",
+      "vamount",
+      0
+     ],
+     [
+      "?",
+      [
+       "call",
+       "mem",
+       "sub",
+       "wdr"
+      ],
+      "wdr",
+      [
+       "call",
+       "snoc",
+       "wdr",
+       "sub"
+      ]
+     ],
+     "wdr"
+    ],
+    "wbi": [
+     "?",
+     [
+      ">",
+      "vamount",
+      0
+     ],
+     [
+      "call",
+      "set_nat",
+      "wbi",
+      "sub",
+      "LCI"
+     ],
+     "wbi"
+    ]
+   }
+  },
+  {
+   "name": "setMinimumStake",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:93-97",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "&&",
+      [
+       ">",
+       "val",
+       0
+      ],
+      [
+       "!=",
+       "val",
+       "min_stake"
+      ]
+     ],
+     "reason": 3,
+     "src": "contracts/l1/rollup/Submitter.sol:94"
+    }
+   ],
+   "effects": {
+    "min_stake": "val"
+   }
+  },
+  {
+   "name": "updateChallengeDeposit",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:99-103",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "&&",
+      [
+       ">",
+       "val",
+       0
+      ],
+      [
+       "!=",
+       "val",
+       "dep"
+      ]
+     ],
+     "reason": 4,
+     "src": "contracts/l1/rollup/Submitter.sol:100"
+    }
+   ],
+   "effects": {
+    "dep": "val"
+   }
+  },
+  {
+   "name": "updateRewardPercentage",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:105-110",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "&&",
+      [
+       ">",
+       "val",
+       0
+      ],
+      [
+       "<=",
+       "val",
+       100
+      ],
+      [
+       "!=",
+       "val",
+       "rew"
+      ]
+     ],
+     "reason": 5,
+     "src": "contracts/l1/rollup/Submitter.sol:106"
+    }
+   ],
+   "effects": {
+    "rew": "val"
+   }
+  },
+  {
+   "name": "stake",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:112-118",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "&&",
+      [
+       "call",
+       "mem",
+       "sub",
+       "reg"
+      ],
+      [
+       "!",
+       [
+        "call",
+        "mem",
+        "sub",
+        "wdr"
+       ]
+      ]
+     ],
+     "reason": 7,
+     "src": "contracts/l1/rollup/Submitter.sol:113"
+    },
+    {
+     "let": "vtotal",
+     "expr": [
+      "+",
+      [
+       "call",
+       "nth",
+       "stake",
+       "sub"
+      ],
+      "value"
+     ],
+     "src": "contracts/l1/rollup/Submitter.sol:114"
+    },
+    {
+     "require": [
+      "&&",
+      [
+       ">",
+       "value",
+       0
+      ],
+      [
+       ">=",
+       "vtotal",
+       "min_stake"
+      ]
+     ],
+     "reason": 8,
+     "src": "contracts/l1/rollup/Submitter.sol:115"
+    }
+   ],
+   "effects": {
+    "stake": [
+     "call",
+     "set_nat",
+     "stake",
+     "sub",
+     "vtotal"
+    ]
+   }
+  },
+  {
+   "name": "withdraw",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:120-127",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "&&",
+      [
+       "call",
+       "mem",
+       "who",
+       "reg"
+      ],
+      [
+       "!",
+       [
+        "call",
+        "mem",
+        "who",
+        "wdr"
+       ]
+      ],
+      [
+       ">",
+       [
+        "call",
+        "nth",
+        "stake",
+        "who"
+       ],
+       0
+      ]
+     ],
+     "reason": 9,
+     "src": "contracts/l1/rollup/Submitter.sol:122"
+    }
+   ],
+   "effects": {
+    "reg": [
+     "call",
+     "remove",
+     "who",
+     "reg"
+    ],
+    "wdr": [
+     "?",
+     [
+      "call",
+      "mem",
+      "who",
+      "wdr"
+     ],
+     "wdr",
+     [
+      "call",
+      "snoc",
+      "wdr",
+      "who"
+     ]
+    ],
+    "wbi": [
+     "call",
+     "set_nat",
+     "wbi",
+     "who",
+     "LCI"
+    ]
+   }
+  },
+  {
+   "name": "claimWithdrawal",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:129-145",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "rc",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "!=",
+      "rc",
+      0
+     ],
+     "reason": 10,
+     "src": "contracts/l1/rollup/Submitter.sol:131"
+    },
+    {
+     "require": [
+      "call",
+      "mem",
+      "who",
+      "wdr"
+     ],
+     "reason": 11,
+     "src": "contracts/l1/rollup/Submitter.sol:132"
+    },
+    {
+     "require": [
+      ">=",
+      "LFI",
+      [
+       "call",
+       "nth",
+       "wbi",
+       "who"
+      ]
+     ],
+     "reason": 12,
+     "src": "contracts/l1/rollup/Submitter.sol:133"
+    },
+    {
+     "let": "vamount",
+     "expr": [
+      "call",
+      "nth",
+      "stake",
+      "who"
+     ],
+     "src": "contracts/l1/rollup/Submitter.sol:138"
+    }
+   ],
+   "effects": {
+    "stake": [
+     "call",
+     "set_nat",
+     "stake",
+     "who",
+     0
+    ],
+    "wdr": [
+     "call",
+     "remove",
+     "who",
+     "wdr"
+    ],
+    "wbi": [
+     "call",
+     "set_nat",
+     "wbi",
+     "who",
+     0
+    ]
+   }
+  },
+  {
+   "name": "slash",
+   "principal": "rollup contract",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:147-161",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ],
+    [
+     "reward",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "==",
+      "who",
+      "rollupContract"
+     ],
+     "reason": 13,
+     "src": "contracts/l1/rollup/Submitter.sol:35"
+    },
+    {
+     "let": "vamount",
+     "expr": [
+      "call",
+      "nth",
+      "stake",
+      "sub"
+     ],
+     "src": "contracts/l1/rollup/Submitter.sol:149"
+    },
+    {
+     "require": [
+      "<=",
+      "reward",
+      "vamount"
+     ],
+     "reason": 14,
+     "src": "contracts/l1/rollup/Submitter.sol:156"
+    }
+   ],
+   "effects": {
+    "reg": [
+     "call",
+     "remove",
+     "sub",
+     "reg"
+    ],
+    "stake": [
+     "call",
+     "set_nat",
+     "stake",
+     "sub",
+     0
+    ],
+    "wdr": [
+     "call",
+     "remove",
+     "sub",
+     "wdr"
+    ],
+    "wbi": [
+     "call",
+     "set_nat",
+     "wbi",
+     "sub",
+     0
+    ],
+    "srem": [
+     "+",
+     "srem",
+     [
+      "-",
+      "vamount",
+      "reward"
+     ]
+    ]
+   }
+  },
+  {
+   "name": "claimSlashRemaining",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:163-169",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "rc",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "!=",
+      "rc",
+      0
+     ],
+     "reason": 10,
+     "src": "contracts/l1/rollup/Submitter.sol:162"
+    },
+    {
+     "require": [
+      ">",
+      "srem",
+      0
+     ],
+     "reason": 15,
+     "src": "contracts/l1/rollup/Submitter.sol:164"
+    }
+   ],
+   "effects": {
+    "srem": 0
+   }
+  }
+ ],
+ "migrations": {},
+ "observers": {},
+ "disch": {},
+ "consumers": {},
+ "coverage": {
+  "modelled": [],
+  "debt": []
+ },
+ "provenance": {
+  "params": "spec",
+  "constants_doc": "spec",
+  "principals": "spec",
+  "abstractions": "spec",
+  "types": "spec",
+  "state": "spec",
+  "ghost_state": "spec",
+  "shadow": "spec",
+  "initial": "spec",
+  "observers": "spec",
+  "disch": "spec",
+  "consumers": "spec",
+  "coverage": "spec",
+  "actions.initialize.guards": "ast",
+  "actions.initialize.effects": "ast",
+  "actions.initialize.entry": "ast",
+  "actions.addSubmitter.guards": "ast",
+  "actions.addSubmitter.effects": "ast",
+  "actions.addSubmitter.entry": "ast",
+  "actions.removeSubmitter.guards": "ast",
+  "actions.removeSubmitter.effects": "ast",
+  "actions.removeSubmitter.entry": "ast",
+  "actions.setMinimumStake.guards": "ast",
+  "actions.setMinimumStake.effects": "ast",
+  "actions.setMinimumStake.entry": "ast",
+  "actions.updateChallengeDeposit.guards": "ast",
+  "actions.updateChallengeDeposit.effects": "ast",
+  "actions.updateChallengeDeposit.entry": "ast",
+  "actions.updateRewardPercentage.guards": "ast",
+  "actions.updateRewardPercentage.effects": "ast",
+  "actions.updateRewardPercentage.entry": "ast",
+  "actions.stake.guards": "ast",
+  "actions.stake.effects": "ast",
+  "actions.stake.entry": "ast",
+  "actions.withdraw.guards": "ast",
+  "actions.withdraw.effects": "ast",
+  "actions.withdraw.entry": "ast",
+  "actions.claimWithdrawal.guards": "ast",
+  "actions.claimWithdrawal.effects": "ast",
+  "actions.claimWithdrawal.entry": "ast",
+  "actions.slash.guards": "ast",
+  "actions.slash.effects": "ast",
+  "actions.slash.entry": "ast",
+  "actions.claimSlashRemaining.guards": "ast",
+  "actions.claimSlashRemaining.effects": "ast",
+  "actions.claimSlashRemaining.entry": "ast",
+  "facts_version": "spec",
+  "target": "spec",
+  "extraction": "spec",
+  "reasons": "ast",
+  "defs": "ast",
+  "defs.is_active": "ast",
+  "migrations": "spec"
+ }
+}

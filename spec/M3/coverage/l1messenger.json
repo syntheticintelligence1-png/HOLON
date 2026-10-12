@@ -1,0 +1,160 @@
+{
+ "frontend": "solidity_transitions",
+ "target_commit": "3e44e795586af3e11285b603ab642c67823add51",
+ "items": [
+  {
+   "element": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41 call _checkOwner",
+   "kind": "unmodelled_call",
+   "reason": "_checkOwner not in scope contracts"
+  },
+  {
+   "element": "action:replayMessage.modifier:notInExecution",
+   "kind": "abstracted_modifier",
+   "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "action:replayMessage.modifier:whenNotPaused",
+   "kind": "abstracted_modifier",
+   "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:188 storage messageQueue",
+   "kind": "unmodelled_read",
+   "reason": "queue address"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:189 storage counterpart",
+   "kind": "unmodelled_read",
+   "reason": "counterpart messenger address"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:190 _encodeXDomainCalldata",
+   "kind": "unmodelled_value",
+   "reason": "_encodeXDomainCalldata"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:204 require Failed to deduct the fee",
+   "kind": "unmodelled_require",
+   "reason": "require(Failed to deduct the fee) not translated"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:209 IL1MessageQueue.appendCrossDomainMessage",
+   "kind": "unmodelled_call",
+   "reason": "queue append; the queue-side effects live in the queue machine"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:241 require Failed to refund the fee",
+   "kind": "unmodelled_require",
+   "reason": "require(Failed to refund the fee) not translated"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:initialize",
+   "kind": "unmodelled_fn",
+   "reason": "initializer; deployment wiring not modelled"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:replayMessage enqueue",
+   "kind": "unmodelled_call",
+   "reason": "appendCrossDomainMessage side effects live on the queue machine"
+  },
+  {
+   "element": "defs.est_fee.body",
+   "kind": "spec_bound",
+   "reason": "fee = (baseFee+fee)*gasLimit; the Nat DSL has no multiplication, amt abstracts the product"
+  },
+  {
+   "element": "defs.est_fee.body",
+   "kind": "spec_bound",
+   "reason": "AST derivation partial or unsupported; spec-declared explicit value"
+  },
+  {
+   "element": "facts.abstractions",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:abstractions"
+  },
+  {
+   "element": "facts.constants_doc",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:constants_doc"
+  },
+  {
+   "element": "facts.consumers",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:consumers"
+  },
+  {
+   "element": "facts.coverage",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:coverage"
+  },
+  {
+   "element": "facts.disch",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:disch"
+  },
+  {
+   "element": "facts.ghost_state",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:ghost_state"
+  },
+  {
+   "element": "facts.initial",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:initial"
+  },
+  {
+   "element": "facts.migrations",
+   "kind": "spec_bound",
+   "reason": "declared environment actions; no source",
+   "src": "spec:migrations_declared"
+  },
+  {
+   "element": "facts.observers",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:observers"
+  },
+  {
+   "element": "facts.params",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:params"
+  },
+  {
+   "element": "facts.principals",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:principals"
+  },
+  {
+   "element": "facts.shadow",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:shadow"
+  },
+  {
+   "element": "facts.state",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:state"
+  },
+  {
+   "element": "facts.types",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:types"
+  },
+  {
+   "element": "handler:_encodeXDomainCalldata",
+   "kind": "spec_bound",
+   "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)"
+  }
+ ]
+}

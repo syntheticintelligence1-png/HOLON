@@ -1,0 +1,553 @@
+{
+ "facts_version": "holon-facts/0.2",
+ "frontend_name": "solidity_transitions",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "scope": "Submitter.sol: registration, stake, withdrawal, slashing for batch submitters"
+ },
+ "morph_root_env": "HOLON_MORPH_DIR",
+ "morph_root_default": "~/ext/morph",
+ "extraction": {
+  "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
+ },
+ "abstractions": [],
+ "constants_doc": {},
+ "modifiers_abstracted": [
+  "initializer",
+  "reinitializer",
+  "onlyInitializing",
+  "nonReentrant"
+ ],
+ "handlers": {},
+ "sites": [],
+ "struct_ctors": {},
+ "hoist_policy": {},
+ "carrier_idx": {},
+ "commit_notes": {},
+ "codec_fields": {},
+ "expected_deltas": [],
+ "defs_from": {
+  "is_active": {
+   "fn": [
+    "Submitter",
+    "isActive"
+   ],
+   "params": [
+    [
+     "reg",
+     "List<Nat>"
+    ],
+    [
+     "wdr",
+     "List<Nat>"
+    ],
+    [
+     "stake",
+     "List<Nat>"
+    ],
+    [
+     "min_stake",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "type": "Bool",
+   "arg_map": {
+    "sub": 0
+   }
+  }
+ },
+ "defs_scaffold": [],
+ "ghost_state": [],
+ "shadow": {},
+ "env": {
+  "msg.sender": "who",
+  "_msgSender()": "who",
+  "block.timestamp": "t",
+  "msg.value": "value",
+  "owner()": "OWNER"
+ },
+ "migrations_declared": {},
+ "observers": {},
+ "disch": {},
+ "consumers": {},
+ "params": {
+  "OWNER": 1,
+  "LFI": 7,
+  "LCI": 9,
+  "rollupContract": 6
+ },
+ "principal_map": {
+  "onlyOwner": "owner"
+ },
+ "principals": {
+  "1": "owner",
+  "5": "anyone"
+ },
+ "contract_ifaces": {
+  "rollupContract": "IRollupSubmitterView"
+ },
+ "oracles": {
+  "IRollupSubmitterView.lastFinalizedBatchIndex": {
+   "emit": "LFI"
+  },
+  "IRollupSubmitterView.lastCommittedBatchIndex": {
+   "emit": "LCI"
+  }
+ },
+ "state": [
+  [
+   "t",
+   "Nat",
+   "block.timestamp (environment)"
+  ],
+  [
+   "own",
+   "Nat",
+   "OwnableUpgradeable._owner"
+  ],
+  [
+   "min_stake",
+   "Nat",
+   "minimumStake"
+  ],
+  [
+   "dep",
+   "Nat",
+   "challengeDeposit"
+  ],
+  [
+   "rew",
+   "Nat",
+   "rewardPercentage"
+  ],
+  [
+   "srem",
+   "Nat",
+   "slashRemaining"
+  ],
+  [
+   "reg",
+   "List<Nat>",
+   "registered (role set)"
+  ],
+  [
+   "stake",
+   "List<Nat>",
+   "stakeOf"
+  ],
+  [
+   "wdr",
+   "List<Nat>",
+   "withdrawing (role set)"
+  ],
+  [
+   "wbi",
+   "List<Nat>",
+   "withdrawalBatchIndex"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "event log"
+  ]
+ ],
+ "initial": {
+  "t": 0,
+  "own": 1,
+  "min_stake": 1,
+  "dep": 1,
+  "rew": 10,
+  "srem": 0,
+  "reg": [
+   2,
+   3
+  ],
+  "stake": [
+   5,
+   7
+  ],
+  "wdr": [],
+  "wbi": [],
+  "log": []
+ },
+ "storage": {
+  "registered": {
+   "kind": "role_set",
+   "field": "reg"
+  },
+  "stakeOf": {
+   "kind": "abs_map",
+   "field": "stake"
+  },
+  "withdrawing": {
+   "kind": "role_set",
+   "field": "wdr"
+  },
+  "withdrawalBatchIndex": {
+   "kind": "abs_map",
+   "field": "wbi"
+  },
+  "minimumStake": {
+   "kind": "scalar",
+   "field": "min_stake"
+  },
+  "challengeDeposit": {
+   "kind": "scalar",
+   "field": "dep"
+  },
+  "rewardPercentage": {
+   "kind": "scalar",
+   "field": "rew"
+  },
+  "slashRemaining": {
+   "kind": "scalar",
+   "field": "srem"
+  },
+  "rollupContract": {
+   "kind": "oracle_addr"
+  },
+  "_owner": {
+   "kind": "scalar",
+   "field": "own"
+  },
+  "_transfer": {
+   "kind": "unmodelled",
+   "why": "ETH transfer"
+  },
+  "__gap": {
+   "kind": "unmodelled",
+   "why": "upgrade gap"
+  }
+ },
+ "actions": [
+  {
+   "name": "initialize",
+   "fn": [
+    "Submitter",
+    "initialize"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:43-68",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "owner_",
+     "Nat"
+    ],
+    [
+     "rollup_",
+     "Nat"
+    ],
+    [
+     "mins_",
+     "Nat"
+    ],
+    [
+     "dep_",
+     "Nat"
+    ],
+    [
+     "rew_",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "owner_": "owner_",
+    "rollupContract_": "rollup_",
+    "minimumStake_": "mins_",
+    "challengeDeposit_": "dep_",
+    "rewardPercentage_": "rew_"
+   },
+   "local_names": {},
+   "let_names": {},
+   "drop_all_requires": "initializer + code-length checks are deployment preconditions"
+  },
+  {
+   "name": "addSubmitter",
+   "fn": [
+    "Submitter",
+    "addSubmitter"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:74-81",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "submitter": "sub"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "removeSubmitter",
+   "fn": [
+    "Submitter",
+    "removeSubmitter"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:83-91",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "submitter": "sub"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "setMinimumStake",
+   "fn": [
+    "Submitter",
+    "setMinimumStake"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:93-97",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "value": "val"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "updateChallengeDeposit",
+   "fn": [
+    "Submitter",
+    "updateChallengeDeposit"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:99-103",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "value": "val"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "updateRewardPercentage",
+   "fn": [
+    "Submitter",
+    "updateRewardPercentage"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:105-110",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "value": "val"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "stake",
+   "fn": [
+    "Submitter",
+    "stake"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:112-118",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "submitter": "sub"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "withdraw",
+   "fn": [
+    "Submitter",
+    "withdraw"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:120-127",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who"
+   },
+   "local_names": {
+    "submitter": "who"
+   },
+   "let_names": {}
+  },
+  {
+   "name": "claimWithdrawal",
+   "fn": [
+    "Submitter",
+    "claimWithdrawal"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:129-145",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "rc",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "receiver": "rc"
+   },
+   "local_names": {
+    "submitter": "who"
+   },
+   "let_names": {}
+  },
+  {
+   "name": "slash",
+   "fn": [
+    "Submitter",
+    "slash"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:147-161",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ],
+    [
+     "reward",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "submitter": "sub"
+   },
+   "local_names": {
+    "reward": "reward"
+   },
+   "let_names": {},
+   "principal": "rollup contract"
+  },
+  {
+   "name": "claimSlashRemaining",
+   "fn": [
+    "Submitter",
+    "claimSlashRemaining"
+   ],
+   "src": "contracts/contracts/l1/rollup/Submitter.sol:163-169",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "rc",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "receiver": "rc"
+   },
+   "local_names": {},
+   "let_names": {}
+  }
+ ],
+ "coverage_items": [
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:_transfer",
+   "kind": "unmodelled_fn",
+   "reason": "ETH transfer side effect not modelled"
+  },
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:stake msg.value",
+   "kind": "unmodelled_value",
+   "reason": "ETH accounting abstracted; msg.value is an input token"
+  },
+  {
+   "element": "action:slash.reward",
+   "kind": "unmodelled_value",
+   "reason": "reward = amount*rewardPercentage/100; the Nat DSL has no multiply/divide, reward is an oracle input"
+  }
+ ],
+ "contracts": {
+  "contracts/l1/rollup/Submitter.sol": {
+   "name": "Submitter"
+  }
+ },
+ "output": "spec/M3/extracted/submitter.json",
+ "coverage_out": "spec/M3/coverage/submitter.json",
+ "coverage": {
+  "modelled": [],
+  "debt": []
+ },
+ "types": {}
+}

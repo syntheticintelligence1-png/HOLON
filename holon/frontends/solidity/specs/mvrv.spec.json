@@ -1,0 +1,338 @@
+{
+ "facts_version": "holon-facts/0.2",
+ "frontend_name": "solidity_transitions",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "scope": "MultipleVersionRollupVerifier.sol: per-version verifier registry with legacy fallback"
+ },
+ "morph_root_env": "HOLON_MORPH_DIR",
+ "morph_root_default": "~/ext/morph",
+ "extraction": {
+  "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
+ },
+ "abstractions": [],
+ "constants_doc": {},
+ "modifiers_abstracted": [
+  "initializer",
+  "reinitializer",
+  "onlyInitializing",
+  "nonReentrant"
+ ],
+ "handlers": {},
+ "sites": [],
+ "struct_ctors": {
+  "Verifier": {
+   "record": "V",
+   "fields": [
+    "s",
+    "a"
+   ],
+   "member_fields": {
+    "startBatchIndex": "s",
+    "verifier": "a"
+   },
+   "fresh_defaults": {
+    "s": 0,
+    "a": 0
+   }
+  }
+ },
+ "hoist_policy": {},
+ "carrier_idx": {},
+ "commit_notes": {},
+ "codec_fields": {},
+ "expected_deltas": [],
+ "defs_from": {
+  "get_verifier": {
+   "fn": [
+    "MultipleVersionRollupVerifier",
+    "getVerifier"
+   ],
+   "params": [
+    [
+     "v",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ],
+    [
+     "lv",
+     "List<V>"
+    ],
+    [
+     "lvv",
+     "List<List<V>>"
+    ]
+   ],
+   "type": "Nat",
+   "arg_map": {
+    "v": 0,
+    "idx": 1
+   },
+   "body": [
+    "?",
+    [
+     "<=",
+     [
+      "get",
+      [
+       "call",
+       "nth_rec",
+       "lv",
+       "v"
+      ],
+      "s"
+     ],
+     "idx"
+    ],
+    [
+     "get",
+     [
+      "call",
+      "nth_rec",
+      "lv",
+      "v"
+     ],
+     "a"
+    ],
+    [
+     "call",
+     "lv_le",
+     [
+      "call",
+      "nthl",
+      "lvv",
+      "v"
+     ],
+     "idx"
+    ]
+   ],
+   "body_forced": true
+  }
+ },
+ "defs_scaffold": [],
+ "ghost_state": [],
+ "shadow": {},
+ "env": {
+  "msg.sender": "who",
+  "_msgSender()": "who",
+  "block.timestamp": "t",
+  "msg.value": "value",
+  "owner()": "OWNER"
+ },
+ "migrations_declared": {},
+ "observers": {},
+ "disch": {},
+ "consumers": {},
+ "params": {
+  "OWNER": 1,
+  "LFI": 7,
+  "LCI": 9,
+  "rollup": 5
+ },
+ "principal_map": {
+  "onlyOwner": "owner"
+ },
+ "principals": {
+  "1": "owner",
+  "5": "anyone"
+ },
+ "contract_ifaces": {
+  "rollup": "IRollup"
+ },
+ "oracles": {
+  "IRollup.lastFinalizedBatchIndex": {
+   "emit": "LFI"
+  },
+  "IZkEvmVerifier.verifyBatch": {
+   "debt": "external verifier call; the verifier's own check is a contract oracle"
+  }
+ },
+ "state": [
+  [
+   "t",
+   "Nat",
+   "block.timestamp (environment)"
+  ],
+  [
+   "own",
+   "Nat",
+   "OwnableUpgradeable._owner"
+  ],
+  [
+   "lv",
+   "List<V>",
+   "latestVerifier (version -> V)"
+  ],
+  [
+   "lvv",
+   "List<List<V>>",
+   "legacyVerifiers (version -> V list, oldest first)"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "event log"
+  ]
+ ],
+ "initial": {
+  "t": 0,
+  "own": 1,
+  "lv": [],
+  "lvv": [],
+  "log": []
+ },
+ "storage": {
+  "latestVerifier": {
+   "kind": "abs_map",
+   "field": "lv",
+   "record": "V"
+  },
+  "legacyVerifiers": {
+   "kind": "abs_map_list",
+   "field": "lvv",
+   "record": "V"
+  },
+  "rollup": {
+   "kind": "oracle_addr"
+  },
+  "_owner": {
+   "kind": "scalar",
+   "field": "own"
+  }
+ },
+ "actions": [
+  {
+   "name": "initialize",
+   "fn": [
+    "MultipleVersionRollupVerifier",
+    "initialize"
+   ],
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:80-89",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "r",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "_rollup": "r"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "updateVerifier",
+   "fn": [
+    "MultipleVersionRollupVerifier",
+    "updateVerifier"
+   ],
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:148-166",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "v",
+     "Nat"
+    ],
+    [
+     "st",
+     "Nat"
+    ],
+    [
+     "a",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "_version": "v",
+    "_startBatchIndex": "st",
+    "_verifier": "a"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "verifyAggregateProof",
+   "fn": [
+    "MultipleVersionRollupVerifier",
+    "verifyAggregateProof"
+   ],
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:130-140",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "v",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "_version": "v",
+    "_batchIndex": "idx"
+   },
+   "local_names": {},
+   "let_names": {}
+  }
+ ],
+ "coverage_items": [
+  {
+   "element": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:91 legacyVerifiersLength",
+   "kind": "unmodelled_fn",
+   "reason": "view getter over lvv; covered by len on the array"
+  },
+  {
+   "element": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:getVerifier body",
+   "kind": "unmodelled_value",
+   "reason": "backward linear scan with break; modelled by b_lv_le builtin (last V with s<=idx)"
+  }
+ ],
+ "contracts": {
+  "contracts/l1/rollup/MultipleVersionRollupVerifier.sol": {
+   "name": "MultipleVersionRollupVerifier"
+  }
+ },
+ "output": "spec/M3/extracted/mvrv.json",
+ "coverage_out": "spec/M3/coverage/mvrv.json",
+ "coverage": {
+  "modelled": [],
+  "debt": []
+ },
+ "types": {
+  "V": {
+   "doc": "Verifier: startBatchIndex + verifier address",
+   "fields": [
+    [
+     "s",
+     "Nat"
+    ],
+    [
+     "a",
+     "Nat"
+    ]
+   ],
+   "doc_fields": {
+    "s": "Verifier.startBatchIndex",
+    "a": "Verifier.verifier"
+   }
+  }
+ }
+}

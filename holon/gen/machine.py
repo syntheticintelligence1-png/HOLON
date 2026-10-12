@@ -304,6 +304,31 @@ class Machine:
         if name == "set_ch":
             need(3)
             return f"set_d(HCh, {txt[0]}, {txt[1]}, {txt[2]}, empty_ch())", "List<Ch>"
+        if name == "nth_rec":
+            need(2)
+            rt = elem(ty[0])
+            return f"nth_d(H{rt}, {txt[0]}, {txt[1]}, empty_{rt}())", rt
+        if name == "set_rec":
+            need(3)
+            rt = elem(ty[0])
+            return f"set_d(H{rt}, {txt[0]}, {txt[1]}, {txt[2]}, empty_{rt}())", ty[0]
+        if name == "nthl":
+            need(2)
+            lt = elem(ty[0])          # "List<V>" out of "List<List<V>>"
+            rt = elem(lt)             # "V"
+            return f"nth_d(List<&2, H{rt}>, {txt[0]}, {txt[1]}, Nil{{}})", lt
+        if name == "nthr":
+            need(2)
+            rt = elem(ty[0])          # arg0 is a "List<V>" expression
+            return f"nth_d(H{rt}, {txt[0]}, {txt[1]}, empty_{rt}())", rt
+        if name == "set_l":
+            need(3)
+            lt = elem(ty[0])
+            rt = elem(lt)
+            return f"set_d(List<&2, H{rt}>, {txt[0]}, {txt[1]}, {txt[2]}, Nil{{}})", ty[0]
+        if name == "lv_le":
+            need(2)
+            return f"b_lv_le({txt[0]}, {txt[1]})", "Nat"
         if name == "empty_entry":
             return "empty_entry()", "Entry"
         if name == "empty_ch":
@@ -491,6 +516,18 @@ class Machine:
         out = []
         for ty, fields in self.types.items():
             out += [f"def empty_{ty}() -> H{ty}:", f"  H{ty}{{" + ", ".join(zero(t) for _, t in fields) + "}", ""]
+        for ty, fields in self.types.items():
+            fnames = {f for f, _ in fields}
+            if {"s", "a"} <= fnames:
+                # b_lv_le: last element whose start index s <= idx, else 0
+                # (MultipleVersionRollupVerifier.getVerifier's backward scan).
+                out += [f"def b_lv_le_go(xs: List<&2, H{ty}>, +idx: Nat, +acc: Nat) -> Nat:",
+                        "  match xs:",
+                        "    case Nil{}: acc",
+                        f"    case Con{{+h, t}}: b_lv_le_go(t, idx, ite(Nat, Nat.is_le(g_{ty}_s(h), idx), g_{ty}_a(h), acc))",
+                        "",
+                        f"def b_lv_le(xs: List<&2, H{ty}>, idx: Nat) -> Nat:",
+                        "  b_lv_le_go(xs, idx, 0n)", ""]
         if "Sl" in self.types and "Arr" in self.types:
             out += GO_LIB.splitlines() + [""]
         if "Entry" not in self.types:

@@ -1,0 +1,408 @@
+{
+ "facts_version": "holon-facts/0.2",
+ "frontend_name": "solidity_transitions",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "scope": "L1CrossDomainMessenger replayMessage + replay state + fee estimate"
+ },
+ "morph_root_env": "HOLON_MORPH_DIR",
+ "morph_root_default": "~/ext/morph",
+ "extraction": {
+  "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
+ },
+ "abstractions": [],
+ "constants_doc": {},
+ "modifiers_abstracted": [
+  "initializer",
+  "reinitializer",
+  "onlyInitializing",
+  "nonReentrant",
+  "whenNotPaused",
+  "notInExecution",
+  "onlyInitialized"
+ ],
+ "handlers": {
+  "_encodeXDomainCalldata": {
+   "handler": "unmodelled_value"
+  }
+ },
+ "sites": [],
+ "struct_ctors": {
+  "ReplayState": {
+   "record": "RS",
+   "fields": [
+    "li",
+    "tm"
+   ],
+   "member_fields": {
+    "lastIndex": "li",
+    "times": "tm"
+   },
+   "fresh_defaults": {
+    "li": 0,
+    "tm": 0
+   }
+  }
+ },
+ "hoist_policy": {},
+ "carrier_idx": {},
+ "commit_notes": {},
+ "codec_fields": {},
+ "expected_deltas": [],
+ "defs_from": {
+  "est_fee": {
+   "fn": [
+    "L1MessageQueueWithGasPriceOracle",
+    "estimateCrossDomainMessageFee"
+   ],
+   "params": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "wl",
+     "List<Nat>"
+    ],
+    [
+     "amt",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "arg_map": {
+    "who": 0,
+    "gl": 1
+   },
+   "body": [
+    "?",
+    [
+     "call",
+     "mem",
+     "who",
+     "wl"
+    ],
+    0,
+    "amt"
+   ],
+   "body_forced": true
+  }
+ },
+ "defs_scaffold": [],
+ "ghost_state": [],
+ "shadow": {},
+ "env": {
+  "msg.sender": "who",
+  "_msgSender()": "who",
+  "block.timestamp": "t",
+  "msg.value": "value",
+  "owner()": "OWNER",
+  "feeVault": "FV",
+  "xDomainMessageSender": "XDS",
+  "messageQueue": "MQADDR",
+  "counterpart": "CP"
+ },
+ "migrations_declared": {},
+ "observers": {},
+ "disch": {},
+ "consumers": {},
+ "params": {
+  "OWNER": 1,
+  "LFI": 7,
+  "LCI": 9,
+  "QI": 8,
+  "FEE": 9
+ },
+ "principal_map": {
+  "onlyOwner": "owner"
+ },
+ "principals": {
+  "1": "owner",
+  "5": "anyone"
+ },
+ "contract_ifaces": {
+  "messageQueue": "IL1MessageQueue",
+  "_messageQueue": "IL1MessageQueue",
+  "whitelistChecker": "IWhitelist"
+ },
+ "oracles": {
+  "IL1MessageQueue.estimateCrossDomainMessageFee": {
+   "emit": "FEE",
+   "note": "fee oracle; the def est_fee gives the queue-side formula"
+  },
+  "IL1MessageQueue.nextCrossDomainMessageIndex": {
+   "emit": "QI"
+  },
+  "IL1MessageQueue.appendCrossDomainMessage": {
+   "debt": "queue append; the queue-side effects live in the queue machine"
+  },
+  "IWhitelist.isSenderAllowed": {
+   "debt": "whitelist oracle result not modelled"
+  },
+  "AddressAliasHelper.applyL1ToL2Alias": {
+   "emit": "@a0"
+  },
+  "keccak256": {
+   "emit": "xh"
+  }
+ },
+ "state": [
+  [
+   "t",
+   "Nat",
+   "block.timestamp (environment)"
+  ],
+  [
+   "own",
+   "Nat",
+   "OwnableUpgradeable._owner"
+  ],
+  [
+   "maxr",
+   "Nat",
+   "maxReplayTimes"
+  ],
+  [
+   "mrt",
+   "List<RS>",
+   "replayStates (hash -> RS)"
+  ],
+  [
+   "pri",
+   "List<Nat>",
+   "prevReplayIndex"
+  ],
+  [
+   "mst",
+   "List<Nat>",
+   "messageSendTimestamp"
+  ],
+  [
+   "wl",
+   "List<Nat>",
+   "whitelistChecker.isSenderAllowed (role set)"
+  ],
+  [
+   "bf",
+   "Nat",
+   "queue baseFee"
+  ],
+  [
+   "dr",
+   "List<Nat>",
+   "__isL1MessageDropped (role set)"
+  ],
+  [
+   "fq",
+   "Nat",
+   "queue fee"
+  ],
+  [
+   "paused",
+   "Bool",
+   "PausableUpgradeable._paused"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "event log"
+  ]
+ ],
+ "initial": {
+  "t": 0,
+  "own": 1,
+  "maxr": 3,
+  "mrt": [],
+  "pri": [],
+  "mst": [],
+  "wl": [],
+  "bf": 0,
+  "fq": 0,
+  "paused": false,
+  "log": [],
+  "dr": []
+ },
+ "storage": {
+  "maxReplayTimes": {
+   "kind": "scalar",
+   "field": "maxr"
+  },
+  "replayStates": {
+   "kind": "abs_map",
+   "field": "mrt",
+   "record": "RS"
+  },
+  "prevReplayIndex": {
+   "kind": "abs_map",
+   "field": "pri"
+  },
+  "messageSendTimestamp": {
+   "kind": "abs_map",
+   "field": "mst"
+  },
+  "_owner": {
+   "kind": "scalar",
+   "field": "own"
+  },
+  "_paused": {
+   "kind": "scalar",
+   "field": "paused"
+  },
+  "messageQueue": {
+   "kind": "unmodelled",
+   "why": "queue address"
+  },
+  "counterpart": {
+   "kind": "unmodelled",
+   "why": "counterpart messenger address"
+  },
+  "feeVault": {
+   "kind": "unmodelled",
+   "why": "fee vault address"
+  },
+  "xDomainMessageSender": {
+   "kind": "unmodelled",
+   "why": "in-execution flag"
+  },
+  "__isL1MessageDropped": {
+   "kind": "role_set",
+   "field": "dr"
+  },
+  "whitelistChecker": {
+   "kind": "unmodelled",
+   "why": "whitelist contract"
+  },
+  "whitelist": {
+   "kind": "role_set",
+   "field": "wl"
+  },
+  "l2BaseFee": {
+   "kind": "scalar",
+   "field": "bf"
+  },
+  "fee": {
+   "kind": "scalar",
+   "field": "fq"
+  }
+ },
+ "actions": [
+  {
+   "name": "replayMessage",
+   "fn": [
+    "L1CrossDomainMessenger",
+    "replayMessage"
+   ],
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:175-240",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "xh",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ],
+    [
+     "qi",
+     "Nat"
+    ],
+    [
+     "fee",
+     "Nat"
+    ],
+    [
+     "mn",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "_xDomainCalldataHash": "xh",
+    "_nextQueueIndex": "qi",
+    "_fee": "fee",
+    "_messageNonce": "mn"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "updateMaxReplayTimes",
+   "fn": [
+    "L1CrossDomainMessenger",
+    "updateMaxReplayTimes"
+   ],
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:263-268",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "_newMaxReplayTimes": "val"
+   },
+   "local_names": {},
+   "let_names": {}
+  }
+ ],
+ "coverage_items": [
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:replayMessage enqueue",
+   "kind": "unmodelled_call",
+   "reason": "appendCrossDomainMessage side effects live on the queue machine"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:initialize",
+   "kind": "unmodelled_fn",
+   "reason": "initializer; deployment wiring not modelled"
+  },
+  {
+   "element": "defs.est_fee.body",
+   "kind": "spec_bound",
+   "reason": "fee = (baseFee+fee)*gasLimit; the Nat DSL has no multiplication, amt abstracts the product"
+  }
+ ],
+ "contracts": {
+  "contracts/l1/L1CrossDomainMessenger.sol": {
+   "name": "L1CrossDomainMessenger"
+  },
+  "contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol": {
+   "name": "L1MessageQueueWithGasPriceOracle"
+  }
+ },
+ "output": "spec/M3/extracted/l1messenger.json",
+ "coverage_out": "spec/M3/coverage/l1messenger.json",
+ "coverage": {
+  "modelled": [],
+  "debt": []
+ },
+ "types": {
+  "RS": {
+   "doc": "ReplayState",
+   "fields": [
+    [
+     "li",
+     "Nat"
+    ],
+    [
+     "tm",
+     "Nat"
+    ]
+   ],
+   "doc_fields": {
+    "li": "ReplayState.lastIndex",
+    "tm": "ReplayState.times"
+   }
+  }
+ }
+}

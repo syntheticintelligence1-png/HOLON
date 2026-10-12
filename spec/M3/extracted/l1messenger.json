@@ -1,0 +1,403 @@
+{
+ "facts_version": "holon-facts/0.2",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "scope": "L1CrossDomainMessenger replayMessage + replay state + fee estimate"
+ },
+ "extraction": {
+  "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
+ },
+ "abstractions": [],
+ "params": {
+  "OWNER": 1,
+  "LFI": 7,
+  "LCI": 9,
+  "QI": 8,
+  "FEE": 9
+ },
+ "constants_doc": {},
+ "types": {
+  "RS": {
+   "doc": "ReplayState",
+   "fields": [
+    [
+     "li",
+     "Nat"
+    ],
+    [
+     "tm",
+     "Nat"
+    ]
+   ],
+   "doc_fields": {
+    "li": "ReplayState.lastIndex",
+    "tm": "ReplayState.times"
+   }
+  }
+ },
+ "state": [
+  [
+   "t",
+   "Nat",
+   "block.timestamp (environment)"
+  ],
+  [
+   "own",
+   "Nat",
+   "OwnableUpgradeable._owner"
+  ],
+  [
+   "maxr",
+   "Nat",
+   "maxReplayTimes"
+  ],
+  [
+   "mrt",
+   "List<RS>",
+   "replayStates (hash -> RS)"
+  ],
+  [
+   "pri",
+   "List<Nat>",
+   "prevReplayIndex"
+  ],
+  [
+   "mst",
+   "List<Nat>",
+   "messageSendTimestamp"
+  ],
+  [
+   "wl",
+   "List<Nat>",
+   "whitelistChecker.isSenderAllowed (role set)"
+  ],
+  [
+   "bf",
+   "Nat",
+   "queue baseFee"
+  ],
+  [
+   "dr",
+   "List<Nat>",
+   "__isL1MessageDropped (role set)"
+  ],
+  [
+   "fq",
+   "Nat",
+   "queue fee"
+  ],
+  [
+   "paused",
+   "Bool",
+   "PausableUpgradeable._paused"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "event log"
+  ]
+ ],
+ "ghost_state": [],
+ "shadow": {},
+ "initial": {
+  "t": 0,
+  "own": 1,
+  "maxr": 3,
+  "mrt": [],
+  "pri": [],
+  "mst": [],
+  "wl": [],
+  "bf": 0,
+  "fq": 0,
+  "paused": false,
+  "log": [],
+  "dr": []
+ },
+ "principals": {
+  "1": "owner",
+  "5": "anyone"
+ },
+ "reasons": {
+  "1": "Provided message has not been enqueued",
+  "2": "Message already dropped",
+  "3": "Insufficient msg.value for fee",
+  "4": "Exceed maximum replay times",
+  "5": "replay times must be greater than 0"
+ },
+ "defs": {
+  "est_fee": {
+   "params": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "wl",
+     "List<Nat>"
+    ],
+    [
+     "amt",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "?",
+    [
+     "call",
+     "mem",
+     "who",
+     "wl"
+    ],
+    0,
+    "amt"
+   ],
+   "src": null
+  }
+ },
+ "actions": [
+  {
+   "name": "replayMessage",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:175-240",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "xh",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ],
+    [
+     "qi",
+     "Nat"
+    ],
+    [
+     "fee",
+     "Nat"
+    ],
+    [
+     "mn",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      ">",
+      [
+       "call",
+       "nth",
+       "mst",
+       "xh"
+      ],
+      0
+     ],
+     "reason": 1,
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:193"
+    },
+    {
+     "require": [
+      "!",
+      [
+       "call",
+       "mem",
+       "xh",
+       "dr"
+      ]
+     ],
+     "reason": 2,
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:195"
+    },
+    {
+     "require": [
+      ">=",
+      "value",
+      "FEE"
+     ],
+     "reason": 3,
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:201"
+    },
+    {
+     "let": "_replayState",
+     "expr": [
+      "call",
+      "nth_rec",
+      "mrt",
+      "xh"
+     ],
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:213"
+    },
+    {
+     "require": [
+      "<",
+      [
+       "get",
+       "_replayState",
+       "tm"
+      ],
+      "maxr"
+     ],
+     "reason": 4,
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:226"
+    },
+    {
+     "let": "v_refund",
+     "expr": [
+      "-",
+      "value",
+      "FEE"
+     ],
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:238"
+    }
+   ],
+   "effects": {
+    "pri": [
+     "?",
+     [
+      "!=",
+      [
+       "get",
+       "_replayState",
+       "li"
+      ],
+      0
+     ],
+     [
+      "call",
+      "set_nat",
+      "pri",
+      "QI",
+      [
+       "+",
+       [
+        "get",
+        "_replayState",
+        "li"
+       ],
+       1
+      ]
+     ],
+     [
+      "?",
+      [
+       "==",
+       [
+        "get",
+        "_replayState",
+        "li"
+       ],
+       0
+      ],
+      [
+       "call",
+       "set_nat",
+       "pri",
+       "QI",
+       [
+        "+",
+        "mn",
+        1
+       ]
+      ],
+      "pri"
+     ]
+    ],
+    "mrt": [
+     "call",
+     "set_rec",
+     "mrt",
+     "xh",
+     [
+      "with",
+      "RS",
+      "_replayState",
+      {
+       "li": "QI",
+       "tm": [
+        "+",
+        [
+         "get",
+         "_replayState",
+         "tm"
+        ],
+        1
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "name": "updateMaxReplayTimes",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:263-268",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      ">",
+      "val",
+      0
+     ],
+     "reason": 5,
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:264"
+    }
+   ],
+   "effects": {
+    "maxr": "val"
+   }
+  }
+ ],
+ "migrations": {},
+ "observers": {},
+ "disch": {},
+ "consumers": {},
+ "coverage": {
+  "modelled": [],
+  "debt": []
+ },
+ "provenance": {
+  "params": "spec",
+  "constants_doc": "spec",
+  "principals": "spec",
+  "abstractions": "spec",
+  "types": "spec",
+  "state": "spec",
+  "ghost_state": "spec",
+  "shadow": "spec",
+  "initial": "spec",
+  "observers": "spec",
+  "disch": "spec",
+  "consumers": "spec",
+  "coverage": "spec",
+  "actions.replayMessage.guards": "ast",
+  "actions.replayMessage.effects": "ast",
+  "actions.replayMessage.entry": "ast",
+  "actions.updateMaxReplayTimes.guards": "ast",
+  "actions.updateMaxReplayTimes.effects": "ast",
+  "actions.updateMaxReplayTimes.entry": "ast",
+  "facts_version": "spec",
+  "target": "spec",
+  "extraction": "spec",
+  "reasons": "ast",
+  "defs": "spec",
+  "defs.est_fee": "spec",
+  "migrations": "spec"
+ }
+}

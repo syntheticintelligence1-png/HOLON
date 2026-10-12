@@ -1,0 +1,120 @@
+{
+ "frontend": "solidity_transitions",
+ "target_commit": "3e44e795586af3e11285b603ab642c67823add51",
+ "items": [
+  {
+   "element": "@openzeppelin/contracts/access/Ownable.sol:36 call _checkOwner",
+   "kind": "unmodelled_call",
+   "reason": "_checkOwner not in scope contracts"
+  },
+  {
+   "element": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:138 IZkEvmVerifier.verifyBatch",
+   "kind": "unmodelled_call",
+   "reason": "external verifier call; the verifier's own check is a contract oracle"
+  },
+  {
+   "element": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:83 write rollup",
+   "kind": "unmodelled_write",
+   "reason": "oracle_addr"
+  },
+  {
+   "element": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:91 legacyVerifiersLength",
+   "kind": "unmodelled_fn",
+   "reason": "view getter over lvv; covered by len on the array"
+  },
+  {
+   "element": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:getVerifier body",
+   "kind": "unmodelled_value",
+   "reason": "backward linear scan with break; modelled by b_lv_le builtin (last V with s<=idx)"
+  },
+  {
+   "element": "defs.get_verifier.body",
+   "kind": "spec_bound",
+   "reason": "AST derivation partial or unsupported; spec-declared explicit value"
+  },
+  {
+   "element": "facts.abstractions",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:abstractions"
+  },
+  {
+   "element": "facts.constants_doc",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:constants_doc"
+  },
+  {
+   "element": "facts.consumers",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:consumers"
+  },
+  {
+   "element": "facts.coverage",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:coverage"
+  },
+  {
+   "element": "facts.disch",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:disch"
+  },
+  {
+   "element": "facts.ghost_state",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:ghost_state"
+  },
+  {
+   "element": "facts.initial",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:initial"
+  },
+  {
+   "element": "facts.migrations",
+   "kind": "spec_bound",
+   "reason": "declared environment actions; no source",
+   "src": "spec:migrations_declared"
+  },
+  {
+   "element": "facts.observers",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:observers"
+  },
+  {
+   "element": "facts.params",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:params"
+  },
+  {
+   "element": "facts.principals",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:principals"
+  },
+  {
+   "element": "facts.shadow",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:shadow"
+  },
+  {
+   "element": "facts.state",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:state"
+  },
+  {
+   "element": "facts.types",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:types"
+  }
+ ]
+}

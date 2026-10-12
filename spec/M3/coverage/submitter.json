@@ -1,0 +1,165 @@
+{
+ "frontend": "solidity_transitions",
+ "target_commit": "3e44e795586af3e11285b603ab642c67823add51",
+ "items": [
+  {
+   "element": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41 call _checkOwner",
+   "kind": "unmodelled_call",
+   "reason": "_checkOwner not in scope contracts"
+  },
+  {
+   "element": "action:claimSlashRemaining.modifier:nonReentrant",
+   "kind": "abstracted_modifier",
+   "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "action:claimWithdrawal.modifier:nonReentrant",
+   "kind": "abstracted_modifier",
+   "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "action:initialize.modifier:initializer",
+   "kind": "abstracted_modifier",
+   "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "action:slash.modifier:nonReentrant",
+   "kind": "abstracted_modifier",
+   "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "action:slash.reward",
+   "kind": "unmodelled_value",
+   "reason": "reward = amount*rewardPercentage/100; the Nat DSL has no multiply/divide, reward is an oracle input"
+  },
+  {
+   "element": "action:stake.modifier:nonReentrant",
+   "kind": "abstracted_modifier",
+   "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:155 write reward",
+   "kind": "unmodelled_write",
+   "reason": "reward not mapped"
+  },
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:179 require ETH transfer failed",
+   "kind": "unmodelled_require",
+   "reason": "require(ETH transfer failed) not translated"
+  },
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:56 call __Ownable_init",
+   "kind": "unmodelled_call",
+   "reason": "__Ownable_init not in scope contracts"
+  },
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:57 call __ReentrancyGuard_init",
+   "kind": "unmodelled_call",
+   "reason": "__ReentrancyGuard_init not in scope contracts"
+  },
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:58 call _transferOwnership",
+   "kind": "unmodelled_call",
+   "reason": "_transferOwnership not in scope contracts"
+  },
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:60 write rollupContract",
+   "kind": "unmodelled_write",
+   "reason": "oracle_addr"
+  },
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:_transfer",
+   "kind": "unmodelled_fn",
+   "reason": "ETH transfer side effect not modelled"
+  },
+  {
+   "element": "contracts/l1/rollup/Submitter.sol:stake msg.value",
+   "kind": "unmodelled_value",
+   "reason": "ETH accounting abstracted; msg.value is an input token"
+  },
+  {
+   "element": "facts.abstractions",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:abstractions"
+  },
+  {
+   "element": "facts.constants_doc",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:constants_doc"
+  },
+  {
+   "element": "facts.consumers",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:consumers"
+  },
+  {
+   "element": "facts.coverage",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:coverage"
+  },
+  {
+   "element": "facts.disch",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:disch"
+  },
+  {
+   "element": "facts.ghost_state",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:ghost_state"
+  },
+  {
+   "element": "facts.initial",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:initial"
+  },
+  {
+   "element": "facts.migrations",
+   "kind": "spec_bound",
+   "reason": "declared environment actions; no source",
+   "src": "spec:migrations_declared"
+  },
+  {
+   "element": "facts.observers",
+   "kind": "spec_bound",
+   "reason": "cross-cutting model section has no source counterpart",
+   "src": "spec:observers"
+  },
+  {
+   "element": "facts.params",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:params"
+  },
+  {
+   "element": "facts.principals",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:principals"
+  },
+  {
+   "element": "facts.shadow",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:shadow"
+  },
+  {
+   "element": "facts.state",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:state"
+  },
+  {
+   "element": "facts.types",
+   "kind": "spec_bound",
+   "reason": "model vocabulary declared in the spec, not derivable from the AST",
+   "src": "spec:types"
+  }
+ ]
+}

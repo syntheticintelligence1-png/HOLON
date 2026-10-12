@@ -475,6 +475,8 @@ class Translator:
                 return f["field"]
             self.add_debt(f"{self.src(n)} member {base[1]}.{mem}", "unmodelled_member", f"{base[1]}.{mem}")
             return ("unmodelled", f"{base[1]}.{mem}")
+        if mem == "length" and isinstance(base, list) and base[:2] == ["call", "nthl"]:
+            return ["call", "len", base]
         if isinstance(base, tuple) and base[0] == "abs_rec":
             _, f, k = base
             ctor = self.ctor_of(f["record"])
@@ -482,7 +484,7 @@ class Translator:
             if m is None:
                 self.add_debt(f"{self.src(n)} member {f['record']}.{mem}", "unmodelled_member", mem)
                 return ("unmodelled", mem)
-            call = ["call", "nth_ch", f["field"], k]
+            call = ["call", "nth_ch" if f["record"] == "Ch" else "nth_rec", f["field"], k]
             if "ch" in self.let_names:
                 base = self.hoist(call, "ch", src=self.src(n))
                 return ["get", base, m]
@@ -535,6 +537,17 @@ class Translator:
             return ("unmodelled", mem)
         return base if isinstance(base, (str, int, bool, list)) else ("member", base, mem)
 
+    def rec_expr(self, v, record=None):
+        """Lower a record-ish value (shadow/abs_rec/mk/with/plain) to a record expression."""
+        if isinstance(v, tuple) and v[0] == "shadow":
+            _, nm, f, k, fields = v
+            return ["with", f["record"], nm, dict(fields)]
+        if isinstance(v, tuple) and v[0] == "abs_rec":
+            _, f, k = v
+            rec = f["record"]
+            return ["call", "nth_ch" if rec == "Ch" else "nth_rec", f["field"], k]
+        return v
+
     def env_of(self, key, n):
         m = self.spec["env"]
         if key in m:
@@ -551,6 +564,9 @@ class Translator:
             if isinstance(inner, tuple) and inner[0] == "map":
                 f = self.fam(inner[1])
                 name = inner[1]
+            elif isinstance(inner, list) and inner[:2] == ["call", "nthl"]:
+                # abs_map_list element read: lvv[k][i] is a record
+                return ["call", "nthr", inner, self.rewrite_lets(k)]
             else:
                 self.add_debt(f"{self.src(n)} index {name or '?'}", "unmodelled_index", "index read of unmapped storage")
                 return ("unmodelled", "idx")
@@ -566,6 +582,9 @@ class Translator:
             if f["field"] == "blobs" and isinstance(k, int):
                 return self.blob(k, n)
             return ["call", "nth", f["field"], k]
+        if kind == "abs_map_list":
+            # mapping(K => V[]): nthl(field,k) is the whole V-list at k.
+            return ["call", "nthl", f["field"], k]
         if kind == "role_set":
             return ["call", "mem", k, f["field"]]
         if kind == "commitment":
@@ -593,6 +612,12 @@ class Translator:
         op = n["operator"]
         a = self.X(n["leftExpression"])
         b = self.X(n["rightExpression"])
+        # address-atom comparisons: contract-address state is a Nat atom, not a struct
+        if op in ("==", "!=", "<", "<=", ">", ">="):
+            if isinstance(a, tuple) and a[0] == "addr":
+                a = a[1]
+            if isinstance(b, tuple) and b[0] == "addr":
+                b = b[1]
         # commitment-map comparisons
         if isinstance(a, tuple) and a[0] == "commit" or isinstance(b, tuple) and b[0] == "commit":
             tok = a if isinstance(a, tuple) and a[0] == "commit" else b
@@ -694,6 +719,12 @@ class Translator:
                 if f and f["kind"] == "queue" and mem == "push":
                     self.W("state", "qlen", list(self.conds), ["+", "qlen", 1])
                     return ("void", "push")
+            if mem == "push" and isinstance(obj, list) and obj[:2] == ["call", "nthl"]:
+                # abs_map_list push: lvv[k].push(x) -> lvv[k] = snoc(lvv[k], x)
+                field, k = obj[2], obj[3]
+                v = self.rec_expr(self._lower(self.X(n["arguments"][0])))
+                self.W("state", field, list(self.conds), ["call", "set_l", field, k, ["call", "snoc", obj, v]])
+                return ("void", "push")
             return ("method", obj, mem, n["arguments"])
         if ex.get("nodeType") == "Identifier":
             name = ex["name"]
@@ -731,6 +762,9 @@ class Translator:
             return ["call", "agg", "blobs"]
         if self.cur_fn and self.cur_fn[1] == "_verifyProof":
             return ("unmodelled", "public input hash")
+        oc = self.spec.get("oracles", {}).get("keccak256")
+        if oc and "emit" in oc:
+            return self.post_hoist(self.subst_args(oc["emit"], n["arguments"]), n)
         self.add_debt(f"{self.src(n)} keccak256", "unmodelled_value", "hash contents")
         return ("unmodelled", "keccak256")
 
@@ -1019,7 +1053,11 @@ class Translator:
         if t == "InlineAssembly":
             return self.s_asm(st)
         if t == "RevertStatement":
-            self.add_debt(f"{self.src(st)} revert", "revert", "custom error revert")
+            # `revert Err` under accumulated branch conds is a guarded-command require:
+            # the branch must never be taken, so the require is NOT(conds).
+            err = st.get("errorCall", {}).get("expression", {}).get("name") or "?"
+            self.emit_require(["!", AND(*self.conds) if self.conds else True],
+                              err, self.src(st))
             return
         if t == "VariableDeclarationStatement":
             return self.s_decl(st)
@@ -1121,7 +1159,7 @@ class Translator:
         saved_pending = list(self.pending)
         self.conds = saved + [c]
         self.in_branch = getattr(self, "in_branch", 0) + 1
-        for s in tstmt.get("statements", []):
+        for s in tstmt.get("statements", [tstmt] if tstmt and tstmt.get("nodeType") not in (None, "Block") else []):
             self.S(s)
         self.in_branch -= 1
         self.conds = saved
@@ -1133,7 +1171,7 @@ class Translator:
             self.env = dict(saved_env)
             self.conds = saved + [simplify(NOT(c))]
             self.in_branch += 1
-            for s in fstmt.get("statements", []):
+            for s in fstmt.get("statements", [fstmt] if fstmt and fstmt.get("nodeType") not in (None, "Block") else []):
                 self.S(s)
             self.in_branch -= 1
             self.conds = saved
@@ -1240,8 +1278,9 @@ class Translator:
             # local record shadow: `Ch memory ch = challenges[k]`
             _, f, k = v
             nm = self.local_names.get(name, name)
-            self.pending.append({"let": nm, "expr": ["call", "nth_ch", f["field"], k], "src": self.src(st), "__prov": "ast"})
-            self.let_exprs[canon(["call", "nth_ch", f["field"], k])] = nm
+            op = "nth_ch" if f["record"] == "Ch" else "nth_rec"
+            self.pending.append({"let": nm, "expr": ["call", op, f["field"], k], "src": self.src(st), "__prov": "ast"})
+            self.let_exprs[canon(["call", op, f["field"], k])] = nm
             self.env[name] = ("shadow", nm, f, k, {})
             self._drain_pending()
             return
@@ -1408,7 +1447,15 @@ class Translator:
         if kind == "queue":
             return
         if kind == "role_set":
-            self.add_debt(f"{self.src(st)} write {name}", "unmodelled_write", f"role set write {name}")
+            # membership write: m[k] = true adds k to the list (if absent); false removes it.
+            field = f["field"]
+            if v is True:
+                nv = ["?", ["call", "mem", k, field], field, ["call", "snoc", field, k]]
+            elif v is False:
+                nv = ["call", "remove", k, field]
+            else:
+                nv = ["?", v, ["?", ["call", "mem", k, field], field, ["call", "snoc", field, k]], ["call", "remove", k, field]]
+            self.W("state", field, conds, nv)
             return
         self.add_debt(f"{self.src(st)} write {name}", "unmodelled_write", kind)
 
@@ -1453,7 +1500,16 @@ class Translator:
             k = self.rewrite_lets(self.X(sub["indexExpression"]))
             f = self.fam(name)
             if f and f["kind"] == "abs_map" and f.get("record"):
-                self.W("state", "chs", list(self.conds), ["call", "set_ch", "chs", k, ["call", "empty_ch"]])
+                field = f["field"]
+                rec = f["record"]
+                op = "set_ch" if rec == "Ch" else "set_rec"
+                self.W("state", field, list(self.conds), ["call", op, field, k, ["call", "empty_" + rec.lower()]])
+                return
+            if f and f["kind"] == "abs_map":
+                self.W("state", f["field"], list(self.conds), ["call", "set_nat", f["field"], k, 0])
+                return
+            if f and f["kind"] == "role_set":
+                self.W("state", f["field"], list(self.conds), ["call", "remove", k, f["field"]])
                 return
             if f and f["kind"] == "batch_map":
                 # deleting batch entries at k: covered by the window drop when k == lfi

@@ -1,0 +1,423 @@
+{
+ "facts_version": "holon-facts/0.2",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "scope": "MultipleVersionRollupVerifier.sol: per-version verifier registry with legacy fallback"
+ },
+ "extraction": {
+  "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
+ },
+ "abstractions": [],
+ "params": {
+  "OWNER": 1,
+  "LFI": 7,
+  "LCI": 9,
+  "rollup": 5
+ },
+ "constants_doc": {},
+ "types": {
+  "V": {
+   "doc": "Verifier: startBatchIndex + verifier address",
+   "fields": [
+    [
+     "s",
+     "Nat"
+    ],
+    [
+     "a",
+     "Nat"
+    ]
+   ],
+   "doc_fields": {
+    "s": "Verifier.startBatchIndex",
+    "a": "Verifier.verifier"
+   }
+  }
+ },
+ "state": [
+  [
+   "t",
+   "Nat",
+   "block.timestamp (environment)"
+  ],
+  [
+   "own",
+   "Nat",
+   "OwnableUpgradeable._owner"
+  ],
+  [
+   "lv",
+   "List<V>",
+   "latestVerifier (version -> V)"
+  ],
+  [
+   "lvv",
+   "List<List<V>>",
+   "legacyVerifiers (version -> V list, oldest first)"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "event log"
+  ]
+ ],
+ "ghost_state": [],
+ "shadow": {},
+ "initial": {
+  "t": 0,
+  "own": 1,
+  "lv": [],
+  "lvv": [],
+  "log": []
+ },
+ "principals": {
+  "1": "owner",
+  "5": "anyone"
+ },
+ "reasons": {
+  "1": "initialized",
+  "2": "ErrorStartBatchIndexFinalized",
+  "3": "ErrorStartBatchIndexTooSmall",
+  "4": "ErrorZeroAddress"
+ },
+ "defs": {
+  "get_verifier": {
+   "params": [
+    [
+     "v",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ],
+    [
+     "lv",
+     "List<V>"
+    ],
+    [
+     "lvv",
+     "List<List<V>>"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "?",
+    [
+     "<=",
+     [
+      "get",
+      [
+       "call",
+       "nth_rec",
+       "lv",
+       "v"
+      ],
+      "s"
+     ],
+     "idx"
+    ],
+    [
+     "get",
+     [
+      "call",
+      "nth_rec",
+      "lv",
+      "v"
+     ],
+     "a"
+    ],
+    [
+     "call",
+     "lv_le",
+     [
+      "call",
+      "nthl",
+      "lvv",
+      "v"
+     ],
+     "idx"
+    ]
+   ],
+   "src": null
+  }
+ },
+ "actions": [
+  {
+   "name": "initialize",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:80-89",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "r",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "==",
+      "rollup",
+      0
+     ],
+     "reason": 1,
+     "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:81"
+    }
+   ],
+   "effects": {}
+  },
+  {
+   "name": "updateVerifier",
+   "principal": "owner",
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:148-166",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "v",
+     "Nat"
+    ],
+    [
+     "st",
+     "Nat"
+    ],
+    [
+     "a",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "||",
+      [
+       ">",
+       "st",
+       "LFI"
+      ],
+      [
+       ">",
+       "st",
+       "LFI"
+      ]
+     ],
+     "reason": 2,
+     "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149"
+    },
+    {
+     "let": "_latestVerifier",
+     "expr": [
+      "call",
+      "nth_rec",
+      "lv",
+      "v"
+     ],
+     "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:151"
+    },
+    {
+     "require": [
+      "||",
+      [
+       ">=",
+       "st",
+       [
+        "get",
+        "_latestVerifier",
+        "s"
+       ]
+      ],
+      [
+       ">=",
+       "st",
+       [
+        "get",
+        "_latestVerifier",
+        "s"
+       ]
+      ]
+     ],
+     "reason": 3,
+     "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:152"
+    },
+    {
+     "require": [
+      "||",
+      [
+       "!=",
+       "a",
+       0
+      ],
+      [
+       "!=",
+       "a",
+       0
+      ]
+     ],
+     "reason": 4,
+     "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:153"
+    }
+   ],
+   "effects": {
+    "lvv": [
+     "?",
+     [
+      "&&",
+      [
+       "<",
+       [
+        "get",
+        "_latestVerifier",
+        "s"
+       ],
+       "st"
+      ],
+      [
+       "!=",
+       [
+        "get",
+        "_latestVerifier",
+        "a"
+       ],
+       0
+      ]
+     ],
+     [
+      "call",
+      "set_l",
+      "lvv",
+      "v",
+      [
+       "call",
+       "snoc",
+       [
+        "call",
+        "nthl",
+        "lvv",
+        "v"
+       ],
+       [
+        "with",
+        "V",
+        "_latestVerifier",
+        {}
+       ]
+      ]
+     ],
+     "lvv"
+    ],
+    "lv": [
+     "call",
+     "set_rec",
+     "lv",
+     "v",
+     [
+      "with",
+      "V",
+      "_latestVerifier",
+      {
+       "s": [
+        "?",
+        [
+         "<",
+         [
+          "get",
+          "_latestVerifier",
+          "s"
+         ],
+         "st"
+        ],
+        "st",
+        [
+         "get",
+         "_latestVerifier",
+         "s"
+        ]
+       ],
+       "a": "a"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "name": "verifyAggregateProof",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:130-140",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "v",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "let": "v_verifier",
+     "expr": [
+      "call",
+      "get_verifier",
+      "v",
+      "idx",
+      "lv",
+      "lvv"
+     ],
+     "src": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:136"
+    }
+   ],
+   "effects": {}
+  }
+ ],
+ "migrations": {},
+ "observers": {},
+ "disch": {},
+ "consumers": {},
+ "coverage": {
+  "modelled": [],
+  "debt": []
+ },
+ "provenance": {
+  "params": "spec",
+  "constants_doc": "spec",
+  "principals": "spec",
+  "abstractions": "spec",
+  "types": "spec",
+  "state": "spec",
+  "ghost_state": "spec",
+  "shadow": "spec",
+  "initial": "spec",
+  "observers": "spec",
+  "disch": "spec",
+  "consumers": "spec",
+  "coverage": "spec",
+  "actions.initialize.guards": "ast",
+  "actions.initialize.effects": "ast",
+  "actions.initialize.entry": "ast",
+  "actions.updateVerifier.guards": "ast",
+  "actions.updateVerifier.effects": "ast",
+  "actions.updateVerifier.entry": "ast",
+  "actions.verifyAggregateProof.guards": "ast",
+  "actions.verifyAggregateProof.effects": "ast",
+  "actions.verifyAggregateProof.entry": "ast",
+  "facts_version": "spec",
+  "target": "spec",
+  "extraction": "spec",
+  "reasons": "ast",
+  "defs": "spec",
+  "defs.get_verifier": "spec",
+  "migrations": "spec"
+ }
+}
