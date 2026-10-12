@@ -225,6 +225,9 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3: application of a function binder
     if "app" in t:
         return f"{t['app']}({', '.join(render_term(a) for a in t['args'])})"
+    # holon-ir/0.3 (I15): a SORT-site term, every hit of the site has minuend >= subtrahend (holon.sorts.sites)
+    if "site" in t and "on" in t and "from" in t:
+        return f"site_ok[{t['site']}]({render_term(t['on'])}, {render_term(t['from'])})"
     raise ValueError(f"unknown term {t}")
 
 

@@ -306,6 +306,25 @@ class Emitter:
             self.expect(tx, "Nat", t)
             self.expect(ty_, "Nat", t)
             return f"Nat.add({x}, {y})", "Nat"
+        if "site" in t and "on" in t and "from" in t:
+            # a SORT-site term (I15): the ghost predicate site_<x> of the instrumented model (holon.sorts.sites),
+            # applied to the action, the state and the oracle tables the model threads
+            from ..sorts.sites import SiteError, ghost_x, law_id as site_law_id
+            a, ta = self.term(t["on"], env, types)
+            s, ts = self.term(t["from"], env, types)
+            self.expect(ta, "Act", t)
+            self.expect(ts, "State", t)
+            try:
+                x = ghost_x(site_law_id(t["site"]))
+            except (SiteError, ValueError) as e:
+                raise Unsupported(f"site term {t['site']!r}: {e}") from e
+            tabs = ""
+            for p in self.m.threaded:
+                if not self.is_param(p, types):
+                    raise Unsupported(f"site {t['site']} runs the parametric model, but the statement binds no oracle "
+                                      f"parameter {p}")
+                tabs += f", {env[p]}"
+            return f"{ALIAS}.site_{x}({a}, {s}{tabs})", "Bool"
         raise Unsupported(f"term {t}")
 
     @staticmethod
@@ -384,6 +403,12 @@ class Emitter:
         binders = [(b["q"], b["name"], b["type"]) for b in st["binders"]]
         types = {n: ("State" if t == "Reach" else t) for _, n, t in binders}   # a Reach binder is a state
         env = {n: bname(n) for _, n, _ in binders}
+        # oracle tables first (I12, I15): a Reach binder's evidence is indexed by them, so they are bound before it
+        # wherever the IR lists them. Only when every binder has one quantifier (they commute); em.binders keeps the
+        # emitted order
+        if len({qq for qq, _, _ in binders}) == 1:
+            binders = ([x for x in binders if self.is_param(x[1], types)]
+                       + [x for x in binders if not self.is_param(x[1], types)])
         has_exists = any(qq == "exists" for qq, _, _ in binders)
         if has_exists and (counter or st.get("assume")):
             raise Unsupported("an existential law is never refuted (its negation is decided instead) and takes no premises")

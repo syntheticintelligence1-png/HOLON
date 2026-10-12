@@ -36,6 +36,14 @@ refs is the transitive closure of what the statement names, over the facts def g
                      so a template change that keeps its version still fails G2 by name.
   fn:NAME            a name the facts, the library and the generator do not define: hashed as absent, so defining
                      it changes the hash
+  site:ID            a SORT-site term {"site": ID, "on": A, "from": S} (I15): the site's spec as holon.sorts.sites
+                     computes it from the facts and the SORT-site sidecar of the law's milestone (template id and
+                     version, the basis element and the hit points), so G2 needs no derive output; the term also
+                     takes the step closure of A, as a step term does
+
+The oracle sidecar of a law, when the caller passes none (oracles=None), is the one its model takes in its
+milestone (holon.gen.oracles.Oracles.for_milestone over <root>/<law facts>; audit M2/1 F-M2-11), so
+law_hash(law, facts) is the hash `holon run` and G2 compute; M0 and M1 never take one.
 
 Every hash is "sha256:" + sha256 of the canonical JSON of the construct. `doc`, `src` and `*_doc` keys are
 removed everywhere: they are text for humans and replay, and re-extraction that shifts a line number must not
@@ -103,8 +111,10 @@ def lib_docs_for(law: dict, root: Path | str | None = None) -> list[dict]:
 
 
 class _Closure:
-    def __init__(self, law: dict, facts: dict, orc, lib_docs: list[dict]):
+    def __init__(self, law: dict, facts: dict, orc, lib_docs: list[dict], root: Path | str | None = None):
         self.law, self.f, self.orc, self.out = law, facts or {}, orc, {}
+        self.root = Path(root or ROOT)
+        self.lib_docs = list(lib_docs or [])
         self.defs = self.f.get("defs", {}) or {}
         self.params = self.f.get("params", {}) or {}
         self.acts = {a["name"]: a for a in self.f.get("actions", []) or []}
@@ -312,8 +322,29 @@ class _Closure:
             self.fn(t["fn"], t["args"])
             self.term(t["args"])
             return
+        if isinstance(t.get("site"), str) and "on" in t and "from" in t:   # a SORT-site term (I15)
+            self.site(t["site"])
+            self.tmpl("step")
+            self.sig()
+            self.reach(t["on"])
+            self.term(t["on"])
+            self.term(t["from"])
+            return
         for v in t.values():
             self.term(v)
+
+    def site(self, sid: str) -> None:
+        """site:<ID>: the site's spec (holon.sorts.sites.site_ref), from the facts, their library and the sidecar."""
+        if "site:" + sid in self.out:
+            return
+        from ..sorts.sites import site_ref
+        from .targetlib import Library, LibError
+        try:
+            builtins = Library(self.lib_docs, self.f.get("params", {})).builtins
+        except LibError as e:
+            self.out["site:" + sid] = _h({"error": f"library: {e}"})
+            return
+        self.out["site:" + sid] = _h(site_ref(sid, self.law, self.f, builtins, self.root))
 
     def fn(self, n: str, args: list) -> None:
         from .mlaws import BUILTINS
@@ -357,15 +388,26 @@ def refs(law: dict, facts: dict, oracles=None, lib=None, root: Path | str | None
     `oracles` is the parsed sidecar (holon.gen.oracles.Oracles or its JSON document) that hyp premises and oracle
     parameters refer to; `lib` the target-library documents (default: those of the law's facts file under root,
     holon.gen.targetlib.lib_files)."""
-    orc = _oracles(oracles)
+    orc = _oracles(oracles) if oracles is not None else milestone_oracles(law, root)
     docs = lib if lib is not None else lib_docs_for(law, root)
-    c = _Closure(law, facts or {}, orc, docs)
+    c = _Closure(law, facts or {}, orc, docs, root)
     st = law["statement"]
     for b in st.get("binders", []):
         c.binder(str(b.get("type", "")))
     c.term(st.get("assume", []))
     c.term(st.get("claim", {}))
     return dict(sorted(c.out.items()))
+
+
+def milestone_oracles(law: dict, root: Path | str | None = None):
+    """The oracle sidecar the model of a 0.3 law's facts takes in the law's milestone (Oracles.for_milestone), or
+    None (M0, M1, a law without facts, or no sidecar)."""
+    m, rel = law.get("milestone"), law.get("facts")
+    if law.get("ir_version") != "holon-ir/0.3" or not isinstance(m, str) or m in ("M0", "M1") or not isinstance(rel, str):
+        return None
+    from .oracles import Oracles
+    root = Path(root or ROOT)
+    return Oracles.for_milestone(m, root / rel, root)
 
 
 def _oracles(oracles):
@@ -378,7 +420,7 @@ def _oracles(oracles):
 def law_hash(law: dict, facts: dict | None, oracles=None, lib=None, root: Path | str | None = None) -> str:
     """The law's statement hash: 0.1/0.2 over the hashed keys; 0.3 with its refs into `facts`, the target library
     `lib` (default: the law's facts' libraries under root) and, for hyp premises and oracle parameters, the oracle
-    sidecar `oracles` (I12)."""
+    sidecar `oracles` (I12; default: the one its milestone's model takes, milestone_oracles)."""
     if law.get("ir_version") == "holon-ir/0.3":
         return ir.statement_hash(law, refs=refs(law, facts or {}, oracles, lib, root))
     return ir.statement_hash(law)
