@@ -12,7 +12,7 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.122
+      "seconds": 0.101
     },
     {
       "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
@@ -26,20 +26,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.099
+      "seconds": 0.109
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.139
+      "seconds": 0.135
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.099
+    "seconds": 0.109
   },
   "closed": true,
   "difference": {
@@ -65,6 +65,6 @@
   "status": "REFUTED",
   "subform": "coverage_scenario",
   "triage": "none",
-  "triage_why": "model-only: sentinel artefact of MVRV:118 not-found (coverage sentinel_value); the contract reverts; no replay",
+  "triage_why": "model-only; the verifier-call oracle omits extcodesize, so the contract reverts (empty data) per replay/M3/mvrv_notfound_report.json; triage stays none, closed true",
   "witness": {}
 }
