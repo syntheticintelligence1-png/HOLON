@@ -413,7 +413,7 @@ def expected_texts(law: dict, m: str, root: Path, rec: dict) -> tuple[str, str, 
     from .gen.oracles import Oracles
     from .mpipeline import m2plus
     orc = Oracles.for_facts(root / law["facts"]) if m2plus(m) else None
-    return texts_02(law, Machine(F.load(root / law["facts"]), root / law["facts"], oracles=orc), model,
+    return texts_02(law, Machine(F.load(root / law["facts"]), root / law["facts"], oracles=orc, m2plus=m2plus(m)), model,
                     rec["non_vacuity"]["witness"])
 
 

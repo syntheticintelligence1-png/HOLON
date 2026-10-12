@@ -26,6 +26,13 @@ decide_<a> and its chain those of its guards, d_<name>, observers and migrations
 step, run, obs and runs_ok thread the tables of every parameter some action uses (`threaded`, in sidecar
 order). Reach is indexed by the threaded tables too. Without a sidecar (M0, M1, and M2+ facts that have none)
 the model is exactly as before.
+
+Principal classes (I11; audit M2/1 F-M2-26). An M2+ model (Machine(m2plus=True)) takes its permissions from the
+actions' permission guards, never from their labels (holon.diagram.principals.guard_classes; a label/guard
+disagreement is a FactsError): `perm(a)` holds for the actions of a permissionless class (no permission guard on
+the caller: the class X of DISCH), and every class c gets `perm_c(a, who)`: a is an action of class c submitted by
+`who` (any `who` for the environment class, whose actions have no caller). The class's permission predicate stays
+the action's own guard, checked by step. M0 and M1 models keep the M1 `perm`, from the label prefix, as bound.
 """
 from __future__ import annotations
 
@@ -198,11 +205,15 @@ def fresh(base: str, taken: set) -> str:
 
 
 class Machine:
-    def __init__(self, facts: dict, path: Path | str | None = None, lib: "Library | None" = None, oracles=None):
+    def __init__(self, facts: dict, path: Path | str | None = None, lib: "Library | None" = None, oracles=None,
+                 m2plus: bool = False):
         """`path` locates the facts' target libraries (holon.gen.targetlib); without it, only the
         global libraries in spec/lib apply. `oracles` is the facts' oracle sidecar
-        (holon.gen.oracles.Oracles), passed for M2+ milestones only."""
+        (holon.gen.oracles.Oracles), passed for M2+ milestones only. `m2plus`: the model of a milestone after M1
+        (its permissions come from the permission guards; module docstring)."""
         self.f = facts
+        self.m2plus = m2plus
+        self._pclasses: tuple | None = None
         self.params = facts.get("params", {})
         self.lib = lib if lib is not None else Library.for_facts(path, self.params)
         self.types = {k: [tuple(x) for x in v["fields"]] for k, v in facts["types"].items()}
@@ -756,13 +767,71 @@ class Machine:
                 pat = ", ".join(bname(i) if i == c["input"] else "_" for i in ins)
                 out += [f"    case A_{b['name']}{{{pat}}}:", f"      {bname(c['input']) if c['input'] in ins else 'Nil{}'}"]
             out.append("")
-        perm = [a["name"] for a in self.actions if a.get("principal", "").startswith(("anyone", "environment"))]
-        out += ["# actions any principal may take (no role modifier): the permissionless class X of DISCH",
+        perm = self.permissionless()
+        out += ["# actions of a permissionless principal class (no permission guard on the caller; "
+                "holon.diagram.principals): the class X of DISCH" if self.m2plus else
+                "# actions any principal may take (no role modifier): the permissionless class X of DISCH",
                 "def perm(a: HAct) -> Bool:", "  match a:"]
         for b in self.actions:
             pat = ", ".join("_" for _ in b["inputs"])
             out += [f"    case A_{b['name']}{{{pat}}}:", f"      {'True{}' if b['name'] in perm else 'False{}'}"]
         out.append("")
+        if self.m2plus:
+            out += self.gen_perm_classes()
+        return out
+
+    # ------------------------------------------------------------ principal classes (I11; F-M2-26)
+    def principal_classes(self) -> tuple[list[dict], dict[str, str]]:
+        """(classes, action -> class id), from the permission guards (holon.diagram.principals.guard_classes)."""
+        if self._pclasses is None:
+            from ..diagram.principals import PrincipalError, guard_classes
+            try:
+                self._pclasses = guard_classes(self.f)
+            except PrincipalError as e:
+                raise FactsError(f"principal classes: {e}") from e
+        return self._pclasses
+
+    def permissionless(self) -> list[str]:
+        """The actions of the permissionless class X of DISCH, in facts order: from the permission guards in an M2+
+        model (a class with no guard on its caller); from the principal label (anyone, environment) in M0 and M1
+        models, as M1 was bound."""
+        if self.m2plus:
+            classes, of = self.principal_classes()
+            free = {c["id"] for c in classes if c["permissionless"]}
+            return [a["name"] for a in self.actions if of[a["name"]] in free]
+        return [a["name"] for a in self.actions if a.get("principal", "").startswith(("anyone", "environment"))]
+
+    def perm_class_ids(self) -> list[str]:
+        """The class ids c of the generated perm_c (M2+ models only)."""
+        return [c["id"] for c in self.principal_classes()[0]] if self.m2plus else []
+
+    def gen_perm_classes(self) -> list[str]:
+        """perm_c(a, who) per principal class c: a is an action of class c whose caller input is `who` (any `who`
+        for a class without a caller)."""
+        classes, of = self.principal_classes()
+        names = set(self.defs) | set(self.f.get("observers", {})) | {"perm"}
+        by = fresh("who", {bname(n) for a in self.actions for n, _ in a["inputs"]} | {"a"})
+        out = []
+        for c in classes:
+            name = f"perm_{c['id']}"
+            if name in names:
+                raise FactsError(f"principal class {c['id']}: {name} names another definition")
+            if c["caller"] not in (None, "Nat"):
+                raise FactsError(f"principal class {c['id']}: caller type {c['caller']} (perm_c compares Nat callers)")
+            out += [f"# principal class {c['id']} ({', '.join(c['labels'])}): permission predicate "
+                    f"{c['predicate_text'] or 'none'}".replace("?", ""),
+                    f"def {name}(a: HAct, {by}: Nat) -> Bool:", "  match a:"]
+            for b in self.actions:
+                mine = of[b["name"]] == c["id"]
+                ins = [n for n, _ in b["inputs"]]
+                if mine and c["caller_input"] in ins:
+                    pat = ", ".join(bname(n) if n == c["caller_input"] else "_" for n in ins)
+                    body = f"Nat.is_eq({bname(c['caller_input'])}, {by})"
+                else:
+                    pat = ", ".join("_" for _ in ins)
+                    body = "True{}" if mine else "False{}"
+                out += [f"    case A_{b['name']}{{{pat}}}:", f"      {body}"]
+            out.append("")
         return out
 
     def gen_observers(self) -> list[str]:
@@ -862,4 +931,5 @@ class Machine:
 
 
 def generate(facts: dict, facts_sha256: str, path: Path | str | None = None, reach: bool = False, oracles=None) -> str:
-    return Machine(facts, path, oracles=oracles).generate(facts_sha256, reach)
+    """reach: the model of an M2+ milestone (Reach, and permissions from the permission guards)."""
+    return Machine(facts, path, oracles=oracles, m2plus=reach).generate(facts_sha256, reach)

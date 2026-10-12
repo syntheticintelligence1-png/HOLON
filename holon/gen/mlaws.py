@@ -114,6 +114,8 @@ class Emitter:
             fn_types[f"is_{a['name']}"] = "Bool"
         for c in m.f.get("consumers", {}):
             fn_types[c] = "List<Nat>"
+        for c in m.perm_class_ids():   # M2+ models: perm_<class>(a, who) (holon.gen.machine, F-M2-26)
+            fn_types[f"perm_{c}"] = "Bool"
         self.fn_types = fn_types
 
     # ------------------------------------------------------------ oracle parameters (I12)

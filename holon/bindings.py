@@ -229,9 +229,9 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import m2plus
     orc = Oracles.for_facts(fp) if m2plus(m) else None   # M2+ models take their oracles as parameters (I12)
     try:
-        return mlaws.Emitter(Machine(F.load(fp), fp, oracles=orc)).emit(law, imp, counter=counter,
-                                                                        note=ir.statement_hash(law),
-                                                                        conjunct=conjunct).text
+        return mlaws.Emitter(Machine(F.load(fp), fp, oracles=orc, m2plus=m2plus(m))).emit(law, imp, counter=counter,
+                                                                                          note=ir.statement_hash(law),
+                                                                                          conjunct=conjunct).text
     except mlaws.Unsupported:
         return None
 

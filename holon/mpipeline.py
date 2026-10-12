@@ -78,7 +78,7 @@ class CompiledMachine:
         oracle sidecar (M2+ milestones, I12)."""
         facts = F.load(facts_path)
         sha = F.sha256_file(facts_path)
-        m = Machine(facts, anchor or facts_path, oracles=oracles)
+        m = Machine(facts, anchor or facts_path, oracles=oracles, m2plus=reach)
         text = m.generate(sha, reach)
         tag = ("-reach" if reach else "") + (f"-orc{hashlib.sha256(text.encode()).hexdigest()[:8]}" if oracles else "")
         src = bend.build_dir(ROOT) / "eval" / (sha[:16] + tag) / f"{model_name(facts_path)}.bend"
