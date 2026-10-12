@@ -35,7 +35,9 @@ _GETTER = re.compile(r"\{M\.get_(\w+)\((\w+)\) == \[([0-9, ]*)\] : List<&2, U32>
 
 
 def premised(law: dict) -> bool:
-    return bool(law["statement"].get("assume"))
+    """A law has premises when it assumes something, or quantifies over Reach (I8: Reach(s) is a premise)."""
+    st = law["statement"]
+    return bool(st.get("assume")) or any(b.get("type") == "Reach" for b in st.get("binders", []))
 
 
 def law_name(law_id: str) -> str:
@@ -121,11 +123,16 @@ def search_law(law: dict) -> dict:
 
 def inhabitant_ir(law: dict) -> dict:
     st = law["statement"]
-    prem = st["assume"]
-    return {"ir_version": law["ir_version"], "law_id": "NV_" + law["law_id"], "rule": law["rule"],
-            "facts": law.get("facts"), "facts_sha256": law["facts_sha256"],
-            "statement": {"binders": [{"q": "exists", "name": b["name"], "type": b["type"]} for b in st["binders"]],
-                          "claim": {"all": prem} if len(prem) > 1 else prem[0]}}
+    prem = st.get("assume", [])
+    if not prem:   # the only premise is a Reach binder: its evidence is the inhabitant (I8)
+        prem = [{"eq": [{"bool": True}, {"bool": True}]}]
+    out = {"ir_version": law["ir_version"], "law_id": "NV_" + law["law_id"], "rule": law["rule"],
+           "facts": law.get("facts"), "facts_sha256": law["facts_sha256"],
+           "statement": {"binders": [{"q": "exists", "name": b["name"], "type": b["type"]} for b in st["binders"]],
+                         "claim": {"all": prem} if len(prem) > 1 else prem[0]}}
+    if "rule_catalog_version" in law:
+        out["rule_catalog_version"] = law["rule_catalog_version"]
+    return out
 
 
 MODEL_IMPORT = "../../model/{}.bend"   # an inhabitant lives in <gen>/<law>/nonvac/, the model in <gen>/model/
@@ -176,7 +183,7 @@ def _inhabit_02(law: dict, root: Path, out_dir: Path, cfg: dict, cm, out: dict) 
     if not ok:
         shutil.rmtree(out_dir / NV, ignore_errors=True)
         return {**out, "witness": w, "bound": why}
-    states = [b["name"] for b in law["statement"]["binders"] if b["type"] == "State"]
+    states = [b["name"] for b in law["statement"]["binders"] if b["type"] in ("State", "Reach")]
     reach = all(set(w[x]) == {"run"} for x in states) if states else None
     note = r.get("bound") if reach is not False else f"no reachable inhabitant within ({first}); constructed states"
     return {**out, "status": "inhabited", "law": _rel(out_dir / NV / "LAWS.bend", root), "witness": w,

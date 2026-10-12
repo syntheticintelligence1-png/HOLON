@@ -85,6 +85,11 @@ class EmittedM:
     views: dict = field(default_factory=dict)   # view name -> erased fields
 
 
+def reach_name(n: str) -> str:
+    """The Bend binder of a Reach binder's evidence."""
+    return "r_" + bname(n)
+
+
 def law_name(law_id: str, counter: bool = False) -> str:
     return ("cl_" if counter else "") + law_id.lower()
 
@@ -297,7 +302,7 @@ class Emitter:
         (for all binders, not claim) of an existential law, named <law_id>_neg."""
         st = law["statement"]
         binders = [(b["q"], b["name"], b["type"]) for b in st["binders"]]
-        types = {n: t for _, n, t in binders}
+        types = {n: ("State" if t == "Reach" else t) for _, n, t in binders}   # a Reach binder is a state
         env = {n: bname(n) for _, n, _ in binders}
         has_exists = any(qq == "exists" for qq, _, _ in binders)
         if has_exists and (counter or st.get("assume")):
@@ -319,6 +324,10 @@ class Emitter:
         body = [f"law {name}:"]
         for qq, n, t in binders:
             kw = "exs" if (counter or qq == "exists") else "for"
+            if t == "Reach":   # the state, then its reachability evidence (I8)
+                body.append(f"  {kw} {'' if kw == 'exs' else '+'}{bname(n)}: {ALIAS}.HSt")
+                body.append(f"  {kw} {reach_name(n)}: {ALIAS}.Reach<{bname(n)}>")
+                continue
             mode = "" if kw == "exs" else ("-" if fn_sig(t) else "+")
             body.append(f"  {kw} {mode}{bname(n)}: {self.bend_ty(t)}")
         for i, (a, b, t) in enumerate(assume):
@@ -368,8 +377,30 @@ class Emitter:
 FN_LITERALS = {"id": "x => x", "zero": "x => 0n", "succ": "x => 1n+x"}
 
 
+def reach_chain(m: Machine, trace: list) -> str:
+    """Reach evidence for run(trace, s0): R0 at s0, then one RStep per action, each equation by computation."""
+    acts = [value_literal(m, "Act", a) for a in trace]
+    r = f"{ALIAS}.R0{{{{==}}}}"
+    for i, a in enumerate(acts):
+        prev = value_literal(m, "State", {"run": trace[:i]})
+        r = f"{ALIAS}.RStep{{{a}, {prev}, {r}, {{==}}}}"
+    return r
+
+
+def binder_parts(m: Machine, ty: str, v) -> list[str]:
+    """The proof-tuple parts a witness contributes for one binder: a Reach binder gives its state and
+    its evidence chain; any other binder gives its value."""
+    if ty == "Reach":
+        if not (isinstance(v, dict) and set(v) == {"run"}):
+            raise Unsupported("a Reach witness is a trace from s0")
+        return [value_literal(m, "State", v), reach_chain(m, v["run"])]
+    return [value_literal(m, ty, v)]
+
+
 def value_literal(m: Machine, ty: str, v) -> str:
     """Bend literal (in the LAWS/PROOF module, model alias M) of a witness value."""
+    if ty == "Reach":
+        return binder_parts(m, ty, v)[0]
     if fn_sig(ty):
         if fn_sig(ty) != ("Nat", "Nat") or not isinstance(v, dict) or v.get("lam") not in FN_LITERALS:
             raise Unsupported(f"no witness literal for {ty} = {v!r}")

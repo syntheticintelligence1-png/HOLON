@@ -177,6 +177,14 @@ def bname(v: str) -> str:
     return v + "_" if v in KEYWORDS else v
 
 
+def fresh(base: str, taken: set) -> str:
+    """A generator-internal binder name that no fact name in scope uses (hygiene: an action input
+    named `d` must not capture exec's decision binder)."""
+    while base in taken:
+        base += "_"
+    return base
+
+
 class Machine:
     def __init__(self, facts: dict, path: Path | str | None = None, lib: "Library | None" = None):
         """`path` locates the facts' target libraries (holon.gen.targetlib); without it, only the
@@ -534,15 +542,17 @@ class Machine:
                 new_fields.append(x)
             else:
                 new_fields.append(bname(n))
-        unchanged = ", ".join("Con{O_Rev{code}, log}" if n == "log" else bname(n) for n, _ in self.state)
-        out += [f"def exec_{name}(d: {dec}, {allp}) -> HSt:", "  match d:", f"    case {rev}{{code}}:",
+        taken = {bname(n) for n, _ in self.state} | {bname(n) for n, _ in inputs} | {bname(l) for l in carried}
+        dv, cv, sv = fresh("d", taken), fresh("code", taken), fresh("s", taken)
+        unchanged = ", ".join(f"Con{{O_Rev{{{cv}}}, log}}" if n == "log" else bname(n) for n, _ in self.state)
+        out += [f"def exec_{name}({dv}: {dec}, {allp}) -> HSt:", f"  match {dv}:", f"    case {rev}{{{cv}}}:",
                 f"      HSt{{{unchanged}}}", f"    case {ok}{{" + ", ".join("+" + bname(l) for l in carried) + "}:",
                 f"      HSt{{{', '.join(new_fields)}}}", ""]
         spat = ", ".join("+" + bname(n) for n, _ in self.state)
         dargs = ", ".join(bname(x) for x in reads + [n for n, _ in inputs])
         fargs = ", ".join(bname(n) for n, _ in self.state)
         iargs = ", ".join(bname(n) for n, _ in inputs)
-        out += [f"def step_{name}(s: HSt{', ' + iparams if iparams else ''}) -> HSt:", "  match s:", f"    case HSt{{{spat}}}:",
+        out += [f"def step_{name}({sv}: HSt{', ' + iparams if iparams else ''}) -> HSt:", f"  match {sv}:", f"    case HSt{{{spat}}}:",
                 f"      exec_{name}(decide_{name}({dargs}), {fargs}{', ' + iargs if iargs else ''})", ""]
         return out
 
@@ -550,6 +560,7 @@ class Machine:
         out = ["def step(a: HAct, s: HSt) -> HSt:", "  match a:"]
         for a in self.actions:
             ins = [bname(n) for n, _ in a["inputs"]]
+            ins = [fresh(i, {"a", "s"}) for i in ins]   # pattern binders are positional: rename away from a, s
             out += [f"    case A_{a['name']}{{{', '.join('+' + i for i in ins)}}}:",
                     f"      step_{a['name']}(s{', ' + ', '.join(ins) if ins else ''})"]
         out += ["", "def run(tr: List<&2, HAct>, s: HSt) -> HSt:", "  match tr:", "    case Nil{}:", "      s", "    case Con{a, rest}:",
@@ -669,7 +680,15 @@ class Machine:
         items = [self.act_literal(a) for a in tr]
         return "[" + ", ".join(items) + "]" if items else "Nil{}"
 
-    def generate(self, facts_sha256: str) -> str:
+    def gen_reach(self) -> list[str]:
+        """The reachable set as an inductive predicate (whitepaper §8.3 R; I8): Reach<s> holds for s0 and
+        is closed under step. The index is a parameter carrying its equation (the encoding Bend accepts
+        for value-indexed families); emitted for M2+ milestones only, so gen/M0 and gen/M1 are unchanged."""
+        return ["# the reachable states: s0, and one step from a reachable state (I8)",
+                "type Reach<-s: HSt> is Type:", "  R0{e: {s == s0() : HSt}}",
+                "  RStep{a: HAct, p: HSt, r: Reach<p>, e: {s == step(a, p) : HSt}}", ""]
+
+    def generate(self, facts_sha256: str, reach: bool = False) -> str:
         body = []
         body += self.gen_types()
         body += self.gen_record_lib()
@@ -684,8 +703,10 @@ class Machine:
                 f"# facts_sha256: {facts_sha256}", f"# target: {self.f['target']['repo']} @ {self.f['target']['commit']}",
                 "import Base", ""]
         text = head + [PRELUDE_HEAD + "".join(self.lib.prelude) + PRELUDE_TAIL] + body + self.helpers + acts + disp + obs + init
+        if reach:
+            text = text + [""] + self.gen_reach()
         return "\n".join(text).rstrip() + "\n"
 
 
-def generate(facts: dict, facts_sha256: str, path: Path | str | None = None) -> str:
-    return Machine(facts, path).generate(facts_sha256)
+def generate(facts: dict, facts_sha256: str, path: Path | str | None = None, reach: bool = False) -> str:
+    return Machine(facts, path).generate(facts_sha256, reach)

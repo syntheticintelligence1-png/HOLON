@@ -35,6 +35,7 @@ from .replay import replay_status, load_report
 ROOT = Path(__file__).resolve().parents[1]
 EXPLORE = Path(__file__).resolve().parent / "js" / "explore.mjs"
 MACHINE_JS = Path(__file__).resolve().parent / "js" / "machine.mjs"
+HOUDINI = Path(__file__).resolve().parent / "js" / "houdini.mjs"
 
 
 def model_name(facts_path: Path) -> str:
@@ -53,12 +54,13 @@ class CompiledMachine:
         return str(h) if h else None
 
     @classmethod
-    def build(cls, facts_path: Path, cfg: dict | None = None) -> "CompiledMachine":
+    def build(cls, facts_path: Path, cfg: dict | None = None, reach: bool = False) -> "CompiledMachine":
+        """reach: emit the Reach predicate (M2+ milestones, I8)."""
         facts = F.load(facts_path)
         sha = F.sha256_file(facts_path)
         m = Machine(facts, facts_path)
-        text = m.generate(sha)
-        src = bend.build_dir(ROOT) / "eval" / sha[:16] / f"{model_name(facts_path)}.bend"
+        text = m.generate(sha, reach)
+        src = bend.build_dir(ROOT) / "eval" / (sha[:16] + ("-reach" if reach else "")) / f"{model_name(facts_path)}.bend"
         src.parent.mkdir(parents=True, exist_ok=True)
         if not src.exists() or src.read_text() != text:
             src.write_text(text)
@@ -87,6 +89,15 @@ class CompiledMachine:
                            capture_output=True, text=True, timeout=3600)
         if p.returncode != 0:
             raise RuntimeError(f"explore failed: {p.stderr[-2000:]}")
+        return json.loads(p.stdout)
+
+    def houdini(self, budget: dict | None = None) -> dict:
+        """Strengthening proposals (holon/js/houdini.mjs; untrusted)."""
+        p = subprocess.run(["node", str(HOUDINI)], input=json.dumps({"module": str(self.artifact), "facts": self.facts,
+                                                                      "hints": self.hints(), "budget": budget or {}}),
+                           capture_output=True, text=True, timeout=600)
+        if p.returncode != 0:
+            raise RuntimeError(f"houdini failed: {p.stderr[-2000:]}")
         return json.loads(p.stdout)
 
     def calls(self, calls: list) -> list:
@@ -169,6 +180,8 @@ def witness_difference(cm: CompiledMachine, law: dict, witness: dict, conjunct: 
 
 
 def _value_js(m: Machine, ty: str, v):
+    if ty == "Reach":
+        ty = "State"
     if ty in ("Nat", "Bool"):
         return {"val": v}
     if ty == "Act":
@@ -200,7 +213,13 @@ def _act_obj(m, t, ty_env, witness):
     raise ValueError(t)
 
 
-def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str | None, no_registry: bool, log=print) -> dict:
+def m2plus(milestone: str) -> bool:
+    """Milestones after M1 (M2.., and the test milestones T*) use the core library and Reach (I8)."""
+    return milestone not in ("M0", "M1")
+
+
+def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str | None, no_registry: bool, log=print,
+           core: str = "import") -> dict:
     cfg = bend.config(ROOT)
     laws = ir.load_laws_any(milestone, ROOT)
     reg = ir.load_registry(milestone, ROOT)
@@ -229,11 +248,20 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         shutil.rmtree(gen)
     (gen / "model").mkdir(parents=True)
     machines: dict = {}
+    from .gen import core as C
+    mproofs.CORE_MODE, mproofs.CORE_PASTE = None, ""
+    if m2plus(milestone):
+        mproofs.CORE_MODE = core
+        if core == "import":
+            C.emit(gen, cfg=cfg)
+        else:
+            mproofs.CORE_PASTE = C.paste_text(gen, cfg)
+            shutil.rmtree(gen / "core", ignore_errors=True)
 
     def machine_for(law: dict):
         fp = fpath_of(law)
         if fp not in machines:
-            cm_ = CompiledMachine.build(fp, cfg)
+            cm_ = CompiledMachine.build(fp, cfg, reach=m2plus(milestone))
             src = gen / "model" / f"{model_name(fp)}.bend"
             src.write_text(cm_.source.read_text())
             (gen / "model" / f"{model_name(fp)}.defs.json").write_text(bindings.dump(bindings.defs_index(src, cfg)))
@@ -287,6 +315,10 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                     if exists:
                         rec["witness"] = witness
                     break
+            if status != "PROVED" and not exists and any(b["type"] == "Reach" for b in law["statement"]["binders"]):
+                got = reach_search(em, cm, imp, d, cfg, attempts)
+                if got is not None:
+                    status, r = "PROVED", got
             if status != "PROVED" and exists:
                 # never REFUTED: a bounded negative search, and the generated negation decided instead
                 rec["bounded_negative"] = {"H": bound, "space": attempts[0]["tried"] if attempts else 0}
@@ -303,7 +335,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                     em2 = mlaws.Emitter(cm.m).emit(law, imp, counter=True, note=shash, conjunct=conj)
                     env = {n: mlaws.value_literal(cm.m, t, w[n]) for _, n, t in em2.binders}
                     E2 = mlaws.Emitter(cm.m)
-                    lhs, _, ty = E2.claims(law["statement"], env, {n: t for _, n, t in em2.binders})[conj or 0]
+                    lhs, _, ty = E2.claims(law["statement"], env, {n: ("State" if t == "Reach" else t)
+                                                                   for _, n, t in em2.binders})[conj or 0]
                     text = mproofs.counter(em2, cm.m, imp, w, lhs, ty)
                     shutil.rmtree(d, ignore_errors=True)
                     d.mkdir(parents=True)
@@ -357,6 +390,54 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
     (out_dir / "deps.json").write_text(bindings.dump(bindings.dependents(kbound)))
     return summary
+
+
+def reach_search(em, cm: CompiledMachine, imp: str, d: Path, cfg: dict, attempts: list, max_tries: int = 120):
+    """mproofs.ReachProof: first without strengthening, then with houdini's proposals; in each, Bend picks
+    the case terms (the slot on the line it rejects advances). Returns the accepted check, or None."""
+    import re
+    houdini = None
+    for mode in ("plain", "strengthened"):
+        strength = []
+        if mode == "strengthened":
+            houdini = houdini or cm.houdini()
+            strength = [(c["field"], c["type"], c["value"]) for c in houdini["candidates"]]
+            if not strength:
+                break
+        try:
+            rp = mproofs.ReachProof(em, cm.m, imp, strength)
+        except mlaws.Unsupported as e:
+            attempts.append({"kind": "proof", "generator": "reach_invariant", "error": f"unsupported: {e}"})
+            return None
+        choice: dict = {}
+        tries, rr, ok = 0, None, False
+        for tries in range(1, max_tries + 1):
+            text, slot_at = rp.render(choice)
+            d.mkdir(parents=True, exist_ok=True)
+            (d / "LAWS.bend").write_text(em.text)
+            (d / "PROOF.bend").write_text(text)
+            rr = bend.check(d / "PROOF.bend", cfg)
+            ok = rr.ok and _law_names(em.text) == [em.name] and not bend.escape_hatches(text + em.text)
+            if ok or rr.ok:
+                break
+            mm = re.search(r"^\s*(\d+)>\|", rr.out, re.M)
+            slot = slot_at.get(int(mm.group(1))) if mm else None
+            if slot is None:
+                break
+            choice[slot] = choice.get(slot, 0) + 1
+            if choice[slot] >= len(rp.candidates(slot[2])):
+                break
+        att = {"kind": "proof", "generator": "reach_invariant", "mode": mode, "tries": tries,
+               "strengthening": [f"{f} == {json.dumps(v)}" for f, _, v in strength],
+               "exit_code": rr.code if rr else None, "marker": rr.marker if rr else None, "seconds": rr.seconds if rr else None}
+        if houdini and mode == "strengthened":
+            att["houdini"] = {"states": houdini["states"], "bound": houdini["bound"]}
+        if not ok:
+            att["error"] = _first(rr.out) if rr else "not checked"
+        attempts.append(att)
+        if ok:
+            return rr
+    return None
 
 
 def law_cone(law: dict, facts: dict, stmt_text: str, model_src: Path, cfg: dict) -> list[str]:

@@ -152,7 +152,7 @@ function hasFromS0Fn(t, v) {
   if (t.fn === "runs_ok" && Array.isArray(t.args) && t.args.length === 2 && isVar(t.args[0], v) && isS0(t.args[1])) return true;
   return Object.values(t).some((x) => hasFromS0Fn(x, v));
 }
-const rank = (b) => (b.type === "State" || (b.type === "Trace" && (hasFromS0(law.statement, "run", b.name)
+const rank = (b) => (b.type === "State" || b.type === "Reach" || (b.type === "Trace" && (hasFromS0(law.statement, "run", b.name)
   || hasFromS0(law.statement, "obs", b.name)))) ? 0
   : b.type === "Act" ? 1 : b.type === "Nat" ? 2 : 3;
 const forall = binders.filter((b) => b.q === "forall").map((b, i) => [b, i]).sort((x, y) => rank(x[0]) - rank(y[0]) || x[1] - y[1]).map((x) => x[0]);
@@ -165,13 +165,15 @@ const isObsPrefixVar = (v) => hasFromS0(st, "obs", v);
 const isObsSuffix = (v) => claims.length === 1 && Array.isArray(claims[0].eq) && claims[0].eq.every((s) => s.obs && JSON.stringify(s.obs) === JSON.stringify({ var: v }));
 
 function baseState(env) {
-  for (const b of forall) if (b.type === "State" && env[b.name]) return env[b.name].v;
+  for (const b of forall) if ((b.type === "State" || b.type === "Reach") && env[b.name]) return env[b.name].v;
   for (const b of forall) if (b.type === "Trace" && isPrefixVar(b.name) && env[b.name]) return M.run(env[b.name].v, s0);
   return s0;
 }
 
 function candidates(b, env) {
   if (b.type === "Fn<Nat,Nat>") return Object.keys(LAMS).map((lam) => fnVal({ lam }));
+  // a Reach binder (I8) ranges over reachable states only: the prefixes, as traces from s0
+  if (b.type === "Reach") return prefixes().map((p) => ({ ty: "State", v: p.state, raw: { run: p.trace } }));
   if (b.type === "Trace" && isPrefixVar(b.name) && !isRunsOkVar(b.name)) return prefixes().map((p) => ({ ty: "Trace", v: toList(p.trace.map(mkAct)), raw: p.trace }));
   if (b.type === "Trace" && (isObsPrefixVar(b.name) || isRunsOkVar(b.name))) {
     const out = [];
@@ -368,7 +370,7 @@ if (req.evaluate) {
     else if (b.type === "Act") env[b.name] = { ty: "Act", v: mkAct(w) };
     else if (b.type === "Nat") env[b.name] = { ty: "Nat", v: BigInt(w) };
     else if (b.type === "Bool") env[b.name] = { ty: "Bool", v: w };
-    else if (b.type === "State") env[b.name] = { ty: "State", v: w.run ? runJ(w.run, s0) : enc(w.state) };
+    else if (b.type === "State" || b.type === "Reach") env[b.name] = { ty: "State", v: w.run ? runJ(w.run, s0) : enc(w.state) };
     else if (b.type === "Fn<Nat,Nat>") env[b.name] = fnVal(w);
   }
   process.stdout.write(JSON.stringify({ premises: assume.map((p) => holds(p, env)), claims: claims.map((c) => holds(c, env)) }));

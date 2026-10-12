@@ -684,11 +684,16 @@ class Gate:
                 "(agent-writable tripwire: self-certified until Q1)")
 
     def g3(self) -> None:
+        from .gen.core import bare_laws_imports
         bad = []
         for f in sorted(self.gen.rglob("*.bend")):
-            hits = bend.escape_hatches(f.read_text())
+            text = f.read_text()
+            hits = bend.escape_hatches(text)
             if hits:
                 bad.append(f"{f.relative_to(self.root)}: {hits}")
+            bare = bare_laws_imports(text)   # I8: a core LAWS module is imported only beside its PROOF
+            if bare:
+                bad.append(f"{f.relative_to(self.root)}: bare core LAWS import {bare}")
         for out in self.check_outputs:
             if "TODO found" in out or "rely on unsafe or foreign code" in out or "relies on unsafe" in out:
                 bad.append("checker reports an open goal or unsafe/foreign reliance")
