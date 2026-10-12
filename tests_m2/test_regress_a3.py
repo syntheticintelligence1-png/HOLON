@@ -33,7 +33,10 @@ class TestRealHistory(unittest.TestCase):
 
     def test_status_kernel_and_independence_transitions(self):
         tr = {t["law"]: t for t in self.rep["transitions"]}
-        self.assertEqual(len(tr), 24, "every law gained its result record after the seed")
+        m2 = sorted(k for k in tr if k.startswith("M2/"))
+        self.assertEqual(len(tr) - len(m2), 24, "every M0/M1 law gained its result record after the seed")
+        self.assertEqual(m2, sorted("M2/" + p.stem for p in (Path(__file__).resolve().parents[1] / "results" / "M2").glob("L_*.json")),
+                         "and every M2 law record (I15)")
         for key, t in tr.items():
             with self.subTest(law=key):
                 self.assertIsNone(t["status"][0])
