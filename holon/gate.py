@@ -1,6 +1,6 @@
 """`holon gate`: regenerate and re-check everything from scratch (whitepaper §9.3, M0_SPEC §7).
 
-Order: GENV, G2, G1, G3, G5, G11, G11V, G6, G9, GREF, G7, G4. The report is always written; exit 0 iff passed.
+Order: GENV, G2, G1, G3, G5, G11, G11V, G6, G9, GREF, GEVID, G7, G4. The report is always written; exit 0 iff passed.
 A full run records its wall time as from_scratch_gate_s in results/<m>/metrics_timing.json (I16).
 `--checks G6,G9` runs a subset (after GENV) and marks the report partial.
 
@@ -52,6 +52,9 @@ A full run records its wall time as from_scratch_gate_s in results/<m>/metrics_t
         a class other than unexplained and equal to its label, and every disagreement id a refinement
         record under results/M2/refinement/ lists has an entry (holon.refinement.check_disagreements);
         reads no repository history and runs no tool
+  GEVID (I14) holon.diagram.evidence.gevid: gen/M2/evidence.json regenerates byte for byte with its hashes,
+        records carry the recomputed evidence fields, overrides are well formed, and each law's metadata
+        evidence is within its computed levels (report-only for M0/M1, enforcing from M2); no git, no tool
   G7    second kernel: BendTT (--verdict) re-checks every proof, or the run is labelled
         single-kernel when Lean is unavailable. Since I9, for holon-ir/0.1 milestones (M0), the Lean 4
         second-independent kernel too: every record listing lean4 as checked is backed by
@@ -89,7 +92,7 @@ from .model_eval import CompiledModel, model_name
 ROOT = Path(__file__).resolve().parents[1]
 MIN_CANARIES = 10
 MAX_CANARIES = 24
-CHECK_ORDER = ["GENV", "G2", "G1", "G3", "G5", "G11", "G11V", "G6", "G9", "GREF", "G7", "G4"]
+CHECK_ORDER = ["GENV", "G2", "G1", "G3", "G5", "G11", "G11V", "G6", "G9", "GREF", "GEVID", "G7", "G4"]
 MODEL_ONLY = "model-only pending replay"
 # Gate and metrics outputs under results/: never part of what G1 regenerates and compares (G1 compares
 # only L_*.json, summary.json, deps.json and, since I16, metrics.json; this guards that list).
@@ -647,6 +650,12 @@ class Gate:
                                          f"none unexplained; every disagreement id of the {len(recs)} refinement "
                                          "records under results/M2/refinement/ has an entry (fix-commit existence is "
                                          "left to `holon audit`)")
+
+    def gevid(self) -> None:
+        """GEVID (I14): the entry holon.diagram.evidence.gevid computes (its passed and detail satisfy the frozen
+        gate-report schema; the other keys are the report). Reads no git and runs no tool."""
+        from .diagram.evidence import gevid
+        self.checks["GEVID"] = gevid(self.m, self.root)
 
     # ------------------------------------------------------------ checks
     def genv(self) -> bool:
@@ -1343,7 +1352,7 @@ class Gate:
             raise SystemExit(f"unknown checks: {unknown}")
         t0 = time.monotonic()
         steps = {"G2": self.g2, "G1": self.g1, "G5": self.g5, "G3": self.g3, "G11": self.g11, "G11V": self.g11v,
-                 "G6": self.g6, "G9": self.g9, "GREF": self.gref, "G7": self.g7, "G4": self.g4}
+                 "G6": self.g6, "G9": self.g9, "GREF": self.gref, "GEVID": self.gevid, "G7": self.g7, "G4": self.g4}
         # a fresh build directory: nothing compiled is reused from the tree under check
         build = Path(tempfile.mkdtemp(prefix="holon-gate-build-"))
         old_build = os.environ.get("HOLON_BUILD_DIR")
@@ -1355,7 +1364,7 @@ class Gate:
             elif self.checks["GENV"]["passed"]:
                 if "G3" in order and "G5" not in order:
                     self.recheck_outputs()  # G3 reads the checker's own output; get it without recording G5
-                for g in ["G2", "G1", "G5", "G3", "G11", "G11V", "G6", "G9", "GREF", "G7", "G4"]:
+                for g in ["G2", "G1", "G5", "G3", "G11", "G11V", "G6", "G9", "GREF", "GEVID", "G7", "G4"]:
                     if g in order:
                         try:
                             steps[g]()

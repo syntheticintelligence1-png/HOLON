@@ -5,7 +5,8 @@
   "type": "object",
   "required": ["law_id", "statement_hash", "facts_sha256", "status", "premises", "replay", "record_version", "model_sha256",
                "compiled_sha256", "generator_sha256", "cone", "ledger_match", "model_assumptions", "scope_v2", "kernels", "independence_class",
-               "refinement_refs", "coverage", "non_vacuity", "witness_provenance", "filter_bin"],
+               "refinement_refs", "coverage", "non_vacuity", "witness_provenance", "filter_bin",
+               "evidence_levels", "evidence_triage", "evidence_override"],
   "properties": {
     "law_id": {"type": "string", "pattern": "^L[0-9]?_[A-Za-z0-9_]+$"},
     "statement_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
@@ -83,7 +84,15 @@
     },
     "witness_provenance": {"type": ["object", "null"],
                            "additionalProperties": {"enum": ["public_schedule", "internal_harness", "emulated_storage", "library_api"]}},
-    "filter_bin": {"enum": ["finding", "model_defect", "pending", null]}
+    "filter_bin": {"enum": ["finding", "model_defect", "pending", null]},
+    "evidence_levels": {"type": ["array", "null"], "items": {"enum": ["E1", "E2", "E3", "E4", "E5", "E6"]},
+                        "description": "I14: holon.diagram.evidence.law_evidence(law, gen/M2/evidence.json)['levels'] (sorted, distinct) when the evidence set covers the law's facts; null otherwise"},
+    "evidence_triage": {"enum": ["finding", "intent_question", "none"],
+                        "description": "I14: evidence_triage(status, max level): none unless REFUTED, then intent_question iff the strongest level is E6, else finding. The frozen v1 triage is unchanged"},
+    "evidence_override": {"type": ["object", "null"], "required": ["evidence_triage", "why"], "additionalProperties": false,
+                          "description": "I14: null, or exactly config/evidence_overrides.json[<M>][<law_id>] (a human's recorded judgment)",
+                          "properties": {"evidence_triage": {"enum": ["finding", "intent_question"]},
+                                         "why": {"type": "string", "pattern": "\\S"}}}
   },
   "allOf": [
     {"if": {"properties": {"status": {"const": "REFUTED"}}},
