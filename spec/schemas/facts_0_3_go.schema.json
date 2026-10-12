@@ -1,0 +1,445 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "holon-facts/0.3 Go document",
+  "description": "A document of the Go frontend (I18; contract: the docstring of tests_m2/test_extract_go.py): the shared holon-facts/0.3 envelope with frontend \"go\" and all Go content under the one key \"go\", closed here. Terms, atoms and cells are JSON arrays whose first element is the tag; their fine grammar is the contract's (checked by tests_m2/_i18.grammar_problems), this schema fixes the shapes of every section. Uses only the keywords tests/reference/mini_schema.py supports.",
+  "type": "object",
+  "required": ["facts_version", "target", "extraction", "assumptions", "go"],
+  "additionalProperties": false,
+  "properties": {
+    "facts_version": {"const": "holon-facts/0.3"},
+    "target": {
+      "type": "object",
+      "required": ["repo", "commit", "scope"],
+      "additionalProperties": false,
+      "properties": {
+        "repo": {"type": "string"},
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "scope": {"type": "string", "pattern": "^go packages: "}
+      }
+    },
+    "extraction": {
+      "type": "object",
+      "required": ["method", "frontend", "frontend_version", "tool", "config", "inputs"],
+      "additionalProperties": false,
+      "properties": {
+        "method": {"const": "extracted"},
+        "frontend": {"const": "go"},
+        "frontend_version": {"const": "holon-go/0.1"},
+        "tool": {
+          "type": "object",
+          "required": ["go", "x_tools", "ssadump_sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "go": {"type": "string", "pattern": "^go[0-9]"},
+            "x_tools": {"type": "string", "pattern": "^v[0-9]"},
+            "ssadump_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "config": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "additionalProperties": false,
+          "properties": {"path": {"type": "string"}, "sha256": {"$ref": "#/$defs/sha256"}}
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["path", "sha256"],
+            "additionalProperties": false,
+            "properties": {"path": {"type": "string", "pattern": "\\.go$"}, "sha256": {"$ref": "#/$defs/sha256"}}
+          }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["id", "text"],
+        "additionalProperties": false,
+        "properties": {"id": {"type": "string", "pattern": "^go-"}, "text": {"type": "string"}}
+      }
+    },
+    "go": {"$ref": "#/$defs/go"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "span": {"type": "string", "pattern": "^[^:\\s]+\\.go:[0-9]+$"},
+    "pos": {"type": "string", "pattern": "^[^:\\s]+\\.go:[0-9]+:[0-9]+$"},
+    "term": {"type": "array", "minItems": 1},
+    "term_or_null": {"type": ["array", "null"], "minItems": 1},
+    "atom": {"type": "array", "minItems": 2, "maxItems": 3},
+    "atoms": {"type": "array", "items": {"$ref": "#/$defs/atom"}},
+    "cell": {"type": "array", "minItems": 1, "maxItems": 3},
+    "strings": {"type": "array", "items": {"type": "string"}},
+    "callee_kind": {"enum": ["analyzed", "external", "primitive", "dynamic"]},
+    "go": {
+      "type": "object",
+      "required": ["packages", "functions", "codecs", "slices", "calls", "loops", "coverage"],
+      "additionalProperties": false,
+      "properties": {
+        "packages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["path", "dir", "files"],
+            "additionalProperties": false,
+            "properties": {"path": {"type": "string"}, "dir": {"type": "string"}, "files": {"$ref": "#/$defs/strings"}}
+          }
+        },
+        "functions": {"type": "object", "additionalProperties": {"$ref": "#/$defs/function"}},
+        "codecs": {
+          "type": "object",
+          "required": ["encoders", "decoders", "predicates", "matches", "absences", "patches"],
+          "additionalProperties": false,
+          "properties": {
+            "encoders": {"type": "array", "items": {"$ref": "#/$defs/encoder"}},
+            "decoders": {"type": "array", "items": {"$ref": "#/$defs/decoder"}},
+            "predicates": {"type": "array", "items": {"$ref": "#/$defs/predicate"}},
+            "matches": {"type": "array", "items": {"$ref": "#/$defs/match"}},
+            "absences": {"type": "array", "items": {"$ref": "#/$defs/absence"}},
+            "patches": {"type": "array", "items": {"$ref": "#/$defs/patch"}}
+          }
+        },
+        "slices": {
+          "type": "object",
+          "required": ["results", "writes", "stores", "lost_writes"],
+          "additionalProperties": false,
+          "properties": {
+            "results": {"type": "array", "items": {"$ref": "#/$defs/result"}},
+            "writes": {"type": "array", "items": {"$ref": "#/$defs/write"}},
+            "stores": {"type": "array", "items": {"$ref": "#/$defs/store"}},
+            "lost_writes": {"type": "array", "items": {"$ref": "#/$defs/lost_write"}}
+          }
+        },
+        "calls": {
+          "type": "object",
+          "required": ["edges", "flows"],
+          "additionalProperties": false,
+          "properties": {
+            "edges": {"type": "array", "items": {"$ref": "#/$defs/edge"}},
+            "flows": {"type": "array", "items": {"$ref": "#/$defs/flow"}}
+          }
+        },
+        "loops": {"type": "array", "items": {"$ref": "#/$defs/loop"}},
+        "coverage": {
+          "type": "object",
+          "required": ["functions", "with_paths", "debt"],
+          "additionalProperties": false,
+          "properties": {
+            "functions": {"type": "integer"},
+            "with_paths": {"type": "integer"},
+            "debt": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["function", "kind", "where", "what"],
+                "additionalProperties": false,
+                "properties": {
+                  "function": {"type": "string"},
+                  "kind": {"enum": ["loop_bound", "path_limit", "inexact_layout", "unsupported"]},
+                  "where": {"type": "string", "pattern": "^[^:\\s]+\\.go:[0-9]+(:[0-9]+)?$"},
+                  "what": {"type": "string"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "function": {
+      "type": "object",
+      "required": ["span", "package", "params", "results", "loop_free", "paths", "paths_reason", "sites"],
+      "additionalProperties": false,
+      "properties": {
+        "span": {"$ref": "#/$defs/span"},
+        "package": {"type": "string"},
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "type"],
+            "additionalProperties": false,
+            "properties": {"name": {"type": "string"}, "type": {"type": "string"}}
+          }
+        },
+        "results": {"$ref": "#/$defs/strings"},
+        "loop_free": {"type": "boolean"},
+        "paths": {"type": ["array", "null"], "items": {"$ref": "#/$defs/path"}},
+        "paths_reason": {"enum": [null, "loop", "path_limit", "recursion", "not_codec"]},
+        "sites": {"type": "array", "items": {"$ref": "#/$defs/site"}}
+      }
+    },
+    "path": {
+      "type": "object",
+      "required": ["cond", "end", "returns", "site", "error"],
+      "additionalProperties": false,
+      "properties": {
+        "cond": {"$ref": "#/$defs/atoms"},
+        "end": {"enum": ["return", "panic"]},
+        "returns": {"type": ["array", "null"], "items": {"$ref": "#/$defs/term"}},
+        "site": {"type": ["string", "null"]},
+        "error": {"enum": [null, "nil", "nonnil", "unknown"]}
+      }
+    },
+    "site": {
+      "type": "object",
+      "required": ["id", "kind", "bound", "status", "witness"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[^:\\s]+\\.go:[0-9]+:[0-9]+:(index|slice|prim|convert|panic|assert)(#[0-9]+)?$"},
+        "kind": {"enum": ["index", "slice", "prim", "convert", "panic", "assert"]},
+        "bound": {"type": ["array", "null"], "items": {"$ref": "#/$defs/atom"}},
+        "status": {"enum": ["safe", "open"]},
+        "witness": {
+          "type": ["object", "null"],
+          "required": ["var", "min", "max"],
+          "additionalProperties": false,
+          "properties": {"var": {"type": "string"}, "min": {"type": "integer"}, "max": {"type": "integer"}}
+        }
+      }
+    },
+    "encoder": {
+      "type": "object",
+      "required": ["function", "result", "length", "cells", "conds", "exact"],
+      "additionalProperties": false,
+      "properties": {
+        "function": {"type": "string"},
+        "result": {"type": "integer"},
+        "length": {"type": "integer"},
+        "cells": {"type": "array", "items": {"$ref": "#/$defs/cell"}},
+        "conds": {"type": "array", "items": {"$ref": "#/$defs/atoms"}},
+        "exact": {"type": "boolean"}
+      }
+    },
+    "decoder": {
+      "type": "object",
+      "required": ["function", "param", "reads"],
+      "additionalProperties": false,
+      "properties": {
+        "function": {"type": "string"},
+        "param": {"type": "string"},
+        "reads": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["offset", "width", "via"],
+            "additionalProperties": false,
+            "properties": {
+              "offset": {"type": "integer"},
+              "width": {"type": "integer"},
+              "via": {"enum": ["index", "be_uint", "le_uint", "to_array"]}
+            }
+          }
+        }
+      }
+    },
+    "predicate": {
+      "type": "object",
+      "required": ["function", "param", "tag_index", "accepts"],
+      "additionalProperties": false,
+      "properties": {
+        "function": {"type": "string"},
+        "param": {"type": "string"},
+        "tag_index": {"type": ["integer", "null"]},
+        "accepts": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "required": ["value", "length"],
+            "additionalProperties": false,
+            "properties": {"value": {"type": "integer"}, "length": {"type": "integer"}}
+          }
+        }
+      }
+    },
+    "match": {
+      "type": "object",
+      "required": ["predicate", "index", "value", "length", "encoders"],
+      "additionalProperties": false,
+      "properties": {
+        "predicate": {"type": "string"},
+        "index": {"type": "integer"},
+        "value": {"type": "integer"},
+        "length": {"type": "integer"},
+        "encoders": {"$ref": "#/$defs/strings"}
+      }
+    },
+    "absence": {
+      "type": "object",
+      "required": ["predicate", "index", "value", "length", "elsewhere"],
+      "additionalProperties": false,
+      "properties": {
+        "predicate": {"type": "string"},
+        "index": {"type": "integer"},
+        "value": {"type": "integer"},
+        "length": {"type": "integer"},
+        "elsewhere": {"$ref": "#/$defs/strings"}
+      }
+    },
+    "patch": {
+      "type": "object",
+      "required": ["function", "encoder", "site", "writes", "guards", "returned"],
+      "additionalProperties": false,
+      "properties": {
+        "function": {"type": "string"},
+        "encoder": {"type": "string"},
+        "site": {"$ref": "#/$defs/pos"},
+        "writes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["index", "value", "site"],
+            "additionalProperties": false,
+            "properties": {"index": {"type": "integer"}, "value": {"type": "integer"}, "site": {"$ref": "#/$defs/pos"}}
+          }
+        },
+        "guards": {"$ref": "#/$defs/atoms"},
+        "returned": {"const": true}
+      }
+    },
+    "result": {
+      "type": "object",
+      "required": ["function", "result", "cases"],
+      "additionalProperties": false,
+      "properties": {
+        "function": {"type": "string"},
+        "result": {"type": "integer"},
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["cond", "backing", "offset", "len", "cap"],
+            "additionalProperties": false,
+            "properties": {
+              "cond": {"$ref": "#/$defs/atoms"},
+              "backing": {"$ref": "#/$defs/backing"},
+              "offset": {"$ref": "#/$defs/term"},
+              "len": {"$ref": "#/$defs/term"},
+              "cap": {"$ref": "#/$defs/term"}
+            }
+          }
+        }
+      }
+    },
+    "backing": {"type": "array", "minItems": 1, "maxItems": 2},
+    "write": {
+      "type": "object",
+      "required": ["function", "site", "via", "backing", "from", "to", "cond"],
+      "additionalProperties": false,
+      "properties": {
+        "function": {"type": "string"},
+        "site": {"$ref": "#/$defs/pos"},
+        "via": {"enum": ["append", "copy", "index", "prim"]},
+        "backing": {"$ref": "#/$defs/backing"},
+        "from": {"$ref": "#/$defs/term"},
+        "to": {"$ref": "#/$defs/term"},
+        "cond": {"$ref": "#/$defs/atoms"}
+      }
+    },
+    "store": {
+      "type": "object",
+      "required": ["function", "site", "target", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "function": {"type": "string"},
+        "site": {"$ref": "#/$defs/pos"},
+        "target": {"$ref": "#/$defs/term"},
+        "value": {"$ref": "#/$defs/term"}
+      }
+    },
+    "lost_write": {
+      "type": "object",
+      "required": ["function", "site", "param", "field", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "function": {"type": "string"},
+        "site": {"$ref": "#/$defs/pos"},
+        "param": {"type": "string"},
+        "field": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "value": {"$ref": "#/$defs/term"}
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["caller", "callee", "kind", "site", "callee_kind", "in_loops"],
+      "additionalProperties": false,
+      "properties": {
+        "caller": {"type": "string"},
+        "callee": {"type": "string"},
+        "kind": {"enum": ["call", "go", "defer"]},
+        "site": {"$ref": "#/$defs/pos"},
+        "callee_kind": {"$ref": "#/$defs/callee_kind"},
+        "in_loops": {"type": "array", "items": {"$ref": "#/$defs/span"}}
+      }
+    },
+    "use": {
+      "type": "object",
+      "required": ["kind", "callee", "index", "callee_kind", "site"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["arg", "len", "cap", "index", "index_store", "slice", "store", "return", "append_dst",
+                          "append_src", "copy_dst", "copy_src", "compare", "other"]},
+        "callee": {"type": ["string", "null"]},
+        "index": {"type": ["integer", "null"]},
+        "callee_kind": {"enum": [null, "analyzed", "external", "primitive", "dynamic"]},
+        "site": {"$ref": "#/$defs/pos"}
+      }
+    },
+    "call_ref": {
+      "type": "object",
+      "required": ["callee", "site"],
+      "additionalProperties": false,
+      "properties": {"callee": {"type": "string"}, "site": {"$ref": "#/$defs/pos"}}
+    },
+    "into": {
+      "type": "object",
+      "required": ["callee", "param", "uses", "into"],
+      "additionalProperties": false,
+      "properties": {
+        "callee": {"type": "string"},
+        "param": {"type": "integer"},
+        "uses": {"type": "array", "items": {"$ref": "#/$defs/use"}},
+        "into": {"type": "array", "items": {"$ref": "#/$defs/into"}}
+      }
+    },
+    "flow": {
+      "type": "object",
+      "required": ["producer", "caller", "site", "uses", "held_across", "opaque_between", "into"],
+      "additionalProperties": false,
+      "properties": {
+        "producer": {"type": "string"},
+        "caller": {"type": "string"},
+        "site": {"$ref": "#/$defs/pos"},
+        "uses": {"type": "array", "items": {"$ref": "#/$defs/use"}},
+        "held_across": {"type": "array", "items": {"$ref": "#/$defs/call_ref"}},
+        "opaque_between": {"type": "array", "items": {"$ref": "#/$defs/call_ref"}},
+        "into": {"type": "array", "items": {"$ref": "#/$defs/into"}}
+      }
+    },
+    "loop": {
+      "type": "object",
+      "required": ["function", "span", "depth", "kind", "iv", "init", "step", "cmp", "limit", "fuel", "exits"],
+      "additionalProperties": false,
+      "properties": {
+        "function": {"type": "string"},
+        "span": {"$ref": "#/$defs/span"},
+        "depth": {"type": "integer"},
+        "kind": {"enum": ["counted", "range", "unbounded"]},
+        "iv": {"type": ["string", "null"]},
+        "init": {"$ref": "#/$defs/term_or_null"},
+        "step": {"type": ["integer", "null"]},
+        "cmp": {"enum": [null, "==", "!=", "<", "<=", ">", ">="]},
+        "limit": {"$ref": "#/$defs/term_or_null"},
+        "fuel": {"$ref": "#/$defs/term_or_null"},
+        "exits": {"type": "array", "items": {"enum": ["break", "return", "panic", "other"]}}
+      }
+    }
+  }
+}
