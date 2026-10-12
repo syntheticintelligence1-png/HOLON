@@ -616,6 +616,39 @@
       "thresholds": {
         "refinement_disagreements": 0
       }
+    },
+    "I5": {
+      "title": "First audit round on M0/M1",
+      "plan": "docs/BUILD_PLAN.md#i5",
+      "prompt": "prompts/I5_audit.md",
+      "predictions": [
+        {
+          "id": "I5-P1",
+          "claim": "The vacuity attack finds no unsatisfiable premise among the 24 M0/M1 laws: no high or medium finding of category vacuity (G11V inhabits every premised PROVED law since I3).",
+          "check": "tests_m2/test_audit.py::TestFindings::test_vacuity_attack_finds_no_unsatisfiable_premise"
+        },
+        {
+          "id": "I5-P2",
+          "claim": "The determinism attack finds no nondeterminism: no high or medium finding of category determinism (G1 regenerates every generated file and record byte for byte).",
+          "check": "tests_m2/test_audit.py::TestFindings::test_determinism_attack_finds_no_nondeterminism"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I5-R1",
+          "claim": "All 24 statuses and statement hashes unchanged by the fixes; gates M0 and M1 pass after them.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "audit/"
+      ],
+      "tests": [
+        "tests_m2/test_audit.py"
+      ],
+      "thresholds": {
+        "open_high_findings_before_I6": 0
+      }
     }
   }
 }
