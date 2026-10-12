@@ -13,7 +13,7 @@ import unittest
 
 from tests_m2._ir03_fx import cleanup, copy_repo, fixture, holon, holon_module, load_json, write_milestone
 
-IDS = ["L3_small_bounded", "L3_small_bounded_false", "L3_at_state", "L3_exists_false"]
+IDS = ["L3_small_bounded", "L3_small_bounded_false", "L3_at_state", "L3_exists_false", "L3_bounded_vacuous"]
 
 
 class TestScopeRun(unittest.TestCase):
@@ -64,6 +64,13 @@ class TestScopeRun(unittest.TestCase):
         self.assertEqual(r["scope"], "bounded")
         self.assertEqual(r["statement_scope"], {"kind": "at_state", "ref": "s0"})
 
+    def test_a_law_vacuous_within_its_horizon_is_never_inhabited(self):
+        """Its premise holds only after 3 pushes; the inhabitant ∃p. len(p) <= 2 ∧ premise has no witness."""
+        r = self.rec("L3_bounded_vacuous")
+        self.assertEqual(r["status"], "PROVED", r.get("attempts"))
+        self.assertNotEqual(r["non_vacuity"]["status"], "inhabited", r["non_vacuity"])
+        self.assertIsNone(r["non_vacuity"]["witness"])
+
     def test_records_validate_against_the_v2_schema(self):
         from tests_m2._m2 import ROOT, validate
         for lid in IDS:
@@ -93,6 +100,13 @@ class TestScopeUnits(unittest.TestCase):
         law["statement"]["scope"] = {"kind": "bounded", "H": 1}
         with self.assertRaises(self.mlaws.Unsupported):
             self.mlaws.Emitter(self.cm.m).emit(law, "../model/m.bend")
+
+    def test_the_inhabitant_states_the_horizon_too(self):
+        """G11V's inhabitant (∃ binders. premises) keeps the law's scope, so its emitted law bounds the trace."""
+        inh = holon_module("holon.inhabit").inhabitant_ir(fixture("L3_bounded_vacuous"))
+        self.assertEqual(inh["statement"]["scope"], {"kind": "bounded", "H": 2})
+        em = self.mlaws.Emitter(self.cm.m).emit(inh, "../model/m.bend")
+        self.assertTrue(any(a.startswith("Nat.is_le(List.length(") for a, _, _ in em.claims), em.text)
 
     def test_the_explorer_never_proposes_a_witness_beyond_the_horizon(self):
         s = self.cm.explore(fixture("L3_small_bounded"))

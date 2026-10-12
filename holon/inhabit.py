@@ -252,6 +252,8 @@ def inhabitant_ir(law: dict) -> dict:
                          "claim": {"all": prem} if len(prem) > 1 else prem[0]}}
     if "rule_catalog_version" in law:
         out["rule_catalog_version"] = law["rule_catalog_version"]
+    if st.get("scope"):   # 0.3 (audit F-M2-01): inhabited within the law's scope, e.g. by a trace of at most H actions
+        out["statement"]["scope"] = dict(st["scope"])
     return out
 
 

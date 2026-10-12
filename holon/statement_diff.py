@@ -282,8 +282,8 @@ def scan(path: Path, root: Path) -> dict:
             prev = len(v)
     committed_len = spans[-1][0] if spans else 0
     out["note"] = ("no git history (a copied tree): every line checked against the working tree" if hist is None else
-                   f"{sum(1 for _, c in spans)} committed versions; committed lines verified against the commit that "
-                   "appended them, new lines checked against the working tree")
+                   f"{len(hist)} committed versions, {committed_len} committed bytes; committed lines verified against "
+                   "the commit that appended them, new lines checked against the working tree")
     offset = 0
     for n, raw in enumerate(data.splitlines(keepends=True), start=1):
         start, offset = offset, offset + len(raw)

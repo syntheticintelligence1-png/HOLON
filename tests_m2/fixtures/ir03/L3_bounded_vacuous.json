@@ -1,0 +1,61 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_bounded_vacuous",
+  "milestone": "T1",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Audit F-M2-01 (non-vacuity under scope): PROVED (the claim is its premise), but vacuous within its horizon: the counter reaches 3 only after 3 pushes, beyond H = 2. Its inhabitant must respect the scope, so it is never recorded as inhabited.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "obsv": "n_of",
+            "of": {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            }
+          },
+          {
+            "nat": 3
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "n_of",
+          "of": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "nat": 3
+        }
+      ]
+    },
+    "scope": {
+      "kind": "bounded",
+      "H": 2
+    }
+  }
+}
