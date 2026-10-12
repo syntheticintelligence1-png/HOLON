@@ -1,0 +1,3008 @@
+{
+  "bend_version": "2.0.36",
+  "canaries": [
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_0_L_msg_budget_owner_lifts",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_0_L_msg_budget_owner_lifts",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "gl": {
+                                "nat": 1
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "to": {
+                                "nat": 9
+                              },
+                              "val": {
+                                "nat": 0
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 5
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "replayMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "from": {
+                                "nat": 5
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "qi": {
+                                "nat": 1
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 6
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "replayMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "from": {
+                                "nat": 5
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "qi": {
+                                "nat": 2
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 6
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "replayMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "from": {
+                                "nat": 5
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "qi": {
+                                "nat": 3
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 6
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "updateMaxReplayTimes",
+                            "args": {
+                              "val": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 4
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_msg_budget_owner_lifts"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_0_L_msg_budget_owner_lifts",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_0_L_msg_budget_owner_lifts",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "gl": {
+                                "nat": 1
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "to": {
+                                "nat": 9
+                              },
+                              "val": {
+                                "nat": 0
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 5
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "replayMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "from": {
+                                "nat": 5
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "qi": {
+                                "nat": 1
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 6
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "replayMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "from": {
+                                "nat": 5
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "qi": {
+                                "nat": 2
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 6
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "replayMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "from": {
+                                "nat": 5
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "qi": {
+                                "nat": 3
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 6
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "updateMaxReplayTimes",
+                            "args": {
+                              "val": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 4
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_msg_budget_owner_lifts"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_0_L_msg_budget_owner_lifts",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_0_L_msg_budget_owner_lifts",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 5
+                              },
+                              "gl": {
+                                "nat": 1
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "to": {
+                                "nat": 9
+                              },
+                              "val": {
+                                "nat": 0
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 5
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "replayMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "from": {
+                                "nat": 5
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "qi": {
+                                "nat": 1
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 6
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "replayMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "from": {
+                                "nat": 5
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "qi": {
+                                "nat": 2
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 6
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "replayMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "from": {
+                                "nat": 5
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "qi": {
+                                "nat": 3
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 6
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          },
+                          {
+                            "act": "updateMaxReplayTimes",
+                            "args": {
+                              "val": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 4
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_msg_budget_owner_lifts"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_1_L_msg_replay_ok",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_1_L_msg_replay_ok",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "gl": {
+                                "nat": 1
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "to": {
+                                "nat": 9
+                              },
+                              "val": {
+                                "nat": 0
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 5
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 1
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_msg_replay_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_1_L_msg_replay_ok",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_1_L_msg_replay_ok",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "gl": {
+                                "nat": 1
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "to": {
+                                "nat": 9
+                              },
+                              "val": {
+                                "nat": 0
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 5
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 1
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_msg_replay_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_1_L_msg_replay_ok",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_1_L_msg_replay_ok",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 5
+                              },
+                              "gl": {
+                                "nat": 1
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "to": {
+                                "nat": 9
+                              },
+                              "val": {
+                                "nat": 0
+                              },
+                              "value": {
+                                "nat": 4
+                              },
+                              "who": {
+                                "nat": 5
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 1
+                        },
+                        "value": {
+                          "nat": 4
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_msg_replay_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_2_L_msg_waiver_follows_origin",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_2_L_msg_waiver_follows_origin",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "setWhitelist",
+                            "args": {
+                              "b": {
+                                "bool": true
+                              },
+                              "sub": {
+                                "nat": 5
+                              },
+                              "who": {
+                                "nat": 0
+                              }
+                            }
+                          },
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "gl": {
+                                "nat": 1
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "to": {
+                                "nat": 9
+                              },
+                              "val": {
+                                "nat": 0
+                              },
+                              "value": {
+                                "nat": 0
+                              },
+                              "who": {
+                                "nat": 5
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 1
+                        },
+                        "value": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_msg_waiver_follows_origin"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_2_L_msg_waiver_follows_origin",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_2_L_msg_waiver_follows_origin",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "setWhitelist",
+                            "args": {
+                              "b": {
+                                "bool": true
+                              },
+                              "sub": {
+                                "nat": 5
+                              },
+                              "who": {
+                                "nat": 0
+                              }
+                            }
+                          },
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "gl": {
+                                "nat": 1
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "to": {
+                                "nat": 9
+                              },
+                              "val": {
+                                "nat": 0
+                              },
+                              "value": {
+                                "nat": 0
+                              },
+                              "who": {
+                                "nat": 5
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 1
+                        },
+                        "value": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_msg_waiver_follows_origin"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_2_L_msg_waiver_follows_origin",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_2_L_msg_waiver_follows_origin",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "SORT",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 1
+                              }
+                            }
+                          },
+                          {
+                            "act": "setWhitelist",
+                            "args": {
+                              "b": {
+                                "bool": true
+                              },
+                              "sub": {
+                                "nat": 6
+                              },
+                              "who": {
+                                "nat": 0
+                              }
+                            }
+                          },
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "amt": {
+                                "nat": 4
+                              },
+                              "gl": {
+                                "nat": 1
+                              },
+                              "mn": {
+                                "nat": 0
+                              },
+                              "to": {
+                                "nat": 9
+                              },
+                              "val": {
+                                "nat": 0
+                              },
+                              "value": {
+                                "nat": 0
+                              },
+                              "who": {
+                                "nat": 5
+                              },
+                              "xh": {
+                                "nat": 11
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "replayMessage",
+                      "args": {
+                        "amt": {
+                          "nat": 4
+                        },
+                        "from": {
+                          "nat": 5
+                        },
+                        "mn": {
+                          "nat": 0
+                        },
+                        "qi": {
+                          "nat": 1
+                        },
+                        "value": {
+                          "nat": 0
+                        },
+                        "who": {
+                          "nat": 6
+                        },
+                        "xh": {
+                          "nat": 11
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "scenario"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_msg_waiver_follows_origin"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_3_L_setup_msg_budget_exhausts",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_3_L_setup_msg_budget_exhausts",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 1
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 2
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 3
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_setup_msg_budget_exhausts"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_3_L_setup_msg_budget_exhausts",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_3_L_setup_msg_budget_exhausts",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 1
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 2
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 3
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_setup_msg_budget_exhausts"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_3_L_setup_msg_budget_exhausts",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_3_L_setup_msg_budget_exhausts",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 5
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 1
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 2
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 3
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_setup_msg_budget_exhausts"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_4_L_setup_msg_budget_owner_lifts",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_4_L_setup_msg_budget_owner_lifts",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 1
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 2
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 3
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateMaxReplayTimes",
+                        "args": {
+                          "val": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_setup_msg_budget_owner_lifts"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_4_L_setup_msg_budget_owner_lifts",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_4_L_setup_msg_budget_owner_lifts",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 1
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 2
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 3
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateMaxReplayTimes",
+                        "args": {
+                          "val": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_setup_msg_budget_owner_lifts"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_4_L_setup_msg_budget_owner_lifts",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_4_L_setup_msg_budget_owner_lifts",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 5
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 1
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 2
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "replayMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "from": {
+                            "nat": 5
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "qi": {
+                            "nat": 3
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 6
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      },
+                      {
+                        "act": "updateMaxReplayTimes",
+                        "args": {
+                          "val": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_setup_msg_budget_owner_lifts"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_5_L_setup_msg_replay_ok",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_5_L_setup_msg_replay_ok",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_setup_msg_replay_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_5_L_setup_msg_replay_ok",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_5_L_setup_msg_replay_ok",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_setup_msg_replay_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_5_L_setup_msg_replay_ok",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_5_L_setup_msg_replay_ok",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 5
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_setup_msg_replay_ok"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_6_L_setup_msg_waiver_follows_origin",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_6_L_setup_msg_waiver_follows_origin",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "setWhitelist",
+                        "args": {
+                          "b": {
+                            "bool": true
+                          },
+                          "sub": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 0
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_setup_msg_waiver_follows_origin"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_6_L_setup_msg_waiver_follows_origin",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_6_L_setup_msg_waiver_follows_origin",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "setWhitelist",
+                        "args": {
+                          "b": {
+                            "bool": true
+                          },
+                          "sub": {
+                            "nat": 5
+                          },
+                          "who": {
+                            "nat": 0
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_setup_msg_waiver_follows_origin"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_swap_arg_6_L_setup_msg_waiver_follows_origin",
+      "kind": "swap_arg",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_swap_arg_6_L_setup_msg_waiver_follows_origin",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "setWhitelist",
+                        "args": {
+                          "b": {
+                            "bool": true
+                          },
+                          "sub": {
+                            "nat": 6
+                          },
+                          "who": {
+                            "nat": 0
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 0
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_setup_msg_waiver_follows_origin"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_negated_7_L_setup_msg_waiver_not_caller",
+      "kind": "negated",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_7_L_setup_msg_waiver_not_caller",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "setWhitelist",
+                        "args": {
+                          "b": {
+                            "bool": true
+                          },
+                          "sub": {
+                            "nat": 6
+                          },
+                          "who": {
+                            "nat": 0
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_setup_msg_waiver_not_caller"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {},
+      "id": "CANARY_pin_const_7_L_setup_msg_waiver_not_caller",
+      "kind": "pin_const",
+      "law": {
+        "facts": "spec/M3/extracted/l1messenger.json",
+        "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_pin_const_7_L_setup_msg_waiver_not_caller",
+        "milestone": "M3_msg",
+        "predicted": "PROVED",
+        "rule": "GUARD",
+        "statement": {
+          "assume": [],
+          "binders": [],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "trace": [
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 1
+                          }
+                        }
+                      },
+                      {
+                        "act": "setWhitelist",
+                        "args": {
+                          "b": {
+                            "bool": true
+                          },
+                          "sub": {
+                            "nat": 6
+                          },
+                          "who": {
+                            "nat": 0
+                          }
+                        }
+                      },
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "amt": {
+                            "nat": 4
+                          },
+                          "gl": {
+                            "nat": 1
+                          },
+                          "mn": {
+                            "nat": 0
+                          },
+                          "to": {
+                            "nat": 9
+                          },
+                          "val": {
+                            "nat": 0
+                          },
+                          "value": {
+                            "nat": 4
+                          },
+                          "who": {
+                            "nat": 5
+                          },
+                          "xh": {
+                            "nat": 11
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "s0": {}
+                  }
+                ],
+                "fn": "runs_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "setup"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_setup_msg_waiver_not_caller"
+    }
+  ],
+  "checks": {
+    "G1": {
+      "detail": "25 generated .bend files identical, summary identical",
+      "passed": true
+    },
+    "G11": {
+      "detail": "every law has a record and a non-vacuous LAWS.bend",
+      "passed": true
+    },
+    "G2": {
+      "detail": "all statement and facts hashes match the registry",
+      "passed": true
+    },
+    "G3": {
+      "detail": "no escape hatches",
+      "passed": true
+    },
+    "G4": {
+      "detail": "23 canaries of kinds ['negated', 'pin_const', 'swap_arg'], all rejected",
+      "passed": true
+    },
+    "G5": {
+      "detail": "12 proofs re-checked from scratch",
+      "passed": true
+    },
+    "G7": {
+      "detail": "dual-kernel: 12 proofs re-checked by BendTT (--verdict)",
+      "passed": true
+    },
+    "GENV": {
+      "detail": "bend 2.0.36, pinned 2.0.36",
+      "passed": true
+    }
+  },
+  "milestone": "M3_msg",
+  "passed": true
+}

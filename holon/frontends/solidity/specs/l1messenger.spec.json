@@ -12,9 +12,9 @@
   "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
  },
  "abstractions": [
- "wl is a messenger-side role set mirroring IWhitelist.isSenderAllowed; the setWhitelist env action is its only writer.",
- "dr (__isL1MessageDropped) is read-only here (replayMessage :195); nothing in this bundle writes it — drop effects live on the queue/drop side (O34 depends on this)."
-],
+  "wl is a messenger-side role set mirroring IWhitelist.isSenderAllowed; the setWhitelist env action is its only writer.",
+  "dr (__isL1MessageDropped) is read-only here (replayMessage :195); nothing in this bundle writes it \u2014 drop effects live on the queue/drop side (O34 depends on this)."
+ ],
  "constants_doc": {},
  "modifiers_abstracted": [
   "initializer",
@@ -185,19 +185,34 @@
  },
  "oracles": {
   "IL1MessageQueue.estimateCrossDomainMessageFee": {
-   "emit": ["call", "est_fee", "@a0", "wl", "amt"],
-   "add_inputs": ["amt"],
+   "emit": [
+    "call",
+    "est_fee",
+    "@a0",
+    "wl",
+    "amt"
+   ],
+   "add_inputs": [
+    "amt"
+   ],
    "note": "fee oracle keyed on _from; the def est_fee gives the queue-side formula"
   },
   "IL1MessageQueue.nextCrossDomainMessageIndex": {
    "emit": "mn",
-   "add_inputs": ["mn"]
+   "add_inputs": [
+    "mn"
+   ]
   },
   "IL1MessageQueue.appendCrossDomainMessage": {
    "debt": "queue append; the queue-side effects live in the queue machine"
   },
   "IWhitelist.isSenderAllowed": {
-   "emit": ["call", "mem", "@a0", "wl"],
+   "emit": [
+    "call",
+    "mem",
+    "@a0",
+    "wl"
+   ],
    "note": "wl is the oracle carrier mirroring IWhitelist.isSenderAllowed"
   },
   "AddressAliasHelper.applyL1ToL2Alias": {
@@ -547,6 +562,27 @@
     }
    },
    "note": "environment carrier for IWhitelist.isSenderAllowed; same status as wait"
+  },
+  {
+   "name": "wait",
+   "declared": {
+    "inputs": [
+     [
+      "dt",
+      "Nat"
+     ]
+    ],
+    "principal": "environment",
+    "src": "environment: time progress",
+    "guards": [],
+    "effects": {
+     "t": [
+      "+",
+      "t",
+      "dt"
+     ]
+    }
+   }
   }
  ],
  "coverage_items": [

@@ -70,6 +70,76 @@ def candidates(laws: list[dict], records: dict) -> list[tuple[str, str, dict, di
                 conj = m["statement"]["claim"]["all"][i]
                 conj["eq"][1]["nat"] = conj["eq"][1]["nat"] + 1
                 out.append(("pin_const", lid, m, rec.get("witness")))
+        elif not st.get("assume") and not st.get("binders"):
+            # closed laws (M3 scenario/setup): no binders, the claim is a
+            # concrete trace/observation. Three derivable false statements.
+            out.append(("negated", lid, copy.deepcopy(law), {}))
+            conjs = st["claim"].get("all", [st["claim"]])
+            def _conjs(m):
+                return m["statement"]["claim"].get("all", [m["statement"]["claim"]])
+            if any("nat" in c["eq"][1] or "bool" in c["eq"][1] for c in conjs):
+                m = copy.deepcopy(law)
+                for c in _conjs(m):
+                    if "nat" in c["eq"][1]:
+                        c["eq"][1]["nat"] += 1
+                        break
+                    if "bool" in c["eq"][1]:
+                        c["eq"][1]["bool"] = not c["eq"][1]["bool"]
+                        break
+                out.append(("pin_const", lid, m, {}))
+            def _first_obsv(c):
+                for side in c["eq"]:
+                    if isinstance(side, dict) and side.get("obsv") and side.get("args"):
+                        return side
+            def _deep_nat(x):
+                # first {"nat": N} leaf anywhere inside a term (e.g. an act arg)
+                if isinstance(x, dict):
+                    if "nat" in x:
+                        return x
+                    for v in x.values():
+                        r = _deep_nat(v)
+                        if r is not None:
+                            return r
+                elif isinstance(x, list):
+                    for v in x:
+                        r = _deep_nat(v)
+                        if r is not None:
+                            return r
+                return None
+            def _nats(x, acc):
+                if isinstance(x, dict):
+                    if "nat" in x:
+                        acc.append(x)
+                    else:
+                        for v in x.values():
+                            _nats(v, acc)
+                elif isinstance(x, list):
+                    for v in x:
+                        _nats(v, acc)
+                return acc
+            # swap_arg: bump one {"nat": N} leaf per candidate; evaluation
+            # keeps only mutations that actually falsify the claim, so offer
+            # up to three distinct positions per law (observable arg first,
+            # then deep nat leaves in order)
+            made = 0
+            for c in conjs:
+                if made >= 3:
+                    break
+                s2 = _first_obsv(c)
+                if s2:
+                    m = copy.deepcopy(law)
+                    s3 = _first_obsv(_conjs(m)[conjs.index(c)])
+                    s3["args"][-1]["nat"] += 1
+                    out.append(("swap_arg", lid, m, {}))
+                    made += 1
+                    continue
+                all_nats = _nats(c["eq"][0], [])
+                for pos in range(min(len(all_nats), 3 - made)):
+                    m = copy.deepcopy(law)
+                    n3 = _nats(_conjs(m)[conjs.index(c)]["eq"][0], [])[pos]
+                    n3["nat"] += 1
+                    out.append(("swap_arg", lid, m, {}))
+                    made += 1
     return out
 
 
@@ -96,7 +166,7 @@ def run_canaries(cm, laws: list[dict], records: dict, workdir, cfg: dict, max_n:
                 if not (all(ev["premises"]) and all(ev["claims"])):
                     continue  # not a point where the law holds
                 cex = point
-            elif kind == "pin_const":
+            elif kind in ("pin_const", "swap_arg"):
                 em = E.emit(law, imp)
                 proof = mproofs.evaluate(em, cm.m, imp, point)
                 ev = cm.evaluate(law, point)

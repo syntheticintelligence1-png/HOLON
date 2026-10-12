@@ -659,6 +659,25 @@
      ]
     ]
    }
+  },
+  {
+   "name": "wait",
+   "principal": "environment",
+   "src": "environment: time progress",
+   "inputs": [
+    [
+     "dt",
+     "Nat"
+    ]
+   ],
+   "guards": [],
+   "effects": {
+    "t": [
+     "+",
+     "t",
+     "dt"
+    ]
+   }
   }
  ],
  "migrations": {},
@@ -752,6 +771,7 @@
   "actions.sendMessage2.effects": "ast",
   "actions.sendMessage2.entry": "ast",
   "actions.setWhitelist": "spec",
+  "actions.wait": "spec",
   "facts_version": "spec",
   "target": "spec",
   "extraction": "spec",

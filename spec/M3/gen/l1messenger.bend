@@ -147,6 +147,7 @@ type HAct is Data:
   A_sendMessage{who: Nat, to: Nat, val: Nat, gl: Nat, xh: Nat, value: Nat, mn: Nat, amt: Nat}
   A_sendMessage2{who: Nat, to: Nat, val: Nat, gl: Nat, ra: Nat, xh: Nat, value: Nat, mn: Nat, amt: Nat}
   A_setWhitelist{who: Nat, sub: Nat, b: Bool}
+  A_wait{dt: Nat}
 
 def empty_RS() -> HRS:
   HRS{0n, 0n}
@@ -365,6 +366,25 @@ def step_setWhitelist(s: HSt, +who: Nat, +sub: Nat, +b: Bool) -> HSt:
     case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
       exec_setWhitelist(decide_setWhitelist(who, sub, b), t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, log, who, sub, b)
 
+type Dec_wait is Data:
+  D_wait_Rev{code: Nat}
+  D_wait_Ok{}
+
+def decide_wait(+dt: Nat) -> Dec_wait:
+  D_wait_Ok{}
+
+def exec_wait(d: Dec_wait, +t: Nat, +own: Nat, +maxr: Nat, +mrt: List<&2, HRS>, +pri: List<&2, Nat>, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +bf: Nat, +dr: List<&2, Nat>, +fq: Nat, +paused: Bool, +log: List<&2, HObs>, +dt: Nat) -> HSt:
+  match d:
+    case D_wait_Rev{code}:
+      HSt{t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, Con{O_Rev{code}, log}}
+    case D_wait_Ok{}:
+      HSt{Nat.add(t, dt), own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, Con{O_Ok{}, log}}
+
+def step_wait(s: HSt, +dt: Nat) -> HSt:
+  match s:
+    case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
+      exec_wait(decide_wait(dt), t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, log, dt)
+
 def step(a: HAct, s: HSt) -> HSt:
   match a:
     case A_replayMessage{+who, +xh, +value, +qi, +from, +mn, +amt}:
@@ -377,6 +397,8 @@ def step(a: HAct, s: HSt) -> HSt:
       step_sendMessage2(s, who, to, val, gl, ra, xh, value, mn, amt)
     case A_setWhitelist{+who, +sub, +b}:
       step_setWhitelist(s, who, sub, b)
+    case A_wait{+dt}:
+      step_wait(s, dt)
 
 def run(tr: List<&2, HAct>, s: HSt) -> HSt:
   match tr:
@@ -474,6 +496,8 @@ def is_replayMessage(a: HAct) -> Bool:
       False{}
     case A_setWhitelist{_, _, _}:
       False{}
+    case A_wait{_}:
+      False{}
 
 def is_updateMaxReplayTimes(a: HAct) -> Bool:
   match a:
@@ -486,6 +510,8 @@ def is_updateMaxReplayTimes(a: HAct) -> Bool:
     case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
       False{}
     case A_setWhitelist{_, _, _}:
+      False{}
+    case A_wait{_}:
       False{}
 
 def is_sendMessage(a: HAct) -> Bool:
@@ -500,6 +526,8 @@ def is_sendMessage(a: HAct) -> Bool:
       False{}
     case A_setWhitelist{_, _, _}:
       False{}
+    case A_wait{_}:
+      False{}
 
 def is_sendMessage2(a: HAct) -> Bool:
   match a:
@@ -513,6 +541,8 @@ def is_sendMessage2(a: HAct) -> Bool:
       True{}
     case A_setWhitelist{_, _, _}:
       False{}
+    case A_wait{_}:
+      False{}
 
 def is_setWhitelist(a: HAct) -> Bool:
   match a:
@@ -525,6 +555,23 @@ def is_setWhitelist(a: HAct) -> Bool:
     case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
       False{}
     case A_setWhitelist{_, _, _}:
+      True{}
+    case A_wait{_}:
+      False{}
+
+def is_wait(a: HAct) -> Bool:
+  match a:
+    case A_replayMessage{_, _, _, _, _, _, _}:
+      False{}
+    case A_updateMaxReplayTimes{_, _}:
+      False{}
+    case A_sendMessage{_, _, _, _, _, _, _, _}:
+      False{}
+    case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
+      False{}
+    case A_setWhitelist{_, _, _}:
+      False{}
+    case A_wait{_}:
       True{}
 
 def cost(tr: List<&2, HAct>) -> Nat:
@@ -543,6 +590,8 @@ def cost(tr: List<&2, HAct>) -> Nat:
           Nat.add(0n, cost(rest))
         case A_setWhitelist{_, _, _}:
           Nat.add(0n, cost(rest))
+        case A_wait{_}:
+          Nat.add(0n, cost(rest))
 
 def elapsed(tr: List<&2, HAct>) -> Nat:
   match tr:
@@ -560,6 +609,8 @@ def elapsed(tr: List<&2, HAct>) -> Nat:
           Nat.add(0n, elapsed(rest))
         case A_setWhitelist{_, _, _}:
           Nat.add(0n, elapsed(rest))
+        case A_wait{_}:
+          Nat.add(0n, elapsed(rest))
 
 # actions any principal may take (no role modifier): the permissionless class X of DISCH
 def perm(a: HAct) -> Bool:
@@ -573,6 +624,8 @@ def perm(a: HAct) -> Bool:
     case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
       True{}
     case A_setWhitelist{_, _, _}:
+      True{}
+    case A_wait{_}:
       True{}
 
 # replayStates[xh].times

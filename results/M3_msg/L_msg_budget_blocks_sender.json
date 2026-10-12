@@ -1,0 +1,53 @@
+{
+  "artifacts": {
+    "law_name": "l_msg_budget_blocks_sender",
+    "laws": "gen/M3_msg/L_msg_budget_blocks_sender/LAWS.bend",
+    "model": "gen/M3_msg/model/l1messenger.bend",
+    "proof": "gen/M3_msg/L_msg_budget_blocks_sender/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "evaluate",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.105
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.138
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.105
+  },
+  "difference": null,
+  "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_msg_budget_blocks_sender",
+  "maps_to": null,
+  "premises": [
+    "wl is a messenger-side role set mirroring IWhitelist.isSenderAllowed; the setWhitelist env action is its only writer.",
+    "dr (__isL1MessageDropped) is read-only here (replayMessage :195); nothing in this bundle writes it \u2014 drop effects live on the queue/drop side (O34 depends on this)."
+  ],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "DISCH",
+  "scope": "unbounded",
+  "statement_hash": "sha256:8d05e4e76861b8a1a8da9adb71a01c6611a222fe2224ffd92d61197a7785401a",
+  "status": "PROVED",
+  "subform": "scenario",
+  "triage": "none",
+  "witness": null
+}

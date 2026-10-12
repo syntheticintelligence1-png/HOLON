@@ -1,0 +1,53 @@
+{
+  "artifacts": {
+    "law_name": "l_setup_msg_waiver_not_caller",
+    "laws": "gen/M3_msg/L_setup_msg_waiver_not_caller/LAWS.bend",
+    "model": "gen/M3_msg/model/l1messenger.bend",
+    "proof": "gen/M3_msg/L_setup_msg_waiver_not_caller/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "evaluate",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.105
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.133
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.105
+  },
+  "difference": null,
+  "facts_sha256": "0863fe818cd006c992ecf818d569aca535e62a4b01ad9eb2a8deb0091961e84e",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_setup_msg_waiver_not_caller",
+  "maps_to": null,
+  "premises": [
+    "wl is a messenger-side role set mirroring IWhitelist.isSenderAllowed; the setWhitelist env action is its only writer.",
+    "dr (__isL1MessageDropped) is read-only here (replayMessage :195); nothing in this bundle writes it \u2014 drop effects live on the queue/drop side (O34 depends on this)."
+  ],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "GUARD",
+  "scope": "unbounded",
+  "statement_hash": "sha256:47e0ed4282f1dcb41476c231ad0e7d68f33d6c1fb481da1305e011fe36eb73d3",
+  "status": "PROVED",
+  "subform": "setup",
+  "triage": "none",
+  "witness": null
+}
