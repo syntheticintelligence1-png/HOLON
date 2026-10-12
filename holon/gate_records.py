@@ -45,18 +45,43 @@ from .pipeline import law_names
 from .replay import load_report, replay_status, witness_sha256
 
 # Milestones whose gate runs the record checks (M0 keeps the M0 contract).
-RECORD_GATE_MILESTONES = ("M1", "M3_sorts")
+RECORD_GATE_MILESTONES = ("M1", "M3_sorts", "M3_msg", "M3_router", "M3_nat")
 MODEL_ONLY = "model-only pending replay"
 LOG_CHANNEL = "log"  # the observation channel; not a modelled element
+PREDICTIONS_PATH = "spec/M3/predictions.json"
 
 
 def _res(passed: bool, detail: str) -> dict:
     return {"passed": bool(passed), "detail": detail}
 
 
+def _predictions(root: Path, milestone: str) -> dict:
+    """spec/M3/predictions.json entries for one milestone ({} when absent)."""
+    p = root / PREDICTIONS_PATH
+    if not p.exists():
+        return {}
+    return json.loads(p.read_text()).get(milestone, {})
+
+
 # =================================================================== G6
-def g6_check(records: dict, report: dict | None) -> dict:
-    """Every REFUTED record has bound replay evidence or the model-only label."""
+def g6_check(records: dict, report: dict | None, laws: list | None = None,
+             milestone: str = "", preds: dict | None = None) -> dict:
+    """Every REFUTED record has bound replay evidence or the model-only label.
+
+    For PROVED laws the check binds only laws the predictions file marks as
+    findings ("finding": true): each needs replay/M3/*_report.json["laws"][lid]
+    carrying the law's statement_hash and verdict "agree". Non-finding PROVED
+    laws need no replay evidence."""
+    lawhash = {l["law_id"]: ir.statement_hash(l) for l in laws or []}
+    for lid, rec in sorted(records.items()):
+        if rec is None or rec.get("status") != "PROVED":
+            continue
+        if not (preds or {}).get(lid, {}).get("finding"):
+            continue
+        rl = (report or {}).get("laws", {}).get(lid)
+        if rl is None or rl.get("statement_hash") != lawhash.get(lid) or rl.get("verdict") != "agree":
+            return _res(False, f"{lid}: finding PROVED but no agree replay entry "
+                               f"(statement_hash + verdict) in the report")
     bad, replayed, pending = [], [], []
     for lid, rec in sorted(records.items()):
         if rec is None or rec.get("status") != "REFUTED":
@@ -623,12 +648,60 @@ def g11_inhabitance(gate) -> dict:
 
 
 # =================================================================== driver
+# =================================================================== GPRED
+def gpred_check(gate) -> dict:
+    """Predictions (spec/M3/predictions.json) for this milestone.
+
+    Reports each law whose record status differs from its `predicted` as a
+    listed miss — misses do not fail the check. It fails only if the file is
+    missing or its sha256 differs from the one recorded under "Amendments" in
+    docs/M3_SPEC.md."""
+    root, m = gate.root, gate.m
+    p = root / PREDICTIONS_PATH
+    if not p.exists():
+        return _res(False, f"{PREDICTIONS_PATH} missing")
+    spec = root / "docs" / "M3_SPEC.md"
+    recorded = None
+    if spec.exists():
+        mt = re.search(r"predictions\.json.{0,4}sha256:.{0,4}([0-9a-f]{64})", spec.read_text())
+        recorded = mt.group(1) if mt else None
+    actual = F.sha256_file(p)
+    if recorded is None:
+        return _res(False, "no predictions.json sha256 recorded in docs/M3_SPEC.md Amendments")
+    if recorded != actual:
+        return _res(False, f"predictions.json sha256 {actual[:20]}... != recorded {recorded[:20]}...")
+    preds = _predictions(root, m)
+    if not preds:
+        return _res(True, f"{PREDICTIONS_PATH} ok; no predictions for {m}")
+    recs = gate.records()
+    misses, unknown_preds = [], []
+    for lid, e in sorted(preds.items()):
+        rec = recs.get(lid)
+        if rec is None:
+            misses.append(f"{lid}: predicted {e.get('predicted')} but no record")
+        elif rec.get("status") != e.get("predicted"):
+            misses.append(f"{lid}: predicted {e.get('predicted')} but status {rec.get('status')}")
+        if not e.get("predicted"):
+            unknown_preds.append(lid)
+    detail = f"{len(preds)} predictions checked; sha256 matches docs/M3_SPEC.md"
+    if misses:
+        detail += "; misses: " + "; ".join(misses)
+    if unknown_preds:
+        detail += f"; {len(unknown_preds)} laws have no prediction"
+    return _res(True, detail)
+
+
 def record_gates(gate) -> None:
     """Run the M2 record gates on a Gate instance that has already run g11()."""
     # The existing check verifies law presence and LAWS.bend names (audit R2:
     # that is 'law presence', not inhabitance). Keep it under an honest name.
     gate.checks["G11_names"] = gate.checks.pop("G11")
-    for name, fn in (("G6", lambda: g6_check(gate.records(), load_report(gate.m, gate.root))),
+    m = gate.m
+    preds = _predictions(gate.root, m)
+    laws = ir.load_laws_any(m, gate.root)
+    for name, fn in (("GPRED", lambda: gpred_check(gate)),
+                     ("G6", lambda: g6_check(gate.records(), load_report(m, gate.root),
+                                             laws=laws, milestone=m, preds=preds)),
                      ("G8", lambda: g8_check(gate)),
                      ("G9", lambda: g9_check(gate)),
                      ("G11", lambda: g11_inhabitance(gate))):
@@ -638,4 +711,4 @@ def record_gates(gate) -> None:
             gate.checks[name] = _res(False, f"error: {e}")
 
 
-RECORD_ORDER = ["GENV", "G2", "G1", "G3", "G5", "G6", "G8", "G9", "G11_names", "G11", "G7", "G4"]
+RECORD_ORDER = ["GENV", "G2", "G1", "G3", "G5", "GPRED", "G6", "G8", "G9", "G11_names", "G11", "G7", "G4"]

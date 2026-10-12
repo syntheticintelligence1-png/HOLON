@@ -283,7 +283,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                 rec["bound"] = rec.get("bound") or "no witness in the searched space"
                 rec["scope"] = "bounded"
             else:
-                rec["scope"] = "unbounded"
+                rec["scope"] = "closed" if not law["statement"].get("binders") else "unbounded"
                 rec["artifacts"].update({"laws": relpath(d / "LAWS.bend"), "proof": relpath(d / "PROOF.bend"),
                                          "law_name": em.name})
                 rec["checker"] = {"exit_code": r.code, "marker": r.marker, "seconds": r.seconds}
@@ -377,7 +377,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             rec["scope"] = "bounded"
             rec["bound"] = bound or "not searched"
         else:
-            rec["scope"] = "unbounded"
+            rec["scope"] = "closed" if not law["statement"].get("binders") else "unbounded"
             rec["artifacts"].update({"laws": relpath(d / "LAWS.bend"), "proof": relpath(d / "PROOF.bend"), "law_name": em.name})
             rec["checker"] = {"exit_code": r.code, "marker": r.marker, "seconds": r.seconds}
             if verdict:
@@ -385,6 +385,12 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                 rec["kernel"]["verdict"] = "checked" if v.ok else "failed"
                 attempts.append({"kind": "verdict", "kernel": "BendTT (Lean-proven)", "exit_code": v.code,
                                  "marker": v.marker, "seconds": v.seconds})
+        rep_law = (report or {}).get("laws", {}).get(lid)
+        if rep_law and rec["replay"].get("status") in ("not_run", "unknown", "missing", None):
+            rec["replay"] = {"status": rep_law.get("verdict", "unknown"), "detail": rep_law.get("detail", "")}
+        if status == "REFUTED" and rec["replay"].get("status") == "not_run" and rep_law is None:
+            rec["replay"]["detail"] = ("model-only pending replay: no M3 replay harness covers "
+                                     f"{milestone} (audit R2)")
         rec["status"] = status
         rec["attempts"] = attempts
         (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
