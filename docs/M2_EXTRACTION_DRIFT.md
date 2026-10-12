@@ -43,3 +43,25 @@ No newly appearing lets: every def-local let that was previously dropped for
 referencing a param is inlined into the guards above (call-site emission
 inlines def-let names via `_inline_lets`), so the emitted guard exprs are
 closed over params/inputs only.
+
+## R9: code-presence guards (not in committed bytes)
+
+Regenerating with the R9 code-presence guard additionally emits 10 `require(<addr> != 0)`
+guards ("call to address without code", new reason-table entry `1`, shifting all later
+reason ids) at the high-level external call sites:
+
+| action | guard | src |
+|---|---|---|
+| commitBatch | `submitterContract != 0` | Rollup.sol:120 |
+| commitBatch | `messageQueue != 0` | Rollup.sol:263 |
+| commitState | `submitterContract != 0` | Rollup.sol:120 |
+| commitState | `messageQueue != 0` | Rollup.sol:281 |
+| commitBatchWithProof | `messageQueue != 0` | Rollup.sol:393 |
+| commitBatchWithProof | `verifier != 0` | Rollup.sol:779 |
+| challengeState | `submitterContract != 0` | Rollup.sol:483 |
+| proveState | `submitterContract != 0` | Rollup.sol:120 |
+| proveState | `timeout \|\| submitterContract != 0` | Rollup.sol:806 |
+| proveState | `[ch.s + W <= t] \|\| verifier != 0` | Rollup.sol:779 |
+
+These come from `call_contract` (contract-typed callee only); oracle-addr storage
+vars become Nat inputs so address 0 stays reachable. facts sha256, regenerated with R5 + R9: `0ad95ed3117bebb1fcea4591cc37f2b6636347e2d3bf5104b33411951c31ed58`
