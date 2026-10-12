@@ -1,0 +1,1245 @@
+{
+  "assumptions": [
+    {
+      "id": "A-dirty",
+      "text": "Memory at the free pointer is not zeroed: every region a walk allocates (mload(0x40)) starts with unknown cells (memory_init dirty), so a byte that no op writes is unknown, never zero."
+    },
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage, block, msg and tx members, blobhash, results of external calls, memory reads, and values computed from them) are free: a revert whose failing condition mentions one belongs to the transition, not to the edge (rule J1), and conditions on them are projected away."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts (checked arithmetic, array bounds, ABI decoding) are not part of an edge's partiality: only explicit require, revert and branch conditions on inputs are."
+    },
+    {
+      "fields": [
+        "batchIndex",
+        "totalL1MessagePopped"
+      ],
+      "id": "A-width:Header",
+      "record": "Header",
+      "text": "Fields of Header whose value type is wider than their stored width: the bytes keep only the low part of the value, so they determine it only when it fits the width."
+    }
+  ],
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.1",
+    "inputs": [
+      {
+        "sha256": "1fbf2a131b895514f0027866cc0deff151ea16424b4aed2b8c573d2275cfa9e8",
+        "unit": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol"
+      },
+      {
+        "sha256": "a2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+        "unit": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol"
+      },
+      {
+        "sha256": "c05b019a0b3bee8f3fac2da7c929f7d665b97d6d046aa35126615fff11205119",
+        "unit": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol"
+      },
+      {
+        "sha256": "db92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+        "unit": "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol"
+      },
+      {
+        "sha256": "5fb301961e45cb482fe4e05646d2f529aa449fe0e90c6671475d6a32356fa2d4",
+        "unit": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol"
+      },
+      {
+        "sha256": "59245b916ed1e966c5bf2fd25a76e42b7c38d144cce9967b6ef28e42d9496c1a",
+        "unit": "contracts/contracts/l1/rollup/IL1MessageQueue.sol"
+      },
+      {
+        "sha256": "24e4861d9a369b0e8fec7471d8150474a54de907709d4287e63457d9bf5ff327",
+        "unit": "contracts/contracts/l1/rollup/IRollup.sol"
+      },
+      {
+        "sha256": "42637f2de9c520e230487acfa247d0c3b13b9f0b76f5e90194d3bc0a18e40786",
+        "unit": "contracts/contracts/l1/rollup/ISubmitter.sol"
+      },
+      {
+        "sha256": "134b0f2dc5356af913c0a12c0a2febe29360b053a5acae57bdda575a2fb832b8",
+        "unit": "contracts/contracts/l1/rollup/Rollup.sol"
+      },
+      {
+        "sha256": "e35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+        "unit": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol"
+      },
+      {
+        "sha256": "bd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d",
+        "unit": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol"
+      },
+      {
+        "sha256": "7b859a80a68eb1bd3b2dfa21d87bae9969156e1b2e0bb063a8ac0efef5601296",
+        "unit": "contracts/contracts/libraries/verifier/IRollupVerifier.sol"
+      }
+    ],
+    "method": "extracted",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "spec/M2/lib/extract_solidity.json",
+      "sha256": "43db32a60e0396250be1917a9b750d24232a718a63968a1d50d20ef77f70a9f2"
+    },
+    "toolchain": {
+      "solc": {
+        "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+        "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "functions": {
+    "enc_sol": {
+      "debt": [],
+      "entry": {
+        "fn": "Rollup._commitBatchWithBatchData",
+        "src": "contracts/contracts/l1/rollup/Rollup.sol:288-377"
+      },
+      "exact": true,
+      "from": "Header",
+      "kind": "encoder",
+      "lang": "solidity-evm-memory",
+      "memory_init": "dirty",
+      "paths": [
+        {
+          "cond": [
+            [
+              "!",
+              [
+                "<=",
+                "version",
+                2
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "invalid version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "version",
+              2
+            ],
+            [
+              "!",
+              [
+                "!=",
+                "prevStateHash",
+                0
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "previous state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "version",
+              2
+            ],
+            [
+              "!=",
+              "prevStateHash",
+              0
+            ],
+            [
+              "!",
+              [
+                "!=",
+                "postStateHash",
+                0
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "new state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "version",
+              2
+            ],
+            [
+              "!=",
+              "prevStateHash",
+              0
+            ],
+            [
+              "!=",
+              "postStateHash",
+              0
+            ],
+            [
+              ">=",
+              "version",
+              1
+            ]
+          ],
+          "length": 257,
+          "ops": [
+            {
+              "offset": 0,
+              "op": "mstore8",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeVersion",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:133",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:342",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:133"
+                ]
+              },
+              "src": [
+                {
+                  "field": "version",
+                  "from": 0,
+                  "len": 1
+                }
+              ],
+              "width": 1
+            },
+            {
+              "offset": 1,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeBatchIndex",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:343",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144"
+                ]
+              },
+              "src": [
+                {
+                  "field": "batchIndex",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 9,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeL1MessagePopped",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:155",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:344",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:155"
+                ]
+              },
+              "src": [
+                {
+                  "field": "l1MessagePopped",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 17,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeTotalL1MessagePopped",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:345",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166"
+                ]
+              },
+              "src": [
+                {
+                  "field": "totalL1MessagePopped",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 25,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeDataHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:346",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175"
+                ]
+              },
+              "src": [
+                {
+                  "field": "dataHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 57,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeBlobVersionedHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:184",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:347",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:184"
+                ]
+              },
+              "src": [
+                {
+                  "field": "blobVersionedHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 89,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storePrevStateHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:193",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:348",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:193"
+                ]
+              },
+              "src": [
+                {
+                  "field": "prevStateHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 121,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storePostStateHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:202",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:349",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:202"
+                ]
+              },
+              "src": [
+                {
+                  "field": "postStateHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 153,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeWithdrawRootHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:211",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:350",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:211"
+                ]
+              },
+              "src": [
+                {
+                  "field": "withdrawRootHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 185,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeSequencerSetVerifyHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:220",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:351",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:220"
+                ]
+              },
+              "src": [
+                {
+                  "zeros": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 217,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeParentBatchHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:229",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:352",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:229"
+                ]
+              },
+              "src": [
+                {
+                  "field": "parentBatchHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 249,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV1.storeLastBlockNumber",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:56",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:354",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:56"
+                ]
+              },
+              "src": [
+                {
+                  "field": "lastBlockNumber",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            }
+          ],
+          "outcome": "ok"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "version",
+              2
+            ],
+            [
+              "!=",
+              "prevStateHash",
+              0
+            ],
+            [
+              "!=",
+              "postStateHash",
+              0
+            ],
+            [
+              "!",
+              [
+                ">=",
+                "version",
+                1
+              ]
+            ]
+          ],
+          "length": 249,
+          "ops": [
+            {
+              "offset": 0,
+              "op": "mstore8",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeVersion",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:133",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:342",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:133"
+                ]
+              },
+              "src": [
+                {
+                  "field": "version",
+                  "from": 0,
+                  "len": 1
+                }
+              ],
+              "width": 1
+            },
+            {
+              "offset": 1,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeBatchIndex",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:343",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144"
+                ]
+              },
+              "src": [
+                {
+                  "field": "batchIndex",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 9,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeL1MessagePopped",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:155",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:344",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:155"
+                ]
+              },
+              "src": [
+                {
+                  "field": "l1MessagePopped",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 17,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeTotalL1MessagePopped",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:345",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166"
+                ]
+              },
+              "src": [
+                {
+                  "field": "totalL1MessagePopped",
+                  "from": 0,
+                  "len": 8
+                },
+                {
+                  "zeros": 24
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 25,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeDataHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:346",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175"
+                ]
+              },
+              "src": [
+                {
+                  "field": "dataHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 57,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeBlobVersionedHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:184",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:347",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:184"
+                ]
+              },
+              "src": [
+                {
+                  "field": "blobVersionedHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 89,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storePrevStateHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:193",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:348",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:193"
+                ]
+              },
+              "src": [
+                {
+                  "field": "prevStateHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 121,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storePostStateHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:202",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:349",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:202"
+                ]
+              },
+              "src": [
+                {
+                  "field": "postStateHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 153,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeWithdrawRootHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:211",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:350",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:211"
+                ]
+              },
+              "src": [
+                {
+                  "field": "withdrawRootHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 185,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeSequencerSetVerifyHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:220",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:351",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:220"
+                ]
+              },
+              "src": [
+                {
+                  "zeros": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 217,
+              "op": "mstore",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.storeParentBatchHash",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:229",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:352",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:229"
+                ]
+              },
+              "src": [
+                {
+                  "field": "parentBatchHash",
+                  "from": 0,
+                  "len": 32
+                }
+              ],
+              "width": 32
+            }
+          ],
+          "outcome": "ok"
+        }
+      ],
+      "sink": {
+        "op": "keccak256",
+        "stack": [
+          "contracts/contracts/l1/rollup/Rollup.sol:357",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        ]
+      },
+      "to": "Maybe<Bytes>",
+      "walk": {
+        "debt": [
+          {
+            "construct": "ForStatement",
+            "fn": "Rollup._loadL1MessageHashes",
+            "kind": "loop",
+            "src": "contracts/contracts/l1/rollup/Rollup.sol:936-943",
+            "stack": [
+              "contracts/contracts/l1/rollup/Rollup.sol:318-322",
+              "contracts/contracts/l1/rollup/Rollup.sol:879",
+              "contracts/contracts/l1/rollup/Rollup.sol:936-943"
+            ]
+          }
+        ],
+        "functions": [
+          "BatchHeaderCodecV0.computeBatchHash",
+          "BatchHeaderCodecV0.getBatchIndex",
+          "BatchHeaderCodecV0.getTotalL1MessagePopped",
+          "BatchHeaderCodecV0.loadAndValidate",
+          "BatchHeaderCodecV0.storeBatchIndex",
+          "BatchHeaderCodecV0.storeBlobVersionedHash",
+          "BatchHeaderCodecV0.storeDataHash",
+          "BatchHeaderCodecV0.storeL1MessagePopped",
+          "BatchHeaderCodecV0.storeParentBatchHash",
+          "BatchHeaderCodecV0.storePostStateHash",
+          "BatchHeaderCodecV0.storePrevStateHash",
+          "BatchHeaderCodecV0.storeSequencerSetVerifyHash",
+          "BatchHeaderCodecV0.storeTotalL1MessagePopped",
+          "BatchHeaderCodecV0.storeVersion",
+          "BatchHeaderCodecV0.storeWithdrawRootHash",
+          "BatchHeaderCodecV1.loadAndValidate",
+          "BatchHeaderCodecV1.storeLastBlockNumber",
+          "Rollup._commitBatch",
+          "Rollup._commitBatchWithBatchData",
+          "Rollup._getBatchVersion",
+          "Rollup._loadBatchHeader",
+          "Rollup._loadL1MessageHashes"
+        ],
+        "paths": {
+          "ok": 8,
+          "other": 0,
+          "revert": 15
+        },
+        "sinks": [
+          {
+            "op": "keccak256",
+            "selected": false,
+            "stack": [
+              "contracts/contracts/l1/rollup/Rollup.sol:309",
+              "contracts/contracts/l1/rollup/Rollup.sol:849",
+              "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+            ]
+          },
+          {
+            "op": "keccak256",
+            "selected": false,
+            "stack": [
+              "contracts/contracts/l1/rollup/Rollup.sol:318-322",
+              "contracts/contracts/l1/rollup/Rollup.sol:883"
+            ]
+          },
+          {
+            "op": "keccak256",
+            "selected": true,
+            "stack": [
+              "contracts/contracts/l1/rollup/Rollup.sol:357",
+              "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+            ]
+          }
+        ]
+      }
+    },
+    "load_sol": {
+      "debt": [],
+      "entry": {
+        "fn": "Rollup._loadBatchHeader",
+        "src": "contracts/contracts/l1/rollup/Rollup.sol:833-850"
+      },
+      "exact": true,
+      "from": "Bytes",
+      "kind": "loader",
+      "lang": "solidity-evm-memory",
+      "memory_init": "dirty",
+      "paths": [
+        {
+          "cond": [
+            [
+              "!",
+              [
+                ">",
+                [
+                  "len",
+                  "batchHeader"
+                ],
+                0
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "Empty batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "batchHeader"
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "byte",
+                "batchHeader",
+                0
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                ">=",
+                [
+                  "len",
+                  "batchHeader"
+                ],
+                249
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "batch header length too small",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "batchHeader"
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "byte",
+                "batchHeader",
+                0
+              ],
+              0
+            ],
+            [
+              ">=",
+              [
+                "len",
+                "batchHeader"
+              ],
+              249
+            ]
+          ],
+          "length": [
+            "len",
+            "batchHeader"
+          ],
+          "ops": [
+            {
+              "offset": 0,
+              "op": "calldatacopy",
+              "origin": {
+                "fn": "BatchHeaderCodecV0.loadAndValidate",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:36",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:839",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:36"
+                ]
+              },
+              "src": [
+                {
+                  "from": 0,
+                  "input": "batchHeader",
+                  "len": [
+                    "len",
+                    "batchHeader"
+                  ]
+                }
+              ],
+              "width": [
+                "len",
+                "batchHeader"
+              ]
+            }
+          ],
+          "outcome": "ok"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "batchHeader"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  "batchHeader",
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              "||",
+              [
+                "==",
+                [
+                  "byte",
+                  "batchHeader",
+                  0
+                ],
+                1
+              ],
+              [
+                "==",
+                [
+                  "byte",
+                  "batchHeader",
+                  0
+                ],
+                2
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "len",
+                  "batchHeader"
+                ],
+                257
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "batch header length is incorrect",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "batchHeader"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  "batchHeader",
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              "||",
+              [
+                "==",
+                [
+                  "byte",
+                  "batchHeader",
+                  0
+                ],
+                1
+              ],
+              [
+                "==",
+                [
+                  "byte",
+                  "batchHeader",
+                  0
+                ],
+                2
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                "batchHeader"
+              ],
+              257
+            ]
+          ],
+          "length": [
+            "len",
+            "batchHeader"
+          ],
+          "ops": [
+            {
+              "offset": 0,
+              "op": "calldatacopy",
+              "origin": {
+                "fn": "BatchHeaderCodecV1.loadAndValidate",
+                "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:39",
+                "stack": [
+                  "contracts/contracts/l1/rollup/Rollup.sol:842",
+                  "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:39"
+                ]
+              },
+              "src": [
+                {
+                  "from": 0,
+                  "input": "batchHeader",
+                  "len": [
+                    "len",
+                    "batchHeader"
+                  ]
+                }
+              ],
+              "width": [
+                "len",
+                "batchHeader"
+              ]
+            }
+          ],
+          "outcome": "ok"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "batchHeader"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  "batchHeader",
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "||",
+                [
+                  "==",
+                  [
+                    "byte",
+                    "batchHeader",
+                    0
+                  ],
+                  1
+                ],
+                [
+                  "==",
+                  [
+                    "byte",
+                    "batchHeader",
+                    0
+                  ],
+                  2
+                ]
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "Unsupported batch version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        }
+      ],
+      "sink": {
+        "op": "keccak256",
+        "stack": [
+          "contracts/contracts/l1/rollup/Rollup.sol:849",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        ]
+      },
+      "to": "Maybe<Bytes>",
+      "walk": {
+        "debt": [],
+        "functions": [
+          "BatchHeaderCodecV0.computeBatchHash",
+          "BatchHeaderCodecV0.loadAndValidate",
+          "BatchHeaderCodecV1.loadAndValidate",
+          "Rollup._getBatchVersion",
+          "Rollup._loadBatchHeader"
+        ],
+        "paths": {
+          "ok": 2,
+          "other": 0,
+          "revert": 4
+        },
+        "sinks": [
+          {
+            "op": "keccak256",
+            "selected": true,
+            "stack": [
+              "contracts/contracts/l1/rollup/Rollup.sol:849",
+              "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "target": {
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "repo": "morph-l2/morph",
+    "scope": "batch header codec, Solidity side: the commit-path header encoder and the header loader"
+  },
+  "types": {
+    "Bytes": {
+      "kind": "bytes"
+    },
+    "Header": {
+      "fields": [
+        {
+          "name": "version",
+          "truncates": false,
+          "value_bits": 8,
+          "value_type": "uint8",
+          "width": 1
+        },
+        {
+          "name": "batchIndex",
+          "truncates": true,
+          "value_bits": 256,
+          "value_type": "uint256",
+          "width": 8
+        },
+        {
+          "name": "l1MessagePopped",
+          "truncates": false,
+          "value_bits": 16,
+          "value_type": "uint16",
+          "width": 8
+        },
+        {
+          "name": "totalL1MessagePopped",
+          "truncates": true,
+          "value_bits": 256,
+          "value_type": "uint256",
+          "width": 8
+        },
+        {
+          "name": "dataHash",
+          "truncates": false,
+          "value_bits": 256,
+          "value_type": "bytes32",
+          "width": 32
+        },
+        {
+          "name": "blobVersionedHash",
+          "truncates": false,
+          "value_bits": 256,
+          "value_type": "bytes32",
+          "width": 32
+        },
+        {
+          "name": "prevStateHash",
+          "truncates": false,
+          "value_bits": 256,
+          "value_type": "bytes32",
+          "width": 32
+        },
+        {
+          "name": "postStateHash",
+          "truncates": false,
+          "value_bits": 256,
+          "value_type": "bytes32",
+          "width": 32
+        },
+        {
+          "name": "withdrawRootHash",
+          "truncates": false,
+          "value_bits": 256,
+          "value_type": "bytes32",
+          "width": 32
+        },
+        {
+          "name": "parentBatchHash",
+          "truncates": false,
+          "value_bits": 256,
+          "value_type": "bytes32",
+          "width": 32
+        },
+        {
+          "name": "lastBlockNumber",
+          "truncates": false,
+          "value_bits": 64,
+          "value_type": "uint64",
+          "width": 8
+        }
+      ],
+      "kind": "record"
+    }
+  }
+}
