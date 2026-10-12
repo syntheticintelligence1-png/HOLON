@@ -11,6 +11,8 @@ instrumentation changes no non-ghost behaviour, and its predicates follow rules 
      site_<x> true and hit_<x> false; at s0, finalizeBatch with idx 0 reaches the :636 site at its realization check
      (hit true) and violates it (site false), while idx 1 is stopped by an earlier require (hit false, site true).
   4. The toy fixture (milestone T15): the same text and behaviour checks.
+  5. Hygiene: ghost names are unique and shadow no model definition; a --facts stand-in with its anchor gives the
+     same instrumented model and ghost plan.
 """
 import json
 import random
@@ -163,6 +165,43 @@ class TestRollupGhost(_Ghost, unittest.TestCase):
             act = {"val": {"$": "A_finalizeBatch", "who": 1, "idx": idx}}
             cs += [{"fn": f"site_{x}", "args": [act, s0, *tabs]}, {"fn": f"hit_{x}", "args": [act, s0, *tabs]}]
         self.assertEqual(calls(self.inst, cs), [False, True, True, False])
+
+
+class TestGhostHygiene(unittest.TestCase):
+    """5. Names and stand-ins. Ghost definitions are unique and never share a name with a definition or type of the
+    run model above the marker (derive exits 3 otherwise: holon.sorts.sites.Ghost.check_names); a facts file that
+    stands in for the document elsewhere (a --facts copy) gives, with the document as its anchor, the same
+    instrumented model and ghost plan as the document itself."""
+
+    def setUp(self):
+        self.sites = holon_module("holon.sorts.sites")
+        self.dv = load_json(H.LAWS2 / "DERIVATION.json")
+        self.fp = ROOT / ROLLUP_REL
+
+    def test_ghost_names_are_unique_and_never_shadow_the_model(self):
+        m, facts, text = self.sites.run_machine("M2", self.fp, ROOT)
+        _, _, real = self.sites.load_sidecar("M2", ROOT)
+        g = self.sites.Ghost(m, facts, real)
+        g.section([e for e in self.dv["laws"] if e["facts"] == ROLLUP_REL])
+        self.assertTrue(g.names)
+        self.assertEqual(len(set(g.names)), len(g.names))
+        g.check_names(text)
+        with self.assertRaises(self.sites.SiteError):
+            g.check_names(text + f"\ndef {g.names[0]}() -> Bool:\n  True{{}}\n")
+        with self.assertRaises(self.sites.SiteError):
+            g.define(g.names[-1], [])
+
+    def test_a_stand_in_facts_file_with_its_anchor_gives_the_same_model(self):
+        tmp = Path(tempfile.mkdtemp(prefix="holon-i15-anchor-"))
+        try:
+            cp = tmp / "facts" / "stand_in.json"
+            cp.parent.mkdir()
+            shutil.copyfile(self.fp, cp)
+            want = self.sites.instrumented_model(self.fp, self.dv)
+            self.assertEqual(self.sites.instrumented_model(cp, self.dv, anchor=self.fp), want)
+            self.assertEqual(self.sites.ghost_plan(cp, self.dv, anchor=self.fp), self.sites.ghost_plan(self.fp, self.dv))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 class TestToyGhost(_Ghost, unittest.TestCase):

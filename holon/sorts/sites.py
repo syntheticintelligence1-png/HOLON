@@ -391,7 +391,14 @@ def produce(ctx) -> list[tuple[dict, dict]]:
         # every site of the document must instrument: the ghost section is generated (and discarded) here
         mine = [(law, e) for law, e in out if e["facts"] == doc.rel]
         if mine:
-            Ghost(doc.machine(), doc.facts, ctx.real).section([e for _, e in mine])
+            m = doc.machine()
+            try:
+                model_text = m.generate(doc.sha256, True)
+            except FactsError as e:
+                raise SiteError(f"{doc.rel}: the model cannot be generated: {e}") from e
+            g = Ghost(m, doc.facts, ctx.real)
+            g.section([e for _, e in mine])
+            g.check_names(model_text)
     return out
 
 
@@ -409,8 +416,17 @@ class Ghost:
 
     # ---------------------------------------------------------- helpers
     def define(self, name: str, lines: list[str]) -> None:
+        if name in self.names:
+            raise SiteError(f"two ghost definitions would be named {name}")
         self.names.append(name)
         self.out += lines + [""]
+
+    def check_names(self, model_text: str) -> None:
+        """No ghost definition may share a name with a definition or type of the model above the marker."""
+        taken = set(re.findall(r"(?m)^(?:def|type)\s+(\w+)", model_text))
+        clash = sorted(taken & set(self.names))
+        if clash:
+            raise SiteError(f"ghost definitions would shadow model definitions: {clash}")
 
     def ext(self, e, env: dict, what: str) -> tuple[str, str]:
         try:
@@ -725,47 +741,55 @@ def _doc_entries(facts_path: Path, derivation: dict, root: Path) -> tuple[str, l
     return rel, sorted((e for e in derivation.get("laws", []) if e.get("facts") == rel), key=lambda e: e["law_id"])
 
 
-def run_machine(milestone: str, facts_path: Path, root: Path) -> tuple[Machine, dict, str]:
-    """(machine, facts, model text): the model holon builds for a run of milestone M on the document (Reach, the
-    milestone's permissions and oracle tables), as holon.mpipeline.milestone_model generates it."""
-    from ..gen.oracles import Oracles
-    from ..mpipeline import m2plus
-    data = facts_path.read_bytes()
-    facts = json.loads(data.decode("utf-8"))
-    orc = Oracles.for_milestone(milestone, facts_path, root)
-    plus = m2plus(milestone)
-    m = Machine(facts, facts_path, oracles=orc, m2plus=plus)
-    return m, facts, m.generate(hashlib.sha256(data).hexdigest(), plus)
-
-
-def instrumented_model(facts_path, derivation: dict, root=None) -> str:
-    """The model holon builds for a run of derivation["milestone"] on the document (holon.mpipeline), then the line
-    GHOST_MARKER, then the ghost section of the document's SORT-site laws in the derivation (module docstring)."""
+def _paths(facts_path, root, anchor) -> tuple[Path, Path, Path]:
     root = Path(root or ROOT)
     fp = Path(facts_path)
     fp = fp if fp.is_absolute() else root / fp
-    rel, laws = _doc_entries(fp, derivation, root)
-    m, facts, text = run_machine(str(derivation["milestone"]), fp, root)
+    an = Path(anchor) if anchor else fp
+    an = an if an.is_absolute() else root / an
+    return root, fp, an
+
+
+def run_machine(milestone: str, facts_path: Path, root: Path, anchor: Path | None = None) -> tuple[Machine, dict, str]:
+    """(machine, facts, model text): the model holon builds for a run of milestone M on the document (Reach, the
+    milestone's permissions and oracle tables), as holon.mpipeline.milestone_model / CompiledMachine.build generate
+    it. anchor: the facts file whose target libraries and oracle sidecar apply when facts_path stands in for it (a
+    --facts override such as a mutated copy elsewhere); by default facts_path itself."""
+    from ..gen.oracles import Oracles
+    from ..mpipeline import m2plus
+    data = Path(facts_path).read_bytes()
+    facts = json.loads(data.decode("utf-8"))
+    an = Path(anchor or facts_path)
+    orc = Oracles.for_milestone(milestone, an, root)
+    plus = m2plus(milestone)
+    m = Machine(facts, an, oracles=orc, m2plus=plus)
+    return m, facts, m.generate(hashlib.sha256(data).hexdigest(), plus)
+
+
+def instrumented_model(facts_path, derivation: dict, root=None, anchor=None) -> str:
+    """The model holon builds for a run of derivation["milestone"] on the document (holon.mpipeline), then the line
+    GHOST_MARKER, then the ghost section of the document's SORT-site laws in the derivation (module docstring).
+    anchor: as for run_machine; the derivation's laws are those of the anchor's path."""
+    root, fp, an = _paths(facts_path, root, anchor)
+    _, laws = _doc_entries(an, derivation, root)
+    m, facts, text = run_machine(str(derivation["milestone"]), fp, root, an)
     _, _, real = load_sidecar(str(derivation["milestone"]), root)
     helpers = len(m.helpers)
     g = Ghost(m, facts, real)
     ghost = g.section(laws) if laws else ""
+    g.check_names(text)
     extra = m.helpers[helpers:]   # record helpers the ghost needs that the model did not (none in practice)
     return text.rstrip("\n") + "\n\n" + GHOST_MARKER + "\n" + "".join(x + "\n" for x in extra) + ghost
 
 
-def ghost_plan(facts_path, derivation: dict, root=None) -> dict:
+def ghost_plan(facts_path, derivation: dict, root=None, anchor=None) -> dict:
     """law id -> the structure of its ghost chains (Ghost.plan): per entry point its decision helpers (guard index,
     condition, parameters, site and hit helper names), continuations and hits with the path conditions of every
     evaluation; per definition reaching a definition site its ghosts and positions. For proof generators that
     mirror the chains (holon.gen.mproofs.coercion_guard)."""
-    root = Path(root or ROOT)
-    fp = Path(facts_path)
-    fp = fp if fp.is_absolute() else root / fp
-    _, laws = _doc_entries(fp, derivation, root)
-    facts = json.loads(fp.read_text(encoding="utf-8"))
-    from ..gen.oracles import Oracles
-    m = Machine(facts, fp, oracles=Oracles.for_milestone(str(derivation["milestone"]), fp, root))
+    root, fp, an = _paths(facts_path, root, anchor)
+    _, laws = _doc_entries(an, derivation, root)
+    m, facts, _ = run_machine(str(derivation["milestone"]), fp, root, an)
     _, _, real = load_sidecar(str(derivation["milestone"]), root)
     g = Ghost(m, facts, real)
     g.section(laws)

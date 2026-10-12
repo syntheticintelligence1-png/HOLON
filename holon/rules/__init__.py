@@ -86,6 +86,7 @@ class Document:
         from ..gen.oracles import Oracles
         from ..gen.targetlib import Library, lib_files
         self.path = path
+        self.milestone = milestone
         self.rel = inputs.rel(path)
         data = inputs.read(path)
         self.sha256 = sha256_bytes(data)
@@ -95,10 +96,12 @@ class Document:
         self.builtins: dict = {}
         self._machine = None
         self.orc = None
+        self.lib = None
         if self.facts.get("facts_version") != "holon-facts/0.2":
             return
         libs = [inputs.json(p) for p in lib_files(path, root)]
-        self.builtins = Library(libs, self.facts.get("params", {})).builtins
+        self.lib = Library(libs, self.facts.get("params", {}))
+        self.builtins = self.lib.builtins
         self.orc = Oracles.for_milestone(milestone, path, root)
         if self.orc is not None and self.orc.path is not None:
             inputs.read(self.orc.path)
@@ -106,10 +109,14 @@ class Document:
         self.params = [(p, self.orc.param_type(p)) for p in m.threaded] if self.orc is not None else []
 
     def machine(self):
-        """The document's machine with the milestone's oracle parameters (expressions, threaded tables)."""
+        """The document's machine as a run of the milestone builds it (holon.mpipeline.milestone_model: the
+        milestone's oracle parameters and, after M1, permissions from the permission guards), over the target
+        libraries read from --root."""
         if self._machine is None:
             from ..gen.machine import Machine
-            self._machine = Machine(self.facts, self.path, oracles=self.orc)
+            from ..mpipeline import m2plus
+            self._machine = Machine(self.facts, self.path, lib=self.lib, oracles=self.orc,
+                                    m2plus=m2plus(self.milestone))
         return self._machine
 
 
