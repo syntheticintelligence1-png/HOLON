@@ -23,6 +23,8 @@
   python -m holon metrics --milestone M [--root DIR]    (results/<M>/metrics.json, I16)
   python -m holon extract <frontend> ...                (fact extraction, holon-facts/0.3; I17 solidity, I18 go)
   python -m holon extract solidity [--milestone M2] [--sidecar PATH] [--root DIR] [--source DIR] [--out PATH] [--check]
+  python -m holon historical fetch [--milestone M2] [--from N] [--to M] [--index PATH] [--snapshot DIR]
+  python -m holon historical replay [--milestone M2] [--index PATH] [--out PATH]   (on-chain history, I59)
 """
 from __future__ import annotations
 
@@ -54,6 +56,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["extract"]:  # likewise for holon.frontends (the frontend named by the next argument, I17)
         from . import frontends
         return frontends.main(argv[1:])
+    if argv[:1] == ["historical"]:  # likewise for holon.historical (fetch | replay, I59)
+        from . import historical
+        return historical.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
