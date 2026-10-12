@@ -46,3 +46,14 @@ Answers to `docs/BUILD_PLAN.md` §6, "Questions for the human". The human gave t
   - optionally a GCP service-account key for BigQuery (`GOOGLE_APPLICATION_CREDENTIALS_JSON`).
 
   A new session picks up environment changes.
+
+## Network check after the human opened access (2026-10-12)
+
+- **Reachable now:**
+  - the L1 execution RPC (`ethereum-rpc.publicnode.com`, latest block about 26.18M);
+  - the beacon API (Lighthouse);
+  - the blob archive (`api.blobscan.com`);
+  - Etherscan;
+  - the Morph L2 RPC.
+- **Historical state needs a token.** Public RPC archive *state* requests return "Archive requests require a personal token". Transactions, receipts and logs at any height work without one. A keyed archive endpoint in `ETH_RPC_URL` would add historical state; it is optional.
+- **No credentials set yet:** `ETHERSCAN_API_KEY`, `ETH_RPC_URL` and BigQuery are absent. I23a works without them; each one adds a source.
