@@ -31,6 +31,13 @@ LEAK_RE = re.compile(
     rb"L_(?:undo|sort|tag|fact|sym|nat|disch|own|par|dom)_[A-Za-z0-9_]+"
     rb"|\bF(?:[1-9]|1[0-4])\b|\bO(?:[1-9]|[12][0-9]|3[0-7])\b")
 DOCS_KEPT = {"docs/BEND_PRIMER.md", "docs/BEND_NOTES.md"}
+# Explicit includes checked before EXCLUDE_PREFIXES: spec/M2/ is dropped
+# wholesale except the record/facts schemas G9 needs to validate against.
+INCLUDE = {
+    "spec/M2/schemas/result_v2.json",
+    "spec/M2/schemas/go_codecs.schema.json",
+    "spec/M2/schemas/go_machine.schema.json",
+}
 WHITEPAPER = "whitepaper.md"
 
 # (start heading regex, end heading regex): drop [start, end)
@@ -43,6 +50,8 @@ STRIP = (
 def kept(path: str) -> bool:
     if path.startswith("docs/"):
         return path in DOCS_KEPT
+    if path in INCLUDE:
+        return True
     return not path.startswith(EXCLUDE_PREFIXES)
 
 

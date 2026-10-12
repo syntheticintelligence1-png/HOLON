@@ -206,6 +206,16 @@ def linearise(law: dict, w: dict) -> list[dict]:
         out = [{"label": "trace", **side(c[0]), "kind": "symptom"}]
     elif "obsv" in c[0]:
         out = [{"label": "trace", **side(c[0]), "kind": "accepted"}]
+    elif "fn" in c[0] and c[0]["fn"] in ("last_ok", "runs_ok") and "bool" in c[1]:
+        # closed one-sided acceptance claim: the claim is `fn(S|T,S) == b`, so a
+        # REFUTED witness means the model's outcome is `not b`
+        a = c[0]["args"]
+        if c[0]["fn"] == "last_ok":
+            tr = state_of(a[0])
+        else:
+            tr = state_of(a[1]) + trace_of(a[0])
+        out = [{"label": "trace", "trace": tr, "split": 0,
+                "kind": c[0]["fn"], "expect_ok": not c[1]["bool"]}]
     elif "fn" in c[0] and c[0]["fn"] == "blobs_of":
         # FACT: the two commits from the same prefix; the commitment (committedBatches) must coincide
         prem = [p["eq"][0] for p in st["assume"] if "obsv" in p["eq"][0] and p["eq"][0]["obsv"] == "new_hdr"]
@@ -333,6 +343,51 @@ def compare(facts: dict, model: list, real: dict, tid: int, trace: list[dict]) -
     return agree, dis
 
 
+def verdict_obstruction(facts: dict, kind: str, outs: list, real: dict) -> tuple[bool, str]:
+    """Whether the real-chain evidence in `outs` reproduces the obstruction the
+    linearised claim encodes. `outs` is the per-run (run, agree, dis, model_obs,
+    trace_id) tuples from `compare`; mismatches are reported, never coerced."""
+    if kind == "differ":
+        (ra, _, _, _, ta), (rb, _, _, _, tb) = outs
+        qa = [real.get((ta, i)) for i in range(ra["split"], len(ra["trace"]))]
+        qb = [real.get((tb, i)) for i in range(rb["split"], len(rb["trace"]))]
+        sa = [x[0] + (" " + x[1] if x and x[0] == "rev" else "") for x in qa if x]
+        sb = [x[0] + (" " + x[1] if x and x[0] == "rev" else "") for x in qb if x]
+        return sa != sb, f"continuation outcomes on the real code: {sa} vs {sb}"
+    if kind == "symptom":
+        (r0, _, _, _, t0), = outs
+        last = real.get((t0, len(r0["trace"]) - 1))
+        want = facts["reasons"][str(r0["symptom"][1])]
+        return (bool(last) and last[0] == "rev" and last[1] == want,
+                f"last step on the real code: {last}")
+    if kind == "accepted":
+        (r0, ag, dis, _, t0), = outs
+        return (not dis and all(real.get((t0, i), ("rev",))[0] == "ok" for i in range(len(r0["trace"]))),
+                "the real contract accepts the whole trace (the ghost-tag violation is invisible on chain by design)")
+    if kind in ("last_ok", "runs_ok"):
+        # expect_ok is `not b` (the witness refutes `fn(...) == b`); the real
+        # chain and the model must each accept exactly when expect_ok says so
+        (r0, _, _, mo, t0), = outs
+        want = r0["expect_ok"]
+        n = len(r0["trace"])
+        idx = range(n) if kind == "runs_ok" else (n - 1,)
+        real_ok = all(real.get((t0, i), ("rev",))[0] == "ok" for i in idx)
+        mod = [mo[i] for i in idx] if kind == "runs_ok" else [mo[-1]]
+        model_ok = all(m is not None and m.get("$") == "O_Ok" for m in mod)
+        last = real.get((t0, n - 1))
+        if kind == "last_ok":
+            why = f"last step real={last} model={obs_str(facts, mo[-1])}; expect_ok={want}"
+        else:
+            why = f"trace acceptance real={real_ok} model={model_ok}; expect_ok={want}"
+        return real_ok == want and model_ok == want, why
+    if kind == "same_commitment":
+        (r1, _, _, _, t1), (r2, _, _, _, t2), = outs
+        h1, h2 = real.get((t1, len(r1["trace"]) - 1)), real.get((t2, len(r2["trace"]) - 1))
+        return (bool(h1 and h2) and h1[0] == h2[0] == "ok" and h1[1] == h2[1],
+                f"committedBatches after c1 / c2: {h1} / {h2} (different blob sidecars)")
+    return False, f"unknown run kind {kind!r}"
+
+
 def replay_own_go(morph: Path, work: Path, results: Path) -> tuple[dict, str]:
     """OWN laws over Go facts: run the witness on the real common/batch.BatchData."""
     ws = work / "go"
@@ -418,30 +473,7 @@ def main_replay_m1(args) -> int:
                                              for i in range(len(run["trace"]))]})
             tid += 1
         kind = runs[0]["kind"]
-        reproduced, why = False, ""
-        if kind == "differ":
-            (ra, _, _, _, ta), (rb, _, _, _, tb) = outs
-            qa = [real.get((ta, i)) for i in range(ra["split"], len(ra["trace"]))]
-            qb = [real.get((tb, i)) for i in range(rb["split"], len(rb["trace"]))]
-            sa = [x[0] + (" " + x[1] if x and x[0] == "rev" else "") for x in qa if x]
-            sb = [x[0] + (" " + x[1] if x and x[0] == "rev" else "") for x in qb if x]
-            reproduced = sa != sb
-            why = f"continuation outcomes on the real code: {sa} vs {sb}"
-        elif kind == "symptom":
-            (r0, _, _, _, t0), = outs
-            last = real.get((t0, len(r0["trace"]) - 1))
-            want = facts["reasons"][str(r0["symptom"][1])]
-            reproduced = bool(last) and last[0] == "rev" and last[1] == want
-            why = f"last step on the real code: {last}"
-        elif kind == "accepted":
-            (r0, ag, dis, _, t0), = outs
-            reproduced = not dis and all(real.get((t0, i), ("rev",))[0] == "ok" for i in range(len(r0["trace"])))
-            why = "the real contract accepts the whole trace (the ghost-tag violation is invisible on chain by design)"
-        elif kind == "same_commitment":
-            (r1, _, _, _, t1), (r2, _, _, _, t2) = outs
-            h1, h2 = real.get((t1, len(r1["trace"]) - 1)), real.get((t2, len(r2["trace"]) - 1))
-            reproduced = bool(h1 and h2) and h1[0] == h2[0] == "ok" and h1[1] == h2[1]
-            why = f"committedBatches after c1 / c2: {h1} / {h2} (different blob sidecars)"
+        reproduced, why = verdict_obstruction(facts, kind, outs, real)
         all_agree = all(not d for _, _, d, _, _ in outs)
         entry["status"] = "passed" if (all_agree and reproduced) else "failed"
         entry["obstruction_reproduced"] = reproduced
