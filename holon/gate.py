@@ -1254,7 +1254,7 @@ class Gate:
             for i, (rel, group) in enumerate(sorted(groups.items())):
                 if len(self.canaries) >= MAX_CANARIES:
                     break
-                cm = milestone_model(self.m, self.root / rel, self.cfg)
+                cm = milestone_model(self.m, self.root / rel, self.cfg, root=self.root)
                 self.canaries += mcanary.run_canaries(cm, group, recs, tmp / f"f{i}", self.cfg,
                                                       max_n=MAX_CANARIES - len(self.canaries), core=m2)
             missing = []

@@ -311,12 +311,13 @@ def m2plus(milestone: str) -> bool:
     return milestone not in ("M0", "M1")
 
 
-def milestone_model(milestone: str, facts_path: Path, cfg: dict | None = None, anchor: Path | None = None) -> CompiledMachine:
+def milestone_model(milestone: str, facts_path: Path, cfg: dict | None = None, anchor: Path | None = None,
+                    root: Path | None = None) -> CompiledMachine:
     """The model milestone M compiles facts F to (audit M2/1 F-M2-11): for M2+ the Reach predicate (I8), permissions
     from the permission guards (F-M2-26) and the milestone's oracle sidecar, so hashes and oracles are parameters
     and their stand-ins survive only as instances (I12; holon.gen.oracles.Oracles.for_milestone: M2 over
-    spec/M1/facts takes spec/M2/lib/oracles.json). M0 and M1: the model as bound."""
-    orc = O.Oracles.for_milestone(milestone, anchor or facts_path, ROOT)
+    spec/M1/facts takes spec/M2/lib/oracles.json). M0 and M1: the model as bound. root: the tree F lives in."""
+    orc = O.Oracles.for_milestone(milestone, anchor or facts_path, root or ROOT)
     return CompiledMachine.build(facts_path, cfg, reach=m2plus(milestone), anchor=anchor, oracles=orc)
 
 

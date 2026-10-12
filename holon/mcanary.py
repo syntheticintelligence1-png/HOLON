@@ -202,9 +202,9 @@ def _proof_by(gname: str | None, em, cm, imp: str, d: Path, cfg: dict, tries: in
                 return text, r
         return text, r
     g = dict(mproofs.GENERATORS).get(gname or "")
-    if g is None or gname == "evaluate":
+    if g is None:
         return None, None
-    text = g(em, cm.m, imp)
+    text = g(em, cm.m, imp)   # evaluate: a closed law (no binders), decided by computation
     if text is None:
         return None, None
     (d / "PROOF.bend").write_text(text)
