@@ -1,0 +1,42 @@
+{
+  "command": "forge test --match-contract HolonMsgReplay -vv --offline --use <solc 0.8.24>  # in a scratch copy of morph contracts/ (see tests_m3/test_m3_replay.py::_project)",
+  "harness": "replay/M3/solidity/HolonMsgReplay.t.sol",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "solc": "0.8.24",
+  "deployment": "real L1CrossDomainMessenger + L1MessageQueueWithGasPriceOracle + Whitelist, each behind TransparentUpgradeableProxy with the real initialize calls; queue l2BaseFee=1 gwei; no vm.store, no mocks of contracts under test",
+  "drop_writers": {
+    "__isL1MessageDropped": [
+      "declared at contracts/l1/L1CrossDomainMessenger.sol:45 (mapping(bytes32 => bool) public)",
+      "read at contracts/l1/L1CrossDomainMessenger.sol:195 (require(!__isL1MessageDropped[hash], \"Message already dropped\"))",
+      "WRITERS: none — no function in the pinned contracts/ tree writes this mapping; there is no dropMessage function at all (only doc mentions in contracts/libraries/ICrossDomainMessenger.sol:55,65)"
+    ],
+    "consequence": "a message replayed maxReplayTimes times has no public exit path on the deployed system; only the owner can raise maxReplayTimes. The model's 'no exit' claim agrees with reality."
+  },
+  "laws": {
+    "L_msg_budget_blocks_sender": {
+      "verdict": "agree",
+      "max_replay_times_observed": 3,
+      "evidence": [
+        "HOLON budget 0 maxReplayTimes 3",
+        "HOLON budget 1 send ok                              (Alice sendMessage, msg.value=fee)",
+        "HOLON budget 2 replay(Bob) ok",
+        "HOLON budget 3 replay(Bob) ok",
+        "HOLON budget 4 replay(Bob) ok",
+        "HOLON budget 5 replay(Alice) Exceed maximum replay times",
+        "HOLON budget 9 replay-after-owner-lift ok           (owner updateMaxReplayTimes(4), then Alice replay ok)"
+      ],
+      "notes": "Third-party replays consume the original sender's replay budget; the default 3 is exhausted by Bob and Alice's own replay reverts. The owner's updateMaxReplayTimes(4) admits exactly one more replay."
+    },
+    "L_msg_waiver_follows_origin": {
+      "verdict": "agree",
+      "evidence": [
+        "HOLON waiver 1 send(Alice,0wei) ok feeVault=0        (Alice whitelisted; sendMessage value 0)",
+        "HOLON waiver 2 replay(Bob,0wei) ok feeVault=0        (Bob replays Alice's message value 0; waiver keyed on _from=Alice)",
+        "HOLON waiver 3 send(Alice,fee) ok                    (dual: only Bob whitelisted; Alice pays fee)",
+        "HOLON waiver 4 replay(Bob,0wei) Insufficient msg.value for fee"
+      ],
+      "notes": "estimateCrossDomainMessageFee(_from, _newGasLimit) keys the whitelist waiver on the original sender, not the replay caller — whitelisted Alice's message replays free from any account, and Bob's whitelist status does not waive Alice's message."
+    }
+  },
+  "forge_summary": "Suite result: ok. 2 passed; 0 failed; 0 skipped (test_L_msg_budget_blocks_sender gas 3287748, test_L_msg_waiver_follows_origin gas 2849304)"
+}
