@@ -50,6 +50,7 @@ class TestCalldataDecode(unittest.TestCase):
         # synthetic commitBatch calldata: selector + tuple head + dyn bytes
         ph = bytes.fromhex("02" + "00" * 256)  # fake v2 parent header
         body = (
+            (32).to_bytes(32, "big") +                      # tuple head offset
             (2).to_bytes(32, "big") +                       # version
             (7 * 32).to_bytes(32, "big") +                  # offset to bytes
             (12345).to_bytes(32, "big") +                   # lastBlockNumber

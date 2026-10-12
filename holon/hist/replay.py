@@ -149,7 +149,7 @@ class Checks:
         self.items = []
 
     def add(self, name: str, expected, got, verdict: str, detail: str = "",
-            **extra):
+            rule: str | None = None, evidence=None, **extra):
         item = {"check": name, "verdict": verdict}
         if expected is not None:
             item["expected"] = expected
@@ -157,6 +157,16 @@ class Checks:
             item["got"] = got
         if detail:
             item["detail"] = detail
+        # §8.7+: every disagreement needs an explicit named rule plus the
+        # concrete evidence that matched it; a disagreement no named rule
+        # explains is `unexplained` (never auto-classified by mechanism).
+        if verdict not in ("agree", "coverage_debt"):
+            if rule:
+                item["rule"] = rule
+                if evidence is not None:
+                    item["evidence"] = evidence
+            else:
+                item["unexplained"] = True
         item.update(extra)
         self.items.append(item)
         return verdict
@@ -164,8 +174,10 @@ class Checks:
     def agree(self, name, expected=None, got=None, detail=""):
         return self.add(name, expected, got, "agree", detail)
 
-    def disagree(self, name, cls, expected, got, detail=""):
-        return self.add(name, expected, got, cls, detail)
+    def disagree(self, name, cls, expected, got, detail="", rule=None,
+                 evidence=None):
+        return self.add(name, expected, got, cls, detail, rule=rule,
+                        evidence=evidence)
 
 
 # ---------------------------------------------------------------- engine
@@ -468,8 +480,23 @@ class Replay:
                        "model Ok; receipt.status=" + str(rec["receipt_status"]))
         else:
             model_outcome = "?"
-            checks.disagree("outcome", "oracle_mismatch", "Dec ctor",
-                            repr(dec_dec)[:200])
+            err = repr(dec_dec)[:200]
+            if ("largest immediate" in err
+                    and len(blobs_for_model) >= 2):
+                # d_blob_hash's nested Cantor pairing b_pair(a,b) =
+                # (a+b)(a+b+1)/2 + b grows ~a^(2^k) in k blobs; for >= 2
+                # blob atoms it overflows Bend's 2^48 Nat immediate.
+                checks.disagree(
+                    "outcome", "extraction_defect", "Dec ctor", err,
+                    rule="benc_pair_overflow",
+                    evidence={"blobs": len(blobs_for_model),
+                              "atoms": blobs_for_model,
+                              "formula": "b_enc nests b_pair: value grows "
+                                         "~a^(2^k), exceeds Nat 2^48 for "
+                                         "k>=2 blob atoms"})
+            else:
+                checks.disagree("outcome", "oracle_mismatch", "Dec ctor",
+                                err)
         res["model_outcome"] = model_outcome
         res["model_decision"] = dec_dec
         if model_outcome == "Ok" and ok_status and isinstance(st2, dict):
@@ -691,34 +718,48 @@ def run(manifest_path: Path, records_dir: Path | None, store: PayloadStore,
                                    "detail": "no reconstruction record"}]}
                 report["commits"].append(res)
                 continue
-            # the next commit's parent header = this commit's new header
+            # the next commit's parent header = this commit's new header —
+            # ONLY when the manifest's next entry is the actual successor
+            # batch (non-contiguous corpora must use the record's stored
+            # successor parent instead of the next manifest entry's, which
+            # is that entry's own parent)
             nxt = commits[i + 1] if i + 1 < len(commits) else None
             succ_parent = None
-            if nxt is not None:
+            if (nxt is not None
+                    and nxt.get("batch_index") == c["batch_index"] + 1):
                 try:
                     succ_parent = decode_commit_input(
                         nxt.get("method") or "commitBatch",
                         store.resolve(nxt["calldata_sha256"]))["parentBatchHeader"]
                 except Exception:
                     succ_parent = None
-            elif rec.get("successor_parent_header"):
+            if succ_parent is None and rec.get("successor_parent_header"):
                 succ_parent = h2b(rec["successor_parent_header"])
             res = eng.replay_commit(c, rec, calldata, succ_parent)
             report["commits"].append(res)
             report["coverage"].extend(res.pop("coverage", []))
     # aggregate
     counts = {k: 0 for k in Checks.CATEGORIES}
+    counts["unexplained"] = 0
     dis = []
     for r in report["commits"]:
         for chk in r.get("checks", []):
             v = chk["verdict"]
             counts[v] = counts.get(v, 0) + 1
+            if chk.get("unexplained"):
+                counts["unexplained"] += 1
             if v != "agree":
-                dis.append({"batch_index": r["batch_index"],
-                            "check": chk["check"], "verdict": v,
-                            "expected": chk.get("expected"),
-                            "got": chk.get("got"),
-                            "detail": chk.get("detail", "")})
+                d = {"batch_index": r["batch_index"],
+                     "check": chk["check"], "verdict": v,
+                     "expected": chk.get("expected"),
+                     "got": chk.get("got"),
+                     "detail": chk.get("detail", "")}
+                if chk.get("rule"):
+                    d["rule"] = chk["rule"]
+                    d["evidence"] = chk.get("evidence")
+                if chk.get("unexplained"):
+                    d["unexplained"] = True
+                dis.append(d)
     report["disagreements"] = dis
     report["summary"] = {
         "n_commits": len(report["commits"]),
@@ -729,6 +770,10 @@ def run(manifest_path: Path, records_dir: Path | None, store: PayloadStore,
                             for r in report["commits"]},
         "atoms": atoms.table(),
         "coverage_items": report["coverage"],
+        "n_unexplained": counts["unexplained"],
+        "threshold": {"min_commits": 200, "max_unexplained": 0,
+                      "met": counts["unexplained"] == 0
+                      and len(report["commits"]) >= 200},
         "notes": [
             "atoms: 0=zero value, 1=ZERO_VERSIONED_HASH, >=10000 first-seen",
             "hb field of entries = bvh atom (model convention: "
@@ -737,6 +782,9 @@ def run(manifest_path: Path, records_dir: Path | None, store: PayloadStore,
             "edge; recorded as reconstruction notes not coverage debt",
             "enq prefix below qpend elided: d_enq_first reads only "
             "enq[qpend]",
+            "finalizeBatch(i+1) deletes batchDataStore/committedStateRoots/"
+            "batchBlobVersionedHashes[i]: window store fields are read at "
+            "each commit's own pre-block, not at a shared snapshot",
         ],
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)

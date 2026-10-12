@@ -20,13 +20,19 @@ class TestS6Replay(unittest.TestCase):
             self.assertIn(d["verdict"],
                           ("extraction_defect", "real_defect",
                            "oracle_mismatch", "coverage_debt"))
-        # the transition edge must have run on every commit
+        # the transition edge must have run on every commit; the blob check
+        # is `bvh_stored_vs_contract` for every version, plus the model-side
+        # atom-vs-concrete comparison only on legacy-versioned commits
+        # (v2's batchBlobVersionedHash is a symbolic atom in the model)
         for r in rep["commits"]:
             names = {c["check"] for c in r["checks"]}
             self.assertIn("outcome", names, r["batch_index"])
             self.assertIn("parent_batch_hash", names, r["batch_index"])
-            self.assertIn("bvh_model_atom_vs_concrete", names,
+            self.assertIn("bvh_stored_vs_contract", names,
                           r["batch_index"])
+            self.assertIn("post.bvh", names, r["batch_index"])
+        self.assertIn("n_unexplained", rep["summary"])
+        self.assertEqual(rep["summary"]["n_unexplained"], 0)
 
 
 if __name__ == "__main__":
