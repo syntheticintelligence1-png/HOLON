@@ -136,11 +136,15 @@
  "oracles": {
   "IRollupSubmitterView.lastFinalizedBatchIndex": {
    "emit": "lfi",
-   "add_inputs": ["lfi"]
+   "add_inputs": [
+    "lfi"
+   ]
   },
   "IRollupSubmitterView.lastCommittedBatchIndex": {
    "emit": "lci",
-   "add_inputs": ["lci"]
+   "add_inputs": [
+    "lci"
+   ]
   }
  },
  "state": [
@@ -580,6 +584,46 @@
    "element": "action:slash.reward",
    "kind": "unmodelled_value",
    "reason": "reward = amount*rewardPercentage/100; the Nat DSL has no multiply/divide, reward is an oracle input"
+  },
+  {
+   "element": "action:initialize.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:addSubmitter.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:removeSubmitter.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:setMinimumStake.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:updateChallengeDeposit.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:updateRewardPercentage.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:stake.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:claimSlashRemaining.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
   }
  ],
  "contracts": {

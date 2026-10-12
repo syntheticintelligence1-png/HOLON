@@ -100,7 +100,7 @@
     ],
     [
      "call",
-     "lv_le",
+     "lv_le_nf",
      [
       "call",
       "nthl",
@@ -156,7 +156,6 @@
  "consumers": {},
  "params": {
   "OWNER": 1,
-
   "rollup": 5
  },
  "principal_map": {
@@ -172,7 +171,9 @@
  "oracles": {
   "IRollup.lastFinalizedBatchIndex": {
    "emit": "lfi",
-   "add_inputs": ["lfi"]
+   "add_inputs": [
+    "lfi"
+   ]
   },
   "IZkEvmVerifier.verifyBatch": {
    "debt": "external verifier call; the verifier's own check is a contract oracle"
@@ -330,6 +331,31 @@
    "element": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:getVerifier body",
    "kind": "unmodelled_value",
    "reason": "backward linear scan with break; modelled by b_lv_le builtin (last V with s<=idx)"
+  },
+  {
+   "element": "MVRV:118 revert ErrorVerifierNotFound",
+   "kind": "unmodelled_revert",
+   "reason": "getVerifier not-found reverts ErrorVerifierNotFound; model emits lv_le_nf (not-found unsupported), so dependent laws come out UNKNOWN instead of proving =0"
+  },
+  {
+   "element": "action:initialize.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:initialize.inputs.r",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:updateVerifier.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:verifyAggregateProof.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
   }
  ],
  "contracts": {

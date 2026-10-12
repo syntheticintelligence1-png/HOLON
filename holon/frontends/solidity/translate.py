@@ -822,7 +822,7 @@ class Translator:
                 return ("guard", key)
             if "effects" in oc or "returns_unmodelled" in oc:
                 for ef in oc.get("effects", []):
-                    self.W("state", ef["field"], list(self.conds), self.subst_args(ef["expr"], args))
+                    self.W("state", ef["field"], list(self.conds), self.subst_args(ef["expr"], args), prov="spec")
                 if oc.get("note"):
                     self.add_debt(f"{self.src(node)} {key}", "unmodelled_value", oc["note"])
                 return ("unmodelled", oc.get("returns_unmodelled", key))
@@ -854,9 +854,14 @@ class Translator:
     def oracle_emit(self, oc, args, node):
         """Oracle `emit` + `add_inputs`: a declared input name emitted by the
         oracle is a per-call input of the action (added to its inputs by the
-        extractor), not a global param."""
+        extractor), not a global param. `emit_overrides` can redirect the
+        emitted name per action."""
         self.add_oracle_inputs(oc.get("add_inputs", []))
-        return self.post_hoist(self.subst_args(oc.get("emit"), args), node)
+        emit = oc.get("emit")
+        overrides = oc.get("emit_overrides", {})
+        if isinstance(emit, str) and self.action_spec.get("name") in overrides:
+            emit = overrides[self.action_spec["name"]]
+        return self.post_hoist(self.subst_args(emit, args), node)
 
     def call_oracle(self, key, oc, args, node):
         return self.oracle_emit(oc, args, node)

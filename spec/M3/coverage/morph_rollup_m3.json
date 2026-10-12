@@ -45,6 +45,11 @@
    "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
   },
   {
+   "element": "action:commitBatchWithProof.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
    "element": "action:commitBatchWithProof:ghost_tag",
    "kind": "spec_bound",
    "reason": "ghost tag twin has no source expression"
@@ -82,6 +87,16 @@
    "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325"
   },
   {
+   "element": "action:finalizeBatch.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:initialize3.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
    "element": "action:initialize3.modifier:reinitializer",
    "kind": "abstracted_modifier",
    "reason": "modifier body skipped: abstracted by spec"
@@ -95,6 +110,11 @@
    "element": "action:initialize4.modifier:reinitializer",
    "kind": "abstracted_modifier",
    "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "action:proveState.effects.active",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
   },
   {
    "element": "action:revertBatch.effects.chs",
@@ -135,6 +155,16 @@
    "element": "action:revertBatch.effects.win",
    "kind": "spec_bound",
    "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
+   "element": "action:sendMessage.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:updateVerifier.inputs.nv",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
   },
   {
    "element": "action:wait",
@@ -445,6 +475,11 @@
    "element": "contracts/contracts/l1/rollup/Rollup.sol:882 assembly",
    "kind": "abstracted_asm",
    "reason": "asm statements outside the translated subset"
+  },
+  {
+   "element": "contracts/l1/rollup/Rollup.sol:566 modifier reinitializer(4)",
+   "kind": "unmodelled_semantics",
+   "reason": "reinitializer(4) is one-shot: a second initialize4 call must revert; the model drops the version/initialized guard (drop_all_requires) and admits repeated cutover"
   },
   {
    "element": "facts.abstractions",

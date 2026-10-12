@@ -1987,6 +1987,36 @@
    "element": "storage EIP1967_PROXY_ADMIN_SLOT",
    "kind": "spec_bound",
    "reason": "proxy-admin slot read abstracted to the PADMIN param (_getProxyAdmin() env)"
+  },
+  {
+   "element": "contracts/l1/rollup/Rollup.sol:566 modifier reinitializer(4)",
+   "kind": "unmodelled_semantics",
+   "reason": "reinitializer(4) is one-shot: a second initialize4 call must revert; the model drops the version/initialized guard (drop_all_requires) and admits repeated cutover"
+  },
+  {
+   "element": "action:commitBatchWithProof.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:finalizeBatch.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:sendMessage.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:initialize3.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:updateVerifier.inputs.nv",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
   }
  ],
  "contract_ifaces": {

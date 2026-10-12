@@ -8,6 +8,31 @@
    "reason": "_checkOwner not in scope contracts"
   },
   {
+   "element": "MVRV:118 revert ErrorVerifierNotFound",
+   "kind": "unmodelled_revert",
+   "reason": "getVerifier not-found reverts ErrorVerifierNotFound; model emits lv_le_nf (not-found unsupported), so dependent laws come out UNKNOWN instead of proving =0"
+  },
+  {
+   "element": "action:initialize.inputs.r",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:initialize.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:updateVerifier.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:verifyAggregateProof.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
    "element": "contracts/l1/rollup/MultipleVersionRollupVerifier.sol:138 IZkEvmVerifier.verifyBatch",
    "kind": "unmodelled_call",
    "reason": "external verifier call; the verifier's own check is a contract oracle"

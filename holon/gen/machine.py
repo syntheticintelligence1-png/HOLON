@@ -329,6 +329,12 @@ class Machine:
         if name == "lv_le":
             need(2)
             return f"b_lv_le({txt[0]}, {txt[1]})", "Nat"
+        if name == "lv_le_nf":
+            # like lv_le, but the not-found path yields the nonzero sentinel b_nf
+            # instead of 0: a claim that depends on the unmodelled revert can no
+            # longer prove the wrong =0 result (audit R2 F3)
+            need(2)
+            return f"b_lv_le_go({txt[0]}, {txt[1]}, b_nf(0n))", "Nat"
         if name == "empty_entry":
             return "empty_entry()", "Entry"
         if name == "empty_ch":
@@ -527,7 +533,12 @@ class Machine:
                         f"    case Con{{+h, t}}: b_lv_le_go(t, idx, ite(Nat, Nat.is_le(g_{ty}_s(h), idx), g_{ty}_a(h), acc))",
                         "",
                         f"def b_lv_le(xs: List<&2, H{ty}>, idx: Nat) -> Nat:",
-                        "  b_lv_le_go(xs, idx, 0n)", ""]
+                        "  b_lv_le_go(xs, idx, 0n)", "",
+                        # not-found sentinel for lv_le_nf: never 0, so a claim
+                        # asserting verifier_of(...) == 0 refutes rather than
+                        # proving the bogus not-found->0 result (audit R2 F3)
+                        "def b_nf(x: Nat) -> Nat:",
+                        "  Nat.add(x, 1n)", ""]
         if "Sl" in self.types and "Arr" in self.types:
             out += GO_LIB.splitlines() + [""]
         if "Entry" not in self.types:

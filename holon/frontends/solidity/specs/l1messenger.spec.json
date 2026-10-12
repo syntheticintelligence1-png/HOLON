@@ -199,9 +199,13 @@
   },
   "IL1MessageQueue.nextCrossDomainMessageIndex": {
    "emit": "mn",
+   "emit_overrides": {
+    "replayMessage": "qi"
+   },
    "add_inputs": [
     "mn"
-   ]
+   ],
+   "note": "CDM:208 replayMessage binds nextCrossDomainMessageIndex to declared input qi; _sendMessage keeps oracle input mn"
   },
   "IL1MessageQueue.appendCrossDomainMessage": {
    "debt": "queue append; the queue-side effects live in the queue machine"
@@ -600,6 +604,51 @@
    "element": "defs.est_fee.body",
    "kind": "spec_bound",
    "reason": "fee = (baseFee+fee)*gasLimit; the Nat DSL has no multiplication, amt abstracts the product"
+  },
+  {
+   "element": "action:replayMessage.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:sendMessage.inputs.to",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:sendMessage.inputs.gl",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:sendMessage.inputs.mn",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:sendMessage2.inputs.to",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:sendMessage2.inputs.gl",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:sendMessage2.inputs.ra",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:sendMessage2.inputs.mn",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
+  },
+  {
+   "element": "action:setWhitelist.inputs.who",
+   "kind": "unused_input",
+   "reason": "declared input not read by any guard or effect in the model"
   }
  ],
  "contracts": {
