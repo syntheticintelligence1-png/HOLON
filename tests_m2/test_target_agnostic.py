@@ -32,10 +32,12 @@ ALLOWLIST: dict[str, list[str]] = {}
 TOY = ROOT / "tests_m2" / "fixtures" / "toy_queue"
 
 
-def tree_sha(root: Path, dirs: list[str], norm=None) -> str:
+def tree_sha(root: Path, dirs: list[str], norm=None, skip=()) -> str:
     h = hashlib.sha256()
     for d in dirs:
         for f in sorted((root / d).rglob("*")):
+            if f.relative_to(root).as_posix() in skip:   # I15 amendment: a new milestone's bindings, new by design
+                continue
             if f.is_file() and "__pycache__" not in f.parts and "lean" not in f.relative_to(root / d).parts[:1]:
                 # gen/<m>/lean/ is I9's second-kernel output, new by design (not a change to the Bend tree)
                 b = f.read_bytes()
@@ -91,8 +93,16 @@ class TestByteIdentity(unittest.TestCase):
         self.assertEqual(tree_sha(ROOT, ["gen/M0", "gen/M1"]), GEN_PIN)
 
     def test_bindings_unchanged(self):
-        """I6-P1."""
-        self.assertEqual(tree_sha(ROOT, ["spec/bindings"]), BINDINGS_PIN)
+        """I6-P1. I15 amendment (spec/M2/amendments.jsonl): spec/bindings/M2.json, M2's bindings, and the lines
+        `holon bind` appends to spec/bindings/changes.jsonl for M2 are new by design; M0's and M1's are pinned."""
+        def m0_m1_lines(f: Path, b: bytes) -> bytes:
+            if f.name != "changes.jsonl":
+                return b
+            keep = [ln for ln in b.decode().splitlines(keepends=True)
+                    if not ln.strip() or json.loads(ln).get("milestone") in ("M0", "M1")]
+            return "".join(keep).encode()
+        self.assertEqual(tree_sha(ROOT, ["spec/bindings"], norm=m0_m1_lines, skip={"spec/bindings/M2.json"}),
+                         BINDINGS_PIN)
 
     def test_records_unchanged_modulo_seconds_and_generator_hash(self):
         """I6-P2."""

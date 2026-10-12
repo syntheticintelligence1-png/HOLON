@@ -176,7 +176,11 @@ class TestRecords(unittest.TestCase):
                     first = next(e for e in sorted(r["witnesses"]) if r["witnesses"][e]["status"] == "REFUTED")
                     self.assertEqual(r["witness"], r["witnesses"][first]["witness"])
                 if r["status"] == "UNKNOWN":
-                    self.assertEqual(r["scope"], "bounded")
+                    # I15 amendment (spec/M2/amendments.jsonl, F-M2-01): a 0.3 record's scope is its statement's; the
+                    # search bound of an UNKNOWN law is r["bound"]
+                    self.assertEqual(r["scope"], "unbounded" if law(lid)["statement"]["scope"]["kind"] == "unbounded"
+                                     else "bounded")
+                    self.assertTrue(r["bound"])
                     self.assertTrue(all(w["status"] == "UNKNOWN" for w in r["witnesses"].values()))
 
     def test_proved_site_laws_are_not_vacuous(self):
@@ -393,7 +397,10 @@ class TestPredictedOutcomes(unittest.TestCase):
             with self.subTest(law=lid):
                 r = rec(lid)
                 self.assertEqual(r["status"], "UNKNOWN")
-                self.assertEqual(r["scope"], "bounded")
+                # I15 amendment (spec/M2/amendments.jsonl, F-M2-01): the scope is the statement's (unbounded), the
+                # search's bound is r["bound"]
+                self.assertEqual(r["scope"], "unbounded" if law(lid)["statement"]["scope"]["kind"] == "unbounded"
+                                 else "bounded")
                 self.assertTrue(r["bound"])
                 self.assertTrue(r["witnesses"])
                 self.assertTrue(all(w["status"] == "UNKNOWN" and w["witness"] is None for w in r["witnesses"].values()))
