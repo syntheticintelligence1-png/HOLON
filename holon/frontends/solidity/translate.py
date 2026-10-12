@@ -843,14 +843,19 @@ class Translator:
             return [self.subst_args(x, args) for x in e]
         return e
 
+    def add_oracle_inputs(self, entries):
+        """`add_inputs` entries: bare name (Nat) or typed [name, type] pair."""
+        for e in entries:
+            n, ty = (e if isinstance(e, list) else [e, "Nat"])
+            if n not in self.fact_inputs:
+                self.fact_inputs.add(n)
+                self.oracle_inputs.append([n, ty])
+
     def oracle_emit(self, oc, args, node):
         """Oracle `emit` + `add_inputs`: a declared input name emitted by the
         oracle is a per-call input of the action (added to its inputs by the
         extractor), not a global param."""
-        for n in oc.get("add_inputs", []):
-            if n not in self.fact_inputs:
-                self.fact_inputs.add(n)
-                self.oracle_inputs.append(n)
+        self.add_oracle_inputs(oc.get("add_inputs", []))
         return self.post_hoist(self.subst_args(oc.get("emit"), args), node)
 
     def call_oracle(self, key, oc, args, node):
@@ -1350,6 +1355,19 @@ class Translator:
         conds = list(self.conds)
         if t == "Identifier":
             name = lhs["name"]
+            sow = self.spec.get("storage_on_write", {}).get(name)
+            if sow is not None:
+                # storage that is not otherwise modelled: the spec declares
+                # which model registers the write moves (e.g. a contract-
+                # registry swap redirecting an oracle carrier)
+                self.add_oracle_inputs(sow.get("add_inputs", []))
+                for eff in sow.get("effects", []):
+                    nv = eff["expr"]
+                    if op != "=":
+                        nv = [op[0], eff["field"], nv]
+                    self.W("state", eff["field"], conds, nv, prov="spec")
+                self.add_debt(f"{self.src(st)} write {name}", "spec_bound", sow["note"])
+                return
             f = self.fam(name)
             if f is None:
                 self.add_debt(f"{self.src(st)} write {name}", "unmodelled_write", f"{name} not mapped")

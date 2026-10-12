@@ -225,6 +225,30 @@ class TestMutantFacts(unittest.TestCase):
             mf = self._extract_mutant(name, rel, "\n".join(lines))
             self._assert_changes_facts(name, mf, "require-deletion mutant")
 
+    def _rollup_mutant(self, find, replace=None):
+        morph = Path(os.environ["HOLON_MORPH_DIR"]).expanduser()
+        rel = "contracts/l1/rollup/Rollup.sol"
+        code = (morph / "contracts" / rel).read_text()
+        if replace is None:
+            code = code.replace(find, "        // mutated: line deleted", 1)
+        else:
+            code = code.replace(find, replace, 1)
+        return self._extract_mutant("morph_rollup", rel, code)
+
+    def test_proxy_admin_guard_mutant_changes_facts(self):
+        """Deleting the :210 `who == PADMIN` require changes the facts."""
+        mf = self._rollup_mutant('require(_msgSender() == _getProxyAdmin(), "only proxy admin");')
+        self._assert_changes_facts("morph_rollup", mf, "proxy-admin guard deletion")
+        a = next(x for x in mf["actions"] if x["name"] == "initialize4")
+        self.assertFalse(any("PADMIN" in str(g) for g in a["guards"]))
+
+    def test_lcb_write_mutant_changes_facts(self):
+        """Deleting the :216 `legacyCutoverBatchIndex = exp` write changes the facts."""
+        mf = self._rollup_mutant("legacyCutoverBatchIndex = _expectedLegacyCutoverBatchIndex;")
+        self._assert_changes_facts("morph_rollup", mf, "lcb write deletion")
+        a = next(x for x in mf["actions"] if x["name"] == "initialize4")
+        self.assertNotIn("lcb", a["effects"])
+
     def test_fee_key_mutant_changes_facts(self):
         """(a) replacing `_from` with `_msgSender()` in the fee oracle call changes facts."""
         morph = Path(os.environ["HOLON_MORPH_DIR"]).expanduser()
@@ -255,6 +279,13 @@ class TestSmokeTrace(unittest.TestCase):
     def _machine(self, name):
         from holon.gen.machine import Machine
         return Machine(facts(name))
+
+    def test_initialize4_shape(self):
+        """initialize4 carries the nact: List<Nat> input and the lcb/active effects."""
+        a = next(x for x in facts("morph_rollup")["actions"] if x["name"] == "initialize4")
+        self.assertIn(["nact", "List<Nat>"], a["inputs"])
+        self.assertEqual(a["effects"]["lcb"], "exp")
+        self.assertEqual(a["effects"]["active"], "nact")
 
     def test_actions_decide(self):
         for name in SPECS:
@@ -313,6 +344,21 @@ class TestObservers(unittest.TestCase):
 
     def test_submitter_stake_of(self):
         self._eval("submitter", _obs_law("stake_of", [4], 0), [])
+
+    def test_rollup_active_has_after_cutover(self):
+        """After initialize4(who=PADMIN, sub, exp=lci, nact=[7]) the active carrier
+        is the new registry's set: active_has(7) true, the old submitter 2 false."""
+        tr = [{"op": "initialize4", "who": 6, "sub": 5, "exp": 0, "nact": [7]}]
+        law = _obs_law("active_has", [7], 0)
+        law["statement"]["claim"]["eq"][1] = {"bool": True}
+        self._eval("morph_rollup", law, tr)
+        law2 = _obs_law("active_has", [2], 0)
+        law2["statement"]["claim"]["eq"][1] = {"bool": False}
+        self._eval("morph_rollup", law2, tr)
+
+    def test_rollup_lcb_of_after_cutover(self):
+        tr = [{"op": "initialize4", "who": 6, "sub": 5, "exp": 0, "nact": [7]}]
+        self._eval("morph_rollup", _obs_law("lcb_of", [], 0), tr)
 
 
 if __name__ == "__main__":

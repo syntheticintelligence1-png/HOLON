@@ -22,7 +22,8 @@
   "Z": 1,
   "OWNER": 1,
   "DEP": 1,
-  "AGG_BASE": 1000
+  "AGG_BASE": 1000,
+  "PADMIN": 6
  },
  "constants_doc": {
   "Z": "ZERO_VERSIONED_HASH (Rollup.sol:24) = versioned hash of the all-zero blob (oracle-checked by holon: 0x01 || sha256(0xc0 || 0^47)[1:])"
@@ -158,6 +159,11 @@
    "lfi",
    "Nat",
    "lastFinalizedBatchIndex"
+  ],
+  [
+   "lcb",
+   "Nat",
+   "legacyCutoverBatchIndex"
   ],
   [
    "inch",
@@ -316,7 +322,8 @@
   "s_bd": [],
   "s_bvh": [],
   "s_tag": [],
-  "log": []
+  "log": [],
+  "lcb": 0
  },
  "principals": {
   "1": "owner",
@@ -365,12 +372,13 @@
   "37": "start index mismatch",
   "38": "Pausable: not paused",
   "39": "invalid rollup delay period",
-  "40": "invalid submitter",
-  "41": "cutover batch mismatch",
-  "42": "challenge in progress",
-  "43": "invalid new rollup delay period",
-  "44": "invalid new proof window",
-  "45": "invalid new finalize period"
+  "40": "only proxy admin",
+  "41": "invalid submitter",
+  "42": "cutover batch mismatch",
+  "43": "challenge in progress",
+  "44": "invalid new rollup delay period",
+  "45": "invalid new proof window",
+  "46": "invalid new finalize period"
  },
  "defs": {
   "lci": {
@@ -3212,9 +3220,22 @@
     [
      "exp",
      "Nat"
+    ],
+    [
+     "nact",
+     "List<Nat>"
     ]
    ],
    "guards": [
+    {
+     "require": [
+      "==",
+      "who",
+      "PADMIN"
+     ],
+     "reason": 40,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:210"
+    },
     {
      "require": [
       "&&",
@@ -3229,7 +3250,7 @@
        0
       ]
      ],
-     "reason": 40,
+     "reason": 41,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:211"
     },
     {
@@ -3243,7 +3264,7 @@
       ],
       "exp"
      ],
-     "reason": 41,
+     "reason": 42,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:212"
     },
     {
@@ -3251,7 +3272,7 @@
       "!",
       "inch"
      ],
-     "reason": 42,
+     "reason": 43,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:213"
     },
     {
@@ -3264,7 +3285,10 @@
      "src": "contracts/contracts/l1/rollup/Rollup.sol:214"
     }
    ],
-   "effects": {}
+   "effects": {
+    "lcb": "exp",
+    "active": "nact"
+   }
   },
   {
    "name": "updateRollupDelayPeriod",
@@ -3304,7 +3328,7 @@
        "D"
       ]
      ],
-     "reason": 43,
+     "reason": 44,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:519"
     }
    ],
@@ -3350,7 +3374,7 @@
        "W"
       ]
      ],
-     "reason": 44,
+     "reason": 45,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:501"
     }
    ],
@@ -3396,7 +3420,7 @@
        "F"
       ]
      ],
-     "reason": 45,
+     "reason": 46,
      "src": "contracts/contracts/l1/rollup/Rollup.sol:510"
     }
    ],
@@ -3549,6 +3573,37 @@
     ]
    ],
    "doc": "header of the newest batch (committedBatches[LCI] = keccak256 of it, under CF)"
+  },
+  "active_has": {
+   "params": [
+    [
+     "s",
+     "State"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "call",
+    "mem",
+    "sub",
+    "active"
+   ],
+   "doc": "membership in the current Submitter active set (registry-swapped at cutover)"
+  },
+  "lcb_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": "lcb",
+   "doc": "legacyCutoverBatchIndex"
   }
  },
  "disch": {
@@ -3651,7 +3706,7 @@
   "actions.initialize3.effects": "ast",
   "actions.initialize3.entry": "ast",
   "actions.initialize4.guards": "ast",
-  "actions.initialize4.effects": "ast",
+  "actions.initialize4.effects": "spec",
   "actions.initialize4.entry": "ast",
   "actions.updateRollupDelayPeriod.guards": "ast",
   "actions.updateRollupDelayPeriod.effects": "ast",

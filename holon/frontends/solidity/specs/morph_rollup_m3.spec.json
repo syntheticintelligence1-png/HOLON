@@ -39,7 +39,8 @@
   "Z": 1,
   "OWNER": 1,
   "DEP": 1,
-  "AGG_BASE": 1000
+  "AGG_BASE": 1000,
+  "PADMIN": 6
  },
  "constants_doc": {
   "Z": "ZERO_VERSIONED_HASH (Rollup.sol:24) = versioned hash of the all-zero blob (oracle-checked by holon: 0x01 || sha256(0xc0 || 0^47)[1:])"
@@ -192,6 +193,11 @@
    "lfi",
    "Nat",
    "lastFinalizedBatchIndex"
+  ],
+  [
+   "lcb",
+   "Nat",
+   "legacyCutoverBatchIndex"
   ],
   [
    "inch",
@@ -350,7 +356,8 @@
   "s_bd": [],
   "s_bvh": [],
   "s_tag": [],
-  "log": []
+  "log": [],
+  "lcb": 0
  },
  "observers": {
   "lci_of": {
@@ -452,6 +459,37 @@
     ]
    ],
    "doc": "header of the newest batch (committedBatches[LCI] = keccak256 of it, under CF)"
+  },
+  "active_has": {
+   "params": [
+    [
+     "s",
+     "State"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "call",
+    "mem",
+    "sub",
+    "active"
+   ],
+   "doc": "membership in the current Submitter active set (registry-swapped at cutover)"
+  },
+  "lcb_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": "lcb",
+   "doc": "legacyCutoverBatchIndex"
   }
  },
  "disch": {
@@ -645,8 +683,8 @@
    "why": "chunk size constant"
   },
   "legacyCutoverBatchIndex": {
-   "kind": "unmodelled",
-   "why": "legacy migration cutover"
+   "kind": "scalar",
+   "field": "lcb"
   },
   "whitelistChecker": {
    "kind": "oracle_addr",
@@ -700,7 +738,8 @@
   "block.timestamp": "t",
   "msg.value": "value",
   "paused()": "paused",
-  "owner()": "OWNER"
+  "owner()": "OWNER",
+  "_getProxyAdmin()": "PADMIN"
  },
  "oracles": {
   "ISubmitter.isActive": {
@@ -1943,6 +1982,11 @@
    "element": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:122 func calculateIntrinsicGasFee",
    "kind": "unmodelled_value",
    "reason": "intrinsic gas computation not modelled"
+  },
+  {
+   "element": "storage EIP1967_PROXY_ADMIN_SLOT",
+   "kind": "spec_bound",
+   "reason": "proxy-admin slot read abstracted to the PADMIN param (_getProxyAdmin() env)"
   }
  ],
  "contract_ifaces": {
@@ -1961,5 +2005,22 @@
   "def:enq_first": "always",
   "def:bvh_at": "value",
   "def:tag_at": "value"
+ },
+ "storage_on_write": {
+  "submitterContract": {
+   "effects": [
+    {
+     "field": "active",
+     "expr": "nact"
+    }
+   ],
+   "add_inputs": [
+    [
+     "nact",
+     "List<Nat>"
+    ]
+   ],
+   "note": "registry swap: active becomes the new Submitter's active set at cutover (assume-guarantee input)"
+  }
  }
 }

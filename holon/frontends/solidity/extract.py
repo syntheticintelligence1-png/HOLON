@@ -104,8 +104,9 @@ def translate_action(world, spec, a, reasons, call_guards):
     writes = tr.writes
     effects, effects_prov = compose_effects(tr, writes)
     inputs = list(a["inputs"])
-    inputs += [[n, "Nat"] for n in getattr(tr, "oracle_inputs", [])
-               if n not in {i[0] for i in inputs}]
+    inputs += [[n, "Nat"] if isinstance(n, str) else list(n)
+               for n in getattr(tr, "oracle_inputs", [])
+               if (n if isinstance(n, str) else n[0]) not in {i[0] for i in inputs}]
     out = {"name": a["name"], "principal": a.get("principal") or principal_of(fn, spec),
            "src": a["src"], "inputs": inputs, "guards": guards, "effects": effects}
     if a.get("note"):

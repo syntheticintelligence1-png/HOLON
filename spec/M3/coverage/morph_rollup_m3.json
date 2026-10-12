@@ -87,6 +87,11 @@
    "reason": "modifier body skipped: abstracted by spec"
   },
   {
+   "element": "action:initialize4.effects.active",
+   "kind": "spec_bound",
+   "reason": "spec-provided effect (handler or oracle rule), not AST-derived"
+  },
+  {
    "element": "action:initialize4.modifier:reinitializer",
    "kind": "abstracted_modifier",
    "reason": "modifier body skipped: abstracted by spec"
@@ -242,24 +247,9 @@
    "reason": "initializer; deployment wiring not modelled"
   },
   {
-   "element": "contracts/contracts/l1/rollup/Rollup.sol:210 call _getProxyAdmin",
-   "kind": "abstracted_call",
-   "reason": "_getProxyAdmin handled by declared abstraction"
-  },
-  {
-   "element": "contracts/contracts/l1/rollup/Rollup.sol:210 require only proxy admin",
-   "kind": "unmodelled_require",
-   "reason": "require(only proxy admin) not translated"
-  },
-  {
-   "element": "contracts/contracts/l1/rollup/Rollup.sol:216 write legacyCutoverBatchIndex",
-   "kind": "unmodelled_write",
-   "reason": "legacy migration cutover"
-  },
-  {
    "element": "contracts/contracts/l1/rollup/Rollup.sol:218 write submitterContract",
-   "kind": "unmodelled_write",
-   "reason": "oracle_addr"
+   "kind": "spec_bound",
+   "reason": "registry swap: active becomes the new Submitter's active set at cutover (assume-guarantee input)"
   },
   {
    "element": "contracts/contracts/l1/rollup/Rollup.sol:226 func importGenesisBatch",
@@ -571,6 +561,12 @@
    "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)"
   },
   {
+   "element": "observer:active_has",
+   "kind": "spec_bound",
+   "reason": "spec-declared observer; a named read over model state, no source counterpart",
+   "src": "spec:observers"
+  },
+  {
    "element": "observer:csr_last",
    "kind": "spec_bound",
    "reason": "spec-declared observer; a named read over model state, no source counterpart",
@@ -578,6 +574,12 @@
   },
   {
    "element": "observer:kappa",
+   "kind": "spec_bound",
+   "reason": "spec-declared observer; a named read over model state, no source counterpart",
+   "src": "spec:observers"
+  },
+  {
+   "element": "observer:lcb_of",
    "kind": "spec_bound",
    "reason": "spec-declared observer; a named read over model state, no source counterpart",
    "src": "spec:observers"
@@ -604,6 +606,11 @@
    "element": "site:{'rule': 'SORT', 'kind': 'realize', 'expr': 'W + cstart - t', 'sort': 'Dur(signed) realized in uint256'}",
    "kind": "spec_bound",
    "reason": "evaluator site label declared in spec"
+  },
+  {
+   "element": "storage EIP1967_PROXY_ADMIN_SLOT",
+   "kind": "spec_bound",
+   "reason": "proxy-admin slot read abstracted to the PADMIN param (_getProxyAdmin() env)"
   }
  ]
 }
