@@ -1,0 +1,55 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_and_true",
+  "milestone": "T1",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Planted true conjunction: after one action from s0 the counter is <= 2. Never REFUTED.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "a",
+        "type": "Act"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "bool": true
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "obsv": "small",
+              "of": {
+                "step": {
+                  "var": "a"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

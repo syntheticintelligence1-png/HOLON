@@ -1,0 +1,63 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_and_false",
+  "milestone": "T1",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Planted false conjunction: every trace runs ok AND keeps the counter <= 2. The first conjunct already fails (pop on an empty queue reverts); the counter-law names the failing conjunct.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "fn": "runs_ok",
+              "args": [
+                {
+                  "var": "p"
+                },
+                {
+                  "s0": {}
+                }
+              ]
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "obsv": "small",
+              "of": {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

@@ -694,6 +694,141 @@
         "tests_m2/test_target_agnostic.py"
       ],
       "thresholds": {}
+    },
+    "I7": {
+      "title": "IR 0.3",
+      "plan": "docs/BUILD_PLAN.md#i7",
+      "prompt": "prompts/I7_ir03.md",
+      "predictions": [
+        {
+          "id": "I7-P1",
+          "claim": "The Fn+cf probe checks under both bend and --verdict.",
+          "check": "tests_m2/test_ir03.py::TestFnProbe::test_fn_and_cf_probe_checks_under_both_kernels"
+        },
+        {
+          "id": "I7-P2",
+          "claim": "A false ∧ fixture is REFUTED with its failing conjunct named (index 0); a true one is never REFUTED.",
+          "check": "tests_m2/test_ir03.py::TestFixtures::test_false_conjunction_is_refuted_naming_the_failing_conjunct and tests_m2/test_ir03.py::TestFixtures::test_true_conjunction_is_never_refuted"
+        },
+        {
+          "id": "I7-P3",
+          "claim": "A false ∃ fixture gives UNKNOWN with bounded_negative, and its generated ∀¬ law is PROVED.",
+          "check": "tests_m2/test_ir03.py::TestFixtures::test_false_existential_is_unknown_with_its_negation_proved"
+        },
+        {
+          "id": "I7-P4",
+          "claim": "The global-injectivity premise is rejected.",
+          "check": "tests_m2/test_ir03.py::TestGlobalInjectivity::test_global_injectivity_premise_is_rejected"
+        },
+        {
+          "id": "I7-P5",
+          "claim": "A CF fixture is PROVED and its premise's inhabitant (the identity) checks.",
+          "check": "tests_m2/test_ir03.py::TestFixtures::test_cf_law_proved_and_its_premise_inhabited"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I7-R1",
+          "claim": "All 24 existing statement hashes recompute equal.",
+          "check": "tests_m2/test_ir03.py::TestSchemaAndHash::test_existing_hashes_recompute_equal"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M0/",
+        "gen/M1/",
+        "results/M0/",
+        "results/M1/",
+        "bend/notes/p_ir03_fn_verdict/"
+      ],
+      "tests": [
+        "tests_m2/test_ir03.py"
+      ],
+      "thresholds": {}
+    },
+    "I9": {
+      "title": "Lean second kernel for M0",
+      "plan": "docs/BUILD_PLAN.md#i9",
+      "prompt": "prompts/I9_lean_kernel.md",
+      "predictions": [
+        {
+          "id": "I9-P1",
+          "claim": "The 5 PROVED M0 laws are re-proved in Lean 4.34.0 (no Mathlib, axioms within {propext, Quot.sound}), each file in 120 s or less.",
+          "check": "tests_m2/test_lean.py::TestLeanVerdicts::test_every_file_checks_with_only_standard_axioms"
+        },
+        {
+          "id": "I9-P2",
+          "claim": "The 3 M0 counter-laws check in Lean at the recorded witnesses.",
+          "check": "tests_m2/test_lean.py::TestLeanVerdicts::test_every_file_checks_with_only_standard_axioms"
+        },
+        {
+          "id": "I9-P3",
+          "claim": "Cross-kernel agreement is 8/8: every M0 record lists lean4 as checked and gets independence class I2.",
+          "check": "tests_m2/test_lean.py::TestLeanVerdicts::test_cross_kernel_agreement"
+        },
+        {
+          "id": "I9-P4",
+          "claim": "A flipped-equality Lean canary is rejected.",
+          "check": "tests_m2/test_lean.py::TestLeanVerdicts::test_flipped_equality_canary_is_rejected"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I9-R1",
+          "claim": "M0 statuses, statement hashes and gen/M0 Bend files unchanged; the M0 gate passes.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M0/lean/",
+        "results/M0/"
+      ],
+      "tests": [
+        "tests_m2/test_lean.py"
+      ],
+      "thresholds": {
+        "seconds_per_file": 120
+      }
+    },
+    "I11": {
+      "title": "Diagram 𝔇 and principal classes",
+      "plan": "docs/BUILD_PLAN.md#i11",
+      "prompt": "prompts/I11_diagram.md",
+      "predictions": [
+        {
+          "id": "I11-P1",
+          "claim": "M0 diagram: 4 CODEC edges (3 encoders, 1 partial decoder), 0 projection edges; one Bytes interface carrier with domains ok_sol and ok_go.",
+          "check": "tests_m2/test_diagram.py::TestPredictedShapes::test_m0_header_diagram"
+        },
+        {
+          "id": "I11-P2",
+          "claim": "Rollup diagram: 10 TRANS edges with wait as the environment edge; 2 MIG with legacy a pseudo-migration; 1 CONS; a STORE/LOAD pair per state field; 0 HASH edges, recorded as coverage debt; principal classes {owner, active submitter, challenger, anyone, environment}, the restricted ones with a predicate.",
+          "check": "tests_m2/test_diagram.py::TestPredictedShapes::test_rollup_diagram"
+        },
+        {
+          "id": "I11-P3",
+          "claim": "Batchdata diagram: 2 TRANS edges.",
+          "check": "tests_m2/test_diagram.py::TestPredictedShapes::test_batchdata_diagram"
+        },
+        {
+          "id": "I11-P4",
+          "claim": "Index terms include (win, idx-lfi), (chs, bc) and the shadow slot at lci+1.",
+          "check": "tests_m2/test_diagram.py::TestPredictedShapes::test_index_terms"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I11-R1",
+          "claim": "No existing generated file, record or statement hash changes.",
+          "check": "gate"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M2/diagram/"
+      ],
+      "tests": [
+        "tests_m2/test_diagram.py"
+      ],
+      "thresholds": {}
     }
   }
 }

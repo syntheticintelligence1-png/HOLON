@@ -1,0 +1,41 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_exists_false",
+  "milestone": "T1",
+  "rule": "DISCH",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Planted false existential: no single action from s0 makes the counter 5. Never REFUTED: stays UNKNOWN with a bounded negative search, and its generated negation (for all actions, the counter is not 5) is PROVED.",
+  "statement": {
+    "binders": [
+      {
+        "q": "exists",
+        "name": "a",
+        "type": "Act"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "n_of",
+          "of": {
+            "step": {
+              "var": "a"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "nat": 5
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

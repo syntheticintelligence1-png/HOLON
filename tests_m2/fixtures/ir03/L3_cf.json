@@ -1,0 +1,65 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_cf",
+  "milestone": "T1",
+  "rule": "FACT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "CF fixture: a hash parameter collision-free on {1, 2} maps 1 and 2 apart. PROVED from the premise; the premise is inhabited by the identity.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "h",
+        "type": "Fn<Nat,Nat>"
+      }
+    ],
+    "assume": [
+      {
+        "cf": {
+          "fn": "h",
+          "set": [
+            {
+              "nat": 1
+            },
+            {
+              "nat": 2
+            }
+          ]
+        }
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "eq_nat",
+          "args": [
+            {
+              "app": "h",
+              "args": [
+                {
+                  "nat": 1
+                }
+              ]
+            },
+            {
+              "app": "h",
+              "args": [
+                {
+                  "nat": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "bool": false
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

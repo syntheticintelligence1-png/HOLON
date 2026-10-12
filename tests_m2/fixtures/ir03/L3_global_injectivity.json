@@ -1,0 +1,58 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L3_global_injectivity",
+  "milestone": "T1",
+  "rule": "FACT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m2/fixtures/toy_queue/toy_queue.facts.json",
+  "facts_sha256": "",
+  "notes": "Canary: a premise stating global injectivity (CF over all values). G3 must reject it (whitepaper L13).",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "h",
+        "type": "Fn<Nat,Nat>"
+      }
+    ],
+    "assume": [
+      {
+        "cf": {
+          "fn": "h",
+          "set": "*"
+        }
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "eq_nat",
+          "args": [
+            {
+              "app": "h",
+              "args": [
+                {
+                  "nat": 1
+                }
+              ]
+            },
+            {
+              "app": "h",
+              "args": [
+                {
+                  "nat": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "bool": false
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}
