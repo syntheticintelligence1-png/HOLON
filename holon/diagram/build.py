@@ -369,7 +369,10 @@ def pre02(ctx: Ctx) -> None:
     for need in ("state", "actions"):
         if need not in ctx.f:
             raise DiagramError(f"facts 0.2 without {need}")
-    ctx.m = Machine(ctx)
+    try:
+        ctx.m = Machine(ctx)
+    except A.AccessError as e:
+        raise DiagramError(f"definitions: {e}") from e
 
 
 def a02_abstractions(ctx: Ctx, items: list) -> str:
