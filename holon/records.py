@@ -45,7 +45,8 @@ RECORD_VERSION = "holon-record/0.2"
 GENERATORS = {
     "holon-ir/0.1": ["holon/gen/model.py", "holon/gen/laws.py", "holon/gen/proofs.py"],
     "holon-ir/0.2": ["holon/gen/machine.py", "holon/gen/mlaws.py", "holon/gen/mproofs.py"],
-    "holon-ir/0.3": ["holon/gen/machine.py", "holon/gen/mlaws.py", "holon/gen/mproofs.py", "holon/gen/refs.py"],
+    "holon-ir/0.3": ["holon/gen/machine.py", "holon/gen/mlaws.py", "holon/gen/mproofs.py", "holon/gen/refs.py",
+                     "holon/gen/core.py"],
 }
 
 _TOP = re.compile(r"^(def|type)\s+([A-Za-z_][A-Za-z0-9_]*)", re.M)
