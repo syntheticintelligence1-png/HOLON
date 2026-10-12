@@ -33,9 +33,9 @@
  },
  "M3_msg": {
   "L_msgr_payer_bears_fee": {
-   "triage": "none",
+   "triage": "finding",
    "closed": true,
-   "why": "replay disagree: deployed waiver follows _from (origin), not payer; the O29 refund-routing asymmetry is a spec deviation, not a reachable loss in the model direction"
+   "why": "replay agree: model and deployed code both let payer 6 replay a whitelisted-origin message for 0 wei; the O29 refund goes to the wrong party (origin, not payer)"
   },
   "L_msgr_sender_can_replay": {
    "triage": "finding",

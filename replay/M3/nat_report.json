@@ -48,7 +48,9 @@
     "HOLON natrdefend 1 proveState(w=2) pre-cutover Invalid batch proof (past onlyActiveSubmitter; verifier is a stand-in)",
     "HOLON natrdefend 2 proveState(w=2) post-cutover only active submitter allowed"
    ],
-   "notes": "Model witness w=2 replayed: legacy committer passes the submitter check pre-cutover (reverts inside the verifier stand-in), and reverts 'only active submitter allowed' after initialize4."
+   "notes": "Model witness w=2: pre-cutover proveState passes onlyActiveSubmitter (reverts inside the verifier stand-in); post-cutover reverts 'only active submitter allowed'. Model probe and chain agree.",
+   "model_outcome": "rev only active submitter allowed",
+   "chain_outcome": "rev only active submitter allowed"
   },
   "L_natr_slash_at_stake": {
    "statement_hash": "sha256:ab813f3817ba70a6341601c280605f930effb2a01eaf1e581ce4da3f432471e4",
@@ -62,7 +64,9 @@
     "HOLON natrslash 2 isActive(w=2) false",
     "stakeOf(Bob)=0 in the new Submitter registry"
    ],
-   "notes": "Model witness w=2 replayed: after commit -> cutover -> challenge -> proof window, the committer is not in the active registry the challenger win slashes."
+   "notes": "Model witness w=2: after commit -> cutover -> challenge -> proof window, active_has(w) is false on the model; isActive(Bob) is false on the deployed Submitter. Model probe and chain agree.",
+   "model_outcome": "false",
+   "chain_outcome": "false"
   }
  },
  "forge_summary": "Suite result: ok. 4 passed; 0 failed; 0 skipped",

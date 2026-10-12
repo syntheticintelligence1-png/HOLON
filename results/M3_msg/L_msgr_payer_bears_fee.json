@@ -12,7 +12,7 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.101
+      "seconds": 0.095
     },
     {
       "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
@@ -26,20 +26,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.101
+      "seconds": 0.109
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.139
+      "seconds": 0.134
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.101
+    "seconds": 0.109
   },
   "closed": true,
   "difference": {
@@ -60,14 +60,14 @@
   ],
   "replay": {
     "detail": " @ morph 3e44e795586a",
-    "status": "failed"
+    "status": "passed"
   },
   "rule": "SORT",
   "scope": "unbounded",
   "statement_hash": "sha256:db603b3a03706eef9603ded01a191c660067604988975bb892b017b13d728f27",
   "status": "REFUTED",
   "subform": "obligation_scenario",
-  "triage": "none",
-  "triage_why": "replay disagree: deployed waiver follows _from (origin), not payer; the O29 refund-routing asymmetry is a spec deviation, not a reachable loss in the model direction",
+  "triage": "finding",
+  "triage_why": "replay agree: model and deployed code both let payer 6 replay a whitelisted-origin message for 0 wei; the O29 refund goes to the wrong party (origin, not payer)",
   "witness": {}
 }

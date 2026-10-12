@@ -42,13 +42,15 @@
   "L_msgr_payer_bears_fee": {
    "statement_hash": "sha256:db603b3a03706eef9603ded01a191c660067604988975bb892b017b13d728f27",
    "witness": {},
-   "verdict": "disagree",
-   "status": "failed",
+   "verdict": "agree",
+   "status": "passed",
    "evidence": [
     "HOLON payer 1 send(whitelisted-sender,0wei) ok",
     "HOLON payer 2 replay(payer,0wei) ok"
    ],
-   "notes": "Model refuted the claim 'no Insufficient-fee revert for payer 6 paying 0': in the model the waiver follows the payer. On the pinned L1CrossDomainMessenger the waiver follows the ORIGIN (_from=5, whitelisted), so the replay passes with 0 wei. Deployed code does not reproduce the refutation."
+   "notes": "Model evaluates the probe replayMessage(payer=6, value=0) to ok (waiver follows the origin _from=5, whitelisted), so the claim 'the replay reverts with Insufficient-fee' is REFUTED. The pinned L1CrossDomainMessenger also returns ok for the 0-wei payer replay. Replay agrees.",
+   "model_outcome": "ok",
+   "chain_outcome": "ok"
   },
   "L_msgr_sender_can_replay": {
    "statement_hash": "sha256:68fa4e49780d5b37bd31428f6e47d762cd161e06cfb0ae0e23a76887bb9ea1ff",
@@ -62,7 +64,9 @@
     "HOLON msgr 4 replay(third-party,fee) ok",
     "HOLON msgr 5 replay(sender,fee) Exceed maximum replay times"
    ],
-   "notes": "Three third-party replays exhaust maxReplayTimes=3; the original sender's own replay reverts. The refuted claim reproduces on the pinned contracts."
+   "notes": "Three third-party replays exhaust maxReplayTimes=3; the original sender's own replay reverts. Model probe and chain agree.",
+   "model_outcome": "rev Exceed maximum replay times",
+   "chain_outcome": "rev Exceed maximum replay times"
   }
  },
  "forge_summary": "Suite result: ok. 4 passed; 0 failed; 0 skipped",

@@ -98,10 +98,12 @@ class TestM3Replay(_ForgeRun):
     def test_report_consistent(self):
         rep = json.loads((ROOT / "replay" / "M3" / self.report).read_text())
         self.assertTrue(rep["morph_commit"].startswith("3e44e79"))
+        for lid, e in rep["laws"].items():
+            if "model_outcome" in e:
+                self.assertEqual(e["verdict"], "agree" if e["model_outcome"] == e["chain_outcome"] else "disagree", lid)
         for lid in ("L_msg_budget_blocks_sender", "L_msg_waiver_follows_origin",
-                    "L_msgr_sender_can_replay"):
+                    "L_msgr_payer_bears_fee", "L_msgr_sender_can_replay"):
             self.assertEqual(rep["laws"][lid]["verdict"], "agree")
-        self.assertEqual(rep["laws"]["L_msgr_payer_bears_fee"]["verdict"], "disagree")
 
     def test_msgr_lines(self):
         l = self.lines
@@ -143,6 +145,9 @@ class TestM3NatReplay(_ForgeRun):
     def test_report_consistent(self):
         rep = json.loads((ROOT / "replay" / "M3" / self.report).read_text())
         self.assertTrue(rep["morph_commit"].startswith("3e44e79"))
+        for lid, e in rep["laws"].items():
+            if "model_outcome" in e:
+                self.assertEqual(e["verdict"], "agree" if e["model_outcome"] == e["chain_outcome"] else "disagree", lid)
         for lid in ("L_nat_defend_legacy_blocked", "L_nat_slash_legacy_misses",
                     "L_natr_defend", "L_natr_slash_at_stake"):
             self.assertEqual(rep["laws"][lid]["verdict"], "agree")
