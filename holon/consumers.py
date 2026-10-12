@@ -3,13 +3,17 @@
 Two library-level replays (provenance "library_api"), each a Go test run against a scratch copy of
 the pinned Morph checkout (the checkout itself is never touched):
 
-  L_tag_BVH  replay/M1/go/holon_consumer_test.go in common/batch. It feeds the 257-byte version-2
-             header the real Rollup committed to BatchHeaderBytes (Version, BlobCommitHash) and
-             recomputes, with the real aggregateBlobHashes, the aggregate a version-2 consumer
-             expects in the blob field from the stored v1 versioned hash.
+  L_tag_BVH  replay/M1/go/holon_consumer_test.go in common/batch. It feeds both headers the real
+             Rollup committed at one index (the version-1 one whose commit stored the blob hash, and
+             the version-2 one commitState committed after the revert) to BatchHeaderBytes (Version,
+             BlobCommitHash), and computes with the real aggregateBlobHashes the aggregate a
+             version-2 consumer would expect over the stored hash. The inequality aggregate != field
+             is HOLON's comparison: no Morph consumer decision is exercised.
   L_fact_Z   replay/M1/go/holon_derivation_test.go in node/derivation. It hands the real
              (*BatchInfo).ParseBatch the two commits that produced the same committedBatches hash on
-             chain (no blob vs one all-zero blob) with their blob sidecars and records each outcome.
+             chain (no blob vs one all-zero blob) with their blob sidecars, on the parent header the
+             chain committed on (which Go must decode), and records each outcome and its class
+             (accepted, rejected, panic). Only differing classes count as a divergence.
 
 Inputs reach the Go tests through holon_consumer.json, written beside the test and named by the
 HOLON_CONSUMER environment variable. The Go side prints `HOLON <law> ...` lines; this module turns
@@ -150,6 +154,7 @@ def tag_bvh_side(morph: Path, work: Path, header: str, stored_vh: str, v1_header
     side = {"status": "not_run", "provenance": PROVENANCE, "obstruction_observed": False, "observed": "",
             "command": "", "input_header": _hex(hb) if hb is not None else header,
             "input_v1_header": _hex(h1) if h1 is not None else v1_header,
+            "input_stored_vh": _hex(vb) if vb is not None else stored_vh,
             "version": None, "blob_commit_hash": None, "v1_version": None, "v1_blob_commit_hash": None,
             "aggregate": None}
     if hb is None or h1 is None or vb is None or len(vb) != 32:
@@ -190,7 +195,7 @@ def tag_bvh_side(morph: Path, work: Path, header: str, stored_vh: str, v1_header
         return side
     v, bch, v1v, v1bch, agg = oks[0]
     side.update(version=int(v), blob_commit_hash=bch, v1_version=int(v1v), v1_blob_commit_hash=v1bch, aggregate=agg)
-    verdict, why = E.tag_consumer(side, {"header": _hex(hb), "v1_header": _hex(h1)})
+    verdict, why = E.tag_consumer(side, {"header": _hex(hb), "v1_header": _hex(h1), "stored_vh": _hex(vb)})
     side["status"] = "failed" if verdict == E.CONTRADICTION else "passed"
     side["obstruction_observed"] = side["status"] == "passed" and verdict == E.OBSERVED
     side["observed"] = (f"Go reads the version-{v1v} header's blob hash {v1bch} and the version-{v} header's "
@@ -312,11 +317,4 @@ def fact_z_side(morph: Path, work: Path, parent_header: str, commits: dict, pare
     side["observed"] = (f"ParseBatch on the parent header (batch index {side['parent_index']} as Go reads it): {desc}; "
                         f"the all-zero blob's versioned hash is {side['zero_blob_vh']} "
                         f"({'=' if side['zero_blob_vh'] == zvh else '!='} ZERO_VERSIONED_HASH). {why}")
-    return side
-    differ = len(set(side["outcomes"].values())) > 1
-    side["status"] = "passed"
-    side["obstruction_observed"] = differ
-    eq = "=" if side["zero_blob_vh"] == zvh else "!="
-    side["observed"] = (f"ParseBatch on the same parent header: {desc}; the all-zero blob's versioned hash is "
-                        f"{side['zero_blob_vh']} ({eq} ZERO_VERSIONED_HASH); outcomes {'differ' if differ else 'agree'}")
     return side

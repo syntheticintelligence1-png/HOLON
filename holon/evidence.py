@@ -54,10 +54,12 @@ def _has_key(obj, key: str) -> bool:
     return False
 
 
-def claimed_sides(law: dict, registry_facts: str | None) -> set[str]:
+def claimed_sides(law: dict, registry_facts_sha256: str | None) -> set[str]:
+    """Keyed on the hashed facts_sha256, never on the (unhashed) facts path: a law over facts other
+    than the registry's rollup machine (the Go BatchData machine) is a Go side."""
     if law.get("ir_version") == "holon-ir/0.1":
         return {"go", "solidity"}
-    if registry_facts is not None and law.get("facts") != registry_facts:
+    if registry_facts_sha256 is not None and law.get("facts_sha256") != registry_facts_sha256:
         return {"go"}
     return {"solidity", "go_consumer"} if claim_kind(law) in CONSUMER_KINDS else {"solidity"}
 
@@ -133,8 +135,19 @@ def m0_expected_cells(law: dict, witness: dict, hfacts: dict) -> tuple[dict[int,
 
 
 # ---------------------------------------------------------------- verdicts per side kind
-def m0_commit(side: dict, law: dict, witness: dict, hfacts: dict) -> tuple[str, str]:
+def m0_commit_trace(rfacts: dict, version: int) -> list[dict]:
+    """The commit-path trace of an M0 codec witness: from s0, an active sequencer commits batch 1 at
+    the witness's version, with one blob (version 2 requires at least one)."""
+    init = rfacts["initial"]
+    prev = init["fsr"][0]
+    return [{"op": "commitBatch", "who": init["active"][0], "ver": version, "parent": 0, "n": 0, "lbn": 1,
+             "prev": prev, "post": prev + 10, "blobs": [17]}]
+
+
+def m0_commit(side: dict, law: dict, witness: dict, hfacts: dict, rfacts: dict | None = None) -> tuple[str, str]:
     expect, go_fn, version = m0_expected_cells(law, witness, hfacts)
+    if rfacts is not None and side.get("trace") != m0_commit_trace(rfacts, version):
+        return CONTRADICTION, "the replayed trace is not the commit-path trace the witness's version gives"
     hb = hexb(side.get("header"))
     if hb is None:
         return NOT_OBSERVED, "no committed header logged"
@@ -214,6 +227,11 @@ def tag_consumer(side: dict, sol: dict) -> tuple[str, str]:
     if (side.get("version") != h[0] or side.get("v1_version") != v1[0]
             or hexb(side.get("blob_commit_hash")) != h[57:89] or hexb(side.get("v1_blob_commit_hash")) != v1[57:89]):
         return CONTRADICTION, "Go reads the committed headers differently from the chain replay"
+    from .keccak import keccak256
+    vh = hexb(side.get("input_stored_vh"))
+    if side.get("input_stored_vh") != sol.get("stored_vh") or vh is None or \
+            hexb(side.get("aggregate")) != keccak256(vh):
+        return CONTRADICTION, "the aggregate is not keccak256 of the stored hash the chain replay logged"
     if side["version"] >= 2 > side["v1_version"] and side["blob_commit_hash"] == side["v1_blob_commit_hash"] \
             and side.get("aggregate") and side["aggregate"] != side["blob_commit_hash"]:
         return OBSERVED, "Go returns the v1-stored hash for the v2 header, and the v2 aggregate over it differs"
@@ -232,13 +250,19 @@ def fact_consumer(side: dict, sol: dict) -> tuple[str, str]:
     """Derivation's verdict on the two equal-commitment batches. Observed only when the outcome
     classes differ (accepted, rejected, panic): two rejections with different messages are the same
     derivation behaviour (log the error and stop at that batch), not a divergence."""
+    ph = hexb(sol.get("parent_header"))
+    if ph is None or len(ph) < 9 or not isinstance(sol.get("parent_index"), int):
+        return CONTRADICTION, "the chain replay logged no parent header and index to feed the consumer"
     if side.get("input_parent_header") != sol.get("parent_header"):
         return CONTRADICTION, "the consumer was not fed the parent header the chain replay committed on"
-    if side.get("parent_index") != sol.get("parent_index"):
-        return CONTRADICTION, "Go reads the parent header's batch index differently from the chain replay"
-    oc = side.get("outcome_class") or {}
-    if set(oc) != {"c1", "c2"}:
+    if not (side.get("parent_index") == sol.get("parent_index") == int.from_bytes(ph[1:9], "big")):
+        return CONTRADICTION, "Go, the chain replay and the parent header bytes disagree on the parent's batch index"
+    outs = side.get("outcomes") or {}
+    if set(outs) != {"c1", "c2"}:
         return NOT_OBSERVED, "ParseBatch did not report both batches"
+    oc = {k: outcome_class(v) for k, v in outs.items()}
+    if side.get("outcome_class") != oc:
+        return CONTRADICTION, "the recorded outcome classes are not the classes of the logged outcomes"
     if oc["c1"] != oc["c2"]:
         return OBSERVED, f"derivation outcome classes differ: {oc['c1']} vs {oc['c2']}"
     return NOT_OBSERVED, (f"derivation {oc['c1']} both batches (messages: {side.get('outcomes', {}).get('c1')!r} vs "
@@ -251,7 +275,7 @@ def verdict(law: dict, side_name: str, side: dict, entry: dict, witness: dict | 
     kind = claim_kind(law)
     if law.get("ir_version") == "holon-ir/0.1":
         if side_name == "solidity" and kind == "codec":
-            return m0_commit(side, law, witness, hfacts)
+            return m0_commit(side, law, witness, hfacts, rfacts)
         return None, "the harness passes exactly when the half-obstruction shows"
     if side_name == "go":
         return own_go(side)

@@ -10,7 +10,7 @@
 **Status: met.**
 - **Predictions:** all 14 preregistered M1 laws (§11.8, including the OWN row) matched their predicted outcome on the mechanized run. Two further laws were added post hoc and are marked as such.
 - **Kernels:** every certificate and counter-law is accepted by Bend and re-checked by BendTT `--verdict`.
-- **Replay:** every REFUTED witness replays on the real code at morph `3e44e79`: the `Rollup` and `L1MessageQueueWithGasPriceOracle` witnesses step for step through Foundry, and the OWN witness on the real Go `BatchData` (Go 1.24.7).
+- **Replay:** every REFUTED witness replays on the real code at morph `3e44e79`: the `Rollup` and `L1MessageQueueWithGasPriceOracle` witnesses step for step through Foundry, and the OWN witness on the real Go `BatchData` (Go 1.24.7). Since I4 the Go consumer sides of `L_tag_BVH` and `L_fact_Z` also run. `L_fact_Z`'s consumer observes no divergence (derivation rejects both batches), so its law-level `obstruction_reproduced` is false and its bin is `pending` (`docs/iterations/I4.md`).
 - **Refinement evidence:** a seeded random corpus of 300 traces (2,432 steps, all 10 actions) agrees with the real contracts on every step.
 
 ```

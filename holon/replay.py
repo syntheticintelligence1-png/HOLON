@@ -101,8 +101,9 @@ def check_checkout(morph: Path, commit: str) -> str:
         full = o2.strip() if c2 == 0 else ""
     if code != 0 or len(full) != 40 or sha != full:
         raise SystemExit(f"{morph} is at {sha or '?'}, expected the commit {commit} ({full or 'unresolved'})")
-    code, out = _run(["git", "status", "--porcelain", "--untracked-files=no", "--", *REPLAYED_TREES], morph,
-                     {"GIT_OPTIONAL_LOCKS": "0"})
+    # the replays copy these trees whole: untracked and ignored files would be compiled too
+    code, out = _run(["git", "status", "--porcelain", "--untracked-files=all", "--ignored=matching", "--",
+                      *REPLAYED_TREES], morph, {"GIT_OPTIONAL_LOCKS": "0"})
     if code != 0 or out.strip():
         raise SystemExit(f"{morph} has uncommitted changes in the replayed trees: {out.strip()[:500]}")
     return sha

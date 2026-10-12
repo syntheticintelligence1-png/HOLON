@@ -195,7 +195,7 @@ class Gate:
     def claimed_sides(self) -> dict[str, set]:
         from .filter import claimed_sides
         reg = ir.load_registry(self.m, self.root)
-        return {law["law_id"]: claimed_sides(law, reg.get("facts")) for law in ir.load_laws_any(self.m, self.root)}
+        return {law["law_id"]: claimed_sides(law, reg.get("facts_sha256")) for law in ir.load_laws_any(self.m, self.root)}
 
     def target_commits(self) -> dict[str, str]:
         """facts sha256 -> the target commit named by that facts file."""
@@ -245,6 +245,15 @@ class Gate:
             ref = report.get("refinement")
             if isinstance(ref, dict) and ref.get("n_disagreements", 0):
                 bad.append(f"replay report records {ref.get('n_disagreements')} refinement disagreements")
+            if self.irv == "holon-ir/0.2":
+                # holon replay always writes both for M1: a missing or doctored block is a failure
+                if report.get("harness_mismatch") is not False:
+                    bad.append("M1 replay report must record harness_mismatch: false")
+                pa = ref.get("per_action") if isinstance(ref, dict) else None
+                if (not isinstance(ref, dict) or ref.get("n_disagreements") != 0 or ref.get("disagreements") != []
+                        or not isinstance(pa, dict) or not pa
+                        or any(not isinstance(v, dict) or v.get("disagree") != 0 for v in pa.values())):
+                    bad.append("M1 replay report lacks a refinement block with 0 disagreements in every count")
             for lid in sorted((set(hashes) | set(laws)) - set(refuted)):
                 bad.append(f"{lid}: the replay report lists a law that is not REFUTED")
             for lid, rec in sorted(refuted.items()):
@@ -257,7 +266,11 @@ class Gate:
                 want = targets.get(rec.get("facts_sha256"), "")
                 if not isinstance(want, str) or not want or not commit.startswith(want):
                     bad.append(f"{lid}: report is for morph {commit[:12] or '?'}, facts target {want or '?'}")
-                if hashes.get(lid) != witness_sha256(rec.get("witness")):
+                if not isinstance(rec.get("witness"), dict) or not rec.get("witness"):
+                    bad.append(f"{lid}: the REFUTED record has no witness object")
+                elif not isinstance(hashes.get(lid), str) or re.fullmatch(r"[0-9a-f]{64}", hashes.get(lid)) is None:
+                    bad.append(f"{lid}: the replay report's witness sha256 is not a sha256")
+                elif hashes.get(lid) != witness_sha256(rec.get("witness")):
                     bad.append(f"{lid}: witness sha256 differs from the replay report")
                 entry = laws.get(lid)
                 if not isinstance(entry, dict):
@@ -310,7 +323,8 @@ class Gate:
                        f"(missing: {sorted(claimed - set(raw)) or 'none'})")
         witness = rec.get("witness")
         hfacts = F.load(self.facts_path) if not m1 else None
-        rfacts = F.load(self.facts_path) if m1 else None
+        # M1: the registry's rollup facts; M0: the same facts give the commit-path trace of a codec witness
+        rfacts = F.load(self.facts_path) if m1 else self.rollup_facts()
         for side, v in sorted(ss.items()):
             st = v.get("status")
             if st not in FL.STATUSES:
@@ -362,13 +376,36 @@ class Gate:
                 bad.append(f"{lid}: law-level replay status {entry.get('status')!r}, but its sides give {want_status!r}")
             if entry.get("obstruction_reproduced") is not all(s.get("obstruction_observed") is True for s in ss.values()):
                 bad.append(f"{lid}: obstruction_reproduced is not the conjunction of its sides")
-            if "solidity" in ss and isinstance(witness, dict):
-                bad += self.g6_traces(lid, law, witness, entry)
+            if "solidity" in ss:
+                bad += self.g6_traces(lid, law, witness if isinstance(witness, dict) else {}, entry)
+                if ss["solidity"].get("status") == "passed":
+                    bad += self.g6_trace_agreement(lid, entry)
         want_wp, want_bin = FL.provenance_of(ss), FL.bin_of(ss)
         if rec.get("witness_provenance") != want_wp:
             bad.append(f"{lid}: record witness_provenance {rec.get('witness_provenance')!r} != {want_wp!r} from the report")
         if rec.get("filter_bin") != want_bin:
             bad.append(f"{lid}: record filter_bin {rec.get('filter_bin')!r} != {want_bin!r} recomputed from the report")
+        return bad
+
+    def rollup_facts(self) -> dict | None:
+        p = self.root / "laws" / "M1" / "REGISTRY.json"
+        if not p.exists():
+            return None
+        return F.load(self.root / json.loads(p.read_text())["facts"])
+
+    @staticmethod
+    def g6_trace_agreement(lid: str, entry: dict) -> list[str]:
+        """A passed on-chain side's traces log no model/real disagreement and a real outcome per step."""
+        bad = []
+        for i, tr in enumerate(entry.get("traces") or []):
+            if not isinstance(tr, dict):
+                bad.append(f"{lid}: trace {i} is not an object")
+                continue
+            steps, real = tr.get("trace") or [], tr.get("real")
+            if (tr.get("disagree") != [] or tr.get("agree") != len(steps) or not isinstance(real, list)
+                    or len(real) != len(steps) or any(r in ("rev ?", "missing") for r in real)):
+                bad.append(f"{lid}: solidity side passed, but trace {tr.get('label', i)!r} logs a model/real "
+                           f"disagreement or a missing real outcome (a model defect)")
         return bad
 
     def g6_traces(self, lid: str, law: dict, witness: dict, entry: dict) -> list[str]:
@@ -382,8 +419,10 @@ class Gate:
             want = [(r["label"], norm(r["trace"]), r["split"]) for r in linearise(law, witness)]
         except Exception as e:  # noqa: BLE001
             return [f"{lid}: the witness does not linearise: {type(e).__name__}: {e}"]
-        got = [(t.get("label"), norm(t.get("trace") or []), t.get("split")) for t in entry.get("traces", [])
-               if isinstance(t, dict)]
+        traces = entry.get("traces") if isinstance(entry.get("traces"), list) else []
+        if any(not isinstance(t, dict) for t in traces):
+            return [f"{lid}: the replay entry holds a trace that is not an object"]
+        got = [(t.get("label"), norm(t.get("trace") or []), t.get("split")) for t in traces]
         return [] if got == want else [f"{lid}: the replayed traces are not the ones the witness linearises to"]
 
     def g6_toolchain(self, report: dict) -> list[str]:

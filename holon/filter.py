@@ -52,10 +52,10 @@ def provenance_of(ss: dict[str, dict]) -> dict[str, str | None]:
     return {k: (s.get("provenance") if isinstance(s, dict) else None) for k, s in sorted(ss.items())}
 
 
-def claimed_sides(law: dict, registry_facts: str | None) -> set[str]:
+def claimed_sides(law: dict, registry_facts_sha256: str | None) -> set[str]:
     """The replay sides a REFUTED law's witness claims, from its hashed IR (holon.evidence)."""
     from .evidence import claimed_sides as _claimed
-    return _claimed(law, registry_facts)
+    return _claimed(law, registry_facts_sha256)
 
 
 def record_fields(report: dict | None, lid: str, witness, witness_sha256) -> tuple[dict, str]:

@@ -149,6 +149,82 @@ class TestG6ReviewBypasses(_Tamper):
         self.fails("M1", edit, "go_version")
 
 
+class TestG6VerificationHoles(_Tamper):
+    """Holes found when the I4 review fixes were verified."""
+
+    def test_relabelled_outcome_class_fails(self):
+        def edit(repo):
+            def fn(d):
+                e = d["laws"]["L_fact_Z"]
+                c = e["sides"]["go_consumer"]
+                c["outcome_class"] = {"c1": "rejected", "c2": "accepted"}
+                c["obstruction_observed"] = True
+                e["obstruction_reproduced"] = True
+            edit_report(repo, "M1", fn)
+            rebin(repo, "M1", "L_fact_Z")
+        self.fails("M1", edit, "outcome classes are not the classes of the logged outcomes")
+
+    def test_logged_trace_disagreement_fails(self):
+        def edit(repo):
+            def fn(d):
+                t = d["laws"]["L_sym_omega"]["traces"][1]
+                t["disagree"] = [{"step": 3, "op": "x", "model": "ok", "real": "rev other"}]
+                t["agree"] -= 1
+            edit_report(repo, "M1", fn)
+        self.fails("M1", edit, "logs a model/real disagreement")
+
+    def test_m0_commit_trace_is_bound_to_the_witness(self):
+        def edit(repo):
+            def fn(d):
+                s = d["laws"]["L_par_hdr_v2"]["solidity"]
+                s["trace"] = [{"op": "@legacy_eta2", "root": None}, dict(s["trace"][0], who=99, blobs=[])]
+            edit_report(repo, "M0", fn)
+        self.fails("M0", edit, "not the commit-path trace")
+
+    def test_facts_path_spelling_cannot_swap_sides(self):
+        def edit(repo):
+            f = repo / "laws" / "M1" / "L_sym_omega.json"
+            law = load_json(f)
+            law["facts"] = "./" + law["facts"]
+            write_json(f, law)
+            r = repo / "laws" / "M1" / "REGISTRY.json"
+            reg = load_json(r)
+            reg["facts_files"].append(law["facts"])
+            write_json(r, reg)
+
+            def fn(d):
+                e = d["laws"]["L_sym_omega"]
+                e["sides"] = {"go": {"status": "passed", "observed": "changed=true", "command": "x",
+                                     "provenance": "library_api", "obstruction_observed": True}}
+            edit_report(repo, "M1", fn)
+            rebin(repo, "M1", "L_sym_omega")
+        self.fails("M1", edit, "differ from the sides its witness claims")
+
+    def test_missing_refinement_block_fails(self):
+        self.fails("M1", lambda repo: edit_report(repo, "M1", lambda d: d.pop("refinement")),
+                   "lacks a refinement block")
+
+    def test_null_witness_fails(self):
+        def edit(repo):
+            r = repo / "results" / "M0" / "L_dom_hdr.json"
+            rec = load_json(r)
+            rec["witness"] = None
+            write_json(r, rec)
+            edit_report(repo, "M0", lambda d: d["witness_sha256"].update(L_dom_hdr=None))
+        self.fails("M0", edit, "has no witness object")
+
+    def test_tampered_aggregate_fails(self):
+        def edit(repo):
+            edit_report(repo, "M1", lambda d: d["laws"]["L_tag_BVH"]["sides"]["go_consumer"].update(
+                aggregate="0x" + "22" * 32))
+        self.fails("M1", edit, "not keccak256 of the stored hash")
+
+    def test_go_reading_contradiction_fails(self):
+        def edit(repo):
+            edit_report(repo, "M1", lambda d: d["laws"]["L_tag_BVH"]["sides"]["go_consumer"].update(v1_version=2))
+        self.fails("M1", edit, "Go reads the committed headers differently")
+
+
 class TestModelOnlyFallback(_Tamper):
     def test_a_labelled_model_only_consumer_side_passes_with_bin_pending(self):
         def edit(repo):
@@ -176,15 +252,19 @@ class TestEvidenceRules(unittest.TestCase):
 
     def test_claimed_sides_ignore_subform(self):
         law = dict(laws("M1")["L_tag_BVH"], subform="undo_pair")
-        self.assertEqual(self.E.claimed_sides(law, "spec/M1/facts/morph_rollup.json"), {"solidity", "go_consumer"})
+        sha = load_json(ROOT / "laws" / "M1" / "REGISTRY.json")["facts_sha256"]
+        self.assertEqual(self.E.claimed_sides(law, sha), {"solidity", "go_consumer"})
 
     def test_two_rejections_are_not_a_derivation_divergence(self):
-        sol = {"parent_header": "0x00", "parent_index": 0}
-        side = {"input_parent_header": "0x00", "parent_index": 0,
+        ph = "0x" + "00" * 249
+        sol = {"parent_header": ph, "parent_index": 0}
+        side = {"input_parent_header": ph, "parent_index": 0,
                 "outcomes": {"c1": "error: a", "c2": "error: b"},
                 "outcome_class": {"c1": "rejected", "c2": "rejected"}}
         self.assertEqual(self.E.fact_consumer(side, sol)[0], self.E.NOT_OBSERVED)
         side["outcome_class"] = {"c1": "rejected", "c2": "accepted"}
+        self.assertEqual(self.E.fact_consumer(side, sol)[0], self.E.CONTRADICTION, "classes must match outcomes")
+        side.update(outcomes={"c1": "error: a", "c2": "ok"})
         self.assertEqual(self.E.fact_consumer(side, sol)[0], self.E.OBSERVED)
 
     def test_a_correct_v2_header_is_not_a_ghost_tag(self):
@@ -195,9 +275,11 @@ class TestEvidenceRules(unittest.TestCase):
         side = {"header": h, "committed_hash": rep["committed_hash"], "v1_header": h,
                 "v1_committed_hash": rep["committed_hash"], "stored_vh": vh}
         self.assertEqual(self.E.ghost_tag(side)[0], self.E.CONTRADICTION)
-        cons = {"input_header": h, "input_v1_header": h, "version": 2, "v1_version": 2, "blob_commit_hash": vh,
-                "v1_blob_commit_hash": vh, "aggregate": "0x" + keccak256(bytes.fromhex(vh[2:])).hex()}
-        self.assertEqual(self.E.tag_consumer(cons, {"header": h, "v1_header": h})[0], self.E.NOT_OBSERVED)
+        cons = {"input_header": h, "input_v1_header": h, "input_stored_vh": vh, "version": 2, "v1_version": 2,
+                "blob_commit_hash": vh, "v1_blob_commit_hash": vh,
+                "aggregate": "0x" + keccak256(bytes.fromhex(vh[2:])).hex()}
+        self.assertEqual(self.E.tag_consumer(cons, {"header": h, "v1_header": h, "stored_vh": vh})[0],
+                         self.E.NOT_OBSERVED)
 
 
 class TestCaseStudyMapping(unittest.TestCase):

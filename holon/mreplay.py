@@ -315,15 +315,6 @@ def replay_own_go(morph: Path, work: Path, results: Path) -> tuple[dict, str]:
 
 
 # ---------------------------------------------------------------- M0 on the commit path
-def m0_commit_trace(rfacts: dict, version: int) -> list[dict]:
-    """A one-step trace from s0: an active sequencer commits batch 1 at `version`, with one blob
-    (version 2 requires at least one)."""
-    init = rfacts["initial"]
-    prev = init["fsr"][0]
-    return [{"op": "commitBatch", "who": init["active"][0], "ver": version, "parent": 0, "n": 0, "lbn": 1,
-             "prev": prev, "post": prev + 10, "blobs": [17]}]
-
-
 def m0_commit_sides(morph: Path, work: Path, records: dict, laws: dict, hfacts: dict, tc: dict) -> dict[str, dict]:
     """Solidity sides of the M0 codec witnesses whose claim compares enc_sol with a Go encoder.
 
@@ -333,7 +324,7 @@ def m0_commit_sides(morph: Path, work: Path, records: dict, laws: dict, hfacts: 
     real Rollup, runs the witness's version as a commit from s0 and logs the header it rebuilt;
     keccak256 of that header must equal committedBatches(index), read on chain. A committed header
     that contradicts the model's cells is a model defect (status failed), not an unobserved obstruction."""
-    from .evidence import CONTRADICTION, OBSERVED, m0_commit, m0_expected_cells, ranges
+    from .evidence import CONTRADICTION, OBSERVED, m0_commit, m0_commit_trace, m0_expected_cells, ranges
     from .replay import COMMIT_PATH, solidity_kind
     targets = [lid for lid in sorted(records)
                if records[lid].get("status") == "REFUTED" and solidity_kind(laws[lid]) == COMMIT_PATH]
@@ -361,7 +352,7 @@ def m0_commit_sides(morph: Path, work: Path, records: dict, laws: dict, hfacts: 
         if h is not None:
             side.update(header=h["header"], batch_index=h["index"], committed_hash=h["committed"],
                         checked_cells=ranges(sorted(expect)))
-        verdict, why = m0_commit(side, laws[lid], records[lid]["witness"], hfacts)
+        verdict, why = m0_commit(side, laws[lid], records[lid]["witness"], hfacts, rfacts)
         side["status"] = "passed" if agree and verdict != CONTRADICTION else "failed"
         side["obstruction_observed"] = side["status"] == "passed" and verdict == OBSERVED
         hb = _hexb(h["header"]) if h else b""
@@ -499,7 +490,7 @@ def main_replay_m1(args) -> int:
         r = records[lid]
         if r["status"] != "REFUTED":
             continue
-        if claimed_sides(laws[lid], reg["facts"]) == {"go"}:
+        if claimed_sides(laws[lid], reg["facts_sha256"]) == {"go"}:
             go_laws.append(lid)  # Go-side machine (OWN): replayed through go test below
             continue
         runs = linearise(laws[lid], r["witness"])
@@ -527,7 +518,7 @@ def main_replay_m1(args) -> int:
                                              for i in range(len(run["trace"]))]})
             tid += 1
         sides = {"solidity": _solidity_side(laws[lid], outs, real, facts, hdrs, runs, command)}
-        if "go_consumer" in claimed_sides(laws[lid], reg["facts"]):
+        if "go_consumer" in claimed_sides(laws[lid], reg["facts_sha256"]):
             sides["go_consumer"] = _consumer_side(laws[lid], runs, sides["solidity"], morph, work / "consumers")
         entry["sides"] = sides
         entry["status"] = _law_status(sides)

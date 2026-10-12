@@ -99,11 +99,13 @@ Full obstructions with a law in the provisional `finding` bin (derived): 6 (O2, 
 
 ## Notes on mapped laws
 
+- `L_fact_Z`: On chain, the no-blob and zero-blob commits produce the same committedBatches. Derivation (ParseBatch) rejects both batches, with different messages, and handles them the same way, so the consumer side observes no divergence and the law's bin is pending.
 - `L_par_hdr_ssvh`: Bears on D1: the Solidity commit path always writes sequencerSetVerifyHash = 0, while Go BatchHeaderV1.Bytes encodes the field, and the pinned Go legacy-replay path can produce a non-zero one (common/batch/batch_cache.go:1447-1472). So D1's 'Solidity ≡ Go except byte 0' holds only under ssvh = 0, the premise L_par_hdr_v0 and L_par_hdr_v1 carry. Mapped to D1, this REFUTED law makes D1 partial under the coverage rule.
 - `L_par_hdr_v2`: Reproduces O2 against Go's BatchHeaderV1.Bytes, which hard-codes byte 0 = 1. At the pinned commit the Go batch producer does build version-2 headers, by patching byte 0 of BatchHeaderV1.Bytes() and storing the aggregate at [57:89] (common/batch/batch_cache.go:1727-1731), so O2's 'no v2 encoder' clause no longer holds there; the law's comparison is with the v1 encoder only.
 - `L_rt_go_v0`: Go getters recover every field of the header Solidity commits: the decoding half of D1.
 - `L_rt_go_v1`: As L_rt_go_v0, version 1.
 - `L_rt_go_v2`: As L_rt_go_v0, version 2 (D1 names v0/v1 layouts; v2 reuses the v1 wire format).
+- `L_tag_BVH`: The obstruction is observed on chain (the v2 header carries the hash a v1 commit stored). Its Go consumer side only reads both headers back and compares with aggregateBlobHashes; that inequality is HOLON's comparison and holds once the chain side does. No Morph consumer decision is exercised.
 
 ## Laws outside the catalog
 
