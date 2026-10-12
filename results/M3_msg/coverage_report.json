@@ -1,14 +1,6 @@
 {
   "coverage_debt": [
     {
-      "element": "bf",
-      "source": "spec/M3/extracted/l1messenger.json"
-    },
-    {
-      "element": "fq",
-      "source": "spec/M3/extracted/l1messenger.json"
-    },
-    {
       "element": "batch.BatchCache.createBatchHeaderWithSequencerSetHash:1690",
       "kind": "off_output_write",
       "reason": "op writes buffer ('alloc', 5), not the returned bytes (input construction; modelled via the field precondition)",
@@ -1147,10 +1139,6 @@
       },
       "kind": "machine",
       "registers": {
-        "bf": {
-          "how": {},
-          "laws": []
-        },
         "dr": {
           "how": {
             "L_msg_budget_blocks_sender": [
@@ -1200,10 +1188,6 @@
             "L_setup_msg_budget_exhausts",
             "L_setup_msg_budget_owner_lifts"
           ]
-        },
-        "fq": {
-          "how": {},
-          "laws": []
         },
         "log": {
           "how": {},
@@ -1677,16 +1661,12 @@
         }
       },
       "uncovered": [
-        "action sendMessage2",
-        "register fq",
-        "register bf"
+        "action sendMessage2"
       ]
     }
   },
   "milestone": "M3_msg",
   "uncovered": [
-    "spec/M3/extracted/l1messenger.json: action sendMessage2",
-    "spec/M3/extracted/l1messenger.json: register fq",
-    "spec/M3/extracted/l1messenger.json: register bf"
+    "spec/M3/extracted/l1messenger.json: action sendMessage2"
   ]
 }
