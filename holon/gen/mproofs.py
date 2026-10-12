@@ -848,6 +848,36 @@ GENERATORS = [("evaluate", evaluate), ("nat_split", nat_split), ("noninterferenc
               ("deadline", deadline), ("chain_revert", chain_revert), ("act_split", act_split), ("hyp", hyp)]
 
 
+# ---------------------------------------------------------------- I15: coercion_guard
+def law_params(em: EmittedM) -> list[str]:
+    """The parameters of Laws.<law>: one per binder in emitted order, a Reach binder's evidence after its state."""
+    out = []
+    for _, n, t in em.binders:
+        out.append(bname(n))
+        if t == "Reach":
+            out.append(reach_name(n))
+    return out
+
+
+def coercion_guard(em: EmittedM, m: Machine, model_import: str, model_text: str) -> tuple[str | None, str]:
+    """(PROOF.bend text, note) of a SORT-site law, `site_<x>(a, s[, tables]) == True` for every a and s, by mirroring
+    the ghost chain of model_text (the instrumented model the law imports; holon.gen.coercion); (None, why) when the
+    class does not apply. Not in GENERATORS: it reads the model text (holon.mpipeline calls it after them)."""
+    from . import coercion
+    if len(em.claims) != 1 or em.assume or any(qq != "forall" for qq, _, _ in em.binders):
+        return None, "not a universal law with one claim and no premises"
+    lhs, rhs, ty = em.claims[0]
+    if rhs != "True{}" or ty != "Bool" or not lhs.startswith(f"{ALIAS}.site_"):
+        return None, "the claim is not a SORT-site term"
+    if CORE_MODE is None:
+        return None, "coercion_guard calls the core library (M2+ milestones)"
+    try:
+        text, used, notes = coercion.proof(model_text, lhs, em.name, law_params(em), _imports(model_import), core_ref)
+    except coercion.NoProof as e:
+        return None, str(e)
+    return text, f"core lemmas {', '.join(used)}; " + "; ".join(notes)
+
+
 # ---------------------------------------------------------------- I12: param_premise
 PARAM_PREMISE_MAX = 64
 
