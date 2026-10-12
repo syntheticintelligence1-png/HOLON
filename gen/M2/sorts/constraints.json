@@ -1,0 +1,4187 @@
+{
+  "constraints": [
+    {
+      "id": "morph_batchdata.c0001",
+      "kind": "type",
+      "model": "morph_batchdata",
+      "sort": "Bool",
+      "src": null,
+      "text": "live : Bool (facts type)",
+      "vars": [
+        "live"
+      ]
+    },
+    {
+      "id": "morph_batchdata.c0002",
+      "kind": "flow",
+      "model": "morph_batchdata",
+      "src": "common/batch/batch_data.go:117-120",
+      "text": "txsPayloadV2: $1 flows into txsPayloadV2.pb",
+      "vars": [
+        "$1",
+        "txsPayloadV2.pb"
+      ]
+    },
+    {
+      "id": "morph_header.c0001",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(8)",
+      "src": null,
+      "text": "Header.version : Mach(8) (1-byte field of Header)",
+      "vars": [
+        "Header.version"
+      ]
+    },
+    {
+      "id": "morph_header.c0002",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(64)",
+      "src": null,
+      "text": "Header.batchIndex : Mach(64) (8-byte field of Header)",
+      "vars": [
+        "Header.batchIndex"
+      ]
+    },
+    {
+      "id": "morph_header.c0003",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(64)",
+      "src": null,
+      "text": "Header.l1MessagePopped : Mach(64) (8-byte field of Header)",
+      "vars": [
+        "Header.l1MessagePopped"
+      ]
+    },
+    {
+      "id": "morph_header.c0004",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(64)",
+      "src": null,
+      "text": "Header.totalL1MessagePopped : Mach(64) (8-byte field of Header)",
+      "vars": [
+        "Header.totalL1MessagePopped"
+      ]
+    },
+    {
+      "id": "morph_header.c0005",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(256)",
+      "src": null,
+      "text": "Header.dataHash : Mach(256) (32-byte field of Header)",
+      "vars": [
+        "Header.dataHash"
+      ]
+    },
+    {
+      "id": "morph_header.c0006",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(256)",
+      "src": null,
+      "text": "Header.blobVersionedHash : Mach(256) (32-byte field of Header)",
+      "vars": [
+        "Header.blobVersionedHash"
+      ]
+    },
+    {
+      "id": "morph_header.c0007",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(256)",
+      "src": null,
+      "text": "Header.prevStateHash : Mach(256) (32-byte field of Header)",
+      "vars": [
+        "Header.prevStateHash"
+      ]
+    },
+    {
+      "id": "morph_header.c0008",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(256)",
+      "src": null,
+      "text": "Header.postStateHash : Mach(256) (32-byte field of Header)",
+      "vars": [
+        "Header.postStateHash"
+      ]
+    },
+    {
+      "id": "morph_header.c0009",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(256)",
+      "src": null,
+      "text": "Header.withdrawRootHash : Mach(256) (32-byte field of Header)",
+      "vars": [
+        "Header.withdrawRootHash"
+      ]
+    },
+    {
+      "id": "morph_header.c0010",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(256)",
+      "src": null,
+      "text": "Header.sequencerSetVerifyHash : Mach(256) (32-byte field of Header)",
+      "vars": [
+        "Header.sequencerSetVerifyHash"
+      ]
+    },
+    {
+      "id": "morph_header.c0011",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(256)",
+      "src": null,
+      "text": "Header.parentBatchHash : Mach(256) (32-byte field of Header)",
+      "vars": [
+        "Header.parentBatchHash"
+      ]
+    },
+    {
+      "id": "morph_header.c0012",
+      "kind": "type",
+      "model": "morph_header",
+      "sort": "Mach(64)",
+      "src": null,
+      "text": "Header.lastBlockNumber : Mach(64) (8-byte field of Header)",
+      "vars": [
+        "Header.lastBlockNumber"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0001",
+      "kind": "type",
+      "model": "morph_rollup",
+      "sort": "Bool",
+      "src": null,
+      "text": "Ch.f : Bool (facts type)",
+      "vars": [
+        "Ch.f"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0002",
+      "kind": "type",
+      "model": "morph_rollup",
+      "sort": "Bool",
+      "src": null,
+      "text": "Ch.w : Bool (facts type)",
+      "vars": [
+        "Ch.w"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0003",
+      "kind": "type",
+      "model": "morph_rollup",
+      "sort": "Bool",
+      "src": null,
+      "text": "commitBatchWithProof.qd : Bool (facts type)",
+      "vars": [
+        "commitBatchWithProof.qd"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0004",
+      "kind": "type",
+      "model": "morph_rollup",
+      "sort": "Bool",
+      "src": null,
+      "text": "commitBatchWithProof.rd : Bool (facts type)",
+      "vars": [
+        "commitBatchWithProof.rd"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0005",
+      "kind": "type",
+      "model": "morph_rollup",
+      "sort": "Bool",
+      "src": null,
+      "text": "inch : Bool (facts type)",
+      "vars": [
+        "inch"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0006",
+      "kind": "type",
+      "model": "morph_rollup",
+      "sort": "Bool",
+      "src": null,
+      "text": "paused : Bool (facts type)",
+      "vars": [
+        "paused"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0007",
+      "kind": "type",
+      "model": "morph_rollup",
+      "sort": "Bool",
+      "src": null,
+      "text": "proveState.timeout : Bool (facts type)",
+      "vars": [
+        "proveState.timeout"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0008",
+      "kind": "type",
+      "model": "morph_rollup",
+      "sort": "Bool",
+      "src": null,
+      "text": "setPause.status : Bool (facts type)",
+      "vars": [
+        "setPause.status"
+      ]
+    },
+    {
+      "grounds": [
+        "lexical:lex-aggregate"
+      ],
+      "id": "morph_rollup.c0009",
+      "kind": "seed",
+      "model": "morph_rollup",
+      "sort": "Dig[Agg]",
+      "src": null,
+      "text": "$12 : Dig[Agg] (lexical:lex-aggregate)",
+      "vars": [
+        "$12"
+      ]
+    },
+    {
+      "grounds": [
+        "lexical:lex-versioned-hash"
+      ],
+      "id": "morph_rollup.c0010",
+      "kind": "seed",
+      "model": "morph_rollup",
+      "sort": "Dig[VH]",
+      "src": null,
+      "text": "Entry.bvh : Dig[VH] (lexical:lex-versioned-hash)",
+      "vars": [
+        "Entry.bvh"
+      ]
+    },
+    {
+      "grounds": [
+        "lexical:lex-versioned-hash"
+      ],
+      "id": "morph_rollup.c0011",
+      "kind": "seed",
+      "model": "morph_rollup",
+      "sort": "Dig[VH]",
+      "src": null,
+      "text": "Z : Dig[VH] (lexical:lex-versioned-hash)",
+      "vars": [
+        "Z"
+      ]
+    },
+    {
+      "grounds": [
+        "lexical:lex-queue-index"
+      ],
+      "id": "morph_rollup.c0012",
+      "kind": "seed",
+      "model": "morph_rollup",
+      "sort": "Idx[queue]",
+      "src": null,
+      "text": "qpend : Idx[queue] (lexical:lex-queue-index)",
+      "vars": [
+        "qpend"
+      ]
+    },
+    {
+      "grounds": [
+        "lexical:lex-versioned-hash"
+      ],
+      "id": "morph_rollup.c0013",
+      "kind": "seed",
+      "model": "morph_rollup",
+      "sort": "Dig[VH]",
+      "src": null,
+      "text": "s_bvh : Dig[VH] (lexical:lex-versioned-hash)",
+      "vars": [
+        "s_bvh"
+      ]
+    },
+    {
+      "grounds": [
+        "lexical:lex-clock"
+      ],
+      "id": "morph_rollup.c0014",
+      "kind": "seed",
+      "model": "morph_rollup",
+      "sort": "Time",
+      "src": null,
+      "text": "t : Time (lexical:lex-clock)",
+      "vars": [
+        "t"
+      ]
+    },
+    {
+      "grounds": [
+        "structural:disch.delay"
+      ],
+      "id": "morph_rollup.c0015",
+      "kind": "seed",
+      "model": "morph_rollup",
+      "sort": "Dur",
+      "src": null,
+      "text": "wait.dt : Dur (structural:disch.delay)",
+      "vars": [
+        "wait.dt"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0016",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": null,
+      "text": "lci: lfi + len(win) (lci.lfi + $1 = $2)",
+      "vars": [
+        "lci.lfi",
+        "$1",
+        "$2"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0017",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": null,
+      "text": "lci: lfi + len(win) - 1 ($2 - $3 = $4)",
+      "vars": [
+        "$2",
+        "$3",
+        "$4"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0018",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "lci: $4 flows into $lci()",
+      "vars": [
+        "$4",
+        "$lci()"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0019",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">=",
+      "src": null,
+      "text": "in_win: idx >= lfi (in_win.idx >= in_win.lfi)",
+      "vars": [
+        "in_win.idx",
+        "in_win.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0020",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "in_win: in_win.lfi flows into lci.lfi",
+      "vars": [
+        "in_win.lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0021",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": null,
+      "text": "in_win: idx <= lci(lfi, win) (in_win.idx <= $lci())",
+      "vars": [
+        "in_win.idx",
+        "$lci()"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0022",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "w: w.lfi flows into in_win.lfi",
+      "vars": [
+        "w.lfi",
+        "in_win.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0023",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "w: w.idx flows into in_win.idx",
+      "vars": [
+        "w.idx",
+        "in_win.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0024",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": null,
+      "text": "w: idx - lfi (w.idx - w.lfi = $5)",
+      "vars": [
+        "w.idx",
+        "w.lfi",
+        "$5"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0025",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<",
+      "src": null,
+      "text": "bvh_at: idx < lfi (bvh_at.idx < bvh_at.lfi)",
+      "vars": [
+        "bvh_at.idx",
+        "bvh_at.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0026",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "bvh_at: bvh_at.lfi flows into lci.lfi",
+      "vars": [
+        "bvh_at.lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0027",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": null,
+      "text": "bvh_at: idx <= lci(lfi, win) (bvh_at.idx <= $lci())",
+      "vars": [
+        "bvh_at.idx",
+        "$lci()"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0028",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "bvh_at: bvh_at.lfi flows into w.lfi",
+      "vars": [
+        "bvh_at.lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0029",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "bvh_at: bvh_at.idx flows into w.idx",
+      "vars": [
+        "bvh_at.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0030",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "bvh_at: bvh_at.lfi flows into lci.lfi",
+      "vars": [
+        "bvh_at.lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0031",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": null,
+      "text": "bvh_at: idx - lci(lfi, win) (bvh_at.idx - $lci() = $6)",
+      "vars": [
+        "bvh_at.idx",
+        "$lci()",
+        "$6"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0032",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": null,
+      "text": "bvh_at: idx - lci(lfi, win) - 1 ($6 - $7 = $8)",
+      "vars": [
+        "$6",
+        "$7",
+        "$8"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0033",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "bvh_at: Entry.bvh flows into $9",
+      "vars": [
+        "Entry.bvh",
+        "$9"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0034",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "bvh_at: bvh_at.s_bvh flows into $9",
+      "vars": [
+        "bvh_at.s_bvh",
+        "$9"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0035",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "bvh_at: $9 flows into $10",
+      "vars": [
+        "$9",
+        "$10"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0036",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "bvh_at: $10 flows into $bvh_at()",
+      "vars": [
+        "$10",
+        "$bvh_at()"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0037",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "enq_first: qpend < qlen (enq_first.qpend < enq_first.qlen)",
+      "vars": [
+        "enq_first.qpend",
+        "enq_first.qlen"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0038",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "enq_first: enq_first.enq flows into $11",
+      "vars": [
+        "enq_first.enq",
+        "$11"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0039",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "enq_first: enq_first.t flows into $11",
+      "vars": [
+        "enq_first.t",
+        "$11"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0040",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "enq_first: $11 flows into $enq_first()",
+      "vars": [
+        "$11",
+        "$enq_first()"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0041",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:888-918",
+      "text": "blob_hash: Z flows into $13",
+      "vars": [
+        "Z",
+        "$13"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0042",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:888-918",
+      "text": "blob_hash: blob_hash.blobs flows into $13",
+      "vars": [
+        "blob_hash.blobs",
+        "$13"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0043",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:888-918",
+      "text": "blob_hash: $12 flows into $14",
+      "vars": [
+        "$12",
+        "$14"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0044",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:888-918",
+      "text": "blob_hash: $13 flows into $14",
+      "vars": [
+        "$13",
+        "$14"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0045",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:888-918",
+      "text": "blob_hash: $14 flows into $blob_hash()",
+      "vars": [
+        "$14",
+        "$blob_hash()"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0046",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:120",
+      "text": "commitBatch: mem: commitBatch.who == an element active",
+      "vars": [
+        "commitBatch.who",
+        "active"
+      ],
+      "via": "mem"
+    },
+    {
+      "id": "morph_rollup.c0047",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:260",
+      "text": "commitBatch: parent + 1 (commitBatch.parent + $15 = $16)",
+      "vars": [
+        "commitBatch.parent",
+        "$15",
+        "$16"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0048",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:260",
+      "text": "commitBatch: $16 flows into commitBatch.next",
+      "vars": [
+        "$16",
+        "commitBatch.next"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0049",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:261",
+      "text": "commitBatch: lfi flows into bvh_at.lfi",
+      "vars": [
+        "lfi",
+        "bvh_at.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0050",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:261",
+      "text": "commitBatch: s_bvh flows into bvh_at.s_bvh",
+      "vars": [
+        "s_bvh",
+        "bvh_at.s_bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0051",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:261",
+      "text": "commitBatch: commitBatch.next flows into bvh_at.idx",
+      "vars": [
+        "commitBatch.next",
+        "bvh_at.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0052",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitBatch: qpend flows into enq_first.qpend",
+      "vars": [
+        "qpend",
+        "enq_first.qpend"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0053",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitBatch: qlen flows into enq_first.qlen",
+      "vars": [
+        "qlen",
+        "enq_first.qlen"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0054",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitBatch: enq flows into enq_first.enq",
+      "vars": [
+        "enq",
+        "enq_first.enq"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0055",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitBatch: t flows into enq_first.t",
+      "vars": [
+        "t",
+        "enq_first.t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0056",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitBatch: $enq_first() flows into commitBatch.ef",
+      "vars": [
+        "$enq_first()",
+        "commitBatch.ef"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0057",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266",
+      "text": "commitBatch: ef + D (commitBatch.ef + D = $17)",
+      "vars": [
+        "commitBatch.ef",
+        "D",
+        "$17"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0058",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266",
+      "text": "commitBatch: ef + D < t ($17 < t)",
+      "vars": [
+        "$17",
+        "t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0059",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.blobs flows into commitBatch.b0",
+      "vars": [
+        "commitBatch.blobs",
+        "commitBatch.b0"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0060",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.blobs flows into commitBatch.b1",
+      "vars": [
+        "commitBatch.blobs",
+        "commitBatch.b1"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0061",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:267",
+      "text": "commitBatch: commitBatch.ver flows into blob_hash.ver",
+      "vars": [
+        "commitBatch.ver",
+        "blob_hash.ver"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0062",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:267",
+      "text": "commitBatch: commitBatch.blobs flows into blob_hash.blobs",
+      "vars": [
+        "commitBatch.blobs",
+        "blob_hash.blobs"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0063",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:267",
+      "text": "commitBatch: $blob_hash() flows into commitBatch.bvh",
+      "vars": [
+        "$blob_hash()",
+        "commitBatch.bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0064",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: lfi flows into lci.lfi",
+      "vars": [
+        "lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0065",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: $lci() flows into commitBatch.lci",
+      "vars": [
+        "$lci()",
+        "commitBatch.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0066",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
+      "text": "commitBatch: next > lci (commitBatch.next > commitBatch.lci)",
+      "vars": [
+        "commitBatch.next",
+        "commitBatch.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0067",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:312",
+      "text": "commitBatch: parent == lci (commitBatch.parent == commitBatch.lci)",
+      "vars": [
+        "commitBatch.parent",
+        "commitBatch.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0068",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:314",
+      "text": "commitBatch: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0069",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:314",
+      "text": "commitBatch: commitBatch.parent flows into w.idx",
+      "vars": [
+        "commitBatch.parent",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0070",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:314",
+      "text": "commitBatch: w(lfi, win, parent).csr == prev (Entry.csr == commitBatch.prev)",
+      "vars": [
+        "Entry.csr",
+        "commitBatch.prev"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0071",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "text": "commitBatch: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0072",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "text": "commitBatch: commitBatch.parent flows into w.idx",
+      "vars": [
+        "commitBatch.parent",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0073",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "text": "commitBatch: Entry.tot flows into commitBatch.tot",
+      "vars": [
+        "Entry.tot",
+        "commitBatch.tot"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0074",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+      "text": "commitBatch: tot + n (commitBatch.tot + commitBatch.n = $19)",
+      "vars": [
+        "commitBatch.tot",
+        "commitBatch.n",
+        "$19"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0075",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+      "text": "commitBatch: tot + n <= qlen ($19 <= qlen)",
+      "vars": [
+        "$19",
+        "qlen"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0076",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: Ch.s flows into commitBatch.cstart",
+      "vars": [
+        "Ch.s",
+        "commitBatch.cstart"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0077",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+      "text": "commitBatch: W + cstart (W + commitBatch.cstart = $20)",
+      "vars": [
+        "W",
+        "commitBatch.cstart",
+        "$20"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0078",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+      "text": "commitBatch: t <= W + cstart (t <= $20)",
+      "vars": [
+        "t",
+        "$20"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0079",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitBatch: W + cstart (W + commitBatch.cstart = $21)",
+      "vars": [
+        "W",
+        "commitBatch.cstart",
+        "$21"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0080",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitBatch: W + cstart - t ($21 - t = $22)",
+      "vars": [
+        "$21",
+        "t",
+        "$22"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0081",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitBatch: $22 flows into $23",
+      "vars": [
+        "$22",
+        "$23"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0082",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitBatch: $23 flows into commitBatch.prt",
+      "vars": [
+        "$23",
+        "commitBatch.prt"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0083",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.ver flows into Entry.ver",
+      "vars": [
+        "commitBatch.ver",
+        "Entry.ver"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0084",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: tot + n (commitBatch.tot + commitBatch.n = $24)",
+      "vars": [
+        "commitBatch.tot",
+        "commitBatch.n",
+        "$24"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0085",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: $24 flows into Entry.tot",
+      "vars": [
+        "$24",
+        "Entry.tot"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0086",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.n flows into Entry.n",
+      "vars": [
+        "commitBatch.n",
+        "Entry.n"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0087",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.bvh flows into Entry.hb",
+      "vars": [
+        "commitBatch.bvh",
+        "Entry.hb"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0088",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.prev flows into Entry.prev",
+      "vars": [
+        "commitBatch.prev",
+        "Entry.prev"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0089",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.post flows into Entry.post",
+      "vars": [
+        "commitBatch.post",
+        "Entry.post"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0090",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.lbn flows into Entry.lbn",
+      "vars": [
+        "commitBatch.lbn",
+        "Entry.lbn"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0091",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.post flows into Entry.csr",
+      "vars": [
+        "commitBatch.post",
+        "Entry.csr"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0092",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.bvh flows into Entry.bvh",
+      "vars": [
+        "commitBatch.bvh",
+        "Entry.bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0093",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: t flows into Entry.bdo",
+      "vars": [
+        "t",
+        "Entry.bdo"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0094",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: t + F (t + F = $25)",
+      "vars": [
+        "t",
+        "F",
+        "$25"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0095",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: t + F + prt ($25 + commitBatch.prt = $26)",
+      "vars": [
+        "$25",
+        "commitBatch.prt",
+        "$26"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0096",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: $26 flows into Entry.bdf",
+      "vars": [
+        "$26",
+        "Entry.bdf"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0097",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.lbn flows into Entry.bdn",
+      "vars": [
+        "commitBatch.lbn",
+        "Entry.bdn"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0098",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: commitBatch.who flows into Entry.bds",
+      "vars": [
+        "commitBatch.who",
+        "Entry.bds"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0099",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: s_csr flows into s_csr",
+      "vars": [
+        "s_csr",
+        "s_csr"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0100",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269",
+      "text": "commitBatch: s_bvh flows into s_bvh",
+      "vars": [
+        "s_bvh",
+        "s_bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0101",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:120",
+      "text": "commitState: mem: commitState.who == an element active",
+      "vars": [
+        "commitState.who",
+        "active"
+      ],
+      "via": "mem"
+    },
+    {
+      "id": "morph_rollup.c0102",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.blobs flows into commitState.b0",
+      "vars": [
+        "commitState.blobs",
+        "commitState.b0"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0103",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.blobs flows into commitState.b1",
+      "vars": [
+        "commitState.blobs",
+        "commitState.b1"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0104",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:278",
+      "text": "commitState: parent + 1 (commitState.parent + $27 = $28)",
+      "vars": [
+        "commitState.parent",
+        "$27",
+        "$28"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0105",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:278",
+      "text": "commitState: $28 flows into commitState.next",
+      "vars": [
+        "$28",
+        "commitState.next"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0106",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: lfi flows into bvh_at.lfi",
+      "vars": [
+        "lfi",
+        "bvh_at.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0107",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: s_bvh flows into bvh_at.s_bvh",
+      "vars": [
+        "s_bvh",
+        "bvh_at.s_bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0108",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.next flows into bvh_at.idx",
+      "vars": [
+        "commitState.next",
+        "bvh_at.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0109",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: $bvh_at() flows into commitState.bvh",
+      "vars": [
+        "$bvh_at()",
+        "commitState.bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0110",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitState: qpend flows into enq_first.qpend",
+      "vars": [
+        "qpend",
+        "enq_first.qpend"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0111",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitState: qlen flows into enq_first.qlen",
+      "vars": [
+        "qlen",
+        "enq_first.qlen"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0112",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitState: enq flows into enq_first.enq",
+      "vars": [
+        "enq",
+        "enq_first.enq"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0113",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitState: t flows into enq_first.t",
+      "vars": [
+        "t",
+        "enq_first.t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0114",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "text": "commitState: $enq_first() flows into commitState.ef",
+      "vars": [
+        "$enq_first()",
+        "commitState.ef"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0115",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266",
+      "text": "commitState: ef + D (commitState.ef + D = $29)",
+      "vars": [
+        "commitState.ef",
+        "D",
+        "$29"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0116",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266",
+      "text": "commitState: ef + D < t ($29 < t)",
+      "vars": [
+        "$29",
+        "t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0117",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: lfi flows into lci.lfi",
+      "vars": [
+        "lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0118",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: $lci() flows into commitState.lci",
+      "vars": [
+        "$lci()",
+        "commitState.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0119",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
+      "text": "commitState: next > lci (commitState.next > commitState.lci)",
+      "vars": [
+        "commitState.next",
+        "commitState.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0120",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:312",
+      "text": "commitState: parent == lci (commitState.parent == commitState.lci)",
+      "vars": [
+        "commitState.parent",
+        "commitState.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0121",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:314",
+      "text": "commitState: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0122",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:314",
+      "text": "commitState: commitState.parent flows into w.idx",
+      "vars": [
+        "commitState.parent",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0123",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:314",
+      "text": "commitState: w(lfi, win, parent).csr == prev (Entry.csr == commitState.prev)",
+      "vars": [
+        "Entry.csr",
+        "commitState.prev"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0124",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "text": "commitState: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0125",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "text": "commitState: commitState.parent flows into w.idx",
+      "vars": [
+        "commitState.parent",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0126",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "text": "commitState: Entry.tot flows into commitState.tot",
+      "vars": [
+        "Entry.tot",
+        "commitState.tot"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0127",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+      "text": "commitState: tot + n (commitState.tot + commitState.n = $30)",
+      "vars": [
+        "commitState.tot",
+        "commitState.n",
+        "$30"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0128",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+      "text": "commitState: tot + n <= qlen ($30 <= qlen)",
+      "vars": [
+        "$30",
+        "qlen"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0129",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: Ch.s flows into commitState.cstart",
+      "vars": [
+        "Ch.s",
+        "commitState.cstart"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0130",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+      "text": "commitState: W + cstart (W + commitState.cstart = $31)",
+      "vars": [
+        "W",
+        "commitState.cstart",
+        "$31"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0131",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+      "text": "commitState: t <= W + cstart (t <= $31)",
+      "vars": [
+        "t",
+        "$31"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0132",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitState: W + cstart (W + commitState.cstart = $32)",
+      "vars": [
+        "W",
+        "commitState.cstart",
+        "$32"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0133",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitState: W + cstart - t ($32 - t = $33)",
+      "vars": [
+        "$32",
+        "t",
+        "$33"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0134",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitState: $33 flows into $34",
+      "vars": [
+        "$33",
+        "$34"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0135",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitState: $34 flows into commitState.prt",
+      "vars": [
+        "$34",
+        "commitState.prt"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0136",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.ver flows into Entry.ver",
+      "vars": [
+        "commitState.ver",
+        "Entry.ver"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0137",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: tot + n (commitState.tot + commitState.n = $35)",
+      "vars": [
+        "commitState.tot",
+        "commitState.n",
+        "$35"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0138",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: $35 flows into Entry.tot",
+      "vars": [
+        "$35",
+        "Entry.tot"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0139",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.n flows into Entry.n",
+      "vars": [
+        "commitState.n",
+        "Entry.n"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0140",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.bvh flows into Entry.hb",
+      "vars": [
+        "commitState.bvh",
+        "Entry.hb"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0141",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.prev flows into Entry.prev",
+      "vars": [
+        "commitState.prev",
+        "Entry.prev"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0142",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.post flows into Entry.post",
+      "vars": [
+        "commitState.post",
+        "Entry.post"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0143",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.lbn flows into Entry.lbn",
+      "vars": [
+        "commitState.lbn",
+        "Entry.lbn"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0144",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.post flows into Entry.csr",
+      "vars": [
+        "commitState.post",
+        "Entry.csr"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0145",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.bvh flows into Entry.bvh",
+      "vars": [
+        "commitState.bvh",
+        "Entry.bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0146",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: t flows into Entry.bdo",
+      "vars": [
+        "t",
+        "Entry.bdo"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0147",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: t + F (t + F = $36)",
+      "vars": [
+        "t",
+        "F",
+        "$36"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0148",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: t + F + prt ($36 + commitState.prt = $37)",
+      "vars": [
+        "$36",
+        "commitState.prt",
+        "$37"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0149",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: $37 flows into Entry.bdf",
+      "vars": [
+        "$37",
+        "Entry.bdf"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0150",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.lbn flows into Entry.bdn",
+      "vars": [
+        "commitState.lbn",
+        "Entry.bdn"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0151",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: commitState.who flows into Entry.bds",
+      "vars": [
+        "commitState.who",
+        "Entry.bds"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0152",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: s_csr flows into s_csr",
+      "vars": [
+        "s_csr",
+        "s_csr"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0153",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286",
+      "text": "commitState: s_bvh flows into s_bvh",
+      "vars": [
+        "s_bvh",
+        "s_bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0154",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: lfi flows into lci.lfi",
+      "vars": [
+        "lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0155",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: $lci() flows into commitBatchWithProof.lci0",
+      "vars": [
+        "$lci()",
+        "commitBatchWithProof.lci0"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0156",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:389-390",
+      "text": "commitBatchWithProof: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0157",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:389-390",
+      "text": "commitBatchWithProof: commitBatchWithProof.lci0 flows into w.idx",
+      "vars": [
+        "commitBatchWithProof.lci0",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0158",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:389-390",
+      "text": "commitBatchWithProof: w(lfi, win, lci0).bdo + D (Entry.bdo + D = $38)",
+      "vars": [
+        "Entry.bdo",
+        "D",
+        "$38"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0159",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:389-390",
+      "text": "commitBatchWithProof: w(lfi, win, lci0).bdo + D < t ($38 < t)",
+      "vars": [
+        "$38",
+        "t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0160",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: qpend flows into enq_first.qpend",
+      "vars": [
+        "qpend",
+        "enq_first.qpend"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0161",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: qlen flows into enq_first.qlen",
+      "vars": [
+        "qlen",
+        "enq_first.qlen"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0162",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: enq flows into enq_first.enq",
+      "vars": [
+        "enq",
+        "enq_first.enq"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0163",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: t flows into enq_first.t",
+      "vars": [
+        "t",
+        "enq_first.t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0164",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: $enq_first() flows into commitBatchWithProof.ef",
+      "vars": [
+        "$enq_first()",
+        "commitBatchWithProof.ef"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0165",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:393-395",
+      "text": "commitBatchWithProof: ef + D (commitBatchWithProof.ef + D = $39)",
+      "vars": [
+        "commitBatchWithProof.ef",
+        "D",
+        "$39"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0166",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:393-395",
+      "text": "commitBatchWithProof: ef + D < t ($39 < t)",
+      "vars": [
+        "$39",
+        "t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0167",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:403",
+      "text": "commitBatchWithProof: parent + 1 (commitBatchWithProof.parent + $40 = $41)",
+      "vars": [
+        "commitBatchWithProof.parent",
+        "$40",
+        "$41"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0168",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:403",
+      "text": "commitBatchWithProof: $41 flows into commitBatchWithProof.next",
+      "vars": [
+        "$41",
+        "commitBatchWithProof.next"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0169",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: commitBatchWithProof.blobs flows into commitBatchWithProof.b0",
+      "vars": [
+        "commitBatchWithProof.blobs",
+        "commitBatchWithProof.b0"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0170",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: commitBatchWithProof.blobs flows into commitBatchWithProof.b1",
+      "vars": [
+        "commitBatchWithProof.blobs",
+        "commitBatchWithProof.b1"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0171",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: lfi flows into bvh_at.lfi",
+      "vars": [
+        "lfi",
+        "bvh_at.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0172",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: s_bvh flows into bvh_at.s_bvh",
+      "vars": [
+        "s_bvh",
+        "bvh_at.s_bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0173",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: commitBatchWithProof.next flows into bvh_at.idx",
+      "vars": [
+        "commitBatchWithProof.next",
+        "bvh_at.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0174",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: $bvh_at() flows into commitBatchWithProof.stored",
+      "vars": [
+        "$bvh_at()",
+        "commitBatchWithProof.stored"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0175",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: commitBatchWithProof.ver flows into blob_hash.ver",
+      "vars": [
+        "commitBatchWithProof.ver",
+        "blob_hash.ver"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0176",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: commitBatchWithProof.blobs flows into blob_hash.blobs",
+      "vars": [
+        "commitBatchWithProof.blobs",
+        "blob_hash.blobs"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0177",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: commitBatchWithProof.stored flows into $43",
+      "vars": [
+        "commitBatchWithProof.stored",
+        "$43"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0178",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: $blob_hash() flows into $43",
+      "vars": [
+        "$blob_hash()",
+        "$43"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0179",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: $43 flows into commitBatchWithProof.bvh",
+      "vars": [
+        "$43",
+        "commitBatchWithProof.bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0180",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: lfi flows into lci.lfi",
+      "vars": [
+        "lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0181",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: $lci() flows into commitBatchWithProof.lci",
+      "vars": [
+        "$lci()",
+        "commitBatchWithProof.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0182",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:311",
+      "text": "commitBatchWithProof: next > lci (commitBatchWithProof.next > commitBatchWithProof.lci)",
+      "vars": [
+        "commitBatchWithProof.next",
+        "commitBatchWithProof.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0183",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:312",
+      "text": "commitBatchWithProof: parent == lci (commitBatchWithProof.parent == commitBatchWithProof.lci)",
+      "vars": [
+        "commitBatchWithProof.parent",
+        "commitBatchWithProof.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0184",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:314",
+      "text": "commitBatchWithProof: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0185",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:314",
+      "text": "commitBatchWithProof: commitBatchWithProof.parent flows into w.idx",
+      "vars": [
+        "commitBatchWithProof.parent",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0186",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:314",
+      "text": "commitBatchWithProof: w(lfi, win, parent).csr == prev (Entry.csr == commitBatchWithProof.prev)",
+      "vars": [
+        "Entry.csr",
+        "commitBatchWithProof.prev"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0187",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "text": "commitBatchWithProof: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0188",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "text": "commitBatchWithProof: commitBatchWithProof.parent flows into w.idx",
+      "vars": [
+        "commitBatchWithProof.parent",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0189",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:316",
+      "text": "commitBatchWithProof: Entry.tot flows into commitBatchWithProof.tot",
+      "vars": [
+        "Entry.tot",
+        "commitBatchWithProof.tot"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0190",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+      "text": "commitBatchWithProof: tot + n (commitBatchWithProof.tot + commitBatchWithProof.n = $44)",
+      "vars": [
+        "commitBatchWithProof.tot",
+        "commitBatchWithProof.n",
+        "$44"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0191",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+      "text": "commitBatchWithProof: tot + n <= qlen ($44 <= qlen)",
+      "vars": [
+        "$44",
+        "qlen"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0192",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426",
+      "text": "commitBatchWithProof: Ch.s flows into commitBatchWithProof.cstart",
+      "vars": [
+        "Ch.s",
+        "commitBatchWithProof.cstart"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0193",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+      "text": "commitBatchWithProof: W + cstart (W + commitBatchWithProof.cstart = $45)",
+      "vars": [
+        "W",
+        "commitBatchWithProof.cstart",
+        "$45"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0194",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+      "text": "commitBatchWithProof: t <= W + cstart (t <= $45)",
+      "vars": [
+        "t",
+        "$45"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0195",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitBatchWithProof: W + cstart (W + commitBatchWithProof.cstart = $46)",
+      "vars": [
+        "W",
+        "commitBatchWithProof.cstart",
+        "$46"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0196",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitBatchWithProof: W + cstart - t ($46 - t = $47)",
+      "vars": [
+        "$46",
+        "t",
+        "$47"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0197",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitBatchWithProof: $47 flows into $48",
+      "vars": [
+        "$47",
+        "$48"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0198",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364",
+      "text": "commitBatchWithProof: $48 flows into commitBatchWithProof.prt",
+      "vars": [
+        "$48",
+        "commitBatchWithProof.prt"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0199",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: commitBatchWithProof.ver flows into Entry.ver",
+      "vars": [
+        "commitBatchWithProof.ver",
+        "Entry.ver"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0200",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: tot + n (commitBatchWithProof.tot + commitBatchWithProof.n = $49)",
+      "vars": [
+        "commitBatchWithProof.tot",
+        "commitBatchWithProof.n",
+        "$49"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0201",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: $49 flows into Entry.tot",
+      "vars": [
+        "$49",
+        "Entry.tot"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0202",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: commitBatchWithProof.n flows into Entry.n",
+      "vars": [
+        "commitBatchWithProof.n",
+        "Entry.n"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0203",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: commitBatchWithProof.bvh flows into Entry.hb",
+      "vars": [
+        "commitBatchWithProof.bvh",
+        "Entry.hb"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0204",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: commitBatchWithProof.prev flows into Entry.prev",
+      "vars": [
+        "commitBatchWithProof.prev",
+        "Entry.prev"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0205",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: commitBatchWithProof.post flows into Entry.post",
+      "vars": [
+        "commitBatchWithProof.post",
+        "Entry.post"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0206",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: commitBatchWithProof.lbn flows into Entry.lbn",
+      "vars": [
+        "commitBatchWithProof.lbn",
+        "Entry.lbn"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0207",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: commitBatchWithProof.post flows into Entry.csr",
+      "vars": [
+        "commitBatchWithProof.post",
+        "Entry.csr"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0208",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: commitBatchWithProof.bvh flows into Entry.bvh",
+      "vars": [
+        "commitBatchWithProof.bvh",
+        "Entry.bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0209",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: t flows into Entry.bdo",
+      "vars": [
+        "t",
+        "Entry.bdo"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0210",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: t flows into Entry.bdf",
+      "vars": [
+        "t",
+        "Entry.bdf"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0211",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: commitBatchWithProof.lbn flows into Entry.bdn",
+      "vars": [
+        "commitBatchWithProof.lbn",
+        "Entry.bdn"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0212",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: s_csr flows into s_csr",
+      "vars": [
+        "s_csr",
+        "s_csr"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0213",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:421",
+      "text": "commitBatchWithProof: s_bvh flows into s_bvh",
+      "vars": [
+        "s_bvh",
+        "s_bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0214",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56",
+      "text": "revertBatch: who == OWNER (revertBatch.who == OWNER)",
+      "vars": [
+        "revertBatch.who",
+        "OWNER"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0215",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:430-466",
+      "text": "revertBatch: lfi flows into lci.lfi",
+      "vars": [
+        "lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0216",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:430-466",
+      "text": "revertBatch: $lci() flows into revertBatch.lci",
+      "vars": [
+        "$lci()",
+        "revertBatch.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0217",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:436",
+      "text": "revertBatch: idx <= lci (revertBatch.idx <= revertBatch.lci)",
+      "vars": [
+        "revertBatch.idx",
+        "revertBatch.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0218",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:439",
+      "text": "revertBatch: idx + count (revertBatch.idx + revertBatch.count = $50)",
+      "vars": [
+        "revertBatch.idx",
+        "revertBatch.count",
+        "$50"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0219",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:439",
+      "text": "revertBatch: idx + count > lci ($50 > revertBatch.lci)",
+      "vars": [
+        "$50",
+        "revertBatch.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0220",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:441",
+      "text": "revertBatch: idx > lfi (revertBatch.idx > lfi)",
+      "vars": [
+        "revertBatch.idx",
+        "lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0221",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:430-466",
+      "text": "revertBatch: idx - lfi (revertBatch.idx - lfi = $51)",
+      "vars": [
+        "revertBatch.idx",
+        "lfi",
+        "$51"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0222",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:430-466",
+      "text": "revertBatch: $51 flows into revertBatch.p",
+      "vars": [
+        "$51",
+        "revertBatch.p"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0223",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: Entry.csr flows into $52",
+      "vars": [
+        "Entry.csr",
+        "$52"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0224",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: s_csr flows into $52",
+      "vars": [
+        "s_csr",
+        "$52"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0225",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: $52 flows into s_csr",
+      "vars": [
+        "$52",
+        "s_csr"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0226",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: Entry.bvh flows into $53",
+      "vars": [
+        "Entry.bvh",
+        "$53"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0227",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: s_bvh flows into $53",
+      "vars": [
+        "s_bvh",
+        "$53"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0228",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: $53 flows into s_bvh",
+      "vars": [
+        "$53",
+        "s_bvh"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0229",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: rri >= idx (rri >= revertBatch.idx)",
+      "vars": [
+        "rri",
+        "revertBatch.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0230",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: rri <= lci (rri <= revertBatch.lci)",
+      "vars": [
+        "rri",
+        "revertBatch.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0231",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: rri flows into $54",
+      "vars": [
+        "rri",
+        "$54"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0232",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443-465",
+      "text": "revertBatch: $54 flows into rri",
+      "vars": [
+        "$54",
+        "rri"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0233",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:126",
+      "text": "challengeState: mem: challengeState.who == an element chals",
+      "vars": [
+        "challengeState.who",
+        "chals"
+      ],
+      "via": "mem"
+    },
+    {
+      "id": "morph_rollup.c0234",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:476",
+      "text": "challengeState: lfi < idx (lfi < challengeState.idx)",
+      "vars": [
+        "lfi",
+        "challengeState.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0235",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:471-496",
+      "text": "challengeState: lfi flows into lci.lfi",
+      "vars": [
+        "lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0236",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:471-496",
+      "text": "challengeState: $lci() flows into challengeState.lci",
+      "vars": [
+        "$lci()",
+        "challengeState.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0237",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:477",
+      "text": "challengeState: idx <= lci (challengeState.idx <= challengeState.lci)",
+      "vars": [
+        "challengeState.idx",
+        "challengeState.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0238",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:478",
+      "text": "challengeState: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0239",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:478",
+      "text": "challengeState: challengeState.idx flows into w.idx",
+      "vars": [
+        "challengeState.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0240",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:481",
+      "text": "challengeState: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0241",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:481",
+      "text": "challengeState: challengeState.idx flows into w.idx",
+      "vars": [
+        "challengeState.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0242",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:481",
+      "text": "challengeState: w(lfi, win, idx).bdf > t (Entry.bdf > t)",
+      "vars": [
+        "Entry.bdf",
+        "t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0243",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:483",
+      "text": "challengeState: value >= DEP (challengeState.value >= DEP)",
+      "vars": [
+        "challengeState.value",
+        "DEP"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0244",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:485-495",
+      "text": "challengeState: challengeState.idx flows into bc",
+      "vars": [
+        "challengeState.idx",
+        "bc"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0245",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:485-495",
+      "text": "challengeState: challengeState.who flows into Ch.c",
+      "vars": [
+        "challengeState.who",
+        "Ch.c"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0246",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:485-495",
+      "text": "challengeState: challengeState.value flows into Ch.d",
+      "vars": [
+        "challengeState.value",
+        "Ch.d"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0247",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:485-495",
+      "text": "challengeState: t flows into Ch.s",
+      "vars": [
+        "t",
+        "Ch.s"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0248",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:485-495",
+      "text": "challengeState: idx - lfi (challengeState.idx - lfi = $55)",
+      "vars": [
+        "challengeState.idx",
+        "lfi",
+        "$55"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0249",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:120",
+      "text": "proveState: mem: proveState.who == an element active",
+      "vars": [
+        "proveState.who",
+        "active"
+      ],
+      "via": "mem"
+    },
+    {
+      "id": "morph_rollup.c0250",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:595-622",
+      "text": "proveState: lfi flows into lci.lfi",
+      "vars": [
+        "lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0251",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:595-622",
+      "text": "proveState: $lci() flows into proveState.lci",
+      "vars": [
+        "$lci()",
+        "proveState.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0252",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:603",
+      "text": "proveState: idx <= lci (proveState.idx <= proveState.lci)",
+      "vars": [
+        "proveState.idx",
+        "proveState.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0253",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:606",
+      "text": "proveState: proveState.idx flows into open_ch.idx",
+      "vars": [
+        "proveState.idx",
+        "open_ch.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0254",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:613",
+      "text": "proveState: ch.s + W (Ch.s + W = $56)",
+      "vars": [
+        "Ch.s",
+        "W",
+        "$56"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0255",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:613",
+      "text": "proveState: ch.s + W <= t ($56 <= t)",
+      "vars": [
+        "$56",
+        "t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0256",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:609-621",
+      "text": "proveState: proveState.idx flows into $57",
+      "vars": [
+        "proveState.idx",
+        "$57"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0257",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:609-621",
+      "text": "proveState: rri flows into $57",
+      "vars": [
+        "rri",
+        "$57"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0258",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:609-621",
+      "text": "proveState: $57 flows into rri",
+      "vars": [
+        "$57",
+        "rri"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0259",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:609-621",
+      "text": "proveState: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0260",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:609-621",
+      "text": "proveState: proveState.idx flows into w.idx",
+      "vars": [
+        "proveState.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0261",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:609-621",
+      "text": "proveState: remove: Entry.bds == an element active",
+      "vars": [
+        "Entry.bds",
+        "active"
+      ],
+      "via": "remove"
+    },
+    {
+      "id": "morph_rollup.c0262",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:609-621",
+      "text": "proveState: active flows into $58",
+      "vars": [
+        "active",
+        "$58"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0263",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:609-621",
+      "text": "proveState: active flows into $58",
+      "vars": [
+        "active",
+        "$58"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0264",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:609-621",
+      "text": "proveState: $58 flows into active",
+      "vars": [
+        "$58",
+        "active"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0265",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+      "text": "finalizeBatch: lfi flows into lci.lfi",
+      "vars": [
+        "lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0266",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+      "text": "finalizeBatch: $lci() flows into finalizeBatch.lci",
+      "vars": [
+        "$lci()",
+        "finalizeBatch.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0267",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:629",
+      "text": "finalizeBatch: idx <= lci (finalizeBatch.idx <= finalizeBatch.lci)",
+      "vars": [
+        "finalizeBatch.idx",
+        "finalizeBatch.lci"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0268",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">=",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:630",
+      "text": "finalizeBatch: idx >= lfi (finalizeBatch.idx >= lfi)",
+      "vars": [
+        "finalizeBatch.idx",
+        "lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0269",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:630",
+      "text": "finalizeBatch: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0270",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:630",
+      "text": "finalizeBatch: finalizeBatch.idx flows into w.idx",
+      "vars": [
+        "finalizeBatch.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0271",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:631",
+      "text": "finalizeBatch: finalizeBatch.idx flows into open_ch.idx",
+      "vars": [
+        "finalizeBatch.idx",
+        "open_ch.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0272",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:633",
+      "text": "finalizeBatch: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0273",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:633",
+      "text": "finalizeBatch: finalizeBatch.idx flows into w.idx",
+      "vars": [
+        "finalizeBatch.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0274",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": ">",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:633",
+      "text": "finalizeBatch: w(lfi, win, idx).bdf > t (Entry.bdf > t)",
+      "vars": [
+        "Entry.bdf",
+        "t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0275",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:635-638",
+      "text": "finalizeBatch: idx - 1 (finalizeBatch.idx - $59 = $60)",
+      "vars": [
+        "finalizeBatch.idx",
+        "$59",
+        "$60"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0276",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:635-638",
+      "text": "finalizeBatch: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0277",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:635-638",
+      "text": "finalizeBatch: finalizeBatch.idx flows into w.idx",
+      "vars": [
+        "finalizeBatch.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0278",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:635-638",
+      "text": "finalizeBatch: nth(fsr, idx - 1) == w(lfi, win, idx).prev (fsr == Entry.prev)",
+      "vars": [
+        "fsr",
+        "Entry.prev"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0279",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:643",
+      "text": "finalizeBatch: lfi + 1 (lfi + $61 = $62)",
+      "vars": [
+        "lfi",
+        "$61",
+        "$62"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0280",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:643",
+      "text": "finalizeBatch: lfi + 1 == idx ($62 == finalizeBatch.idx)",
+      "vars": [
+        "$62",
+        "finalizeBatch.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0281",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+      "text": "finalizeBatch: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0282",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+      "text": "finalizeBatch: finalizeBatch.idx flows into w.idx",
+      "vars": [
+        "finalizeBatch.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0283",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+      "text": "finalizeBatch: Entry.n flows into finalizeBatch.bn",
+      "vars": [
+        "Entry.n",
+        "finalizeBatch.bn"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0284",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+      "text": "finalizeBatch: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0285",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+      "text": "finalizeBatch: finalizeBatch.idx flows into w.idx",
+      "vars": [
+        "finalizeBatch.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0286",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669",
+      "text": "finalizeBatch: Entry.tot flows into finalizeBatch.btot",
+      "vars": [
+        "Entry.tot",
+        "finalizeBatch.btot"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0287",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325",
+      "text": "finalizeBatch: btot - bn (finalizeBatch.btot - finalizeBatch.bn = $63)",
+      "vars": [
+        "finalizeBatch.btot",
+        "finalizeBatch.bn",
+        "$63"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0288",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325",
+      "text": "finalizeBatch: qpend == btot - bn (qpend == $63)",
+      "vars": [
+        "qpend",
+        "$63"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0289",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: finalizeBatch.idx flows into lfi",
+      "vars": [
+        "finalizeBatch.idx",
+        "lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0290",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: lfi flows into w.lfi",
+      "vars": [
+        "lfi",
+        "w.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0291",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: finalizeBatch.idx flows into w.idx",
+      "vars": [
+        "finalizeBatch.idx",
+        "w.idx"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0292",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: fsr flows into $64",
+      "vars": [
+        "fsr",
+        "$64"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0293",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: Entry.post flows into $64",
+      "vars": [
+        "Entry.post",
+        "$64"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0294",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: $64 flows into fsr",
+      "vars": [
+        "$64",
+        "fsr"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0295",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: qpend flows into $65",
+      "vars": [
+        "qpend",
+        "$65"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0296",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: finalizeBatch.btot flows into $65",
+      "vars": [
+        "finalizeBatch.btot",
+        "$65"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0297",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: $65 flows into qpend",
+      "vars": [
+        "$65",
+        "qpend"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0298",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "-",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:644-660",
+      "text": "finalizeBatch: idx - 1 (finalizeBatch.idx - $66 = $67)",
+      "vars": [
+        "finalizeBatch.idx",
+        "$66",
+        "$67"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0299",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "==",
+      "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56",
+      "text": "setPause: who == OWNER (setPause.who == OWNER)",
+      "vars": [
+        "setPause.who",
+        "OWNER"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0300",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288-301",
+      "text": "sendMessage: enq flows into $68",
+      "vars": [
+        "enq",
+        "$68"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0301",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288-301",
+      "text": "sendMessage: t flows into $68",
+      "vars": [
+        "t",
+        "$68"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0302",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288-301",
+      "text": "sendMessage: $68 flows into enq",
+      "vars": [
+        "$68",
+        "enq"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0303",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288-301",
+      "text": "sendMessage: qlen + 1 (qlen + $69 = $70)",
+      "vars": [
+        "qlen",
+        "$69",
+        "$70"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0304",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288-301",
+      "text": "sendMessage: $70 flows into qlen",
+      "vars": [
+        "$70",
+        "qlen"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0305",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": null,
+      "text": "wait: t + dt (t + wait.dt = $71)",
+      "vars": [
+        "t",
+        "wait.dt",
+        "$71"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0306",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "wait: $71 flows into t",
+      "vars": [
+        "$71",
+        "t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0307",
+      "kind": "flow",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "lci_of: lfi flows into lci.lfi",
+      "vars": [
+        "lfi",
+        "lci.lfi"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0308",
+      "kind": "affine",
+      "model": "morph_rollup",
+      "op": "+",
+      "src": null,
+      "text": "kappa: W + nth_ch(chs, bc).s (W + Ch.s = $72)",
+      "vars": [
+        "W",
+        "Ch.s",
+        "$72"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0309",
+      "kind": "compare",
+      "model": "morph_rollup",
+      "op": "<",
+      "src": null,
+      "text": "kappa: W + nth_ch(chs, bc).s < t ($72 < t)",
+      "vars": [
+        "$72",
+        "t"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0310",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Ch.c is written by challengeState",
+      "vars": [
+        "Ch.c"
+      ],
+      "writers": [
+        "challengeState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0311",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Ch.d is written by challengeState",
+      "vars": [
+        "Ch.d"
+      ],
+      "writers": [
+        "challengeState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0312",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Ch.f is written by challengeState, proveState",
+      "vars": [
+        "Ch.f"
+      ],
+      "writers": [
+        "challengeState",
+        "proveState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0313",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Ch.s is written by challengeState",
+      "vars": [
+        "Ch.s"
+      ],
+      "writers": [
+        "challengeState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0314",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Ch.w is written by challengeState, proveState",
+      "vars": [
+        "Ch.w"
+      ],
+      "writers": [
+        "challengeState",
+        "proveState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0315",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.bdf is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.bdf"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0316",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.bdn is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.bdn"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0317",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.bdo is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.bdo"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0318",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.bds is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.bds"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0319",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.bvh is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.bvh"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0320",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.csr is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.csr"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0321",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.hb is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.hb"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0322",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.lbn is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.lbn"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0323",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.n is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.n"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0324",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.post is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.post"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0325",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.prev is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.prev"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0326",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.tot is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.tot"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0327",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "Entry.ver is written by commitBatch, commitBatchWithProof, commitState",
+      "vars": [
+        "Entry.ver"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0328",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "active is written by proveState",
+      "vars": [
+        "active"
+      ],
+      "writers": [
+        "proveState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0329",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "bc is written by challengeState",
+      "vars": [
+        "bc"
+      ],
+      "writers": [
+        "challengeState"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0330",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "enq is written by sendMessage",
+      "vars": [
+        "enq"
+      ],
+      "writers": [
+        "sendMessage"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0331",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "fsr is written by finalizeBatch",
+      "vars": [
+        "fsr"
+      ],
+      "writers": [
+        "finalizeBatch"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0332",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "inch is written by challengeState, proveState, revertBatch, setPause",
+      "vars": [
+        "inch"
+      ],
+      "writers": [
+        "challengeState",
+        "proveState",
+        "revertBatch",
+        "setPause"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0333",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "lfi is written by finalizeBatch",
+      "vars": [
+        "lfi"
+      ],
+      "writers": [
+        "finalizeBatch"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0334",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "paused is written by setPause",
+      "vars": [
+        "paused"
+      ],
+      "writers": [
+        "setPause"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0335",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "qlen is written by sendMessage",
+      "vars": [
+        "qlen"
+      ],
+      "writers": [
+        "sendMessage"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0336",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "qpend is written by finalizeBatch",
+      "vars": [
+        "qpend"
+      ],
+      "writers": [
+        "finalizeBatch"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0337",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "rri is written by proveState, revertBatch",
+      "vars": [
+        "rri"
+      ],
+      "writers": [
+        "proveState",
+        "revertBatch"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0338",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "s_bvh is written by commitBatch, commitBatchWithProof, commitState, revertBatch",
+      "vars": [
+        "s_bvh"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "revertBatch"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0339",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "s_csr is written by commitBatch, commitBatchWithProof, commitState, legacy, revertBatch",
+      "vars": [
+        "s_csr"
+      ],
+      "writers": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "legacy",
+        "revertBatch"
+      ]
+    },
+    {
+      "id": "morph_rollup.c0340",
+      "kind": "writer",
+      "model": "morph_rollup",
+      "src": null,
+      "text": "t is written by wait",
+      "vars": [
+        "t"
+      ],
+      "writers": [
+        "wait"
+      ]
+    }
+  ],
+  "document": "constraints",
+  "inputs": [
+    {
+      "path": "facts/morph_header.json",
+      "sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80"
+    },
+    {
+      "path": "spec/M1/facts/morph_batchdata.json",
+      "sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d"
+    },
+    {
+      "path": "spec/M1/facts/morph_rollup.json",
+      "sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f"
+    },
+    {
+      "path": "spec/M1/lib/morph_rollup.lib.json",
+      "sha256": "004d12f43d1074f0746bce4e2c5fb87df4b5a0dca1b720c3523d2a18971f46a0"
+    },
+    {
+      "path": "spec/M2/lib/sort_seeds.json",
+      "sha256": "f5b31e51dde4cf52906b1d43426dee333683d64d9d64ecaefb08f9205c8eaab1"
+    },
+    {
+      "path": "spec/lib/go_slices.lib.json",
+      "sha256": "f5ddbe0ad4c6be7e89802f497e4c826cd68dbd8925bac014f506fc1867292df4"
+    }
+  ],
+  "milestone": "M2",
+  "sorts_version": "holon-sorts/0.1"
+}

@@ -1,0 +1,66 @@
+{
+  "document": "unions",
+  "inputs": [
+    {
+      "path": "facts/morph_header.json",
+      "sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80"
+    },
+    {
+      "path": "spec/M1/facts/morph_batchdata.json",
+      "sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d"
+    },
+    {
+      "path": "spec/M1/facts/morph_rollup.json",
+      "sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f"
+    },
+    {
+      "path": "spec/M1/lib/morph_rollup.lib.json",
+      "sha256": "004d12f43d1074f0746bce4e2c5fb87df4b5a0dca1b720c3523d2a18971f46a0"
+    },
+    {
+      "path": "spec/M2/lib/sort_seeds.json",
+      "sha256": "f5b31e51dde4cf52906b1d43426dee333683d64d9d64ecaefb08f9205c8eaab1"
+    },
+    {
+      "path": "spec/lib/go_slices.lib.json",
+      "sha256": "f5ddbe0ad4c6be7e89802f497e4c826cd68dbd8925bac014f506fc1867292df4"
+    }
+  ],
+  "milestone": "M2",
+  "sorts_version": "holon-sorts/0.1",
+  "unions": [
+    {
+      "id": "morph_rollup.u001",
+      "members": [
+        "Dig[Agg]",
+        "Dig[VH]"
+      ],
+      "model": "morph_rollup",
+      "sort": "Dig[Agg] + Dig[VH]",
+      "vars": [
+        "Entry.bvh",
+        "Entry.hb",
+        "bvh_at.s_bvh",
+        "commitBatch.bvh",
+        "commitBatchWithProof.bvh",
+        "commitBatchWithProof.stored",
+        "commitState.bvh",
+        "s_bvh"
+      ],
+      "writers": {
+        "Dig[Agg]": [
+          "commitBatch",
+          "commitBatchWithProof",
+          "commitState",
+          "revertBatch"
+        ],
+        "Dig[VH]": [
+          "commitBatch",
+          "commitBatchWithProof",
+          "commitState",
+          "revertBatch"
+        ]
+      }
+    }
+  ]
+}

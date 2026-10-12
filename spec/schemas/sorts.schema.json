@@ -1,0 +1,739 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON refined sorts (holon-sorts/0.1)",
+  "description": "The five documents `python -m holon sorts` writes to gen/<M>/sorts/ (whitepaper §7.1-§7.4, §7.7 steps 1-4; BUILD_PLAN I13). The contract is the docstring of tests_m2/test_sorts_morph.py. One $defs entry per document, named by its file stem; the top level is a oneOf over them, told apart by `document`. Uses only the keywords of holon/schema.py and tests/reference/mini_schema.py.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/constraints"
+    },
+    {
+      "$ref": "#/$defs/assignment"
+    },
+    {
+      "$ref": "#/$defs/conflicts"
+    },
+    {
+      "$ref": "#/$defs/unions"
+    },
+    {
+      "$ref": "#/$defs/unresolved"
+    }
+  ],
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^[^/]"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "sort": {
+      "type": "string",
+      "pattern": "^(Nat \\(unrefined\\)|(Time|Dur|SDur|Ver|Bool|(Idx|Cnt)\\[[A-Za-z][A-Za-z0-9_]*\\](_[a-z][a-z0-9]*)?|(SIdx|SCnt|Prin|Amt|Dig)\\[[A-Za-z][A-Za-z0-9_]*\\]|Mach\\([1-9][0-9]*\\)|[A-Z][A-Za-z0-9_]*)( \\+ (Time|Dur|SDur|Ver|Bool|(Idx|Cnt)\\[[A-Za-z][A-Za-z0-9_]*\\](_[a-z][a-z0-9]*)?|(SIdx|SCnt|Prin|Amt|Dig)\\[[A-Za-z][A-Za-z0-9_]*\\]|Mach\\([1-9][0-9]*\\)|[A-Z][A-Za-z0-9_]*))*)$",
+      "description": "a sort string of holon.sorts.grammar"
+    },
+    "span_or_null": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^\\S+:[0-9]+(-[0-9]+)?$"
+    },
+    "constraint": {
+      "type": "object",
+      "required": [
+        "id",
+        "model",
+        "kind",
+        "vars",
+        "src",
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "type",
+            "seed",
+            "flow",
+            "affine",
+            "compare",
+            "link",
+            "writer"
+          ]
+        },
+        "vars": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "string"
+          },
+          "description": "variable keys and auxiliary variables ($...); flow: [from, to]; affine: [lhs, rhs, out]"
+        },
+        "src": {
+          "$ref": "#/$defs/span_or_null"
+        },
+        "text": {
+          "type": "string"
+        },
+        "sort": {
+          "$ref": "#/$defs/sort"
+        },
+        "grounds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^(lexical|structural):"
+          }
+        },
+        "op": {
+          "enum": [
+            "+",
+            "-",
+            "==",
+            "!=",
+            "<",
+            "<=",
+            ">",
+            ">="
+          ]
+        },
+        "via": {
+          "enum": [
+            "mem",
+            "remove",
+            "eq_nats"
+          ]
+        },
+        "writers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "seed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "sort",
+              "grounds"
+            ],
+            "properties": {
+              "vars": {
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "type"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "sort"
+            ],
+            "properties": {
+              "vars": {
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "affine"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "op"
+            ],
+            "properties": {
+              "vars": {
+                "minItems": 3
+              },
+              "op": {
+                "enum": [
+                  "+",
+                  "-"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "compare"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "op"
+            ],
+            "properties": {
+              "vars": {
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "flow"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "vars": {
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "link"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "vars": {
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "writer"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "writers"
+            ],
+            "properties": {
+              "vars": {
+                "maxItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "site": {
+      "type": "object",
+      "required": [
+        "id",
+        "model",
+        "span",
+        "op",
+        "expr",
+        "sort",
+        "realized_in",
+        "obligation",
+        "entry_points",
+        "occurrences"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "span": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "op": {
+          "const": "-"
+        },
+        "expr": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "sort": {
+          "$ref": "#/$defs/sort"
+        },
+        "realized_in": {
+          "const": "Nat"
+        },
+        "obligation": {
+          "enum": [
+            "sign",
+            null
+          ]
+        },
+        "entry_points": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "occurrences": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "action",
+              "where"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "where": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "required": [
+        "facts",
+        "assignment",
+        "provenance"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "facts": {
+          "type": "string",
+          "pattern": "^[^/].*\\.json$"
+        },
+        "assignment": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/sort"
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "label",
+              "writers"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "label": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*$"
+              },
+              "writers": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "component": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "string"
+                },
+                "description": "the registers of a strongly connected flow component sharing the label (R3)"
+              }
+            }
+          }
+        }
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "required": [
+        "id",
+        "model",
+        "kind",
+        "src",
+        "text",
+        "core"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "affine",
+            "base"
+          ]
+        },
+        "src": {
+          "$ref": "#/$defs/span_or_null"
+        },
+        "text": {
+          "type": "string"
+        },
+        "core": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "culprit": {
+          "type": "string",
+          "description": "the core constraint set aside before the search for the next conflict"
+        }
+      }
+    },
+    "union": {
+      "type": "object",
+      "required": [
+        "id",
+        "model",
+        "vars",
+        "members",
+        "sort",
+        "writers"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "vars": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "members": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/sort"
+          }
+        },
+        "sort": {
+          "$ref": "#/$defs/sort"
+        },
+        "writers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "unresolved_entry": {
+      "type": "object",
+      "required": [
+        "model",
+        "var",
+        "base_type",
+        "why"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string"
+        },
+        "var": {
+          "type": "string"
+        },
+        "base_type": {
+          "type": "string"
+        },
+        "why": {
+          "type": "string"
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "required": [
+        "document",
+        "sorts_version",
+        "milestone",
+        "inputs",
+        "constraints"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "document": {
+          "const": "constraints"
+        },
+        "sorts_version": {
+          "const": "holon-sorts/0.1"
+        },
+        "milestone": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^M[0-9]+$",
+          "description": "the milestone whose fact documents were read; null under --facts"
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/input"
+          },
+          "description": "every file read (fact documents, target libraries, the seed sidecar), sorted by path"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/constraint"
+          }
+        }
+      }
+    },
+    "assignment": {
+      "type": "object",
+      "required": [
+        "document",
+        "sorts_version",
+        "milestone",
+        "inputs",
+        "models",
+        "sites",
+        "sorts_sha256"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "document": {
+          "const": "assignment"
+        },
+        "sorts_version": {
+          "const": "holon-sorts/0.1"
+        },
+        "milestone": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^M[0-9]+$",
+          "description": "the milestone whose fact documents were read; null under --facts"
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/input"
+          },
+          "description": "every file read (fact documents, target libraries, the seed sidecar), sorted by path"
+        },
+        "models": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/model"
+          }
+        },
+        "sites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/site"
+          }
+        },
+        "sorts_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "sha256 of the canonical JSON of this document without sorts_sha256 and inputs: the frozen assignment's identity"
+        }
+      }
+    },
+    "conflicts": {
+      "type": "object",
+      "required": [
+        "document",
+        "sorts_version",
+        "milestone",
+        "inputs",
+        "conflicts"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "document": {
+          "const": "conflicts"
+        },
+        "sorts_version": {
+          "const": "holon-sorts/0.1"
+        },
+        "milestone": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^M[0-9]+$",
+          "description": "the milestone whose fact documents were read; null under --facts"
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/input"
+          },
+          "description": "every file read (fact documents, target libraries, the seed sidecar), sorted by path"
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/conflict"
+          }
+        }
+      }
+    },
+    "unions": {
+      "type": "object",
+      "required": [
+        "document",
+        "sorts_version",
+        "milestone",
+        "inputs",
+        "unions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "document": {
+          "const": "unions"
+        },
+        "sorts_version": {
+          "const": "holon-sorts/0.1"
+        },
+        "milestone": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^M[0-9]+$",
+          "description": "the milestone whose fact documents were read; null under --facts"
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/input"
+          },
+          "description": "every file read (fact documents, target libraries, the seed sidecar), sorted by path"
+        },
+        "unions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/union"
+          }
+        }
+      }
+    },
+    "unresolved": {
+      "type": "object",
+      "required": [
+        "document",
+        "sorts_version",
+        "milestone",
+        "inputs",
+        "count",
+        "unresolved"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "document": {
+          "const": "unresolved"
+        },
+        "sorts_version": {
+          "const": "holon-sorts/0.1"
+        },
+        "milestone": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^M[0-9]+$",
+          "description": "the milestone whose fact documents were read; null under --facts"
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/input"
+          },
+          "description": "every file read (fact documents, target libraries, the seed sidecar), sorted by path"
+        },
+        "count": {
+          "type": "integer"
+        },
+        "unresolved": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/unresolved_entry"
+          }
+        }
+      }
+    }
+  }
+}

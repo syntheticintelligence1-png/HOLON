@@ -12,6 +12,7 @@
   python -m holon lean --milestone M0 [--json] [--jobs N]   (Lean 4 second kernel, I9)
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
   python -m holon diagram --milestone M2 [--out DIR] [--root DIR]   (one diagram per fact document)
+  python -m holon sorts [--milestone M2] [--root DIR] [--out DIR] [--facts PATH ...]   (refined sorts, I13)
 """
 from __future__ import annotations
 
@@ -28,6 +29,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["lean"]:  # likewise for holon.lean
         from . import lean
         return lean.main(argv[1:])
+    if argv[:1] == ["sorts"]:  # likewise for holon.sorts
+        from . import sorts
+        return sorts.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")

@@ -1,0 +1,514 @@
+{
+  "document": "assignment",
+  "inputs": [
+    {
+      "path": "facts/morph_header.json",
+      "sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80"
+    },
+    {
+      "path": "spec/M1/facts/morph_batchdata.json",
+      "sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d"
+    },
+    {
+      "path": "spec/M1/facts/morph_rollup.json",
+      "sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f"
+    },
+    {
+      "path": "spec/M1/lib/morph_rollup.lib.json",
+      "sha256": "004d12f43d1074f0746bce4e2c5fb87df4b5a0dca1b720c3523d2a18971f46a0"
+    },
+    {
+      "path": "spec/M2/lib/sort_seeds.json",
+      "sha256": "f5b31e51dde4cf52906b1d43426dee333683d64d9d64ecaefb08f9205c8eaab1"
+    },
+    {
+      "path": "spec/lib/go_slices.lib.json",
+      "sha256": "f5ddbe0ad4c6be7e89802f497e4c826cd68dbd8925bac014f506fc1867292df4"
+    }
+  ],
+  "milestone": "M2",
+  "models": {
+    "morph_batchdata": {
+      "assignment": {
+        "Arr.cells": "Nat (unrefined)",
+        "Sl.b": "Nat (unrefined)",
+        "Sl.cap": "Nat (unrefined)",
+        "Sl.len": "Nat (unrefined)",
+        "Sl.off": "Nat (unrefined)",
+        "append.bctx": "Nat (unrefined)",
+        "append.payload": "Nat (unrefined)",
+        "classes": "Nat (unrefined)",
+        "live": "Bool",
+        "snap": "Nat (unrefined)",
+        "txsPayloadV2.pb": "Nat (unrefined)"
+      },
+      "facts": "spec/M1/facts/morph_batchdata.json",
+      "provenance": {}
+    },
+    "morph_header": {
+      "assignment": {
+        "Header.batchIndex": "Mach(64)",
+        "Header.blobVersionedHash": "Mach(256)",
+        "Header.dataHash": "Mach(256)",
+        "Header.l1MessagePopped": "Mach(64)",
+        "Header.lastBlockNumber": "Mach(64)",
+        "Header.parentBatchHash": "Mach(256)",
+        "Header.postStateHash": "Mach(256)",
+        "Header.prevStateHash": "Mach(256)",
+        "Header.sequencerSetVerifyHash": "Mach(256)",
+        "Header.totalL1MessagePopped": "Mach(64)",
+        "Header.version": "Mach(8)",
+        "Header.withdrawRootHash": "Mach(256)"
+      },
+      "facts": "facts/morph_header.json",
+      "provenance": {}
+    },
+    "morph_rollup": {
+      "assignment": {
+        "AGG_BASE": "Nat (unrefined)",
+        "BD.f": "Nat (unrefined)",
+        "BD.n": "Nat (unrefined)",
+        "BD.o": "Nat (unrefined)",
+        "BD.s": "Nat (unrefined)",
+        "Ch.c": "Nat (unrefined)",
+        "Ch.d": "Nat (unrefined)",
+        "Ch.f": "Bool",
+        "Ch.s": "Time",
+        "Ch.w": "Bool",
+        "D": "Dur",
+        "DEP": "Nat (unrefined)",
+        "Entry.bdf": "Time",
+        "Entry.bdn": "Nat (unrefined)",
+        "Entry.bdo": "Time",
+        "Entry.bds": "Nat (unrefined)",
+        "Entry.bvh": "Dig[Agg] + Dig[VH]",
+        "Entry.csr": "Nat (unrefined)",
+        "Entry.hb": "Dig[Agg] + Dig[VH]",
+        "Entry.lbn": "Nat (unrefined)",
+        "Entry.n": "Cnt[queue]_inc",
+        "Entry.post": "Nat (unrefined)",
+        "Entry.prev": "Nat (unrefined)",
+        "Entry.tag": "Nat (unrefined)",
+        "Entry.tot": "Idx[queue]_inc",
+        "Entry.ver": "Nat (unrefined)",
+        "F": "Dur",
+        "OWNER": "Nat (unrefined)",
+        "W": "Dur",
+        "Z": "Dig[VH]",
+        "active": "Nat (unrefined)",
+        "bc": "Nat (unrefined)",
+        "blob_hash.blobs": "Nat (unrefined)",
+        "blob_hash.ver": "Nat (unrefined)",
+        "bvh_at.idx": "Nat (unrefined)",
+        "bvh_at.lfi": "Nat (unrefined)",
+        "bvh_at.s_bvh": "Dig[Agg] + Dig[VH]",
+        "challengeState.idx": "Nat (unrefined)",
+        "challengeState.lci": "Nat (unrefined)",
+        "challengeState.value": "Nat (unrefined)",
+        "challengeState.who": "Nat (unrefined)",
+        "chals": "Nat (unrefined)",
+        "commitBatch.b0": "Nat (unrefined)",
+        "commitBatch.b1": "Nat (unrefined)",
+        "commitBatch.blobs": "Nat (unrefined)",
+        "commitBatch.bvh": "Dig[Agg] + Dig[VH]",
+        "commitBatch.cstart": "Time",
+        "commitBatch.ef": "Time",
+        "commitBatch.lbn": "Nat (unrefined)",
+        "commitBatch.lci": "Nat (unrefined)",
+        "commitBatch.n": "Cnt[queue]",
+        "commitBatch.next": "Nat (unrefined)",
+        "commitBatch.parent": "Nat (unrefined)",
+        "commitBatch.post": "Nat (unrefined)",
+        "commitBatch.prev": "Nat (unrefined)",
+        "commitBatch.prt": "Dur",
+        "commitBatch.tag": "Nat (unrefined)",
+        "commitBatch.tot": "Idx[queue]",
+        "commitBatch.ver": "Nat (unrefined)",
+        "commitBatch.who": "Nat (unrefined)",
+        "commitBatchWithProof.b0": "Nat (unrefined)",
+        "commitBatchWithProof.b1": "Nat (unrefined)",
+        "commitBatchWithProof.blobs": "Nat (unrefined)",
+        "commitBatchWithProof.bvh": "Dig[Agg] + Dig[VH]",
+        "commitBatchWithProof.cstart": "Time",
+        "commitBatchWithProof.ef": "Time",
+        "commitBatchWithProof.lbn": "Nat (unrefined)",
+        "commitBatchWithProof.lci": "Nat (unrefined)",
+        "commitBatchWithProof.lci0": "Nat (unrefined)",
+        "commitBatchWithProof.n": "Cnt[queue]",
+        "commitBatchWithProof.next": "Nat (unrefined)",
+        "commitBatchWithProof.parent": "Nat (unrefined)",
+        "commitBatchWithProof.post": "Nat (unrefined)",
+        "commitBatchWithProof.prev": "Nat (unrefined)",
+        "commitBatchWithProof.proof": "Nat (unrefined)",
+        "commitBatchWithProof.prt": "Dur",
+        "commitBatchWithProof.qd": "Bool",
+        "commitBatchWithProof.rd": "Bool",
+        "commitBatchWithProof.stored": "Dig[Agg] + Dig[VH]",
+        "commitBatchWithProof.tag": "Nat (unrefined)",
+        "commitBatchWithProof.tot": "Idx[queue]",
+        "commitBatchWithProof.ver": "Nat (unrefined)",
+        "commitBatchWithProof.who": "Nat (unrefined)",
+        "commitState.b0": "Nat (unrefined)",
+        "commitState.b1": "Nat (unrefined)",
+        "commitState.blobs": "Nat (unrefined)",
+        "commitState.bvh": "Dig[Agg] + Dig[VH]",
+        "commitState.cstart": "Time",
+        "commitState.ef": "Time",
+        "commitState.lbn": "Nat (unrefined)",
+        "commitState.lci": "Nat (unrefined)",
+        "commitState.n": "Cnt[queue]",
+        "commitState.next": "Nat (unrefined)",
+        "commitState.parent": "Nat (unrefined)",
+        "commitState.post": "Nat (unrefined)",
+        "commitState.prev": "Nat (unrefined)",
+        "commitState.prt": "Dur",
+        "commitState.tot": "Idx[queue]",
+        "commitState.ver": "Nat (unrefined)",
+        "commitState.who": "Nat (unrefined)",
+        "enq": "Time",
+        "enq_first.enq": "Time",
+        "enq_first.qlen": "Idx[queue]",
+        "enq_first.qpend": "Idx[queue]",
+        "enq_first.t": "Time",
+        "eta2.root": "Nat (unrefined)",
+        "finalizeBatch.bn": "Cnt[queue]",
+        "finalizeBatch.btot": "Idx[queue]",
+        "finalizeBatch.idx": "Nat (unrefined)",
+        "finalizeBatch.lci": "Nat (unrefined)",
+        "finalizeBatch.who": "Nat (unrefined)",
+        "fsr": "Nat (unrefined)",
+        "in_win.idx": "Nat (unrefined)",
+        "in_win.lfi": "Nat (unrefined)",
+        "inch": "Bool",
+        "lci.lfi": "Nat (unrefined)",
+        "lfi": "Nat (unrefined)",
+        "open_ch.idx": "Nat (unrefined)",
+        "paused": "Bool",
+        "proveState.idx": "Nat (unrefined)",
+        "proveState.lci": "Nat (unrefined)",
+        "proveState.proof": "Nat (unrefined)",
+        "proveState.timeout": "Bool",
+        "proveState.who": "Nat (unrefined)",
+        "qlen": "Idx[queue]_wcf8ad7dc",
+        "qpend": "Idx[queue]_fin",
+        "revertBatch.count": "Nat (unrefined)",
+        "revertBatch.idx": "Nat (unrefined)",
+        "revertBatch.lci": "Nat (unrefined)",
+        "revertBatch.p": "Nat (unrefined)",
+        "revertBatch.who": "Nat (unrefined)",
+        "rri": "Nat (unrefined)",
+        "s_bvh": "Dig[Agg] + Dig[VH]",
+        "s_csr": "Nat (unrefined)",
+        "s_tag": "Nat (unrefined)",
+        "sendMessage.who": "Nat (unrefined)",
+        "setPause.status": "Bool",
+        "setPause.who": "Nat (unrefined)",
+        "t": "Time",
+        "w.idx": "Nat (unrefined)",
+        "w.lfi": "Nat (unrefined)",
+        "wait.dt": "Dur"
+      },
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "provenance": {
+        "Entry.n": {
+          "label": "inc",
+          "writers": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ]
+        },
+        "Entry.tot": {
+          "label": "inc",
+          "writers": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ]
+        },
+        "qlen": {
+          "label": "wcf8ad7dc",
+          "writers": [
+            "sendMessage"
+          ]
+        },
+        "qpend": {
+          "label": "fin",
+          "writers": [
+            "finalizeBatch"
+          ]
+        }
+      }
+    }
+  },
+  "sites": [
+    {
+      "entry_points": [
+        "finalizeBatch"
+      ],
+      "expr": [
+        "-",
+        "btot",
+        "bn"
+      ],
+      "id": "morph_rollup:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325:f89daf17",
+      "model": "morph_rollup",
+      "obligation": "sign",
+      "occurrences": [
+        {
+          "action": "finalizeBatch",
+          "where": "guards[14].require"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "SIdx[queue]",
+      "span": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325"
+    },
+    {
+      "entry_points": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ],
+      "expr": [
+        "-",
+        [
+          "+",
+          "W",
+          "cstart"
+        ],
+        "t"
+      ],
+      "id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:363:1fc7f88a",
+      "model": "morph_rollup",
+      "obligation": "sign",
+      "occurrences": [
+        {
+          "action": "commitBatch",
+          "where": "guards[24].expr"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "where": "guards[28].expr"
+        },
+        {
+          "action": "commitState",
+          "where": "guards[23].expr"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "SDur",
+      "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
+    },
+    {
+      "entry_points": [
+        "revertBatch"
+      ],
+      "expr": [
+        "-",
+        "idx",
+        "lfi"
+      ],
+      "id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:441:b4cd5068",
+      "model": "morph_rollup",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "revertBatch",
+          "where": "guards[6].expr"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "Nat (unrefined)",
+      "span": "contracts/contracts/l1/rollup/Rollup.sol:441"
+    },
+    {
+      "entry_points": [
+        "challengeState"
+      ],
+      "expr": [
+        "-",
+        "idx",
+        "lfi"
+      ],
+      "id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:485-495:b4cd5068",
+      "model": "morph_rollup",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "challengeState",
+          "where": "effects.win"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "Nat (unrefined)",
+      "span": "contracts/contracts/l1/rollup/Rollup.sol:485-495"
+    },
+    {
+      "entry_points": [
+        "finalizeBatch"
+      ],
+      "expr": [
+        "-",
+        "idx",
+        1
+      ],
+      "id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:636:e68daf06",
+      "model": "morph_rollup",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "finalizeBatch",
+          "where": "guards[9].require"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "Nat (unrefined)",
+      "span": "contracts/contracts/l1/rollup/Rollup.sol:636"
+    },
+    {
+      "entry_points": [
+        "finalizeBatch"
+      ],
+      "expr": [
+        "-",
+        "idx",
+        1
+      ],
+      "id": "morph_rollup:contracts/contracts/l1/rollup/Rollup.sol:644-660:e68daf06",
+      "model": "morph_rollup",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "finalizeBatch",
+          "where": "effects.chs"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "Nat (unrefined)",
+      "span": "contracts/contracts/l1/rollup/Rollup.sol:644-660"
+    },
+    {
+      "entry_points": [
+        "bvh_at"
+      ],
+      "expr": [
+        "-",
+        "idx",
+        [
+          "call",
+          "lci",
+          "lfi",
+          "win"
+        ]
+      ],
+      "id": "morph_rollup:morph_rollup:bvh_at:6126d1f1",
+      "model": "morph_rollup",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "bvh_at",
+          "where": "defs.bvh_at.body"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "Nat (unrefined)",
+      "span": "morph_rollup:bvh_at"
+    },
+    {
+      "entry_points": [
+        "bvh_at"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          "idx",
+          [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ]
+        ],
+        1
+      ],
+      "id": "morph_rollup:morph_rollup:bvh_at:e064679d",
+      "model": "morph_rollup",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "bvh_at",
+          "where": "defs.bvh_at.body"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "Nat (unrefined)",
+      "span": "morph_rollup:bvh_at"
+    },
+    {
+      "entry_points": [
+        "lci"
+      ],
+      "expr": [
+        "-",
+        [
+          "+",
+          "lfi",
+          [
+            "call",
+            "len",
+            "win"
+          ]
+        ],
+        1
+      ],
+      "id": "morph_rollup:morph_rollup:lci:356891e4",
+      "model": "morph_rollup",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "lci",
+          "where": "defs.lci.body"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "Nat (unrefined)",
+      "span": "morph_rollup:lci"
+    },
+    {
+      "entry_points": [
+        "w"
+      ],
+      "expr": [
+        "-",
+        "idx",
+        "lfi"
+      ],
+      "id": "morph_rollup:morph_rollup:w:b4cd5068",
+      "model": "morph_rollup",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "w",
+          "where": "defs.w.body"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Nat",
+      "sort": "Nat (unrefined)",
+      "span": "morph_rollup:w"
+    }
+  ],
+  "sorts_sha256": "24bc9c9372e7bfbf62c6d4a520bb58016137c7d1259867ba430bd7f8d5c19ae0",
+  "sorts_version": "holon-sorts/0.1"
+}
