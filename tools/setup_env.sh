@@ -2,12 +2,30 @@
 # One-shot toolchain setup for HOLON in a fresh Linux container.
 #   tools/setup_env.sh            Bend 2 (pinned) + Lean 4.34.0 for `bend --verdict`
 #   tools/setup_env.sh --replay   also Foundry + solc 0.8.24 + a morph checkout for `holon replay`
+#   tools/setup_env.sh --extract  only the pinned extraction tools (slither-analyzer, crytic-compile, z3-solver: the I17
+#                                 key's thresholds.tool_pins) into a venv at $PREFIX/tools/extract, from the hash-pinned
+#                                 tools/extract-requirements.txt (wheels only, --require-hashes). Never inside the repo;
+#                                 holon's own extraction (`holon extract solidity`) imports none of them.
 # Only GitHub and package registries are used, because some sandboxes block
 # bend-lang.com, release.lean-lang.org and binaries.soliditylang.org.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PREFIX="${HOLON_PREFIX:-$HOME/.holon}"
 mkdir -p "$PREFIX"
+
+if [ "${1:-}" = "--extract" ]; then
+  # Extraction tools (BUILD_PLAN I17): a venv outside the repo, every wheel hash-checked.
+  VENV="${PREFIX}/tools/extract"
+  case "$(cd "$PREFIX" && pwd)/" in
+    "$(cd "$HERE/.." && pwd)/"*) echo "refusing: $VENV is inside the repo" >&2; exit 2 ;;
+  esac
+  python3 -m venv "$VENV"
+  "$VENV/bin/python" -m pip install -q --disable-pip-version-check --no-deps --require-hashes --only-binary=:all: \
+    -r "$HERE/extract-requirements.txt"
+  "$VENV/bin/python" -m pip check
+  "$VENV/bin/python" -I -c "import importlib.metadata as m; print({k: m.version(k) for k in ('slither-analyzer', 'crytic-compile', 'z3-solver')})"
+  exit 0
+fi
 
 # 1. Bend 2, pinned
 "$HERE/install_bend.sh" "$PREFIX"
