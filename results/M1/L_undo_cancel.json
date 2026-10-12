@@ -11,28 +11,29 @@
       "engine": "compiled-model trace search",
       "hit": true,
       "kind": "refute",
-      "tried": 137111
+      "tried": 236951
     },
     {
       "exit_code": 0,
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.164
+      "seconds": 0.187
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.264
+      "seconds": 0.293
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.164
+    "seconds": 0.187
   },
+  "closed": false,
   "difference": {
     "lhs": [
       {
@@ -77,6 +78,7 @@
     "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
     "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
   ],
+  "refuted_conjunct": 0,
   "replay": {
     "detail": "continuation outcomes on the real code: ['ok', 'ok', 'ok'] vs ['ok', 'ok', 'rev cannot challenge batch outside the challenge window'] @ morph 3e44e795586a",
     "status": "passed"

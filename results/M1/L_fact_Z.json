@@ -11,28 +11,29 @@
       "engine": "compiled-model trace search",
       "hit": true,
       "kind": "refute",
-      "tried": 3465
+      "tried": 7305
     },
     {
       "exit_code": 0,
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.165
+      "seconds": 0.145
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.247
+      "seconds": 0.262
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.165
+    "seconds": 0.145
   },
+  "closed": false,
   "difference": {
     "lhs": [],
     "rhs": [
@@ -62,6 +63,7 @@
     "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
     "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
   ],
+  "refuted_conjunct": 0,
   "replay": {
     "detail": "committedBatches after c1 / c2: ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') / ('ok', '0xe13873b91d31ecbf0b874275ae775630b1b0e21388a824914f8f063a2c4c36fe') (different blob sidecars) @ morph 3e44e795586a",
     "status": "passed"
