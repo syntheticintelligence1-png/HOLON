@@ -124,7 +124,34 @@
   "owner()": "OWNER"
  },
  "migrations_declared": {},
- "observers": {},
+ "observers": {
+  "verifier_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ],
+    [
+     "v",
+     "Nat"
+    ],
+    [
+     "idx",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "call",
+    "get_verifier",
+    "v",
+    "idx",
+    "lv",
+    "lvv"
+   ],
+   "doc": "getVerifier(v, idx).verifier"
+  }
+ },
  "disch": {},
  "consumers": {},
  "params": {

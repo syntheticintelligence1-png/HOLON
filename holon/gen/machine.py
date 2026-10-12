@@ -844,10 +844,13 @@ class Machine:
         out = []
         spat = ", ".join("+" + bname(n) for n, _ in self.state)
         for name, o in self.f.get("observers", {}).items():
-            body, ty = self.ex(o["body"], dict(self.stypes))
+            ins = [p for p in o.get("params", []) if p[1] != "State"]
+            env = {**self.stypes, **dict(ins)}
+            body, ty = self.ex(o["body"], env)
             if ty != o["type"]:
                 raise FactsError(f"observer {name}: {ty} vs {o['type']}")
-            out += [f"# {o.get('doc', '')}".replace("?", ""), f"def {name}(s: HSt) -> {bt(ty)}:", "  match s:",
+            ip = "".join(f", +{bname(n)}: {bt(t)}" for n, t in ins)
+            out += [f"# {o.get('doc', '')}".replace("?", ""), f"def {name}(s: HSt{ip}) -> {bt(ty)}:", "  match s:",
                     f"    case HSt{{{spat}}}:", f"      {body}", ""]
         for name, m in self.f.get("migrations", {}).items():
             ins = [(n, t) for n, t in m.get("inputs", [])]

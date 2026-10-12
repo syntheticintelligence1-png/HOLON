@@ -11,7 +11,10 @@
  "extraction": {
   "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
  },
- "abstractions": [],
+ "abstractions": [
+ "wl is a messenger-side role set mirroring IWhitelist.isSenderAllowed; the setWhitelist env action is its only writer.",
+ "dr (__isL1MessageDropped) is read-only here (replayMessage :195); nothing in this bundle writes it — drop effects live on the queue/drop side (O34 depends on this)."
+],
  "constants_doc": {},
  "modifiers_abstracted": [
   "initializer",
@@ -104,14 +107,69 @@
   "counterpart": "CP"
  },
  "migrations_declared": {},
- "observers": {},
+ "observers": {
+  "times_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ],
+    [
+     "xh",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "get",
+    [
+     "call",
+     "nth_rec",
+     "mrt",
+     "xh"
+    ],
+    "tm"
+   ],
+   "doc": "replayStates[xh].times"
+  },
+  "maxr_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": "maxr",
+   "doc": "maxReplayTimes"
+  },
+  "sent_at": {
+   "params": [
+    [
+     "s",
+     "State"
+    ],
+    [
+     "xh",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "call",
+    "nth",
+    "mst",
+    "xh"
+   ],
+   "doc": "messageSendTimestamp[xh]"
+  }
+ },
  "disch": {},
  "consumers": {},
  "params": {
   "OWNER": 1,
   "LFI": 7,
-  "LCI": 9,
-  "QI": 8
+  "LCI": 9
  },
  "principal_map": {
   "onlyOwner": "owner"
@@ -132,7 +190,8 @@
    "note": "fee oracle keyed on _from; the def est_fee gives the queue-side formula"
   },
   "IL1MessageQueue.nextCrossDomainMessageIndex": {
-   "emit": "QI"
+   "emit": "mn",
+   "add_inputs": ["mn"]
   },
   "IL1MessageQueue.appendCrossDomainMessage": {
    "debt": "queue append; the queue-side effects live in the queue machine"
@@ -354,6 +413,140 @@
    },
    "local_names": {},
    "let_names": {}
+  },
+  {
+   "name": "sendMessage",
+   "fn": [
+    "L1CrossDomainMessenger",
+    "sendMessage"
+   ],
+   "fn_arity": 4,
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:102-108, _sendMessage :275-317",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "to",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ],
+    [
+     "gl",
+     "Nat"
+    ],
+    [
+     "xh",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "_to": "to",
+    "_value": "val",
+    "_gasLimit": "gl",
+    "_messageNonce": "mn"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "sendMessage2",
+   "fn": [
+    "L1CrossDomainMessenger",
+    "sendMessage"
+   ],
+   "fn_arity": 5,
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:112-118, _sendMessage :275-317",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "to",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ],
+    [
+     "gl",
+     "Nat"
+    ],
+    [
+     "ra",
+     "Nat"
+    ],
+    [
+     "xh",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ]
+   ],
+   "members": {
+    "_msgSender()": "who",
+    "_to": "to",
+    "_value": "val",
+    "_gasLimit": "gl",
+    "_refundAddress": "ra",
+    "_messageNonce": "mn"
+   },
+   "local_names": {},
+   "let_names": {}
+  },
+  {
+   "name": "setWhitelist",
+   "declared": {
+    "inputs": [
+     [
+      "who",
+      "Nat"
+     ],
+     [
+      "sub",
+      "Nat"
+     ],
+     [
+      "b",
+      "Bool"
+     ]
+    ],
+    "principal": "environment",
+    "src": "environment: IWhitelist whitelist membership",
+    "guards": [],
+    "effects": {
+     "wl": [
+      "?",
+      "b",
+      [
+       "call",
+       "snoc",
+       "wl",
+       "sub"
+      ],
+      [
+       "call",
+       "remove",
+       "sub",
+       "wl"
+      ]
+     ]
+    }
+   },
+   "note": "environment carrier for IWhitelist.isSenderAllowed; same status as wait"
   }
  ],
  "coverage_items": [

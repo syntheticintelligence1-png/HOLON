@@ -857,15 +857,18 @@ class Translator:
         return self.oracle_emit(oc, args, node)
 
     # ------------------------------------------------------- internal calls
-    def find_fn(self, contract, name):
+    def find_fn(self, contract, name, arity=None):
         for path, c in self.spec["contracts"].items():
             if cname_eq(c.get("name"), contract) or contract is None:
                 u = self.world.units.get(path)
                 if u is None:
                     continue
                 for n in u.find("FunctionDefinition", name=name):
-                    if n.get("kind") != "modifier":
-                        return n
+                    if n.get("kind") == "modifier":
+                        continue
+                    if arity is not None and len(n.get("parameters", {}).get("parameters", [])) != arity:
+                        continue
+                    return n
         return None
 
     def call_internal(self, name, args, node):

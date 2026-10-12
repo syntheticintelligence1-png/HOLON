@@ -267,5 +267,53 @@ class TestSmokeTrace(unittest.TestCase):
                 self.assertIsInstance(a["effects"], dict)
 
 
+def _obs_law(obsv, args, expected):
+    """A law-shaped claim `obsv(args)(run p from s0) == expected` at binder p."""
+    return {"statement": {
+        "binders": [{"q": "forall", "name": "p", "type": "Trace"}],
+        "assume": [],
+        "claim": {"eq": [
+            {"obsv": obsv, "of": {"run": {"var": "p"}, "from": {"s0": {}}},
+             "args": [{"nat": a} for a in args]},
+            {"nat": expected}]}}}
+
+
+class TestObservers(unittest.TestCase):
+    """Smoke: each declared observer evaluates through the M1 pipeline (compiled
+    model + explore.mjs) on a 1–2 step trace, with the value asserted."""
+
+    def _eval(self, facts_name, law, trace):
+        from holon.mpipeline import CompiledMachine
+        cm = CompiledMachine.build(REPO / f"spec/M3/extracted/{facts_name}.json")
+        ev = cm.evaluate(law, {"p": trace})
+        self.assertTrue(all(ev["premises"]))
+        self.assertTrue(all(ev["claims"]), ev)
+
+    def test_messenger_maxr_of(self):
+        tr = [{"op": "updateMaxReplayTimes", "who": 1, "val": 7}]
+        self._eval("l1messenger", _obs_law("maxr_of", [], 7), tr)
+
+    def test_messenger_times_of(self):
+        tr = [{"op": "sendMessage", "who": 0, "to": 1, "val": 0, "gl": 0,
+               "xh": 5, "value": 10, "mn": 0, "amt": 2}]
+        self._eval("l1messenger", _obs_law("times_of", [5], 0), tr)
+
+    def test_messenger_sent_at(self):
+        tr = [{"op": "sendMessage", "who": 0, "to": 1, "val": 0, "gl": 0,
+               "xh": 5, "value": 10, "mn": 0, "amt": 2}]
+        self._eval("l1messenger", _obs_law("sent_at", [5], 0), tr)
+
+    def test_mvrv_verifier_of(self):
+        self._eval("mvrv", _obs_law("verifier_of", [0, 0], 0), [])
+
+    def test_submitter_active_of(self):
+        law = _obs_law("active_of", [9], 0)
+        law["statement"]["claim"]["eq"][1] = {"bool": False}
+        self._eval("submitter", law, [])
+
+    def test_submitter_stake_of(self):
+        self._eval("submitter", _obs_law("stake_of", [4], 0), [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -92,7 +92,7 @@ def init_tr(world, spec, a, reasons, call_guards):
 def translate_action(world, spec, a, reasons, call_guards):
     """Translate one action; returns (action dict, translator)."""
     tr, contract, fname = init_tr(world, spec, a, reasons, call_guards)
-    fn = tr.find_fn(contract, fname)
+    fn = tr.find_fn(contract, fname, a.get("fn_arity"))
     if fn is None:
         raise RuntimeError(f"{contract}.{fname} not found")
     tr.blob_indices = tr.scan_blobs(tr.world.units[fn["__file"]].node)
@@ -326,6 +326,10 @@ def extract(world, spec, out_path=None, cov_path=None):
         prov[sec] = "spec"
         add_debt_item(f"facts.{sec}", "spec_bound",
                       "cross-cutting model section has no source counterpart", src=f"spec:{sec}")
+    for o in spec.get("observers", {}):
+        add_debt_item(f"observer:{o}", "spec_bound",
+                      "spec-declared observer; a named read over model state, no source counterpart",
+                      src="spec:observers")
     for h in spec.get("handlers", {}):
         add_debt_item(f"handler:{h}", "spec_bound",
                       "abstracted call handled by spec rule (emitted guards/writes are spec-provided)")

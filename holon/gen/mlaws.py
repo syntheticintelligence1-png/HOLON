@@ -145,7 +145,15 @@ class Emitter:
                 raise Unsupported(f"unknown observer {t['obsv']}")
             s, ts = self.term(t["of"], env, types)
             self.expect(ts, "State", t)
-            return f"{ALIAS}.{t['obsv']}({s})", o["type"]
+            extra = [p for p in o.get("params", []) if p[1] != "State"]
+            args = []
+            for (n, ity), x in zip(extra, t.get("args", [])):
+                xt, tx = self.term(x, env, types)
+                self.expect(tx, ity, t)
+                args.append(xt)
+            if len(args) != len(extra):
+                raise Unsupported(f"observer {t['obsv']} takes {len(extra)} arg(s), got {len(t.get('args', []))}")
+            return f"{ALIAS}.{t['obsv']}({s}{''.join(', ' + a for a in args)})", o["type"]
         if "mig" in t:
             mg = self.m.f.get("migrations", {}).get(t["mig"])
             if mg is None:

@@ -8,6 +8,21 @@
    "reason": "modifier body skipped: abstracted by spec"
   },
   {
+   "element": "action:sendMessage.modifier:nonReentrant",
+   "kind": "abstracted_modifier",
+   "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "action:sendMessage2.modifier:nonReentrant",
+   "kind": "abstracted_modifier",
+   "reason": "modifier body skipped: abstracted by spec"
+  },
+  {
+   "element": "action:setWhitelist",
+   "kind": "spec_bound",
+   "reason": "declared action; no AST source"
+  },
+  {
    "element": "contracts/l1/L1CrossDomainMessenger.sol:188 storage messageQueue",
    "kind": "unmodelled_read",
    "reason": "queue address"
@@ -34,6 +49,36 @@
   },
   {
    "element": "contracts/l1/L1CrossDomainMessenger.sol:241 require Failed to refund the fee",
+   "kind": "unmodelled_require",
+   "reason": "require(Failed to refund the fee) not translated"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:282 storage messageQueue",
+   "kind": "unmodelled_read",
+   "reason": "queue address"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:283 storage counterpart",
+   "kind": "unmodelled_read",
+   "reason": "counterpart messenger address"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:287 _encodeXDomainCalldata",
+   "kind": "unmodelled_value",
+   "reason": "_encodeXDomainCalldata"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:294 require Failed to deduct the fee",
+   "kind": "unmodelled_require",
+   "reason": "require(Failed to deduct the fee) not translated"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:298 IL1MessageQueue.appendCrossDomainMessage",
+   "kind": "unmodelled_call",
+   "reason": "queue append; the queue-side effects live in the queue machine"
+  },
+  {
+   "element": "contracts/l1/L1CrossDomainMessenger.sol:314 require Failed to refund the fee",
    "kind": "unmodelled_require",
    "reason": "require(Failed to refund the fee) not translated"
   },
@@ -145,6 +190,24 @@
    "element": "handler:_encodeXDomainCalldata",
    "kind": "spec_bound",
    "reason": "abstracted call handled by spec rule (emitted guards/writes are spec-provided)"
+  },
+  {
+   "element": "observer:maxr_of",
+   "kind": "spec_bound",
+   "reason": "spec-declared observer; a named read over model state, no source counterpart",
+   "src": "spec:observers"
+  },
+  {
+   "element": "observer:sent_at",
+   "kind": "spec_bound",
+   "reason": "spec-declared observer; a named read over model state, no source counterpart",
+   "src": "spec:observers"
+  },
+  {
+   "element": "observer:times_of",
+   "kind": "spec_bound",
+   "reason": "spec-declared observer; a named read over model state, no source counterpart",
+   "src": "spec:observers"
   }
  ]
 }

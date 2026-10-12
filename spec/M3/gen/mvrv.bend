@@ -417,6 +417,12 @@ def perm(a: HAct) -> Bool:
     case A_verifyAggregateProof{_, _, _}:
       True{}
 
+# getVerifier(v, idx).verifier
+def verifier_of(s: HSt, +v: Nat, +idx: Nat) -> Nat:
+  match s:
+    case HSt{+t, +own, +lv, +lvv, +log}:
+      d_get_verifier(v, idx, lv, lvv)
+
 # initial state: 
 def s0() -> HSt:
   HSt{0n, 1n, Nil{}, Nil{}, Nil{}}

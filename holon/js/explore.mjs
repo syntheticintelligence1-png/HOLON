@@ -98,7 +98,7 @@ function evalT(t, env) {
     return { ty: "Act", v: o };
   }
   if ("proj" in t) { const s = dec(evalT(t.of, env).v); for (const f of t.proj) delete s[f]; return { ty: "View", v: s, plain: true }; }
-  if ("obsv" in t) return { ty: "?", v: FN(t.obsv)(evalT(t.of, env).v) };
+  if ("obsv" in t) return { ty: "?", v: FN(t.obsv)(evalT(t.of, env).v, ...(t.args || []).map((a) => evalT(a, env).v)) };
   if ("mig" in t) return { ty: "State", v: FN("mig_" + t.mig)(evalT(t.of, env).v, ...(t.args || []).map((a) => evalT(a, env).v)) };
   if ("fn" in t) return { ty: "?", v: FN(t.fn)(...t.args.map((a) => evalT(a, env).v)) };
   if ("plus" in t) return { ty: "Nat", v: evalT(t.plus[0], env).v + evalT(t.plus[1], env).v };

@@ -985,6 +985,18 @@ def perm(a: HAct) -> Bool:
     case A_claimSlashRemaining{_, _}:
       False{}
 
+# isActive(sub)
+def active_of(s: HSt, +sub: Nat) -> Bool:
+  match s:
+    case HSt{+t, +own, +min_stake, +dep, +rew, +srem, +reg, +stake, +wdr, +wbi, +log}:
+      d_is_active(reg, wdr, stake, min_stake, sub)
+
+# stakeOf[sub]
+def stake_of(s: HSt, +sub: Nat) -> Nat:
+  match s:
+    case HSt{+t, +own, +min_stake, +dep, +rew, +srem, +reg, +stake, +wdr, +wbi, +log}:
+      b_nth(stake, sub)
+
 # initial state: 
 def s0() -> HSt:
   HSt{0n, 1n, 1n, 1n, 10n, 0n, [2n, 3n], [5n, 7n], Nil{}, Nil{}, Nil{}}

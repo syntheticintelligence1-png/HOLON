@@ -144,6 +144,9 @@ type HSt is Data:
 type HAct is Data:
   A_replayMessage{who: Nat, xh: Nat, value: Nat, qi: Nat, from: Nat, mn: Nat, amt: Nat}
   A_updateMaxReplayTimes{who: Nat, val: Nat}
+  A_sendMessage{who: Nat, to: Nat, val: Nat, gl: Nat, xh: Nat, value: Nat, mn: Nat, amt: Nat}
+  A_sendMessage2{who: Nat, to: Nat, val: Nat, gl: Nat, ra: Nat, xh: Nat, value: Nat, mn: Nat, amt: Nat}
+  A_setWhitelist{who: Nat, sub: Nat, b: Bool}
 
 def empty_RS() -> HRS:
   HRS{0n, 0n}
@@ -211,7 +214,7 @@ def exec_replayMessage(d: Dec_replayMessage, +t: Nat, +own: Nat, +maxr: Nat, +mr
     case D_replayMessage_Rev{code}:
       HSt{t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, Con{O_Rev{code}, log}}
     case D_replayMessage_Ok{+_replayState}:
-      HSt{t, own, maxr, set_d(HRS, mrt, xh, with_RS_li_tm(_replayState, 8n, Nat.add(g_RS_tm(_replayState), 1n)), empty_RS()), ite(List<&2, Nat>, Bool.not(Nat.is_eq(g_RS_li(_replayState), 0n)), b_set_nat(pri, 8n, Nat.add(g_RS_li(_replayState), 1n)), ite(List<&2, Nat>, Nat.is_eq(g_RS_li(_replayState), 0n), b_set_nat(pri, 8n, Nat.add(mn, 1n)), pri)), mst, wl, bf, dr, fq, paused, Con{O_Ok{}, log}}
+      HSt{t, own, maxr, set_d(HRS, mrt, xh, with_RS_li_tm(_replayState, mn, Nat.add(g_RS_tm(_replayState), 1n)), empty_RS()), ite(List<&2, Nat>, Bool.not(Nat.is_eq(g_RS_li(_replayState), 0n)), b_set_nat(pri, mn, Nat.add(g_RS_li(_replayState), 1n)), ite(List<&2, Nat>, Nat.is_eq(g_RS_li(_replayState), 0n), b_set_nat(pri, mn, Nat.add(mn, 1n)), pri)), mst, wl, bf, dr, fq, paused, Con{O_Ok{}, log}}
 
 def step_replayMessage(s: HSt, +who: Nat, +xh: Nat, +value: Nat, +qi: Nat, +from: Nat, +mn: Nat, +amt: Nat) -> HSt:
   match s:
@@ -253,12 +256,127 @@ def step_updateMaxReplayTimes(s: HSt, +who: Nat, +val: Nat) -> HSt:
     case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
       exec_updateMaxReplayTimes(decide_updateMaxReplayTimes(who, val), t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, log, who, val)
 
+type Dec_sendMessage is Data:
+  D_sendMessage_Rev{code: Nat}
+  D_sendMessage_Ok{}
+
+# contracts/l1/L1CrossDomainMessenger.sol:304
+def dec_sendMessage_3(c: Bool, +val: Nat, +value: Nat, +v_fee: Nat) -> Dec_sendMessage:
+  match c:
+    case False{}:
+      D_sendMessage_Rev{9n}
+    case True{}:
+      +v_refund = Nat.sub(Nat.sub(value, v_fee), val)
+      D_sendMessage_Ok{}
+
+# contracts/l1/L1CrossDomainMessenger.sol:291
+def dec_sendMessage_2(c: Bool, +mst: List<&2, Nat>, +val: Nat, +xh: Nat, +value: Nat, +v_fee: Nat) -> Dec_sendMessage:
+  match c:
+    case False{}:
+      D_sendMessage_Rev{8n}
+    case True{}:
+      dec_sendMessage_3(Nat.is_eq(b_nth(mst, xh), 0n), val, value, v_fee)
+
+# @openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def dec_sendMessage_0(c: Bool, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +who: Nat, +val: Nat, +xh: Nat, +value: Nat, +amt: Nat) -> Dec_sendMessage:
+  match c:
+    case False{}:
+      D_sendMessage_Rev{1n}
+    case True{}:
+      +v_fee = d_est_fee(who, wl, amt)
+      dec_sendMessage_2(Nat.is_ge(value, Nat.add(v_fee, val)), mst, val, xh, value, v_fee)
+
+def decide_sendMessage(+mst: List<&2, Nat>, +wl: List<&2, Nat>, +paused: Bool, +who: Nat, +to: Nat, +val: Nat, +gl: Nat, +xh: Nat, +value: Nat, +mn: Nat, +amt: Nat) -> Dec_sendMessage:
+  dec_sendMessage_0(Bool.not(paused), mst, wl, who, val, xh, value, amt)
+
+def exec_sendMessage(d: Dec_sendMessage, +t: Nat, +own: Nat, +maxr: Nat, +mrt: List<&2, HRS>, +pri: List<&2, Nat>, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +bf: Nat, +dr: List<&2, Nat>, +fq: Nat, +paused: Bool, +log: List<&2, HObs>, +who: Nat, +to: Nat, +val: Nat, +gl: Nat, +xh: Nat, +value: Nat, +mn: Nat, +amt: Nat) -> HSt:
+  match d:
+    case D_sendMessage_Rev{code}:
+      HSt{t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, Con{O_Rev{code}, log}}
+    case D_sendMessage_Ok{}:
+      HSt{t, own, maxr, mrt, pri, b_set_nat(mst, xh, t), wl, bf, dr, fq, paused, Con{O_Ok{}, log}}
+
+def step_sendMessage(s: HSt, +who: Nat, +to: Nat, +val: Nat, +gl: Nat, +xh: Nat, +value: Nat, +mn: Nat, +amt: Nat) -> HSt:
+  match s:
+    case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
+      exec_sendMessage(decide_sendMessage(mst, wl, paused, who, to, val, gl, xh, value, mn, amt), t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, log, who, to, val, gl, xh, value, mn, amt)
+
+type Dec_sendMessage2 is Data:
+  D_sendMessage2_Rev{code: Nat}
+  D_sendMessage2_Ok{}
+
+# contracts/l1/L1CrossDomainMessenger.sol:304
+def dec_sendMessage2_3(c: Bool, +val: Nat, +value: Nat, +v_fee: Nat) -> Dec_sendMessage2:
+  match c:
+    case False{}:
+      D_sendMessage2_Rev{9n}
+    case True{}:
+      +v_refund = Nat.sub(Nat.sub(value, v_fee), val)
+      D_sendMessage2_Ok{}
+
+# contracts/l1/L1CrossDomainMessenger.sol:291
+def dec_sendMessage2_2(c: Bool, +mst: List<&2, Nat>, +val: Nat, +xh: Nat, +value: Nat, +v_fee: Nat) -> Dec_sendMessage2:
+  match c:
+    case False{}:
+      D_sendMessage2_Rev{8n}
+    case True{}:
+      dec_sendMessage2_3(Nat.is_eq(b_nth(mst, xh), 0n), val, value, v_fee)
+
+# @openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def dec_sendMessage2_0(c: Bool, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +who: Nat, +val: Nat, +xh: Nat, +value: Nat, +amt: Nat) -> Dec_sendMessage2:
+  match c:
+    case False{}:
+      D_sendMessage2_Rev{1n}
+    case True{}:
+      +v_fee = d_est_fee(who, wl, amt)
+      dec_sendMessage2_2(Nat.is_ge(value, Nat.add(v_fee, val)), mst, val, xh, value, v_fee)
+
+def decide_sendMessage2(+mst: List<&2, Nat>, +wl: List<&2, Nat>, +paused: Bool, +who: Nat, +to: Nat, +val: Nat, +gl: Nat, +ra: Nat, +xh: Nat, +value: Nat, +mn: Nat, +amt: Nat) -> Dec_sendMessage2:
+  dec_sendMessage2_0(Bool.not(paused), mst, wl, who, val, xh, value, amt)
+
+def exec_sendMessage2(d: Dec_sendMessage2, +t: Nat, +own: Nat, +maxr: Nat, +mrt: List<&2, HRS>, +pri: List<&2, Nat>, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +bf: Nat, +dr: List<&2, Nat>, +fq: Nat, +paused: Bool, +log: List<&2, HObs>, +who: Nat, +to: Nat, +val: Nat, +gl: Nat, +ra: Nat, +xh: Nat, +value: Nat, +mn: Nat, +amt: Nat) -> HSt:
+  match d:
+    case D_sendMessage2_Rev{code}:
+      HSt{t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, Con{O_Rev{code}, log}}
+    case D_sendMessage2_Ok{}:
+      HSt{t, own, maxr, mrt, pri, b_set_nat(mst, xh, t), wl, bf, dr, fq, paused, Con{O_Ok{}, log}}
+
+def step_sendMessage2(s: HSt, +who: Nat, +to: Nat, +val: Nat, +gl: Nat, +ra: Nat, +xh: Nat, +value: Nat, +mn: Nat, +amt: Nat) -> HSt:
+  match s:
+    case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
+      exec_sendMessage2(decide_sendMessage2(mst, wl, paused, who, to, val, gl, ra, xh, value, mn, amt), t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, log, who, to, val, gl, ra, xh, value, mn, amt)
+
+type Dec_setWhitelist is Data:
+  D_setWhitelist_Rev{code: Nat}
+  D_setWhitelist_Ok{}
+
+def decide_setWhitelist(+who: Nat, +sub: Nat, +b: Bool) -> Dec_setWhitelist:
+  D_setWhitelist_Ok{}
+
+def exec_setWhitelist(d: Dec_setWhitelist, +t: Nat, +own: Nat, +maxr: Nat, +mrt: List<&2, HRS>, +pri: List<&2, Nat>, +mst: List<&2, Nat>, +wl: List<&2, Nat>, +bf: Nat, +dr: List<&2, Nat>, +fq: Nat, +paused: Bool, +log: List<&2, HObs>, +who: Nat, +sub: Nat, +b: Bool) -> HSt:
+  match d:
+    case D_setWhitelist_Rev{code}:
+      HSt{t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, Con{O_Rev{code}, log}}
+    case D_setWhitelist_Ok{}:
+      HSt{t, own, maxr, mrt, pri, mst, ite(List<&2, Nat>, b, List.append(&2, Nat, wl, [sub]), b_remove(sub, wl)), bf, dr, fq, paused, Con{O_Ok{}, log}}
+
+def step_setWhitelist(s: HSt, +who: Nat, +sub: Nat, +b: Bool) -> HSt:
+  match s:
+    case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
+      exec_setWhitelist(decide_setWhitelist(who, sub, b), t, own, maxr, mrt, pri, mst, wl, bf, dr, fq, paused, log, who, sub, b)
+
 def step(a: HAct, s: HSt) -> HSt:
   match a:
     case A_replayMessage{+who, +xh, +value, +qi, +from, +mn, +amt}:
       step_replayMessage(s, who, xh, value, qi, from, mn, amt)
     case A_updateMaxReplayTimes{+who, +val}:
       step_updateMaxReplayTimes(s, who, val)
+    case A_sendMessage{+who, +to, +val, +gl, +xh, +value, +mn, +amt}:
+      step_sendMessage(s, who, to, val, gl, xh, value, mn, amt)
+    case A_sendMessage2{+who, +to, +val, +gl, +ra, +xh, +value, +mn, +amt}:
+      step_sendMessage2(s, who, to, val, gl, ra, xh, value, mn, amt)
+    case A_setWhitelist{+who, +sub, +b}:
+      step_setWhitelist(s, who, sub, b)
 
 def run(tr: List<&2, HAct>, s: HSt) -> HSt:
   match tr:
@@ -350,12 +468,63 @@ def is_replayMessage(a: HAct) -> Bool:
       True{}
     case A_updateMaxReplayTimes{_, _}:
       False{}
+    case A_sendMessage{_, _, _, _, _, _, _, _}:
+      False{}
+    case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
+      False{}
+    case A_setWhitelist{_, _, _}:
+      False{}
 
 def is_updateMaxReplayTimes(a: HAct) -> Bool:
   match a:
     case A_replayMessage{_, _, _, _, _, _, _}:
       False{}
     case A_updateMaxReplayTimes{_, _}:
+      True{}
+    case A_sendMessage{_, _, _, _, _, _, _, _}:
+      False{}
+    case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
+      False{}
+    case A_setWhitelist{_, _, _}:
+      False{}
+
+def is_sendMessage(a: HAct) -> Bool:
+  match a:
+    case A_replayMessage{_, _, _, _, _, _, _}:
+      False{}
+    case A_updateMaxReplayTimes{_, _}:
+      False{}
+    case A_sendMessage{_, _, _, _, _, _, _, _}:
+      True{}
+    case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
+      False{}
+    case A_setWhitelist{_, _, _}:
+      False{}
+
+def is_sendMessage2(a: HAct) -> Bool:
+  match a:
+    case A_replayMessage{_, _, _, _, _, _, _}:
+      False{}
+    case A_updateMaxReplayTimes{_, _}:
+      False{}
+    case A_sendMessage{_, _, _, _, _, _, _, _}:
+      False{}
+    case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
+      True{}
+    case A_setWhitelist{_, _, _}:
+      False{}
+
+def is_setWhitelist(a: HAct) -> Bool:
+  match a:
+    case A_replayMessage{_, _, _, _, _, _, _}:
+      False{}
+    case A_updateMaxReplayTimes{_, _}:
+      False{}
+    case A_sendMessage{_, _, _, _, _, _, _, _}:
+      False{}
+    case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
+      False{}
+    case A_setWhitelist{_, _, _}:
       True{}
 
 def cost(tr: List<&2, HAct>) -> Nat:
@@ -368,6 +537,12 @@ def cost(tr: List<&2, HAct>) -> Nat:
           Nat.add(0n, cost(rest))
         case A_updateMaxReplayTimes{_, _}:
           Nat.add(0n, cost(rest))
+        case A_sendMessage{_, _, _, _, _, _, _, _}:
+          Nat.add(0n, cost(rest))
+        case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
+          Nat.add(0n, cost(rest))
+        case A_setWhitelist{_, _, _}:
+          Nat.add(0n, cost(rest))
 
 def elapsed(tr: List<&2, HAct>) -> Nat:
   match tr:
@@ -379,6 +554,12 @@ def elapsed(tr: List<&2, HAct>) -> Nat:
           Nat.add(0n, elapsed(rest))
         case A_updateMaxReplayTimes{_, _}:
           Nat.add(0n, elapsed(rest))
+        case A_sendMessage{_, _, _, _, _, _, _, _}:
+          Nat.add(0n, elapsed(rest))
+        case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
+          Nat.add(0n, elapsed(rest))
+        case A_setWhitelist{_, _, _}:
+          Nat.add(0n, elapsed(rest))
 
 # actions any principal may take (no role modifier): the permissionless class X of DISCH
 def perm(a: HAct) -> Bool:
@@ -387,6 +568,30 @@ def perm(a: HAct) -> Bool:
       True{}
     case A_updateMaxReplayTimes{_, _}:
       False{}
+    case A_sendMessage{_, _, _, _, _, _, _, _}:
+      True{}
+    case A_sendMessage2{_, _, _, _, _, _, _, _, _}:
+      True{}
+    case A_setWhitelist{_, _, _}:
+      True{}
+
+# replayStates[xh].times
+def times_of(s: HSt, +xh: Nat) -> Nat:
+  match s:
+    case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
+      g_RS_tm(nth_d(HRS, mrt, xh, empty_RS()))
+
+# maxReplayTimes
+def maxr_of(s: HSt) -> Nat:
+  match s:
+    case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
+      maxr
+
+# messageSendTimestamp[xh]
+def sent_at(s: HSt, +xh: Nat) -> Nat:
+  match s:
+    case HSt{+t, +own, +maxr, +mrt, +pri, +mst, +wl, +bf, +dr, +fq, +paused, +log}:
+      b_nth(mst, xh)
 
 # initial state: 
 def s0() -> HSt:

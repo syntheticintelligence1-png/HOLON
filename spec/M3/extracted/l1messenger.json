@@ -8,12 +8,14 @@
  "extraction": {
   "method": "extracted by holon.frontends.solidity (solc --ast-compact-json, evm cancun); line numbers are real-repo lines"
  },
- "abstractions": [],
+ "abstractions": [
+  "wl is a messenger-side role set mirroring IWhitelist.isSenderAllowed; the setWhitelist env action is its only writer.",
+  "dr (__isL1MessageDropped) is read-only here (replayMessage :195); nothing in this bundle writes it \u2014 drop effects live on the queue/drop side (O34 depends on this)."
+ ],
  "params": {
   "OWNER": 1,
   "LFI": 7,
-  "LCI": 9,
-  "QI": 8
+  "LCI": 9
  },
  "constants_doc": {},
  "types": {
@@ -124,7 +126,9 @@
   "4": "Insufficient msg.value for fee",
   "5": "Exceed maximum replay times",
   "6": "Ownable: caller is not the owner",
-  "7": "replay times must be greater than 0"
+  "7": "replay times must be greater than 0",
+  "8": "Insufficient msg.value",
+  "9": "Duplicated message"
  },
  "defs": {
   "est_fee": {
@@ -297,7 +301,7 @@
       "call",
       "set_nat",
       "pri",
-      "QI",
+      "mn",
       [
        "+",
        [
@@ -323,7 +327,7 @@
        "call",
        "set_nat",
        "pri",
-       "QI",
+       "mn",
        [
         "+",
         "mn",
@@ -343,7 +347,7 @@
       "RS",
       "_replayState",
       {
-       "li": "QI",
+       "li": "mn",
        "tm": [
         "+",
         [
@@ -395,10 +399,326 @@
    "effects": {
     "maxr": "val"
    }
+  },
+  {
+   "name": "sendMessage",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:102-108, _sendMessage :275-317",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "to",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ],
+    [
+     "gl",
+     "Nat"
+    ],
+    [
+     "xh",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ],
+    [
+     "mn",
+     "Nat"
+    ],
+    [
+     "amt",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "!",
+      "paused"
+     ],
+     "reason": 1,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "let": "v_fee",
+     "expr": [
+      "call",
+      "est_fee",
+      "who",
+      "wl",
+      "amt"
+     ],
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:290"
+    },
+    {
+     "require": [
+      ">=",
+      "value",
+      [
+       "+",
+       "v_fee",
+       "val"
+      ]
+     ],
+     "reason": 8,
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:291"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "call",
+       "nth",
+       "mst",
+       "xh"
+      ],
+      0
+     ],
+     "reason": 9,
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:304"
+    },
+    {
+     "let": "v_refund",
+     "expr": [
+      "-",
+      [
+       "-",
+       "value",
+       "v_fee"
+      ],
+      "val"
+     ],
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:311"
+    }
+   ],
+   "effects": {
+    "mst": [
+     "call",
+     "set_nat",
+     "mst",
+     "xh",
+     "t"
+    ]
+   }
+  },
+  {
+   "name": "sendMessage2",
+   "principal": "anyone",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:112-118, _sendMessage :275-317",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "to",
+     "Nat"
+    ],
+    [
+     "val",
+     "Nat"
+    ],
+    [
+     "gl",
+     "Nat"
+    ],
+    [
+     "ra",
+     "Nat"
+    ],
+    [
+     "xh",
+     "Nat"
+    ],
+    [
+     "value",
+     "Nat"
+    ],
+    [
+     "mn",
+     "Nat"
+    ],
+    [
+     "amt",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "!",
+      "paused"
+     ],
+     "reason": 1,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "let": "v_fee",
+     "expr": [
+      "call",
+      "est_fee",
+      "who",
+      "wl",
+      "amt"
+     ],
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:290"
+    },
+    {
+     "require": [
+      ">=",
+      "value",
+      [
+       "+",
+       "v_fee",
+       "val"
+      ]
+     ],
+     "reason": 8,
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:291"
+    },
+    {
+     "require": [
+      "==",
+      [
+       "call",
+       "nth",
+       "mst",
+       "xh"
+      ],
+      0
+     ],
+     "reason": 9,
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:304"
+    },
+    {
+     "let": "v_refund",
+     "expr": [
+      "-",
+      [
+       "-",
+       "value",
+       "v_fee"
+      ],
+      "val"
+     ],
+     "src": "contracts/l1/L1CrossDomainMessenger.sol:311"
+    }
+   ],
+   "effects": {
+    "mst": [
+     "call",
+     "set_nat",
+     "mst",
+     "xh",
+     "t"
+    ]
+   }
+  },
+  {
+   "name": "setWhitelist",
+   "principal": "environment",
+   "src": "environment: IWhitelist whitelist membership",
+   "inputs": [
+    [
+     "who",
+     "Nat"
+    ],
+    [
+     "sub",
+     "Nat"
+    ],
+    [
+     "b",
+     "Bool"
+    ]
+   ],
+   "guards": [],
+   "effects": {
+    "wl": [
+     "?",
+     "b",
+     [
+      "call",
+      "snoc",
+      "wl",
+      "sub"
+     ],
+     [
+      "call",
+      "remove",
+      "sub",
+      "wl"
+     ]
+    ]
+   }
   }
  ],
  "migrations": {},
- "observers": {},
+ "observers": {
+  "times_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ],
+    [
+     "xh",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "get",
+    [
+     "call",
+     "nth_rec",
+     "mrt",
+     "xh"
+    ],
+    "tm"
+   ],
+   "doc": "replayStates[xh].times"
+  },
+  "maxr_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": "maxr",
+   "doc": "maxReplayTimes"
+  },
+  "sent_at": {
+   "params": [
+    [
+     "s",
+     "State"
+    ],
+    [
+     "xh",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "call",
+    "nth",
+    "mst",
+    "xh"
+   ],
+   "doc": "messageSendTimestamp[xh]"
+  }
+ },
  "disch": {},
  "consumers": {},
  "coverage": {
@@ -425,6 +745,13 @@
   "actions.updateMaxReplayTimes.guards": "ast",
   "actions.updateMaxReplayTimes.effects": "ast",
   "actions.updateMaxReplayTimes.entry": "ast",
+  "actions.sendMessage.guards": "ast",
+  "actions.sendMessage.effects": "ast",
+  "actions.sendMessage.entry": "ast",
+  "actions.sendMessage2.guards": "ast",
+  "actions.sendMessage2.effects": "ast",
+  "actions.sendMessage2.entry": "ast",
+  "actions.setWhitelist": "spec",
   "facts_version": "spec",
   "target": "spec",
   "extraction": "spec",

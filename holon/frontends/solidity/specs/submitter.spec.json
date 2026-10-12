@@ -72,7 +72,51 @@
   "owner()": "OWNER"
  },
  "migrations_declared": {},
- "observers": {},
+ "observers": {
+  "active_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "call",
+    "is_active",
+    "reg",
+    "wdr",
+    "stake",
+    "min_stake",
+    "sub"
+   ],
+   "doc": "isActive(sub)"
+  },
+  "stake_of": {
+   "params": [
+    [
+     "s",
+     "State"
+    ],
+    [
+     "sub",
+     "Nat"
+    ]
+   ],
+   "type": "Nat",
+   "body": [
+    "call",
+    "nth",
+    "stake",
+    "sub"
+   ],
+   "doc": "stakeOf[sub]"
+  }
+ },
  "disch": {},
  "consumers": {},
  "params": {
