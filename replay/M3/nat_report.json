@@ -1,0 +1,40 @@
+{
+  "command": "forge test --match-contract HolonNatReplay -vv --offline --use <solc 0.8.24>  # scratch copy of morph contracts/ (tests_m3/test_m3_replay.py::_project)",
+  "harness": "replay/M3/solidity/HolonNatReplay.t.sol",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "solc": "0.8.24",
+  "deployment": "real Rollup behind TransparentUpgradeableProxy administered by a real OZ ProxyAdmin; real L1MessageQueueWithGasPriceOracle behind a proxy; real Submitter behind a proxy initialized with rollupContract=<rollup proxy>, owner=harness, minimumStake=1 ether, challengeDeposit=0.1 ether, rewardPercentage=50; Carol registered via addSubmitter and staked 1 ether via public stake(). No vm.store, no mocks of the contracts under test.",
+  "standins": {
+    "legacy_registry": "HolonSubmitterOracle (same stand-in as the M1 harness). The pinned contracts tree ships no legacy staking contract — Rollup.initialize takes the pre-cutover submitterContract address, which on mainnet is the already-deployed legacy registry. Not under test.",
+    "verifier": "HolonVerifierOracle (same as M1; accepts proofs whose first byte is 0x01). Not under test."
+  },
+  "cutover_mechanism": "ProxyAdmin.upgradeAndCall(rollupProxy, rollupImpl, calldata initialize4(submitterProxy, lastCommittedBatchIndex)). TransparentUpgradeableProxy intercepts direct admin calls, so initialize4 must go through the ProxyAdmin; inside the delegatecall _msgSender() is the ProxyAdmin contract and _getProxyAdmin() returns it from the EIP-1967 admin slot, satisfying the 'only proxy admin' guard.",
+  "laws": {
+    "L_nat_defend_legacy_blocked": {
+      "verdict": "agree",
+      "evidence": [
+        "Bob (legacy active submitter) commits batch 1 pre-cutover: ok",
+        "cutover via ProxyAdmin.upgradeAndCall: submitterContract=<submitter proxy>, legacyCutoverBatchIndex=1",
+        "challenger challengeState(1) with 0.1 ether deposit: ok",
+        "HOLON defend 1 proveState(Bob)  -> rev 'only active submitter allowed'",
+        "HOLON defend 2 proveState(Carol) -> rev 'Invalid batch proof' (inside _verifyProof — past the submitter check; control acceptable per brief since the verifier is a stand-in)"
+      ],
+      "notes": "After the registry swap, onlyActiveSubmitter consults the new Submitter: the legacy committer is locked out of defending his own challenged batch, while a new-registry member reaches the verifier."
+    },
+    "L_nat_slash_legacy_misses": {
+      "verdict": "agree",
+      "evidence": [
+        "same deploy as O13 through challenge; warp past proofWindow (10s + 1)",
+        "HOLON slash 1 proveState-timeout(Carol) -> ok (challengerWin: _challengerWin -> ISubmitter(submitterContract).slash(Bob))",
+        "HOLON slash 2 challengerReward 100000000000000000 (0.1 ether = deposit only; slash reward = 0)",
+        "Submitter.stakeOf(Bob) = 0 before and after; Submitter.isActive(Carol) = true",
+        "fresh deploy -> cutover at LCI=0 -> Carol commits batch 1 post-cutover -> challenge -> warp -> proveState-timeout(Carol) ok",
+        "HOLON slash 4 challengerReward2 600000000000000000 (0.6 ether = 0.1 deposit + 0.5 slash reward = 1 ether * 50%)",
+        "HOLON slash 5 carolStake 0; Submitter.isActive(Carol) = false"
+      ],
+      "legacy_bond": "Bob's bond lives in the legacy registry (a stand-in here). No code path in the pinned tree slashes it: _challengerWin calls slash only on the post-swap submitterContract, and Submitter.slash(Bob) is a no-op because Bob was never registered there (stakeOf=0 -> reward=0). The legacy bond is untouched — bond-not-at-risk confirmed; 'withdrawable' is a property of the legacy contract, which is absent from the pinned tree.",
+      "notes": "Note: after a challengerWin, revertReqIndex blocks all nonReqRevert entry points, so the native control required a fresh deployment with the cutover at LCI=0."
+    }
+  },
+  "forge_summary": "Suite result: ok. 2 passed; 0 failed; 0 skipped (test_L_nat_defend_legacy_blocked gas 5257232, test_L_nat_slash_legacy_misses gas 10404502)"
+}

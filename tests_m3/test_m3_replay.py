@@ -49,23 +49,31 @@ def _project() -> Path:
             shutil.copy(MORPH / "contracts" / f, proj / f)
     _sol_deps(proj)
     (proj / "test").mkdir(exist_ok=True)
-    shutil.copy(ROOT / "replay" / "M3" / "solidity" / "HolonMsgReplay.t.sol", proj / "test")
+    for t in ("HolonMsgReplay.t.sol", "HolonNatReplay.t.sol"):
+        shutil.copy(ROOT / "replay" / "M3" / "solidity" / t, proj / "test")
     return proj
 
 
-@unittest.skipUnless(_available(), "needs forge + npm + morph @3e44e79 + solc-0.8.24")
-class TestM3Replay(unittest.TestCase):
+class _ForgeRun(unittest.TestCase):
+    contract = None
+    report = None
+
     @classmethod
     def setUpClass(cls):
         proj = _project()
         forge = shutil.which("forge") or str(Path.home() / ".foundry/bin/forge")
-        cmd = [forge, "test", "--match-contract", "HolonMsgReplay", "-vv", "--offline",
-               "--use", SOLC]
-        cls.cmd = cmd
-        cls.res = subprocess.run(cmd, cwd=proj, capture_output=True, text=True, timeout=3600)
+        cls.cmd = [forge, "test", "--match-contract", cls.contract, "-vv", "--offline",
+                   "--use", SOLC]
+        cls.res = subprocess.run(cls.cmd, cwd=proj, capture_output=True, text=True, timeout=3600)
         cls.lines = {}
         for m in LINE.finditer(cls.res.stdout):
             cls.lines[(m.group(1), int(m.group(2)))] = (m.group(3), m.group(4).strip())
+
+
+@unittest.skipUnless(_available(), "needs forge + npm + morph @3e44e79 + solc-0.8.24")
+class TestM3Replay(_ForgeRun):
+    contract = "HolonMsgReplay"
+    report = "msg_report.json"
 
     def test_forge_passed(self):
         self.assertEqual(self.res.returncode, 0, self.res.stdout[-3000:] + self.res.stderr[-1000:])
@@ -88,9 +96,41 @@ class TestM3Replay(unittest.TestCase):
         self.assertEqual(l[("waiver", 4)][1], "Insufficient msg.value for fee")
 
     def test_report_consistent(self):
-        rep = json.loads((ROOT / "replay" / "M3" / "msg_report.json").read_text())
+        rep = json.loads((ROOT / "replay" / "M3" / self.report).read_text())
         self.assertTrue(rep["morph_commit"].startswith("3e44e79"))
         for lid in ("L_msg_budget_blocks_sender", "L_msg_waiver_follows_origin"):
+            self.assertEqual(rep["laws"][lid]["verdict"], "agree")
+
+
+@unittest.skipUnless(_available(), "needs forge + npm + morph @3e44e79 + solc-0.8.24")
+class TestM3NatReplay(_ForgeRun):
+    contract = "HolonNatReplay"
+    report = "nat_report.json"
+
+    def test_forge_passed(self):
+        self.assertEqual(self.res.returncode, 0, self.res.stdout[-3000:] + self.res.stderr[-1000:])
+        self.assertIn("2 passed", self.res.stdout, self.res.stdout[-2000:])
+
+    def test_defend_lines(self):
+        l = self.lines
+        self.assertEqual(l[("defend", 1)][1], "only active submitter allowed")
+        # control: past the submitter check, reverting inside the verifier
+        self.assertEqual(l[("defend", 2)][1], "Invalid batch proof")
+
+    def test_slash_lines(self):
+        l = self.lines
+        self.assertEqual(l[("slash", 1)][1], "ok")
+        # challenger reward is deposit-only (0.1 ether): slash(Bob) is a no-op
+        self.assertEqual(l[("slash", 2)][1], "100000000000000000")
+        self.assertEqual(l[("slash", 3)][1], "ok")
+        # native control: deposit + 1 ether * 50% = 0.6 ether
+        self.assertEqual(l[("slash", 4)][1], "600000000000000000")
+        self.assertEqual(l[("slash", 5)][1], "0")
+
+    def test_report_consistent(self):
+        rep = json.loads((ROOT / "replay" / "M3" / self.report).read_text())
+        self.assertTrue(rep["morph_commit"].startswith("3e44e79"))
+        for lid in ("L_nat_defend_legacy_blocked", "L_nat_slash_legacy_misses"):
             self.assertEqual(rep["laws"][lid]["verdict"], "agree")
 
 
