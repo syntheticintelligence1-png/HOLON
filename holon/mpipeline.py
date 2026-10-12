@@ -389,7 +389,9 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                                  "marker": v.marker, "seconds": v.seconds})
         rep_law = (report or {}).get("laws", {}).get(lid)
         if rep_law and rec["replay"].get("status") in ("not_run", "unknown", "missing", None):
-            rec["replay"] = {"status": rep_law.get("verdict", "unknown"), "detail": rep_law.get("detail", "")}
+            st = rep_law.get("status") or {"agree": "passed", "disagree": "failed"}.get(
+                rep_law.get("verdict"), "unknown")
+            rec["replay"] = {"status": st, "detail": rep_law.get("detail") or rep_law.get("notes", "")}
         if status == "REFUTED" and rec["replay"].get("status") == "not_run" and rep_law is None:
             rec["replay"]["detail"] = ("model-only pending replay: no M3 replay harness covers "
                                      f"{milestone} (audit R2)")

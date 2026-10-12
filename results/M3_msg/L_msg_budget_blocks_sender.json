@@ -11,20 +11,20 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.106
+      "seconds": 0.12
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.145
+      "seconds": 0.171
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.106
+    "seconds": 0.12
   },
   "closed": true,
   "difference": null,
@@ -41,8 +41,8 @@
     "dr (__isL1MessageDropped) is read-only here (replayMessage :195); nothing in this bundle writes it \u2014 drop effects live on the queue/drop side (O34 depends on this)."
   ],
   "replay": {
-    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
-    "status": "not_run"
+    "detail": "Third-party replays consume the original sender's replay budget; the default 3 is exhausted by Bob and Alice's own replay reverts. The owner's updateMaxReplayTimes(4) admits exactly one more replay.",
+    "status": "passed"
   },
   "rule": "DISCH",
   "scope": "unbounded",

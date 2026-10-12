@@ -1,0 +1,73 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_msgr_payer_bears_fee",
+    "laws": "gen/M3_msg/L_msgr_payer_bears_fee/LAWS.bend",
+    "model": "gen/M3_msg/model/l1messenger.bend",
+    "proof": "gen/M3_msg/L_msgr_payer_bears_fee/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : True{}\n- observed : False{}\nLocation: Laws.l_msgr_payer_bears_fee\n7 | def Laws.l_msgr_payer_bears_fee():\n8>|   {==}\n  |   ^^^^\n9 |",
+      "exit_code": 1,
+      "generator": "evaluate",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "seconds": 0.101
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 1
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.101
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.139
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.101
+  },
+  "closed": true,
+  "difference": {
+    "lhs": true,
+    "rhs": false
+  },
+  "facts_sha256": "10ecd16a67de10d871dfef4ad59ec05987205f2d3f3fa90ce83d9d5cf6661f6b",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_msgr_payer_bears_fee",
+  "maps_to": "O29 (F8)",
+  "premises": [
+    "wl is a messenger-side role set mirroring IWhitelist.isSenderAllowed; the setWhitelist env action is its only writer.",
+    "dr (__isL1MessageDropped) is read-only here (replayMessage :195); nothing in this bundle writes it \u2014 drop effects live on the queue/drop side (O34 depends on this)."
+  ],
+  "replay": {
+    "detail": " @ morph 3e44e795586a",
+    "status": "failed"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "statement_hash": "sha256:db603b3a03706eef9603ded01a191c660067604988975bb892b017b13d728f27",
+  "status": "REFUTED",
+  "subform": "obligation_scenario",
+  "triage": "none",
+  "triage_why": "replay disagree: deployed waiver follows _from (origin), not payer; the O29 refund-routing asymmetry is a spec deviation, not a reachable loss in the model direction",
+  "witness": {}
+}

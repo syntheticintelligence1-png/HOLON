@@ -200,4 +200,48 @@ contract HolonNatReplayTest is Test {
         require(submitter.stakeOf(CAROL) == 0, "Carol stake not slashed");
         require(reward2 == CD + (MIN_STAKE * REWARD_PCT) / 100, "native slash reward wrong");
     }
+
+    /// O13 (AUDIT_R2 naturality): model witness w=2 (legacy committer). Claim:
+    /// forall w, after commit(w) -> initialize4 -> challenge, proveState(w)
+    /// succeeds (given the pre-cutover premise proveState(w) succeeds).
+    /// REFUTED at w=2: the real contract reverts 'only active submitter allowed'.
+    function test_L_natr_defend() public {
+        deploy();
+        bytes memory h1 = commit(BOB);  // witness w=2
+        // premise trace: commit -> challenge -> proveState passes onlyActiveSubmitter
+        // (reverting inside the stand-in verifier is still past that check)
+        challenge(h1);
+        string memory st = tryProve(BOB, h1);
+        console.log("HOLON natrdefend 1 proveState(w=2) pre-cutover", st);
+        require(
+            keccak256(bytes(st)) == keccak256("ok")
+                || keccak256(bytes(st)) == keccak256("Invalid batch proof"),
+            st);
+        deploy();
+        h1 = commit(BOB);
+        cutover();
+        challenge(h1);
+        st = tryProve(BOB, h1);
+        console.log("HOLON natrdefend 2 proveState(w=2) post-cutover", st);
+        require(keccak256(bytes(st)) == keccak256("only active submitter allowed"), st);
+    }
+
+    /// O14 (AUDIT_R2 naturality): model witness w=2. Claim: forall w, after
+    /// commit(w) -> initialize4 -> challenge -> wait(proof window), w is still in
+    /// the active registry the challenger win will slash. REFUTED at w=2: the
+    /// post-cutover registry never contained the legacy committer.
+    function test_L_natr_slash_at_stake() public {
+        deploy();
+        bytes memory h1 = commit(BOB);  // witness w=2
+        cutover();
+        challenge(h1);
+        HV.warp(block.timestamp + PROOF_WINDOW + 1);
+        string memory st = tryProve(CAROL, h1);  // public resolve path
+        console.log("HOLON natrslash 1 resolve-after-window", st);
+        require(keccak256(bytes(st)) == keccak256("ok"), st);
+        bool act = submitter.isActive(BOB);
+        console.log("HOLON natrslash 2 isActive(w=2)", act ? "true" : "false");
+        require(!act, "legacy committer active in new registry");
+        require(submitter.stakeOf(BOB) == 0, "legacy committer has stake in new registry");
+    }
 }

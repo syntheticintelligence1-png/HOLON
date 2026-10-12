@@ -1,37 +1,59 @@
 {
-  "M0": {
-    "L_par_hdr_ssvh": {
-      "triage": "intent_question",
-      "why": "Solidity always commits sequencerSetVerifyHash = 0 while Go copies the struct field. This is a defect only if some Go producer sets a nonzero value, which is outside M0's scope: it surfaces the premise ssvh = 0 as an intent question for the Morph team."
-    }
+ "M0": {
+  "L_par_hdr_ssvh": {
+   "triage": "intent_question",
+   "why": "Solidity always commits sequencerSetVerifyHash = 0 while Go copies the struct field. This is a defect only if some Go producer sets a nonzero value, which is outside M0's scope: it surfaces the premise ssvh = 0 as an intent question for the Morph team."
+  }
+ },
+ "M1": {
+  "L_nat_eta2": {
+   "triage": "intent_question",
+   "why": "known_limitation_historical: latent and historical \u2014 affects only a chain upgraded through reinitializer(2) while LFI < LCI and later reverted into (LFI, LCI]; the replay injects storage to erase CSR, and initialize2's reinitializer(2)/root!=0 domain is not modelled; audit R5."
   },
-  "M1": {
-    "L_nat_eta2": {
-      "triage": "intent_question",
-      "why": "known_limitation_historical: latent and historical \u2014 affects only a chain upgraded through reinitializer(2) while LFI < LCI and later reverted into (LFI, LCI]; the replay injects storage to erase CSR, and initialize2's reinitializer(2)/root!=0 domain is not modelled; audit R5."
-    },
-    "L_own_txspayload": {
-      "triage": "finding",
-      "why": "Conditional (whitepaper O36): corrupts a TxsPayloadV2 result only if a caller holds it across a later Append; the in-repo callers (batch_cache.go:1581, verify_local.go:186) consume it immediately. Native validity bound: the Go growth oracle matches the runtime only for allocations <=512 bytes (Go 1.24 size-class table); outside that the facts fallback is wrong (513->576); audit R6."
-    },
-    "L_sym_omega": {
-      "triage": "intent_question",
-      "why": "conditional: both orders need proof acceptance by the stand-in verifier (proof == 1); the real ZkEvmVerifierV1 rejects that proof; no real-proof schedule; audit R3."
-    },
-    "L_tag_BVH": {
-      "triage": "finding",
-      "why": "owner prerequisite (revertBatch/setPause): ghost-tag exactness fails \u2014 a recommit can change the version while reusing a blob field of the other sort (F6 / O26)."
-    },
-    "L_undo_BVH": {
-      "triage": "finding",
-      "why": "owner prerequisite (revertBatch/setPause): residue after owner revert \u2014 recommit of the same data reverts via the stored blob hash (O11/F2)."
-    },
-    "L_undo_cancel": {
-      "triage": "finding",
-      "why": "owner prerequisite (revertBatch/setPause): pause clears the open challenge but keeps the +W finalizeTimestamp extension, so batch 2 can be challenged again after unpause (O12/N2)."
-    }
+  "L_own_txspayload": {
+   "triage": "finding",
+   "why": "Conditional (whitepaper O36): corrupts a TxsPayloadV2 result only if a caller holds it across a later Append; the in-repo callers (batch_cache.go:1581, verify_local.go:186) consume it immediately. Native validity bound: the Go growth oracle matches the runtime only for allocations <=512 bytes (Go 1.24 size-class table); outside that the facts fallback is wrong (513->576); audit R6."
   },
-  "M3_msg": {},
-  "M3_router": {},
-  "M3_nat": {}
+  "L_sym_omega": {
+   "triage": "intent_question",
+   "why": "conditional: both orders need proof acceptance by the stand-in verifier (proof == 1); the real ZkEvmVerifierV1 rejects that proof; no real-proof schedule; audit R3."
+  },
+  "L_tag_BVH": {
+   "triage": "finding",
+   "why": "owner prerequisite (revertBatch/setPause): ghost-tag exactness fails \u2014 a recommit can change the version while reusing a blob field of the other sort (F6 / O26)."
+  },
+  "L_undo_BVH": {
+   "triage": "finding",
+   "why": "owner prerequisite (revertBatch/setPause): residue after owner revert \u2014 recommit of the same data reverts via the stored blob hash (O11/F2)."
+  },
+  "L_undo_cancel": {
+   "triage": "finding",
+   "why": "owner prerequisite (revertBatch/setPause): pause clears the open challenge but keeps the +W finalizeTimestamp extension, so batch 2 can be challenged again after unpause (O12/N2)."
+  }
+ },
+ "M3_msg": {
+  "L_msgr_payer_bears_fee": {
+   "triage": "none",
+   "closed": true,
+   "why": "replay disagree: deployed waiver follows _from (origin), not payer; the O29 refund-routing asymmetry is a spec deviation, not a reachable loss in the model direction"
+  },
+  "L_msgr_sender_can_replay": {
+   "triage": "finding",
+   "closed": true,
+   "why": "replay agree: third-party replays exhaust maxReplayTimes; the sender's own exit is gone without owner action"
+  }
+ },
+ "M3_router": {},
+ "M3_nat": {
+  "L_natr_defend": {
+   "triage": "finding",
+   "closed": false,
+   "why": "replay agree at witness w=2: pre-cutover committer is blocked post-initialize4"
+  },
+  "L_natr_slash_at_stake": {
+   "triage": "finding",
+   "closed": false,
+   "why": "replay agree at witness w=2: challenger win slashes the post-cutover registry, which never contained the legacy committer"
+  }
+ }
 }

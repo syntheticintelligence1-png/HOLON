@@ -173,8 +173,18 @@ def replay_status(report: dict | None, lid: str, witness: dict | None) -> dict:
     return {"status": status, "detail": detail}
 
 
+# M3 milestones keep one report per replay harness under replay/M3/, named after
+# the harness, not report.json.
+M3_REPORT_NAMES = {"M3_msg": "msg_report.json", "M3_nat": "nat_report.json",
+                   "M3_router": "mvrv_report.json"}
+
+
 def load_report(milestone: str, root: Path | None = None) -> dict | None:
-    p = Path(root or ROOT) / "replay" / milestone / "report.json"
+    base = Path(root or ROOT) / "replay"
+    if milestone in M3_REPORT_NAMES:
+        p = base / "M3" / M3_REPORT_NAMES[milestone]
+    else:
+        p = base / milestone / "report.json"
     return json.loads(p.read_text()) if p.exists() else None
 
 

@@ -11,20 +11,20 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.156
+      "seconds": 0.163
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.269
+      "seconds": 0.251
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.156
+    "seconds": 0.163
   },
   "closed": true,
   "difference": null,
@@ -47,8 +47,8 @@
     "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
   ],
   "replay": {
-    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
-    "status": "not_run"
+    "detail": "Note: after a challengerWin, revertReqIndex blocks all nonReqRevert entry points, so the native control required a fresh deployment with the cutover at LCI=0.",
+    "status": "passed"
   },
   "rule": "NAT",
   "scope": "unbounded",

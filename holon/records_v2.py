@@ -108,7 +108,7 @@ def _replay_evidence(rec: dict, milestone: str, report) -> dict:
     wh = report.get("witness_sha256", {}).get(lid)
     entry = (report.get("laws") or {}).get(lid)
     mine = witness_sha256(rec.get("witness"))
-    if entry is None or wh != mine:
+    if entry is None or not wh or wh != mine:
         return None
     return {"report": f"replay/{milestone}/report.json", "entry": f"laws.{lid}", "witness_sha256": wh}
 

@@ -11,20 +11,20 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.113
+      "seconds": 0.104
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.156
+      "seconds": 0.13
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.113
+    "seconds": 0.104
   },
   "closed": true,
   "difference": null,
@@ -41,8 +41,8 @@
     "dr (__isL1MessageDropped) is read-only here (replayMessage :195); nothing in this bundle writes it \u2014 drop effects live on the queue/drop side (O34 depends on this)."
   ],
   "replay": {
-    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
-    "status": "not_run"
+    "detail": "estimateCrossDomainMessageFee(_from, _newGasLimit) keys the whitelist waiver on the original sender, not the replay caller \u2014 whitelisted Alice's message replays free from any account, and Bob's whitelist status does not waive Alice's message.",
+    "status": "passed"
   },
   "rule": "SORT",
   "scope": "unbounded",

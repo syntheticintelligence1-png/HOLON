@@ -135,4 +135,44 @@ contract HolonMsgReplayTest is Test {
         console.log("HOLON waiver 4 replay(Bob,0wei)", st);
         require(keccak256(bytes(st)) == keccak256(bytes("Insufficient msg.value for fee")), st);
     }
+
+    /// O29/F8 (AUDIT_R2): claim trace wait -> setWhitelist(5) -> sendMessage(5,0wei)
+    /// -> replayMessage(6,0wei). The model requires the payer to bear the fee, so the
+    /// law 'no Insufficient-fee revert' is REFUTED in the model. On the pinned
+    /// contracts the waiver follows the ORIGIN (_from=5, whitelisted), so the replay
+    /// passes with 0 wei — a replay DISAGREE result.
+    function test_L_msgr_payer_bears_fee() public {
+        deploy();
+        address[] memory one = new address[](1);
+        one[0] = ALICE;  // model's sender 5
+        wl.updateWhitelistStatus(one, true);
+        (uint256 n0, string memory st) = trySend(ALICE, 0, 0);
+        console.log("HOLON payer 1 send(whitelisted-sender,0wei)", st);
+        require(keccak256(bytes(st)) == keccak256("ok"), st);
+        st = tryReplay(BOB, n0, 0);  // model's payer 6
+        console.log("HOLON payer 2 replay(payer,0wei)", st);
+        // deployed result recorded, not asserted: agree iff the fee check fires
+        require(
+            keccak256(bytes(st)) == keccak256("ok")
+                || keccak256(bytes(st)) == keccak256(bytes("Insufficient msg.value for fee")),
+            st);
+    }
+
+    /// O34/F8 (AUDIT_R2): claim trace sendMessage(5,fee) -> replayMessage(6) x3 ->
+    /// step replayMessage(5). The model refutes last_ok: three third-party replays
+    /// exhaust maxReplayTimes, so the original sender's own replay reverts.
+    function test_L_msgr_sender_can_replay() public {
+        deploy();
+        (uint256 n0, string memory st) = trySend(ALICE, fee(), 0);
+        console.log("HOLON msgr 1 send(sender,fee)", st);
+        require(keccak256(bytes(st)) == keccak256("ok"), st);
+        for (uint256 i = 0; i < msg1.maxReplayTimes(); i++) {
+            st = tryReplay(BOB, n0, fee());
+            console.log(string.concat("HOLON msgr ", HV.toString(i + 2), " replay(third-party,fee)"), st);
+            require(keccak256(bytes(st)) == keccak256("ok"), st);
+        }
+        st = tryReplay(ALICE, n0, fee());
+        console.log("HOLON msgr 5 replay(sender,fee)", st);
+        require(keccak256(bytes(st)) == keccak256(bytes("Exceed maximum replay times")), st);
+    }
 }

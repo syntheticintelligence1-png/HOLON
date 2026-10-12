@@ -1,0 +1,76 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_natr_slash_at_stake",
+    "laws": "gen/M3_nat/L_natr_slash_at_stake/LAWS.bend",
+    "model": "gen/M3_nat/model/morph_rollup.bend",
+    "proof": "gen/M3_nat/L_natr_slash_at_stake/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 1
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.165
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.256
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.165
+  },
+  "closed": false,
+  "difference": {
+    "lhs": {
+      "error": "cannot decode (...a) => a.length < n ? run_lib((...b) => f(...a, ...b), n - a.length)\n    : f(...a)"
+    },
+    "rhs": true
+  },
+  "facts_sha256": "5ee99bad367c6733b2c9e3e8e58b991cbbd611e89ba0283624e5539efcd5b276",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "law_id": "L_natr_slash_at_stake",
+  "maps_to": "O13/O14 (F10)",
+  "premises": [
+    "[{\"args\": [{\"from\": {\"from\": {\"s0\": {}}, \"run\": {\"trace\": [{\"act\": \"sendMessage\", \"args\": {\"who\": {\"nat\": 5}}}, {\"act\": \"commitBatch\", \"args\": {\"blobs\": {\"nats\": [7]}, \"lbn\": {\"nat\": 1}, \"n\": {\"nat\": 1}, \"parent\": {\"nat\": 0}, \"post\": {\"nat\": 101}, \"prev\": {\"nat\": 100}, \"ver\": {\"nat\": 1}, \"who\": {\"var\": \"w\"}}}, {\"act\": \"challengeState\", \"args\": {\"idx\": {\"nat\": 1}, \"value\": {\"nat\": 1}, \"who\": {\"nat\": 4}}}]}}, \"step\": {\"act\": \"proveState\", \"args\": {\"idx\": {\"nat\": 1}, \"proof\": {\"nat\": 1}, \"who\": {\"var\": \"w\"}}}}], \"fn\": \"last_ok\"}, {\"bool\": true}]",
+    "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+    "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+    "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+    "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+    "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+    "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+    "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+    "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
+  ],
+  "replay": {
+    "detail": " @ morph 3e44e795586a",
+    "status": "passed"
+  },
+  "rule": "NAT",
+  "scope": "unbounded",
+  "statement_hash": "sha256:ab813f3817ba70a6341601c280605f930effb2a01eaf1e581ce4da3f432471e4",
+  "status": "REFUTED",
+  "subform": "naturality_scenario",
+  "triage": "finding",
+  "triage_why": "replay agree at witness w=2: challenger win slashes the post-cutover registry, which never contained the legacy committer",
+  "witness": {
+    "w": 2
+  }
+}

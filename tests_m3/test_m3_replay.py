@@ -77,7 +77,7 @@ class TestM3Replay(_ForgeRun):
 
     def test_forge_passed(self):
         self.assertEqual(self.res.returncode, 0, self.res.stdout[-3000:] + self.res.stderr[-1000:])
-        self.assertIn("2 passed", self.res.stdout, self.res.stdout[-2000:])
+        self.assertIn("4 passed", self.res.stdout, self.res.stdout[-2000:])
 
     def test_budget_lines(self):
         l = self.lines  # (law, step) -> (label, outcome)
@@ -98,8 +98,21 @@ class TestM3Replay(_ForgeRun):
     def test_report_consistent(self):
         rep = json.loads((ROOT / "replay" / "M3" / self.report).read_text())
         self.assertTrue(rep["morph_commit"].startswith("3e44e79"))
-        for lid in ("L_msg_budget_blocks_sender", "L_msg_waiver_follows_origin"):
+        for lid in ("L_msg_budget_blocks_sender", "L_msg_waiver_follows_origin",
+                    "L_msgr_sender_can_replay"):
             self.assertEqual(rep["laws"][lid]["verdict"], "agree")
+        self.assertEqual(rep["laws"]["L_msgr_payer_bears_fee"]["verdict"], "disagree")
+
+    def test_msgr_lines(self):
+        l = self.lines
+        for i in (1, 2, 3, 4):
+            self.assertEqual(l[("msgr", i)][1], "ok", f"msgr step {i}")
+        self.assertEqual(l[("msgr", 5)][1], "Exceed maximum replay times")
+
+    def test_payer_lines(self):
+        l = self.lines
+        self.assertEqual(l[("payer", 1)][1], "ok")
+        self.assertEqual(l[("payer", 2)][1], "ok")  # origin waiver wins over payer on real code
 
 
 @unittest.skipUnless(_available(), "needs forge + npm + morph @3e44e79 + solc-0.8.24")
@@ -109,7 +122,7 @@ class TestM3NatReplay(_ForgeRun):
 
     def test_forge_passed(self):
         self.assertEqual(self.res.returncode, 0, self.res.stdout[-3000:] + self.res.stderr[-1000:])
-        self.assertIn("2 passed", self.res.stdout, self.res.stdout[-2000:])
+        self.assertIn("4 passed", self.res.stdout, self.res.stdout[-2000:])
 
     def test_defend_lines(self):
         l = self.lines
@@ -130,8 +143,16 @@ class TestM3NatReplay(_ForgeRun):
     def test_report_consistent(self):
         rep = json.loads((ROOT / "replay" / "M3" / self.report).read_text())
         self.assertTrue(rep["morph_commit"].startswith("3e44e79"))
-        for lid in ("L_nat_defend_legacy_blocked", "L_nat_slash_legacy_misses"):
+        for lid in ("L_nat_defend_legacy_blocked", "L_nat_slash_legacy_misses",
+                    "L_natr_defend", "L_natr_slash_at_stake"):
             self.assertEqual(rep["laws"][lid]["verdict"], "agree")
+
+    def test_natr_lines(self):
+        l = self.lines
+        self.assertEqual(l[("natrdefend", 1)][1], "pre-cutover Invalid batch proof")
+        self.assertEqual(l[("natrdefend", 2)][1], "post-cutover only active submitter allowed")
+        self.assertEqual(l[("natrslash", 1)][1], "ok")
+        self.assertEqual(l[("natrslash", 2)][1], "false")
 
 
 def _go_available() -> bool:
