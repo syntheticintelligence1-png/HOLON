@@ -1,0 +1,2107 @@
+{
+  "schema": "holon-mutation-report/0.1",
+  "spec": "spec/M2/A3/mutants.json",
+  "walked": [
+    "B001",
+    "B002",
+    "B003",
+    "B004",
+    "B005",
+    "B006",
+    "B007",
+    "B008",
+    "B009",
+    "B010",
+    "B011",
+    "B012",
+    "B013",
+    "B014",
+    "B015",
+    "B016",
+    "B017",
+    "B018",
+    "B019",
+    "B020",
+    "B021",
+    "B022",
+    "B023",
+    "B024",
+    "B025",
+    "B026",
+    "B027",
+    "B028",
+    "B029",
+    "B030",
+    "B031",
+    "B032",
+    "B033",
+    "B034"
+  ],
+  "invalid_skipped": [
+    "B009",
+    "B012",
+    "B018",
+    "B031"
+  ],
+  "counts": {
+    "total": 34,
+    "valid": 30,
+    "invalid": 4,
+    "equivalent": 0,
+    "detected": 16,
+    "extraction_gap": 0,
+    "rule_gap": 14,
+    "pending": 0
+  },
+  "score": 0.5333333333333333,
+  "threshold": 0.8,
+  "final": true,
+  "baseline_seconds": 201.549,
+  "baseline_facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+  "baseline_status_counts": {
+    "m0": {
+      "PROVED": 5,
+      "REFUTED": 3
+    },
+    "m1": {
+      "PROVED": 9,
+      "REFUTED": 6,
+      "UNKNOWN": 2
+    },
+    "a2": {
+      "PROVED": 71,
+      "REFUTED": 1
+    },
+    "a3": {
+      "PROVED": 26
+    }
+  },
+  "provenance": {
+    "mutants_sha256": "619d1db5ab75f21cc5b205f0446310e290f65effece99431c3bfd6da10b08c5a",
+    "registry_sha256": "393ef84748d3aa131537110f32cda626ccebd8d7e37fff0518e71a761a2c642e",
+    "seed": 1397366245,
+    "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "baseline_facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0"
+  },
+  "detected_via_counts": {
+    "flip": 14,
+    "unknown_only": 2
+  },
+  "mutants": [
+    {
+      "id": "B001",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 295,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "2350905b3c159cb96af70773897bf6ce5e848b4446b48bb6ca904ee8e402cdda",
+      "changed": [
+        {
+          "law": "L_disch_delay_pay",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_disch_delay_prove",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_disch_delay_wait",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_fact_Z",
+          "family": "m1",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_tag_BVH",
+          "family": "m1",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_undo_BVH",
+          "family": "m1",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_undo_cancel",
+          "family": "m1",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_a2_cb_challenge_expired",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_challenge_last_second",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_delay_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_queue_overrun",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_recommit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_remaining_time",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_wrong_parent",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_wrong_prev",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_zero_post",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_in_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_next_unfinalized_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_no_deposit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_rechallenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_window_closed",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_window_last_second",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_after_proof_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_bump_others",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_in_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_in_window",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_out_of_order",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_then_unchallengeable",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_window_over_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_bad_proof",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_no_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_timeout_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_zero_proof_in_window",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_finalized",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_lci",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_not_from_end",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_cb_challenge_expired",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_cb_challenge_last_second",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_cb_recommit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_cb_remaining_time",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_in_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_not_challenger",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_paused",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_rechallenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_window_closed",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_window_last_second",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_after_proof_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_bump_others",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_in_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_out_of_order",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_then_unchallengeable",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_not_active",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_timeout_blocks_commit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_timeout_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_zero_proof_in_window",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_rv_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_rv_not_owner",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_sp_cancel_then_rechallenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_sp_cancel_then_rechallenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cb_v2_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_ch_bumps_first",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_ch_bumps_first_over",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_delay_hit",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_delay_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_lci",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_fin_below_lfi",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_fin_twice",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_ch_bumps_first",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_ch_bumps_first_over",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_delay_hit",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_delay_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_no_stored",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_fin_twice",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_rv_bad_hash",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_rv_two_clears",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 93.335
+    },
+    {
+      "id": "B002",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 460,
+      "operator": "arith_drop",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 161.054
+    },
+    {
+      "id": "B003",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 353,
+      "operator": "condition_drop",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 167.184
+    },
+    {
+      "id": "B004",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 632,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "3ef073687218070793a00e00cc689a12e6ae9e740e84e60fccdaa464d9ca65fd",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 189.821
+    },
+    {
+      "id": "B005",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 294,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "4f0ca89537e07749140bf393eb8592a58bde2d7406cc1921d34b1bc20e8c8eb2",
+      "changed": [
+        {
+          "law": "L_disch_delay_pay",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_disch_delay_prove",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_disch_delay_wait",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_fact_Z",
+          "family": "m1",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_tag_BVH",
+          "family": "m1",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_undo_BVH",
+          "family": "m1",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_undo_cancel",
+          "family": "m1",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_a2_cb_challenge_expired",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_challenge_last_second",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_delay_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_queue_overrun",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_recommit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_remaining_time",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_wrong_parent",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_wrong_prev",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_zero_post",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_in_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_next_unfinalized_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_no_deposit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_rechallenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_window_closed",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_window_last_second",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_after_proof_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_bump_others",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_in_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_in_window",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_out_of_order",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_then_unchallengeable",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_window_over_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_bad_proof",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_no_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_timeout_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_zero_proof_in_window",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_finalized",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_lci",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_not_from_end",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_cb_challenge_expired",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_cb_challenge_last_second",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_cb_recommit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_cb_remaining_time",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_in_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_not_challenger",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_paused",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_rechallenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_window_closed",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_window_last_second",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_after_proof_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_bump_others",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_in_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_out_of_order",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_then_unchallengeable",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_not_active",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_timeout_blocks_commit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_timeout_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_zero_proof_in_window",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_rv_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_rv_not_owner",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_sp_cancel_then_rechallenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_sp_cancel_then_rechallenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cb_v2_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_ch_bumps_first",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_ch_bumps_first_over",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_delay_hit",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_delay_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_lci",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_fin_below_lfi",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_fin_twice",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_ch_bumps_first",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_ch_bumps_first_over",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_delay_hit",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_delay_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_no_stored",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_fin_twice",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_rv_bad_hash",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_rv_two_clears",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 96.949
+    },
+    {
+      "id": "B006",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 461,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 179.082
+    },
+    {
+      "id": "B007",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 450,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 183.427
+    },
+    {
+      "id": "B008",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 360,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "bded5bae942366ffaae2748422996d29055f2e21d2476b590899894103ceb975",
+      "changed": [
+        {
+          "law": "L_disch_delay_wait",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_sym_omega",
+          "family": "m1",
+          "baseline": "UNKNOWN",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_ch_window_closed",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_then_unchallengeable",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_window_over_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_finalized",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_then_unchallengeable",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_ch_bumps_first_over",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_fin_below_lfi",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_fin_twice",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_fin_twice",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 91.626
+    },
+    {
+      "id": "B009",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 447,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": false,
+      "detected": false,
+      "label": "invalid",
+      "changed": [],
+      "build_error": "solc failed:\nError: Explicit type conversion not allowed from \"int_const 1\" to \"bytes32\".\n   --> contracts/l1/rollup/Rollup.sol:447:45:\n    |\n447 |             committedBatches[_batchIndex] = bytes32(1);\n    |                                             ^^^^^^^^^^\n\n",
+      "seconds": 0.18
+    },
+    {
+      "id": "B010",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 265,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "4b322216a2bf8eec9f4e8f5989803bb13519643773389b6f5037e826f5056f94",
+      "changed": [
+        {
+          "law": "L_disch_delay_nofree",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_delay_hit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 179.935
+    },
+    {
+      "id": "B011",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 333,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [
+        {
+          "law": "L_par_hdr_v1",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v0",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v1",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v2",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_par_hdr_v2_composed",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 186.822
+    },
+    {
+      "id": "B012",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 295,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": false,
+      "detected": false,
+      "label": "invalid",
+      "changed": [],
+      "build_error": "solc failed:\nError: Explicit type conversion not allowed from \"int_const 1\" to \"bytes32\".\n   --> contracts/l1/rollup/Rollup.sol:295:49:\n    |\n295 |         require(batchDataInput.postStateRoot != bytes32(1), \"new state root is zero\");\n    |                                                 ^^^^^^^^^^\n\n",
+      "seconds": 0.196
+    },
+    {
+      "id": "B013",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 314,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "c286cba6f55ef0eee43b38c2190b923329d65dea0453427bdc0da8bd82546408",
+      "changed": [
+        {
+          "law": "L_a2_cb_wrong_prev",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 181.44
+    },
+    {
+      "id": "B014",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 455,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 195.159
+    },
+    {
+      "id": "B015",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 333,
+      "operator": "condition_drop",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [
+        {
+          "law": "L_par_hdr_v1",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v0",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v1",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v2",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_par_hdr_v2_composed",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 186.974
+    },
+    {
+      "id": "B016",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 431,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "9b0b02d5fb720489408d088256dab41daf562ce9fb94f2f9a98e30735b45a553",
+      "changed": [
+        {
+          "law": "L_a2_rv_zero_count",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 170.696
+    },
+    {
+      "id": "B017",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 449,
+      "operator": "condition_drop",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 174.625
+    },
+    {
+      "id": "B018",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 351,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": false,
+      "detected": false,
+      "label": "invalid",
+      "changed": [],
+      "build_error": "solc failed:\nError: Explicit type conversion not allowed from \"int_const 1\" to \"bytes32\".\n   --> contracts/l1/rollup/Rollup.sol:351:71:\n    |\n351 |             BatchHeaderCodecV0.storeSequencerSetVerifyHash(_batchPtr, bytes32(1));\n    |                                                                       ^^^^^^^^^^\n\n",
+      "seconds": 0.155
+    },
+    {
+      "id": "B019",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 325,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "d0938b53b31f60ee889ffb1cca741dfdd35521c5627ddbc8e0be892e89f2a011",
+      "changed": [
+        {
+          "law": "L_disch_delay_nofree",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 196.79
+    },
+    {
+      "id": "B020",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 313,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "e8ea5655007cbe991b13cb1647250f73dc22a2a9d844de7df5aee40c0a7f30f5",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 179.162
+    },
+    {
+      "id": "B021",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 313,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "e8ea5655007cbe991b13cb1647250f73dc22a2a9d844de7df5aee40c0a7f30f5",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 199.365
+    },
+    {
+      "id": "B022",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 455,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 183.972
+    },
+    {
+      "id": "B023",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 353,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 166.206
+    },
+    {
+      "id": "B024",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 447,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 168.224
+    },
+    {
+      "id": "B025",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 483,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "unknown_only",
+      "facts_sha256": "6749e8e91c2b6c335a098630981dbff488fc87a2e5cca4ed1422ee882263dd86",
+      "changed": [
+        {
+          "law": "L_a2_ch_no_deposit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 184.645
+    },
+    {
+      "id": "B026",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 613,
+      "operator": "relational",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "ec0adf053a2081ebd2e5c075c589c0069ed56c2d79f2536240c1df73febd6dca",
+      "changed": [
+        {
+          "law": "L_a2_pr_timeout_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_timeout_blocks_commit",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 164.196
+    },
+    {
+      "id": "B027",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 450,
+      "operator": "arith_drop",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 143.253
+    },
+    {
+      "id": "B028",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 636,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "00b54b66038e4ba8b35c85fdba9785c8be943489e2b5f5cbbdee80438252fd47",
+      "changed": [
+        {
+          "law": "L_disch_delay_wait",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_a2_fin_after_proof_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_then_unchallengeable",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_window_over_ok",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_finalized",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_then_unchallengeable",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_ch_bumps_first_over",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_fin_below_lfi",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_fin_twice",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_fin_twice",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 150.453
+    },
+    {
+      "id": "B029",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 577,
+      "operator": "condition_drop",
+      "equivalent": false,
+      "valid": true,
+      "detected": false,
+      "label": "rule_gap",
+      "detected_via": null,
+      "miss_cause": "no_status_change",
+      "facts_sha256": "06a156b7d109d56faa39e98e2de5cbf25db7a8ce10c8460833f03e77cdd3e23d",
+      "changed": [],
+      "link_fallbacks": [],
+      "seconds": 139.035
+    },
+    {
+      "id": "B030",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 334,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "edd337829f4aebf62e4d253c862b7b6c82f1e42f0e8205cb464604c6b01e92a0",
+      "changed": [
+        {
+          "law": "L_par_hdr_v1",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v0",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v1",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_rt_go_v2",
+          "family": "m0",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_par_hdr_v2_composed",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 142.555
+    },
+    {
+      "id": "B031",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 294,
+      "operator": "constant",
+      "equivalent": false,
+      "valid": false,
+      "detected": false,
+      "label": "invalid",
+      "changed": [],
+      "build_error": "solc failed:\nError: Explicit type conversion not allowed from \"int_const 1\" to \"bytes32\".\n   --> contracts/l1/rollup/Rollup.sol:294:49:\n    |\n294 |         require(batchDataInput.prevStateRoot != bytes32(1), \"previous state root is zero\");\n    |                                                 ^^^^^^^^^^\n\n",
+      "seconds": 0.176
+    },
+    {
+      "id": "B032",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 295,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "unknown_only",
+      "facts_sha256": "fa4b4bbf68d01cb6c9d4950ce290cffe88a3431fc439ad35d2d8f0e00b39bca8",
+      "changed": [
+        {
+          "law": "L_a2_cb_zero_post",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 141.222
+    },
+    {
+      "id": "B033",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 358,
+      "operator": "statement_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "f794b9344ea9dd104057289bf66eb937aa02eceab01eba0896fe12fc3a574ce3",
+      "changed": [
+        {
+          "law": "L_disch_delay_pay",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_disch_delay_prove",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_disch_delay_wait",
+          "family": "m1",
+          "baseline": "PROVED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_undo_cancel",
+          "family": "m1",
+          "baseline": "REFUTED",
+          "mutant": "UNKNOWN"
+        },
+        {
+          "law": "L_a2_cb_challenge_expired",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_challenge_last_second",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_cb_remaining_time",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_bump_others",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_fin_out_of_order",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_pr_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_rv_not_from_end",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_cb_remaining_time",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_ch_in_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_bump_others",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_bump_others_over",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_fin_out_of_order",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_pr_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_rv_clears_challenge",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a2_setup_rv_not_owner",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_ch_bumps_first",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_delay_hit",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_delay_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_lci",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_cs_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_ch_bumps_first",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_ch_bumps_first_over",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_delay_hit",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_delay_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_cs_ok",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_rv_bad_hash",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_setup_rv_two_clears",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 115.997
+    },
+    {
+      "id": "B034",
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 477,
+      "operator": "guard_deletion",
+      "equivalent": false,
+      "valid": true,
+      "detected": true,
+      "label": null,
+      "detected_via": "flip",
+      "facts_sha256": "4fdbd7374d6bc04dd0eccaca36c607312d8c830c52801a813782c55df1f805ac",
+      "changed": [
+        {
+          "law": "L_a2_ch_beyond_lci",
+          "family": "a2",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        },
+        {
+          "law": "L_a3_rv_two_clears",
+          "family": "a3",
+          "baseline": "PROVED",
+          "mutant": "REFUTED"
+        }
+      ],
+      "link_fallbacks": [],
+      "seconds": 140.426
+    }
+  ],
+  "equivalence_reclassifications": []
+}

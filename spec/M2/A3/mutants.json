@@ -1,0 +1,761 @@
+{
+ "milestone": "M2-A3",
+ "threshold": 0.8,
+ "take": 30,
+ "registry_sha256": "393ef84748d3aa131537110f32cda626ccebd8d7e37fff0518e71a761a2c642e",
+ "seed": 1397366245,
+ "pool_size": 75,
+ "rule": "walk `order`; keep the first `take` mutants that compile",
+ "order": [
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 295,
+   "function": "_commitBatchWithBatchData",
+   "operator": "relational",
+   "original": "require(batchDataInput.postStateRoot != bytes32(0), \"new state root is zero\");",
+   "replacement": "require(batchDataInput.postStateRoot == bytes32(0), \"new state root is zero\");",
+   "id": "B001",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 460,
+   "function": "revertBatch",
+   "operator": "arith_drop",
+   "original": "_batchIndex += 1;",
+   "replacement": "_batchIndex += 0;",
+   "id": "B002",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 353,
+   "function": "_commitBatchWithBatchData",
+   "operator": "condition_drop",
+   "original": "if (batchDataInput.version >= 1) {",
+   "replacement": "if (true) {",
+   "id": "B003",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 632,
+   "function": "finalizeBatch",
+   "operator": "guard_deletion",
+   "original": "require(!batchChallengedSuccess(_batchIndex), \"batch should be revert\");",
+   "replacement": "",
+   "id": "B004",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 294,
+   "function": "_commitBatchWithBatchData",
+   "operator": "relational",
+   "original": "require(batchDataInput.prevStateRoot != bytes32(0), \"previous state root is zero\");",
+   "replacement": "require(batchDataInput.prevStateRoot == bytes32(0), \"previous state root is zero\");",
+   "id": "B005",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 461,
+   "function": "revertBatch",
+   "operator": "constant",
+   "original": "_count -= 1;",
+   "replacement": "_count -= 2;",
+   "id": "B006",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 450,
+   "function": "revertBatch",
+   "operator": "statement_deletion",
+   "original": "batchChallengeReward[challenges[_batchIndex].challenger] += challenges[_batchIndex].challengeDeposit;",
+   "replacement": "",
+   "id": "B007",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 360,
+   "function": "_commitBatchWithBatchData",
+   "operator": "constant",
+   "original": "uint256 proveRemainingTime = 0;",
+   "replacement": "uint256 proveRemainingTime = 1;",
+   "id": "B008",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 447,
+   "function": "revertBatch",
+   "operator": "constant",
+   "original": "committedBatches[_batchIndex] = bytes32(0);",
+   "replacement": "committedBatches[_batchIndex] = bytes32(1);",
+   "id": "B009",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 265,
+   "function": "commitBatch",
+   "operator": "guard_deletion",
+   "original": "require(batchDataInput.numL1Messages > 0, \"l1msg delay\");",
+   "replacement": "",
+   "id": "B010",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 333,
+   "function": "_commitBatchWithBatchData",
+   "operator": "relational",
+   "original": "if (batchDataInput.version >= 1) {",
+   "replacement": "if (batchDataInput.version > 1) {",
+   "id": "B011",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 295,
+   "function": "_commitBatchWithBatchData",
+   "operator": "constant",
+   "original": "require(batchDataInput.postStateRoot != bytes32(0), \"new state root is zero\");",
+   "replacement": "require(batchDataInput.postStateRoot != bytes32(1), \"new state root is zero\");",
+   "id": "B012",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 314,
+   "function": "_commitBatchWithBatchData",
+   "operator": "guard_deletion",
+   "original": "require(committedStateRoots[_batchIndex] == batchDataInput.prevStateRoot, \"incorrect previous state root\");",
+   "replacement": "",
+   "id": "B013",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 455,
+   "function": "revertBatch",
+   "operator": "relational",
+   "original": "if (revertReqIndex > 0 && _batchIndex == revertReqIndex) {",
+   "replacement": "if (revertReqIndex >= 0 && _batchIndex == revertReqIndex) {",
+   "id": "B014",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 333,
+   "function": "_commitBatchWithBatchData",
+   "operator": "condition_drop",
+   "original": "if (batchDataInput.version >= 1) {",
+   "replacement": "if (true) {",
+   "id": "B015",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 431,
+   "function": "revertBatch",
+   "operator": "relational",
+   "original": "require(_count > 0, \"count must be nonzero\");",
+   "replacement": "require(_count >= 0, \"count must be nonzero\");",
+   "id": "B016",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 449,
+   "function": "revertBatch",
+   "operator": "condition_drop",
+   "original": "if (batchInChallenge(_batchIndex)) {",
+   "replacement": "if (true) {",
+   "id": "B017",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 351,
+   "function": "_commitBatchWithBatchData",
+   "operator": "constant",
+   "original": "BatchHeaderCodecV0.storeSequencerSetVerifyHash(_batchPtr, bytes32(0));",
+   "replacement": "BatchHeaderCodecV0.storeSequencerSetVerifyHash(_batchPtr, bytes32(1));",
+   "id": "B018",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 325,
+   "function": "_commitBatchWithBatchData",
+   "operator": "statement_deletion",
+   "original": "_totalL1MessagesPoppedOverall += batchDataInput.numL1Messages;",
+   "replacement": "",
+   "id": "B019",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 313,
+   "function": "_commitBatchWithBatchData",
+   "operator": "guard_deletion",
+   "original": "require(committedBatches[_batchIndex] == _parentBatchHash, \"incorrect parent batch hash\");",
+   "replacement": "",
+   "id": "B020",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 313,
+   "function": "_commitBatchWithBatchData",
+   "operator": "relational",
+   "original": "require(committedBatches[_batchIndex] == _parentBatchHash, \"incorrect parent batch hash\");",
+   "replacement": "require(committedBatches[_batchIndex] != _parentBatchHash, \"incorrect parent batch hash\");",
+   "id": "B021",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 455,
+   "function": "revertBatch",
+   "operator": "constant",
+   "original": "if (revertReqIndex > 0 && _batchIndex == revertReqIndex) {",
+   "replacement": "if (revertReqIndex > 1 && _batchIndex == revertReqIndex) {",
+   "id": "B022",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 353,
+   "function": "_commitBatchWithBatchData",
+   "operator": "relational",
+   "original": "if (batchDataInput.version >= 1) {",
+   "replacement": "if (batchDataInput.version > 1) {",
+   "id": "B023",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 447,
+   "function": "revertBatch",
+   "operator": "statement_deletion",
+   "original": "committedBatches[_batchIndex] = bytes32(0);",
+   "replacement": "",
+   "id": "B024",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 483,
+   "function": "challengeState",
+   "operator": "guard_deletion",
+   "original": "require(msg.value >= ISubmitter(submitterContract).challengeDeposit(), \"insufficient value\");",
+   "replacement": "",
+   "id": "B025",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 613,
+   "function": "proveState",
+   "operator": "relational",
+   "original": "if (challenges[_batchIndex].startTime + proofWindow <= block.timestamp) {",
+   "replacement": "if (challenges[_batchIndex].startTime + proofWindow < block.timestamp) {",
+   "id": "B026",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 450,
+   "function": "revertBatch",
+   "operator": "arith_drop",
+   "original": "batchChallengeReward[challenges[_batchIndex].challenger] += challenges[_batchIndex].challengeDeposit;",
+   "replacement": "batchChallengeReward[challenges[_batchIndex].challenger] += 0;",
+   "id": "B027",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 636,
+   "function": "finalizeBatch",
+   "operator": "constant",
+   "original": "finalizedStateRoots[_batchIndex - 1] == BatchHeaderCodecV0.getPrevStateHash(memPtr),",
+   "replacement": "finalizedStateRoots[_batchIndex - 2] == BatchHeaderCodecV0.getPrevStateHash(memPtr),",
+   "id": "B028",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 577,
+   "function": "setPause",
+   "operator": "condition_drop",
+   "original": "if (inChallenge) {",
+   "replacement": "if (true) {",
+   "id": "B029",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 334,
+   "function": "_commitBatchWithBatchData",
+   "operator": "statement_deletion",
+   "original": "_headerLength = BatchHeaderCodecV1.BATCH_HEADER_LENGTH;",
+   "replacement": "",
+   "id": "B030",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 294,
+   "function": "_commitBatchWithBatchData",
+   "operator": "constant",
+   "original": "require(batchDataInput.prevStateRoot != bytes32(0), \"previous state root is zero\");",
+   "replacement": "require(batchDataInput.prevStateRoot != bytes32(1), \"previous state root is zero\");",
+   "id": "B031",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 295,
+   "function": "_commitBatchWithBatchData",
+   "operator": "guard_deletion",
+   "original": "require(batchDataInput.postStateRoot != bytes32(0), \"new state root is zero\");",
+   "replacement": "",
+   "id": "B032",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 358,
+   "function": "_commitBatchWithBatchData",
+   "operator": "statement_deletion",
+   "original": "committedStateRoots[_batchIndex] = batchDataInput.postStateRoot;",
+   "replacement": "",
+   "id": "B033",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 477,
+   "function": "challengeState",
+   "operator": "guard_deletion",
+   "original": "require(committedBatches[batchIndex] == _batchHash, \"incorrect batch hash\");",
+   "replacement": "",
+   "id": "B034",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 461,
+   "function": "revertBatch",
+   "operator": "arith_drop",
+   "original": "_count -= 1;",
+   "replacement": "_count -= 0;",
+   "id": "B035",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 314,
+   "function": "_commitBatchWithBatchData",
+   "operator": "relational",
+   "original": "require(committedStateRoots[_batchIndex] == batchDataInput.prevStateRoot, \"incorrect previous state root\");",
+   "replacement": "require(committedStateRoots[_batchIndex] != batchDataInput.prevStateRoot, \"incorrect previous state root\");",
+   "id": "B036",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 461,
+   "function": "revertBatch",
+   "operator": "statement_deletion",
+   "original": "_count -= 1;",
+   "replacement": "",
+   "id": "B037",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 483,
+   "function": "challengeState",
+   "operator": "relational",
+   "original": "require(msg.value >= ISubmitter(submitterContract).challengeDeposit(), \"insufficient value\");",
+   "replacement": "require(msg.value > ISubmitter(submitterContract).challengeDeposit(), \"insufficient value\");",
+   "id": "B038",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 495,
+   "function": "challengeState",
+   "operator": "statement_deletion",
+   "original": "inChallenge = true;",
+   "replacement": "",
+   "id": "B039",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 477,
+   "function": "challengeState",
+   "operator": "relational",
+   "original": "require(committedBatches[batchIndex] == _batchHash, \"incorrect batch hash\");",
+   "replacement": "require(committedBatches[batchIndex] != _batchHash, \"incorrect batch hash\");",
+   "id": "B040",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 455,
+   "function": "revertBatch",
+   "operator": "condition_drop",
+   "original": "if (revertReqIndex > 0 && _batchIndex == revertReqIndex) {",
+   "replacement": "if (revertReqIndex > 0) {",
+   "id": "B041",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 636,
+   "function": "finalizeBatch",
+   "operator": "arith_drop",
+   "original": "finalizedStateRoots[_batchIndex - 1] == BatchHeaderCodecV0.getPrevStateHash(memPtr),",
+   "replacement": "finalizedStateRoots[_batchIndex] == BatchHeaderCodecV0.getPrevStateHash(memPtr),",
+   "id": "B042",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 373,
+   "function": "_commitBatchWithBatchData",
+   "operator": "statement_deletion",
+   "original": "lastCommittedBatchIndex = _batchIndex;",
+   "replacement": "",
+   "id": "B043",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 613,
+   "function": "proveState",
+   "operator": "condition_drop",
+   "original": "if (challenges[_batchIndex].startTime + proofWindow <= block.timestamp) {",
+   "replacement": "if (true) {",
+   "id": "B044",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 649,
+   "function": "finalizeBatch",
+   "operator": "statement_deletion",
+   "original": "finalizedStateRoots[_batchIndex] = BatchHeaderCodecV0.getPostStateHash(memPtr);",
+   "replacement": "",
+   "id": "B045",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 294,
+   "function": "_commitBatchWithBatchData",
+   "operator": "guard_deletion",
+   "original": "require(batchDataInput.prevStateRoot != bytes32(0), \"previous state root is zero\");",
+   "replacement": "",
+   "id": "B046",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 431,
+   "function": "revertBatch",
+   "operator": "constant",
+   "original": "require(_count > 0, \"count must be nonzero\");",
+   "replacement": "require(_count > 1, \"count must be nonzero\");",
+   "id": "B047",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 265,
+   "function": "commitBatch",
+   "operator": "constant",
+   "original": "require(batchDataInput.numL1Messages > 0, \"l1msg delay\");",
+   "replacement": "require(batchDataInput.numL1Messages > 1, \"l1msg delay\");",
+   "id": "B048",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 357,
+   "function": "_commitBatchWithBatchData",
+   "operator": "statement_deletion",
+   "original": "committedBatches[_batchIndex] = BatchHeaderCodecV0.computeBatchHash(_batchPtr, _headerLength);",
+   "replacement": "",
+   "id": "B049",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 606,
+   "function": "proveState",
+   "operator": "guard_deletion",
+   "original": "require(batchInChallenge(_batchIndex), \"batch in challenge\");",
+   "replacement": "",
+   "id": "B050",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 333,
+   "function": "_commitBatchWithBatchData",
+   "operator": "constant",
+   "original": "if (batchDataInput.version >= 1) {",
+   "replacement": "if (batchDataInput.version >= 2) {",
+   "id": "B051",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 615,
+   "function": "proveState",
+   "operator": "statement_deletion",
+   "original": "challenges[_batchIndex].challengeSuccess = true;",
+   "replacement": "",
+   "id": "B052",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 613,
+   "function": "proveState",
+   "operator": "arith_drop",
+   "original": "if (challenges[_batchIndex].startTime + proofWindow <= block.timestamp) {",
+   "replacement": "if (challenges[_batchIndex].startTime <= block.timestamp) {",
+   "id": "B053",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 455,
+   "function": "revertBatch",
+   "operator": "logical",
+   "original": "if (revertReqIndex > 0 && _batchIndex == revertReqIndex) {",
+   "replacement": "if (revertReqIndex > 0 || _batchIndex == revertReqIndex) {",
+   "id": "B054",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 263,
+   "function": "commitBatch",
+   "operator": "arith_drop",
+   "original": "IL1MessageQueue(messageQueue).getFirstUnfinalizedMessageEnqueueTime() + rollupDelayPeriod < block.timestamp",
+   "replacement": "IL1MessageQueue(messageQueue).getFirstUnfinalizedMessageEnqueueTime() < block.timestamp",
+   "id": "B055",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 263,
+   "function": "commitBatch",
+   "operator": "relational",
+   "original": "IL1MessageQueue(messageQueue).getFirstUnfinalizedMessageEnqueueTime() + rollupDelayPeriod < block.timestamp",
+   "replacement": "IL1MessageQueue(messageQueue).getFirstUnfinalizedMessageEnqueueTime() + rollupDelayPeriod <= block.timestamp",
+   "id": "B056",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 478,
+   "function": "challengeState",
+   "operator": "guard_deletion",
+   "original": "require(batchExist(batchIndex), \"batch not exist\");",
+   "replacement": "",
+   "id": "B057",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 456,
+   "function": "revertBatch",
+   "operator": "statement_deletion",
+   "original": "revertReqIndex = 0;",
+   "replacement": "",
+   "id": "B058",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 603,
+   "function": "proveState",
+   "operator": "guard_deletion",
+   "original": "require(committedBatches[_batchIndex] == _batchHash, \"incorrect batch hash\");",
+   "replacement": "",
+   "id": "B059",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 431,
+   "function": "revertBatch",
+   "operator": "guard_deletion",
+   "original": "require(_count > 0, \"count must be nonzero\");",
+   "replacement": "",
+   "id": "B060",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 609,
+   "function": "proveState",
+   "operator": "statement_deletion",
+   "original": "challenges[_batchIndex].finished = true;",
+   "replacement": "",
+   "id": "B061",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 328,
+   "function": "_commitBatchWithBatchData",
+   "operator": "constant",
+   "original": "_batchIndex := add(_batchIndex, 1) // increase batch index",
+   "replacement": "_batchIndex := add(_batchIndex, 2) // increase batch index",
+   "id": "B062",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 460,
+   "function": "revertBatch",
+   "operator": "constant",
+   "original": "_batchIndex += 1;",
+   "replacement": "_batchIndex += 2;",
+   "id": "B063",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 353,
+   "function": "_commitBatchWithBatchData",
+   "operator": "constant",
+   "original": "if (batchDataInput.version >= 1) {",
+   "replacement": "if (batchDataInput.version >= 2) {",
+   "id": "B064",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 603,
+   "function": "proveState",
+   "operator": "relational",
+   "original": "require(committedBatches[_batchIndex] == _batchHash, \"incorrect batch hash\");",
+   "replacement": "require(committedBatches[_batchIndex] != _batchHash, \"incorrect batch hash\");",
+   "id": "B065",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 648,
+   "function": "finalizeBatch",
+   "operator": "statement_deletion",
+   "original": "withdrawalRoots[BatchHeaderCodecV0.getWithdrawRootHash(memPtr)] = true;",
+   "replacement": "",
+   "id": "B066",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 265,
+   "function": "commitBatch",
+   "operator": "relational",
+   "original": "require(batchDataInput.numL1Messages > 0, \"l1msg delay\");",
+   "replacement": "require(batchDataInput.numL1Messages >= 0, \"l1msg delay\");",
+   "id": "B067",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 629,
+   "function": "finalizeBatch",
+   "operator": "relational",
+   "original": "require(committedBatches[_batchIndex] == _batchHash, \"incorrect batch hash\");",
+   "replacement": "require(committedBatches[_batchIndex] != _batchHash, \"incorrect batch hash\");",
+   "id": "B068",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 481,
+   "function": "challengeState",
+   "operator": "guard_deletion",
+   "original": "require(batchInsideChallengeWindow(batchIndex), \"cannot challenge batch outside the challenge window\");",
+   "replacement": "",
+   "id": "B069",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 325,
+   "function": "_commitBatchWithBatchData",
+   "operator": "arith_drop",
+   "original": "_totalL1MessagesPoppedOverall += batchDataInput.numL1Messages;",
+   "replacement": "_totalL1MessagesPoppedOverall += 0;",
+   "id": "B070",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 359,
+   "function": "_commitBatchWithBatchData",
+   "operator": "statement_deletion",
+   "original": "batchBlobVersionedHashes[_batchIndex] = blobVersionedHash;",
+   "replacement": "",
+   "id": "B071",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 636,
+   "function": "finalizeBatch",
+   "operator": "relational",
+   "original": "finalizedStateRoots[_batchIndex - 1] == BatchHeaderCodecV0.getPrevStateHash(memPtr),",
+   "replacement": "finalizedStateRoots[_batchIndex - 1] != BatchHeaderCodecV0.getPrevStateHash(memPtr),",
+   "id": "B072",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 460,
+   "function": "revertBatch",
+   "operator": "statement_deletion",
+   "original": "_batchIndex += 1;",
+   "replacement": "",
+   "id": "B073",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 629,
+   "function": "finalizeBatch",
+   "operator": "guard_deletion",
+   "original": "require(committedBatches[_batchIndex] == _batchHash, \"incorrect batch hash\");",
+   "replacement": "",
+   "id": "B074",
+   "equivalent": false
+  },
+  {
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "line": 456,
+   "function": "revertBatch",
+   "operator": "constant",
+   "original": "revertReqIndex = 0;",
+   "replacement": "revertReqIndex = 1;",
+   "id": "B075",
+   "equivalent": false
+  }
+ ]
+}

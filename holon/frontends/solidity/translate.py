@@ -119,9 +119,11 @@ class Translator:
         self.let_values[name] = expr
         g = getattr(self, "action_spec", {}).get("ghost_tag")
         if g and name == g.get("after"):
-            self.guards.append({"let": g["name"], "expr": g["expr"]})
-            self.guard_prov.append("spec")
-            self.let_exprs[canon(g["expr"])] = g["name"]
+            gl = self._ghost_tag_let()
+            if gl is not None:
+                self.guards.append(gl)
+                self.guard_prov.append("spec")
+                self.let_exprs[canon(gl["expr"])] = gl["let"]
 
     def _vocab(self):
         """Names that are always bound in the emitted facts: params, state and
@@ -137,6 +139,43 @@ class Translator:
                 pass
             self._vocab_cache = v
         return self._vocab_cache
+
+    def _resolve_local_names(self, e):
+        """Substitute local_names model names in a spec expr with the local's
+        current bound value. A spec name like `next` is only a bound name
+        while its Solidity local was let-bound; when the local instead holds
+        a plain value (e.g. `parent` after a mutation), the spec expr must
+        carry that value, not the dead name."""
+        rev = {}
+        for sol, nm in (getattr(self, "local_names", None) or {}).items():
+            rev.setdefault(nm, sol)
+        def go(x):
+            if isinstance(x, str) and x in rev and x not in self.let_values:
+                # the spec name is not a bound let here — substitute the
+                # local's concrete value; a local that is missing or env-bound
+                # to a marker keeps the name so _unbound_names flags it (the
+                # let is then dropped with a debt item)
+                v = self.env.get(rev[x])
+                return v if isinstance(v, (str, int, list)) else x
+            if isinstance(x, list):
+                return [go(y) for y in x]
+            return x
+        return go(e)
+
+    def _ghost_tag_let(self):
+        """The spec ghost_tag let, with its spec-name locals resolved.
+        Returns None (and records debt) if a name stays unbound."""
+        g = getattr(self, "action_spec", {}).get("ghost_tag") or {}
+        if not g.get("name"):
+            return None
+        e = self._resolve_local_names(g["expr"])
+        bad = self._unbound_names(e)
+        if bad:
+            self.add_debt(f"ghost_tag {g['name']}", "unbound_value",
+                          f"ghost tag let dropped: name(s) {sorted(set(bad))} "
+                          "have no bound model value")
+            return None
+        return {"let": g["name"], "expr": e}
 
     def _unbound_names(self, e, extra=()):
         """Str leaves that would surface in emitted facts with no binding:
@@ -195,7 +234,10 @@ class Translator:
         for it in self.pending:
             out.append(it)
             if it.get("let") == g.get("after") and g.get("name"):
-                out.append({"let": g["name"], "expr": g["expr"], "__prov": "spec"})
+                gl = self._ghost_tag_let()
+                if gl is not None:
+                    gl["__prov"] = "spec"
+                    out.append(gl)
         self.pending = []
         for it in out:
             prov = it.pop("__prov", "ast")

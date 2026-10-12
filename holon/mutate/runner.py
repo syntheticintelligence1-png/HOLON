@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_WORK = Path.home() / "work" / "holon-mut"
 ROLLUP_FACTS = "spec/M1/facts/morph_rollup.json"
 A2_SPEC = "spec/M2/A2/mutants.json"
+A3_SPEC = "spec/M2/A3/mutants.json"
 A1_SPEC = "spec/M2/mutants.json"
 
 
@@ -472,32 +473,53 @@ def run_mutants(spec_path: Path, morph: Path, only: list[str] | None,
 
 # ==================================================================== A2 mode
 
-def _run_a2_pipeline(header_p: Path, rollup_p: Path, scratch: Path) -> dict:
-    """{family: {law: status}} — M0 on the assembled header facts, every M1
-    law (header facts override + rollup facts override; batchdata stays the
-    committed file), and every laws/A2 law on the extracted rollup facts.
-    Reason resolution stays per facts file."""
+def _run_pipeline(families: tuple, header_p: Path, rollup_p: Path,
+                  scratch: Path) -> dict:
+    """{family: {law: status}} — m0 on the assembled header facts, m1 with
+    both facts overrides (batchdata stays the committed file), and each
+    scenario milestone (a2, a3, ...) on the extracted rollup facts. Reason
+    resolution stays per facts file."""
     fam = {}
-    fam["m0"] = dict(pipeline.run("M0", str(header_p), str(scratch / "m0_res"),
-                                  str(scratch / "m0_gen"), no_registry=True,
-                                  log=lambda *a: None))
-    fam["m1"] = mpipeline.run_m1(
-        "M1", None, str(scratch / "m1_res"), str(scratch / "m1_gen"),
-        no_registry=True, log=lambda *a: None,
-        facts_overrides={ROLLUP_FACTS: Path(rollup_p),
-                         M1_HEADER_FACTS: Path(header_p)})
-    fam["a2"] = mpipeline.run_m1(
-        "A2", None, str(scratch / "a2_res"), str(scratch / "a2_gen"),
-        no_registry=True, log=lambda *a: None,
-        facts_overrides={ROLLUP_FACTS: Path(rollup_p)})
+    for f in families:
+        if f == "m0":
+            fam[f] = dict(pipeline.run("M0", str(header_p),
+                                       str(scratch / "m0_res"),
+                                       str(scratch / "m0_gen"), no_registry=True,
+                                       log=lambda *a: None))
+        elif f == "m1":
+            fam[f] = mpipeline.run_m1(
+                "M1", None, str(scratch / "m1_res"), str(scratch / "m1_gen"),
+                no_registry=True, log=lambda *a: None,
+                facts_overrides={ROLLUP_FACTS: Path(rollup_p),
+                                 M1_HEADER_FACTS: Path(header_p)})
+        else:
+            fam[f] = mpipeline.run_m1(
+                f.upper(), None, str(scratch / f"{f}_res"),
+                str(scratch / f"{f}_gen"), no_registry=True,
+                log=lambda *a: None,
+                facts_overrides={ROLLUP_FACTS: Path(rollup_p)})
     return fam
 
 
-def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
-           limit: int | None = None, log=print) -> int:
-    """Held-out A2 campaign: walk mutants.json `order`, keep the first `take`
+def _run_a2_pipeline(header_p: Path, rollup_p: Path, scratch: Path) -> dict:
+    return _run_pipeline(("m0", "m1", "a2"), header_p, rollup_p, scratch)
+
+
+def _heldout_pipeline(families: tuple, header_p: Path, rollup_p: Path,
+                      scratch: Path) -> dict:
+    # the A2 family set routes through _run_a2_pipeline (the A2 test seam);
+    # every other set goes through the generic dispatcher
+    if families == ("m0", "m1", "a2"):
+        return _run_a2_pipeline(header_p, rollup_p, scratch)
+    return _run_pipeline(families, header_p, rollup_p, scratch)
+
+
+def _run_heldout(spec_path: str, families: tuple, tag: str,
+                 morph: Path, work: Path | None, solc: Path | None,
+                 out: Path, limit: int | None, log=print) -> int:
+    """Held-out campaign: walk mutants.json `order`, keep the first `take`
     mutants that compile. Baseline extracted once per invocation."""
-    a2 = json.loads((ROOT / A2_SPEC).read_text())
+    a2 = json.loads((ROOT / spec_path).read_text())
     a1 = json.loads((ROOT / A1_SPEC).read_text())
     target = a1["target"]
     commit = target["commit"]
@@ -526,7 +548,8 @@ def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
 
     def pipeline_of(wt: Path, scratch: Path) -> dict:
         run = extract_pair(wt, scratch)
-        run["statuses"] = _run_a2_pipeline(run["header_p"], run["rollup_p"], scratch)
+        run["statuses"] = _heldout_pipeline(families, run["header_p"],
+                                            run["rollup_p"], scratch)
         return run
 
     def worktree_once(tag: str):
@@ -537,15 +560,15 @@ def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
         return wt
 
     t0 = time.time()
-    base_wt = worktree_once("a2-baseline")
+    base_wt = worktree_once(f"{tag}-baseline")
     try:
-        base = pipeline_of(base_wt, work / "out" / "a2-baseline")
+        base = pipeline_of(base_wt, work / "out" / f"{tag}-baseline")
     finally:
         _rm_worktree(morph, base_wt)
     base_seconds = round(time.time() - t0, 3)
     log(f"baseline pipeline {base_seconds}s "
-        f"(m0 {len(base['statuses']['m0'])}, m1 {len(base['statuses']['m1'])}, "
-        f"a2 {len(base['statuses']['a2'])} laws)")
+        + " ".join(f"{f} {len(base['statuses'][f])}" for f in families)
+        + " laws)")
 
     results = []
     walked: list[str] = []
@@ -560,7 +583,7 @@ def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
         wt = worktree_once(m["id"])
         try:
             _apply(wt, m)
-            scratch = work / "out" / f"a2-{m['id']}"
+            scratch = work / "out" / f"{tag}-{m['id']}"
             try:
                 run = extract_pair(wt, scratch)
             except CompileError as e:
@@ -585,7 +608,8 @@ def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
                 continue
             scored += 1
             try:
-                statuses = _run_a2_pipeline(run["header_p"], run["rollup_p"], scratch)
+                statuses = _heldout_pipeline(families, run["header_p"],
+                                             run["rollup_p"], scratch)
             except Exception as e:
                 first = (str(e).splitlines() or [repr(e)])[0]
                 label = ("extraction_gap"
@@ -633,7 +657,7 @@ def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
               "pending": 0}
     report = {
         "schema": "holon-mutation-report/0.1",
-        "spec": A2_SPEC,
+        "spec": spec_path,
         "walked": walked,
         "invalid_skipped": [r["id"] for r in results if r["label"] == "invalid"],
         "counts": counts,
@@ -645,7 +669,7 @@ def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
         "baseline_status_counts": {f: dict(sorted(collections.Counter(base["statuses"][f].values()).items()))
                                    for f in base["statuses"]},
         "provenance": {
-            "mutants_sha256": _file_sha(ROOT / A2_SPEC),
+            "mutants_sha256": _file_sha(ROOT / spec_path),
             "registry_sha256": a2["registry_sha256"],
             "seed": a2["seed"],
             "morph_commit": commit,
@@ -664,3 +688,15 @@ def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
     log(f"score {score} ({len(detected)}/{len(valid)} valid scored of {take}), "
         f"{counts['invalid']} invalid skipped -> {out}")
     return 0
+
+
+def run_a2(morph: Path, work: Path | None, solc: Path | None, out: Path,
+           limit: int | None = None, log=print) -> int:
+    return _run_heldout(A2_SPEC, ("m0", "m1", "a2"), "a2",
+                        morph, work, solc, out, limit, log)
+
+
+def run_a3(morph: Path, work: Path | None, solc: Path | None, out: Path,
+           limit: int | None = None, log=print) -> int:
+    return _run_heldout(A3_SPEC, ("m0", "m1", "a2", "a3"), "a3",
+                        morph, work, solc, out, limit, log)
