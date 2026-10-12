@@ -12,13 +12,21 @@ evaluated on the compiled Bend model at the record's own witness:
     is its boolean value rendered lowercase.
 
 Each replay/M3/<harness>_report.json laws entry gets:
-    model_outcome, chain_outcome (from its forge evidence lines),
-    verdict = "agree" iff model_outcome == chain_outcome,
-    status   = "passed"/"failed" to match.
+    model_outcome, chain_outcome, verdict, status.
+
+chain_outcome is parsed from the entry's forge evidence: the replay harness
+emits one machine-readable line per law probe,
+    HOLON_OUTCOME <law_id> ok
+    HOLON_OUTCOME <law_id> rev <revert reason, decoded from the catch data>
+    HOLON_OUTCOME <law_id> obs <true|false>
+stored verbatim in laws.<lid>.evidence. The tool requires the line for every
+REFUTED M3 law with a replay entry and fails without it; nothing is keyed by
+law id or typed by hand.
 
 Usage: python3 tools/m3_model_outcome.py [--check]   # --check: verify, don't write
 """
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -30,13 +38,23 @@ from holon.mreplay import model_logs  # noqa: E402
 
 MILESTONES = {"M3_msg": "msg_report.json", "M3_nat": "nat_report.json"}
 
-# forge HOLON evidence line -> chain outcome, keyed by (milestone, law_id)
-CHAIN_OUTCOME = {
-    "L_msgr_payer_bears_fee": "ok",
-    "L_msgr_sender_can_replay": "rev Exceed maximum replay times",
-    "L_natr_defend": "rev only active submitter allowed",
-    "L_natr_slash_at_stake": "false",
-}
+OUTCOME_LINE = re.compile(r"^HOLON_OUTCOME (\S+) (ok|rev\b.*|obs \w+)$")
+
+
+def chain_outcome(lid: str, evidence: list) -> str:
+    """Parse the harness-emitted probe line out of the forge evidence."""
+    line = None
+    for ev in evidence or []:
+        m = OUTCOME_LINE.search(ev.strip())
+        if m and m.group(1) == lid:
+            if line is not None:
+                raise ValueError(f"{lid}: multiple HOLON_OUTCOME lines in evidence")
+            line = m.group(2)
+    if line is None:
+        raise ValueError(f"{lid}: no HOLON_OUTCOME line in the replay evidence")
+    if line.startswith("obs "):
+        return line[4:]
+    return line
 
 
 def _wsub(o, w):
@@ -108,7 +126,11 @@ def main(check: bool) -> int:
             law = json.loads(lawp.read_text())
             cm = machines.setdefault(law["facts"], CompiledMachine.build(ROOT / law["facts"]))
             mo = model_outcome(law, rec.get("witness"), cm)
-            co = CHAIN_OUTCOME[lid]
+            try:
+                co = chain_outcome(lid, e.get("evidence"))
+            except ValueError as ex:
+                changed.append(str(ex))
+                continue
             want = {"model_outcome": mo, "chain_outcome": co,
                     "verdict": "agree" if mo == co else "disagree",
                     "status": "passed" if mo == co else "failed"}

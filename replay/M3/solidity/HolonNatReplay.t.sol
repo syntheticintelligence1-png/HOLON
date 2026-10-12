@@ -223,6 +223,11 @@ contract HolonNatReplayTest is Test {
         challenge(h1);
         st = tryProve(BOB, h1);
         console.log("HOLON natrdefend 2 proveState(w=2) post-cutover", st);
+        if (keccak256(bytes(st)) == keccak256("ok")) {
+            console.log("HOLON_OUTCOME L_natr_defend ok");
+        } else {
+            console.log(string.concat("HOLON_OUTCOME L_natr_defend rev ", st));
+        }
         require(keccak256(bytes(st)) == keccak256("only active submitter allowed"), st);
     }
 
@@ -241,6 +246,7 @@ contract HolonNatReplayTest is Test {
         require(keccak256(bytes(st)) == keccak256("ok"), st);
         bool act = submitter.isActive(BOB);
         console.log("HOLON natrslash 2 isActive(w=2)", act ? "true" : "false");
+        console.log(string.concat("HOLON_OUTCOME L_natr_slash_at_stake obs ", act ? "true" : "false"));
         require(!act, "legacy committer active in new registry");
         require(submitter.stakeOf(BOB) == 0, "legacy committer has stake in new registry");
     }

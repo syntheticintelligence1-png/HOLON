@@ -46,7 +46,8 @@
    "status": "passed",
    "evidence": [
     "HOLON payer 1 send(whitelisted-sender,0wei) ok",
-    "HOLON payer 2 replay(payer,0wei) ok"
+    "HOLON payer 2 replay(payer,0wei) ok",
+    "HOLON_OUTCOME L_msgr_payer_bears_fee ok"
    ],
    "notes": "Model evaluates the probe replayMessage(payer=6, value=0) to ok (waiver follows the origin _from=5, whitelisted), so the claim 'the replay reverts with Insufficient-fee' is REFUTED. The pinned L1CrossDomainMessenger also returns ok for the 0-wei payer replay. Replay agrees.",
    "model_outcome": "ok",
@@ -62,7 +63,8 @@
     "HOLON msgr 2 replay(third-party,fee) ok",
     "HOLON msgr 3 replay(third-party,fee) ok",
     "HOLON msgr 4 replay(third-party,fee) ok",
-    "HOLON msgr 5 replay(sender,fee) Exceed maximum replay times"
+    "HOLON msgr 5 replay(sender,fee) Exceed maximum replay times",
+    "HOLON_OUTCOME L_msgr_sender_can_replay rev Exceed maximum replay times"
    ],
    "notes": "Three third-party replays exhaust maxReplayTimes=3; the original sender's own replay reverts. Model probe and chain agree.",
    "model_outcome": "rev Exceed maximum replay times",

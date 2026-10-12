@@ -151,7 +151,13 @@ contract HolonMsgReplayTest is Test {
         require(keccak256(bytes(st)) == keccak256("ok"), st);
         st = tryReplay(BOB, n0, 0);  // model's payer 6
         console.log("HOLON payer 2 replay(payer,0wei)", st);
-        // deployed result recorded, not asserted: agree iff the fee check fires
+        // the harness labels its own probe step for tools/m3_model_outcome.py;
+        // the reason comes from the caught revert data, never typed here
+        if (keccak256(bytes(st)) == keccak256("ok")) {
+            console.log("HOLON_OUTCOME L_msgr_payer_bears_fee ok");
+        } else {
+            console.log(string.concat("HOLON_OUTCOME L_msgr_payer_bears_fee rev ", st));
+        }
         require(
             keccak256(bytes(st)) == keccak256("ok")
                 || keccak256(bytes(st)) == keccak256(bytes("Insufficient msg.value for fee")),
@@ -173,6 +179,11 @@ contract HolonMsgReplayTest is Test {
         }
         st = tryReplay(ALICE, n0, fee());
         console.log("HOLON msgr 5 replay(sender,fee)", st);
+        if (keccak256(bytes(st)) == keccak256("ok")) {
+            console.log("HOLON_OUTCOME L_msgr_sender_can_replay ok");
+        } else {
+            console.log(string.concat("HOLON_OUTCOME L_msgr_sender_can_replay rev ", st));
+        }
         require(keccak256(bytes(st)) == keccak256(bytes("Exceed maximum replay times")), st);
     }
 }
