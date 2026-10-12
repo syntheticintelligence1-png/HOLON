@@ -329,12 +329,6 @@ def run(milestone: str = "M0", root: Path | str = ROOT, jobs: int = 1, log=print
     items, _, fsha = plan(milestone, root)
     ok, version = toolchain_ok(cfg)
     d = lean_dir(milestone, root)
-    if d.exists():
-        shutil.rmtree(d)
-    d.mkdir(parents=True)
-    for it in items:
-        if it["text"] is not None:
-            (d / f"{it['law_id']}.lean").write_text(it["text"], encoding="utf-8")
     tmp = Path(tempfile.mkdtemp(prefix="holon-lean-"))
 
     def one(it):
@@ -373,6 +367,13 @@ def run(milestone: str = "M0", root: Path | str = ROOT, jobs: int = 1, log=print
         cli["laws"][lid] ={"result": r["result"], "axioms": r["axioms"], "seconds": r["seconds"],
                             "verdict": it["verdict"], **({"error": entry["error"]} if "error" in entry else {})}
         log(f"{lid:16s} {it['verdict']:8s} lean4 {r['result']:10s} {r['seconds']:7.2f} s  axioms {r['axioms']}")
+    # written only now, after every check, so an interrupted run never leaves files without their report
+    if d.exists():
+        shutil.rmtree(d)
+    d.mkdir(parents=True)
+    for it in items:
+        if it["text"] is not None:
+            (d / f"{it['law_id']}.lean").write_text(it["text"], encoding="utf-8")
     (d / REPORT).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     return cli
 
