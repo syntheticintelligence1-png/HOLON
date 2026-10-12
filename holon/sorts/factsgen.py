@@ -76,6 +76,13 @@ def sorted_facts(facts: dict, src_rel: str, assignment: dict) -> dict:
             if isinstance(g.get("reason"), str):
                 g["reason"] = codes[g["reason"]]
         f["actions"].append(a)
+    # a debt entry naming an action the (extended) facts now model is stale:
+    # extension actions are real actions, so they leave the debt list.
+    modelled = {a["name"] for a in f["actions"]}
+    if isinstance(f.get("coverage"), dict):
+        debt = f["coverage"].get("debt")
+        if isinstance(debt, list):
+            f["coverage"]["debt"] = [d for d in debt if d not in modelled]
     f["policy_extra"] = list(f.get("policy_extra", [])) + list(ext.get("policy_extra", []))
     for key in ("migrations", "preds", "observers"):
         f.setdefault(key, {}).update(copy.deepcopy(ext.get(key, {})))
