@@ -68,3 +68,21 @@ After E1 lands, run a fourth held-out round over lines not used by A1–A3, on t
 - G11 inhabitance for every PROVED law with premises.
 
 The M0, M1 and M3_sorts gates and `tools/freeze.py check` must keep passing on every merge.
+
+## Blind bundle: `tools/blind_bundle.py`
+
+`python3 tools/blind_bundle.py OUT` copies the tracked tree at HEAD without `.git`.
+
+It removes everything that states findings, laws, predictions or results:
+- `audit/`, `results/`, `laws/`, `predictions/`, `replay/`, `facts/`, `gen/`, `prompts/`;
+- `spec/M0..M3`, every `tests*/`, `config/triage.json`, `FROZEN.sha256` and `README.md`;
+- every doc except the Bend primer and notes;
+- whitepaper §11.3–§11.8 and Appendix A.
+
+It writes `BLIND_MANIFEST.json`, holding the source commit, a sha256 per file and `known_leaks`. The output is deterministic.
+
+The blind agents rerun the extractors themselves. Residual leaks that can't be removed without removing the factory are listed in `known_leaks`; at f386798 + this tool there are 6:
+- law ids in `holon/assemble/header.py`, `holon/mreplay.py`, `holon/mutate/runner.py`, `holon/replay.py` and `holon/sorts/factsgen.py`;
+- O/law ids in whitepaper §1–§10.
+
+The comparison reports, for every re-found item, whether it is named in a leaked file. Re-finding an item that is named in a leaked file counts as weak evidence only.
