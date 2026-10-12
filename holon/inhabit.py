@@ -275,10 +275,22 @@ def texts_02(law: dict, machine, model_stem: str, witness: dict) -> tuple[str, s
                                      note=f"non-vacuity of {law['law_id']} ({law_hash(law, machine.f, getattr(machine, 'orc', None))})")
     if getattr(machine, "oparams", None):
         witness = mlaws.resolve_witness(machine, em.binders, witness, premise_points(law, machine, witness))
-    proof = mproofs.evaluate(em, machine, imp, witness)
+    proof = _evaluate(em, machine, imp, witness)
     if proof is None:
         raise ValueError("no evaluation proof for the inhabitant")
     return em.name, em.text, proof
+
+
+def _evaluate(em, machine, imp: str, witness):
+    """mproofs.evaluate without the core library: an inhabitant is proved by computation and calls no core lemma, so
+    its text must not depend on the run's core mode (G11V regenerates it outside any run)."""
+    from .gen import mproofs
+    old = mproofs.CORE_MODE, mproofs.CORE_PASTE
+    mproofs.CORE_MODE, mproofs.CORE_PASTE = None, ""
+    try:
+        return mproofs.evaluate(em, machine, imp, witness)
+    finally:
+        mproofs.CORE_MODE, mproofs.CORE_PASTE = old
 
 
 def degenerate(cm, law: dict, witness: dict) -> bool | None:
@@ -372,7 +384,7 @@ def texts_site(law: dict, machine, model_stem: str, witness: dict) -> tuple[str,
                                      note=f"non-vacuity (at_site) of {law['law_id']} "
                                           f"({law_hash(law, machine.f, getattr(machine, 'orc', None))})")
     w = mlaws.resolve_witness(machine, em.binders, witness, {}) if getattr(machine, "oparams", None) else witness
-    proof = mproofs.evaluate(em, machine, imp, w)
+    proof = _evaluate(em, machine, imp, w)
     if proof is None:
         raise ValueError("no evaluation proof for the inhabitant")
     return em.name, em.text, proof
@@ -572,6 +584,12 @@ def g11v(gate) -> tuple[bool, str]:
             bad.append(f"{lid}: inhabitant cannot be regenerated from its IR and witness: {e}")
             continue
         laws_text, proof_text = (d / "LAWS.bend").read_text(), (d / "PROOF.bend").read_text()
+        if site_id(law) is not None:   # I15: the at_site premise hit_<x>, never Reach alone nor the site term itself
+            from .sorts.sites import ghost_x, law_id as site_law_id
+            x = ghost_x(site_law_id(site_id(law)))
+            if f"M.hit_{x}(" not in laws_text or f"M.site_{x}(" in laws_text:
+                bad.append(f"{lid}: the SORT-site inhabitant does not state the at_site premise hit_{x}")
+                continue
         if _body(laws_text) != _body(want_laws):
             bad.append(f"{lid}: inhabitant LAWS.bend is not the one generated from the parent's IR")
             continue

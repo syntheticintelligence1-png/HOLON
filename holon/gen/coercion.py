@@ -275,8 +275,12 @@ class Fact:
 
 
 class Gen:
-    def __init__(self, model_text: str, x: str, ref=None):
+    def __init__(self, model_text: str, x: str, ref=None, mode: str | None = None):
         self.ref = ref or (lambda n: f"C.{n}")
+        # canary modes (holon.mcanary, gate G4): "drop" replaces the first lemma-derived obligation by `{==}`, "force"
+        # discharges an obligation no passed condition implies by `{==}`; Bend must reject either for a semantic reason
+        self.mode = mode
+        self.altered: list[str] = []
         self.ghost = parse_ghost(model_text)
         self.defs = set(re.findall(r"(?m)^def (\w+)\(", model_text))
         self.types = set(re.findall(r"(?m)^type (\w+)", model_text))
@@ -425,8 +429,14 @@ class Gen:
         if f == "Nat.is_le":
             got = self.derive(t, facts, lets)
             if got is None:
+                if self.mode == "force":
+                    self.altered.append(render(self.expand(t, lets)))
+                    return "{==}", set()
                 raise NoProof(f"{where}: no passed condition implies {render(t)}")
             term, fact, path = got
+            if self.mode == "drop" and not self.altered and any(x != "fact" for x in path):
+                self.altered.append(render(self.expand(t, lets)))
+                return "{==}", set()
             for p in path:
                 if p != "fact":
                     self.lemma_used(p)
@@ -606,8 +616,25 @@ class Gen:
         return name
 
 
+def canary_proof(model_text: str, site_call: str, law_name: str, law_params: list[str], header: list[str], ref,
+                 mode: str) -> tuple[str, list[str]]:
+    """(PROOF.bend text, the obligations altered) of a G4 canary built by this generator: mode "drop" (the first
+    obligation a core lemma discharges is closed by `{==}` instead) or "force" (obligations no passed condition implies
+    are closed by `{==}`). NoProof when nothing would be altered."""
+    text, _, _, g = _proof(model_text, site_call, law_name, law_params, header, ref, mode)
+    if not g.altered:
+        raise NoProof(f"canary mode {mode}: no obligation to alter")
+    return text, g.altered
+
+
 def proof(model_text: str, site_call: str, law_name: str, law_params: list[str], header: list[str], ref=None
           ) -> tuple[str, list[str], list[str]]:
+    text, used, notes, _ = _proof(model_text, site_call, law_name, law_params, header, ref, None)
+    return text, used, notes
+
+
+def _proof(model_text: str, site_call: str, law_name: str, law_params: list[str], header: list[str], ref,
+           mode: str | None):
     """(PROOF.bend text, core lemmas called, one note per discharged obligation) of a SORT-site law.
 
     site_call: the claim's left side as the emitter wrote it, `M.site_<x>(a, s[, tables])`; law_params: the law's
@@ -615,7 +642,7 @@ def proof(model_text: str, site_call: str, law_name: str, law_params: list[str],
     m = re.fullmatch(rf"{ALIAS}\.(site_\w+)\((.*)\)", site_call.strip())
     if not m:
         raise NoProof(f"the claim {site_call!r} is not a site term")
-    g = Gen(model_text, m.group(1)[len("site_"):], ref)
+    g = Gen(model_text, m.group(1)[len("site_"):], ref, mode)
     top = g.ghost.get(m.group(1))
     if top is None or top.kind != "dispatch":
         raise NoProof(f"the model defines no ghost predicate {m.group(1)}")
@@ -635,7 +662,7 @@ def proof(model_text: str, site_call: str, law_name: str, law_params: list[str],
         lem = g.entry_lemma(g.ghost[body[1]])
         args = [render(subst(a, {k: ("id", v) for k, v in ren.items()})) for a in body[2]]
         cases.append((pat, f"{lem}({', '.join(args)})"))
-    if not any(n != "core_and_intro" for n in g.used_lemmas):
+    if mode is None and not any(n != "core_and_intro" for n in g.used_lemmas):
         raise NoProof("no hit rests on a passed condition: nothing for a coercion guard to discharge")
     lines = list(header) + ["# class coercion_guard: the ghost chain of every entry point mirrored; at each hit ONE passed",
                             "# condition (zero or more Bool.and projections, then one comparison lemma of the imported core)",
@@ -644,4 +671,4 @@ def proof(model_text: str, site_call: str, law_name: str, law_params: list[str],
     lines += [f"def Laws.{law_name}({', '.join(law_params)}):", f"  match {act}:"]
     for pat, body in cases:
         lines += [f"    case {g.qtype(pat)}:", f"      {body}"]
-    return "\n".join(lines) + "\n", g.used_lemmas, g.notes
+    return "\n".join(lines) + "\n", g.used_lemmas, g.notes, g
