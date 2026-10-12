@@ -14,6 +14,8 @@
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
   python -m holon diagram --milestone M2 [--out DIR] [--root DIR]   (one diagram per fact document)
   python -m holon sorts [--milestone M2] [--root DIR] [--out DIR] [--facts PATH ...]   (refined sorts, I13)
+  python -m holon derive --milestone M2 [--root DIR] [--out DIR] [--obstructions PATH] [--facts PATH ...]
+                         [--assignment PATH] [--against DIR --diff PATH]   (rules registry: laws/<M>/, I15)
   python -m holon native --milestone M0 [--out PATH]    (native C model, results/M2/native.json, I16)
   python -m holon refine --milestone M0 [--edges E1,E2] [--out DIR] [--morph PATH] [--work DIR] [--fix C ..]
   python -m holon metrics --milestone M [--root DIR]    (results/<M>/metrics.json, I16)
@@ -36,6 +38,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["sorts"]:  # likewise for holon.sorts
         from . import sorts
         return sorts.main(argv[1:])
+    if argv[:1] == ["derive"]:  # likewise for holon.rules (the rules registry, I15)
+        from . import rules
+        return rules.main(argv[1:])
     if argv[:1] == ["native"]:  # likewise for holon.model_native
         from . import model_native
         return model_native.main(argv[1:])

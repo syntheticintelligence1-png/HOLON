@@ -232,8 +232,10 @@ def regenerate_m2_outputs(m: str, root: Path, tmp: Path) -> tuple[list[str], str
     from .sorts import run as sorts_run
     with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()) as err:
         rc = sorts_run(m, str(root), str(tmp / "sorts"), None)
-    if rc == 0:
-        compare("sorts", _tree(tmp / "sorts"), _tree(gen / "sorts"))
+    if rc == 0:   # what holon sorts writes; gen/<m>/sorts/obstructions.json is holon derive's (I15), compared with it
+        from .sorts.assign import DOCUMENTS
+        mine = {f"{n}.json" for n in DOCUMENTS}
+        compare("sorts", _tree(tmp / "sorts"), {k: v for k, v in _tree(gen / "sorts").items() if k in mine})
     elif (gen / "sorts").exists():
         diffs.append(f"gen/{m}/sorts: holon sorts failed: {err.getvalue().strip()[:300]}")
     else:
