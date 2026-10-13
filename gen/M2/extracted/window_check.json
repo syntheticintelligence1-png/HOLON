@@ -1,0 +1,304 @@
+{
+  "abstraction": "spec/M1/facts/morph_rollup.json",
+  "classification": {
+    "families": {
+      "read": [
+        "_paused",
+        "batchBlobVersionedHashes",
+        "batchChallenged",
+        "batchDataStore",
+        "challenges",
+        "committedStateRoots",
+        "finalizationPeriodSeconds",
+        "finalizedStateRoots",
+        "inChallenge",
+        "lastCommittedBatchIndex",
+        "lastFinalizedBatchIndex",
+        "proofWindow",
+        "revertReqIndex",
+        "rollupDelayPeriod"
+      ],
+      "unknown": [],
+      "unmapped": [
+        "ContextUpgradeable.__gap",
+        "OwnableUpgradeable.__gap",
+        "PausableUpgradeable.__gap",
+        "__maxNumTxInChunk",
+        "_initialized",
+        "_initializing",
+        "_owner",
+        "batchChallengeReward",
+        "committedBatches",
+        "isChallenger",
+        "legacyCutoverBatchIndex",
+        "messageQueue",
+        "proofRewardPercent",
+        "proveRemaining",
+        "submitterContract",
+        "verifier",
+        "withdrawalRoots"
+      ]
+    },
+    "fields": [
+      {
+        "field": "t",
+        "kind": "state_unmapped",
+        "reason": "the environment (block.timestamp): the abstraction keeps the clock as state; the contract reads it from the block"
+      },
+      {
+        "field": "lfi",
+        "kind": "mapped",
+        "reason": "term"
+      },
+      {
+        "field": "inch",
+        "kind": "mapped",
+        "reason": "term"
+      },
+      {
+        "field": "bc",
+        "kind": "mapped",
+        "reason": "term"
+      },
+      {
+        "field": "rri",
+        "kind": "mapped",
+        "reason": "term"
+      },
+      {
+        "field": "paused",
+        "kind": "mapped",
+        "reason": "term"
+      },
+      {
+        "field": "W",
+        "kind": "mapped",
+        "reason": "term"
+      },
+      {
+        "field": "F",
+        "kind": "mapped",
+        "reason": "term"
+      },
+      {
+        "field": "D",
+        "kind": "mapped",
+        "reason": "term"
+      },
+      {
+        "field": "qlen",
+        "kind": "external",
+        "reason": "held by IL1MessageQueue: the message queue's length is the message queue's storage"
+      },
+      {
+        "field": "qpend",
+        "kind": "external",
+        "reason": "held by IL1MessageQueue: the pending queue index is the message queue's storage"
+      },
+      {
+        "field": "enq",
+        "kind": "external",
+        "reason": "held by IL1MessageQueue: the message enqueue times are the message queue's storage"
+      },
+      {
+        "field": "active",
+        "kind": "external",
+        "reason": "held by ISubmitter: the active submitter set is the submitter contract's storage (Rollup reads it through ISubmitter.isActive)"
+      },
+      {
+        "field": "chals",
+        "kind": "state_unmapped",
+        "reason": "not determined by the raw families: isChallenger is a mapping keyed by address: the set of its keys is not storage"
+      },
+      {
+        "field": "fsr",
+        "kind": "mapped",
+        "reason": "list"
+      },
+      {
+        "field": "chs",
+        "kind": "mapped",
+        "reason": "list"
+      },
+      {
+        "field": "c",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Ch"
+      },
+      {
+        "field": "d",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Ch"
+      },
+      {
+        "field": "s",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Ch"
+      },
+      {
+        "field": "w",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Ch"
+      },
+      {
+        "field": "f",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Ch"
+      },
+      {
+        "field": "win",
+        "kind": "mapped",
+        "reason": "list"
+      },
+      {
+        "field": "ver",
+        "kind": "state_unmapped",
+        "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+        "record": "Entry"
+      },
+      {
+        "field": "tot",
+        "kind": "state_unmapped",
+        "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+        "record": "Entry"
+      },
+      {
+        "field": "n",
+        "kind": "state_unmapped",
+        "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+        "record": "Entry"
+      },
+      {
+        "field": "hb",
+        "kind": "state_unmapped",
+        "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+        "record": "Entry"
+      },
+      {
+        "field": "prev",
+        "kind": "state_unmapped",
+        "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+        "record": "Entry"
+      },
+      {
+        "field": "post",
+        "kind": "state_unmapped",
+        "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+        "record": "Entry"
+      },
+      {
+        "field": "lbn",
+        "kind": "state_unmapped",
+        "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+        "record": "Entry"
+      },
+      {
+        "field": "csr",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Entry"
+      },
+      {
+        "field": "bvh",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Entry"
+      },
+      {
+        "field": "tag",
+        "kind": "ghost",
+        "reason": "a ghost field of Entry (no raw family)",
+        "record": "Entry"
+      },
+      {
+        "field": "bdo",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Entry"
+      },
+      {
+        "field": "bdf",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Entry"
+      },
+      {
+        "field": "bdn",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Entry"
+      },
+      {
+        "field": "bds",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "Entry"
+      },
+      {
+        "field": "s_csr",
+        "kind": "mapped",
+        "reason": "residue"
+      },
+      {
+        "field": "s_bd",
+        "kind": "mapped",
+        "reason": "residue"
+      },
+      {
+        "field": "o",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "BD"
+      },
+      {
+        "field": "f",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "BD"
+      },
+      {
+        "field": "n",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "BD"
+      },
+      {
+        "field": "s",
+        "kind": "mapped",
+        "reason": "term",
+        "record": "BD"
+      },
+      {
+        "field": "s_bvh",
+        "kind": "mapped",
+        "reason": "residue"
+      },
+      {
+        "field": "s_tag",
+        "kind": "ghost",
+        "reason": "a ghost field of the abstraction (no raw family)"
+      },
+      {
+        "field": "log",
+        "kind": "state_unmapped",
+        "reason": "the record of step outcomes: the abstraction's log records step outcomes (ok or a revert reason), not storage"
+      }
+    ]
+  },
+  "compared": 7672,
+  "corpus": {
+    "path": "results/M2/refinement/extracted/window_states.json",
+    "sha256": "225f399c0da64514abfdc01c6de9476810f0e572880429d5c589f90f71f64966"
+  },
+  "declaration": "spec/M2/lib/window_rollup.json",
+  "disagreements": [],
+  "document": "window_check",
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "states": 548,
+  "window_version": "holon-window/0.1"
+}
