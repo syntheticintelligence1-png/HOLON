@@ -153,10 +153,11 @@ loop's generic iteration carries "loop": the seq of the innermost such loop reco
              the entry), loop?, code? (1 for an assert: its revert is Panic(0x01)), args? (V19-03: the revert data's
              args at that reach)}. The first reach's expr is the entry's expr.
   checks     implicit checks that are not panics: {seq, src, stack, kind, expr, param?}: "callvalue" (first, for an
-             action that is not payable: ["==", ["env", "msg.value"], 0]), "calldatasize" (V19-05; next, for an action
-             with parameters: [">=", ["env", "msg.data.length"], 4 + h], h the size of the head of the parameters'
-             ABI encoding: 32 bytes per value type and per dynamic type (its offset), a static array or struct in
-             place; shorter calldata reverts with empty data), "abi" (the ABI decoder's range check of a
+             action that is not payable: ["==", ["env", "msg.value"], 0]), "calldatasize" (V19-05; next, for a function
+             with parameters (not a fallback: its bytes parameter is the raw calldata): [">=", ["env",
+             "msg.data.length"], 4 + h], h the size of the head of the parameters' ABI encoding: 32 bytes per value
+             type and per dynamic type (its offset), a static array or struct in place; shorter calldata reverts with
+             empty data), "abi" (the ABI decoder's range check of a
              parameter narrower than a word: ["<", x, 2^N] for uintN and enums (N their bound), addresses and bools,
              ["sfits", N, x] for intN, the unused low bytes of bytesN zero; a memory or value parameter is checked at
              entry in parameter order, a member of a calldata struct where the walk first reads it), "slice" (a
@@ -1010,7 +1011,8 @@ class Walk:
         if fn.get("stateMutability") != "payable":
             self.check("callvalue", self.span(fn), ("==", ("env", "msg.value"), 0))
         params = fn["parameters"]["parameters"]
-        if params:  # the decoder needs the head of the parameters' encoding after the selector
+        if params and fn.get("kind") == "function":    # the decoder needs the head of the parameters' encoding
+            # (a fallback's bytes parameter is the raw calldata: nothing is decoded)
             head = abi_head_size([abi_type(self.ix, p.get("typeName") or {}) for p in params])
             self.check("calldatasize", self.span(fn), (">=", ("env", "msg.data.length"), 4 + head))
         for p in fn["parameters"]["parameters"]:

@@ -559,7 +559,7 @@ class TestFixtureCoverageAndHonesty(unittest.TestCase):
         self.assertEqual(sorted((d["kind"], d["detail"]) for d in pr["debt"]),
                          [("external_call", "IE.f"), ("external_call", "new Child"), ("loop_storage_write", "x")])
         r2 = coverage(ROUND2, "extract_round2.json")
-        self.assertEqual((r2["statements"], r2["extracted"], r2["unaccounted"], r2["debt"]), (35, 35, [], []))
+        self.assertEqual((r2["statements"], r2["extracted"], r2["unaccounted"], r2["debt"]), (36, 36, [], []))
 
     def test_two_runs_are_byte_identical(self):
         ledger()
@@ -825,6 +825,7 @@ class TestAllocationAndCalldataHead(unittest.TestCase):
                                   ("calldatasize", [">=", ["env", "msg.data.length"], 4 + 32 * 8]),
                                   ("abi", ["<", ["param", "b"], 1 << 64])])
         self.assertEqual([c["kind"] for c in act(d, "getFlag")["checks"]], ["callvalue"])
+        self.assertEqual([c["kind"] for c in act(d, "fallback")["checks"]], ["callvalue"])   # raw calldata: no head
         T = holon_module("holon.frontends.solidity.transitions")
         self.assertEqual([T.abi_static_size(t) for t in ("uint8", "bytes", "uint256[]", "uint256[2][3]",
                                                          "(uint256,bytes)", "(uint256,(bool,address))[2]")],

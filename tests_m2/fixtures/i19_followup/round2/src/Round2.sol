@@ -107,4 +107,8 @@ contract Round2 is Init {
         }
         copy = r;
     }
+
+    fallback(bytes calldata input) external returns (bytes memory) {
+        return input;
+    }
 }
