@@ -842,7 +842,7 @@ class Enumerator:
             prim = self.ctx.prims.get(fid)
             if prim is not None:
                 t = ("call", fid, tuple(R(a) for a in args))
-                if prim.get("kind") in ("to_array", "array_bytes") and prim.get("width"):
+                if prim.get("kind") in ("to_array", "array_bytes", "hex_to_array") and prim.get("width"):
                     self.lengths.note(t, prim["width"])
                 if prim.get("kind") == "array_bytes":
                     self.array_bytes_calls.add(t)

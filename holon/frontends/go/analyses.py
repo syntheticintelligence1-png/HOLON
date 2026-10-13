@@ -985,3 +985,59 @@ class Analysis:
                                         f"{L.kind} loop without a fuel term (no counted bound)")
         out.sort(key=lambda l: (l["function"], l["span"]))
         return out
+
+    # ================================================================== package variables (I19 follow-up A19-13)
+    def globals_(self) -> list:
+        """go.globals (holon.frontends.go.extract docstring): the package variables a package initializer assigns as a
+        whole, with their values and, for byte arrays, their cells."""
+        stores: dict = {}
+        for fid in sorted(self.prog.funcs):
+            fn = self.prog.funcs[fid]
+            if fn.synthetic != "package initializer":
+                continue
+            fl = self.flow(fid)
+            for ins in fn.instrs:
+                if ins.op != "Store":
+                    continue
+                a, v = ins.operands[0], ins.operands[1]
+                if not a or "global" not in a or a["global"] not in self.prog.globals or "$" in a["global"]:
+                    continue                # not a whole-variable store, or a synthetic variable (init$guard)
+                stores.setdefault(a["global"], []).append(fl.term(v))
+        out = []
+        for gid in sorted(stores):
+            g = self.prog.globals[gid]
+            typ = self.ctx.global_type(gid)
+            vals = stores[gid]
+            value = vals[0] if len(vals) == 1 else ("unknown", "stores")
+            out.append({"global": gid, "package": g.get("package") or "", "span": span_of(g.get("pos") or ""),
+                        "type": typ, "value": to_json(value), "cells": self._global_cells(value, typ)})
+        return out
+
+    def _global_cells(self, value, typ: str):
+        n = self.ty.byte_array_len(typ)
+        if n is None:
+            return None
+        if isinstance(value, tuple) and value[:1] == ("call",) and len(value) == 3:
+            prim = self.ctx.prims.get(value[1]) or {}
+            args = value[2]
+            if prim.get("kind") == "hex_to_array" and prim.get("width") == n and len(args) == 1 \
+                    and isinstance(args[0], tuple) and args[0][:1] == ("str",):
+                raw = hex_bytes(args[0][1])
+                if raw is not None:
+                    raw = raw[-n:] if len(raw) > n else bytes(n - len(raw)) + raw
+                    return [["const", b] for b in raw]
+                return [["unknown"] for _ in range(n)]
+        return [["byte", to_json(value), k] for k in range(n)]
+
+
+def hex_bytes(s: str) -> bytes | None:
+    """The bytes of a hexadecimal string (an optional 0x / 0X prefix removed, an odd count left-padded with "0"), or
+    None when it holds a character that is not a hexadecimal digit."""
+    if s[:2] in ("0x", "0X"):
+        s = s[2:]
+    if len(s) % 2:
+        s = "0" + s
+    try:
+        return bytes.fromhex(s) if all(c in "0123456789abcdefABCDEF" for c in s) else None
+    except ValueError:
+        return None

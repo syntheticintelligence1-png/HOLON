@@ -21,14 +21,20 @@ hand-written fact document or a law), by the key a role's source carries:
   "function"  (Go document of I18) the accepted (tag, length) pairs of the tagged predicate go.codecs.predicates whose
               function's last name segment is the source's function: [[value, length], ...] sorted.
   "constant"  (Solidity transitions document) constants[<name>] (a 0x-hex string).
-  "global"    (Go document) the value the document records for the package variable <pkg>.<name>: an object of the go
-              section holding "global" equal to that qualified name and a "value". I18 extracts no package initializer,
-              so no Go document records one today: the value is null.
+  "global"    (Go document) the value the document records for the package variable named by the source: the entry of
+              go.globals (holon.frontends.go.extract, I19 follow-up A19-13) whose "global" is exactly that qualified
+              name, else the only entry whose name ends in "." + the source's name (two or more: refused). Its cells
+              written as a 0x-hex string when every cell is a constant; null when the variable has no entry or its
+              bytes are not all known (the recorded value term is then reported on stderr).
+
+Roles are validated before any document is read (I19 follow-up A19-19): each names both languages, and each
+language's source is an object with a "document" path and exactly one reader key among edge, function, constant and
+global; a malformed role is refused (exit 2) and nothing is written.
 
 equal is true iff both values are present and equal. A value that is missing, and a link that is not equal, are
 reported on stderr; the link stays in the report as an explicit unlinked assumption (§7.7 step 5). --check writes
 nothing and exits 0 iff the report equals --out (default the committed one). Exit 0 written, 1 (--check) differs,
-2 refused (no link sidecar, a document missing, a source the reader cannot read).
+2 refused (no link sidecar, a malformed role, a document missing, a source the reader cannot read).
 """
 from __future__ import annotations
 
@@ -184,25 +190,55 @@ def predicate_pairs(doc: dict, function: str) -> list:
     return sorted([a["value"], a["length"]] for a in hits[0].get("accepts", []))
 
 
-def global_value(doc: dict, name: str):
-    """The value the Go document records for the package variable <pkg>.<name>, or None."""
-    found = []
+NOTES: list = []
 
-    def walk(x):
-        if isinstance(x, dict):
-            g = x.get("global")
-            if isinstance(g, str) and (g == name or g.endswith("." + name)) and "value" in x:
-                found.append(x["value"])
-            for v in x.values():
-                walk(v)
-        elif isinstance(x, list):
-            for v in x:
-                walk(v)
-    walk(doc.get("go") or {})
-    vals = {json.dumps(v, sort_keys=True) for v in found}
-    if len(vals) > 1:
-        raise LinkError(f"the Go document records several values for {name!r}")
-    return found[0] if found else None
+
+def global_value(doc: dict, name: str):
+    """The 0x-hex bytes the Go document records for the package variable `name` (module docstring), or None."""
+    entries = [g for g in ((doc.get("go") or {}).get("globals") or []) if isinstance(g, dict)]
+    hits = [g for g in entries if g.get("global") == name]
+    if not hits:
+        hits = [g for g in entries if str(g.get("global", "")).endswith("." + name)]
+    if len(hits) > 1:
+        raise LinkError(f"the Go document has {len(hits)} package variables named {name!r}: "
+                        f"{sorted(g['global'] for g in hits)}")
+    if not hits:
+        return None
+    cells = hits[0].get("cells")
+    if isinstance(cells, list) and cells and all(isinstance(c, list) and len(c) == 2 and c[0] == "const"
+                                                 and isinstance(c[1], int) and 0 <= c[1] < 256 for c in cells):
+        return "0x" + bytes(c[1] for c in cells).hex()
+    NOTES.append(f"{hits[0]['global']}: its bytes are not all known; the document records "
+                 f"{json.dumps(hits[0].get('value'))[:300]}")
+    return None
+
+
+READERS = ("edge", "function", "constant", "global")
+
+
+def check_roles(side: dict) -> None:
+    """Every role names both languages, each with a document and exactly one reader key (LinkError otherwise)."""
+    roles = side.get("roles")
+    if not isinstance(roles, dict) or not roles:
+        raise LinkError("the link sidecar has no roles")
+    bad = []
+    for role in sorted(roles):
+        r = roles[role]
+        if not isinstance(r, dict):
+            bad.append(f"{role}: not an object")
+            continue
+        for lang in LANGS:
+            src = r.get(lang)
+            if not isinstance(src, dict):
+                bad.append(f"{role}: no {lang} source")
+                continue
+            if not isinstance(src.get("document"), str) or not src["document"]:
+                bad.append(f"{role}.{lang}: no document")
+            keys = [k for k in READERS if k in src]
+            if len(keys) != 1 or not isinstance(src[keys[0]], str) or not src[keys[0]]:
+                bad.append(f"{role}.{lang}: needs exactly one of {', '.join(READERS)} (has {keys})")
+    if bad:
+        raise LinkError("malformed link sidecar: " + "; ".join(bad))
 
 
 def read_value(src: dict, root: Path):
@@ -227,6 +263,7 @@ def compute(m: str, root=ROOT) -> dict:
     if not p.is_file():
         raise LinkError(f"no link sidecar {p.relative_to(root) if p.is_relative_to(root) else p}")
     side = _load(root, p.relative_to(root).as_posix()) if p.is_relative_to(root) else json.loads(p.read_text())
+    check_roles(side)
     links = []
     for role in sorted(side.get("roles") or {}):
         r = side["roles"][role]
@@ -256,6 +293,8 @@ def main(argv=None) -> int:
         print(f"holon link: refused: {e}", file=sys.stderr)
         return 2
     data = render(doc)
+    for note in NOTES:
+        print(f"holon link: {note}", file=sys.stderr)
     for ln in doc["links"]:
         missing = [lang for lang in LANGS if ln[lang] is None]
         if missing:

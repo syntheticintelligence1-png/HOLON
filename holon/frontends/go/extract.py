@@ -10,6 +10,19 @@ JSON file its "source" names, the source tree and the ssadump output; nothing el
 
 Exit 0 written; 2 refused, nothing written (toolchain missing or not the pinned version, helper not built, a package
 that does not load or type-check, a missing or malformed input).
+
+Additive sections (I19 follow-up A19-13; the contract of the other sections is the docstring of
+tests_m2/test_extract_go.py):
+  go.globals  [{"global": qualified name, "package", "span": its declaration, "type", "value": term, "cells": [cell]
+              | null}] sorted by global: every package-level variable that a package initializer of the document's
+              packages assigns as a whole (one Store to the variable itself; a variable assigned more than once has the
+              value ["unknown", "stores"]; synthetic variables, whose names hold "$", are left out). value is built from the initializer's definitions as in the slices pass
+              (Flow), so a call stays a call term. cells (for a variable of a fixed-size byte-array type, else null):
+              the n bytes of the value, ["const", v] where known (the value of a hex_to_array primitive applied to a
+              string constant), else ["byte", value, k]. Package initializers stay out of "functions".
+  primitive kind "hex_to_array" (width n): the n-byte array of a string argument's hexadecimal digits (an optional
+              0x or 0X prefix removed, an odd count left-padded with "0"), right-aligned (zero bytes before it) and
+              cropped to its last n bytes; a string that is not hexadecimal leaves the cells unknown.
 """
 from __future__ import annotations
 
@@ -30,6 +43,7 @@ from .ssaload import DumpError, Program
 
 FRONTEND_VERSION = "holon-go/0.1"
 CONFIG_VERSION = "holon-go-frontend/0.1"
+PRIMITIVE_KINDS = ("to_array", "hash", "array_bytes", "hex_to_array")
 FACTS_VERSION = "holon-facts/0.3"
 HERE = Path(__file__).resolve().parent
 SSADUMP_DIR = HERE / "ssadump"
@@ -79,10 +93,9 @@ def load_config(path: Path) -> dict:
     if not isinstance(prims, dict):
         raise Refused(f"config {path}: primitives must be an object")
     for name, p in prims.items():
-        if not isinstance(p, dict) or p.get("kind") not in ("to_array", "hash", "array_bytes") \
-                or not isinstance(p.get("text"), str):
-            raise Refused(f"config {path}: primitive {name} needs kind (to_array | hash | array_bytes) and text")
-        if p["kind"] in ("to_array", "array_bytes") and not isinstance(p.get("width"), int):
+        if not isinstance(p, dict) or p.get("kind") not in PRIMITIVE_KINDS or not isinstance(p.get("text"), str):
+            raise Refused(f"config {path}: primitive {name} needs kind ({' | '.join(PRIMITIVE_KINDS)}) and text")
+        if p["kind"] in ("to_array", "array_bytes", "hex_to_array") and not isinstance(p.get("width"), int):
             raise Refused(f"config {path}: primitive {name} needs a width")
     lim = cfg.get("limits", {})
     if not isinstance(lim, dict) or not all(isinstance(lim.get(k), int) and lim.get(k) > 0
@@ -348,6 +361,7 @@ def compute(an: Analysis) -> dict:
         "edges": an.edges(),
         "flows": an.flows_(),
         "loops": an.loops(),
+        "globals": an.globals_(),
     }
     sec["debt"] = sorted({json.dumps(d, sort_keys=True): d for d in an.ctx.debt}.values(),
                          key=lambda d: (d["function"], d["kind"], d["where"], d["what"]))
@@ -382,6 +396,7 @@ def split(an: Analysis, s: dict, pkset: set, prog: Program) -> dict:
             "flows": [e for e in s["flows"] if mine(e["caller"])],
         },
         "loops": [e for e in s["loops"] if mine(e["function"])],
+        "globals": [e for e in s["globals"] if e["package"] in pkset],
         "coverage": {
             "functions": len(functions),
             "with_paths": sum(1 for f in functions.values() if f["paths"] is not None),

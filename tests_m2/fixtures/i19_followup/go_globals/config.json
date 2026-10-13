@@ -1,0 +1,26 @@
+{
+  "config_version": "holon-go-frontend/0.1",
+  "doc": "Config of the I19 follow-up Go globals fixture (tests_m2/test_i19_followup.py): package variables assigned by the package initializer, and a hex_to_array primitive (toy.local/globals/hexlib.Parse, outside the document) declared here.",
+  "target": {
+    "repo": "holon/i19-followup-go-globals",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "source": {
+    "path": "tests_m2/fixtures/i19_followup/go_globals/src"
+  },
+  "documents": {
+    "toy_globals": ["toy.local/globals/vals"]
+  },
+  "primitives": {
+    "toy.local/globals/hexlib.Parse": {
+      "kind": "hex_to_array",
+      "width": 4,
+      "text": "Parse(s) is the 4-byte array of the hexadecimal digits of s (0x removed, an odd count left-padded with 0), right-aligned and cropped to its last 4 bytes."
+    }
+  },
+  "limits": {
+    "max_paths": 512,
+    "inline_depth": 4,
+    "flow_depth": 3
+  }
+}
