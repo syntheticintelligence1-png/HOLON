@@ -877,6 +877,9 @@ class Search:
         if r.expr is None:
             st["why"] = "no condition term"
             return st
+        if r.expr is True or (isinstance(r.expr, int) and r.expr % (1 << 256) != 0):
+            st["why"] = "a non-zero constant condition (its negation is unsatisfiable)"
+            return st
         for b in bases:
             if b.ok is not None and self._hit(k, seq, self.evaluator(b, b.args, b.env)) == "hit":
                 st["covered"] = [b.tid, b.pos]
@@ -1068,6 +1071,9 @@ def reason_function(search: Search | None, log: dict, outcome_text):
     """reason_of(reach, steps that targeted it) for holon.replay_fragments.guard_coverage: what the targeting steps
     did on both sides when some ran, else why the search built none (Search.search_reason)."""
     def reason_of(r, steps) -> str:
+        if r.expr is True or (isinstance(r.expr, int) and not isinstance(r.expr, bool) and r.expr % (1 << 256) != 0):
+            return ("its condition in the document is a non-zero constant: its negation is unsatisfiable, so no input "
+                    "reverts there (the reach cannot revert)")
         if steps:
             shown = "; ".join(outcome_text(c) for c in steps[:3])
             more = f" (and {len(steps) - 3} more)" if len(steps) > 3 else ""
