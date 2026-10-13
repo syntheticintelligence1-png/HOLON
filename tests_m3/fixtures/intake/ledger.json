@@ -1,0 +1,92 @@
+{
+  "ledger_version": "holon-ledger/0.1",
+  "doc": "Sidecar ledger of the I41 intake fixture (a copy of the I8 toy reach ledger): its model assumptions, read by holon.records next to the facts.",
+  "bundles": [
+    {
+      "facts": "tests_m3/fixtures/intake/toy_intake.facts.json",
+      "facts_sha256": "8bbd4975f10b99767d6cacb8dfae079bcff79ad3c87fde72cc49d2070fa4e698",
+      "model": "toy_intake_facts",
+      "entries": [
+        {
+          "id": "abs-toy-intake-registers",
+          "kind": "abstraction",
+          "source": "tests_m3/fixtures/intake/toy_intake.facts.json#/abstractions/0",
+          "text": "Registers are Nat; the flag is a Bool (the I41 intake fixture, not a real target).",
+          "introduced_by": [
+            "HSt"
+          ]
+        }
+      ],
+      "no_assumption": [
+        {
+          "defs": [
+            "ite",
+            "nth_d",
+            "set_d",
+            "tail0",
+            "last_d",
+            "b_nth",
+            "b_set_nat",
+            "b_mem",
+            "b_remove",
+            "b_pair",
+            "b_enc",
+            "b_zeros_like",
+            "eq_bool",
+            "eq_list_nat",
+            "is_true"
+          ],
+          "why": "list, Nat and Bool utilities of the generator prelude; no modelling choice"
+        },
+        {
+          "defs": [
+            "g_*",
+            "empty_*",
+            "HObs",
+            "HSt",
+            "HAct",
+            "Dec_*"
+          ],
+          "why": "record plumbing generated from the facts types"
+        },
+        {
+          "defs": [
+            "decide_*",
+            "exec_*",
+            "step_*",
+            "step",
+            "run",
+            "Reach"
+          ],
+          "why": "action chains generated from the fixture's actions, and the reachability predicate generated from s0 and step"
+        },
+        {
+          "defs": [
+            "clear_log",
+            "log_of",
+            "obs",
+            "ok_head",
+            "last_ok",
+            "all_ok",
+            "runs_ok",
+            "no_code",
+            "eq_obs",
+            "eq_obs_list",
+            "cost",
+            "elapsed",
+            "perm",
+            "is_tick",
+            "is_copy",
+            "is_clear",
+            "is_raise",
+            "x_zero",
+            "y_zero",
+            "k_small",
+            "flag_down"
+          ],
+          "why": "statement vocabulary generated from the facts observers and the action log"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_i41_x_any_act",
+  "milestone": "T41",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m3/fixtures/intake/toy_intake.facts.json",
+  "facts_sha256": "",
+  "notes": "I41 target: a true invariant over reachable states (x stays 0), stated with a second binder a: Act that the claim ignores: the shape of the two M2 SORT-site laws the generators leave UNKNOWN (forall s: Reach, a: Act, ...). reach_invariant refuses it (it needs exactly one forall Reach binder and no premises), no other class applies and the refuter finds no witness, so the generators return UNKNOWN; a hand-written Reach induction with the strengthening y == 0 proves it.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "Reach"
+      },
+      {
+        "q": "forall",
+        "name": "a",
+        "type": "Act"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "x_zero",
+          "of": {
+            "var": "s"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

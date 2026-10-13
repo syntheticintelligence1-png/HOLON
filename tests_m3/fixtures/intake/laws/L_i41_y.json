@@ -1,0 +1,36 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_i41_y",
+  "milestone": "T41",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/0.1",
+  "facts": "tests_m3/fixtures/intake/toy_intake.facts.json",
+  "facts_sha256": "",
+  "notes": "I41 negative control: a true inductive invariant (y stays 0). reach_invariant proves it, so its generator outcome is PROVED and the intake refuses any agent proof for it.",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "Reach"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "y_zero",
+          "of": {
+            "var": "s"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

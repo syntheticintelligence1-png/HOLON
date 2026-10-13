@@ -1,0 +1,87 @@
+{
+  "milestone": "M3",
+  "doc": "Preregistration for M3 iterations (docs/BUILD_PLAN.md §0.1). One key per iteration under iterations. A key is written once, in its prereg commit, before any of its outcome_paths change; holon audit prereg checks the order and that the key is never edited afterwards. predictions count toward prediction accuracy; regressions are outcomes already recorded in the repo that must not change.",
+  "iterations": {
+    "I41": {
+      "title": "Untrusted prover intake",
+      "plan": "docs/BUILD_PLAN.md#i41",
+      "prompt": "prompts/I41_prover_intake.md",
+      "predictions": [
+        {
+          "id": "I41-P1",
+          "claim": "A fixture proof that edits its law file is refused by G1: with tests_m3/fixtures/intake/proofs/edits_law/LAWS.bend written over gen/T41/laws/L_i41_x_any_act/LAWS.bend (the claim added as a premise h, the generated header kept) and edits_law/PROOF.bend in the inbox, Bend alone accepts the proof against the edited file, and holon intake refuses it with reason law_file_changed, differs == [gen/T41/laws/L_i41_x_any_act/LAWS.bend], no kernel run, the edited file left in place.",
+          "check": "tests_m3/test_intake.py::TestFixtureIntake::test_a_proof_that_edits_its_law_file_is_refused_by_g1"
+        },
+        {
+          "id": "I41-P2",
+          "claim": "A valid fixture agent proof is accepted and labelled: proofs/valid/PROOF.bend, a hand-written Reach induction (strengthening y == 0) for L_i41_x_any_act (forall s: Reach, a: Act. x_zero(s) == true; UNKNOWN by the generators because reach_invariant refuses its second binder, the same refusal as the two real UNKNOWN M2 laws), is accepted by holon intake with bend2 and bendtt checked, lean4 not applicable and G1 clean; after holon run --milestone T41 its record is PROVED with prover agent:fixture-i41, artifacts.proof gen/T41/proofs/L_i41_x_any_act/PROOF.bend byte-identical to the inbox file, artifacts.laws the generators' statement with the unchanged statement hash, kernels bend2 and bendtt checked, independence_class I1-shared, bound null, non_vacuity inhabited (gen/T41/L_i41_x_any_act/nonvac/LAWS.bend, reachable), the generators' attempts kept and one intake attempt last; the record differs from the generators' UNKNOWN record in exactly status, prover, artifacts, attempts, bound, checker, kernel, kernels, independence_class and non_vacuity; the run adds exactly 4 gen/T41 files (law, proof copy, 2 inhabitant files); the L_i41_y and L_i41_flag records and every earlier gen/T41 file are unchanged.",
+          "check": "tests_m3/test_intake.py::TestFixtureIntake::test_a_valid_agent_proof_is_accepted and tests_m3/test_intake.py::TestFixtureRun::test_the_accepted_proof_is_labelled_in_its_record"
+        },
+        {
+          "id": "I41-P3",
+          "claim": "The gate re-decides the agent proof from scratch: on the accepted T41 tree holon gate --milestone T41 --checks G1,G3,G5,G7,G9,G11,G11V passes (at baseline it passes with 2 proofs, 3 records, 1 premised PROVED law inhabited); G1 regenerates the agent-proved record from the committed inbox (3 records identical), G5 and G7 each re-check 3 proofs (the 2 generator proofs and the agent's), G9 validates 3 records with prover, and G11V inhabits 2 premised PROVED laws. Negative control: with the inbox file replaced by the wrong proof (y == 1) and the accepted records and gen/T41 left in place, G1 fails and names L_i41_x_any_act among the records that differ.",
+          "check": "tests_m3/test_intake.py::TestFixtureRun::test_the_gate_rechecks_the_agent_proof and tests_m3/test_intake.py::TestFixtureRun::test_g1_redecides_the_committed_inbox"
+        },
+        {
+          "id": "I41-P4",
+          "claim": "Proofs for laws the generators PROVED or REFUTED are refused not_unknown before any kernel: the fixture's L_i41_y (its own generator proof, which Bend accepts) and L_i41_flag, and every decided M2 law resubmitted with its committed proof (at f8fa447: 8, 6 PROVED including L_sort_site_rollup_441_b4cd5068 and 2 REFUTED including L_sort_site_rollup_363_1fc7f88a).",
+          "check": "tests_m3/test_intake.py::TestFixtureIntake::test_proofs_for_proved_or_refuted_fixture_laws_are_refused and tests_m3/test_intake.py::TestRealM2::test_proofs_for_decided_m2_laws_are_refused"
+        },
+        {
+          "id": "I41-P5",
+          "claim": "Escape hatches are refused escape_hatch, naming their class, before G1 and before any kernel: ?TODO and ?name (hole), @unsafe (unsafe), def f?(..) (unsafe_sugar) and import \"./ag.c\" (foreign_import), each added to the valid fixture proof; and a ?TODO proof for each UNKNOWN M2 law (at f8fa447 L_sort_site_def_lci_356891e4 and L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17), which shows both are eligible.",
+          "check": "tests_m3/test_intake.py::TestFixtureIntake::test_escape_hatches_are_refused_before_any_kernel and tests_m3/test_intake.py::TestRealM2::test_a_hole_in_a_proof_for_a_real_unknown_law_is_refused"
+        },
+        {
+          "id": "I41-P6",
+          "claim": "A proof that checks but lacks the expected law is refused: proofs/no_law/PROOF.bend (the whole induction as a plain def, no law imported) gets ALL PROOFS CHECK from Bend and missing_expected_law from the intake, before any kernel.",
+          "check": "tests_m3/test_intake.py::TestFixtureIntake::test_a_proof_that_checks_but_lacks_its_law_is_refused"
+        },
+        {
+          "id": "I41-P7",
+          "claim": "An over-budget proof is refused: the valid proof plus a true lemma that makes 2^28 calls (ag_walk(28)), under --budget-s 10, is refused over_budget with bend2 timed out (killed at the budget: seconds >= 10, and the CLI returns within 130 s), while the valid proof alone is accepted under the same budget.",
+          "check": "tests_m3/test_intake.py::TestFixtureIntake::test_an_over_budget_proof_is_refused"
+        },
+        {
+          "id": "I41-P8",
+          "claim": "The real M2 path reaches the kernel: for each UNKNOWN M2 law a proof filled with {==} passes every check before the kernels, including G1 over gen/M2 (the regenerated model, core and law files equal the committed ones: differs == []), and is refused kernel_rejected with bend2 failed; the CLI changes no tracked M2 file.",
+          "check": "tests_m3/test_intake.py::TestRealM2::test_a_wrong_proof_for_a_real_unknown_law_reaches_the_kernel"
+        },
+        {
+          "id": "I41-P9",
+          "claim": "A refused submission changes nothing but its target's attempts: with the wrong strengthening (y == 1) in the inbox, holon run --milestone T41 leaves L_i41_x_any_act UNKNOWN with prover generator and one more attempt (intake, refused, kernel_rejected), every other field and record as the generators left them, and gen/T41 byte-identical to the generators' run.",
+          "check": "tests_m3/test_intake.py::TestFixtureRun::test_a_refused_submission_changes_only_the_targets_attempts"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I41-R1",
+          "claim": "The commit that introduces prover into results/M0..M2 descends from this prereg commit and adds \"prover\": \"generator\" to every record (34 at f8fa447: M0 8, M1 16, M2 10) and changes nothing else, except generator_sha256 of the M1 and M2 records (holon/records.py and the pipelines are in their generator set; M0's set holds neither); summary.json and deps.json are unchanged. At HEAD every record names its prover, agent:* only on a PROVED record whose proof is its inbox file.",
+          "check": "tests_m3/test_intake.py::TestProverField::test_the_prover_commit_adds_only_the_prover_field and tests_m3/test_intake.py::TestProverField::test_every_record_carries_a_prover"
+        },
+        {
+          "id": "I41-R2",
+          "claim": "Gates M0, M1 and M2 pass (G9 validates prover against the v2 schema; G1 regenerates every record, an agent-proved one from the committed inbox); the M0 gate stays under 900 s.",
+          "check": "gate"
+        },
+        {
+          "id": "I41-R3",
+          "claim": "Construction: REASONS is the closed vocabulary in check order, and of two failing checks the earlier decides (statement_mismatch before not_unknown before escape_hatch, missing_expected_law and escape_hatch before law_file_changed); the v2 schema requires prover with the contract's pattern; required_kernels adds lean4 only for I9's Lean-covered set (M0) and bendtt only when the verdict is enabled; --budget-s only lowers the budget (an empty inbox reports the budget used); --law decides only the named submissions, a missing one is a usage error; holon/intake.py names no law id or target and imports no oracle; the fixture's generator outcomes; bad_submission, unknown_law, statement_mismatch, declares_law, another law's proof (missing_expected_law), edits to another law file or to the model (G1), a wrong proof (kernel_rejected); the CLI writes nothing and is deterministic; holon run with the inbox is byte-identical across runs; --list gives the UNKNOWN records (T41: the target; M0, M1: none; M2: at f8fa447 L_sort_site_def_lci_356891e4 and L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17).",
+          "check": "tests_m3/test_intake.py::TestContract::test_reasons_are_the_closed_vocabulary_in_check_order and tests_m3/test_intake.py::TestContract::test_record_schema_requires_the_prover_field and tests_m3/test_intake.py::TestContract::test_required_kernels_follow_the_lean_covered_set and tests_m3/test_intake.py::TestContract::test_the_budget_can_only_be_lowered and tests_m3/test_intake.py::TestContract::test_intake_names_no_law_and_reads_no_oracle and tests_m3/test_intake.py::TestFixtureIntake::test_fixture_preconditions and tests_m3/test_intake.py::TestFixtureIntake::test_the_first_failing_check_decides and tests_m3/test_intake.py::TestFixtureIntake::test_law_selects_the_submissions_decided and tests_m3/test_intake.py::TestFixtureIntake::test_malformed_submissions_are_refused and tests_m3/test_intake.py::TestFixtureIntake::test_a_proof_declaring_a_law_is_refused and tests_m3/test_intake.py::TestFixtureIntake::test_a_proof_of_another_law_is_refused and tests_m3/test_intake.py::TestFixtureIntake::test_edits_to_another_law_file_or_the_model_are_refused and tests_m3/test_intake.py::TestFixtureIntake::test_a_wrong_proof_is_refused_by_the_kernel and tests_m3/test_intake.py::TestFixtureIntake::test_the_cli_writes_nothing_and_is_deterministic and tests_m3/test_intake.py::TestFixtureIntake::test_list_names_the_unknown_laws and tests_m3/test_intake.py::TestFixtureRun::test_rerun_is_byte_identical and tests_m3/test_intake.py::TestRealM2::test_a_stale_statement_hash_is_refused and tests_m3/test_intake.py::TestRealM2::test_list_names_exactly_the_unknown_m2_records"
+        }
+      ],
+      "outcome_paths": [
+        "proofs/"
+      ],
+      "tests": [
+        "tests_m3/test_intake.py"
+      ],
+      "thresholds": {
+        "budget_s_per_file": 120,
+        "fixture_budget_s": 10,
+        "fixture_slow_depth": 28,
+        "m0_gate_wall_s_max": 900
+      }
+    }
+  }
+}
