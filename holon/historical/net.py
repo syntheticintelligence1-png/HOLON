@@ -38,7 +38,9 @@ def secrets() -> list[str]:
             out.append(v)
             if k == "ETH_RPC_URL":
                 p = urllib.parse.urlsplit(v)
-                out += [s for s in (p.path.strip("/"), p.query, p.username or "", p.password or "") if len(s) >= 8]
+                parts = [p.path.strip("/"), p.query, p.username or "", p.password or ""]
+                parts += p.path.split("/") + [x.split("=", 1)[-1] for x in p.query.split("&")]
+                out += [s for s in parts if len(s) >= 8]
     return sorted(set(out), key=len, reverse=True)
 
 
