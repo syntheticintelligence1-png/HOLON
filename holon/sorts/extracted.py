@@ -295,6 +295,11 @@ class Walker:
         h = t[0]
         if h == "storage" and isinstance(t[1], str):
             return t[1]
+        if h in ("carried", "exit") and len(t) >= 3 and isinstance(t[2], list) and len(t[2]) == 2 \
+                and t[2][0] == "storage":
+            return t[2][1]           # a storage view carried through a loop: the family's values
+        if h == "store" and len(t) >= 2:
+            return self.family_var(t[1])
         if h in ("map", "index") and len(t) >= 2:
             return self.family_var(t[1])
         if h == "member" and len(t) >= 3:
@@ -405,6 +410,9 @@ class Walker:
             fv = self.family_var(t)
             if fv is not None:
                 reads = self.walk_all([x for x in self._keys(t)], ctx)
+                inner = self._inner(t)
+                if isinstance(inner, list) and inner and inner[0] == "store":
+                    reads |= self.ex(inner, ctx)[1]
                 fam = self.fams.get(fv.partition(".")[0])
                 if fam is not None and (fam.get("fields") and "." not in fv):
                     return None, reads   # a struct value as a whole
@@ -453,12 +461,24 @@ class Walker:
         if h in ("carried", "exit"):
             name = t[2]
             if isinstance(name, list) and len(name) == 2 and name[0] == "storage":
+                fam = self.fams.get(name[1]) or {}
+                if fam.get("kind") == "scalar" and not fam.get("fields"):
+                    self.family_key(name[1])     # an elementary family's value carried through a loop
+                    return name[1], frozenset({name[1]})
                 return None, frozenset()     # a storage view carried through a loop
             if isinstance(name, list):       # ["return", j] and the like
                 return self.fresh(), frozenset()
             return self.loop_var(t, loop_label(name), ctx), frozenset()
         if h == "store":
-            return None, self.walk_all(a, ctx)
+            # ["store", base, [[map|index|member, key]..], value]: a storage view with a write (a loop's carried
+            # storage); the base, the path's keys and the value are walked, nothing flows (the write records flow)
+            reads = self.ex(a[0], ctx)[1] if a else frozenset()
+            for acc in (a[1] if len(a) > 1 and isinstance(a[1], list) else []):
+                if isinstance(acc, list) and len(acc) == 2 and acc[0] != "member":
+                    reads |= self.ex(acc[1], ctx)[1]
+            if len(a) > 2:
+                reads |= self.ex(a[2], ctx)[1]
+            return None, reads
         if h == "struct":
             reads = frozenset()
             for _m, v in t[2]:
@@ -478,6 +498,13 @@ class Walker:
                 return None, reads
             return self.fresh(), reads
         raise ExtractedError(f"{ctx.actor} ({ctx.where}): term {h!r} has no sorts rule")
+
+    @staticmethod
+    def _inner(t):
+        """The innermost base of a storage or parameter access path."""
+        while isinstance(t, list) and t and t[0] in ("map", "index", "member"):
+            t = t[1]
+        return t
 
     @staticmethod
     def _keys(t) -> list:
