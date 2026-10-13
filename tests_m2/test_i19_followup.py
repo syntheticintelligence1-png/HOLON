@@ -15,6 +15,11 @@ the Go frontend (go.globals and the hex_to_array primitive kind: holon/frontends
   A19-18 fixture coverage, determinism, audit-hook reads, poisoned fact documents
   A19-19 link role validation
 
+Round 2 (the verifier's findings V19-02..V19-05, fixture tests_m2/fixtures/i19_followup/round2):
+  V19-02 booleans: conditions rendered by truthiness, the ite rules, bool leaves and cleanup, unchanged post families
+  V19-03 revert data: guards[].error and args (custom errors and Error(string))
+  V19-04 event topics                      V19-05 Panic 0x41 of a memory allocation, the calldata head check
+
 The preregistered I19 tests (tests_m2/test_extract_transitions.py, tests_m2/test_coverage.py) are unchanged.
 """
 import json
@@ -28,7 +33,7 @@ from tests_m2 import _i17 as H17
 from tests_m2._m2 import ROOT, copy_repo, holon_module, load_json, run_holon
 
 FIX = ROOT / "tests_m2" / "fixtures" / "i19_followup"
-LEDGER, PROBE, GOG = FIX / "ledger", FIX / "probe", FIX / "go_globals"
+LEDGER, PROBE, GOG, ROUND2 = FIX / "ledger", FIX / "probe", FIX / "go_globals", FIX / "round2"
 MORPH = ROOT / "spec" / "M2" / "facts" / "morph_rollup.extracted.json"
 GENESIS = ROOT / "spec" / "M2" / "facts" / "morph_genesis.go.extracted.json"
 SIDE = ROOT / "spec" / "M2" / "lib" / "extract_rollup.json"
@@ -61,6 +66,10 @@ def ledger() -> dict:
 
 def probe() -> dict:
     return extract(PROBE, "extract_probe.json")
+
+
+def round2() -> dict:
+    return extract(ROUND2, "extract_round2.json")
 
 
 def morph() -> dict:
@@ -126,7 +135,7 @@ def tags(t, out: set) -> set:
 
 
 TERM_KEYS = ("expr", "predicate", "iters", "args", "receiver", "value", "cond", "offset", "head", "break", "count",
-             "bound", "entry", "returns")
+             "bound", "entry", "returns", "topics")
 # the closed tag grammar of the transitions terms (holon/frontends/solidity/transitions.py docstring, "Terms")
 GRAMMAR = {
     "param", "caller", "storage", "map", "index", "member", "len", "byte", "word", "call", "at", "callok", "caught",
@@ -138,7 +147,7 @@ GRAMMAR = {
     "*", "/", "%", "&", "|", "^", "<<", ">>", "~", "neg", "**", "trunc", "sext", "s<", "s<=", "s>", "s>=", "sdiv",
     "smod", "sar", "addmod", "mulmod", "wbyte", "signextend", "fits", "sfits", "abi.encode", "abi.encodePacked",
     "abi.encodeWithSelector", "abi.encodeWithSignature", "abi.encodeCall", "abi.decode", "bytes.concat",
-    "string.concat", "ripemd160", "ecrecover"}
+    "string.concat", "ripemd160", "ecrecover", "abi.inplace"}
 
 
 def doc_tags(d: dict) -> set:
@@ -474,7 +483,7 @@ class TestActions(unittest.TestCase):
 # ================================================================================================ A19-14/16
 class TestTerms(unittest.TestCase):
     def test_closed_tag_grammar(self):
-        for name, d in (("ledger", ledger()), ("probe", probe()), ("morph", morph())):
+        for name, d in (("ledger", ledger()), ("probe", probe()), ("round2", round2()), ("morph", morph())):
             with self.subTest(doc=name):
                 t = doc_tags(d)
                 self.assertEqual(sorted(t - GRAMMAR), [])
@@ -497,7 +506,7 @@ class TestTerms(unittest.TestCase):
     def test_the_schema_holds_the_follow_up_keys(self):
         from holon.schema import errors
         s = load_json(ROOT / "spec" / "schemas" / "facts_0_3.schema.json")
-        for name, d in (("ledger", ledger()), ("probe", probe()), ("morph", morph())):
+        for name, d in (("ledger", ledger()), ("probe", probe()), ("round2", round2()), ("morph", morph())):
             with self.subTest(doc=name):
                 self.assertEqual(errors(d, s), [])
         bad = json.loads(json.dumps(ledger()))
@@ -549,6 +558,8 @@ class TestFixtureCoverageAndHonesty(unittest.TestCase):
         self.assertEqual((pr["statements"], pr["unaccounted"]), (pr["extracted"] + 1, []))
         self.assertEqual(sorted((d["kind"], d["detail"]) for d in pr["debt"]),
                          [("external_call", "IE.f"), ("external_call", "new Child"), ("loop_storage_write", "x")])
+        r2 = coverage(ROUND2, "extract_round2.json")
+        self.assertEqual((r2["statements"], r2["extracted"], r2["unaccounted"], r2["debt"]), (35, 35, [], []))
 
     def test_two_runs_are_byte_identical(self):
         ledger()
@@ -667,6 +678,192 @@ class TestLinkRobustness(unittest.TestCase):
             link.global_value(doc, "Z")
         self.assertIsNone(link.global_value(doc, "W"))
         self.assertIsNone(link.global_value(doc, "V"))
+
+
+# ================================================================================================ round 2: V19-02
+def keccak_hex(b: bytes, n: int = 32) -> str:
+    from holon.keccak import keccak256
+    return "0x" + keccak256(b)[:n].hex()
+
+
+def r2_line(text: str, nth: int = 1) -> str:
+    return line(ROUND2, "src/Round2.sol", text, nth)
+
+
+class TestBooleans(unittest.TestCase):
+    """V19-02. A bool read from storage is the raw byte at its offset (the compiler does not clean it on a read), so it
+    is not a boolean term; a condition is rendered by its truthiness, the value-exact ite rules apply to any word, and
+    the compiler's cleanup of bools (ABI encoding, storage stores, == and !=) is in the terms."""
+
+    def test_ite_rules_and_condition_rendering(self):
+        T = holon_module("holon.frontends.solidity.transitions")
+        s, p = ("storage", "f"), ("<", ("param", "a"), 3)
+        self.assertEqual(T.ite(("!", s), 0, s), s)                  # any word: where !s holds, s is 0
+        self.assertEqual(T.ite(s, s, 0), s)                         # any word: where s fails, s is 0
+        self.assertEqual(T.ite(("!", s), 1, s), ("?", ("!", s), 1, s))   # s may be 2: its value is not 1
+        self.assertEqual(T.ite(("!", p), 1, p), 1)                  # a boolean p is 1 where it holds
+        self.assertEqual(T.ite(p, 1, p), p)
+        self.assertEqual(T.render(("?", ("!", s), 1, s), True), 1)  # as a condition it always holds
+        self.assertEqual(T.render(("?", ("!", s), 1, s)), ["?", ["!", ["storage", "f"]], 1, ["storage", "f"]])
+        self.assertEqual(T.render(("&&", s, ("?", s, ("<", s, 9), 0)), True), ["&&", ["storage", "f"],
+                                                                              ["<", ["storage", "f"], 9]])
+
+    def test_initializer_like_modifier(self):
+        st = act(round2(), "setup")
+        g = [x for x in st["guards"] if x["src"] == r2_line('require(_busy, "not inside");')][0]
+        self.assertEqual((g["kind"], g["expr"], [r["expr"] for r in g["reaches"]]), ("modifier", 1, [1]))
+        self.assertEqual(st["post"], {"_done": 1, "x": ["param", "a"]})      # _busy is restored: no post entry
+        self.assertEqual([(w["family"], w["value"], w["cond"]) for w in st["writes"] if w["family"] == "_busy"],
+                         [("_busy", 1, ["!", ["storage", "_busy"]]), ("_busy", 0, ["!", ["storage", "_busy"]])])
+
+    def test_bool_cleanup_and_leaves(self):
+        d = round2()
+        flag = ["!=", ["storage", "flag"], 0]
+        self.assertEqual(act(d, "copyFlag")["post"], {"copy": flag})
+        self.assertEqual(act(d, "getFlag")["returns"], flag)
+        self.assertEqual(act(d, "same")["returns"], ["==", flag, ["!=", ["storage", "copy"], 0]])
+        self.assertEqual(act(d, "keep")["post"], {"copy": ["param", "f"]})   # a bool parameter is a boolean leaf
+
+    def test_morph_initializer_and_pause(self):
+        d = morph()
+        ini = act(d, "initialize")
+        g = [x for x in ini["guards"] if x["src"].endswith("Initializable.sol:133")][0]
+        self.assertEqual([r["expr"] for r in g["reaches"]], [1, 1, 1, 1])
+        self.assertNotIn("_initializing", ini["post"])
+        self.assertEqual(act(d, "setPause")["post"]["_paused"], ["param", "_status"])
+        self.assertEqual(act(d, "paused")["returns"], ["!=", ["storage", "_paused"], 0])
+        for a in d["actions"]:
+            for fam, v in a["post"].items():
+                with self.subTest(action=a["name"], family=fam):
+                    self.assertNotEqual(v, ["storage", fam])
+
+
+# ================================================================================================ round 2: V19-03
+class TestRevertData(unittest.TestCase):
+    def test_custom_errors_and_strings(self):
+        d = round2()
+        bad = act(d, "fail")["guards"][0]
+        sig = "Bad(uint256,string,address)"
+        self.assertEqual(bad["error"], {"name": "Round2.Bad", "signature": sig, "selector": keccak_hex(sig.encode(), 4)})
+        self.assertEqual(bad["args"], [["param", "c"], ["str", b"too big".hex()], ["caller"]])   # parameter order
+        self.assertEqual(bad["reaches"][0]["args"], bad["args"])
+        st = act(d, "setup")["guards"]
+        once = [g for g in st if g["src"] == r2_line("revert AlreadyDone(_done, _busy);")][0]
+        self.assertEqual((once["error"]["name"], once["error"]["signature"]), ("Init.AlreadyDone", "AlreadyDone(uint8,bool)"))
+        self.assertEqual(once["args"], [["storage", "_done"], ["!=", ["storage", "_busy"], 0]])
+        inside = [g for g in st if g["src"] == r2_line('require(_busy, "not inside");')][0]
+        err = {"name": "Error", "signature": "Error(string)", "selector": keccak_hex(b"Error(string)", 4)}
+        self.assertEqual((inside["error"], inside["args"]), (err, [["str", b"not inside".hex()]]))
+        dyn = act(d, "dyn")["guards"][0]
+        self.assertEqual((dyn["reason"], dyn["error"], dyn["args"], dyn["expr"]), (None, err, [["param", "why"]], 0))
+
+    def test_morph_revert_data(self):
+        d = morph()
+        g = [x for x in act(d, "initialize")["guards"] if x["src"] == f"{R}:169"][0]
+        self.assertEqual((g["error"], g["args"]), ({"name": "IRollup.ErrZeroAddress", "signature": "ErrZeroAddress()",
+                                                    "selector": keccak_hex(b"ErrZeroAddress()", 4)}, []))
+        for a in d["actions"]:
+            for x in a["guards"]:
+                with self.subTest(action=a["name"], guard=x["src"]):
+                    codes = {r.get("code") for r in x["reaches"]}
+                    if x.get("error", {}).get("name") == "Error" and x["reason"] is not None:
+                        self.assertEqual(x["args"], [["str", x["reason"].encode().hex()]])
+                    if "error" in x:
+                        self.assertEqual([len(r["args"]) for r in x["reaches"]], [len(x["args"])] * len(x["reaches"]))
+                    elif x["reason"] is not None:
+                        self.fail("a guard with a reason has no revert data")
+                    if codes == {1}:
+                        self.assertNotIn("error", x)
+
+
+# ================================================================================================ round 2: V19-04
+class TestTopics(unittest.TestCase):
+    def test_indexed_reference_arguments_are_hashed(self):
+        from holon.keccak import keccak256
+        e = act(round2(), "note")["events"]
+        self.assertEqual(e[0]["topics"], [["keccak256", ["param", "label"]], ["keccak256", ["param", "blob"]],
+                                          ["keccak256", ["abi.inplace", ["param", "xs"]]]])
+        self.assertEqual(e[1]["topics"][:2], [int.from_bytes(keccak256(b"fixed"), "big"),
+                                              int.from_bytes(keccak256(bytes([1, 2])), "big")])
+        self.assertEqual(e[0]["indexed"], [True, True, True, False])
+        pr = act(round2(), "pair")["events"][0]
+        flag = ["!=", ["storage", "flag"], 0]
+        self.assertEqual(pr["signature"], "Pair((uint256,uint256),bool,bool)")
+        self.assertEqual(pr["topics"], [["keccak256", ["abi.inplace", ["struct", "P", [["a", ["param", "a"]],
+                                                                                       ["b", 2]]]]], flag])
+        self.assertEqual(pr["args"][1:], [flag, flag])
+
+    def test_morph_topics(self):
+        from holon.keccak import keccak256
+        for a in morph()["actions"]:
+            for ev in a["events"]:
+                with self.subTest(action=a["name"], event=ev["event"], src=ev["src"]):
+                    self.assertEqual(len(ev["topics"]), sum(ev["indexed"]))
+        res = [ev for ev in act(morph(), "proveState")["events"] if ev["event"] == "IRollup.ChallengeRes"]
+        self.assertEqual(len(res), 2)
+        for ev in res:
+            self.assertEqual(ev["signature"], "ChallengeRes(uint256,address,string)")
+            self.assertEqual(ev["topics"][2], int.from_bytes(keccak256(bytes.fromhex(ev["args"][2][1])), "big"))
+
+
+# ================================================================================================ round 2: V19-05
+class TestAllocationAndCalldataHead(unittest.TestCase):
+    def test_allocation_panics(self):
+        al = act(round2(), "alloc")
+        bound = (1 << 64) - 1
+        self.assertEqual([(p["code"], p["op"], p["args"], p["expr"]) for p in al["panics"] if p["code"] == 65],
+                         [(65, "alloc", [["param", "n"]], ["<=", ["param", "n"], bound])] * 2)
+        self.assertEqual([p["src"] for p in al["panics"] if p["code"] == 65],
+                         [r2_line("new uint256[](n)"), r2_line("new bytes(n)")])
+
+    def test_static_head_of_the_calldata(self):
+        d = round2()
+        hd = act(d, "head")
+        cs = [(c["kind"], c["expr"]) for c in hd["checks"]]
+        # a, b (uint64), the offset of c, d (uint256[3], in place), p (two words, in place): 8 words after the selector
+        self.assertEqual(cs[:3], [("callvalue", ["==", ["env", "msg.value"], 0]),
+                                  ("calldatasize", [">=", ["env", "msg.data.length"], 4 + 32 * 8]),
+                                  ("abi", ["<", ["param", "b"], 1 << 64])])
+        self.assertEqual([c["kind"] for c in act(d, "getFlag")["checks"]], ["callvalue"])
+        T = holon_module("holon.frontends.solidity.transitions")
+        self.assertEqual([T.abi_static_size(t) for t in ("uint8", "bytes", "uint256[]", "uint256[2][3]",
+                                                         "(uint256,bytes)", "(uint256,(bool,address))[2]")],
+                         [32, None, None, 192, None, 192])
+
+    def test_morph_heads(self):
+        d = morph()
+        want = {"commitBatchWithProof": 100, "initialize": 196, "challengeState": 68, "finalizeBatch": 36}
+        for name, n in want.items():
+            with self.subTest(action=name):
+                cs = [c["expr"] for c in act(d, name)["checks"] if c["kind"] == "calldatasize"]
+                self.assertEqual(cs, [[">=", ["env", "msg.data.length"], n]])
+        for name in ("owner", "paused", "renounceOwnership", "receive"):
+            self.assertNotIn("calldatasize", [c["kind"] for c in act(d, name)["checks"]])
+
+
+# ================================================================================================ round 2: the compiler
+class TestCompilerSemantics(unittest.TestCase):
+    """The compiler and EVM facts behind the round-2 rules (V19-02..V19-05), run on the pinned solc and forge
+    (config/holon.json "replay"): tests_m2/fixtures/i19_followup/round2/semantics/test/Semantics.t.sol."""
+
+    def test_the_pinned_compiler_does_what_the_rules_say(self):
+        import subprocess
+        cfg = load_json(ROOT / "config" / "holon.json")["replay"]
+        tmp = Path(tempfile.mkdtemp(prefix="holon-a19-sem-"))
+        try:
+            work = tmp / "semantics"
+            shutil.copytree(ROUND2 / "semantics", work)
+            p = subprocess.run([cfg["forge"], "test", "--root", str(work), "--offline", "--use", cfg["solc"]],
+                               cwd=tmp, capture_output=True, text=True, timeout=900)
+            out = p.stdout + p.stderr
+            self.assertEqual(p.returncode, 0, out[-3000:])
+            for t in ("test_storage_bool_is_the_raw_byte", "test_bools_are_cleaned_where_encoded_stored_or_compared",
+                      "test_topics_of_indexed_reference_arguments", "test_memory_allocation_bound",
+                      "test_storage_push_has_no_length_check", "test_short_calldata_reverts_with_empty_data",
+                      "test_custom_error_revert_data"):
+                self.assertIn(f"[PASS] {t}()", out)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 if __name__ == "__main__":
