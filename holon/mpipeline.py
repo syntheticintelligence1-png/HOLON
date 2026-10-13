@@ -41,7 +41,7 @@ from .gen import mlaws, mproofs
 from .gen import oracles as O
 from .gen import refs as R
 from .gen import targetlib
-from .gen.machine import Machine
+from .gen.machine import Machine, bname
 from .replay import replay_status, load_report
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -149,6 +149,28 @@ class CompiledMachine:
         self._inst = (art, [{"id": e["id"], "param": e["parameter"]["name"], "fn": n} for e, n in items], notes)
         return self._inst
 
+    def expr_module(self, law: dict, terms: list) -> tuple[Path, list[dict]]:
+        """I24: (compiled module, [{term, fn, binds}]) for the expr terms of a statement: the model with their statement
+        helpers (holon.gen.mlaws.Emitter.expr_term) appended unqualified, compiled for the refuter (untrusted: Bend
+        decides every status through the LAWS.bend helpers)."""
+        E = mlaws.Emitter(self.m)
+        types = {b["name"]: ("State" if b["type"] == "Reach" else b["type"]) for b in law["statement"].get("binders", [])}
+        env = {n: bname(n) for n in types}
+        specs = []
+        for t in terms:
+            text, _ = E.expr_term(t, env, types)
+            specs.append({"term": t, "fn": text.split("(", 1)[0], "binds": sorted(t.get("bind") or {})})
+        text = self.source.read_text() + "\n" + "\n".join(E.expr_defs(qualified=False))
+        h = hashlib.sha256(text.encode()).hexdigest()
+        src = self.source.parent / f"{self.source.stem}.expr-{h[:12]}.bend"
+        art = src.with_suffix(".mjs")
+        if not art.exists():
+            src.write_text(text)
+            r = bend.run([src.name, "-o", art.name], cwd=src.parent, cfg=self.cfg)
+            if r.code != 0 or not art.exists():
+                raise RuntimeError(f"bend failed to compile the expr helpers {src}: {r.out[:2000]}")
+        return art, specs
+
     def oracle_req(self) -> dict | None:
         """What the refuter needs to know of the oracle parameters (holon/js/explore.mjs)."""
         if not self.m.oparams:
@@ -164,6 +186,11 @@ class CompiledMachine:
         if O.hyp_names(law):
             law = O.expand_hyps(law, self.m.orc)
         r = {"module": str(self.artifact), "facts": self.facts, "hints": self.hints(), "law": law, **kw}
+        exprs = expr_terms(law)
+        if exprs:   # I24: the model with the statement's expr helpers appended, and the actions the terms name
+            art, specs = self.expr_module(law, exprs)
+            r.update({"module": str(art), "exprs": specs,
+                      "parAct": sorted({t["action"] for t in exprs if isinstance(t.get("action"), str)})})
         orc = self.oracle_req()
         if orc is not None:
             r["oracles"] = orc
@@ -235,6 +262,25 @@ class CompiledMachine:
         if p.returncode != 0:
             raise RuntimeError(p.stderr[-2000:])
         return json.loads(p.stdout)["results"]
+
+
+def expr_terms(law: dict) -> list[dict]:
+    """I24: the distinct expr terms ({"expr": E, "from": S, ..}) a statement uses, in statement order."""
+    out: list[dict] = []
+
+    def walk(x):
+        if isinstance(x, dict):
+            if "expr" in x and "from" in x:
+                if x not in out:
+                    out.append(x)
+                return
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(law.get("statement", {}))
+    return out
 
 
 # ---------------------------------------------------------------- I15: SORT-site laws
@@ -349,7 +395,8 @@ def witness_difference(cm: CompiledMachine, law: dict, witness: dict, conjunct: 
         raise ValueError(t)
     st = law["statement"]
     ty_env = {b["name"]: b["type"] for b in st["binders"]}
-    if any(n in cm.m.oparams and t.startswith("Fn<") for n, t in ty_env.items()):   # oracle parameters (I12)
+    if any(n in cm.m.oparams and t.startswith("Fn<") for n, t in ty_env.items()) or expr_terms(law):
+        # oracle parameters (I12) and expr terms (I24): the sides as explore.mjs evaluates them
         try:
             sides = (cm.evaluate(law, witness).get("sides") or [])
         except RuntimeError:
@@ -615,6 +662,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             machines[fp] = (cm_, src, f"../model/{model_name(fp)}.bend", F.sha256_file(fp))
         return machines[fp]
     out_dir.mkdir(parents=True, exist_ok=True)
+    from . import codecrun as CR
+    codec_models = CR.Models(ROOT, gen, cfg)   # I24: the codec documents' models (gen/<M>/model/)
 
     summary = {}
     kbound = {"milestone": milestone, "laws": {}}
@@ -637,6 +686,16 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             summary[lid] = rec["status"]
             oracles_of[lid] = None
             log(f"{lid:22s} {rec['status']:8s} {'not_run':8s} {rec['triage']}")
+            continue
+        kind = CR.codec_kind(law, ROOT)
+        if kind is not None:   # I24: a codec law (facts 0.1, or a linked codec document: rule X9), holon.codecrun
+            rec, kb = CR.decide(law, kind, codec_models, milestone, ROOT, gen, cfg, kver, verdict, triage, report,
+                                layout, write_pair, accepted, relpath, scope_fields, test_milestone(milestone), log)
+            kbound["laws"][lid] = kb
+            (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
+            summary[lid] = rec["status"]
+            oracles_of[lid] = None
+            log(f"{lid:22s} {rec['status']:8s} {rec['kernel']['verdict']:8s} {rec['triage']}")
             continue
         cm, model_src, imp0, facts_sha = machine_for(law)
         d = gen / lid
@@ -810,6 +869,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         kbound["laws"][lid] = {"model": model_src.stem, "cone": law_cone(law, cm.facts, stmt_text, model_src, cfg)}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT,
                                      ledger_required=not test_milestone(milestone)))
+        if law.get("rule") == "PAR":   # I24: a test milestone's PAR laws take the evidence set their derivation built
+            rec.update(CR.evidence_fields(law, status, ROOT, milestone))
         if law.get("ir_version") == "holon-ir/0.3":
             rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
         if law.get("negation_of"):

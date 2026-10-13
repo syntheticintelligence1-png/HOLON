@@ -39,13 +39,19 @@ from the entry's template, applied at the points the statement queries) or an ex
 `proj` is the relation of a non-interference law: the state with the named fields erased.
 Its View type and projection are emitted into LAWS.bend: they are part of the statement,
 so a proof file can neither define nor change them.
+
+I24 (rule PAR's sub-forms recompute, consumer and init): the expr term {"expr": E, "from": S [, "action": A, "on": T]
+[, "bind": {name: term}]} is the value of facts expression E in state S, A's inputs taken from T (when T is an A; the
+default value of E's type otherwise), the bound names shadowing inputs. It is emitted as a call of a statement helper
+ex_<hash>(S[, T][, bound values]) defined in LAWS.bend from E by the model's own expression compiler
+(holon.gen.machine.Machine.ex), like a proj view.
 """
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
 
-from .machine import Machine, bt, bname
+from .machine import Machine, bt, bname, fresh
 
 ALIAS = "M"
 
@@ -117,6 +123,7 @@ class Emitter:
         for c in m.perm_class_ids():   # M2+ models: perm_<class>(a, who) (holon.gen.machine, F-M2-26)
             fn_types[f"perm_{c}"] = "Bool"
         self.fn_types = fn_types
+        self.exprs: dict[str, tuple[str, str]] = {}   # I24 expr terms: helper name -> (unqualified def text, type)
 
     # ------------------------------------------------------------ oracle parameters (I12)
     def is_param(self, n: str, types: dict) -> bool:
@@ -194,6 +201,8 @@ class Emitter:
     def term(self, t: dict, env: dict, types: dict) -> tuple[str, str]:
         if "var" in t:
             return env[t["var"]], types[t["var"]]
+        if "expr" in t:
+            return self.expr_term(t, env, types)
         if "nat" in t:
             return f"{int(t['nat'])}n", "Nat"
         if "bool" in t:
@@ -329,6 +338,107 @@ class Emitter:
             return f"{ALIAS}.{'site' if 'site' in t else 'hit'}_{x}({a}, {s}{tabs})", "Bool"
         raise Unsupported(f"term {t}")
 
+    # ------------------------------------------------------------ I24: expr terms
+    def expr_term(self, t: dict, env: dict, types: dict) -> tuple[str, str]:
+        """{"expr": E, "from": S [, "action": A, "on": T] [, "bind": {name: term}]}: the value of facts expression E in
+        state S, the inputs of action A taken from the action T (when T is an A; the default value of E's type
+        otherwise), the names in bind bound to those IR terms (they shadow inputs). Emitted as a call of a statement
+        helper ex_<hash>(S[, T][, bind values in name order]) defined in LAWS.bend (expr_defs), like a proj view: part
+        of the statement, so a proof file can neither define nor change it."""
+        if set(t) - {"expr", "from", "action", "on", "bind"} or "from" not in t:
+            raise Unsupported(f"expr term {sorted(t)}")
+        if ("action" in t) != ("on" in t):
+            raise Unsupported("an expr term names its action A and the action term T together")
+        s, ts = self.term(t["from"], env, types)
+        self.expect(ts, "State", t)
+        args, act = [s], None
+        if "action" in t:
+            act = next((x for x in self.m.actions if x["name"] == t["action"]), None)
+            if act is None:
+                raise Unsupported(f"unknown action {t['action']}")
+            a, ta = self.term(t["on"], env, types)
+            self.expect(ta, "Act", t)
+            args.append(a)
+        binds = []
+        bind = t.get("bind") or {}
+        if not isinstance(bind, dict):
+            raise Unsupported("bind is an object of IR terms")
+        for n in sorted(bind):
+            x, tx = self.term(bind[n], env, types)
+            args.append(x)
+            binds.append((n, tx))
+        name, ty = self.expr_helper(t["expr"], act, binds)
+        return f"{name}({', '.join(args)})", ty
+
+    def expr_helper(self, e, act: dict | None, binds: list) -> tuple[str, str]:
+        """(name, IR type) of the statement helper of expression e (machine.Machine.ex over the state fields, the
+        action's inputs and the bound names, in that order of shadowing)."""
+        import hashlib
+        import json as _json
+        from .machine import FactsError
+        key = _json.dumps({"expr": e, "action": act["name"] if act else None, "bind": [list(b) for b in binds]},
+                          sort_keys=True, separators=(",", ":"))
+        name = "ex_" + hashlib.sha256(key.encode()).hexdigest()[:12]
+        if name in self.exprs:
+            return name, self.exprs[name][1]
+        m = self.m
+        inputs = list(act["inputs"]) if act else []
+        bound = {n for n, _ in binds}
+        tenv: dict[str, str] = {n: t for n, t in m.state}
+        tenv.update({n: t for n, t in inputs})
+        tenv.update({n: t for n, t in binds})
+        if m.uses(e):
+            raise Unsupported(f"expr {e}: applies an oracle parameter")
+        nh = len(m.helpers)
+        try:
+            body, ety = m.ex(e, tenv)
+        except FactsError as err:
+            raise Unsupported(f"expr {e}: {err}") from err
+        if len(m.helpers) != nh:   # a record helper the generated model does not define
+            del m.helpers[nh:]
+            raise Unsupported(f"expr {e}: needs a record helper the model does not define")
+        free = m.fv(e)
+        taken = {bname(n) for n in tenv} | {"st", "act"}
+        st_v, act_v = fresh("st", taken - {"st"}), fresh("act", taken - {"act"})
+        taken |= {st_v, act_v}
+        shadow_in = {n for n, _ in inputs} | bound
+
+        def pvar(n: str, shadowed: bool) -> str:
+            if not shadowed:
+                return "+" + bname(n)
+            v = fresh("u_" + n, taken)
+            taken.add(v)
+            return "+" + v
+        params = [f"+{st_v}: HSt"] + ([f"+{act_v}: HAct"] if act else []) + [f"+{bname(n)}: {bt(t)}" for n, t in binds]
+        lines = [f"# the expr term {_json.dumps(e, separators=(',', ':'))} in state {st_v}"
+                 + (f", the inputs of {act['name']} taken from {act_v}" if act else "")
+                 + (f", {', '.join(n for n, _ in binds)} bound by the statement" if binds else ""),
+                 f"def {name}({', '.join(params)}) -> {bt(ety)}:"]
+        ind = 2
+        if any(n in free and n not in shadow_in for n, _ in m.state):
+            pat = ", ".join(pvar(n, n in shadow_in) for n, _ in m.state)
+            lines += [" " * ind + f"match {st_v}:", " " * (ind + 2) + f"case HSt{{{pat}}}:"]
+            ind += 4
+        if act:
+            lines.append(" " * ind + f"match {act_v}:")
+            for a in m.actions:
+                pat = ", ".join(pvar(n, (n in bound) or a is not act) for n, _ in a["inputs"])
+                lines.append(" " * (ind + 2) + f"case A_{a['name']}{{{pat}}}:")
+                lines.append(" " * (ind + 4) + (body if a is act else m.default_of(ety)))
+        else:
+            lines.append(" " * ind + body)
+        self.exprs[name] = ("\n".join(lines) + "\n", ety)
+        return name, ety
+
+    def expr_defs(self, qualified: bool = True) -> list[str]:
+        """The statement helpers of the expr terms emitted so far (qualified for a LAWS.bend importing the model as
+        M; unqualified to append to the model itself, for the refuter)."""
+        out = []
+        for name in sorted(self.exprs):
+            text = self.exprs[name][0]
+            out += (qualify_model(self.m, text) if qualified else text).rstrip("\n").split("\n") + [""]
+        return out
+
     @staticmethod
     def expect(got: str, want: str, t) -> None:
         if got != want:
@@ -429,6 +539,7 @@ class Emitter:
         lines = ["# GENERATED by holon.gen.mlaws from the frozen law IR; do not edit.",
                  f"# law_id: {law['law_id']}   statement_hash: {note}", "import Base", f"import {model_import} as {ALIAS}", ""]
         lines += self.view_defs()
+        lines += self.expr_defs()
         body = [f"law {name}:"]
         for qq, n, t in binders:
             kw = "exs" if (counter or qq == "exists") else "for"

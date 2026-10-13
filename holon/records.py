@@ -201,12 +201,38 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
         side = (Path(root) / facts_path).parent / "ledger.json"
         if side.exists():
             out += json.loads(side.read_text(encoding="utf-8"))["bundles"]
+        out += _linked_bundles(Path(root), facts_path)
     exts = milestone_extensions(root, milestone) if milestone else []
     for i, b in enumerate(out):
         for x in exts:
             if x.get("facts") == b.get("facts") and x.get("facts_sha256") == b.get("facts_sha256"):
                 out[i] = b = {**b, "no_assumption": list(b["no_assumption"]) + list(x.get("no_assumption") or [])}
     return out
+
+
+def _linked_bundles(root: Path, facts_path) -> list[dict]:
+    """I24: the bundle of a linked codec document (holon.diagram.linked), generated from it by
+    holon.gen.linked.declared_bundle: the assumptions its two extracted documents declare, each introduced by the
+    definitions generated from that document, and the layer's own A-codec-domain. Never hand-written: the document is
+    itself generated (holon codecs), so its bundle follows it byte for byte."""
+    p = Path(root) / facts_path
+    if p.suffix != ".json" or not p.is_file():
+        return []
+    try:
+        raw = p.read_bytes()
+        doc = json.loads(raw)
+    except (OSError, ValueError):
+        return []
+    from .diagram.linked import is_linked
+    if not is_linked(doc):
+        return []
+    from .gen.linked import Unsupported, declared_bundle
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
+        else str(facts_path)
+    try:
+        return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
+    except Unsupported:
+        return []
 
 
 def milestone_extensions(root: Path | str, milestone: str) -> list[dict]:

@@ -31,6 +31,8 @@ may carry "$defs" (name -> Bend def of a sidecar instance), which the proof file
 """
 from __future__ import annotations
 
+import re
+
 from .machine import Machine, bname, bt, fresh
 from .mlaws import ALIAS, EmittedM, Unsupported, binder_parts, q, reach_name, value_literal, witness_tabs
 
@@ -239,6 +241,7 @@ def counter(em: EmittedM, m: Machine, model_import: str, witness: dict, lhs_at: 
             "List<Nat>": f"{ALIAS}.eq_list_nat"}.get(ty)
     import re as _re
     lhs_at = _re.sub(r"(?<![\w.])proj_V_", "Laws.proj_V_", lhs_at)  # statement helpers live in LAWS.bend
+    lhs_at = _re.sub(r"(?<![\w.])(ex_[0-9a-f]{12})\(", r"Laws.\1(", lhs_at)   # as do expr helpers (I24)
     helpers: list[str] = []
     if eqfn is None and ty in em.views:
         helpers, eqfn = _eq_defs(m, ty, em.views[ty])
@@ -844,8 +847,52 @@ def hyp(em: EmittedM, m: Machine, model_import: str) -> str | None:
     return "\n".join(_imports(model_import) + lines) + "\n"
 
 
+_EXPR_DEF = re.compile(r"^def ex_[0-9a-f]{12}\(", re.M)
+
+
+def expr_open(em: EmittedM, m: Machine, model_import: str) -> str | None:
+    """I24, a universal law over expr terms (holon.gen.mlaws.Emitter.expr_term): open every Act binder by its
+    constructors and every State or Reach binder's state record, then {==} for every conjunct in every case (the
+    statement helpers compute once the action and the state are constructors)."""
+    if not _EXPR_DEF.search(em.text) or any(qq != "forall" for qq, _, _ in em.binders):
+        return None
+    if not any(t in ("Act", "State", "Reach") for _, _, t in em.binders):
+        return None
+    params = law_params(em) + [f"h{i}" for i in range(len(em.assume))]
+    lines = ["# class expr_open: open the actions and the states, then computation per conjunct",
+             f"def Laws.{em.name}({', '.join(params)}):"]
+    k = 0
+
+    def fresh_vars(n: int) -> list[str]:
+        nonlocal k
+        out = [f"+x{k + i}" for i in range(n)]
+        k += n
+        return out
+    body = _tuple(["{==}"] * len(em.claims))
+
+    def open_from(i: int, ind: int) -> list[str]:
+        if i == len(em.binders):
+            return [" " * ind + body]
+        _, n, t = em.binders[i]
+        v = bname(n)
+        if t == "Act":
+            out = [" " * ind + f"match {v}:"]
+            for a in m.actions:
+                out.append(" " * (ind + 2) + f"case {ALIAS}.A_{a['name']}{{{', '.join(fresh_vars(len(a['inputs'])))}}}:")
+                out += open_from(i + 1, ind + 4)
+            return out
+        if t in ("State", "Reach"):
+            return ([" " * ind + f"match {v}:",
+                     " " * (ind + 2) + f"case {ALIAS}.HSt{{{', '.join(fresh_vars(len(m.state)))}}}:"]
+                    + open_from(i + 1, ind + 4))
+        return open_from(i + 1, ind)
+    lines += open_from(0, 2)
+    return "\n".join(_imports(model_import) + lines) + "\n"
+
+
 GENERATORS = [("evaluate", evaluate), ("nat_split", nat_split), ("noninterference", noninterference),
-              ("deadline", deadline), ("chain_revert", chain_revert), ("act_split", act_split), ("hyp", hyp)]
+              ("deadline", deadline), ("chain_revert", chain_revert), ("act_split", act_split), ("hyp", hyp),
+              ("expr_open", expr_open)]
 
 
 # ---------------------------------------------------------------- I15: coercion_guard
