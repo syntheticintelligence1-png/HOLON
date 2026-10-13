@@ -21,7 +21,7 @@ Sources, in this order (holon.replay_fragments runs them):
             holding and that one false. A reach the search cannot violate gets a mechanical reason (counts, atoms and
             what the targeting steps did on both sides).
 Every value comes from the documents (the extracted document, the binding and its abstract facts, the I15 records),
-the compiled ABI and the corpus's own translation run, never from tests/reference. Deterministic: sorted iteration,
+the compiled ABI and the corpus's own translation run, never from the test oracle. Deterministic: sorted iteration,
 fixed seeds, first-found order.
 """
 from __future__ import annotations

@@ -2,7 +2,7 @@
 §8.6, Def 4.7; the contract is the docstring of tests_m2/test_extracted_refinement.py, clauses 1, 2 and 7-9).
 
     python -m holon fragments [--binding replay/M2/fragments.json] [--facts DOC] [--out PATH] [--details PATH]
-                              [--work DIR] [--morph PATH] [--jobs N] [--corpus N] [--sources m1,witness,boundary,target]
+                              [--work DIR] [--checkout PATH] [--jobs N] [--corpus N] [--sources m1,witness,boundary,target]
                               [--evaluator MODULE:FUNCTION | FILE.py:FUNCTION] [--disagreements PATH | --no-file]
                               [--no-locate] [--root DIR]
 
@@ -230,7 +230,7 @@ extra_output = ['storageLayout']
 TOY_REMAP = "forge-std/=node_modules/forge-std/src/\nds-test/=node_modules/ds-test/src/\n"
 
 
-def harness_project(binding: dict, work: Path, root: Path = ROOT, morph: Path | None = None,
+def harness_project(binding: dict, work: Path, root: Path = ROOT, checkout: Path | None = None,
                     tc: dict | None = None) -> Path:
     """A scratch Foundry project: the target's sources (kind "checkout": the Foundry tree project.foundry_dir of the
     pinned checkout, without project.drop; kind "sources": a fixture's src/), the pinned dependencies and the harness
@@ -240,9 +240,9 @@ def harness_project(binding: dict, work: Path, root: Path = ROOT, morph: Path | 
     proj.mkdir(parents=True, exist_ok=True)
     pk = binding["project"]
     if pk["kind"] == "checkout":
-        if morph is None:
-            raise FragmentsError("the binding needs the pinned checkout (--morph or config replay.morph)")
-        fd = morph / pk["foundry_dir"]
+        if checkout is None:
+            raise FragmentsError("the binding needs the pinned checkout (--checkout, or the replay configuration's)")
+        fd = checkout / pk["foundry_dir"]
         shutil.rmtree(proj / "contracts", ignore_errors=True)   # never compile a stale copy
         shutil.copytree(fd / "contracts", proj / "contracts")
         for d in pk.get("drop", []):
@@ -1004,15 +1004,15 @@ def run(args) -> int:
     bad = sorted(set(sources) - set(SOURCES))
     if bad:
         raise FragmentsError(f"unknown corpus sources {bad} (known: {list(SOURCES)})")
-    morph = None
-    morph_sha = None
+    checkout = None
+    checkout_sha = None
     if binding["project"]["kind"] == "checkout":
-        morph = morph_path(args, root)
-        morph_sha = check_checkout(morph, (doc.get("target") or {}).get("commit"))
-    tc = toolchain(argparse.Namespace(forge=None, solc=None, write_pins=False, morph=str(morph) if morph else None), root)
+        checkout = Path(args.checkout).resolve() if args.checkout else morph_path(argparse.Namespace(), root)
+        checkout_sha = check_checkout(checkout, (doc.get("target") or {}).get("commit"))
+    tc = toolchain(argparse.Namespace(forge=None, solc=None, write_pins=False), root)
     work = Path(args.work).resolve() if args.work else root / "build" / "fragments"
     work.mkdir(parents=True, exist_ok=True)
-    proj = harness_project(binding, work, root, morph, tc)
+    proj = harness_project(binding, work, root, checkout, tc)
     forge_build(proj, tc)
     tgt = Target.build(proj, binding, doc)
     view = tgt.view
@@ -1063,8 +1063,8 @@ def run(args) -> int:
              "command": harness_command(binding),
              "harness_notes": harness_notes(runs),
              "toolchain": {k: tc[k] for k in PIN_KEYS}}
-    if morph_sha:
-        extra["morph_commit"] = morph_sha
+    if checkout_sha:
+        extra["morph_commit"] = checkout_sha
     rec = build_record(runs, compared, entries, view, root, reason_of, located, extra)
     out = Path(args.out) if args.out else root / RECORD
     out = out if out.is_absolute() else root / out
@@ -1376,7 +1376,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out")
     ap.add_argument("--details")
     ap.add_argument("--work")
-    ap.add_argument("--morph")
+    ap.add_argument("--checkout", help="the pinned source checkout (default: the replay configuration's)")
     ap.add_argument("--root")
     ap.add_argument("--jobs", type=int, default=1)
     ap.add_argument("--max-steps", type=int, default=MAX_STEPS)

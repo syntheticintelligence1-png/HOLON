@@ -1,7 +1,7 @@
 """Optional hevm equivalence for the top codec edges (I20; BUILD_PLAN I20: hevm equivalence between the bytecode of
 the codec library's store functions and Yul generated from the model layout; whitepaper L1; Q16 allows the install).
 
-    python -m holon hevm [--binding replay/M2/hevm_store.json] [--out results/M2/hevm.json] [--morph PATH]
+    python -m holon hevm [--binding replay/M2/hevm_store.json] [--out results/M2/hevm.json] [--checkout PATH]
                          [--hevm PATH] [--solver PATH] [--work DIR] [--smttimeout S]
 
 For every version the binding lists, two runtime bytecodes are compared by `hevm equivalence` on symbolic calldata:
@@ -205,12 +205,12 @@ def wrapper_source(binding: dict, facts: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def build_a(binding: dict, facts: dict, work: Path, morph: Path, tc: dict) -> dict[str, str]:
+def build_a(binding: dict, facts: dict, work: Path, checkout: Path, tc: dict) -> dict[str, str]:
     """version -> the runtime bytecode (hex, no 0x) of side A."""
     from .replay_fragments import forge_build, foundry_out, harness_project
     proj = harness_project({"project": {"kind": "checkout", "foundry_dir": binding["foundry_dir"],
                                          "drop": binding.get("drop", [])}, "harness": {"files": []}},
-                           work, ROOT, morph, tc)
+                           work, ROOT, checkout, tc)
     (proj / "test" / WRAPPER).write_text(wrapper_source(binding, facts))
     forge_build(proj, tc)
     out = {}
@@ -299,9 +299,9 @@ def run(args) -> int:
     rec["hevm"] = {"version": v.strip().split()[0], "sha256": sha256_file(hevm), "source": pin["url"]}
     rec["solver"] = {"name": "cvc5", "version": sv.splitlines()[0].strip(), "sha256": sha256_file(solver),
                      "source": pin["solver"]["url"]}
-    morph = morph_path(args, root)
-    rec["morph_commit"] = check_checkout(morph, facts["target"]["commit"])
-    tc = toolchain(argparse.Namespace(forge=None, solc=None, write_pins=False, morph=str(morph)), root)
+    checkout = Path(args.checkout).resolve() if args.checkout else morph_path(argparse.Namespace(), root)
+    rec["morph_commit"] = check_checkout(checkout, facts["target"]["commit"])
+    tc = toolchain(argparse.Namespace(forge=None, solc=None, write_pins=False), root)
     rec["toolchain"] = {k: tc[k] for k in PIN_KEYS}
     tmp = None
     work = Path(args.work).resolve() if args.work else Path(tempfile.mkdtemp(prefix="holon-hevm-"))
@@ -309,7 +309,7 @@ def run(args) -> int:
         tmp = work
     try:
         work.mkdir(parents=True, exist_ok=True)
-        a = build_a(binding, facts, work, morph, tc)
+        a = build_a(binding, facts, work, checkout, tc)
         b = build_b(binding, facts, work, tc["solc"])
         env = {"PATH": f"{solver.parent}{os.pathsep}{os.environ.get('PATH', '')}"}
         for ver in binding["versions"]:
@@ -370,7 +370,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="holon hevm", description=__doc__.split("\n\n")[0])
     ap.add_argument("--binding")
     ap.add_argument("--out")
-    ap.add_argument("--morph")
+    ap.add_argument("--checkout", help="the pinned source checkout (default: the replay configuration's)")
     ap.add_argument("--hevm")
     ap.add_argument("--solver")
     ap.add_argument("--work")
