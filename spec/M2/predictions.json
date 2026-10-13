@@ -1956,6 +1956,72 @@
         "tests_m2/test_coverage.py"
       ],
       "thresholds": {}
+    },
+    "I20": {
+      "title": "Extracted rollup model: refinement, width, optional hevm",
+      "plan": "docs/BUILD_PLAN.md#i20",
+      "prompt": "prompts/I20_extracted_model.md",
+      "predictions": [
+        {
+          "id": "I20-P1",
+          "claim": "0 unexplained disagreements between the extracted model and the real contract on the 300-trace and boundary corpus.",
+          "check": "tests_m2/test_extracted_refinement.py::TestRefinement::test_no_unexplained_disagreement_on_the_corpus"
+        },
+        {
+          "id": "I20-P2",
+          "claim": "The width-site law at the totalL1MessagePopped store (the unchecked accumulator at Rollup.sol:324) is UNKNOWN, bounded, with no witness.",
+          "check": "tests_m2/test_extracted_refinement.py::TestWidth::test_the_accumulator_width_law_is_unknown"
+        },
+        {
+          "id": "I20-P3",
+          "claim": "The width-site law at the batchIndex store is UNKNOWN, bounded, with no witness.",
+          "check": "tests_m2/test_extracted_refinement.py::TestWidth::test_the_batch_index_width_law_is_unknown"
+        },
+        {
+          "id": "I20-P4",
+          "claim": "The reextraction entries for I15's re-derived site laws validate unsigned.",
+          "check": "tests_m2/test_extracted_refinement.py::TestReextraction::test_reextraction_entries_for_the_site_laws_validate_unsigned"
+        },
+        {
+          "id": "I20-P5",
+          "claim": "All 15 rollup M1 laws are re-run on the extracted model and every status difference links to a mechanical delta in gen/M2/abstraction_diff.json.",
+          "check": "tests_m2/test_extracted_refinement.py::TestDifferential::test_every_status_difference_links_a_mechanical_delta"
+        },
+        {
+          "id": "I20-P6",
+          "claim": "L_sort_remaining, L_undo_BVH and L_undo_cancel stay REFUTED on the extracted model.",
+          "check": "tests_m2/test_extracted_refinement.py::TestDifferential::test_three_refutations_survive_extraction"
+        },
+        {
+          "id": "I20-P7",
+          "claim": "L_tag_BVH differs from its M1 status on the extracted model and a ghost delta explains it.",
+          "check": "tests_m2/test_extracted_refinement.py::TestDifferential::test_the_ghost_tag_law_is_explained_by_the_ghost_delta"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I20-R1",
+          "claim": "Gates M0, M1 and M2 pass; M1 statuses on M1 are unchanged; I15's site-law outcomes (6 PROVED, 2 UNKNOWN, 2 REFUTED) are unchanged after re-extraction.",
+          "check": "gate"
+        },
+        {
+          "id": "I20-R2",
+          "claim": "Construction: the extracted model exists and checks, the window check is reported, hevm is recorded run or not_run.",
+          "check": "tests_m2/test_extracted_refinement.py::TestConstruction"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M2/extracted/",
+        "gen/M2/abstraction_diff.json",
+        "results/M2/differential.json",
+        "results/M2/extracted_m1/",
+        "results/M2/refinement/extracted.json",
+        "results/M2/hevm.json"
+      ],
+      "tests": [
+        "tests_m2/test_extracted_refinement.py"
+      ],
+      "thresholds": {}
     }
   }
 }
