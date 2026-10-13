@@ -1,0 +1,74 @@
+{
+  "binding": "replay/M2/hevm_store.json",
+  "command": "hevm equivalence --code-a-file <A v> --code-b-file <B v> --solver cvc5 --smttimeout 300 --num-solvers 1   # A: the store functions wrapped as the binding's calls (forge build, pinned solc); B: solc --strict-assembly --bin of the model's Yul",
+  "controls": [
+    {
+      "detail": "[FAIL] Contracts do not behave equivalently; Not equivalent. The following inputs result in differing behaviours:",
+      "edge": "enc_sol",
+      "mutation": "and(calldataload(0), 0xff) -> and(calldataload(0), 0x7f)",
+      "result": "not_equivalent",
+      "version": 0
+    },
+    {
+      "detail": "[FAIL] Contracts do not behave equivalently; Not equivalent. The following inputs result in differing behaviours:",
+      "edge": "enc_sol",
+      "mutation": "and(calldataload(0), 0xff) -> and(calldataload(0), 0x7f)",
+      "result": "not_equivalent",
+      "version": 1
+    },
+    {
+      "detail": "[FAIL] Contracts do not behave equivalently; Not equivalent. The following inputs result in differing behaviours:",
+      "edge": "enc_sol",
+      "mutation": "and(calldataload(0), 0xff) -> and(calldataload(0), 0x7f)",
+      "result": "not_equivalent",
+      "version": 2
+    }
+  ],
+  "edges": [
+    {
+      "a_sha256": "50e356e872c39547797e1f8501e13d5e53ff383bdd921b03acec3cef36ddab62",
+      "b_sha256": "54d14f612fc43aebdc2eae5daf9f46208d6b952d219ced9447ad9e659f9564a4",
+      "detail": "[PASS] Contracts behave equivalently; No discrepancies found",
+      "edge": "enc_sol",
+      "result": "equivalent",
+      "version": 0
+    },
+    {
+      "a_sha256": "cbad1e4312812b21c9d34a199edd4c47a08f3cb3c94d2a4ee66206bbdfb6f6dc",
+      "b_sha256": "4d1762041fa00c2bbd920e891f94ce2926a5f5a0878d43d90d2707976ca1f6a4",
+      "detail": "[PASS] Contracts behave equivalently; No discrepancies found",
+      "edge": "enc_sol",
+      "result": "equivalent",
+      "version": 1
+    },
+    {
+      "a_sha256": "cbad1e4312812b21c9d34a199edd4c47a08f3cb3c94d2a4ee66206bbdfb6f6dc",
+      "b_sha256": "4d1762041fa00c2bbd920e891f94ce2926a5f5a0878d43d90d2707976ca1f6a4",
+      "detail": "[PASS] Contracts behave equivalently; No discrepancies found",
+      "edge": "enc_sol",
+      "result": "equivalent",
+      "version": 2
+    }
+  ],
+  "facts": "facts/morph_header.json",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "hevm": {
+    "sha256": "a99e85014c3d0925cbe26efd16279926db13ba8682b50c885fda4cffab704248",
+    "source": "https://github.com/argotorg/hevm/releases/download/release/0.55.1/hevm-x86_64-linux",
+    "version": "0.55.1"
+  },
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "reason": "hevm ran on 3 (edge, version) pairs: enc_sol v0 equivalent, enc_sol v1 equivalent, enc_sol v2 equivalent; negative controls (one mutated mask in side B each): v0 not_equivalent, v1 not_equivalent, v2 not_equivalent",
+  "solver": {
+    "name": "cvc5",
+    "sha256": "fae0038f9cbd1be5f5b32ff74a016b202fb6a2253374fc2e84451f9aa1af6261",
+    "source": "https://github.com/cvc5/cvc5/releases/download/cvc5-1.2.0/cvc5-Linux-x86_64-static.zip",
+    "version": "This is cvc5 version 1.2.0 [git tag 1.2.0 branch HEAD]"
+  },
+  "status": "run",
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  }
+}
