@@ -242,9 +242,9 @@ ASSUMPTIONS = {
               "external calls and whether they succeed (callok, caught), sload) are free: every value of them is "
               "possible. The result of an external call is a function of its function and arguments."),
     "A-implicit": ("Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata "
-                   "(offsets and lengths inside the calldata): it is not checked. A member of a calldata struct is "
-                   "range-checked where the walk first reads it under a context, as the compiler validates it on "
-                   "access."),
+                   "(offsets and lengths inside the calldata) and the range of array elements of narrow types: they "
+                   "are not checked. A member of a calldata struct is range-checked where the walk first reads it "
+                   "under a context, as the compiler validates it on access."),
     "A-loop": ("A loop is walked at a generic iteration: the names it carries from one iteration to the next are found "
                "by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds "
                "at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops "
