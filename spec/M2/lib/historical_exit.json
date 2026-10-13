@@ -1,0 +1,246 @@
+{
+ "call_logs": {
+  "IL1MessageQueue.popCrossDomainMessage": {
+   "event": "DequeueTransaction(uint256,uint256)",
+   "source": "IL1MessageQueue.sol:131 popCrossDomainMessage(uint256 startIndex, uint256 count); L1MessageQueueWithGasPriceOracle.sol:331 emit DequeueTransaction(_startIndex, _count)",
+   "topic0": "0x3d48b97f20730c965868963266b0d25d8abe3f06babb60fc3b2b80c9e8907f26"
+  },
+  "rule": "the 'calls' observable: a model call of a function named here is matched with a log of the named event that its callee emitted in the same transaction, whose data words equal the call's positional arguments in order; a call that no log matches and a log of the event in an in-scope transaction that no call matches are each a 'calls' disagreement"
+ },
+ "codec_corpus": {
+  "by_class": {
+   "v0_249": 17277,
+   "v0_281": 2954,
+   "v1_257": 34101,
+   "v2_257": 7840
+  },
+  "decodable": 59218,
+  "enc_go_v0_inputs": 17277,
+  "enc_go_v1_inputs": 41941,
+  "enc_sol_inputs": 59218,
+  "excluded": {
+   "v0_281": "ok_go false: dec_go is undefined on them (L_dom_hdr's real instances, I59 Surprise 7)"
+  },
+  "parents": 62172
+ },
+ "computation": [
+  "windows.codec: spec/M2/lib/historical.json window, unchanged.",
+  "windows.trans.from_block: results/M2/historical/replay.json last_upgrade_block + 1 (the index's last Upgraded log of the proxy is at that block).",
+  "implementation.last_upgrade: the index's last log item with the Upgraded topic; implementation = its topics[1] (snapshot log object).",
+  "in_scope.transactions/blocks/rollup_logs: index.json items with trans.from_block <= block <= trans.to_block (kind tx; distinct blocks; kind log by topic).",
+  "in_scope.selectors/sender/commit_versions/commit_blob_counts/l1 messages: the snapshot's transaction objects of those items (input[:4]; from; blobVersionedHashes; batchDataInput.version and numL1Messages; the parent header's totalL1MessagePopped at bytes 17..24).",
+  "in_scope.commit_batches/finalize_batches/queue: the snapshot's receipt objects (CommitBatch and FinalizeBatch topics[1] of the proxy; the other emitter's DequeueTransaction(startIndex, count) data); every receipt has status 1.",
+  "codec_corpus and premise_inhabitants: replay.json commits, parent or legacy_parent: (version, length) classes; ok_go and ssvh_zero for the premises (version = k and sequencerSetVerifyHash = 0).",
+  "supplement.blob_fallback.needed: replay.json summary.blobs total - retrieved.",
+  "synthetic_smoke: the pinned checkout's fixture file (sha256 of its bytes, its fixtures' names).",
+  "storage_rule and supplement.kinds storage/call/call_after: added by the prereg's adversarial review (no value computed); they fix how the real side's storage and call answers are read before any step is replayed."
+ ],
+ "doc": "Frozen instrument of I23 (historical inputs and M2 exit evaluation; BUILD_PLAN I23, whitepaper §8.7 source 4, §12.1, §15.2 M2 exit (a)). BUILD_PLAN names spec/M2/preregistration.json; a prereg commit may only add files under spec/M2/lib/ (holon/audit/prereg.py), hence the path. It fixes, before any I23 outcome exists: the two historical windows (the codec window, I59's whole window, for the header carrier's edges; the transitions window, from the block after the last Upgraded event to I59's window end, for the extracted rollup model), the deployed implementation and the pinned build it is compared with, the in-scope transactions and their input facts, the codec corpus, the M0 laws' premise inhabitants among the real headers, the supplementary acquisition (what I59 did not fetch, never what it did), the expected explained classes with their I16 mechanical criteria and a target of 0 unexplained, and the synthetic smoke corpus. Every value was computed from committed artifacts (I59's index.json and replay.json at f8fa447) and the I59 snapshot's own transaction and receipt objects; 'computation' says how. No model was run and no I23 outcome was computed.",
+ "expected_classes": {
+  "codec": {
+   "extraction_defect": 0,
+   "oracle_mismatch": 0,
+   "real_defect": 0,
+   "unexplained": 0
+  },
+  "criteria": {
+   "extraction_defect": "valid only with a linked fix commit and a green re-run record for that edge (links {fix_commit, rerun}: the rerun record lies under results/M2/refinement/, is for the same edge, lists the fix commit in fixes and has 0 disagreements; holon.refinement._extraction)",
+   "oracle_mismatch": "valid only with a link to a failing hypothesis record (links {hypothesis}: results/M2/hypotheses.json holds it with status failed; holon.refinement._oracle)",
+   "real_defect": "valid only with a link to a REFUTED law whose witness replays with obstruction_observed (links {law}: results/<M>/<law>.json is REFUTED with replay passed, the edge is in its cone, and replay/<M>/report.json observes the obstruction on every side; holon.refinement._real)",
+   "unexplained": "anything else; the gate FAILS (GREF) and M2 exit (a) is not met"
+  },
+  "not_disagreements": "cross-edge PAR differences on real inputs (one edge against another edge, e.g. enc_go_v1 against the chain's version-2 bytes, ok_sol against ok_go) are realizations of REFUTED laws, listed in laws.json, never refinement disagreements (BUILD_PLAN I16: O1 and O2 appear as cross-edge PAR differences linked to L_dom_hdr and L_par_hdr_v2)",
+  "target_unexplained": 0,
+  "trans": {
+   "extraction_defect": 0,
+   "oracle_mismatch": 0,
+   "real_defect": 0,
+   "unexplained": 0
+  }
+ },
+ "implementation": {
+  "comparison": "the runtime code at the implementation address (eth_getCode at the trans window's to_block) against the pinned solc's deployedBytecode of Rollup under each config, the bytes of every immutableReferences range masked on both sides; equal under at least one config",
+  "compiler_configs": {
+   "foundry": {
+    "bytecode_hash": "none",
+    "evm_version": "cancun",
+    "optimizer_runs": 999999,
+    "source": "contracts/foundry.toml"
+   },
+   "hardhat": {
+    "bytecode_hash": "none",
+    "evm_version": "cancun",
+    "optimizer_runs": 10000,
+    "source": "contracts/hardhat.config.ts"
+   }
+  },
+  "eip1967_implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+  "last_upgrade": {
+   "block": 26031669,
+   "implementation": "0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d",
+   "tx": "0xdeb5268cbec1b47c77ad46cb8dd29491833e45ae374d2905f94f4e0499e8110e"
+  },
+  "pinned": {
+   "checkout": "/root/work/morph",
+   "commit": "3e44e795586af3e11285b603ab642c67823add51",
+   "contract": "Rollup",
+   "solc": "config/holon.json replay.solc (0.8.24, sha256 pinned there)",
+   "source": "contracts/contracts/l1/rollup/Rollup.sol"
+  },
+  "proxy": "0x759894ced0e6af42c26668076ffa84d02e3cef60"
+ },
+ "in_scope": {
+  "blocks": 3414,
+  "challenge_or_revert_logs": 0,
+  "commit_batches": [
+   60478,
+   62172
+  ],
+  "commit_blob_counts": {
+   "1": 1693,
+   "2": 2
+  },
+  "commit_versions": {
+   "2": 1695
+  },
+  "commits_with_l1_messages": 33,
+  "finalize_batches": [
+   60299,
+   62017
+  ],
+  "finalizes_of_batches_committed_before_the_window": 179,
+  "l1_messages_loaded": 40,
+  "l1_queue_indices_loaded": [
+   27654,
+   27693
+  ],
+  "other_log_emitters": [],
+  "queue": {
+   "address": "0x3931ade842f5bb8763164bdd81e5361dce6cc1ef",
+   "dequeued": [
+    27647,
+    27690
+   ],
+   "event": "DequeueTransaction(uint256,uint256)",
+   "logs": 37,
+   "messages": 44,
+   "topic0": "0x3d48b97f20730c965868963266b0d25d8abe3f06babb60fc3b2b80c9e8907f26"
+  },
+  "rollup_logs": {
+   "CommitBatch": 1695,
+   "FinalizeBatch": 1719
+  },
+  "rule": "every transaction of I59's index whose block lies in the trans window (each is a successful call of the Rollup proxy with a log of the instrument's five topics), plus any successful transaction the supplementary acquisition finds with a Rollup log of another topic in the window",
+  "selectors": {
+   "0x13361101": {
+    "action": "finalizeBatch",
+    "function": "finalizeBatch(bytes)",
+    "n": 1719
+   },
+   "0x41f756da": {
+    "action": "commitBatch",
+    "function": "commitBatch((uint8,bytes,uint64,uint16,bytes32,bytes32,bytes32))",
+    "n": 1695
+   }
+  },
+  "sender": "0x6ab0e960911b50f6d14f249782ac12ec3e7584a0",
+  "transactions": 3414,
+  "transactions_per_block_max": 1
+ },
+ "inputs": {
+  "historical": {
+   "path": "spec/M2/lib/historical.json",
+   "sha256": "719f8ca04ad8618ae2e68e0a4688b92242be2716e89f880b4aba76a2c333a4d6"
+  },
+  "historical_target": {
+   "path": "spec/M2/lib/historical_target.json",
+   "sha256": "428f99dea673166fca8397bc1078e4886cbe247f7c2c2976c7f2aa7e54b001c9"
+  },
+  "i59_outputs": {
+   "results/M2/historical/disagreements.json": {
+    "sha256": "1d237f1c0420e167250070b8ab87c45d7186d04e7f72de360ad8e8e8a2bf069a"
+   },
+   "results/M2/historical/index.json": {
+    "index_sha256": "d12801b7f3065a84f19a5a8fe18f928e70aaa958ce9a55841dac355b7d2a7e76",
+    "sha256": "bfcd4625336c188c3decfca52042ec16b3da18f5ae37f708c515fcbe6654f858"
+   },
+   "results/M2/historical/replay.json": {
+    "sha256": "4d8f5177fd2594f89ee323c640d6fda3ff4849e924f88a2dc01bc7c943a15913"
+   }
+  },
+  "snapshot": "the I59 snapshot named by index.json 'snapshot' (default ~/.holon/historical, env HOLON_HISTORICAL_DIR); reused, never refetched"
+ },
+ "instrument_version": "holon-historical-exit/0.1",
+ "premise_inhabitants": {
+  "laws": {
+   "L_dom_hdr": 62172,
+   "L_par_hdr_ssvh": 34101,
+   "L_par_hdr_v0": 1,
+   "L_par_hdr_v1": 0,
+   "L_par_hdr_v2": 1694,
+   "L_rt_go_v0": 1,
+   "L_rt_go_v1": 0,
+   "L_rt_go_v2": 1694
+  },
+  "rule": "real parent headers h with ok_go(h) whose dec_go(h) satisfies the law's assume (Header laws); every real parent header (Bytes laws)",
+  "v0_ssvh0_batches": [
+   0
+  ]
+ },
+ "storage_rule": "The model's state is threaded through the whole trans window from one initial state: a slot's value before the replay first touches it is the chain's at trans.from_block - 1, never the chain's at the step's parent block. So a write the model misses, or a write by a transaction the replay does not step, surfaces as a difference at the slot's next touch (the pre comparison) or at the window's end (the final comparison). Compared: pre, the model's value before each step against the chain at b - 1 on every slot the step reads or writes; post, the model's value after the step against the chain at b on the same slots; final, the model's value after the last step against the chain at trans.to_block on every slot the replay touched. Residual: a chain write to a slot the model never touches in the window is not observed (no transaction trace is required).",
+ "supplement": {
+  "blob_fallback": {
+   "needed": 0,
+   "rule": "the L2 blob-reconstruction fallback applies only to blobs whose I59 source is 'unavailable'"
+  },
+  "kinds": {
+   "call": "eth_call at b - 1 of every external call an in-scope step makes (callee, calldata, from = the proxy, the step's msg.value for the call): its success and return data, the answer the model receives",
+   "call_after": "eth_call at b of every call item (same callee, calldata and from): a stability check of the answer, never an answer itself; a call whose answer at b differs from its answer at b - 1 is counted in trans.json call_stability",
+   "code": "eth_getCode(implementation, to_block) and the proxy's EIP-1967 implementation slot at to_block",
+   "header": "eth_getBlockByNumber(b) for every block holding an in-scope transaction: the step's block.* env",
+   "log_other": "eth_getLogs of the proxy over the trans window, every topic outside the instrument's five",
+   "receipt_other": "its receipt",
+   "storage": "eth_getStorageAt(proxy, slot, B) for every slot an in-scope step reads or writes, at B = b - 1 and B = b of that step, and at B = trans.from_block - 1 (the slot's initial value, read once) and B = trans.to_block (the final comparison) for every slot the replay touches",
+   "tx_other": "a transaction a log_other item belongs to"
+  },
+  "probed": "2026-10-13, while drafting, to learn what a keyless source serves (latest block then 26185553): gateway.tenderly.co/public/mainnet served eth_getCode of the proxy at block 26032693 and eth_getStorageAt of the proxy's EIP-1967 implementation slot at block 26032692 (it held 0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d, the last Upgraded event's implementation); debug_traceTransaction was refused there (rate limit) and does not exist on ethereum-rpc.publicnode.com. The implementation's code, the storage and calls of any in-scope step, and every block header were not read.",
+  "rule": "fetch only what the I59 snapshot lacks; never a log of I59's five topics, a transaction, a receipt or a blob I59 indexed",
+  "sources": {
+   "execution": [
+    "env:ETH_RPC_URL",
+    "https://gateway.tenderly.co/public/mainnet",
+    "https://ethereum-rpc.publicnode.com"
+   ]
+  }
+ },
+ "synthetic_smoke": {
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "fixtures": 6,
+  "label": "synthetic_smoke",
+  "names": [
+   "before_move_commitBatch",
+   "legacy_commitBatch",
+   "pre_submitter_commitBatch",
+   "pre_submitter_commitBatchWithProof",
+   "current_commitBatch",
+   "current_commitBatchWithProof"
+  ],
+  "path": "node/derivation/testdata/rollup_calldata_fixtures.json",
+  "rule": "replayed through the same decode and header checks, never counted in a window, a metric or the exit",
+  "sha256": "4c6667efa967418bd3b553317599e0db2ae937d1ec594cb2ffa3780519939a24"
+ },
+ "windows": {
+  "codec": {
+   "from_block": 19426587,
+   "to_block": 26179508,
+   "to_block_hash": "0x3d07652cc0b9acdd37a33b468074d5afbfb4763b7b3654a62729fa8882d0ec41",
+   "what": "every parent header of I59's replay (pinned and legacy commits): the header carrier's edges"
+  },
+  "trans": {
+   "from_block": 26031670,
+   "to_block": 26179508,
+   "to_block_hash": "0x3d07652cc0b9acdd37a33b468074d5afbfb4763b7b3654a62729fa8882d0ec41",
+   "what": "the deployed implementation's live period: from the block after the last Upgraded event of the Rollup proxy in I59's window to I59's window end; transactions before it ran other code"
+  }
+ }
+}

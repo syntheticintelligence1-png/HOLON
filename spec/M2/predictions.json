@@ -2282,6 +2282,133 @@
         "instrument": "spec/M2/lib/mutation_preregistration.json",
         "i20_step_min_steps": 2432
       }
+    },
+    "I23": {
+      "title": "Historical inputs and M2 exit evaluation",
+      "plan": "docs/BUILD_PLAN.md#i23",
+      "prompt": "prompts/I23_historical_exit.md",
+      "predictions": [
+        {
+          "id": "I23-P1",
+          "claim": "The runtime code at 0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d, the implementation named by the Rollup proxy's last Upgraded event (block 26031669) and held in its EIP-1967 slot at block 26179508, equals the pinned solc 0.8.24 build of contracts/contracts/l1/rollup/Rollup.sol at 3e44e795 under one of the two compiler configurations the pinned checkout declares (hardhat.config.ts: optimizer runs 10000; foundry.toml: runs 999999; both bytecodeHash none, evm cancun), immutable references masked.",
+          "check": "tests_m2/test_historical_exit.py::TestImplementation::test_the_deployed_implementation_is_the_pinned_build"
+        },
+        {
+          "id": "I23-P2",
+          "claim": "The trans window [26031670, 26179508] holds no Rollup log outside I59's five topics, so its replayed sequence is exactly I59's 3414 in-scope transactions (1695 commitBatch, 1719 finalizeBatch, one per block). Every one is stepped through I20's extracted model, its state threaded from the chain's storage at block 26031669 and every external-call answer drawn from the chain (none unsupported), and the model makes exactly 3467 external calls: ISubmitter.isActive and IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime once per commit (1695 each), IL1MessageQueue.getCrossDomainMessage 40 times (the 33 commits that load L1 messages, each at exactly the queue indices its calldata and parent header imply, 27654..27693) and IL1MessageQueue.popCrossDomainMessage 37 times.",
+          "check": "tests_m2/test_historical_exit.py::TestTrans::test_every_in_scope_transaction_is_replayed"
+        },
+        {
+          "id": "I23-P3",
+          "claim": "The extracted model's status agrees with the chain on all 3414 transactions: ok, as every receipt succeeded, including the 179 finalizeBatch steps on batches 60299..60477 that the legacy implementation committed (their storage was written by older code).",
+          "check": "tests_m2/test_historical_exit.py::TestTrans::test_status_agrees_on_every_transaction"
+        },
+        {
+          "id": "I23-P4",
+          "claim": "For all 1695 commits (batches 60478..62172) the model emits exactly the receipt's proxy log CommitBatch(k, h), topics and data equal to the receipt in the I59 snapshot, with h the model's own batch hash: its header build over the calldata, the parent header, the dataHash of lastBlockNumber, numL1Messages and the 40 loaded L1 message hashes, and the version-2 blob hash keccak256 over the transaction's blob hashes (1693 one-blob and 2 two-blob commits).",
+          "check": "tests_m2/test_historical_exit.py::TestTrans::test_commit_events_agree"
+        },
+        {
+          "id": "I23-P5",
+          "claim": "For all 1719 finalizes (batches 60299..62017) the model emits exactly the receipt's proxy log FinalizeBatch(k, batchHash, stateRoot, withdrawRoot), topics and data equal to the receipt in the I59 snapshot.",
+          "check": "tests_m2/test_historical_exit.py::TestTrans::test_finalize_events_agree"
+        },
+        {
+          "id": "I23-P6",
+          "claim": "0 storage differences between the extracted model and the chain over the 3414 steps, with the model's state threaded through the whole window from the chain's storage at block 26031669 (never re-read at a step's parent block, so a missed write cannot be healed): on every slot a step reads or writes, the model's value before the step equals the chain's at the previous block and its value after the step the chain's at the step's block; after the last step, every slot the replay touched equals the chain's at block 26179508; every step makes at least one pre and one post comparison.",
+          "check": "tests_m2/test_historical_exit.py::TestTrans::test_storage_agrees"
+        },
+        {
+          "id": "I23-P7",
+          "claim": "Exactly 37 finalize steps call popCrossDomainMessage on the queue 0x3931ade842f5bb8763164bdd81e5361dce6cc1ef, once each, and every step's pop calls equal, argument for argument, the DequeueTransaction(startIndex, count) logs the queue emitted in the same transaction's receipt (read from the I59 snapshot; a step without a pop has no such log): 37 of 37 matched, covering queue indices 27647..27690 (44 messages).",
+          "check": "tests_m2/test_historical_exit.py::TestTrans::test_queue_pops_agree_with_the_dequeue_logs"
+        },
+        {
+          "id": "I23-P8",
+          "claim": "On dec_go of the 59218 decodable real parent headers, the real encoders agree with the M0 model edge by edge: Rollup's header build block (I16 binding) with enc_sol on all 59218, Go BatchHeaderV0.Bytes with enc_go_v0 on the 17277 version-0 headers and BatchHeaderV1.Bytes with enc_go_v1 on the 41941 version-1 and version-2 headers: 0 disagreements.",
+          "check": "tests_m2/test_historical_exit.py::TestCodec::test_encoders_agree_with_their_implementations_on_real_headers"
+        },
+        {
+          "id": "I23-P9",
+          "claim": "Go re-encoding reproduces the chain's bytes of every legacy header it has an encoder for: all 17277 249-byte version-0 headers and all 34101 version-1 headers byte for byte. On all 7840 version-2 headers BatchHeaderV1.Bytes differs from the chain in exactly cell 0 (it writes version 1): L_par_hdr_v2's obstruction on real mainnet bytes.",
+          "check": "tests_m2/test_historical_exit.py::TestCodec::test_go_reencoding_reproduces_legacy_headers_and_realizes_l_par_hdr_v2"
+        },
+        {
+          "id": "I23-P10",
+          "claim": "The REFUTED M0 codec laws are realized on real headers: L_par_hdr_ssvh by all 34101 version-1 headers (each has a nonzero sequencerSetVerifyHash, which enc_sol zeroes and enc_go_v1 keeps) and L_par_hdr_v2 by all 1694 headers that inhabit its premise (version 2, zero sequencerSetVerifyHash); no PROVED M0 law has a realization count.",
+          "check": "tests_m2/test_historical_exit.py::TestLaws::test_refuted_m0_laws_are_realized_on_real_headers"
+        },
+        {
+          "id": "I23-P11",
+          "claim": "No real step realizes an M2 site or width obstruction. The REFUTED :363 site (proveRemainingTime in _commitBatchWithBatchData) is reached by none of the 1695 commits, because inChallenge is false before each; the REFUTED :636 site (finalizedStateRoots[_batchIndex - 1]) is reached by all 1719 finalizes without a Panic; each width site of I20-P2/P3 (the totalL1MessagePopped and batchIndex stores) is reached by all 1695 commits with every value inside its width.",
+          "check": "tests_m2/test_historical_exit.py::TestLaws::test_refuted_m2_site_laws_are_not_realized"
+        },
+        {
+          "id": "I23-P12",
+          "claim": "No historical disagreement of any class in either window: codec.json and trans.json list none, all 8 historical refinement records (6 codec edges, 2 trans edges) count 0, and spec/M2/disagreements.json gains no D-historical entry.",
+          "check": "tests_m2/test_historical_exit.py::TestExit::test_no_historical_disagreement"
+        },
+        {
+          "id": "I23-P13",
+          "claim": "M2 exit (a) is met: metrics.refinement.historical reports the codec window [19426587, 26179508] and the trans window [26031670, 26179508] with compared > 0 and 0 unexplained, metrics.refinement.unexplained is 0, and results/M2/m2_exit.json records exit (a) as met, not a substitute.",
+          "check": "tests_m2/test_historical_exit.py::TestExit::test_m2_exit_a_is_met"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I23-R1",
+          "claim": "Gates M0, M1 and M2 pass at the iteration's last commit. I23 changes no law, statement, facts document, extracted document, model, result record or status, and none of I59's or I20's outputs; results/M2/metrics.json gains only refinement.historical and the totals that include it.",
+          "check": "gate"
+        },
+        {
+          "id": "I23-R2",
+          "claim": "I59's outputs are byte-identical (sha256 in the instrument). dec_go, ok_go and ok_sol are I59's comparisons on all 62172 parent headers with 0 disagreements; L_dom_hdr is realized by I59's 2954 281-byte version-0 headers; the L2 blob fallback runs on 0 blobs (I59 retrieved all 62192).",
+          "check": "tests_m2/test_historical_exit.py::TestInstrument::test_i59_outputs_are_unchanged and tests_m2/test_historical_exit.py::TestCodec::test_decoder_and_domain_edges_are_i59s and tests_m2/test_historical_exit.py::TestLaws::test_l_dom_hdr_realizations_are_i59s and tests_m2/test_historical_exit.py::TestCodec::test_blob_fallback_is_not_needed"
+        },
+        {
+          "id": "I23-R3",
+          "claim": "Construction: the instrument is the preregistered one, and its windows, in-scope counts, codec corpus and the M0 laws' premise inhabitants follow from I59's committed outputs, and its in-scope input facts (selectors, sender, versions, blob counts, L1 messages, batch ranges, the queue's 37 logs) from the I59 snapshot's own objects: L_par_hdr_v0 and L_rt_go_v0 1 (the genesis header, batch 0), L_par_hdr_v1 and L_rt_go_v1 0, L_par_hdr_v2 and L_rt_go_v2 1694, L_par_hdr_ssvh 34101, L_dom_hdr 62172.",
+          "check": "tests_m2/test_historical_exit.py::TestInstrument::test_the_instrument_is_the_frozen_one and tests_m2/test_historical_exit.py::TestInstrument::test_windows_follow_i59 and tests_m2/test_historical_exit.py::TestInstrument::test_in_scope_counts_follow_the_index and tests_m2/test_historical_exit.py::TestInstrument::test_codec_corpus_and_premise_inhabitants_follow_the_replay and tests_m2/test_historical_exit.py::TestInstrument::test_in_scope_inputs_follow_the_snapshot"
+        },
+        {
+          "id": "I23-R4",
+          "claim": "Construction: the supplement fetches only what I59 lacks, covers the trans window (a header per in-scope block, every call answered at b - 1 with its stability check at b, initial and final storage, the implementation's code), holds no secret and re-indexes offline byte for byte; the trans record, the 8 refinement records (each with rho(e)'s implementation reference) and the per-law table (edges computed from the statements and cones) are well formed; GREF passes and is shown to read the historical records; the six fixtures are synthetic_smoke and never counted; the fetch tool and the BigQuery alternative exist; m2_exit.json and docs/M2_EXIT.md are generated from the metrics, list which diagram edges the window replayed and why every other CODEC/CONS/TRANS edge was not, and are reproduced by --check; every output is byte-identical across runs.",
+          "check": "tests_m2/test_historical_exit.py::TestSupplement::test_supplement_covers_the_trans_window_without_refetching and tests_m2/test_historical_exit.py::TestSupplement::test_no_secret_in_any_output and tests_m2/test_historical_exit.py::TestSupplement::test_offline_reindex_is_byte_identical and tests_m2/test_historical_exit.py::TestTrans::test_trans_record_is_well_formed and tests_m2/test_historical_exit.py::TestRefinementRecords::test_historical_records_are_well_formed_and_add_up and tests_m2/test_historical_exit.py::TestLaws::test_premise_inhabitants_and_edge_evidence and tests_m2/test_historical_exit.py::TestSmoke::test_the_six_fixtures_are_synthetic_smoke_and_never_counted and tests_m2/test_historical_exit.py::TestTools::test_fetch_tool_and_bigquery_alternative_exist and tests_m2/test_historical_exit.py::TestExit::test_exit_document_is_generated_and_reproduced and tests_m2/test_historical_exit.py::TestDeterminism::test_outputs_are_byte_identical_across_runs and tests_m2/test_historical_exit.py::TestRefinementRecords::test_gref_reads_the_historical_records and tests_m2/test_historical_exit.py::TestExit::test_exit_reports_which_edges_were_replayed"
+        },
+        {
+          "id": "I23-R5",
+          "claim": "Whitepaper §13 'refinement disagreement rate' and §8.7 'agreement volume': results/M2/metrics.json refinement.historical is the sum over the historical refinement records and is included in the refinement totals and the rate.",
+          "check": "tests_m2/test_historical_exit.py::TestExit::test_metrics_report_the_historical_refinement"
+        }
+      ],
+      "outcome_paths": [
+        "results/M2/historical/supplement.json",
+        "results/M2/historical/codec.json",
+        "results/M2/historical/trans.json",
+        "results/M2/historical/laws.json",
+        "results/M2/historical/synthetic_smoke.json",
+        "results/M2/refinement/historical/",
+        "results/M2/m2_exit.json",
+        "docs/M2_EXIT.md"
+      ],
+      "tests": [
+        "tests_m2/test_historical_exit.py"
+      ],
+      "thresholds": {
+        "unexplained_max": 0,
+        "instrument": "spec/M2/lib/historical_exit.json",
+        "codec_window": [
+          19426587,
+          26179508
+        ],
+        "trans_window": [
+          26031670,
+          26179508
+        ],
+        "in_scope_transactions": 3414,
+        "codec_parents": 62172,
+        "exit_b_threshold_q6": 0.8
+      }
     }
   }
 }
