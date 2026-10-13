@@ -36,6 +36,10 @@ and if the Go harness cannot run every kept blob has commitment_ok false and kzg
     ok_go on the same bytes ("agree" | "disagree" | "not_run" when the harness could not run).
 
 Supplementary, outside the preregistered fields (never read by the tests):
+  - "pinned_solidity_ok_sol" (in parent and legacy_parent): the pinned Solidity _loadBatchHeader on the same
+    bytes (does it not revert?), through the I16 Solidity harness and binding unchanged (op load, pinned forge,
+    solc and dependencies); null when the harness could not run. A model ok_sol that differs is a disagreement
+    (edge ok_sol, real side the pinned Solidity);
   - blobs[i].kzg: how commitment_ok was decided: "computed" (from the bytes), "served_differs" (a served
     commitment differs from the computed one: commitment_ok false), "error" (the bytes are not a canonical
     blob: commitment_ok false), "not_kept" (the served commitment, checked at fetch time), "not_run";
@@ -153,6 +157,33 @@ def run_go_decoders(headers: list[bytes], checkout: Path, work: Path | None, mod
     if len(dec) != len(hexes) or len(ok) != len(hexes):
         return {}, f"Go harness returned {len(dec)}/{len(ok)} outputs for {len(hexes)} headers"
     return {h: (d, o) for h, d, o in zip(hexes, dec, ok)}, ""
+
+
+def run_solidity_ok_sol(headers: list[bytes], checkout: Path, work: Path | None, model: CH.HeaderModel) -> tuple[list, str]:
+    """The pinned Solidity _loadBatchHeader (does it revert?) on each header, through the I16 Solidity harness and
+    binding unchanged (replay/M2/solidity/HolonCodec.t.sol, op load, on the pinned forge, solc and dependencies)."""
+    import types
+    from .. import refinement as R
+    from ..replay import toolchain
+    if not headers:
+        return [], ""
+    bind = R.binding(ROOT)
+    hexes = ["0x" + h.hex() for h in headers]
+    tmp = None
+    if work is None:
+        tmp = work = Path(tempfile.mkdtemp(prefix="holon-hist-sol-"))
+    try:
+        tc = toolchain(types.SimpleNamespace(forge=None, solc=None, write_pins=False), ROOT)
+        items = R.sol_items(model.facts, bind, ["ok_sol"], {"ok_sol": hexes})
+        lines = R.run_solidity(ROOT, checkout, Path(work), bind, tc, items)
+    except (R.RefineError, OSError, SystemExit) as e:
+        return [], str(e)[-1500:]
+    finally:
+        if tmp is not None:
+            shutil.rmtree(tmp, ignore_errors=True)
+    if len(lines) != len(hexes) or not set(lines) <= {"true", "false"}:
+        return [], f"Solidity harness wrote {len(lines)} lines for {len(hexes)} headers"
+    return [x == "true" for x in lines], ""
 
 
 KZG_HARNESS = Path(__file__).resolve().parent / "go" / "holon_kzg_test.go"
@@ -337,6 +368,8 @@ def replay(index_path: Path, milestone: str = "M2", checkout: Path | None = None
             checked[hb] = row
     go_real, go_err = run_go_decoders(hlist, checkout, work, model)
     by_keccak = {row["keccak"]: hb for hb, row in checked.items()}
+    sol_out, sol_err = run_solidity_ok_sol(hlist, checkout, work, model)
+    sol_real = {hb: v for hb, v in zip(hlist, sol_out)} if sol_out else {}
 
     def parent_entry(c: dict, hb: bytes) -> dict:
         row = checked[hb]
@@ -353,7 +386,8 @@ def replay(index_path: Path, milestone: str = "M2", checkout: Path | None = None
                 "linkage": "no_event" if ev is None else ("ok" if ev == row["keccak"] else "mismatch"),
                 "ok_sol": row["ok_sol"], "ok_go": row["ok_go"], "roundtrip": row["roundtrip"],
                 "diff_cells": row["diff_cells"], "ssvh_zero": row["ssvh_zero"],
-                "blob_versioned_hash": "0x" + bv.hex() if bv is not None else None, "go_decoder": go}
+                "blob_versioned_hash": "0x" + bv.hex() if bv is not None else None, "go_decoder": go,
+                "pinned_solidity_ok_sol": sol_real.get(hb)}
 
     for i, (inp, _) in parents.items():
         commits[i]["parent"] = parent_entry(commits[i], bytes(inp[parent_field]))
@@ -416,16 +450,17 @@ def replay(index_path: Path, milestone: str = "M2", checkout: Path | None = None
     reverts.sort(key=lambda r: (r["block"], r["batch_index"]))
 
     # ------------------------------------------------ disagreements
-    dis = disagreements(commits, checked, go_real, by_keccak)
+    dis = disagreements(commits, checked, go_real, by_keccak, sol_real)
     rep = {"window": idx["window"], "index_sha256": idx["index_sha256"], "events": events,
            "last_upgrade_block": last_upgrade, "commits": commits, "genesis": genesis, "reverts": reverts,
            "abi": pabi.describe(), "checkout_commit": checkout_sha, "model_engine": model.engine,
            "facts": model.facts_rel, "go_harness_error": go_err or None, "kzg_harness_error": kzg_err or None,
+           "solidity_harness_error": sol_err or None,
            "summary": summary(commits, reverts, genesis, last_upgrade, status_from_logs, dis, go_err)}
     return rep, dis
 
 
-def disagreements(commits: list[dict], checked: dict, go_real: dict, by_keccak: dict) -> dict:
+def disagreements(commits: list[dict], checked: dict, go_real: dict, by_keccak: dict, sol_real: dict | None = None) -> dict:
     from .. import refinement as R
     found: dict[str, dict] = {}
 
@@ -447,10 +482,10 @@ def disagreements(commits: list[dict], checked: dict, go_real: dict, by_keccak: 
                               "input": {"keccak": "0x" + keccak256(hb).hex(), "length": len(hb)}, **vals,
                               "real_source": real_source, "txs": [], "count": 0, "links": {}}
         e["count"] += 1
-        if len(e["txs"]) < 5:
+        if tx is not None and len(e["txs"]) < 5:
             e["txs"].append(tx)
 
-    compared = {"dec_go": 0, "ok_go": 0, "ok_sol": 0}
+    compared = {"dec_go": 0, "ok_go": 0, "ok_sol": 0, "ok_sol_pinned_solidity": 0}
     for c in commits:
         for key in ("parent", "legacy_parent"):
             p = c.get(key)
@@ -466,6 +501,10 @@ def disagreements(commits: list[dict], checked: dict, go_real: dict, by_keccak: 
                     add("dec_go", hb, row["dec_go"], real[0], "Go common/batch at the pinned commit", c["tx"])
                 if real[1] != row["ok_go"]:
                     add("ok_go", hb, row["ok_go"], real[1], "Go common/batch at the pinned commit", c["tx"])
+            if hb in (sol_real or {}):
+                compared["ok_sol_pinned_solidity"] += 1
+                if sol_real[hb] != row["ok_sol"]:
+                    add("ok_sol", hb, row["ok_sol"], sol_real[hb], "Solidity _loadBatchHeader at the pinned commit", c["tx"])
             if c["status"] == "success":
                 compared["ok_sol"] += 1
                 if row["ok_sol"] is not True:
@@ -563,7 +602,8 @@ def summary(commits, reverts, genesis, last_upgrade, status_from_logs, dis, go_e
                 "diff_cells_outside_ssvh": sum(1 for p in ps if any(i not in range(185, 217) for i in _cells(p))),
                 "ssvh_nonzero": len(nz), "ssvh_nonzero_max_batch_index": max(nz) if nz else None,
                 "ssvh_zero_min_batch_index": min(z) if z else None,
-                "go_decoder": _count(p["go_decoder"] for p in ps)}
+                "go_decoder": _count(p["go_decoder"] for p in ps),
+                "pinned_solidity_ok_sol": _count(str(p.get("pinned_solidity_ok_sol")) for p in ps)}
 
     after = [c for c in ok if c["block"] > (last_upgrade or 0) and c["function"] != "other"]
     return {
@@ -618,4 +658,4 @@ def main(argv=None) -> int:
     print(json.dumps({k: s[k] for k in ("commits", "success", "decoded_with_parent", "legacy_with_parent", "blobs",
                                         "batch_indices", "reverts", "disagreements", "go_harness")}, sort_keys=True))
     print(f"wrote {out} and {dpath}")
-    return 0 if rep["go_harness_error"] is None and rep["kzg_harness_error"] is None else 1
+    return 0 if rep["go_harness_error"] is None and rep["kzg_harness_error"] is None and rep["solidity_harness_error"] is None else 1
