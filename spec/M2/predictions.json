@@ -2154,6 +2154,134 @@
         "consumer_real_commits_min": 62172,
         "representative_max_run_length": 6
       }
+    },
+    "I22": {
+      "title": "A1 mutation adequacy on real code",
+      "plan": "docs/BUILD_PLAN.md#i22",
+      "prompt": "prompts/I22_mutation_adequacy.md",
+      "predictions": [
+        {
+          "id": "I22-P1",
+          "claim": "Baseline. The null mutant (the unmutated pinned files in a scratch copy), re-extracted from scratch with I17 and I18 and projected onto the holon-facts/0.1 header schema, decides the 8 laws/M0 statements exactly as results/M0 does: L_par_hdr_v0, L_par_hdr_v1, L_rt_go_v0, L_rt_go_v1 and L_rt_go_v2 PROVED; L_par_hdr_v2, L_par_hdr_ssvh and L_dom_hdr REFUTED. Its extraction succeeds.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_the_baseline_reproduces_the_m0_statuses"
+        },
+        {
+          "id": "I22-P2",
+          "claim": "All 22 mstore_offset mutants (the literal K of mstore(add(p, K), v) to K-1 and K+1 at the 11 store sites of BatchHeaderCodecV0.sol:144-229 and BatchHeaderCodecV1.sol:56) are killed (K1 or K2): M001-M020 with L_par_hdr_v0 among the killing laws, M021 and M022 (storeLastBlockNumber) with L_par_hdr_v1.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_every_mstore_offset_mutant_is_killed"
+        },
+        {
+          "id": "I22-P3",
+          "claim": "shl_width: the 8 mutants of the codec stores' shl(192, v) (to 184 and 200) are killed (K1 or K2), M023-M028 with L_par_hdr_v0 and M029-M030 with L_par_hdr_v1; the 4 in Rollup._commitBatch (Rollup.sol:871 shl(192) and :873 shl(240), the data-hash preimage, M031-M034) survive.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_shl_width_kills_the_codec_stores_and_not_the_data_hash"
+        },
+        {
+          "id": "I22-P4",
+          "claim": "cmp_boundary: of the 16 mutants (>= to > and > to >=; BatchHeaderCodecV0.sol:32 and 15 sites of Rollup.sol), exactly M052 and M053 (Rollup.sol:333 and :353, the 'version >= 1' of the header length and of storeLastBlockNumber) are killed, each with L_par_hdr_v1 among its killing laws (K1 or K2); M049-M051 and M054-M064 survive although the predicted set is every law of the baseline.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_cmp_boundary_kills_exactly_the_two_header_length_sites"
+        },
+        {
+          "id": "I22-P5",
+          "claim": "None of the 6 drop_delete mutants (M035 revertBatch Rollup.sol:453 'delete challenges[_batchIndex]', M036 setPause :580, M037-M040 finalizeBatch :657-660) is killed. The plan expected the UNDO laws to kill the dropped delete in revertBatch: on this pipeline the rollup laws are decided on I20's window view, which takes every effect from the hand abstraction.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_no_dropped_delete_is_killed"
+        },
+        {
+          "id": "I22-P6",
+          "claim": "None of the 8 swap_cursor mutants (lastCommittedBatchIndex <-> lastFinalizedBatchIndex at the reads Rollup.sol:312, :389, :417, :441, :476, :489 twice, :643; M041-M048) is killed by a law, and I20's corpus detects 7 of them (corpus_detected true: M041, M043, M044, M045, M046, M047, M048), grounded on the unmutated corpus in the instrument's computation item 9 (300 ok commits with lastCommittedBatchIndex != lastFinalizedBatchIndex; 17 ok commitBatchWithProof, 55 ok revertBatch, 39 ok challengeState of which 22 with another unfinalized batch, 10 ok finalizeBatch). Nothing is predicted for M042's corpus.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_no_swapped_cursor_is_killed_and_the_corpus_sees_seven"
+        },
+        {
+          "id": "I22-P7",
+          "claim": "For all 110 mutants the normalized decided input of the M1x set (gen/M2/extracted/m1_view.json, I20's window view: the hand abstraction minus the requires of its guard_missing deltas, matched by span) is byte-identical to the baseline's: no mutant removes or moves a checked span. So each of the 15 rollup laws keeps its baseline status in every mutant run.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_the_differential_view_never_changes"
+        },
+        {
+          "id": "I22-P8",
+          "claim": "For the 30 Rollup.sol mutants outside the header edges' store sequences and loader (M031-M048, M050, M051, M054-M062, M064) the normalized projected header document is byte-identical to the baseline's: storage conditions are projected away (A-env) and the data-hash preimage is not a header op.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_rollup_only_mutants_leave_the_projection_unchanged"
+        },
+        {
+          "id": "I22-P9",
+          "claim": "All 14 putuint64_offset mutants (binary.BigEndian.PutUint64(x[K:], v) to K-1 and K+1 at batch_header.go:218-220 and :246-248, :256) are killed (K1 or K2): M065-M070 (BatchHeaderV0.Bytes) with L_par_hdr_v0 and M071-M078 (BatchHeaderV1.Bytes) with L_par_hdr_v1, M078 included (PutUint64 on the 7-byte slice batchBytes[250:], which panics for every header).",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_every_putuint64_offset_mutant_is_killed"
+        },
+        {
+          "id": "I22-P10",
+          "claim": "copy_offset: 26 of the 28 mutants (copy(x[K:], y) to K-1 and K+1 at batch_header.go:221-227 and :249-255) are killed (K1 or K2), M079-M092 but M090 with L_par_hdr_v0 and M093-M106 but M104 with L_par_hdr_v1. M090 and M104 (the sequencerSetVerifyHash copy shifted to 186) survive: every PROVED codec law pins sequencerSetVerifyHash to zero, so the shifted zero bytes equal the original ones, and L_par_hdr_ssvh is REFUTED in the baseline.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_copy_offset_kills_all_but_the_two_shifted_sequencer_set_hashes"
+        },
+        {
+          "id": "I22-P11",
+          "claim": "None of the 4 drop_len_check mutants (validate's length checks at batch_header.go:44, :48, :52 and Version's empty check at :73; M107-M110) is killed: L_dom_hdr is REFUTED in the baseline (the 250-byte version-0 header) and cannot move, and the round-trip laws decode only exact-length encodings. The plan expected the domain law to kill them.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_no_dropped_length_check_is_killed"
+        },
+        {
+          "id": "I22-P12",
+          "claim": "Totals: 72 of the 110 mutants are killed (rate_all 72/110 = 0.6545), no mutant ends in error, no unpredicted obstruction occurs, and rate_non_equivalent is below 0.80: M2 exit (b) is not met at this pipeline (it would need at least 20 of the 38 survivors adjudicated equivalent).",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_totals"
+        },
+        {
+          "id": "I22-P13",
+          "claim": "extraction_defect_detected (a replay disagreement of a law, or a new disagreement of a channel run): for the 30 Rollup-only mutants and the 41 Go mutants whose code runs on I16's per-edge corpus without a panic (M065-M077, M079-M106), no law is a replay disagreement and every channel run completes with no disagreement the baseline's run does not have (false). M078 and M107-M110 panic on that corpus (computation item 10): their i16_edge run is incomplete, no law is a replay disagreement and no run reports a new disagreement (null).",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_extraction_defect_channel_on_rollup_only_and_go_mutants"
+        },
+        {
+          "id": "I22-P14",
+          "claim": "The frontends see every planted change: each of the 110 mutants changes at least one extracted document after normalization (its top-level extraction block removed). No survivor is an extraction gap at the frontend stage; every miss is lost after extraction (gap_stage model) or is a rule gap.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestPredictions::test_the_frontends_see_every_mutant"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I22-R1",
+          "claim": "Gates M0, M1 and M2 pass at the iteration's last commit. I22 changes no law, statement, facts document, extracted document or result record outside results/M2/mutation/ and results/M2/mutation_adequacy.json (the gate's regenerated results/M2/metrics.json gains only its mutation_adequacy entry), and never writes to the pinned checkout or to spec/M2/disagreements.json.",
+          "check": "gate"
+        },
+        {
+          "id": "I22-R2",
+          "claim": "Construction: the projection of the committed extracted documents equals the frozen header facts where I17 and I18 compared them (enc_sol layouts for versions 0, 1, 2; enc_go_v0, enc_go_v1; the dec_go getters; ok_sol and ok_go on I17's loader grid), and holon mutate project --check reproduces it.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestProjection::test_the_projection_of_the_pinned_code_equals_the_frozen_facts and tests_m2/test_mutation_adequacy.py::TestProjection::test_the_committed_projection_is_reproduced"
+        },
+        {
+          "id": "I22-R3",
+          "claim": "Construction: the frozen instrument and diff sheet are intact (sha256 pinned; every mutant is its operator's rewrite of the pinned bytes; the sheet is the reference rendering); holon.mutate.operators enumerates exactly the 110 mutants; holon/mutate names nothing of the target; mutate sheet --check reproduces the sheet; run --dry-run refuses (exit 2, nothing written) a missing, unparsable or incomplete adjudication, one of another catalog or sheet, or one without the sign-off, and accepts (exit 0, nothing written) a complete, signed-off one.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestInstrument::test_the_instrument_is_the_frozen_one and tests_m2/test_mutation_adequacy.py::TestInstrument::test_threshold_seed_and_catalog_counts and tests_m2/test_mutation_adequacy.py::TestInstrument::test_in_scope_files_are_the_pinned_bytes_the_extractions_read and tests_m2/test_mutation_adequacy.py::TestInstrument::test_each_mutant_is_its_operators_rewrite and tests_m2/test_mutation_adequacy.py::TestInstrument::test_the_diff_sheet_is_the_rendering_of_the_catalog and tests_m2/test_mutation_adequacy.py::TestOperators::test_operators_enumerate_exactly_the_catalog and tests_m2/test_mutation_adequacy.py::TestOperators::test_apply_checks_the_original_text and tests_m2/test_mutation_adequacy.py::TestOperators::test_the_sheet_cli_reproduces_the_frozen_sheet and tests_m2/test_mutation_adequacy.py::TestOperators::test_mutate_code_holds_no_target_vocabulary and tests_m2/test_mutation_adequacy.py::TestOperators::test_run_refuses_without_a_complete_adjudication"
+        },
+        {
+          "id": "I22-R4",
+          "claim": "Construction: the human's adjudication covers the 110 mutants of this catalog with the catalog signed off and was committed alone, after the instrument and before any result; the baseline decides every set and reproduces the committed statuses (results/M0, results/M2/differential.json \"extracted\", results/M2 over the committed laws/M2), the committed spec/M2/facts documents and the committed projection; every record covers the baseline law set; every changed flag equals a hash comparison with the baseline; every record lists exactly its channel runs (i20_step at least 2432 steps when complete); replay disagreements, kill decisions (K1 needs a witness replaying on the mutant and not on the original; K2 is PROVED to UNKNOWN on a changed input), channel flags, survivor classes and both rates are recomputed from the records; the pinned checkout is untouched; a sample reruns identically at the pipeline commit with --no-carry.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestAdjudication::test_every_mutant_is_adjudicated_once_against_this_catalog and tests_m2/test_mutation_adequacy.py::TestAdjudication::test_the_adjudication_was_committed_alone_before_any_result and tests_m2/test_mutation_adequacy.py::TestResults::test_summary_names_its_inputs and tests_m2/test_mutation_adequacy.py::TestResults::test_the_baseline_reproduces_the_committed_statuses and tests_m2/test_mutation_adequacy.py::TestResults::test_changed_flags_are_recomputed_from_the_hashes and tests_m2/test_mutation_adequacy.py::TestResults::test_every_record_covers_the_baseline_law_set and tests_m2/test_mutation_adequacy.py::TestResults::test_every_record_holds_exactly_its_channel_runs and tests_m2/test_mutation_adequacy.py::TestResults::test_kill_decisions_follow_the_criterion and tests_m2/test_mutation_adequacy.py::TestResults::test_channel_flags_follow_their_runs and tests_m2/test_mutation_adequacy.py::TestResults::test_survivors_are_classified and tests_m2/test_mutation_adequacy.py::TestResults::test_the_rates_are_recomputed and tests_m2/test_mutation_adequacy.py::TestResults::test_the_pinned_checkout_is_untouched and tests_m2/test_mutation_adequacy.py::TestDeterminism::test_a_sample_reruns_identically_at_the_pipeline_commit"
+        },
+        {
+          "id": "I22-R5",
+          "claim": "Exit (BUILD_PLAN I22, M2 exit (b)): rate_non_equivalent >= 0.80, recomputed by test. I22-P12 forecasts that it fails; the threshold never moves.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestResults::test_m2_exit_b_the_rate_meets_the_threshold"
+        },
+        {
+          "id": "I22-R6",
+          "claim": "Whitepaper §13 metric 'mutation adequacy' and §12.1 'Sensitivity' (certificates report it): results/M2/metrics.json reports mutation_adequacy {source results/M2/mutation_adequacy.json, threshold 0.8, rate_all, rate_non_equivalent, meets_threshold} equal to the summary's, and the metric leaves not_applicable.",
+          "check": "tests_m2/test_mutation_adequacy.py::TestResults::test_metrics_report_mutation_adequacy"
+        }
+      ],
+      "outcome_paths": [
+        "results/M2/mutation/",
+        "results/M2/mutation_adequacy.json",
+        "gen/M2/mutation/",
+        "spec/M2/equivalent_mutants.json",
+        "replay/M2/mutation/"
+      ],
+      "tests": [
+        "tests_m2/test_mutation_adequacy.py"
+      ],
+      "thresholds": {
+        "kill_rate_non_equivalent": 0.8,
+        "meets": "5 * killed_non_equivalent >= 4 * non_equivalent",
+        "seed": 20261022,
+        "mutants": 110,
+        "replay_candidates": 16,
+        "instrument": "spec/M2/lib/mutation_preregistration.json",
+        "i20_step_min_steps": 2432
+      }
     }
   }
 }

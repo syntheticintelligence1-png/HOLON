@@ -1,0 +1,3361 @@
+{
+ "preregistration_version": "holon-mutation-prereg/0.1",
+ "iteration": "I22",
+ "milestone": "M2",
+ "doc": "The frozen I22 instrument (BUILD_PLAN I22 'Preregister': the threshold from Q6, the catalog, the seed and the in-scope list, which fix the denominator, and the per-operator predicted kills). BUILD_PLAN names spec/M2/preregistration.json; a prereg commit may change only spec/M2/lib/ (and the other prereg paths of holon/audit/prereg.py), so the file is here. It is the only target-facing input of holon/mutate/ (holon/mutate names no file, function, variable or field of the target). Contract: the docstring of tests_m2/test_mutation_adequacy.py. Every value below was computed at the prereg from committed or pinned artifacts, as 'computation' says; no mutant was run (items 5 and 6 compiled each mutant; items 9 and 10 read the unmutated model and harnesses). The human signs off this catalog and adjudicates equivalence from the diff sheet before any mutant runs (docs/HUMAN_ANSWERS.md Q6). Adversarial review (before any outcome): the kill criterion requires a replaying witness for every move to REFUTED (a non-replaying one is a replay disagreement, not a kill), K2 is the loss of a proof to UNKNOWN on a changed input, the channel runs and the hashing of decided inputs are fixed, and the sheet's header names every file that holds predictions.",
+ "computation": [
+  "1. Target. config/holon.json replay.morph = /root/work/morph, a clean checkout at 3e44e795586af3e11285b603ab642c67823add51 (git status empty). The four in-scope files were read from it; their sha256 values (in_scope.files) equal the sha256 the committed extracted documents record for the same inputs: spec/M2/facts/morph_header.extracted.json and morph_rollup.extracted.json extraction.inputs (the three .sol files) and spec/M2/facts/morph_batch.go.extracted.json extraction.inputs (batch_header.go).",
+  "2. In-scope list. Solidity: every function of the libraries BatchHeaderCodecV0 and BatchHeaderCodecV1 (the header codec: I17's enc_sol and load_sol edges reach them), and the 8 modelled Rollup actions (the MODELLED tuple of tests_m2/test_extracted_refinement.py, the actions I20's window view maps onto the M1 abstraction) with every Rollup function and modifier they reach, transitively, through Identifier, MemberAccess and ModifierInvocation references in solc 0.8.24's compact AST (standard JSON, AST output only, base path the checkout, include path config replay.sol_deps/node_modules): 25 Rollup functions and modifiers (in_scope.files[...].functions, with the actions reaching each). Go: every function of common/batch/batch_header.go (the frozen facts' Go side: BatchHeaderV0.Bytes = enc_go_v0, BatchHeaderV1.Bytes = enc_go_v1, BatchHeaderBytes.validate = ok_go, the getters = dec_go). node/types/batch_header.go is out of scope: no law reads it.",
+  "3. Sites. Each operator's pattern (operators.<op>.pattern) was matched on the AST nodes of the in-scope Solidity functions (Yul nodes of their inline assembly included; src offsets are byte offsets in the file) and, for Go, on the source text of batch_header.go. Every match is a site; each site gives one mutant per variant. offset/length are the byte range replaced, original its text, replacement the new text, line/col (1-based) the position of its first byte, function the enclosing function, mutant_sha256 the sha256 of the whole mutated file. edges are the header edges whose extraction reads the function (the walk.functions of enc_sol and load_sol in morph_header.extracted.json; for Go, the roles of projection.roles), actions the modelled actions reaching it.",
+  "4. Counts: mstore_offset 22 (11 sites: the 10 BatchHeaderCodecV0 store functions and BatchHeaderCodecV1.storeLastBlockNumber), shl_width 12 (6 sites: 4 codec stores and the 2 shl of Rollup._commitBatch), drop_delete 6 (Rollup.sol:453 revertBatch, :580 setPause, :657-660 finalizeBatch), swap_cursor 8 (reads at Rollup.sol:312, :389, :417, :441, :476, :489 twice, :643), cmp_boundary 16 (BatchHeaderCodecV0.sol:32 and 15 in Rollup.sol), putuint64_offset 14 (7 sites), copy_offset 28 (14 sites), drop_len_check 4 (batch_header.go:44, :48, :52 in validate, :73 in Version): 110 mutants, ids M001-M110 in the order (operator order of 'operators', file order of in_scope.files, offset, variant order -8, -1, +1, +8).",
+  "5. Every mutant compiles: solc 0.8.24 standard JSON on Rollup.sol with the mutated unit given as content reports no error for each of the 64 Solidity mutants; `go build ./batch/` in a scratch copy of common/ and bindings/ (a go.work using both, GOFLAGS=-mod=readonly, GOPROXY=off, go1.24.7) succeeds for each of the 46 Go mutants. No mutant is stillborn, so the denominator is exactly 110.",
+  "6. Trivial compiler equivalence: no Solidity mutant leaves Rollup's deployed bytecode unchanged (optimizer off, cancun, metadata bytecodeHash none and no CBOR). Not computed for Go (each Go mutant changes an integer constant of an index expression or removes a statement).",
+  "7. The diff sheet spec/M2/lib/mutation_diff_sheet.md is diff_sheet.header followed, per mutant in id order, by '## <id> <operator> <variant> <file>:<line>:<col> <function>', a blank line and a ```diff block holding difflib.unified_diff(original lines, mutated lines, 'a/<file>', 'b/<file>', n=3, lineterm='') joined by newlines (tests_m2/test_mutation_adequacy.py render_sheet is the reference). mutants_sha256 is the sha256 of the canonical JSON (sorted keys, separators ',' ':') of the mutants list.",
+  "8. seed 20261022 is fixed now. The catalog is exhaustive over the in-scope sites, so no sampling consumes it; every search I22 runs uses the existing fixed seeds (holon.refute SEED 20261010, the I16/I20 corpora). A randomized step the build adds must take this seed.",
+  "9. Corpus grounding of I22-P6 (no mutant run). I20's 'm1' corpus source (holon.fragments_corpus.m1_traces) is holon.mreplay.random_corpus on the M1 model of spec/M1/facts/morph_rollup.json with seed 20261011: 300 traces, 2432 steps. Evaluated on that model (holon.mreplay.model_logs; the real contract agrees on every step, replay/M1/report.json and replay/M2/report.json), it has 533 ok commitBatch, 7 ok commitState, 17 ok commitBatchWithProof, 55 ok revertBatch, 39 ok challengeState and 10 ok finalizeBatch steps. Tracking the cursors through the ok steps (a commit with parent p sets lastCommittedBatchIndex to p + 1, revertBatch(idx) to idx - 1, finalizeBatch(idx) sets lastFinalizedBatchIndex to idx), 300 ok commit steps start with lastCommittedBatchIndex != lastFinalizedBatchIndex (first: trace 0, step 6), and 22 ok challengeState steps start with a committed, unfinalized batch other than the challenged one (first: trace 34, step 3).",
+  "10. Harness grounding of I22-P13 (no mutant run). I16's per-edge corpus of the Bytes edges ok_go and dec_go (holon.corpus.boundary) holds the empty input and, for every version constant v, the 1-byte input [v]; the unmodified I16 Go harness (replay/M2/go/holon_codec_test.go) recovers no panic. So the Go channel cannot complete on M110 (validate() of the empty input indexes b[0]), on M107-M109 (validate() accepts [v] and the getter BatchIndex() slices b[1:9]) and on M078 (BatchHeaderV1.Bytes calls PutUint64 on the 7-byte slice batchBytes[250:] for every header)."
+ ],
+ "plan_path": {
+  "plan": "spec/M2/preregistration.json",
+  "here": "spec/M2/lib/mutation_preregistration.json",
+  "why": "holon/audit/prereg.py: a prereg commit may change only the predictions file, the key's prompt and tests (and their package directories), spec/ledger/, spec/lib/, spec/M*/lib/, spec/schemas/predictions.schema.json and spec/M*/amendments.jsonl"
+ },
+ "threshold": {
+  "kill_rate_non_equivalent": 0.8,
+  "source": "docs/HUMAN_ANSWERS.md Q6 (0.80 of non-equivalent mutants in scope)",
+  "meets": "5 * killed_non_equivalent >= 4 * non_equivalent (exact integers; no rounding)"
+ },
+ "seed": 20261022,
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "checkout": {
+   "config": "config/holon.json",
+   "key": [
+    "replay",
+    "morph"
+   ]
+  }
+ },
+ "in_scope": {
+  "rule": "computation item 2",
+  "files": {
+   "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol": {
+    "sha256": "e35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+    "lines": 245,
+    "functions": [
+     {
+      "function": "BatchHeaderCodecV0.loadAndValidate",
+      "lines": [
+       30,
+       39
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof",
+       "revertBatch",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getVersion",
+      "lines": [
+       44,
+       48
+      ],
+      "actions": [
+       "commitBatchWithProof",
+       "proveState"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getBatchIndex",
+      "lines": [
+       53,
+       57
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof",
+       "revertBatch",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getL1MessagePopped",
+      "lines": [
+       62,
+       66
+      ],
+      "actions": [
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getTotalL1MessagePopped",
+      "lines": [
+       71,
+       75
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getDataHash",
+      "lines": [
+       80,
+       84
+      ],
+      "actions": [
+       "commitBatchWithProof",
+       "proveState"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getBlobVersionedHash",
+      "lines": [
+       89,
+       93
+      ],
+      "actions": [
+       "commitBatchWithProof",
+       "proveState"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getPrevStateHash",
+      "lines": [
+       95,
+       99
+      ],
+      "actions": [
+       "commitBatchWithProof",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getPostStateHash",
+      "lines": [
+       101,
+       105
+      ],
+      "actions": [
+       "commitBatchWithProof",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getWithdrawRootHash",
+      "lines": [
+       107,
+       111
+      ],
+      "actions": [
+       "commitBatchWithProof",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getSequencerSetVerifyHash",
+      "lines": [
+       113,
+       117
+      ],
+      "actions": [
+       "commitBatchWithProof",
+       "proveState"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.getParentBatchHash",
+      "lines": [
+       122,
+       126
+      ],
+      "actions": []
+     },
+     {
+      "function": "BatchHeaderCodecV0.storeVersion",
+      "lines": [
+       131,
+       135
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storeBatchIndex",
+      "lines": [
+       142,
+       146
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storeL1MessagePopped",
+      "lines": [
+       153,
+       157
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storeTotalL1MessagePopped",
+      "lines": [
+       164,
+       168
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storeDataHash",
+      "lines": [
+       173,
+       177
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storeBlobVersionedHash",
+      "lines": [
+       182,
+       186
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storePrevStateHash",
+      "lines": [
+       191,
+       195
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storePostStateHash",
+      "lines": [
+       200,
+       204
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storeWithdrawRootHash",
+      "lines": [
+       209,
+       213
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storeSequencerSetVerifyHash",
+      "lines": [
+       218,
+       222
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.storeParentBatchHash",
+      "lines": [
+       227,
+       231
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV0.computeBatchHash",
+      "lines": [
+       239,
+       244
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof",
+       "revertBatch",
+       "proveState",
+       "finalizeBatch"
+      ]
+     }
+    ]
+   },
+   "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol": {
+    "sha256": "bd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d",
+    "lines": 59,
+    "functions": [
+     {
+      "function": "BatchHeaderCodecV1.loadAndValidate",
+      "lines": [
+       33,
+       42
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof",
+       "revertBatch",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "BatchHeaderCodecV1.getLastBlockNumber",
+      "lines": [
+       45,
+       49
+      ],
+      "actions": []
+     },
+     {
+      "function": "BatchHeaderCodecV1.storeLastBlockNumber",
+      "lines": [
+       54,
+       58
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     }
+    ]
+   },
+   "contracts/contracts/l1/rollup/Rollup.sol": {
+    "sha256": "134b0f2dc5356af913c0a12c0a2febe29360b053a5acae57bdda575a2fb832b8",
+    "lines": 948,
+    "functions": [
+     {
+      "function": "Rollup.onlyActiveSubmitter",
+      "kind": "modifier",
+      "lines": [
+       119,
+       122
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "proveState"
+      ]
+     },
+     {
+      "function": "Rollup.onlyChallenger",
+      "kind": "modifier",
+      "lines": [
+       125,
+       128
+      ],
+      "actions": [
+       "challengeState"
+      ]
+     },
+     {
+      "function": "Rollup.nonReqRevert",
+      "kind": "modifier",
+      "lines": [
+       131,
+       134
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof",
+       "challengeState",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "Rollup.commitBatch",
+      "kind": "function",
+      "lines": [
+       255,
+       269
+      ],
+      "actions": [
+       "commitBatch"
+      ]
+     },
+     {
+      "function": "Rollup.commitState",
+      "kind": "function",
+      "lines": [
+       273,
+       286
+      ],
+      "actions": [
+       "commitState"
+      ]
+     },
+     {
+      "function": "Rollup._commitBatchWithBatchData",
+      "kind": "function",
+      "lines": [
+       288,
+       377
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "Rollup.commitBatchWithProof",
+      "kind": "function",
+      "lines": [
+       382,
+       425
+      ],
+      "actions": [
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "Rollup.revertBatch",
+      "kind": "function",
+      "lines": [
+       430,
+       468
+      ],
+      "actions": [
+       "revertBatch"
+      ]
+     },
+     {
+      "function": "Rollup.challengeState",
+      "kind": "function",
+      "lines": [
+       471,
+       496
+      ],
+      "actions": [
+       "challengeState"
+      ]
+     },
+     {
+      "function": "Rollup.setPause",
+      "kind": "function",
+      "lines": [
+       573,
+       588
+      ],
+      "actions": [
+       "setPause"
+      ]
+     },
+     {
+      "function": "Rollup.proveState",
+      "kind": "function",
+      "lines": [
+       595,
+       622
+      ],
+      "actions": [
+       "proveState"
+      ]
+     },
+     {
+      "function": "Rollup.finalizeBatch",
+      "kind": "function",
+      "lines": [
+       625,
+       668
+      ],
+      "actions": [
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "Rollup.batchInChallenge",
+      "kind": "function",
+      "lines": [
+       691,
+       693
+      ],
+      "actions": [
+       "revertBatch",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "Rollup.batchChallengedSuccess",
+      "kind": "function",
+      "lines": [
+       697,
+       699
+      ],
+      "actions": [
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "Rollup.batchExist",
+      "kind": "function",
+      "lines": [
+       703,
+       705
+      ],
+      "actions": [
+       "challengeState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "Rollup.batchInsideChallengeWindow",
+      "kind": "function",
+      "lines": [
+       709,
+       711
+      ],
+      "actions": [
+       "challengeState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "Rollup._popL1Messages",
+      "kind": "function",
+      "lines": [
+       739,
+       753
+      ],
+      "actions": [
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "Rollup._verifyProof",
+      "kind": "function",
+      "lines": [
+       756,
+       785
+      ],
+      "actions": [
+       "commitBatchWithProof",
+       "proveState"
+      ]
+     },
+     {
+      "function": "Rollup._defenderWin",
+      "kind": "function",
+      "lines": [
+       791,
+       797
+      ],
+      "actions": [
+       "proveState"
+      ]
+     },
+     {
+      "function": "Rollup._challengerWin",
+      "kind": "function",
+      "lines": [
+       803,
+       809
+      ],
+      "actions": [
+       "proveState"
+      ]
+     },
+     {
+      "function": "Rollup._getBatchVersion",
+      "kind": "function",
+      "lines": [
+       824,
+       827
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof",
+       "revertBatch",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "Rollup._loadBatchHeader",
+      "kind": "function",
+      "lines": [
+       833,
+       850
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof",
+       "revertBatch",
+       "proveState",
+       "finalizeBatch"
+      ]
+     },
+     {
+      "function": "Rollup._commitBatch",
+      "kind": "function",
+      "lines": [
+       857,
+       885
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "Rollup._computeBlobVersionedHash",
+      "kind": "function",
+      "lines": [
+       892,
+       918
+      ],
+      "actions": [
+       "commitBatch",
+       "commitBatchWithProof"
+      ]
+     },
+     {
+      "function": "Rollup._loadL1MessageHashes",
+      "kind": "function",
+      "lines": [
+       925,
+       947
+      ],
+      "actions": [
+       "commitBatch",
+       "commitState",
+       "commitBatchWithProof"
+      ]
+     }
+    ]
+   },
+   "common/batch/batch_header.go": {
+    "sha256": "621a71a23a3b28bb482941929c397609d49390764a090a8a1bc130ef7d3b8b95",
+    "lines": 260,
+    "functions": [
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).validate",
+      "lines": [
+       37,
+       59
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).Bytes",
+      "lines": [
+       61,
+       63
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).Hash",
+      "lines": [
+       65,
+       70
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).Version",
+      "lines": [
+       72,
+       77
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+      "lines": [
+       79,
+       84
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).L1MessagePopped",
+      "lines": [
+       86,
+       91
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+      "lines": [
+       93,
+       98
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).DataHash",
+      "lines": [
+       100,
+       105
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).BlobVersionedHash",
+      "lines": [
+       111,
+       120
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).BlobHashesHash",
+      "lines": [
+       125,
+       134
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).BlobCommitHash",
+      "lines": [
+       138,
+       147
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).PrevStateRoot",
+      "lines": [
+       149,
+       154
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).PostStateRoot",
+      "lines": [
+       156,
+       161
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).WithdrawalRoot",
+      "lines": [
+       163,
+       168
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).SequencerSetVerifyHash",
+      "lines": [
+       170,
+       175
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).ParentBatchHash",
+      "lines": [
+       177,
+       182
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+      "lines": [
+       184,
+       193
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+      "lines": [
+       212,
+       230
+      ]
+     },
+     {
+      "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+      "lines": [
+       240,
+       260
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "operators": {
+  "mstore_offset": {
+   "language": "solidity",
+   "plan": "mstore offset +-1",
+   "pattern": "a YulFunctionCall mstore or mstore8 whose first argument is a YulFunctionCall add whose second argument is a decimal YulLiteral K",
+   "rewrite": "the literal K becomes K-1 (variant -1, only when K >= 1) and K+1 (variant +1)",
+   "predicted_obstruction": {
+    "plan": "header offset and shl mutants -> PAR laws",
+    "laws": [
+     "L_par_hdr_ssvh",
+     "L_par_hdr_v0",
+     "L_par_hdr_v1",
+     "L_par_hdr_v2",
+     "L_rt_go_v0",
+     "L_rt_go_v1",
+     "L_rt_go_v2"
+    ],
+    "why": "the PAR laws whose facts read enc_sol (laws/M0: L_par_hdr_* compare enc_sol with a Go encoder, L_rt_go_* decode enc_sol with dec_go)"
+   }
+  },
+  "shl_width": {
+   "language": "solidity",
+   "plan": "wrong shl width",
+   "pattern": "a YulFunctionCall shl whose first argument is a decimal YulLiteral S",
+   "rewrite": "S becomes S-8 (variant -8) and S+8 (variant +8), each only when 0 < value < 256: the stored field one byte wider or narrower",
+   "predicted_obstruction": {
+    "plan": "header offset and shl mutants -> PAR laws",
+    "laws": [
+     "L_par_hdr_ssvh",
+     "L_par_hdr_v0",
+     "L_par_hdr_v1",
+     "L_par_hdr_v2",
+     "L_rt_go_v0",
+     "L_rt_go_v1",
+     "L_rt_go_v2"
+    ],
+    "why": "as mstore_offset"
+   }
+  },
+  "drop_delete": {
+   "language": "solidity",
+   "plan": "dropped delete",
+   "pattern": "an ExpressionStatement whose expression is a UnaryOperation delete",
+   "rewrite": "the statement, its terminating semicolon included, becomes the empty block {} (variant drop)",
+   "predicted_obstruction": {
+    "plan": "dropped delete in revertBatch -> UNDO laws",
+    "laws": [
+     "L_undo_BD",
+     "L_undo_BVH",
+     "L_undo_CSR",
+     "L_undo_cancel"
+    ],
+    "why": "the four rollup UNDO laws of laws/M1 (rule UNDO), decided on the extracted model through I20's holon differential"
+   }
+  },
+  "swap_cursor": {
+   "language": "solidity",
+   "plan": "swapped cursors",
+   "pattern": "an Identifier referring to one state variable of a pair in cursor_pairs that is read: not the left-hand side of an Assignment and not the operand of ++, -- or delete",
+   "rewrite": "the identifier becomes the other variable of its pair (variant swap)",
+   "predicted_obstruction": {
+    "plan": "swapped cursors -> the corpus plus the UNDO and SYM laws",
+    "laws": [
+     "L_undo_BD",
+     "L_undo_BVH",
+     "L_undo_CSR",
+     "L_undo_cancel",
+     "L_sym_omega"
+    ],
+    "corpus": true,
+    "why": "the rollup UNDO laws and L_sym_omega (rule SYM); the corpus is a recorded detection channel (corpus_detected), never a kill"
+   }
+  },
+  "cmp_boundary": {
+   "language": "solidity",
+   "plan": ">= <-> >",
+   "pattern": "a Solidity BinaryOperation with operator >= or > (Yul gt/lt are not matched)",
+   "rewrite": "the operator token (between the operands) becomes > (from >=) or >= (from >) (variant flip)",
+   "predicted_obstruction": {
+    "plan": "(none: BUILD_PLAN I22 lists no predicted kill for >= <-> >)",
+    "laws": "any",
+    "why": "drafter's choice: the operator moves a decision boundary, so an obstruction in any law of the baseline set counts; localization comes from the kill criterion (proof loss, or a witness that replays on the mutant and not on the original)"
+   }
+  },
+  "putuint64_offset": {
+   "language": "go",
+   "plan": "PutUint64 offset +-1",
+   "pattern": "a call binary.BigEndian.PutUint64(x[K:], v) with K a decimal integer literal",
+   "rewrite": "K becomes K-1 (variant -1, only when K >= 1) and K+1 (variant +1)",
+   "predicted_obstruction": {
+    "plan": "Go offset and copy mutants -> round-trip laws",
+    "laws": [
+     "L_par_hdr_ssvh",
+     "L_par_hdr_v0",
+     "L_par_hdr_v1",
+     "L_par_hdr_v2",
+     "L_rt_go_v0",
+     "L_rt_go_v1",
+     "L_rt_go_v2"
+    ],
+    "why": "sharpened: the round-trip laws L_rt_go_* read enc_sol and dec_go (the Go getters), not the Go encoders; the laws that read enc_go_v0 and enc_go_v1 are the PAR codec-agreement laws L_par_hdr_*. The set keeps the plan's round-trip laws and adds the codec-agreement laws"
+   }
+  },
+  "copy_offset": {
+   "language": "go",
+   "plan": "copy bounds",
+   "pattern": "a call of the builtin copy(x[K:], y) with K a decimal integer literal",
+   "rewrite": "K becomes K-1 (variant -1, only when K >= 1) and K+1 (variant +1)",
+   "predicted_obstruction": {
+    "plan": "Go offset and copy mutants -> round-trip laws",
+    "laws": [
+     "L_par_hdr_ssvh",
+     "L_par_hdr_v0",
+     "L_par_hdr_v1",
+     "L_par_hdr_v2",
+     "L_rt_go_v0",
+     "L_rt_go_v1",
+     "L_rt_go_v2"
+    ],
+    "why": "as putuint64_offset"
+   }
+  },
+  "drop_len_check": {
+   "language": "go",
+   "plan": "dropped length check",
+   "pattern": "an if statement with no init and no else whose condition compares len(e) with an integer literal or a named constant (==, !=, <, <=, >, >=) and whose body is one return statement returning a non-nil error value (an identifier named Err... or errors.New(..))",
+   "rewrite": "the statement, from `if` to its closing brace, becomes {} followed by as many newlines as it spanned (variant drop)",
+   "predicted_obstruction": {
+    "plan": "dropped length check -> the domain law",
+    "laws": [
+     "L_dom_hdr",
+     "L_rt_go_v0",
+     "L_rt_go_v1",
+     "L_rt_go_v2"
+    ],
+    "why": "the domain law L_dom_hdr (ok_sol vs ok_go) and the round-trip laws, whose dec_go is guarded by ok_go (validate)"
+   }
+  }
+ },
+ "operator_order": [
+  "mstore_offset",
+  "shl_width",
+  "drop_delete",
+  "swap_cursor",
+  "cmp_boundary",
+  "putuint64_offset",
+  "copy_offset",
+  "drop_len_check"
+ ],
+ "cursor_pairs": [
+  [
+   "lastCommittedBatchIndex",
+   "lastFinalizedBatchIndex"
+  ]
+ ],
+ "counts": {
+  "mstore_offset": 22,
+  "shl_width": 12,
+  "drop_delete": 6,
+  "swap_cursor": 8,
+  "cmp_boundary": 16,
+  "putuint64_offset": 14,
+  "copy_offset": 28,
+  "drop_len_check": 4,
+  "total": 110
+ },
+ "projection": {
+  "doc": "How holon/mutate/project.py composes the holon-facts/0.1 header document the 8 laws/M0 statements are decided on, from extracted documents only (contract: section 'Projection' of the test docstring). header_type and view are the laws' binder type and the specification projection of what a correct decoder recovers; they are not implementation facts and are copied from the frozen facts. Every other function comes from the role's extracted document.",
+  "header_type": {
+   "from": "facts/morph_header.json",
+   "path": [
+    "types",
+    "Header"
+   ]
+  },
+  "view": {
+   "from": "facts/morph_header.json",
+   "path": [
+    "functions",
+    "view"
+   ]
+  },
+  "roles": {
+   "enc_sol": {
+    "document": "spec/M2/facts/morph_header.extracted.json",
+    "edge": "enc_sol"
+   },
+   "ok_sol": {
+    "document": "spec/M2/facts/morph_header.extracted.json",
+    "edge": "load_sol"
+   },
+   "enc_go_v0": {
+    "document": "spec/M2/facts/morph_batch.go.extracted.json",
+    "encoder": "(morph-l2/common/batch.BatchHeaderV0).Bytes"
+   },
+   "enc_go_v1": {
+    "document": "spec/M2/facts/morph_batch.go.extracted.json",
+    "encoder": "(morph-l2/common/batch.BatchHeaderV1).Bytes"
+   },
+   "ok_go": {
+    "document": "spec/M2/facts/morph_batch.go.extracted.json",
+    "predicate": "(morph-l2/common/batch.BatchHeaderBytes).validate"
+   },
+   "dec_go": {
+    "document": "spec/M2/facts/morph_batch.go.extracted.json",
+    "guard": "ok_go",
+    "getters": [
+     {
+      "field": "version",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).Version"
+     },
+     {
+      "field": "batchIndex",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex"
+     },
+     {
+      "field": "l1MessagePopped",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).L1MessagePopped"
+     },
+     {
+      "field": "totalL1MessagePopped",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped"
+     },
+     {
+      "field": "dataHash",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).DataHash"
+     },
+     {
+      "field": "blobVersionedHash",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).BlobCommitHash"
+     },
+     {
+      "field": "prevStateHash",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).PrevStateRoot"
+     },
+     {
+      "field": "postStateHash",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).PostStateRoot"
+     },
+     {
+      "field": "withdrawRootHash",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).WithdrawalRoot"
+     },
+     {
+      "field": "sequencerSetVerifyHash",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).SequencerSetVerifyHash"
+     },
+     {
+      "field": "parentBatchHash",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).ParentBatchHash"
+     },
+     {
+      "field": "lastBlockNumber",
+      "decoder": "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber"
+     }
+    ]
+   }
+  },
+  "go_fields": {
+   "BatchIndex": "batchIndex",
+   "L1MessagePopped": "l1MessagePopped",
+   "TotalL1MessagePopped": "totalL1MessagePopped",
+   "DataHash": "dataHash",
+   "BlobVersionedHash": "blobVersionedHash",
+   "PrevStateRoot": "prevStateHash",
+   "PostStateRoot": "postStateHash",
+   "WithdrawalRoot": "withdrawRootHash",
+   "SequencerSetVerifyHash": "sequencerSetVerifyHash",
+   "ParentBatchHash": "parentBatchHash",
+   "LastBlockNumber": "lastBlockNumber"
+  }
+ },
+ "law_sets": {
+  "M0": {
+   "laws": "laws/M0/L_*.json (8)",
+   "decided_by": "python -m holon run --milestone M0 --facts <projected header document> --no-registry",
+   "baseline_committed": "results/M0 (5 PROVED: L_par_hdr_v0, L_par_hdr_v1, L_rt_go_v0, L_rt_go_v1, L_rt_go_v2; 3 REFUTED: L_par_hdr_v2, L_par_hdr_ssvh, L_dom_hdr)",
+   "decided_input": "the projected header document, its top-level \"extraction\" block removed (laws/M0 is fixed)"
+  },
+  "M1x": {
+   "laws": "the 15 laws/M1 laws over spec/M1/facts/morph_rollup.json",
+   "decided_by": "python -m holon differential --milestone M2 (I20) over the mutant's transitions document",
+   "decided_input": "gen/M2/extracted/m1_view.json (I20: the hand abstraction minus the requires of its guard_missing deltas), its top-level \"extraction\" block removed (laws/M1 is fixed)"
+  },
+  "M2": {
+   "laws": "laws/M2 as python -m holon derive --milestone M2 re-derives it over the mutant's documents",
+   "decided_by": "python -m holon run --milestone M2 --no-registry",
+   "decided_input": "every file holon derive --milestone M2 writes (laws/M2/ but REGISTRY.json, and gen/M2/sorts/obstructions.json), with DERIVATION.json's \"inputs\" and each law file's \"facts_sha256\" removed, plus every document a law of laws/M2 names in \"facts\", its top-level \"extraction\" block removed"
+  },
+  "normalization": "only provenance is removed: a document's top-level \"extraction\" block, a law file's \"facts_sha256\", DERIVATION.json's \"inputs\"; statement hashes, refs and site specs stay. A set whose normalized decided input is byte-identical to the baseline's keeps the baseline's statuses (decided: carried); run --check decides every set and must agree",
+  "hashing": "a normalized document's sha256 is that of its canonical JSON (json.dumps(obj, sort_keys=True, separators=(',', ':')), UTF-8); a decided input of several files (M2) hashes the canonical JSON of {repo-relative path: normalized object}. changed means the sha256 differs from the baseline record's"
+ },
+ "kill_criterion": {
+  "plan": "A mutant is killed iff the obstruction predicted for its operator appears, localized to the mutated edge: a law moves to REFUTED, with a witness that replays on the mutant code, or a PROVED law loses its proof. A replay disagreement alone is recorded as \"extraction defect detected\", not as a kill. (BUILD_PLAN I22, verbatim)",
+  "baseline": "the same pipeline on the null mutant (the unmutated pinned files in a scratch copy); its statuses are the reference",
+  "predicted": "the laws of operators.<op>.predicted_obstruction.laws present in the baseline set (\"any\": every law of the baseline set)",
+  "K1": "baseline status PROVED or UNKNOWN, mutant status REFUTED, and the law's recorded witness replays on the mutant code and does not replay on the unmutated code (the witness localizes the obstruction to the mutation)",
+  "K2": "baseline status PROVED, mutant status UNKNOWN, and the normalized decided input of the law's set changed (the proof is lost and no witness exists; the changed input attributes the loss to the mutation)",
+  "killed": "some predicted law satisfies K1 or K2",
+  "not_kills": "a law REFUTED in the baseline cannot move to REFUTED (a new witness of such a law is recorded as refuted_law_new_witness, never a kill); a law that moves to REFUTED without a witness that replays on the mutant code and not on the unmutated code is a replay disagreement, never a kill; a PROVED law that becomes UNKNOWN while its set's decided input is unchanged is not attributed to the mutation; a law absent from the mutant run (re-derived under another id) or ending in error is not decided and kills nothing; a law outside the predicted set that satisfies K1 or K2 is an unpredicted obstruction, recorded and not counted; a refinement or corpus disagreement is recorded (extraction_defect_detected, corpus_detected) and is not a kill",
+  "error": "a step of the decision path (source, extraction, a law set, a witness replay) that fails for a reason other than the law (extraction exit code, checker crash or timeout, missing tool) is retried once; if it fails again the mutant's outcome is error, which counts as not killed in both rates. A detection channel (channels) that does not complete never changes the outcome: it is recorded with its error and its flag is null",
+  "replay_candidates": 16,
+  "replay": "for every law whose mutant status is REFUTED and whose baseline status is not, the refuter's counterexample candidates are tried in its deterministic order, at most replay_candidates of them, on the mutant code and on the unmutated code; the recorded witness is the first candidate that replays on the mutant code and not on the unmutated code, or the first candidate when none does. A witness replays when running it on the code shows the law's claim false; a call of the claim that panics or returns an error where the claim needs its value makes the claim false (the replay harness recovers the panic and records it)",
+  "replay_disagreement": "a law that moves to REFUTED (baseline PROVED or UNKNOWN) whose recorded witness does not replay on the mutant code, or replays on the unmutated code: the model's refutation is not the code's. It is a replay disagreement: recorded in replay_disagreements, it sets extraction_defect_detected, and it is never a kill (BUILD_PLAN I22: 'A replay disagreement alone is recorded as extraction defect detected, not as a kill'; whitepaper §9.6: a witness that fails on the real code is a model defect)"
+ },
+ "equivalence": "A mutant is equivalent iff, from every state the deployed code can reach, every call sequence through the public entry points of the mutated contract or package gives the same observables on the original and on the mutant: for Solidity the success or revert of each call, its revert data, its return data, the emitted events and every storage slot; for Go the return values, the errors, whether it panics, and every byte of every slice it returns or writes. Gas is not an observable. Only the human decides it, from the diff sheet, before any mutant runs (spec/M2/equivalent_mutants.json).",
+ "channels": {
+  "extraction_defect_detected": "true when some law of the record is a replay disagreement (kill_criterion.replay_disagreement), or when a channel run shows a disagreement the baseline's run of the same harness does not show. The channel runs: the I20 step refinement (harness \"i20_step\"; every Solidity mutant and the baseline: the mutant's extracted rollup model against the mutant contract on I20's corpus, built by holon fragments from I20's binding replay/M2/fragments.json: its m1, witness, boundary and target sources, with --disagreements in scratch) and the I16 per-edge refinement (harness \"i16_edge\"; every mutant whose edges are non-empty, every Go mutant and the baseline: the mutant's projected document against the mutant code on I16's per-edge corpus). Null when there is no replay disagreement, no run shows a new disagreement and some run is incomplete; false otherwise",
+  "corpus_detected": "Solidity mutants: the completed i20_step run's corpus_differences (the steps at which the same I20 corpus run on the mutant contract and on the unmutated contract gives different observables: status, revert data, touched storage slots, events) is non-empty; false when it is empty; null when that run is incomplete, and for Go mutants",
+  "incomplete": "a channel whose harness exits without a result (a panic of the mutant code, a build failure) is recorded with its error; the harnesses are I16's and I20's, unchanged, and recover nothing",
+  "runs": "each record lists exactly its channel runs: one i20_step run for the baseline and every Solidity mutant, one i16_edge run for the baseline, every Go mutant and every Solidity mutant with non-empty edges. A completed i20_step run covers at least 2432 steps (the m1 source alone: 300 traces, 2432 steps, computation item 9); a completed i16_edge run covers at least one step"
+ },
+ "mutants_sha256": "37e91910afde0955a0de040dd88750ae7bdaab1c3e9c19eec28267ab82bf4272",
+ "diff_sheet": {
+  "path": "spec/M2/lib/mutation_diff_sheet.md",
+  "sha256": "9b366e7a3e2d69d1c86d6d3190c713e482dffa3fa16e1d88a26de474b96745c9",
+  "header": [
+   "# I22 mutant diff sheet: equivalent-mutant adjudication (HOLON M2, auditor A1)",
+   "",
+   "Generated from the frozen I22 instrument spec/M2/lib/mutation_preregistration.json (its \"mutants\" list,",
+   "canonical JSON sha256 37e91910afde0955a0de040dd88750ae7bdaab1c3e9c19eec28267ab82bf4272)",
+   "and the pinned morph-l2/morph checkout at 3e44e795586af3e11285b603ab642c67823add51.",
+   "`python -m holon mutate sheet` reproduces this file byte for byte. It shows each of the 110 mutants as a unified",
+   "diff (3 lines of context) and nothing else: no prediction, no outcome. No mutant has been run.",
+   "",
+   "## What the human decides, and when",
+   "",
+   "Sign off the catalog first: the operators, their rewrite rules, the site rule, the in-scope list and the",
+   "predicted laws of spec/M2/lib/mutation_preregistration.json (docs/HUMAN_ANSWERS.md Q6). If you reject it,",
+   "write nothing: no mutant runs, and a replacement catalog is preregistered under a new key.",
+   "",
+   "For every mutant: is it EQUIVALENT to the original program? Decide from this sheet (and the pinned source) alone,",
+   "before any mutant is run and without looking at spec/M2/predictions.json key I22,",
+   "prompts/I22_mutation_adequacy.md, tests_m2/test_mutation_adequacy.py (they hold the predictions) or any I22",
+   "result. Write the",
+   "verdicts to spec/M2/equivalent_mutants.json and commit that file alone (a commit that changes no other file).",
+   "`python -m holon mutate run` refuses to run any mutant until that file exists, covers every mutant and records",
+   "the catalog sign-off.",
+   "",
+   "A mutant is equivalent iff, from every state the deployed code can reach, every call sequence through the public",
+   "entry points of the mutated contract or package gives the same observables on the original and on the mutant:",
+   "for Solidity the success or revert of each call, its revert data, its return data, the emitted events (topics and",
+   "data) and every storage slot; for Go the return values, the errors, whether it panics, and every byte of every",
+   "slice it returns or writes. Gas is not an observable. A mutant that is equivalent only on states the code cannot",
+   "reach is equivalent; one that differs on any reachable state is not. When unsure, say not equivalent and give the",
+   "reason; every equivalent verdict needs a reason.",
+   "",
+   "Equivalent mutants leave the denominator of the non-equivalent kill rate (threshold 0.80, docs/HUMAN_ANSWERS.md Q6);",
+   "the rate over all 110 mutants is reported too. Every Solidity mutant changes the deployed bytecode of Rollup",
+   "(solc 0.8.24, optimizer off, cancun, metadata off), so none is trivially equivalent by compilation.",
+   "",
+   "## The file to write: spec/M2/equivalent_mutants.json",
+   "",
+   "```json",
+   "{\"adjudication_version\": \"holon-equivalent-mutants/0.1\",",
+   " \"mutants_sha256\": \"37e91910afde0955a0de040dd88750ae7bdaab1c3e9c19eec28267ab82bf4272\",",
+   " \"diff_sheet_sha256\": \"<the sha256 of this file, recorded as diff_sheet.sha256 in the instrument>\",",
+   " \"adjudicator\": \"human\",",
+   " \"catalog_signed_off\": true,",
+   " \"verdicts\": {\"M001\": {\"equivalent\": false},",
+   "              \"M002\": {\"equivalent\": true, \"reason\": \"<why no reachable observable differs>\"},",
+   "              \"...\": \"one entry per mutant, M001 to M110\"}}",
+   "```",
+   "",
+   "## Operators",
+   "",
+   "- mstore_offset (-1, +1): the literal offset K of an inline-assembly mstore/mstore8(add(p, K), v) becomes K-1 or K+1.",
+   "- shl_width (-8, +8): the literal shift S of an inline-assembly shl(S, v) becomes S-8 or S+8 (a field one byte wider or narrower).",
+   "- drop_delete (drop): a `delete x;` statement becomes the empty block `{}`.",
+   "- swap_cursor (swap): a read of lastCommittedBatchIndex becomes lastFinalizedBatchIndex, and vice versa.",
+   "- cmp_boundary (flip): a Solidity `>=` becomes `>`, and `>` becomes `>=`.",
+   "- putuint64_offset (-1, +1): the literal K of binary.BigEndian.PutUint64(x[K:], v) becomes K-1 or K+1.",
+   "- copy_offset (-1, +1): the literal K of copy(x[K:], y) becomes K-1 or K+1.",
+   "- drop_len_check (drop): an `if` comparing len(..) with a constant whose body only returns an error becomes `{}`.",
+   "",
+   "Every replacement keeps the file's line count, so line numbers in the diffs are the pinned file's."
+  ]
+ },
+ "mutants": [
+  {
+   "id": "M001",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 6612,
+   "length": 1,
+   "line": 144,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeBatchIndex",
+   "original": "1",
+   "replacement": "0",
+   "mutant_sha256": "500d4210daef9f16c0cd7bce53860c5bd857852d59f76476dd935219c07371bd",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M002",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 6612,
+   "length": 1,
+   "line": 144,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeBatchIndex",
+   "original": "1",
+   "replacement": "2",
+   "mutant_sha256": "001c8f21e28b57eb488522b544c53861f6d13d419f8c88c7817a2277547ae9c6",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M003",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 7207,
+   "length": 1,
+   "line": 155,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeL1MessagePopped",
+   "original": "9",
+   "replacement": "8",
+   "mutant_sha256": "fab2b4a308f46c0fc899dc581cf195fcb14d66bab5a55ed6652d2a006791b6c8",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M004",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 7207,
+   "length": 1,
+   "line": 155,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeL1MessagePopped",
+   "original": "9",
+   "replacement": "10",
+   "mutant_sha256": "0229e7e197ad845363c9269dfaf97b71c9f09d487965145ff8272fa9056412d1",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M005",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 7808,
+   "length": 2,
+   "line": 166,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeTotalL1MessagePopped",
+   "original": "17",
+   "replacement": "16",
+   "mutant_sha256": "3ead4155c1e5d0b219a221a2fa0d8ca36fd05e8c5e810b8f0e591441004fe629",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M006",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 7808,
+   "length": 2,
+   "line": 166,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeTotalL1MessagePopped",
+   "original": "17",
+   "replacement": "18",
+   "mutant_sha256": "66c4e06dbe01825e7ad012e95c63902920c35fb47169c0a001a3c7958c971f30",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M007",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 8167,
+   "length": 2,
+   "line": 175,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeDataHash",
+   "original": "25",
+   "replacement": "24",
+   "mutant_sha256": "067c8f98249d1b091f01169924d98fc4591b1cdcc90df788c98a0704b08e35b7",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M008",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 8167,
+   "length": 2,
+   "line": 175,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeDataHash",
+   "original": "25",
+   "replacement": "26",
+   "mutant_sha256": "42008c982a88c1d6de1c55cdde8b9cff590b3ef3d5c10ad96e6b99607e2da782",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M009",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 8581,
+   "length": 2,
+   "line": 184,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeBlobVersionedHash",
+   "original": "57",
+   "replacement": "56",
+   "mutant_sha256": "38aca0b15e3f6497058fa25c1be9f644bb761b62b27d6e0a13d1c3f82f40fd3f",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M010",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 8581,
+   "length": 2,
+   "line": 184,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeBlobVersionedHash",
+   "original": "57",
+   "replacement": "58",
+   "mutant_sha256": "15d8d86933b8d4edc2cd9a0a7ed984194f58b8228bf6493b0712fc64077241a8",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M011",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 8990,
+   "length": 2,
+   "line": 193,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storePrevStateHash",
+   "original": "89",
+   "replacement": "88",
+   "mutant_sha256": "36cccfd17f437f59b3a565c4f01899bfde2a81ffce90cd232003f8d19b004de1",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M012",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 8990,
+   "length": 2,
+   "line": 193,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storePrevStateHash",
+   "original": "89",
+   "replacement": "90",
+   "mutant_sha256": "3adad50589d6690d4e5d86b5c6ad9ba7bbabc8868ef92ee66ffbe00f095c8a7d",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M013",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 9383,
+   "length": 3,
+   "line": 202,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storePostStateHash",
+   "original": "121",
+   "replacement": "120",
+   "mutant_sha256": "fe41beeaf1e38c03bf8d6f2bbbc9288545ccc750b1d659a61fe88c252501fbd8",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M014",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 9383,
+   "length": 3,
+   "line": 202,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storePostStateHash",
+   "original": "121",
+   "replacement": "122",
+   "mutant_sha256": "7469f9e33c0d829733276fa1b7e1503f9bfabe8f7ff8446419e5fd0ef4d1c31f",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M015",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 9785,
+   "length": 3,
+   "line": 211,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeWithdrawRootHash",
+   "original": "153",
+   "replacement": "152",
+   "mutant_sha256": "4d716cfbb9e7e4e6c8413c94728ef4ce00fcdf48290527ee514708fb6f69d25a",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M016",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 9785,
+   "length": 3,
+   "line": 211,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeWithdrawRootHash",
+   "original": "153",
+   "replacement": "154",
+   "mutant_sha256": "4557fc206753987ecbc4023c6711718c98aba1e004e004209f474707b6c92f77",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M017",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 10194,
+   "length": 3,
+   "line": 220,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeSequencerSetVerifyHash",
+   "original": "185",
+   "replacement": "184",
+   "mutant_sha256": "1092ae0a6f9b2f3644387f606c03eef49b0fc1101a7face10b16995694b9c180",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M018",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 10194,
+   "length": 3,
+   "line": 220,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeSequencerSetVerifyHash",
+   "original": "185",
+   "replacement": "186",
+   "mutant_sha256": "b5c1fe18819fdf517770c8792da14a0d1611a4b013d16022615fbff236faf98a",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M019",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 10583,
+   "length": 3,
+   "line": 229,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeParentBatchHash",
+   "original": "217",
+   "replacement": "216",
+   "mutant_sha256": "90ff621a75e9931bb4a554d8e15167fd1ea0231711e4edec6c9e3c4bc3d423d6",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M020",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 10583,
+   "length": 3,
+   "line": 229,
+   "col": 34,
+   "function": "BatchHeaderCodecV0.storeParentBatchHash",
+   "original": "217",
+   "replacement": "218",
+   "mutant_sha256": "f474d9521a95a72045ab810df2ce49dd96263c636ae28ee3db1ba485e47207ca",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M021",
+   "operator": "mstore_offset",
+   "variant": "-1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+   "offset": 2925,
+   "length": 3,
+   "line": 56,
+   "col": 34,
+   "function": "BatchHeaderCodecV1.storeLastBlockNumber",
+   "original": "249",
+   "replacement": "248",
+   "mutant_sha256": "a4dc352d9d18f8e9b0f7a4bb5d9f003e403fbe328721d022c207f391baebaf80",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M022",
+   "operator": "mstore_offset",
+   "variant": "+1",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+   "offset": 2925,
+   "length": 3,
+   "line": 56,
+   "col": 34,
+   "function": "BatchHeaderCodecV1.storeLastBlockNumber",
+   "original": "249",
+   "replacement": "250",
+   "mutant_sha256": "9dad7883950590ba44e58eb5a8b3c5341ea9219ee816260cbf348a203f90d715",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M023",
+   "operator": "shl_width",
+   "variant": "-8",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 6620,
+   "length": 3,
+   "line": 144,
+   "col": 42,
+   "function": "BatchHeaderCodecV0.storeBatchIndex",
+   "original": "192",
+   "replacement": "184",
+   "mutant_sha256": "b7c56349a72f4acfed02ffa70e6b606c857568da02704d29d611dc2ad1927961",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M024",
+   "operator": "shl_width",
+   "variant": "+8",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 6620,
+   "length": 3,
+   "line": 144,
+   "col": 42,
+   "function": "BatchHeaderCodecV0.storeBatchIndex",
+   "original": "192",
+   "replacement": "200",
+   "mutant_sha256": "17a9f78579f26b3e050127f17503aaba62f750d24659cb0a20e4cd8e209608e9",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M025",
+   "operator": "shl_width",
+   "variant": "-8",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 7215,
+   "length": 3,
+   "line": 155,
+   "col": 42,
+   "function": "BatchHeaderCodecV0.storeL1MessagePopped",
+   "original": "192",
+   "replacement": "184",
+   "mutant_sha256": "3083202c63d819346e88dc6c14441a8436ac1bf5711912a18f63471d536121d6",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M026",
+   "operator": "shl_width",
+   "variant": "+8",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 7215,
+   "length": 3,
+   "line": 155,
+   "col": 42,
+   "function": "BatchHeaderCodecV0.storeL1MessagePopped",
+   "original": "192",
+   "replacement": "200",
+   "mutant_sha256": "aa861a4bcc165d6cded4b5d4d1b5bfc39f824d5e339a9eff26cf1337a4f213fc",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M027",
+   "operator": "shl_width",
+   "variant": "-8",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 7817,
+   "length": 3,
+   "line": 166,
+   "col": 43,
+   "function": "BatchHeaderCodecV0.storeTotalL1MessagePopped",
+   "original": "192",
+   "replacement": "184",
+   "mutant_sha256": "5478b0031fd0e90fa4c3194624cdb52bba4f3aebe69ade505d05313a53abc7f6",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M028",
+   "operator": "shl_width",
+   "variant": "+8",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 7817,
+   "length": 3,
+   "line": 166,
+   "col": 43,
+   "function": "BatchHeaderCodecV0.storeTotalL1MessagePopped",
+   "original": "192",
+   "replacement": "200",
+   "mutant_sha256": "f66f0aff2145e41013e96512ecca2c02f40405940d646416b31d7014fa259b4e",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M029",
+   "operator": "shl_width",
+   "variant": "-8",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+   "offset": 2935,
+   "length": 3,
+   "line": 56,
+   "col": 44,
+   "function": "BatchHeaderCodecV1.storeLastBlockNumber",
+   "original": "192",
+   "replacement": "184",
+   "mutant_sha256": "0c661e7d842191e4ccbdaa1f11066e3908ebc5e41251c0d978984edeeef2eee2",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M030",
+   "operator": "shl_width",
+   "variant": "+8",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+   "offset": 2935,
+   "length": 3,
+   "line": 56,
+   "col": 44,
+   "function": "BatchHeaderCodecV1.storeLastBlockNumber",
+   "original": "192",
+   "replacement": "200",
+   "mutant_sha256": "1628422f3579bed46f3f5d8819e746800fe2734bf59199d076eaefa026fd7253",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M031",
+   "operator": "shl_width",
+   "variant": "-8",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 39745,
+   "length": 3,
+   "line": 871,
+   "col": 33,
+   "function": "Rollup._commitBatch",
+   "original": "192",
+   "replacement": "184",
+   "mutant_sha256": "0024aae030667545781a205210ce9f8d44dce421244646b51a935bb70ca323ca",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M032",
+   "operator": "shl_width",
+   "variant": "+8",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 39745,
+   "length": 3,
+   "line": 871,
+   "col": 33,
+   "function": "Rollup._commitBatch",
+   "original": "192",
+   "replacement": "200",
+   "mutant_sha256": "911bdeb94e7d8b46e5e32eeced28bc109f9b61636a068f1bb7043d95a198f385",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M033",
+   "operator": "shl_width",
+   "variant": "-8",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 39865,
+   "length": 3,
+   "line": 873,
+   "col": 33,
+   "function": "Rollup._commitBatch",
+   "original": "240",
+   "replacement": "232",
+   "mutant_sha256": "6f859d8d42e1e9145d8fb05e9afd4c48897c7219f763d991ba29e6392019fa03",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M034",
+   "operator": "shl_width",
+   "variant": "+8",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 39865,
+   "length": 3,
+   "line": 873,
+   "col": 33,
+   "function": "Rollup._commitBatch",
+   "original": "240",
+   "replacement": "248",
+   "mutant_sha256": "84cbe04a5bc2dce29cca63efbc197505440f0a24d9cf32190a3779b87593e759",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M035",
+   "operator": "drop_delete",
+   "variant": "drop",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 21090,
+   "length": 31,
+   "line": 453,
+   "col": 13,
+   "function": "Rollup.revertBatch",
+   "original": "delete challenges[_batchIndex];",
+   "replacement": "{}",
+   "mutant_sha256": "61be07cc80ed68e0eeb47c1a25c0712ecb69ab7e407e4f68958558166aa3d3cb",
+   "edges": [],
+   "actions": [
+    "revertBatch"
+   ]
+  },
+  {
+   "id": "M036",
+   "operator": "drop_delete",
+   "variant": "drop",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 26788,
+   "length": 35,
+   "line": 580,
+   "col": 17,
+   "function": "Rollup.setPause",
+   "original": "delete challenges[batchChallenged];",
+   "replacement": "{}",
+   "mutant_sha256": "ce8b8e55b93d0555fd3ee71e35c0fc7ef6400636ac1bb5b1edf2a672c0b28bba",
+   "edges": [],
+   "actions": [
+    "setPause"
+   ]
+  },
+  {
+   "id": "M037",
+   "operator": "drop_delete",
+   "variant": "drop",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 30089,
+   "length": 39,
+   "line": 657,
+   "col": 9,
+   "function": "Rollup.finalizeBatch",
+   "original": "delete batchDataStore[_batchIndex - 1];",
+   "replacement": "{}",
+   "mutant_sha256": "fc7562b17b32156ebab7d8246f476e82256b0ac4d82a922cdf110d0bc84ad3ec",
+   "edges": [],
+   "actions": [
+    "finalizeBatch"
+   ]
+  },
+  {
+   "id": "M038",
+   "operator": "drop_delete",
+   "variant": "drop",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 30137,
+   "length": 44,
+   "line": 658,
+   "col": 9,
+   "function": "Rollup.finalizeBatch",
+   "original": "delete committedStateRoots[_batchIndex - 1];",
+   "replacement": "{}",
+   "mutant_sha256": "5786dd7345befc07862c5e3d5208d6999f9b9616c4d77d102e13979cd5bd4087",
+   "edges": [],
+   "actions": [
+    "finalizeBatch"
+   ]
+  },
+  {
+   "id": "M039",
+   "operator": "drop_delete",
+   "variant": "drop",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 30190,
+   "length": 49,
+   "line": 659,
+   "col": 9,
+   "function": "Rollup.finalizeBatch",
+   "original": "delete batchBlobVersionedHashes[_batchIndex - 1];",
+   "replacement": "{}",
+   "mutant_sha256": "bb3c514fbee761c3fceff49372f91f1dd48144b20b1691df23a3bf9fb209abc6",
+   "edges": [],
+   "actions": [
+    "finalizeBatch"
+   ]
+  },
+  {
+   "id": "M040",
+   "operator": "drop_delete",
+   "variant": "drop",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 30248,
+   "length": 35,
+   "line": 660,
+   "col": 9,
+   "function": "Rollup.finalizeBatch",
+   "original": "delete challenges[_batchIndex - 1];",
+   "replacement": "{}",
+   "mutant_sha256": "c05b337964ee9c40a1f15e06e893746b553f67d4c0310aaa77c1e421ec3c5b31",
+   "edges": [],
+   "actions": [
+    "finalizeBatch"
+   ]
+  },
+  {
+   "id": "M041",
+   "operator": "swap_cursor",
+   "variant": "swap",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 13777,
+   "length": 23,
+   "line": 312,
+   "col": 32,
+   "function": "Rollup._commitBatchWithBatchData",
+   "original": "lastCommittedBatchIndex",
+   "replacement": "lastFinalizedBatchIndex",
+   "mutant_sha256": "175db3352f01c85c0f8ad5b6505b17a1b15dad0a9cb3b46c57bc6c5301abeaf3",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M042",
+   "operator": "swap_cursor",
+   "variant": "swap",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 17839,
+   "length": 23,
+   "line": 389,
+   "col": 43,
+   "function": "Rollup.commitBatchWithProof",
+   "original": "lastCommittedBatchIndex",
+   "replacement": "lastFinalizedBatchIndex",
+   "mutant_sha256": "ec8d6755d13ea10fea259e6b5bfcbd9fffbc9afb6fa9f06d5b4b8d3835d8e008",
+   "edges": [],
+   "actions": [
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M043",
+   "operator": "swap_cursor",
+   "variant": "swap",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 19286,
+   "length": 23,
+   "line": 417,
+   "col": 17,
+   "function": "Rollup.commitBatchWithProof",
+   "original": "lastCommittedBatchIndex",
+   "replacement": "lastFinalizedBatchIndex",
+   "mutant_sha256": "439dc617ae58ece94a27061d0c043c0143cc44f2de311ed2aa8336a8adbc7f3a",
+   "edges": [],
+   "actions": [
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M044",
+   "operator": "swap_cursor",
+   "variant": "swap",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 20509,
+   "length": 23,
+   "line": 441,
+   "col": 31,
+   "function": "Rollup.revertBatch",
+   "original": "lastFinalizedBatchIndex",
+   "replacement": "lastCommittedBatchIndex",
+   "mutant_sha256": "e242bdf5e20918c8326fc3c7ebf9dec9b7f3d043ab22c4f30b8bfee0e81f1ee8",
+   "edges": [],
+   "actions": [
+    "revertBatch"
+   ]
+  },
+  {
+   "id": "M045",
+   "operator": "swap_cursor",
+   "variant": "swap",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 21793,
+   "length": 23,
+   "line": 476,
+   "col": 17,
+   "function": "Rollup.challengeState",
+   "original": "lastFinalizedBatchIndex",
+   "replacement": "lastCommittedBatchIndex",
+   "mutant_sha256": "fd6841813abe5fedeb2fcaf95f3d3036b0ddcf17f6d83c4929bb3718262b2f2d",
+   "edges": [],
+   "actions": [
+    "challengeState"
+   ]
+  },
+  {
+   "id": "M046",
+   "operator": "swap_cursor",
+   "variant": "swap",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 22628,
+   "length": 23,
+   "line": 489,
+   "col": 26,
+   "function": "Rollup.challengeState",
+   "original": "lastFinalizedBatchIndex",
+   "replacement": "lastCommittedBatchIndex",
+   "mutant_sha256": "0b1cd082ceca61b7783dedeeccf4c42f92e7d2b23a0ad02929b9371766e15ba5",
+   "edges": [],
+   "actions": [
+    "challengeState"
+   ]
+  },
+  {
+   "id": "M047",
+   "operator": "swap_cursor",
+   "variant": "swap",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 22662,
+   "length": 23,
+   "line": 489,
+   "col": 60,
+   "function": "Rollup.challengeState",
+   "original": "lastCommittedBatchIndex",
+   "replacement": "lastFinalizedBatchIndex",
+   "mutant_sha256": "a4425958b8b6ede1d671914b2ad16811d00edf5b31f5582f326b87ae0d1be534",
+   "edges": [],
+   "actions": [
+    "challengeState"
+   ]
+  },
+  {
+   "id": "M048",
+   "operator": "swap_cursor",
+   "variant": "swap",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 29505,
+   "length": 23,
+   "line": 643,
+   "col": 21,
+   "function": "Rollup.finalizeBatch",
+   "original": "lastFinalizedBatchIndex",
+   "replacement": "lastCommittedBatchIndex",
+   "mutant_sha256": "34b7d62a360e929182591802b03b9db76affe3be684671aaa777645ce5cf61f5",
+   "edges": [],
+   "actions": [
+    "finalizeBatch"
+   ]
+  },
+  {
+   "id": "M049",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "offset": 1889,
+   "length": 2,
+   "line": 32,
+   "col": 24,
+   "function": "BatchHeaderCodecV0.loadAndValidate",
+   "original": ">=",
+   "replacement": ">",
+   "mutant_sha256": "1487a78c01066e6a139d1b8ac3002c1dcd9ddcc484bc023bc388dc5e9f2c9c04",
+   "edges": [
+    "enc_sol",
+    "load_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof",
+    "revertBatch",
+    "proveState",
+    "finalizeBatch"
+   ]
+  },
+  {
+   "id": "M050",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 11074,
+   "length": 1,
+   "line": 265,
+   "col": 50,
+   "function": "Rollup.commitBatch",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "a6729337748c4d7b6754c8bab67c2902735a6ba58b629d9f8cb5a255d57bdb9b",
+   "edges": [],
+   "actions": [
+    "commitBatch"
+   ]
+  },
+  {
+   "id": "M051",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 12117,
+   "length": 1,
+   "line": 283,
+   "col": 50,
+   "function": "Rollup.commitState",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "7c5cccd5ea93456d784bba9715367c48f4a257e7bf0ff6bac8b19d6c7d60b148",
+   "edges": [],
+   "actions": [
+    "commitState"
+   ]
+  },
+  {
+   "id": "M052",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 14763,
+   "length": 2,
+   "line": 333,
+   "col": 40,
+   "function": "Rollup._commitBatchWithBatchData",
+   "original": ">=",
+   "replacement": ">",
+   "mutant_sha256": "89cff2d7532585cb0837bc45b5b85d1c0722e8184a51c65ca810914ca9d668e8",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M053",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 16049,
+   "length": 2,
+   "line": 353,
+   "col": 40,
+   "function": "Rollup._commitBatchWithBatchData",
+   "original": ">=",
+   "replacement": ">",
+   "mutant_sha256": "6b3ed014a3c1121f6fa3329fcced4a072c39a3e839e715ffe9f639e8c1efe89c",
+   "edges": [
+    "enc_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M054",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 18245,
+   "length": 1,
+   "line": 398,
+   "col": 50,
+   "function": "Rollup.commitBatchWithProof",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "aaad7399acc7337c184c9228f54fe385960648494b6f629fc75df7d07eca70f2",
+   "edges": [],
+   "actions": [
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M055",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 19955,
+   "length": 1,
+   "line": 431,
+   "col": 24,
+   "function": "Rollup.revertBatch",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "7f1267a9a10e0115ba934b733c73651562ec37ee342cee8b27cdd7ef81f870f4",
+   "edges": [],
+   "actions": [
+    "revertBatch"
+   ]
+  },
+  {
+   "id": "M056",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 20507,
+   "length": 1,
+   "line": 441,
+   "col": 29,
+   "function": "Rollup.revertBatch",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "c6163dfdf80a077a228ecdb65b499b0c7daf21b01c975114e71c50819df2a084",
+   "edges": [],
+   "actions": [
+    "revertBatch"
+   ]
+  },
+  {
+   "id": "M057",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 20646,
+   "length": 1,
+   "line": 444,
+   "col": 23,
+   "function": "Rollup.revertBatch",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "05bc98aceace4701abda8a3dadd4446af98e5bc2e7e88b2728932014ef9d4526",
+   "edges": [],
+   "actions": [
+    "revertBatch"
+   ]
+  },
+  {
+   "id": "M058",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 21154,
+   "length": 1,
+   "line": 455,
+   "col": 32,
+   "function": "Rollup.revertBatch",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "00a49a4eeffb2d8eb21cd38e10fe8e96b43fc533f78aa5558da57a512f3e1b88",
+   "edges": [],
+   "actions": [
+    "revertBatch"
+   ]
+  },
+  {
+   "id": "M059",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 22304,
+   "length": 2,
+   "line": 483,
+   "col": 27,
+   "function": "Rollup.challengeState",
+   "original": ">=",
+   "replacement": ">",
+   "mutant_sha256": "d6a5fa758094378db34294cdddd16db68be872247ce3c9dc3e54e871813dfaba",
+   "edges": [],
+   "actions": [
+    "challengeState"
+   ]
+  },
+  {
+   "id": "M060",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 32051,
+   "length": 1,
+   "line": 704,
+   "col": 59,
+   "function": "Rollup.batchExist",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "18287e2f2aed45e21e42b9d49e95db2179831f56a1e9de737352a2b6f7a4e38e",
+   "edges": [],
+   "actions": [
+    "challengeState",
+    "finalizeBatch"
+   ]
+  },
+  {
+   "id": "M061",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 32402,
+   "length": 1,
+   "line": 710,
+   "col": 61,
+   "function": "Rollup.batchInsideChallengeWindow",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "2a985c9a712df83c4bf6d1a6e70ab84e0835f98a878082aee0798a05fda5e6c1",
+   "edges": [],
+   "actions": [
+    "challengeState",
+    "finalizeBatch"
+   ]
+  },
+  {
+   "id": "M062",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 34438,
+   "length": 1,
+   "line": 758,
+   "col": 36,
+   "function": "Rollup._verifyProof",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "6b8b970b1870e1bec848ef6f3b13790d77d09fa58070d913abadb3693837954c",
+   "edges": [],
+   "actions": [
+    "commitBatchWithProof",
+    "proveState"
+   ]
+  },
+  {
+   "id": "M063",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 37747,
+   "length": 1,
+   "line": 825,
+   "col": 36,
+   "function": "Rollup._getBatchVersion",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "305075043646dc75c8e3f6c4d374b771332f98b4c62337fde8b4ff00e8cbf05d",
+   "edges": [
+    "enc_sol",
+    "load_sol"
+   ],
+   "actions": [
+    "commitBatch",
+    "commitState",
+    "commitBatchWithProof",
+    "revertBatch",
+    "proveState",
+    "finalizeBatch"
+   ]
+  },
+  {
+   "id": "M064",
+   "operator": "cmp_boundary",
+   "variant": "flip",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "offset": 41789,
+   "length": 1,
+   "line": 913,
+   "col": 32,
+   "function": "Rollup._computeBlobVersionedHash",
+   "original": ">",
+   "replacement": ">=",
+   "mutant_sha256": "a1451d4f0dd3ef915453dc6f21a62b9e476fef613e5500bce483ba3e3e4fc276",
+   "edges": [],
+   "actions": [
+    "commitBatch",
+    "commitBatchWithProof"
+   ]
+  },
+  {
+   "id": "M065",
+   "operator": "putuint64_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 5986,
+   "length": 1,
+   "line": 218,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "1",
+   "replacement": "0",
+   "mutant_sha256": "af8de4f63c602ccac7e98a9621b883e1d102f2a8b421f6e4557053c5837a4643",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M066",
+   "operator": "putuint64_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 5986,
+   "length": 1,
+   "line": 218,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "1",
+   "replacement": "2",
+   "mutant_sha256": "aecedf9f6298f4783284f52db0868008eac5d69501853dd57d563afdb52f63d7",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M067",
+   "operator": "putuint64_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6044,
+   "length": 1,
+   "line": 219,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "9",
+   "replacement": "8",
+   "mutant_sha256": "d0bcc6bc0d021328de6be47496a0fff804ea22862d04032632072cc39a7bf81b",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M068",
+   "operator": "putuint64_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6044,
+   "length": 1,
+   "line": 219,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "9",
+   "replacement": "10",
+   "mutant_sha256": "bb18d199ba9c015e0e4f9bb9b57c5019c81c3cc945b0424c31e31499fce1f5b6",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M069",
+   "operator": "putuint64_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6107,
+   "length": 2,
+   "line": 220,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "17",
+   "replacement": "16",
+   "mutant_sha256": "3a09cc359608a8a40c60bad261ada59c7512b57a50d35d5faacdc707379f46cb",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M070",
+   "operator": "putuint64_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6107,
+   "length": 2,
+   "line": 220,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "17",
+   "replacement": "18",
+   "mutant_sha256": "663305123d2fd6c2346ce4b5f5c22bf872abb7383d731fd6d57f29b47556f1f1",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M071",
+   "operator": "putuint64_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6859,
+   "length": 1,
+   "line": 246,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "1",
+   "replacement": "0",
+   "mutant_sha256": "0fd8f757097482c8397a58e408bd5b68112a510bdb89271f0db643979888f8a2",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M072",
+   "operator": "putuint64_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6859,
+   "length": 1,
+   "line": 246,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "1",
+   "replacement": "2",
+   "mutant_sha256": "71f0fb4a048f67aad7e2340841c815c8de34b568d652af6c1668897bc264dd73",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M073",
+   "operator": "putuint64_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6917,
+   "length": 1,
+   "line": 247,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "9",
+   "replacement": "8",
+   "mutant_sha256": "e66566fb547818793488149dadabb0f657986f414f67d2b9d5c1cdac76b226d8",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M074",
+   "operator": "putuint64_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6917,
+   "length": 1,
+   "line": 247,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "9",
+   "replacement": "10",
+   "mutant_sha256": "207737354387070a83e839eb271d88a20166919a30b638f9a0f98b4e5bbe660a",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M075",
+   "operator": "putuint64_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6980,
+   "length": 2,
+   "line": 248,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "17",
+   "replacement": "16",
+   "mutant_sha256": "2f6da39102e2aca5af7fd543c9a25a753f4255516f08912f21cdcbc4702b40ed",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M076",
+   "operator": "putuint64_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6980,
+   "length": 2,
+   "line": 248,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "17",
+   "replacement": "18",
+   "mutant_sha256": "0fcd52ebebb6ef0ff03be87e8d74091724a0b2f3f28a05bc4af8b148946ab3ef",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M077",
+   "operator": "putuint64_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7365,
+   "length": 3,
+   "line": 256,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "249",
+   "replacement": "248",
+   "mutant_sha256": "fb3eec6ecd1e88b08ecded491f76d637efe3c6be3cb68ffdc27bb0e3b0d4460f",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M078",
+   "operator": "putuint64_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7365,
+   "length": 3,
+   "line": 256,
+   "col": 40,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "249",
+   "replacement": "250",
+   "mutant_sha256": "b81f88e27cd684466d059f3e74b3773c3e3a6618e34204d17f3149ddeaf65406",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M079",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6154,
+   "length": 2,
+   "line": 221,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "25",
+   "replacement": "24",
+   "mutant_sha256": "6c15830b82801fd9770bc69677c64f5fb21e129c47a2ef699dfd5c00ec3ac588",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M080",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6154,
+   "length": 2,
+   "line": 221,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "25",
+   "replacement": "26",
+   "mutant_sha256": "9e4185922c7df63470da1e462b19760fe602f033233c8546a3527802eb842c5c",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M081",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6192,
+   "length": 2,
+   "line": 222,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "57",
+   "replacement": "56",
+   "mutant_sha256": "8686af7bdb4fd522d8503dfa9131adcd13f36bee580e8a32c3ee67e1592d216f",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M082",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6192,
+   "length": 2,
+   "line": 222,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "57",
+   "replacement": "58",
+   "mutant_sha256": "71994e74421884fe123fc6596a8901bfeeb5255f07066a0c45921b8b20deea2c",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M083",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6239,
+   "length": 2,
+   "line": 223,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "89",
+   "replacement": "88",
+   "mutant_sha256": "5f04e60df49eac711734d989d2ecd386104dcebecf27efca81a7ded55749590d",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M084",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6239,
+   "length": 2,
+   "line": 223,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "89",
+   "replacement": "90",
+   "mutant_sha256": "ea178acc602d012e5918e49cdf999019b0f521a1e2b0d8bdf35f133f6d0bd812",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M085",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6282,
+   "length": 3,
+   "line": 224,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "121",
+   "replacement": "120",
+   "mutant_sha256": "02b5b6c6a0aaf4bc67a85f068294ac0b16093b3e53615b036d9963c1f28beee0",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M086",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6282,
+   "length": 3,
+   "line": 224,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "121",
+   "replacement": "122",
+   "mutant_sha256": "057cc7a107e689b37ede6ace8855c66925e9e2e6fa6ef8a50c2d23f708be2234",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M087",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6326,
+   "length": 3,
+   "line": 225,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "153",
+   "replacement": "152",
+   "mutant_sha256": "81f348727e7fbef9fc251b68797b752ba59d0c683548691874769719e15172f6",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M088",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6326,
+   "length": 3,
+   "line": 225,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "153",
+   "replacement": "154",
+   "mutant_sha256": "f7caade72795d2764833c8a885469ff6c523a061d45fa4249dd0f9546bf5291f",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M089",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6371,
+   "length": 3,
+   "line": 226,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "185",
+   "replacement": "184",
+   "mutant_sha256": "2e6db2d35b9e230faf0a9e84e0400f87efccabc7ca8701dbc9bfe87dd552976e",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M090",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6371,
+   "length": 3,
+   "line": 226,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "185",
+   "replacement": "186",
+   "mutant_sha256": "5bd872bf9569de135cdced8234ff8ab91d61e5c42bda254d52201d7f0d9635e5",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M091",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6424,
+   "length": 3,
+   "line": 227,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "217",
+   "replacement": "216",
+   "mutant_sha256": "463a894344f260df5280dc5a334b789fe39fde1c4ce4bd9edaae8f20dd49e4f1",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M092",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 6424,
+   "length": 3,
+   "line": 227,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+   "original": "217",
+   "replacement": "218",
+   "mutant_sha256": "acfc4a3e6d7a82b0e9115c403f8a366d6fac59bb5342e190ff38a15b5e31e13c",
+   "edges": [
+    "enc_go_v0"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M093",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7027,
+   "length": 2,
+   "line": 249,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "25",
+   "replacement": "24",
+   "mutant_sha256": "213025ad151092ac78cdb38d28d94f73805d70a697bbbcc73e97947a69f6214d",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M094",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7027,
+   "length": 2,
+   "line": 249,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "25",
+   "replacement": "26",
+   "mutant_sha256": "9cd7296f1e5dee524bbffeb503b8ef0be863b0326b405a747409b66482972fd2",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M095",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7065,
+   "length": 2,
+   "line": 250,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "57",
+   "replacement": "56",
+   "mutant_sha256": "190a1146685205fb7e01a3228835982f477977da7592c61fd6afc6113aac0c3d",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M096",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7065,
+   "length": 2,
+   "line": 250,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "57",
+   "replacement": "58",
+   "mutant_sha256": "9695ac65b1496ba3f70724b790750f67e41e3739b252338beaa3e1baeead2a7b",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M097",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7112,
+   "length": 2,
+   "line": 251,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "89",
+   "replacement": "88",
+   "mutant_sha256": "dcd80eca9b23345e34d40147060a7f1b775c5fed4b3ae953243074752ba8da26",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M098",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7112,
+   "length": 2,
+   "line": 251,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "89",
+   "replacement": "90",
+   "mutant_sha256": "189499544c7e13787873f7ddfb4bbd74b48e0087af548728d6437c24d834dfa0",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M099",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7155,
+   "length": 3,
+   "line": 252,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "121",
+   "replacement": "120",
+   "mutant_sha256": "6baf7f43345a2e0e167550ca20d019de3752789bd34bb461daeb514331d06aef",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M100",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7155,
+   "length": 3,
+   "line": 252,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "121",
+   "replacement": "122",
+   "mutant_sha256": "cac3755021d88f81c9d549c7f471100b5012ed24b5e78b5a4b194b3f3c7c51f5",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M101",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7199,
+   "length": 3,
+   "line": 253,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "153",
+   "replacement": "152",
+   "mutant_sha256": "e45ad4ba27f3f7a46085a15a8eb5c1d4c4fdf0c476d24b49bf1ec00755bc90b8",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M102",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7199,
+   "length": 3,
+   "line": 253,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "153",
+   "replacement": "154",
+   "mutant_sha256": "d97309240842541bb679263e483c75d62d97a224c52615344cbead15a37fc3e2",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M103",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7244,
+   "length": 3,
+   "line": 254,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "185",
+   "replacement": "184",
+   "mutant_sha256": "e4723de67e8d8a7f382130313ea44887805e311ae0a137044eb2f3875c501cb9",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M104",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7244,
+   "length": 3,
+   "line": 254,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "185",
+   "replacement": "186",
+   "mutant_sha256": "e08affbd09707e4e3361bcfbc300e1991580b47968a787ad4e9085f8c0ddc0e8",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M105",
+   "operator": "copy_offset",
+   "variant": "-1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7297,
+   "length": 3,
+   "line": 255,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "217",
+   "replacement": "216",
+   "mutant_sha256": "19e007c1ef2ea5a7eb3d17a0c00f33f37a993092b706050df72678408c4952af",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M106",
+   "operator": "copy_offset",
+   "variant": "+1",
+   "file": "common/batch/batch_header.go",
+   "offset": 7297,
+   "length": 3,
+   "line": 255,
+   "col": 18,
+   "function": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+   "original": "217",
+   "replacement": "218",
+   "mutant_sha256": "ae0ae241d26b643b3a92fa53f38abb26605095d61cb961ae8cfad396d5554532",
+   "edges": [
+    "enc_go_v1"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M107",
+   "operator": "drop_len_check",
+   "variant": "drop",
+   "file": "common/batch/batch_header.go",
+   "offset": 1071,
+   "length": 73,
+   "line": 44,
+   "col": 3,
+   "function": "(morph-l2/common/batch.BatchHeaderBytes).validate",
+   "original": "if len(b) != expectedLengthV0 {\n\t\t\treturn ErrInvalidBatchHeaderLength\n\t\t}",
+   "replacement": "{}\n\n",
+   "mutant_sha256": "b79127393a9855c7d8e6e9d485624eb88828fcc27f4f96c4a114e53777805622",
+   "edges": [
+    "dec_go",
+    "ok_go"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M108",
+   "operator": "drop_len_check",
+   "variant": "drop",
+   "file": "common/batch/batch_header.go",
+   "offset": 1174,
+   "length": 73,
+   "line": 48,
+   "col": 3,
+   "function": "(morph-l2/common/batch.BatchHeaderBytes).validate",
+   "original": "if len(b) != expectedLengthV1 {\n\t\t\treturn ErrInvalidBatchHeaderLength\n\t\t}",
+   "replacement": "{}\n\n",
+   "mutant_sha256": "cf52a87c1b7f6c2ab040016b044f295b4b19f209de62c04bb9487b6961b75de8",
+   "edges": [
+    "dec_go",
+    "ok_go"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M109",
+   "operator": "drop_len_check",
+   "variant": "drop",
+   "file": "common/batch/batch_header.go",
+   "offset": 1277,
+   "length": 73,
+   "line": 52,
+   "col": 3,
+   "function": "(morph-l2/common/batch.BatchHeaderBytes).validate",
+   "original": "if len(b) != expectedLengthV2 {\n\t\t\treturn ErrInvalidBatchHeaderLength\n\t\t}",
+   "replacement": "{}\n\n",
+   "mutant_sha256": "d262d8d79cb2d6de71d2eb94daba2051c78037140585a09dfa4150cffa9bc724",
+   "edges": [
+    "dec_go",
+    "ok_go"
+   ],
+   "actions": []
+  },
+  {
+   "id": "M110",
+   "operator": "drop_len_check",
+   "variant": "drop",
+   "file": "common/batch/batch_header.go",
+   "offset": 1695,
+   "length": 56,
+   "line": 73,
+   "col": 2,
+   "function": "(morph-l2/common/batch.BatchHeaderBytes).Version",
+   "original": "if len(b) == 0 {\n\t\treturn 0, ErrEmptyBatchHeaderBytes\n\t}",
+   "replacement": "{}\n\n",
+   "mutant_sha256": "9cb7519dc6fe4b530e0665a6fe97b8c57fc95b46d3a52ab757e9cc889ca4b615",
+   "edges": [
+    "dec_go",
+    "ok_go"
+   ],
+   "actions": []
+  }
+ ]
+}
