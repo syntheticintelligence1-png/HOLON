@@ -2022,6 +2022,138 @@
         "tests_m2/test_extracted_refinement.py"
       ],
       "thresholds": {}
+    },
+    "I21": {
+      "title": "A2/A4 audit round on extraction (audit round M2/2)",
+      "plan": "docs/BUILD_PLAN.md#i21",
+      "prompt": "prompts/I21_audit_extraction.md",
+      "predictions": [
+        {
+          "id": "I21-P1",
+          "claim": "Auditor A2, Solidity v0/v1 loader: each of the 2561 hostile headers (the empty string and every first byte 0..255 at lengths 1, 2, 248, 249, 250, 256, 257, 258, 512 and 1024) goes through each of the 9 non-dominated Rollup._loadBatchHeader call sites by its public function (:230 importGenesisBatch, :259 commitBatch, :277 commitState, :402 and :414 commitBatchWithProof, :433 revertBatch, :600 proveState, :627 finalizeBatch, :716 proveCommittedBatchState; :309 is dominated by :259, :277 and :402). The real contract accepts or rejects every input exactly as the extracted load_sol path its bytes select, with that path's revert reason, and exactly as the frozen ok_sol on the compiled M0 model: 0 mismatches. The observed reverts are exactly the 4 extracted reasons.",
+          "check": "tests_m2/test_audit_extraction.py::TestHostileHeaders::test_solidity_loader_matches_its_extracted_and_frozen_partiality"
+        },
+        {
+          "id": "I21-P2",
+          "claim": "Auditor A2, Go v0/v1 decoders: on the same 2561 inputs, each of the 16 exported BatchHeaderBytes methods of morph-l2/common/batch and the 15 of morph-l2/node/types returns what the extracted path its input selects says: a nil or non-nil error, and on a nil error the value of the decoder's extracted reads. validate agrees with the frozen ok_go, and the getters with the frozen dec_go, on the compiled M0 model. 0 mismatches and 0 panics.",
+          "check": "tests_m2/test_audit_extraction.py::TestHostileHeaders::test_go_header_methods_match_their_extracted_paths"
+        },
+        {
+          "id": "I21-P3",
+          "claim": "Partiality labels: of the 4 CODEC edges of gen/M2/diagram/morph_header.json, exactly one, CODEC.enc_sol, has a partial label (false) that the real code contradicts on the hostile corpus. CODEC.dec_go (partial) and CODEC.enc_go_v0 and enc_go_v1 (total) agree with the code. This reproduces F-M2-36.",
+          "check": "tests_m2/test_audit_extraction.py::TestCodecPartiality::test_only_enc_sol_has_a_partiality_label_the_code_contradicts"
+        },
+        {
+          "id": "I21-P4",
+          "claim": "Auditor A2, Solidity encoder: the 1024 encoder inputs (every version 0..255 with each zero/nonzero pattern of prevStateRoot and postStateRoot) go through commitBatch, commitState and commitBatchWithProof. The real commit path matches the extracted enc_sol exactly: 'invalid version' at :293, 'previous state root is zero' at :294 and 'new state root is zero' at :295, in that order, else past. That is 0 mismatches. Against the frozen enc_sol, the only mismatches are versions 0..2 with a zero state root, where the frozen encoder builds a header and the code reverts: 9 inputs per entry point, 27 in all. Versions 3..255 meet the frozen model's UNDEF sentinel exactly where the code reverts.",
+          "check": "tests_m2/test_audit_extraction.py::TestCodecPartiality::test_enc_sol_is_extracted_exactly_and_the_frozen_domain_misses_only_zero_roots"
+        },
+        {
+          "id": "I21-P5",
+          "claim": "Auditor A2, rollup Act carrier: the hostile calldata corpus runs for every action I20's extracted model compiles, at least the 8 modelled ones, varying every parameter of the document's actions[].params. Every disagreement between that model and the real contract on I20's observables (status, revert data, storage slots, events) is explained by an assumption the extracted rollup document states, or by a coverage-debt entry of gen/M2/coverage.json: 0 unexplained. Under the A-implicit that A19 narrowed, an implicit-class disagreement names one of its exemptions (ABI decoding of dynamic calldata, the range of a narrow array element, out of gas); a Panic or empty revert outside them counts as unexplained.",
+          "check": "tests_m2/test_audit_extraction.py::TestRollupAct::test_no_unexplained_mismatch_at_the_rollup_act_carrier"
+        },
+        {
+          "id": "I21-P6",
+          "claim": "Auditor A2, batchdata Act carrier: the open site common/batch/batch_data.go:75:36:slice of (*BatchData).DataHash is decided as a reachable panic. Its witness starts at NewBatchData and calls only exported morph-l2/common/batch functions and methods.",
+          "check": "tests_m2/test_audit_extraction.py::TestGoSites::test_the_open_data_hash_site_panics_through_exported_calls"
+        },
+        {
+          "id": "I21-P7",
+          "claim": "Auditor A2, Go sites: no hostile or real input makes a called Go function panic at a site that the target commit's spec/M2/facts/*.go.extracted.json documents mark safe. This covers the go_header, go_encoders, batchdata_act and go_consumer surfaces, the last including ParseBatch's later steps on the 62172 real commits.",
+          "check": "tests_m2/test_audit_extraction.py::TestGoSites::test_no_panic_at_a_safe_site"
+        },
+        {
+          "id": "I21-P8",
+          "claim": "Auditor A4, satisfiability: every PROVED law among results/M2/L_*.json and results/M2/extracted_m1/L_*.json at the target commit that has an assume premise (cf and hyp included) or a Reach binder has an inhabitant. A4 replays it on the compiled model: every step succeeds and every premise holds. No premise is unsatisfiable.",
+          "check": "tests_m2/test_audit_extraction.py::TestVacuity::test_every_proved_premised_law_is_satisfiable"
+        },
+        {
+          "id": "I21-P9",
+          "claim": "Auditor A4, representativeness: the contract's degenerate rule marks an inhabitant degenerate if it is the initial state, or if it gives a SORT-site subtrahend of 0. Under it, the inhabitants of exactly 5 of the 6 PROVED SORT-site laws are degenerate: both L_sort_site_def_bvh_at_* and L_sort_site_def_w_* (initial state), and L_sort_site_rollup_441_* and L_sort_site_rollup_485_495_* (subtrahend lfi = 0). L_sort_site_rollup_644_660_* is not degenerate.",
+          "check": "tests_m2/test_audit_extraction.py::TestVacuity::test_site_law_inhabitants_are_degenerate_as_predicted"
+        },
+        {
+          "id": "I21-P10",
+          "claim": "Auditor A4, hypothesis coverage: every key of results/M2/hypotheses.json at the target commit (at least the 12 at the prereg) gets a verdict. Either it is tested against an implementation of the real oracle outside holon/ and tests/, or it is labelled untestable with the missing piece named. None is left only not_in_scope.",
+          "check": "tests_m2/test_audit_extraction.py::TestHypotheses::test_every_hypothesis_has_a_verdict"
+        },
+        {
+          "id": "I21-P11",
+          "claim": "Auditor A4, passing hypotheses: four are tested and pass. CF-agg: keccak256 of the EVM or go-ethereum on at least the 273-value sample gives 0 collisions. CF-hdr: the real batch hash (BatchHeaderCodecV0.computeBatchHash in Solidity, BatchHeaderBytes.Hash in Go), on at least 768 in-domain headers, is pairwise distinct and the same in both languages. Hyp-Z0-kzg: the KZG library of the pinned Go module graph gives the zero blob a versioned hash equal to ZERO_VERSIONED_HASH and EmptyVersionedHash. Hyp-messenger: on the real L1CrossDomainMessenger and L1MessageQueueWithGasPriceOracle, each successful sendMessage enqueues exactly one message, at the next queue index.",
+          "check": "tests_m2/test_audit_extraction.py::TestHypotheses::test_four_hypotheses_pass_against_real_oracles"
+        },
+        {
+          "id": "I21-P12",
+          "claim": "Auditor A4, over-strength: Hyp-ISubmitter, tested against the real Submitter.sol of the pinned checkout, fails. Some reachable Submitter state has isActive differ from 'staked and unslashed', or challengeDeposit() differ from its initial value, through entry points the M1 stand-in does not model (withdraw, removeSubmitter, setMinimumStake, updateChallengeDeposit). The round files it as a finding.",
+          "check": "tests_m2/test_audit_extraction.py::TestHypotheses::test_the_submitter_hypothesis_fails_against_submitter_sol"
+        },
+        {
+          "id": "I21-P13",
+          "claim": "Auditor A2, the header carrier's Go consumer on real inputs. I59's 62172 mainnet commits are fed to the node's derivation through its exported entry points: (*Derivation).UnPackData, then (*BatchInfo).ParseBatch, with each commit's own calldata and blobs. UnPackData returns a nil error for all 62172, by selector 0xd63b3549 (7574, legacyRollupABI, derivation.go:639), 0x4a8d544f (12656, :617), 0x428868b5 (40247) and 0x41f756da (1695). Every unpacked parentBatchHeader hashes to the parent keccak I59 recorded. ParseBatch rejects at its header step, the BatchIndex call at batch_info.go:92:55 (error:header_index), exactly the 2954 commits of batches 2..7575 whose parent is a 281-byte version-0 header: 2953 under 0xd63b3549 and 1 (batch 7575) under 0x4a8d544f, batch-index digest cad2b461. No commit fails at the TotalL1MessagePopped step (:96:69). The pinned Rollup._loadBatchHeader, through commitBatch (:259), accepts all 2954 of those parent headers. A2 records one target finding for them, in the bin 'finding' and realizing L_dom_hdr: a node deriving from L1 stops at batch 2.",
+          "check": "tests_m2/test_audit_extraction.py::TestGoConsumer::test_the_281_byte_parents_stop_the_derivation_consumer"
+        },
+        {
+          "id": "I21-P14",
+          "claim": "Auditor A2, the Go consumer against its extraction. The header corpus is placed inside an otherwise well-formed commitBatch calldata under each of the 4 selectors UnPackData recognises (4 x 2561 inputs, ParseBatch with a one-blob zero sidecar), together with the 62172 real commits. UnPackData returns a nil error with parentBatchHeader byte-identical to the input, and panics at none of its open sites (derivation.go:622:26, 622:30, 644:26, 644:30, 699:75). ParseBatch's header step rejects exactly the inputs that the extracted BatchIndex and TotalL1MessagePopped paths and the frozen ok_go reject, and never at the TotalL1MessagePopped step: 0 mismatches.",
+          "check": "tests_m2/test_audit_extraction.py::TestGoConsumer::test_the_consumer_agrees_with_the_extracted_paths"
+        },
+        {
+          "id": "I21-P15",
+          "claim": "Auditor A4, representativeness repaired: for each of the 5 SORT-site laws whose recorded inhabitant is degenerate (I21-P9), the representative search finds a non-degenerate inhabitant. The search is breadth-first over runs of at most 6 actions on the compiled model; the inhabitant it finds has a non-empty run and a nonzero subtrahend, and it replays with its premises holding. So none of the 5 is a vacuity finding: its premises do not hold only in a corner.",
+          "check": "tests_m2/test_audit_extraction.py::TestVacuity::test_every_degenerate_site_law_has_a_representative_inhabitant"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I21-R1",
+          "claim": "Gates M0, M1 and M2 pass at the round's last commit. The round itself changes no law, statement hash or result status. A fix of a high finding that changes one carries its STATEMENT_DIFF entry or re-run and is reported.",
+          "check": "gate"
+        },
+        {
+          "id": "I21-R2",
+          "claim": "Construction: round2.json validates against the unchanged audit_round schema. It is labelled same family and not counted toward convergence (Q9), and has the contract's attacks A1..A11. Its findings are exactly the audit/M2_findings.jsonl lines of round M2/round2, well-formed and appended after F-M2-37. Each surface's findings are listed by its attack. The target commit is an ancestor of HEAD holding I20's outputs. The prose round exists.",
+          "check": "tests_m2/test_audit_extraction.py::TestRound::test_round_validates_and_is_labelled_same_family and tests_m2/test_audit_extraction.py::TestRound::test_attacks_are_the_contracts and tests_m2/test_audit_extraction.py::TestRound::test_surface_findings_are_listed_by_their_attack and tests_m2/test_audit_extraction.py::TestRound::test_round_findings_are_the_ledgers_round2_lines and tests_m2/test_audit_extraction.py::TestRound::test_target_commit_is_an_ancestor_holding_the_i20_outputs and tests_m2/test_audit_extraction.py::TestRound::test_prose_round_exists and tests_m2/test_audit_extraction.py::TestFindingsLedger::test_earlier_lines_keep_their_ids_and_order and tests_m2/test_audit_extraction.py::TestFindingsLedger::test_round2_lines_are_well_formed and tests_m2/test_audit_extraction.py::TestFindingsLedger::test_fixed_round2_findings_name_a_test"
+        },
+        {
+          "id": "I21-R3",
+          "claim": "Construction: the sidecar is the preregistered one (sha256 pinned). The preregistered corpora are the ones run: the digests of 2561 header, 51 act header and 1024 encoder inputs, plus 4 x 2561 hostile and 62172 real consumer inputs. Every interface carrier of gen/M2/diagram is attacked, and malformed encodings reach every Solidity entry point. Every extracted path is exercised: load_sol (6), enc_sol (5) and the 31 exported Go header methods (223). Mismatch, panic and target-finding records are well-formed, and degenerate flags follow the rule.",
+          "check": "tests_m2/test_audit_extraction.py::TestCorpus::test_the_preregistered_corpora_are_the_ones_run and tests_m2/test_audit_extraction.py::TestCorpus::test_every_interface_carrier_is_attacked and tests_m2/test_audit_extraction.py::TestCorpus::test_malformed_encodings_reach_every_solidity_entry_point and tests_m2/test_audit_extraction.py::TestCorpus::test_every_extracted_path_is_exercised and tests_m2/test_audit_extraction.py::TestCorpus::test_mismatch_and_panic_records_are_well_formed and tests_m2/test_audit_extraction.py::TestSidecar::test_the_sidecar_is_the_preregistered_one and tests_m2/test_audit_extraction.py::TestGoConsumer::test_target_findings_are_well_formed and tests_m2/test_audit_extraction.py::TestVacuity::test_degenerate_flags_follow_the_rule"
+        },
+        {
+          "id": "I21-R4",
+          "claim": "Construction: every planted partiality mutant is detected, with at least one per surface (7 surfaces). Every A4 canary is detected: an unsatisfiable premise, a degenerate inhabitant and a false hypothesis.",
+          "check": "tests_m2/test_audit_extraction.py::TestSensitivity::test_every_surface_has_a_detected_mutant and tests_m2/test_audit_extraction.py::TestSensitivity::test_every_a4_canary_is_detected"
+        },
+        {
+          "id": "I21-R5",
+          "claim": "Construction: python -m holon audit hostile --check and vacuity --check rebuild a2.json and a4.json from the target commit, byte for byte.",
+          "check": "tests_m2/test_audit_extraction.py::TestDeterminism::test_hostile_reproduces_from_the_target_commit and tests_m2/test_audit_extraction.py::TestDeterminism::test_vacuity_reproduces_from_the_target_commit"
+        },
+        {
+          "id": "I21-R6",
+          "claim": "Exit: F-M2-36 (assigned to I21) is resolved by the round. Before I22 there are zero open high-severity findings in audit/M2_findings.jsonl, and holon audit status --findings audit/M2_findings.jsonl reports none blocking.",
+          "check": "tests_m2/test_audit_extraction.py::TestFindingsLedger::test_f_m2_36_is_resolved_by_the_round and tests_m2/test_audit_extraction.py::TestExit::test_no_open_high_finding and tests_m2/test_audit_extraction.py::TestExit::test_audit_status_reports_nothing_blocking"
+        }
+      ],
+      "outcome_paths": [
+        "audit/rounds/M2/round2.json",
+        "audit/rounds/M2/round2/",
+        "audit/M2_round2.md"
+      ],
+      "tests": [
+        "tests_m2/test_audit_extraction.py"
+      ],
+      "thresholds": {
+        "open_high_findings_before_I22": 0,
+        "header_corpus_min": 2561,
+        "act_header_corpus_min": 51,
+        "encoder_corpus_min": 1024,
+        "cf_agg_sample_min": 273,
+        "cf_hdr_sample_min": 768,
+        "consumer_real_commits_min": 62172,
+        "representative_max_run_length": 6
+      }
     }
   }
 }

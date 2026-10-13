@@ -1,0 +1,541 @@
+{
+  "abi_malformed": [
+    "the argument's length word exceeds the calldata that follows it",
+    "the argument's offset word points past the end of the calldata",
+    "the calldata ends inside the argument"
+  ],
+  "act_header_corpus": {
+    "empty": true,
+    "first_bytes": [
+      0,
+      1,
+      2,
+      3,
+      255
+    ],
+    "lengths": [
+      1,
+      2,
+      248,
+      249,
+      250,
+      256,
+      257,
+      258,
+      512,
+      1024
+    ],
+    "order": "as header_corpus",
+    "size": 51
+  },
+  "attacks": {
+    "A1": {
+      "category": "model_vs_code",
+      "surface": "sol_loader"
+    },
+    "A10": {
+      "category": "determinism",
+      "part": "holon audit hostile/vacuity --check"
+    },
+    "A11": {
+      "category": "model_vs_code",
+      "surface": "go_consumer"
+    },
+    "A2": {
+      "category": "model_vs_code",
+      "surface": "sol_encoder"
+    },
+    "A3": {
+      "category": "model_vs_code",
+      "surface": "go_header"
+    },
+    "A4": {
+      "category": "model_vs_code",
+      "surface": "go_encoders"
+    },
+    "A5": {
+      "category": "model_vs_code",
+      "surface": "rollup_act"
+    },
+    "A6": {
+      "category": "model_vs_code",
+      "surface": "batchdata_act"
+    },
+    "A7": {
+      "category": "vacuity",
+      "part": "a4.laws"
+    },
+    "A8": {
+      "category": "bindings_ledger",
+      "part": "a4.hypotheses"
+    },
+    "A9": {
+      "category": "mutation_adequacy",
+      "part": "a2.mutants and a4.canaries"
+    }
+  },
+  "codec_labels": {
+    "CODEC.dec_go": true,
+    "CODEC.enc_go_v0": false,
+    "CODEC.enc_go_v1": false,
+    "CODEC.enc_sol": false
+  },
+  "corpus_digest": "sha256 over the corpus inputs in order, each as its 4-byte big-endian length followed by its bytes; an encoder input's bytes are the version byte, then prevStateRoot and postStateRoot as 32 bytes each",
+  "degenerate_rule": "An inhabitant of a PROVED law is degenerate iff (a) its state is the model's initial state (its run is empty), or (b) the law is a SORT-site law and the subtrahend of the site's subtraction evaluates to 0 at the inhabitant (its state and action) on the compiled model, so that minuend >= subtrahend holds for every minuend.",
+  "doc": "I21 instrument (BUILD_PLAN I21; contract: the docstring of tests_m2/test_audit_extraction.py). Frozen at the prereg: tests_m2/test_audit_extraction.py pins this file's sha256. It fixes what the A2 (hostile input) and A4 (vacuity and over-strength) attacks of audit round M2/2 must cover, and records the committed values the predictions were made from. Computed at the prereg from committed artifacts, nothing run against real code: (1) interface_carriers and codec_labels: every carrier with interface: true and every CODEC edge's partial flag in gen/M2/diagram/*.json; (2) surfaces.sol_loader.call_sites: `grep -n '_loadBatchHeader(' contracts/contracts/l1/rollup/Rollup.sol` in the pinned morph checkout (3e44e795586af3e11285b603ab642c67823add51): 10 calls in 8 external or public functions; the call at :309 (_commitBatchWithBatchData) re-loads batchDataInput.parentBatchHeader, which commitBatch (:259), commitState (:277) and commitBatchWithProof (:402) have already loaded with the same bytes, so no input reaches it that has not passed the same pure loader: it is dominated; (3) reasons and paths: the revert reasons and path counts of load_sol and enc_sol in spec/M2/facts/morph_header.extracted.json (each reason occurs exactly once in contracts/contracts outside test/ and mock/, checked by grep at the pinned commit); (4) surfaces.go_header: the exported methods of (morph-l2/common/batch.BatchHeaderBytes) and (morph-l2/node/types.BatchHeaderBytes) among go.functions of spec/M2/facts/morph_batch.go.extracted.json and morph_nodetypes.go.extracted.json, the sum of their extracted path counts (116 + 107 = 223; validate, unexported, adds 8 per package) and their safe sites (13 + 13); (5) surfaces.batchdata_act: the exported methods of (*morph-l2/common/batch.BatchData) and its open sites in the same document; (6) hypotheses: the keys of results/M2/hypotheses.json; (7) site_law_inhabitants_at_prereg: status, non_vacuity status, run length of the inhabitant's state (non_vacuity.witness.s.run) and its action, from results/M2/L_sort_site_*.json; (8) inputs_sha256: sha256 of each input file at the prereg, on the project branch at 90153fd (after the I19 follow-up A19, which regenerated the rollup and Go documents and gen/M2/coverage.json, and after I59); the Go documents only gained go.globals, so the go_header and batchdata_act values of (4) and (5) are unchanged; (9) surfaces.go_consumer: the Go derivation consumer of the header carrier. UnPackData's four commitBatch branches (node/derivation/derivation.go:617, :639, :662, :664 at 3e44e79) and their selectors, computed as keccak256 of the canonical signature of the ABIs they read (types.BeforeMoveBlockCtxABI and types.LegacyRollupMetaData in node/types/batch.go, node/types/abi/pre_submitter_rollup.json, bindings.RollupMetaData); the open sites of (*Derivation).UnPackData and unpackModernRollupCall in spec/M2/facts/morph_derivation.go.extracted.json; the header steps of (*BatchInfo).ParseBatch from that document's go.calls edges (batch_info.go:92:55 BatchIndex, :96:69 TotalL1MessagePopped); the callers from the same edges (derivation.go:556:28 and :715:32); (10) surfaces.go_consumer.real_inputs, from results/M2/historical/replay.json (I59): each commit's selector is the rollup ABI's 0x41f756da when it has a parent (decoded under the pinned ABI), else that of its legacy_parent.abi_origin commit's IRollup.BatchDataInput (c4794cd: 0xd63b3549, 65b99be: 0x4a8d544f, b755899: 0x428868b5; checked against git show <origin>:contracts/contracts/l1/rollup/IRollup.sol and replay.json abi.history_signatures); parent_281_v0 lists the commits whose parent (or legacy_parent) is a version-0 header of 281 bytes, every one with ok_go false, ok_sol true and pinned_solidity_ok_sol true in replay.json; batch_indices_sha256 is sha256 of their batch indices, ascending, in decimal, joined by ','; (11) representative_search: the bound of A4's search for a non-degenerate inhabitant; reading the model's guards (nothing was run), the shortest non-degenerate runs have length <= 4 (def_bvh_at: one commitBatch; def_w: commitBatch, wait, finalizeBatch; rollup_441: two commitBatch, wait, finalizeBatch; rollup_485_495: commitBatch, wait, finalizeBatch, commitBatch), so 6 leaves slack. The corpora: header_corpus is the empty string plus, for every first byte b0 in 0..255 and every length L in lengths, the byte b0 followed by the first L-1 bytes of sha256(\"I21:<seed>:<b0>:<L>:0\") || sha256(\"I21:<seed>:<b0>:<L>:1\") || ... (ASCII, decimal numbers); 1 + 256 * 10 = 2561 inputs. act_header_corpus is its restriction to first bytes 0, 1, 2, 3 and 255 (51 inputs). encoder_corpus is every version 0..255 with each (prevStateRoot, postStateRoot) in {(0, 0), (0, R2), (R1, 0), (R1, R2)}, R1 = sha256(\"I21:prev\") and R2 = sha256(\"I21:post\") as bytes32: 1024 inputs. A surface's corpus may be larger, never smaller.",
+  "encoder_corpus": {
+    "R1": "sha256(\"I21:prev\")",
+    "R2": "sha256(\"I21:post\")",
+    "order": "version ascending, then roots in the order listed",
+    "roots": [
+      [
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "R2"
+      ],
+      [
+        "R1",
+        "0"
+      ],
+      [
+        "R1",
+        "R2"
+      ]
+    ],
+    "size": 1024,
+    "versions": {
+      "from": 0,
+      "to": 255
+    }
+  },
+  "header_corpus": {
+    "body": "first L-1 bytes of sha256(\"I21:<seed>:<b0>:<L>:<k>\") for k = 0, 1, ... concatenated",
+    "empty": true,
+    "first_bytes": {
+      "from": 0,
+      "to": 255
+    },
+    "lengths": [
+      1,
+      2,
+      248,
+      249,
+      250,
+      256,
+      257,
+      258,
+      512,
+      1024
+    ],
+    "order": "the empty string, then b0 ascending, then L in the order of lengths",
+    "size": 2561
+  },
+  "hypotheses": [
+    "CF-agg",
+    "CF-hdr",
+    "Hyp-ISubmitter",
+    "Hyp-Z0-kzg",
+    "Hyp-messenger",
+    "HypC",
+    "HypF",
+    "HypP",
+    "HypSeal",
+    "HypT",
+    "HypV-proof1",
+    "HypZ"
+  ],
+  "inputs_sha256": {
+    "facts/morph_header.json": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+    "gen/M2/coverage.json": "4cb98748a2bf6200a39852d6d8ff7f6ce5923a0c30b4b5bb10eaa3966c8fb833",
+    "gen/M2/diagram/morph_batchdata.json": "9539d21a111d1beabf974d9022be2f08ddcba4d9ae5d89773f21728aa55ca791",
+    "gen/M2/diagram/morph_header.json": "09328ea201531f9ca64af30d0af1e0513e16d931d09d5758a85cc7a76ad4110b",
+    "gen/M2/diagram/morph_rollup.json": "f9364d1dd3d5291f461c0b51ed3ea6b65d45957cfce41d50996b1ce5bd20be82",
+    "results/M0/L_dom_hdr.json": "71ab81c25604119bf19500c244701edcf7c65dfc49fd7b49c2d49f85fea2e1af",
+    "results/M2/historical/replay.json": "4d8f5177fd2594f89ee323c640d6fda3ff4849e924f88a2dc01bc7c943a15913",
+    "results/M2/hypotheses.json": "3009f14230cfdb6d295dc9fb192d1d7cec9eef962124c2b0c5ddb3653fa1960d",
+    "spec/M2/facts/morph_batch.go.extracted.json": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573",
+    "spec/M2/facts/morph_derivation.go.extracted.json": "f0f1ee13857f10a38c73f0f2b0e002d5602d2fbea266fdf3c87ffa4cc5e8a89d",
+    "spec/M2/facts/morph_header.extracted.json": "0f3caeb4d06e85e337733d444ed48da55f8679c026f43bb4f26aefeb2bffe646",
+    "spec/M2/facts/morph_nodetypes.go.extracted.json": "1a5060d31bd05a4c1d26a58891b78b8197fcbc0c0c7413aa0ea5d033c9ec7f27",
+    "spec/M2/facts/morph_rollup.extracted.json": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+    "spec/M2/lib/oracles.json": "abce18c7863efe32154ef86eaf0f5ca51b111c06ff3739284172f7d8863ca5c1"
+  },
+  "interface_carriers": [
+    "morph_batchdata:Act",
+    "morph_header:Bytes",
+    "morph_rollup:Act"
+  ],
+  "milestone": "M2",
+  "representative_search": {
+    "max_run_length": 6,
+    "rule": "For each PROVED premised law whose recorded inhabitant is degenerate, A4 searches the compiled model breadth-first, runs of at most max_run_length actions from the initial state in the model's action order, for an inhabitant that is not degenerate under degenerate_rule, replays it and checks its premises."
+  },
+  "round": 2,
+  "seed": 20261021,
+  "site_law_inhabitants_at_prereg": {
+    "L_sort_site_def_bvh_at_6126d1f1": {
+      "action": "commitBatch",
+      "non_vacuity": "inhabited",
+      "run_length": 0,
+      "status": "PROVED"
+    },
+    "L_sort_site_def_bvh_at_e064679d": {
+      "action": "commitBatch",
+      "non_vacuity": "inhabited",
+      "run_length": 0,
+      "status": "PROVED"
+    },
+    "L_sort_site_def_lci_356891e4": {
+      "action": null,
+      "non_vacuity": "unknown",
+      "run_length": null,
+      "status": "UNKNOWN"
+    },
+    "L_sort_site_def_w_b4cd5068": {
+      "action": "commitBatch",
+      "non_vacuity": "inhabited",
+      "run_length": 0,
+      "status": "PROVED"
+    },
+    "L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17": {
+      "action": null,
+      "non_vacuity": "unknown",
+      "run_length": null,
+      "status": "UNKNOWN"
+    },
+    "L_sort_site_rollup_363_1fc7f88a": {
+      "action": null,
+      "non_vacuity": "counter_witness",
+      "run_length": null,
+      "status": "REFUTED"
+    },
+    "L_sort_site_rollup_441_b4cd5068": {
+      "action": "revertBatch",
+      "non_vacuity": "inhabited",
+      "run_length": 1,
+      "status": "PROVED"
+    },
+    "L_sort_site_rollup_485_495_b4cd5068": {
+      "action": "challengeState",
+      "non_vacuity": "inhabited",
+      "run_length": 1,
+      "status": "PROVED"
+    },
+    "L_sort_site_rollup_636_e68daf06": {
+      "action": null,
+      "non_vacuity": "counter_witness",
+      "run_length": null,
+      "status": "REFUTED"
+    },
+    "L_sort_site_rollup_644_660_e68daf06": {
+      "action": "finalizeBatch",
+      "non_vacuity": "inhabited",
+      "run_length": 2,
+      "status": "PROVED"
+    }
+  },
+  "surfaces": {
+    "batchdata_act": {
+      "carrier": "morph_batchdata:Act",
+      "constructor": "morph-l2/common/batch.NewBatchData",
+      "methods": [
+        "Append",
+        "BlockNum",
+        "DataHash",
+        "DataHashV2",
+        "Encode",
+        "EstimateCompressedSizeWithNewPayload",
+        "IsEmpty",
+        "TxsPayload",
+        "TxsPayloadV2",
+        "WillExceedCompressedSizeLimit"
+      ],
+      "models": [
+        "spec/M1/facts/morph_batchdata.json",
+        "spec/M2/facts/morph_batch.go.extracted.json"
+      ],
+      "open_sites": [
+        "common/batch/batch_data.go:141:15:slice",
+        "common/batch/batch_data.go:142:15:slice",
+        "common/batch/batch_data.go:143:15:slice",
+        "common/batch/batch_data.go:75:36:slice"
+      ]
+    },
+    "go_consumer": {
+      "abis": {
+        "0x41f756da": {
+          "branch": "node/derivation/derivation.go:664",
+          "field": "rollupABI",
+          "signature": "commitBatch((uint8,bytes,uint64,uint16,bytes32,bytes32,bytes32))"
+        },
+        "0x428868b5": {
+          "branch": "node/derivation/derivation.go:662",
+          "field": "preSubmitterRollupABI",
+          "signature": "commitBatch((uint8,bytes,uint64,uint16,bytes32,bytes32,bytes32),(uint256,bytes,bytes))"
+        },
+        "0x4a8d544f": {
+          "branch": "node/derivation/derivation.go:617",
+          "field": "beforeMoveBlockCtxABI",
+          "signature": "commitBatch((uint8,bytes,bytes,bytes32,bytes32,bytes32),(uint256,bytes,bytes))"
+        },
+        "0xd63b3549": {
+          "branch": "node/derivation/derivation.go:639",
+          "field": "legacyRollupABI",
+          "signature": "commitBatch((uint8,bytes,bytes,bytes,bytes32,bytes32,bytes32),(uint256,bytes,bytes))"
+        }
+      },
+      "callers": {
+        "(*morph-l2/node/derivation.BatchInfo).ParseBatch": "node/derivation/derivation.go:715:32 ((*Derivation).parseBatch)",
+        "(*morph-l2/node/derivation.Derivation).UnPackData": "node/derivation/derivation.go:556:28 ((*Derivation).fetchRollupDataByTxHash)"
+      },
+      "carrier": "morph_header:Bytes",
+      "document": "spec/M2/facts/morph_derivation.go.extracted.json",
+      "entry_points": [
+        "(*morph-l2/node/derivation.Derivation).UnPackData",
+        "(*morph-l2/node/derivation.BatchInfo).ParseBatch"
+      ],
+      "header_methods": [
+        "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+        "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped"
+      ],
+      "header_steps": {
+        "error:header_index": "node/derivation/batch_info.go:92:55",
+        "error:header_total": "node/derivation/batch_info.go:96:69"
+      },
+      "models": [
+        "spec/M2/facts/morph_derivation.go.extracted.json",
+        "spec/M2/facts/morph_batch.go.extracted.json",
+        "facts/morph_header.json#ok_go"
+      ],
+      "open_sites": [
+        "node/derivation/derivation.go:622:26:index",
+        "node/derivation/derivation.go:622:30:assert",
+        "node/derivation/derivation.go:644:26:index",
+        "node/derivation/derivation.go:644:30:assert",
+        "node/derivation/derivation.go:699:75:assert"
+      ],
+      "real_inputs": {
+        "by_selector": {
+          "0x41f756da": 1695,
+          "0x428868b5": 40247,
+          "0x4a8d544f": 12656,
+          "0xd63b3549": 7574
+        },
+        "commits": 62172,
+        "parent_281_v0": {
+          "batch_indices_sha256": "cad2b4610dd2c8df3c1d68e4cdce53f112c2dfc37364322475ed9de46f190030",
+          "by_selector": {
+            "0x4a8d544f": 1,
+            "0xd63b3549": 2953
+          },
+          "count": 2954,
+          "first_batch_index": 2,
+          "last_batch_index": 7575
+        },
+        "source": "results/M2/historical/replay.json commits (I59), calldata and blobs from the I59 snapshot"
+      }
+    },
+    "go_encoders": {
+      "carrier": "morph_header:Header",
+      "entry_points": [
+        "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+        "(morph-l2/common/batch.BatchHeaderV1).Bytes"
+      ],
+      "models": [
+        "spec/M2/facts/morph_batch.go.extracted.json",
+        "facts/morph_header.json#enc_go_v0",
+        "facts/morph_header.json#enc_go_v1"
+      ]
+    },
+    "go_header": {
+      "carrier": "morph_header:Bytes",
+      "models": [
+        "spec/M2/facts/morph_batch.go.extracted.json",
+        "spec/M2/facts/morph_nodetypes.go.extracted.json",
+        "facts/morph_header.json#ok_go",
+        "facts/morph_header.json#dec_go"
+      ],
+      "packages": {
+        "morph-l2/common/batch": {
+          "document": "spec/M2/facts/morph_batch.go.extracted.json",
+          "methods": [
+            "BatchIndex",
+            "BlobCommitHash",
+            "BlobHashesHash",
+            "BlobVersionedHash",
+            "Bytes",
+            "DataHash",
+            "Hash",
+            "L1MessagePopped",
+            "LastBlockNumber",
+            "ParentBatchHash",
+            "PostStateRoot",
+            "PrevStateRoot",
+            "SequencerSetVerifyHash",
+            "TotalL1MessagePopped",
+            "Version",
+            "WithdrawalRoot"
+          ],
+          "paths": 116,
+          "safe_sites": [
+            "common/batch/batch_header.go:104:29:slice",
+            "common/batch/batch_header.go:119:29:slice",
+            "common/batch/batch_header.go:133:29:slice",
+            "common/batch/batch_header.go:153:29:slice",
+            "common/batch/batch_header.go:160:29:slice",
+            "common/batch/batch_header.go:167:29:slice",
+            "common/batch/batch_header.go:174:29:slice",
+            "common/batch/batch_header.go:181:29:slice",
+            "common/batch/batch_header.go:192:34:slice",
+            "common/batch/batch_header.go:76:10:index",
+            "common/batch/batch_header.go:83:34:slice",
+            "common/batch/batch_header.go:90:34:slice",
+            "common/batch/batch_header.go:97:34:slice"
+          ]
+        },
+        "morph-l2/node/types": {
+          "document": "spec/M2/facts/morph_nodetypes.go.extracted.json",
+          "methods": [
+            "BatchIndex",
+            "BlobHashesHash",
+            "BlobVersionedHash",
+            "Bytes",
+            "DataHash",
+            "Hash",
+            "L1MessagePopped",
+            "LastBlockNumber",
+            "ParentBatchHash",
+            "PostStateRoot",
+            "PrevStateRoot",
+            "SequencerSetVerifyHash",
+            "TotalL1MessagePopped",
+            "Version",
+            "WithdrawalRoot"
+          ],
+          "paths": 107,
+          "safe_sites": [
+            "node/types/batch_header.go:105:34:slice",
+            "node/types/batch_header.go:112:34:slice",
+            "node/types/batch_header.go:119:29:slice",
+            "node/types/batch_header.go:134:29:slice",
+            "node/types/batch_header.go:148:29:slice",
+            "node/types/batch_header.go:155:29:slice",
+            "node/types/batch_header.go:162:29:slice",
+            "node/types/batch_header.go:169:29:slice",
+            "node/types/batch_header.go:176:29:slice",
+            "node/types/batch_header.go:183:29:slice",
+            "node/types/batch_header.go:194:34:slice",
+            "node/types/batch_header.go:91:10:index",
+            "node/types/batch_header.go:98:34:slice"
+          ]
+        }
+      },
+      "paths": 223
+    },
+    "rollup_act": {
+      "carrier": "morph_rollup:Act",
+      "modelled_actions": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "proveState",
+        "revertBatch",
+        "setPause"
+      ],
+      "models": [
+        "gen/M2/extracted/model.bend",
+        "spec/M2/facts/morph_rollup.extracted.json"
+      ]
+    },
+    "sol_encoder": {
+      "carrier": "morph_rollup:Act",
+      "edge": "enc_sol",
+      "entry_points": [
+        "commitBatch",
+        "commitState",
+        "commitBatchWithProof"
+      ],
+      "models": [
+        "spec/M2/facts/morph_header.extracted.json#enc_sol",
+        "facts/morph_header.json#enc_sol"
+      ],
+      "paths": 5,
+      "reasons": [
+        "invalid version",
+        "previous state root is zero",
+        "new state root is zero"
+      ],
+      "unit": "contracts/contracts/l1/rollup/Rollup.sol"
+    },
+    "sol_loader": {
+      "call_sites": [
+        {
+          "entry": "importGenesisBatch",
+          "line": 230
+        },
+        {
+          "entry": "commitBatch",
+          "line": 259
+        },
+        {
+          "entry": "commitState",
+          "line": 277
+        },
+        {
+          "entry": "commitBatchWithProof",
+          "line": 402
+        },
+        {
+          "entry": "commitBatchWithProof",
+          "line": 414
+        },
+        {
+          "entry": "revertBatch",
+          "line": 433
+        },
+        {
+          "entry": "proveState",
+          "line": 600
+        },
+        {
+          "entry": "finalizeBatch",
+          "line": 627
+        },
+        {
+          "entry": "proveCommittedBatchState",
+          "line": 716
+        }
+      ],
+      "carrier": "morph_header:Bytes",
+      "dominated": [
+        {
+          "by": [
+            259,
+            277,
+            402
+          ],
+          "entry": "_commitBatchWithBatchData",
+          "line": 309
+        }
+      ],
+      "function": "Rollup._loadBatchHeader",
+      "models": [
+        "spec/M2/facts/morph_header.extracted.json#load_sol",
+        "facts/morph_header.json#ok_sol"
+      ],
+      "paths": 6,
+      "reasons": [
+        "Empty batch header",
+        "batch header length too small",
+        "batch header length is incorrect",
+        "Unsupported batch version"
+      ],
+      "unit": "contracts/contracts/l1/rollup/Rollup.sol"
+    }
+  }
+}
