@@ -1,0 +1,4072 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:92-95",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "inch",
+          "src": "src/ToyTypes.sol:93"
+        },
+        {
+          "family": "start",
+          "src": "src/ToyTypes.sol:94"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "challenge",
+      "order": [
+        [
+          "check",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "inch": 1,
+        "start": [
+          "env",
+          "block.timestamp"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xd2ef7398",
+      "src": "src/ToyTypes.sol:92-95",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "inch",
+          "path": [],
+          "seq": 1,
+          "src": "src/ToyTypes.sol:93",
+          "stack": [],
+          "value": 1
+        },
+        {
+          "cond": 1,
+          "family": "start",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyTypes.sol:94",
+          "stack": [],
+          "value": [
+            "env",
+            "block.timestamp"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:131-136",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:131-136",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "totalQueueIndex",
+          "src": "src/ToyTypes.sol:135"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "64656c6179"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "<",
+                [
+                  "+",
+                  [
+                    "?",
+                    [
+                      "&&",
+                      [
+                        "<",
+                        [
+                          "storage",
+                          "pendingQueueIndex"
+                        ],
+                        [
+                          "storage",
+                          "queueLength"
+                        ]
+                      ],
+                      [
+                        "!=",
+                        [
+                          "map",
+                          [
+                            "storage",
+                            "enqueueTime"
+                          ],
+                          [
+                            "storage",
+                            "pendingQueueIndex"
+                          ]
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "enqueueTime"
+                      ],
+                      [
+                        "storage",
+                        "pendingQueueIndex"
+                      ]
+                    ],
+                    [
+                      "env",
+                      "block.timestamp"
+                    ]
+                  ],
+                  [
+                    "storage",
+                    "D"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ],
+            [
+              ">",
+              [
+                "param",
+                "n"
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "64656c6179"
+                ]
+              ],
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "<",
+                    [
+                      "+",
+                      [
+                        "?",
+                        [
+                          "&&",
+                          [
+                            "<",
+                            [
+                              "storage",
+                              "pendingQueueIndex"
+                            ],
+                            [
+                              "storage",
+                              "queueLength"
+                            ]
+                          ],
+                          [
+                            "!=",
+                            [
+                              "map",
+                              [
+                                "storage",
+                                "enqueueTime"
+                              ],
+                              [
+                                "storage",
+                                "pendingQueueIndex"
+                              ]
+                            ],
+                            0
+                          ]
+                        ],
+                        [
+                          "map",
+                          [
+                            "storage",
+                            "enqueueTime"
+                          ],
+                          [
+                            "storage",
+                            "pendingQueueIndex"
+                          ]
+                        ],
+                        [
+                          "env",
+                          "block.timestamp"
+                        ]
+                      ],
+                      [
+                        "storage",
+                        "D"
+                      ]
+                    ],
+                    [
+                      "env",
+                      "block.timestamp"
+                    ]
+                  ]
+                ],
+                [
+                  ">",
+                  [
+                    "param",
+                    "n"
+                  ],
+                  0
+                ]
+              ],
+              "seq": 3,
+              "stack": []
+            }
+          ],
+          "reason": "delay",
+          "src": "src/ToyTypes.sol:133"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "commitQ",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "panic",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:133",
+          0
+        ],
+        [
+          "panic",
+          1
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "<",
+                  [
+                    "storage",
+                    "pendingQueueIndex"
+                  ],
+                  [
+                    "storage",
+                    "queueLength"
+                  ]
+                ],
+                [
+                  "!=",
+                  [
+                    "map",
+                    [
+                      "storage",
+                      "enqueueTime"
+                    ],
+                    [
+                      "storage",
+                      "pendingQueueIndex"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "map",
+                [
+                  "storage",
+                  "enqueueTime"
+                ],
+                [
+                  "storage",
+                  "pendingQueueIndex"
+                ]
+              ],
+              [
+                "env",
+                "block.timestamp"
+              ]
+            ],
+            [
+              "storage",
+              "D"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "<",
+                    [
+                      "storage",
+                      "pendingQueueIndex"
+                    ],
+                    [
+                      "storage",
+                      "queueLength"
+                    ]
+                  ],
+                  [
+                    "!=",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "enqueueTime"
+                      ],
+                      [
+                        "storage",
+                        "pendingQueueIndex"
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "map",
+                  [
+                    "storage",
+                    "enqueueTime"
+                  ],
+                  [
+                    "storage",
+                    "pendingQueueIndex"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ],
+              [
+                "storage",
+                "D"
+              ]
+            ]
+          ],
+          "op": "+",
+          "seq": 2,
+          "src": "src/ToyTypes.sol:132",
+          "stack": []
+        },
+        {
+          "args": [
+            [
+              "storage",
+              "totalQueueIndex"
+            ],
+            [
+              "param",
+              "n"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "totalQueueIndex"
+              ],
+              [
+                "param",
+                "n"
+              ]
+            ]
+          ],
+          "op": "+",
+          "seq": 4,
+          "src": "src/ToyTypes.sol:135",
+          "stack": []
+        }
+      ],
+      "params": [
+        {
+          "location": "default",
+          "name": "n",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "totalQueueIndex": [
+          "+",
+          [
+            "storage",
+            "totalQueueIndex"
+          ],
+          [
+            "param",
+            "n"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xae4e491a",
+      "src": "src/ToyTypes.sol:131-136",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "totalQueueIndex",
+          "path": [],
+          "seq": 5,
+          "src": "src/ToyTypes.sol:135",
+          "stack": [],
+          "value": [
+            "+",
+            [
+              "storage",
+              "totalQueueIndex"
+            ],
+            [
+              "param",
+              "n"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:97-103",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "prt",
+          "src": "src/ToyTypes.sol:102"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "commitT",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "panic",
+          0
+        ],
+        [
+          "panic",
+          1
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "storage",
+              "W"
+            ],
+            [
+              "storage",
+              "start"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "storage",
+                "inch"
+              ]
+            ],
+            [
+              "fits",
+              256,
+              [
+                "+",
+                [
+                  "storage",
+                  "W"
+                ],
+                [
+                  "storage",
+                  "start"
+                ]
+              ]
+            ]
+          ],
+          "op": "+",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:100",
+          "stack": []
+        },
+        {
+          "args": [
+            [
+              "+",
+              [
+                "storage",
+                "W"
+              ],
+              [
+                "storage",
+                "start"
+              ]
+            ],
+            [
+              "env",
+              "block.timestamp"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "storage",
+                "inch"
+              ]
+            ],
+            [
+              "fits",
+              256,
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "storage",
+                    "W"
+                  ],
+                  [
+                    "storage",
+                    "start"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ]
+          ],
+          "op": "-",
+          "seq": 2,
+          "src": "src/ToyTypes.sol:100",
+          "stack": []
+        }
+      ],
+      "params": [],
+      "payable": false,
+      "post": {
+        "prt": [
+          "?",
+          [
+            "storage",
+            "inch"
+          ],
+          [
+            "-",
+            [
+              "+",
+              [
+                "storage",
+                "W"
+              ],
+              [
+                "storage",
+                "start"
+              ]
+            ],
+            [
+              "env",
+              "block.timestamp"
+            ]
+          ],
+          0
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xd4136965",
+      "src": "src/ToyTypes.sol:97-103",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "prt",
+          "path": [],
+          "seq": 3,
+          "src": "src/ToyTypes.sol:102",
+          "stack": [],
+          "value": [
+            "?",
+            [
+              "storage",
+              "inch"
+            ],
+            [
+              "-",
+              [
+                "+",
+                [
+                  "storage",
+                  "W"
+                ],
+                [
+                  "storage",
+                  "start"
+                ]
+              ],
+              [
+                "env",
+                "block.timestamp"
+              ]
+            ],
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:105-109",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "el",
+          "src": "src/ToyTypes.sol:107"
+        },
+        {
+          "family": "inch",
+          "src": "src/ToyTypes.sol:108"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "6561726c79"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            ">=",
+            [
+              "env",
+              "block.timestamp"
+            ],
+            [
+              "storage",
+              "start"
+            ]
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6561726c79"
+                ]
+              ],
+              "expr": [
+                ">=",
+                [
+                  "env",
+                  "block.timestamp"
+                ],
+                [
+                  "storage",
+                  "start"
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "early",
+          "src": "src/ToyTypes.sol:106"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "elapsed",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:106",
+          0
+        ],
+        [
+          "panic",
+          0
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "env",
+              "block.timestamp"
+            ],
+            [
+              "storage",
+              "start"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "-",
+              [
+                "env",
+                "block.timestamp"
+              ],
+              [
+                "storage",
+                "start"
+              ]
+            ]
+          ],
+          "op": "-",
+          "seq": 2,
+          "src": "src/ToyTypes.sol:107",
+          "stack": []
+        }
+      ],
+      "params": [],
+      "payable": false,
+      "post": {
+        "el": [
+          "-",
+          [
+            "env",
+            "block.timestamp"
+          ],
+          [
+            "storage",
+            "start"
+          ]
+        ],
+        "inch": 0
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x2f29d8c5",
+      "src": "src/ToyTypes.sol:105-109",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "el",
+          "path": [],
+          "seq": 3,
+          "src": "src/ToyTypes.sol:107",
+          "stack": [],
+          "value": [
+            "-",
+            [
+              "env",
+              "block.timestamp"
+            ],
+            [
+              "storage",
+              "start"
+            ]
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "inch",
+          "path": [],
+          "seq": 4,
+          "src": "src/ToyTypes.sol:108",
+          "stack": [],
+          "value": 0
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:120-122",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "pendingQueueIndex",
+          "src": "src/ToyTypes.sol:121"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "finalize",
+      "order": [
+        [
+          "check",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "pendingQueueIndex": [
+          "storage",
+          "totalQueueIndex"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x4bb278f3",
+      "src": "src/ToyTypes.sol:120-122",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "pendingQueueIndex",
+          "path": [],
+          "seq": 1,
+          "src": "src/ToyTypes.sol:121",
+          "stack": [],
+          "value": [
+            "storage",
+            "totalQueueIndex"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:80-86",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            68
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:80-86",
+          "stack": []
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "param",
+              "v"
+            ],
+            256
+          ],
+          "kind": "abi",
+          "param": "v",
+          "seq": 2,
+          "src": "src/ToyTypes.sol:80",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "src/ToyTypes.sol:81"
+        }
+      ],
+      "effects": [
+        {
+          "family": "g",
+          "src": "src/ToyTypes.sol:60"
+        },
+        {
+          "family": "vg",
+          "src": "src/ToyTypes.sol:61"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "626c6f62"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "blobhash",
+              0
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "626c6f62"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "blobhash",
+                  0
+                ],
+                0
+              ],
+              "seq": 3,
+              "stack": []
+            }
+          ],
+          "reason": "blob",
+          "src": "src/ToyTypes.sol:81"
+        },
+        {
+          "args": [
+            [
+              "str",
+              "6e6f6e65"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "!=",
+            [
+              "map",
+              [
+                "storage",
+                "g"
+              ],
+              [
+                "param",
+                "k"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f6e65"
+                ]
+              ],
+              "expr": [
+                "!=",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "g"
+                  ],
+                  [
+                    "param",
+                    "k"
+                  ]
+                ],
+                0
+              ],
+              "seq": 4,
+              "stack": []
+            }
+          ],
+          "reason": "none",
+          "src": "src/ToyTypes.sol:83"
+        },
+        {
+          "args": [
+            [
+              "str",
+              "76657273696f6e"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "param",
+              "v"
+            ],
+            [
+              "map",
+              [
+                "storage",
+                "vg"
+              ],
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "76657273696f6e"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "param",
+                  "v"
+                ],
+                [
+                  "map",
+                  [
+                    "storage",
+                    "vg"
+                  ],
+                  [
+                    "param",
+                    "k"
+                  ]
+                ]
+              ],
+              "seq": 5,
+              "stack": []
+            }
+          ],
+          "reason": "version",
+          "src": "src/ToyTypes.sol:84"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "keepg",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "check",
+          2
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:81",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:83",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:84",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "k",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "location": "default",
+          "name": "v",
+          "type": "uint8",
+          "width": 8
+        }
+      ],
+      "payable": false,
+      "post": {
+        "g": [
+          "store",
+          [
+            "storage",
+            "g"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          [
+            "map",
+            [
+              "storage",
+              "g"
+            ],
+            [
+              "param",
+              "k"
+            ]
+          ]
+        ],
+        "vg": [
+          "store",
+          [
+            "storage",
+            "vg"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          [
+            "param",
+            "v"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xbeccbaa6",
+      "src": "src/ToyTypes.sol:80-86",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "g",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 6,
+          "src": "src/ToyTypes.sol:60",
+          "stack": [
+            "src/ToyTypes.sol:85"
+          ],
+          "value": [
+            "map",
+            [
+              "storage",
+              "g"
+            ],
+            [
+              "param",
+              "k"
+            ]
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "vg",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 7,
+          "src": "src/ToyTypes.sol:61",
+          "stack": [
+            "src/ToyTypes.sol:85"
+          ],
+          "value": [
+            "param",
+            "v"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:138-140",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:138-140",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "marks",
+          "src": "src/ToyTypes.sol:139"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "mark",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "k",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "marks": [
+          "store",
+          [
+            "storage",
+            "marks"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          [
+            "env",
+            "block.timestamp"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xb69766c2",
+      "src": "src/ToyTypes.sol:138-140",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "marks",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 2,
+          "src": "src/ToyTypes.sol:139",
+          "stack": [],
+          "value": [
+            "env",
+            "block.timestamp"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:64-67",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            68
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:64-67",
+          "stack": []
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "param",
+              "v"
+            ],
+            256
+          ],
+          "kind": "abi",
+          "param": "v",
+          "seq": 2,
+          "src": "src/ToyTypes.sol:64",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": [
+          {
+            "iters": [
+              "?",
+              [
+                "==",
+                [
+                  "param",
+                  "v"
+                ],
+                2
+              ],
+              [
+                "count",
+                "src/ToyTypes.sol:36-43"
+              ],
+              0
+            ],
+            "loop": "src/ToyTypes.sol:36-43"
+          }
+        ]
+      },
+      "declared_in": "ToyTypes",
+      "edges": [
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "src/ToyTypes.sol:37"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "src/ToyTypes.sol:45"
+        },
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "src/ToyTypes.sol:50"
+        }
+      ],
+      "effects": [
+        {
+          "family": "h",
+          "src": "src/ToyTypes.sol:55"
+        },
+        {
+          "family": "hv",
+          "src": "src/ToyTypes.sol:56"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "73746f726564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "h"
+              ],
+              [
+                "param",
+                "k"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "73746f726564"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "h"
+                  ],
+                  [
+                    "param",
+                    "k"
+                  ]
+                ],
+                0
+              ],
+              "seq": 3,
+              "stack": []
+            }
+          ],
+          "reason": "stored",
+          "src": "src/ToyTypes.sol:65"
+        },
+        {
+          "args": [
+            [
+              "str",
+              "6e6f20626c6f62"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "param",
+                  "v"
+                ],
+                2
+              ]
+            ],
+            [
+              ">",
+              [
+                "count",
+                "src/ToyTypes.sol:36-43"
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f20626c6f62"
+                ]
+              ],
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "param",
+                      "v"
+                    ],
+                    2
+                  ]
+                ],
+                [
+                  ">",
+                  [
+                    "count",
+                    "src/ToyTypes.sol:36-43"
+                  ],
+                  0
+                ]
+              ],
+              "seq": 6,
+              "stack": [
+                "src/ToyTypes.sol:66"
+              ]
+            }
+          ],
+          "reason": "no blob",
+          "src": "src/ToyTypes.sol:48"
+        }
+      ],
+      "loops": [
+        {
+          "at_break": [
+            {
+              "name": "i",
+              "value": [
+                "iter",
+                "src/ToyTypes.sol:36-43"
+              ]
+            }
+          ],
+          "bound": null,
+          "break": [
+            "==",
+            [
+              "blobhash",
+              [
+                "iter",
+                "src/ToyTypes.sol:36-43"
+              ]
+            ],
+            0
+          ],
+          "carried": [
+            {
+              "entry": 0,
+              "name": "i",
+              "value": [
+                "iter",
+                "src/ToyTypes.sol:36-43"
+              ]
+            }
+          ],
+          "cond": [
+            "==",
+            [
+              "param",
+              "v"
+            ],
+            2
+          ],
+          "count": [
+            "count",
+            "src/ToyTypes.sol:36-43"
+          ],
+          "exit": [
+            {
+              "name": "i",
+              "value": [
+                "count",
+                "src/ToyTypes.sol:36-43"
+              ]
+            }
+          ],
+          "head": 1,
+          "kind": "yulfor",
+          "next": [
+            {
+              "name": "i",
+              "value": [
+                "+",
+                [
+                  "iter",
+                  "src/ToyTypes.sol:36-43"
+                ],
+                1
+              ]
+            }
+          ],
+          "regions": [
+            {
+              "region": [
+                "src/ToyTypes.sol:66",
+                "src/ToyTypes.sol:34"
+              ],
+              "writes": [
+                [
+                  "mstore",
+                  [
+                    "*",
+                    [
+                      "iter",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    32
+                  ],
+                  [
+                    "blobhash",
+                    [
+                      "iter",
+                      "src/ToyTypes.sol:36-43"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "returns": [],
+          "seq": 4,
+          "src": "src/ToyTypes.sol:36-43",
+          "stack": [
+            "src/ToyTypes.sol:66"
+          ],
+          "steps": [
+            5
+          ]
+        }
+      ],
+      "modifiers": [],
+      "mstores": [
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "param",
+                "v"
+              ],
+              2
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "blobhash",
+                  [
+                    "iter",
+                    "src/ToyTypes.sol:36-43"
+                  ]
+                ],
+                0
+              ]
+            ]
+          ],
+          "loop": 4,
+          "offset": [
+            "*",
+            [
+              "iter",
+              "src/ToyTypes.sol:36-43"
+            ],
+            32
+          ],
+          "op": "mstore",
+          "region": [
+            "src/ToyTypes.sol:66",
+            "src/ToyTypes.sol:34"
+          ],
+          "seq": 5,
+          "src": "src/ToyTypes.sol:41",
+          "stack": [
+            "src/ToyTypes.sol:66"
+          ],
+          "value": [
+            "blobhash",
+            [
+              "iter",
+              "src/ToyTypes.sol:36-43"
+            ]
+          ]
+        }
+      ],
+      "mutability": "nonpayable",
+      "name": "put",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "check",
+          2
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:65",
+          0
+        ],
+        [
+          "loop",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:48",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "k",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "location": "default",
+          "name": "v",
+          "type": "uint8",
+          "width": 8
+        }
+      ],
+      "payable": false,
+      "post": {
+        "h": [
+          "store",
+          [
+            "storage",
+            "h"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          [
+            "?",
+            [
+              "==",
+              [
+                "param",
+                "v"
+              ],
+              2
+            ],
+            [
+              "keccak256",
+              [
+                "slice",
+                [
+                  "mem",
+                  [
+                    "mloop",
+                    "src/ToyTypes.sol:36-43",
+                    [
+                      "iter",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    [
+                      "count",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    [
+                      [
+                        "mstore",
+                        [
+                          "*",
+                          [
+                            "iter",
+                            "src/ToyTypes.sol:36-43"
+                          ],
+                          32
+                        ],
+                        [
+                          "blobhash",
+                          [
+                            "iter",
+                            "src/ToyTypes.sol:36-43"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                0,
+                [
+                  "*",
+                  [
+                    "count",
+                    "src/ToyTypes.sol:36-43"
+                  ],
+                  32
+                ]
+              ]
+            ],
+            [
+              "?",
+              [
+                "==",
+                [
+                  "blobhash",
+                  0
+                ],
+                0
+              ],
+              463520946527561903920979615716011323696915893422270006750744924475581808660,
+              [
+                "blobhash",
+                0
+              ]
+            ]
+          ]
+        ],
+        "hv": [
+          "store",
+          [
+            "storage",
+            "hv"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          [
+            "param",
+            "v"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x15a334e0",
+      "src": "src/ToyTypes.sol:64-67",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "h",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 7,
+          "src": "src/ToyTypes.sol:55",
+          "stack": [
+            "src/ToyTypes.sol:66"
+          ],
+          "value": [
+            "?",
+            [
+              "==",
+              [
+                "param",
+                "v"
+              ],
+              2
+            ],
+            [
+              "keccak256",
+              [
+                "slice",
+                [
+                  "mem",
+                  [
+                    "mloop",
+                    "src/ToyTypes.sol:36-43",
+                    [
+                      "iter",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    [
+                      "count",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    [
+                      [
+                        "mstore",
+                        [
+                          "*",
+                          [
+                            "iter",
+                            "src/ToyTypes.sol:36-43"
+                          ],
+                          32
+                        ],
+                        [
+                          "blobhash",
+                          [
+                            "iter",
+                            "src/ToyTypes.sol:36-43"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                0,
+                [
+                  "*",
+                  [
+                    "count",
+                    "src/ToyTypes.sol:36-43"
+                  ],
+                  32
+                ]
+              ]
+            ],
+            [
+              "?",
+              [
+                "==",
+                [
+                  "blobhash",
+                  0
+                ],
+                0
+              ],
+              463520946527561903920979615716011323696915893422270006750744924475581808660,
+              [
+                "blobhash",
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "hv",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 8,
+          "src": "src/ToyTypes.sol:56",
+          "stack": [
+            "src/ToyTypes.sol:66"
+          ],
+          "value": [
+            "param",
+            "v"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:76-78",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            68
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:76-78",
+          "stack": []
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "param",
+              "v"
+            ],
+            256
+          ],
+          "kind": "abi",
+          "param": "v",
+          "seq": 2,
+          "src": "src/ToyTypes.sol:76",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": [
+          {
+            "iters": [
+              "?",
+              [
+                "==",
+                [
+                  "param",
+                  "v"
+                ],
+                2
+              ],
+              [
+                "count",
+                "src/ToyTypes.sol:36-43"
+              ],
+              0
+            ],
+            "loop": "src/ToyTypes.sol:36-43"
+          }
+        ]
+      },
+      "declared_in": "ToyTypes",
+      "edges": [
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "src/ToyTypes.sol:37"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "src/ToyTypes.sol:45"
+        },
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "src/ToyTypes.sol:50"
+        }
+      ],
+      "effects": [
+        {
+          "family": "g",
+          "src": "src/ToyTypes.sol:60"
+        },
+        {
+          "family": "vg",
+          "src": "src/ToyTypes.sol:61"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "6e6f20626c6f62"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "param",
+                  "v"
+                ],
+                2
+              ]
+            ],
+            [
+              ">",
+              [
+                "count",
+                "src/ToyTypes.sol:36-43"
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f20626c6f62"
+                ]
+              ],
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "param",
+                      "v"
+                    ],
+                    2
+                  ]
+                ],
+                [
+                  ">",
+                  [
+                    "count",
+                    "src/ToyTypes.sol:36-43"
+                  ],
+                  0
+                ]
+              ],
+              "seq": 5,
+              "stack": [
+                "src/ToyTypes.sol:77"
+              ]
+            }
+          ],
+          "reason": "no blob",
+          "src": "src/ToyTypes.sol:48"
+        }
+      ],
+      "loops": [
+        {
+          "at_break": [
+            {
+              "name": "i",
+              "value": [
+                "iter",
+                "src/ToyTypes.sol:36-43"
+              ]
+            }
+          ],
+          "bound": null,
+          "break": [
+            "==",
+            [
+              "blobhash",
+              [
+                "iter",
+                "src/ToyTypes.sol:36-43"
+              ]
+            ],
+            0
+          ],
+          "carried": [
+            {
+              "entry": 0,
+              "name": "i",
+              "value": [
+                "iter",
+                "src/ToyTypes.sol:36-43"
+              ]
+            }
+          ],
+          "cond": [
+            "==",
+            [
+              "param",
+              "v"
+            ],
+            2
+          ],
+          "count": [
+            "count",
+            "src/ToyTypes.sol:36-43"
+          ],
+          "exit": [
+            {
+              "name": "i",
+              "value": [
+                "count",
+                "src/ToyTypes.sol:36-43"
+              ]
+            }
+          ],
+          "head": 1,
+          "kind": "yulfor",
+          "next": [
+            {
+              "name": "i",
+              "value": [
+                "+",
+                [
+                  "iter",
+                  "src/ToyTypes.sol:36-43"
+                ],
+                1
+              ]
+            }
+          ],
+          "regions": [
+            {
+              "region": [
+                "src/ToyTypes.sol:77",
+                "src/ToyTypes.sol:34"
+              ],
+              "writes": [
+                [
+                  "mstore",
+                  [
+                    "*",
+                    [
+                      "iter",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    32
+                  ],
+                  [
+                    "blobhash",
+                    [
+                      "iter",
+                      "src/ToyTypes.sol:36-43"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "returns": [],
+          "seq": 3,
+          "src": "src/ToyTypes.sol:36-43",
+          "stack": [
+            "src/ToyTypes.sol:77"
+          ],
+          "steps": [
+            4
+          ]
+        }
+      ],
+      "modifiers": [],
+      "mstores": [
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "param",
+                "v"
+              ],
+              2
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "blobhash",
+                  [
+                    "iter",
+                    "src/ToyTypes.sol:36-43"
+                  ]
+                ],
+                0
+              ]
+            ]
+          ],
+          "loop": 3,
+          "offset": [
+            "*",
+            [
+              "iter",
+              "src/ToyTypes.sol:36-43"
+            ],
+            32
+          ],
+          "op": "mstore",
+          "region": [
+            "src/ToyTypes.sol:77",
+            "src/ToyTypes.sol:34"
+          ],
+          "seq": 4,
+          "src": "src/ToyTypes.sol:41",
+          "stack": [
+            "src/ToyTypes.sol:77"
+          ],
+          "value": [
+            "blobhash",
+            [
+              "iter",
+              "src/ToyTypes.sol:36-43"
+            ]
+          ]
+        }
+      ],
+      "mutability": "nonpayable",
+      "name": "putg",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "check",
+          2
+        ],
+        [
+          "loop",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:48",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "k",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "location": "default",
+          "name": "v",
+          "type": "uint8",
+          "width": 8
+        }
+      ],
+      "payable": false,
+      "post": {
+        "g": [
+          "store",
+          [
+            "storage",
+            "g"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          [
+            "?",
+            [
+              "==",
+              [
+                "param",
+                "v"
+              ],
+              2
+            ],
+            [
+              "keccak256",
+              [
+                "slice",
+                [
+                  "mem",
+                  [
+                    "mloop",
+                    "src/ToyTypes.sol:36-43",
+                    [
+                      "iter",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    [
+                      "count",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    [
+                      [
+                        "mstore",
+                        [
+                          "*",
+                          [
+                            "iter",
+                            "src/ToyTypes.sol:36-43"
+                          ],
+                          32
+                        ],
+                        [
+                          "blobhash",
+                          [
+                            "iter",
+                            "src/ToyTypes.sol:36-43"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                0,
+                [
+                  "*",
+                  [
+                    "count",
+                    "src/ToyTypes.sol:36-43"
+                  ],
+                  32
+                ]
+              ]
+            ],
+            [
+              "?",
+              [
+                "==",
+                [
+                  "blobhash",
+                  0
+                ],
+                0
+              ],
+              463520946527561903920979615716011323696915893422270006750744924475581808660,
+              [
+                "blobhash",
+                0
+              ]
+            ]
+          ]
+        ],
+        "vg": [
+          "store",
+          [
+            "storage",
+            "vg"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          [
+            "param",
+            "v"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x11fa7a5b",
+      "src": "src/ToyTypes.sol:76-78",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "g",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 6,
+          "src": "src/ToyTypes.sol:60",
+          "stack": [
+            "src/ToyTypes.sol:77"
+          ],
+          "value": [
+            "?",
+            [
+              "==",
+              [
+                "param",
+                "v"
+              ],
+              2
+            ],
+            [
+              "keccak256",
+              [
+                "slice",
+                [
+                  "mem",
+                  [
+                    "mloop",
+                    "src/ToyTypes.sol:36-43",
+                    [
+                      "iter",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    [
+                      "count",
+                      "src/ToyTypes.sol:36-43"
+                    ],
+                    [
+                      [
+                        "mstore",
+                        [
+                          "*",
+                          [
+                            "iter",
+                            "src/ToyTypes.sol:36-43"
+                          ],
+                          32
+                        ],
+                        [
+                          "blobhash",
+                          [
+                            "iter",
+                            "src/ToyTypes.sol:36-43"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                0,
+                [
+                  "*",
+                  [
+                    "count",
+                    "src/ToyTypes.sol:36-43"
+                  ],
+                  32
+                ]
+              ]
+            ],
+            [
+              "?",
+              [
+                "==",
+                [
+                  "blobhash",
+                  0
+                ],
+                0
+              ],
+              463520946527561903920979615716011323696915893422270006750744924475581808660,
+              [
+                "blobhash",
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "vg",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 7,
+          "src": "src/ToyTypes.sol:61",
+          "stack": [
+            "src/ToyTypes.sol:77"
+          ],
+          "value": [
+            "param",
+            "v"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:69-74",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            68
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:69-74",
+          "stack": []
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "param",
+              "v"
+            ],
+            256
+          ],
+          "kind": "abi",
+          "param": "v",
+          "seq": 2,
+          "src": "src/ToyTypes.sol:69",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "src/ToyTypes.sol:70"
+        }
+      ],
+      "effects": [
+        {
+          "family": "h",
+          "src": "src/ToyTypes.sol:55"
+        },
+        {
+          "family": "hv",
+          "src": "src/ToyTypes.sol:56"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "626c6f62"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "blobhash",
+              0
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "626c6f62"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "blobhash",
+                  0
+                ],
+                0
+              ],
+              "seq": 3,
+              "stack": []
+            }
+          ],
+          "reason": "blob",
+          "src": "src/ToyTypes.sol:70"
+        },
+        {
+          "args": [
+            [
+              "str",
+              "6e6f6e65"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "!=",
+            [
+              "map",
+              [
+                "storage",
+                "h"
+              ],
+              [
+                "param",
+                "k"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f6e65"
+                ]
+              ],
+              "expr": [
+                "!=",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "h"
+                  ],
+                  [
+                    "param",
+                    "k"
+                  ]
+                ],
+                0
+              ],
+              "seq": 4,
+              "stack": []
+            }
+          ],
+          "reason": "none",
+          "src": "src/ToyTypes.sol:72"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "recommit",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "check",
+          2
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:70",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyTypes.sol:72",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "k",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "location": "default",
+          "name": "v",
+          "type": "uint8",
+          "width": 8
+        }
+      ],
+      "payable": false,
+      "post": {
+        "h": [
+          "store",
+          [
+            "storage",
+            "h"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          [
+            "map",
+            [
+              "storage",
+              "h"
+            ],
+            [
+              "param",
+              "k"
+            ]
+          ]
+        ],
+        "hv": [
+          "store",
+          [
+            "storage",
+            "hv"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          [
+            "param",
+            "v"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x1e951868",
+      "src": "src/ToyTypes.sol:69-74",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "h",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 5,
+          "src": "src/ToyTypes.sol:55",
+          "stack": [
+            "src/ToyTypes.sol:73"
+          ],
+          "value": [
+            "map",
+            [
+              "storage",
+              "h"
+            ],
+            [
+              "param",
+              "k"
+            ]
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "hv",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 6,
+          "src": "src/ToyTypes.sol:56",
+          "stack": [
+            "src/ToyTypes.sol:73"
+          ],
+          "value": [
+            "param",
+            "v"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:111-114",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "enqueueTime",
+          "src": "src/ToyTypes.sol:112"
+        },
+        {
+          "family": "queueLength",
+          "src": "src/ToyTypes.sol:113"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "send",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "panic",
+          0
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "storage",
+              "queueLength"
+            ],
+            1
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "queueLength"
+              ],
+              1
+            ]
+          ],
+          "op": "+",
+          "seq": 2,
+          "src": "src/ToyTypes.sol:113",
+          "stack": []
+        }
+      ],
+      "params": [],
+      "payable": false,
+      "post": {
+        "enqueueTime": [
+          "store",
+          [
+            "storage",
+            "enqueueTime"
+          ],
+          [
+            [
+              "map",
+              [
+                "storage",
+                "queueLength"
+              ]
+            ]
+          ],
+          [
+            "env",
+            "block.timestamp"
+          ]
+        ],
+        "queueLength": [
+          "+",
+          [
+            "storage",
+            "queueLength"
+          ],
+          1
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xb46300ec",
+      "src": "src/ToyTypes.sol:111-114",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "enqueueTime",
+          "path": [
+            [
+              "map",
+              [
+                "storage",
+                "queueLength"
+              ]
+            ]
+          ],
+          "seq": 1,
+          "src": "src/ToyTypes.sol:112",
+          "stack": [],
+          "value": [
+            "env",
+            "block.timestamp"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "queueLength",
+          "path": [],
+          "seq": 3,
+          "src": "src/ToyTypes.sol:113",
+          "stack": [],
+          "value": [
+            "+",
+            [
+              "storage",
+              "queueLength"
+            ],
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:116-118",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:116-118",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "D",
+          "src": "src/ToyTypes.sol:117"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "setD",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "d",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "D": [
+          "param",
+          "d"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x0b2eeb49",
+      "src": "src/ToyTypes.sol:116-118",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "D",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyTypes.sol:117",
+          "stack": [],
+          "value": [
+            "param",
+            "d"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:88-90",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:88-90",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "W",
+          "src": "src/ToyTypes.sol:89"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "setW",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "w",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "W": [
+          "param",
+          "w"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xe9338a00",
+      "src": "src/ToyTypes.sol:88-90",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "W",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyTypes.sol:89",
+          "stack": [],
+          "value": [
+            "param",
+            "w"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyTypes.sol:142-146",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            68
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyTypes.sol:142-146",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyTypes",
+      "edges": [],
+      "effects": [
+        {
+          "family": "marks",
+          "src": "src/ToyTypes.sol:144"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [
+        {
+          "at_break": [],
+          "bound": [
+            "param",
+            "count"
+          ],
+          "break": 0,
+          "carried": [
+            {
+              "entry": 0,
+              "name": "i",
+              "value": [
+                "iter",
+                "src/ToyTypes.sol:143-145"
+              ]
+            },
+            {
+              "entry": [
+                "storage",
+                "marks"
+              ],
+              "name": [
+                "storage",
+                "marks"
+              ],
+              "value": [
+                "carried",
+                "src/ToyTypes.sol:143-145",
+                [
+                  "storage",
+                  "marks"
+                ]
+              ]
+            }
+          ],
+          "cond": 1,
+          "count": [
+            "param",
+            "count"
+          ],
+          "exit": [
+            {
+              "name": "i",
+              "value": [
+                "param",
+                "count"
+              ]
+            },
+            {
+              "name": [
+                "storage",
+                "marks"
+              ],
+              "value": [
+                "exit",
+                "src/ToyTypes.sol:143-145",
+                [
+                  "storage",
+                  "marks"
+                ]
+              ]
+            }
+          ],
+          "head": [
+            "<",
+            [
+              "iter",
+              "src/ToyTypes.sol:143-145"
+            ],
+            [
+              "param",
+              "count"
+            ]
+          ],
+          "kind": "for",
+          "next": [
+            {
+              "name": "i",
+              "value": [
+                "+",
+                [
+                  "iter",
+                  "src/ToyTypes.sol:143-145"
+                ],
+                1
+              ]
+            },
+            {
+              "name": [
+                "storage",
+                "marks"
+              ],
+              "value": [
+                "store",
+                [
+                  "carried",
+                  "src/ToyTypes.sol:143-145",
+                  [
+                    "storage",
+                    "marks"
+                  ]
+                ],
+                [
+                  [
+                    "map",
+                    [
+                      "+",
+                      [
+                        "param",
+                        "from"
+                      ],
+                      [
+                        "iter",
+                        "src/ToyTypes.sol:143-145"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            }
+          ],
+          "regions": [],
+          "returns": [],
+          "seq": 2,
+          "src": "src/ToyTypes.sol:143-145",
+          "stack": [],
+          "steps": [
+            3,
+            4,
+            5
+          ]
+        }
+      ],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "sweep",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "loop",
+          0
+        ],
+        [
+          "panic",
+          0
+        ],
+        [
+          "panic",
+          1
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "param",
+              "from"
+            ],
+            [
+              "iter",
+              "src/ToyTypes.sol:143-145"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "<",
+                [
+                  "iter",
+                  "src/ToyTypes.sol:143-145"
+                ],
+                [
+                  "param",
+                  "count"
+                ]
+              ]
+            ],
+            [
+              "fits",
+              256,
+              [
+                "+",
+                [
+                  "param",
+                  "from"
+                ],
+                [
+                  "iter",
+                  "src/ToyTypes.sol:143-145"
+                ]
+              ]
+            ]
+          ],
+          "loop": 2,
+          "op": "+",
+          "seq": 3,
+          "src": "src/ToyTypes.sol:144",
+          "stack": []
+        },
+        {
+          "args": [
+            [
+              "iter",
+              "src/ToyTypes.sol:143-145"
+            ],
+            1
+          ],
+          "code": 17,
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "<",
+                [
+                  "iter",
+                  "src/ToyTypes.sol:143-145"
+                ],
+                [
+                  "param",
+                  "count"
+                ]
+              ]
+            ],
+            [
+              "fits",
+              256,
+              [
+                "+",
+                [
+                  "iter",
+                  "src/ToyTypes.sol:143-145"
+                ],
+                1
+              ]
+            ]
+          ],
+          "loop": 2,
+          "op": "+",
+          "seq": 5,
+          "src": "src/ToyTypes.sol:143",
+          "stack": []
+        }
+      ],
+      "params": [
+        {
+          "location": "default",
+          "name": "from",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "location": "default",
+          "name": "count",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "marks": [
+          "exit",
+          "src/ToyTypes.sol:143-145",
+          [
+            "storage",
+            "marks"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x066dd830",
+      "src": "src/ToyTypes.sol:142-146",
+      "writes": [
+        {
+          "cond": [
+            "<",
+            [
+              "iter",
+              "src/ToyTypes.sol:143-145"
+            ],
+            [
+              "param",
+              "count"
+            ]
+          ],
+          "family": "marks",
+          "loop": 2,
+          "path": [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "param",
+                  "from"
+                ],
+                [
+                  "iter",
+                  "src/ToyTypes.sol:143-145"
+                ]
+              ]
+            ]
+          ],
+          "seq": 4,
+          "src": "src/ToyTypes.sol:144",
+          "stack": [],
+          "value": 0
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+    }
+  ],
+  "constants": {
+    "Z": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+  },
+  "contract": "ToyTypes",
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.3",
+    "inputs": [
+      {
+        "sha256": "e30cdc16de34060062d705756e41d35facf8ea097d4a0fa434d6c8af52fd1a0a",
+        "unit": "src/ToyTypes.sol"
+      }
+    ],
+    "kind": "transitions",
+    "method": "extracted",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "storageLayout"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "tests_m3/fixtures/sort_types/extract_toytypes.json",
+      "sha256": "f820a53422c197ab7a20f2a7232539944902abdbcff995c88d9267a533fcf0d4"
+    },
+    "toolchain": {
+      "solc": {
+        "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+        "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "inherited_storage": [],
+  "storage": [
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "h",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "hv",
+      "offset": 0,
+      "slot": 1,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "g",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "vg",
+      "offset": 0,
+      "slot": 3,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "W",
+      "offset": 0,
+      "slot": 4,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "start",
+      "offset": 0,
+      "slot": 5,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "inch",
+      "offset": 0,
+      "slot": 6,
+      "value": "bool",
+      "width": 8
+    },
+    {
+      "kind": "scalar",
+      "name": "prt",
+      "offset": 0,
+      "slot": 7,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "el",
+      "offset": 0,
+      "slot": 8,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "enqueueTime",
+      "offset": 0,
+      "slot": 9,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "queueLength",
+      "offset": 0,
+      "slot": 10,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "pendingQueueIndex",
+      "offset": 0,
+      "slot": 11,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "totalQueueIndex",
+      "offset": 0,
+      "slot": 12,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "D",
+      "offset": 0,
+      "slot": 13,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "marks",
+      "offset": 0,
+      "slot": 14,
+      "value": "uint256",
+      "width": 256
+    }
+  ],
+  "target": {
+    "commit": null,
+    "repo": "holon/toy-types",
+    "scope": "planted typed-sort fixture (I30)"
+  }
+}

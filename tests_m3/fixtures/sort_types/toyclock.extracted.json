@@ -1,0 +1,204 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyClock.sol:9-11",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyClock",
+      "edges": [],
+      "effects": [
+        {
+          "family": "last",
+          "src": "src/ToyClock.sol:10"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "stamp",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "panic",
+          0
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "env",
+              "block.timestamp"
+            ],
+            [
+              "env",
+              "block.timestamp"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "env",
+                "block.timestamp"
+              ],
+              [
+                "env",
+                "block.timestamp"
+              ]
+            ]
+          ],
+          "op": "+",
+          "seq": 1,
+          "src": "src/ToyClock.sol:10",
+          "stack": []
+        }
+      ],
+      "params": [],
+      "payable": false,
+      "post": {
+        "last": [
+          "+",
+          [
+            "env",
+            "block.timestamp"
+          ],
+          [
+            "env",
+            "block.timestamp"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xc85e07b9",
+      "src": "src/ToyClock.sol:9-11",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "last",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyClock.sol:10",
+          "stack": [],
+          "value": [
+            "+",
+            [
+              "env",
+              "block.timestamp"
+            ],
+            [
+              "env",
+              "block.timestamp"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+    }
+  ],
+  "constants": {},
+  "contract": "ToyClock",
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.3",
+    "inputs": [
+      {
+        "sha256": "a82cb417afb16fda5a89b3033d7d2c052d8b160f920cd67a1d4d0ea292178596",
+        "unit": "src/ToyClock.sol"
+      }
+    ],
+    "kind": "transitions",
+    "method": "extracted",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "storageLayout"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "tests_m3/fixtures/sort_types/extract_toyclock.json",
+      "sha256": "1e7de884abad77e63fd9ac62b957322155b94d9414455fd551cd2a363e5f1ff8"
+    },
+    "toolchain": {
+      "solc": {
+        "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+        "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "last",
+      "offset": 0,
+      "slot": 0,
+      "value": "uint256",
+      "width": 256
+    }
+  ],
+  "target": {
+    "commit": null,
+    "repo": "holon/toy-clock",
+    "scope": "planted ill-sorted fixture (I30)"
+  }
+}

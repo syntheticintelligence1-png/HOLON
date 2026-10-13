@@ -1,0 +1,35 @@
+{
+  "term_size_version": "holon-term-size/0.2",
+  "iteration": "I30",
+  "doc": "I30 prereg instrument (BUILD_PLAN I30: 'every law stays under about 1,000 terms', exit 'term-size report within budget'; §1.4 'measure term size before nominal sorts'). Frozen at the I30 prereg; the I30 build reads it and never edits it. Two measures, both mechanical, both recomputed by tests_m3/test_sort_types.py from the files `holon termsize` names. (1) law_terms(L): terms(the `law` blocks of L's emitted LAWS.bend: the law itself, or its counter-law when REFUTED) plus the largest terms(f) over the PROOF.bend files that discharge L (every PROOF.bend under gen/<M>/proofs/<id>/, per-entry files included, and gen/<M>/<id>/nonvac/PROOF.bend when it exists); an UNKNOWN law with no emitted statement counts the statement that would be emitted and no proof. terms(text): drop every line whose first non-blank character is '#' and every import line, cut trailing '# ...' comments; then replace, repeatedly until nothing changes, every bracketed list whose elements are all numeric literals (`[0-9]+n?`) or already-replaced lists by one placeholder (a literal list is one term: a witness's byte strings and words are data, not structure); then count the matches of `tokenizer` plus the placeholders. Budget: law_terms <= `budget` for every I30 law of laws/M3 over an M3 document (prediction I30-P7). (2) cone_chars(L): I12-P1's measure, the sum of len(entry text) over the BendTT kernel cone of L's LAWS.bend in the entries of the one model module it imports as M (holon.bindings.kernel_entries, holon.bindings.kernel_cone; pinned bend), plus len(the LAWS.bend text without comment lines). Ratio budget (prediction I30-P8): cone_chars of the realize law of `ratio_site` on the typed M3 model <= `cone_ratio_max` x cone_chars of the same site's untyped obligation, I15's site form (holon.sorts.sites: the site's minuend >= subtrahend at every hit, `site:` term) stated over the untyped M3 model: the same generator's machine for the same document with the sort section off (no nominal type, no typed operation, no coercion, no generated companion, no ghost store; the same Reach, init, words and loop writes), so that the ratio measures exactly what nominal types and generated tags add. That baseline cannot be frozen here: no M3 model exists at the prereg, and the I20 model (gen/M2/extracted/model.bend) differs from it by Reach, the initial state, the word representation and the loop writes, none of which is a typing cost. `holon termsize` writes the baseline law and model under gen/M3/sorts/untyped/ and the test recomputes both measures from them. Context only (not scored), computed at the prereg by a scratch script implementing (1) and (2) exactly: `context.m2_site_laws` applies (1) to I15's M2 site laws (the literal-list rule changes none of them: they hold no literal list; three exceed 1,000 through their coercion_guard proofs); `context.i20_model` is (2)'s kernel cone of every step_ and chk_ definition of the I20 model, what a Reach over it would reach: 717 of its 799 kernel entries, 6,860,920 characters, against 171,704 for I15's :363 site law on the hand-written model; BendTT's cost is superlinear in this size (docs/BEND_NOTES.md §3), a risk the prompt states.",
+  "budget": 1000,
+  "cone_ratio_max": 1.5,
+  "ratio_site": "morph_rollup.extracted:contracts/contracts/l1/rollup/Rollup.sol:363:4a64383b",
+  "tokenizer": "[A-Za-z_][A-Za-z0-9_.]*|[0-9]+n?",
+  "literal_list": "\\[\\s*(?:(?:[0-9]+n?|\\u00a7)\\s*(?:,\\s*(?:[0-9]+n?|\\u00a7)\\s*)*)?\\]",
+  "placeholder": "§",
+  "context": {
+    "bend": "2.0.36 (sha256:50c0675b0aa1f22c2db9f45610155ce4e5357b716bcfd3db2c861a6e082d9af9)",
+    "m2_site_laws": {
+      "L_sort_site_def_bvh_at_6126d1f1": 1048,
+      "L_sort_site_def_bvh_at_e064679d": 1052,
+      "L_sort_site_def_lci_356891e4": null,
+      "L_sort_site_def_w_b4cd5068": 5313,
+      "L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17": null,
+      "L_sort_site_rollup_363_1fc7f88a": 314,
+      "L_sort_site_rollup_441_b4cd5068": 320,
+      "L_sort_site_rollup_485_495_b4cd5068": 648,
+      "L_sort_site_rollup_636_e68daf06": 50,
+      "L_sort_site_rollup_644_660_e68daf06": 761
+    },
+    "m2_site_363_cone_chars": 171704,
+    "i20_model": {
+      "path": "gen/M2/extracted/model.bend",
+      "sha256": "45204e57d6dd4e7e666e63a661ad8059bdfdfb990878dfc983626b8e3d7b4fe8",
+      "kernel_entries": 799,
+      "reach_cone_entries": 717,
+      "reach_cone_chars": 6860920,
+      "file_chars": 272511
+    }
+  }
+}

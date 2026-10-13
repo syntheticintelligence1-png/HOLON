@@ -1,0 +1,21 @@
+{
+  "seeds_version": "holon-sort-seeds/0.2",
+  "doc": "I30 prereg instrument: the seeds of the toy test milestone T30 (tests_m3/test_sort_types.py). spec/M3/lib/sort_seeds.json's EVM seeds, plus one lexical seed on storage family names, so that the toy's queue cursors are indices and the writer labels of I13 (§7.3) apply to them. Not read for M3.",
+  "term": [
+    {"id": "evm-clock", "head": "env", "arg": "block.timestamp", "sort": "Time"},
+    {"id": "evm-blobhash", "head": "blobhash", "sort": "Dig[VH]"}
+  ],
+  "digest": [
+    {"id": "digest-of-versioned-hashes", "heads": ["keccak256", "sha256"], "words": "Dig[VH]", "sort": "Dig[Agg]"}
+  ],
+  "lexical": [
+    {"id": "toy-queue-index", "match": "family", "pattern": "QueueIndex$", "sort": "Idx[queue]"}
+  ],
+  "writer_labels": {
+    "rules": [
+      {"id": "wl-finalize", "prefix": "finalize", "label": "fin"},
+      {"id": "wl-commit", "prefix": "commit", "label": "inc"}
+    ],
+    "fallback": "when not every writer of the set matches one rule's prefix: 'w' followed by the first 8 hex digits of sha256 of the sorted writer names joined by ','"
+  }
+}

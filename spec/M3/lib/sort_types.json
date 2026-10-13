@@ -1,0 +1,15 @@
+{
+  "sort_types_version": "holon-sort-types/0.1",
+  "doc": "I30 prereg instrument (the contract is the docstring of tests_m3/test_sort_types.py). Frozen at the I30 prereg; the build reads it and never edits it. documents: the transitions documents I30 types for M3, the extracted rollup document that I20 adopted for derivation (spec/M2/lib/derive_extracted.json) and A19 extracted (holon-frontend-solidity/0.3; G1 re-extracts it). Extracted facts are the input of every I30 law (BUILD_PLAN §2.3; docs/HUMAN_ANSWERS.md Q19): no hand-written fact document (spec/M1/facts/, facts/) and nothing computed from one (gen/M2/sorts/, I13's frozen documents over the hand facts) is read by `holon sorts`, `holon types`, `holon derive` or `holon termsize` for M3. The layout document spec/M2/facts/morph_header.extracted.json is not listed: a codec document has no state and no transition. seeds: the frozen seeds of the sort pass over these documents. binding: the I20 binding whose deployment is the initial state of the extracted model's Reach (the target's storage after its deployment, every slot of the layout as the harness reads it, with the byte strings the deployment hashed) and whose step harness replays every witness on the real contract; its deployment parameters (init: finalization period, proof window, delay period, initial clock and genesis root) are configuration of that deployment, read by the binding from spec/M1/facts/morph_rollup.json's initial values: they are not facts of the code, and no I30 law reads that document. search: the refutation budget of I15's stages S1-S3 over the typed model (the key's thresholds repeat it; I15's values).",
+  "documents": [
+    "spec/M2/facts/morph_rollup.extracted.json"
+  ],
+  "seeds": "spec/M3/lib/sort_seeds.json",
+  "binding": "replay/M2/fragments.json",
+  "search": {
+    "prefix_depth": 3,
+    "max_prefixes": 3000,
+    "neighbourhood_insertion_length_max": 2,
+    "neighbourhood_prefixes_per_entry_point_max": 20000
+  }
+}

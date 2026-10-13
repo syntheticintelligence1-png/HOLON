@@ -257,6 +257,135 @@
         },
         "linked_tag_premise": "rule X8c: a versioned instance over the linked carrier gets, per common version v, {eq: [T(b), Some(0x<v>)]} with T the one unversioned decoder reading (tag_index, 1); none or several such decoders: reason no_version_premise, no law"
       }
+    },
+    "I30": {
+      "title": "Sorts III: nominal types, hole-free coercions, generated ghost tags",
+      "plan": "docs/BUILD_PLAN.md#i30",
+      "prompt": "prompts/I30_typed_sorts.md",
+      "predictions": [
+        {
+          "id": "I30-P1",
+          "claim": "The as_member law at commitState's recommit read on the extracted rollup document (spec/M2/facts/morph_rollup.extracted.json), L_sort_tag_rollup_279_e01ea84a (the read batchBlobVersionedHashes[_nextBatchIndex], first read at Rollup.sol:279 by the require != 0 and used at :285; copied into the write site Rollup.sol:359, commitState writes[2]), is REFUTED: a Bend- and BendTT-checked counter-law for its entry point commitState over the typed model, whose witness from the I20 binding's deployment is an O26 path (the first commit of batch k in the trace stores a fresh value under one member's version, with or without a blob (App. F2: the zero versioned hash is reused too), a revertBatch covers k, then commitState recommits k under a version of the other member: (v == 2) != (v' == 2)), with the real keccak256 of every key in its hash table, which holds the key of every header the trace loads and calldata that encodes its arguments; the trace replays on the real contract at 3e44e79 (the I20 step harness, the binding's deployment) with every step succeeding on both sides and every external call answered as its environment states, in holon's replay report and in the independent instrument.",
+          "check": "tests_m3/test_sort_types.py::TestPredictedOutcomes::test_commit_state_recommit_read_is_refuted_on_an_o26_path"
+        },
+        {
+          "id": "I30-P2",
+          "claim": "The as_member law at commitBatchWithProof's recommit read, L_sort_tag_rollup_406_e01ea84a (first read at Rollup.sol:406, the require inside the if at :405; the stored value assigned at :407 and copied into the write site :359, commitBatchWithProof writes[2], whose copy branch is the stored hash), is also REFUTED: a checked counter-law for commitBatchWithProof whose witness is an O26 path through the stored branch (its last step carries no blob), with real hashes and calldata that encodes its arguments, replaying with every real step succeeding and its environment's calls agreeing. Context, not scored: [commitBatch(version 2, one blob), revertBatch(_count 1)] then commitBatchWithProof(version 0 or 1, no blob) at a block.timestamp past the rollup delay, the whitepaper §11.8 direction (an aggregate read as a versioned hash).",
+          "check": "tests_m3/test_sort_types.py::TestPredictedOutcomes::test_commit_batch_with_proof_recommit_read_is_refuted_on_an_o26_path"
+        },
+        {
+          "id": "I30-P3",
+          "claim": "The plan's delay-guard reinterpret law, restated on the adopted extracted documents: it is not derivable there. Each commit's delay guard reads the finalization cursor only through the external call IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime() (A-env; the queue's pendingQueueIndex is the storage of a contract no adopted document holds), so the sort pass gives no family of the rollup a writer label, derive finds no coherence obstruction on morph_rollup.extracted (gen/M3/sorts/obstructions.json) and writes no L_sort_reinterpret_ law over the document, and types.json lists exactly three external guards: commitBatch guards[8] (Rollup.sol:265), commitBatchWithProof guards[2] (:398) and commitState guards[9] (:283), each with calls [IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime]. The reinterpretation waits for the queue's extracted document and a linked model (reported under Not done); the subform itself is built and decided on the toy (I30-R6).",
+          "check": "tests_m3/test_sort_types.py::TestDerivation::test_no_reinterpretation_site_on_the_extracted_documents"
+        },
+        {
+          "id": "I30-P4",
+          "claim": "On the extracted rollup the derivation finds exactly two member reads and exactly three I30 laws. The as_member laws of P1 and P2 have basis kind member_read, read batchBlobVersionedHashes[parentBatchHeader's batch index + 1], registers [batchBlobVersionedHashes], site Rollup.sol:359 (_commitBatchWithBatchData), at writes[2], the single entry point of their action and a copy_write hit there, coercion from Dig[Agg] + Dig[VH] with members [Dig[Agg], Dig[VH]] and member function [\"?\", [\"==\", batchDataInput.version, 2], Dig[Agg], Dig[VH]] (the fresh writes of commitBatch and of commitBatchWithProof's fresh branch, with the sibling rule G2 typing blobhash(0)-or-the-zero-versioned-hash as Dig[VH]); the third law is the realize law at :363. commitBatch's read at :261 (compared with 0), finalizeBatch's delete (:659) and importGenesisBatch's write (:243, its own site) are not member reads.",
+          "check": "tests_m3/test_sort_types.py::TestDerivation::test_member_reads_at_the_recommit_reads"
+        },
+        {
+          "id": "I30-P5",
+          "claim": "The sort pass over the extracted rollup with EVM seeds only (spec/M3/lib/sort_seeds.json: block.timestamp is Time, blobhash is Dig[VH], a digest of a region of Dig[VH] words is Dig[Agg]) assigns batchBlobVersionedHashes the union Dig[Agg] + Dig[VH], listed in exactly one union entry with members [Dig[Agg], Dig[VH]]; proofWindow Dur and challenges.startTime Time; an empty provenance; and exactly one site with obligation sign: morph_rollup.extracted:contracts/contracts/l1/rollup/Rollup.sol:363:4a64383b, the checked proofWindow + challenges[batchChallenged].startTime - block.timestamp, sort SDur, realized in Mach(256), entry points commitBatch, commitBatchWithProof and commitState.",
+          "check": "tests_m3/test_sort_types.py::TestSorts::test_the_extracted_rollup_carries_the_union_and_one_sign_site"
+        },
+        {
+          "id": "I30-P6",
+          "claim": "Taint violations: 0 on every M3 document: taint.json lists exactly the model morph_rollup.extracted, checked on the committed typed model gen/M3/sorts/models/morph_rollup.extracted.bend (taint.json's model_sha256 is that file's), with empty hand-written ghost lists (an extracted document has none) and exactly one generated companion, batchBlobVersionedHashes', which no definition above the ghost marker names.",
+          "check": "tests_m3/test_sort_types.py::TestTaint::test_no_ghost_reaches_real_code_on_the_m3_documents"
+        },
+        {
+          "id": "I30-P7",
+          "claim": "Every I30 law over the rollup document (the three of P1, P2 and R3) stays within the term budget: law_terms <= 1000, the measure frozen in spec/M3/lib/term_size.json (the terms of the law's emitted statement plus those of the largest PROOF.bend that discharges it, a literal list counting as one term), with the report's files exactly the PROOF.bend files that discharge each law, and those files importing nothing beyond Base, the typed model, gen/M3/core and the law they discharge (no uncounted proof module).",
+          "check": "tests_m3/test_sort_types.py::TestTermSize::test_every_i30_law_is_within_the_term_budget"
+        },
+        {
+          "id": "I30-P8",
+          "claim": "Nominal types and generated tags cost at most 1.5x: cone_chars (I12-P1's measure) of the :363 realize law L_sort_realize_rollup_363_4a64383b on the typed M3 model is at most 1.5 times cone_chars of the same site's untyped obligation (I15's site form) over the untyped M3 model, the same generator's machine with the sort section off (gen/M3/sorts/untyped/): the baseline is gen/M3/sorts/untyped/laws/L_sort_site_rollup_363_4a64383b/LAWS.bend, one law naming M.site_rollup_363_4a64383b, against the typed law file's one law naming M.coerce_realize_rollup_363_4a64383b.",
+          "check": "tests_m3/test_sort_types.py::TestTermSize::test_nominal_types_cost_at_most_the_frozen_ratio"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I30-R1",
+          "claim": "L_tag_BVH is untouched: results/M1/L_tag_BVH.json stays REFUTED with statement hash sha256:13d84d96... and its witness [commitBatch(v1, [17]), revertBatch(1, 1), commitState(v2)]; spec/bindings/M1.json still binds b_tags_exact (d2a666d1...) in its cone and gen/M1 still defines it; I20's differential still records it UNKNOWN on the extracted model (it reads the hand-written ghost); gen/M0 and gen/M1 are byte-identical and gates M0 and M1 pass.",
+          "check": "tests_m3/test_sort_types.py::TestPredictedOutcomes::test_the_l_tag_bvh_analogue_keeps_its_outcome and tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged and gate"
+        },
+        {
+          "id": "I30-R2",
+          "claim": "The L_tag_BVH analogue, the as_member law at the read L_tag_BVH's witness exercises (P1's law), has L_tag_BVH's recorded outcome, REFUTED, with a witness of L_tag_BVH's shape on the extracted model: exactly three steps from the deployment, commitBatch (committing batch 1 from the genesis header, with or without a blob), revertBatch of batch 1 with _count 1, commitState (no blob, recommitting batch 1), the two versions on different sides of 2: the generated tags reproduce the hand-written ghost's obstruction where I20 could not run it.",
+          "check": "tests_m3/test_sort_types.py::TestPredictedOutcomes::test_the_l_tag_bvh_analogue_keeps_its_outcome"
+        },
+        {
+          "id": "I30-R3",
+          "claim": "I15's sign-site outcome at Rollup.sol:363 survives typing on the extracted model: the realize law L_sort_realize_rollup_363_4a64383b (site ...:363:4a64383b, hits the realization checks <action>#contracts/contracts/l1/rollup/Rollup.sol:363#1 of the three commits) is REFUTED with a checked witness at each commit, each replaying with every prefix step succeeding and the last reverting with Panic(0x11) located at Rollup.sol:363 on the real contract (holon's replay and the independent instrument), and on the model as the failure of exactly that realization check (the replay entry's model_check <action>#contracts/contracts/l1/rollup/Rollup.sol:363#1). I15's other sign site, L1MessageQueueWithGasPriceOracle.sol:325, has no counterpart: the queue is in no adopted document.",
+          "check": "tests_m3/test_sort_types.py::TestDerivation::test_realize_law_mirrors_the_sign_site and tests_m3/test_sort_types.py::TestPredictedOutcomes::test_realize_law_keeps_the_i15_outcome_at_363"
+        },
+        {
+          "id": "I30-R4",
+          "claim": "M0-M2 are not regenerated by I30: gen/M0 and gen/M1 byte-identical; holon derive --milestone M2 reproduces laws/M2 (I15's SORT/site and I20's SORT/width laws); holon sorts --milestone M2 reproduces gen/M2/sorts; gen/M2/model/morph_rollup.bend is still I15's instrumented model (it keeps b_tags_exact); holon model reproduces I20's gen/M2/extracted/model.bend; gates M0, M1 and M2 pass.",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged and tests_m2/test_sort_sites.py::TestDeriveContract::test_two_runs_are_byte_identical_and_match_the_committed_files and tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files and tests_m2/test_sort_site_outcomes.py::TestRecords::test_the_committed_model_is_the_instrumented_model and tests_m2/test_extracted_refinement.py::TestDeterminism::test_model_is_byte_identical_across_runs and gate"
+        },
+        {
+          "id": "I30-R5",
+          "claim": "The typed M3 model, with its nominal types, generated companions, word representation and compiled loop writes, agrees with the real contract exactly as I20's evaluator does (Prop 6.19: the augmentation adds no behaviour): holon fragments with the compiled typed model as its step evaluator, on I20's binding and corpus rules, compares the same corpus (460 traces: m1 300 with seed 20261011, witness 4, boundary 245, target 352, suffix 156; inputs_sha256 30a8a53d...), 3013 steps and 8894 storage comparisons on the four observables, with 0 disagreements, per-action real statuses equal to results/M2/refinement/extracted.json's (commitBatch 796 ok / 407 revert, commitState 36 / 360, commitBatchWithProof 18 / 256, revertBatch 73 / 40, ...), and I20's panics (0x11 at Rollup.sol:363 on 27 steps, :368 on 2, :439 on 2, :636 on 6, each site agreeing); the record's evaluator_sha256 is the committed typed model's sha256.",
+          "check": "tests_m3/test_sort_types.py::TestRecordsAndGate::test_typed_model_agrees_with_the_real_contract_on_the_i20_corpus"
+        },
+        {
+          "id": "I30-R6",
+          "claim": "Construction checks of the contract (not predictions): the M3 sort documents read only the extracted inputs and reproduce, and types and derive leave the frozen assignment unchanged (Thm 6.18); derive reproduces laws/M3 and reads no hand-written fact document; law IR, derivation entries and law ids follow the rules; types.json (one Bend type per refined sort, typed operations only from the §7.2 table, Maybe coercions, the generated companion) and taint.json regenerate byte for byte; the typed model checks, declares Reach and the ghost store below the marker, compiles every loop write, holds no hole and no b_tags_exact; no gen/M3 file has an escape hatch; Time + Time (the toyclock fixture) and a companion named by real code are refused (exit 2); the toy derives and decides its five laws as designed (tag_exact and coercion_guard PROVED with inhabitants, three REFUTED with checked witnesses of the designed shapes, among them the reinterpret law), and the mutation that removes keepg's version guard refutes the kept-register law; records are v1/v2 valid and extracted, and name the committed typed model, which their law files import in place; gate M3 passes; no I30 law id, span or toy or target identifier in the generators.",
+          "check": "tests_m3/test_sort_types.py::TestSorts::test_m3_sort_documents_read_only_the_extracted_inputs_and_reproduce and tests_m3/test_sort_types.py::TestDerivation::test_derive_reproduces_the_committed_m3_laws and tests_m3/test_sort_types.py::TestDerivation::test_i30_law_ir_and_derivation_entries and tests_m3/test_sort_types.py::TestTypes::test_types_document_and_its_reproduction and tests_m3/test_sort_types.py::TestTypes::test_typed_model_declares_its_types_reach_and_hole_free_coercions and tests_m3/test_sort_types.py::TestTypes::test_an_ill_sorted_sum_has_no_typed_operation and tests_m3/test_sort_types.py::TestTaint::test_a_companion_read_by_real_code_is_a_taint_error and tests_m3/test_sort_types.py::TestToy::test_toy_derivation and tests_m3/test_sort_types.py::TestToy::test_toy_statuses and tests_m3/test_sort_types.py::TestToy::test_toy_kept_register_without_its_version_guard_is_refuted and tests_m3/test_sort_types.py::TestToy::test_toy_loop_writes_are_compiled and tests_m3/test_sort_types.py::TestRecordsAndGate::test_records_are_valid_and_say_what_they_coerce and tests_m3/test_sort_types.py::TestRecordsAndGate::test_gate_m3_passes and tests_m3/test_sort_types.py::TestGenericCode::test_no_i30_law_id_span_or_target_name_in_the_generators"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/sorts/",
+        "laws/M3/L_sort_",
+        "gen/M3/laws/L_sort_",
+        "gen/M3/proofs/L_sort_",
+        "gen/M3/L_sort_",
+        "results/M3/L_sort_",
+        "results/M3/sorts/",
+        "replay/M3/sorts/"
+      ],
+      "tests": [
+        "tests_m3/test_sort_types.py"
+      ],
+      "thresholds": {
+        "term_budget": 1000,
+        "cone_ratio_max": 1.5,
+        "term_size_sidecar": "spec/M3/lib/term_size.json",
+        "sort_types_sidecar": "spec/M3/lib/sort_types.json",
+        "sort_seeds": "spec/M3/lib/sort_seeds.json",
+        "laws_per_coercion_site": 1,
+        "search": {
+          "prefix_depth": 3,
+          "max_prefixes": 3000,
+          "neighbourhood_insertion_length_max": 2,
+          "neighbourhood_prefixes_per_entry_point_max": 20000
+        },
+        "argument_variants": {
+          "number": [
+            "v - 1 (when v >= 1)",
+            "v + 1",
+            "0"
+          ],
+          "list": [
+            "[]",
+            "one element"
+          ],
+          "bytes": [
+            "the preimages of the hashes the trace computed"
+          ]
+        },
+        "witness_hash_tables": "the real keccak256 and sha256 of every key",
+        "g4_canaries_per_i30_subform_min": 1,
+        "refinement_corpus": {
+          "record": "results/M2/refinement/extracted.json",
+          "inputs_sha256": "30a8a53d6925b6e3fbce7982e2d05f884a9716009374861e178a2784a3ecddf2",
+          "traces": 460,
+          "steps": 3013,
+          "storage_slots": 8894
+        }
+      }
     }
   }
 }

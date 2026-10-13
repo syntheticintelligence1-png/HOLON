@@ -1,0 +1,19 @@
+{
+  "seeds_version": "holon-sort-seeds/0.2",
+  "doc": "I30 prereg instrument: the only sort seeds `holon sorts --milestone M3` reads for holon-facts/0.3 transitions documents (the contract is the docstring of tests_m3/test_sort_types.py, rule E3). Frozen at the I30 prereg, before the sort pass first runs on an extracted document; the build reads it and never edits it. Every seed is EVM semantics, so it names no target: on an extracted document every name is code, and I30 adds no target vocabulary (I13's lexical seeds, spec/M2/lib/sort_seeds.json, read the docs of hand-written facts and are not read here). A seed is a unit constraint on the variable of every term that matches it. term: a term whose head is `head` (and, with `arg`, whose first argument is `arg`) has the sort. digest: a term whose head is one of `heads`, applied to a memory region (['slice', ['mem', ...], ..]) every one of whose stores (mstore, and the stores of an mloop or when) writes a term seeded `words`, has the sort. lexical: {id, match: 'family', pattern, sort} seeds every storage family whose name the regex matches; M3 has none (a test milestone's seeds file may). Writer labels are I13's rules (whitepaper §7.3): they name writer sets of the labelled families (Idx, Cnt); whether two registers get distinct refined sorts is decided by the solver's rules, not by this file.",
+  "term": [
+    {"id": "evm-clock", "head": "env", "arg": "block.timestamp", "sort": "Time"},
+    {"id": "evm-blobhash", "head": "blobhash", "sort": "Dig[VH]"}
+  ],
+  "digest": [
+    {"id": "digest-of-versioned-hashes", "heads": ["keccak256", "sha256"], "words": "Dig[VH]", "sort": "Dig[Agg]"}
+  ],
+  "lexical": [],
+  "writer_labels": {
+    "rules": [
+      {"id": "wl-finalize", "prefix": "finalize", "label": "fin"},
+      {"id": "wl-commit", "prefix": "commit", "label": "inc"}
+    ],
+    "fallback": "when not every writer of the set matches one rule's prefix: 'w' followed by the first 8 hex digits of sha256 of the sorted writer names joined by ','"
+  }
+}
