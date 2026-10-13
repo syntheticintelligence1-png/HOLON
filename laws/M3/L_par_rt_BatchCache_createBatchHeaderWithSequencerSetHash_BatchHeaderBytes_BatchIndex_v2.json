@@ -1,0 +1,49 @@
+{
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+  "milestone": "M3",
+  "notes": "PAR round trip (holon.rules.par): BatchHeaderBytes_BatchIndex inverts BatchCache_createBatchHeaderWithSequencerSetHash at version 2 (E1 atom header_length:E1:CODEC.BatchCache_createBatchHeaderWithSequencerSetHash:CODEC.BatchHeaderBytes_BatchIndex:b02939d5)",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.1",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "h",
+        "q": "forall",
+        "type": "BatchHeaderV1"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "args": [
+                {
+                  "var": "h"
+                }
+              ],
+              "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+            }
+          ],
+          "call": "BatchHeaderBytes_BatchIndex"
+        },
+        {
+          "some": {
+            "field": "BatchHeaderV0.BatchIndex",
+            "of": {
+              "var": "h"
+            }
+          }
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "round_trip"
+}
