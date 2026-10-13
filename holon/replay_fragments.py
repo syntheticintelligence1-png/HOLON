@@ -981,6 +981,7 @@ def run(args) -> int:
                                 "inherited": sum(1 for e in view.layout if e.source == "inherited_storage"),
                                 "adapter": view.adapted},
              "command": harness_command(binding),
+             "harness_notes": harness_notes(runs),
              "toolchain": {k: tc[k] for k in PIN_KEYS}}
     if morph_sha:
         extra["morph_commit"] = morph_sha
@@ -996,6 +997,17 @@ def run(args) -> int:
     for p in rec["panics"]:
         print(f"  panic {p['code']} at {p['src']} on {p['steps']} steps (model {p['model_src']})")
     return 0 if rec["unexplained"] == 0 else 1
+
+
+def harness_notes(runs: list[TraceRun]) -> dict:
+    """{note: number of steps} of the concrete harness's notes (X lines; e.g. a rebuilt header whose hash differs from
+    the stored one), so that a translation the harness could not do faithfully is visible in the record."""
+    out: dict = {}
+    for tr in runs:
+        for e in tr.execs:
+            for n in e.notes:
+                out[n] = out.get(n, 0) + 1
+    return dict(sorted(out.items()))
 
 
 def _rel(p: Path, root: Path) -> str:

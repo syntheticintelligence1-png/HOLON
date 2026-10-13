@@ -226,7 +226,7 @@ class TestComparison(unittest.TestCase):
             f"S 0 0 call 0 1 {t} 0x{'33' * 20} 0 100 1 - 0x12345678 0x",
             f"V 0 0 31337 0 0 0x{'00' * 20} 30000000 1 0x{'44' * 20} 0 7 8",
             f"W 0 0 0x{1:064x} 0x{6:064x} 0", f"W 0 0 0x{1:064x} 0x{9:064x} 1",
-            f"L 0 0 0x{'aa' * 32} 0x", f"C 0 0 0x{'55' * 20} 0xddca3f43 1 0x{2:064x}", "D 0 0 0,6",
+            f"L 0 0 0x{'aa' * 32} 0x", f"C 0 0 0x{'55' * 20} 0xddca3f43 1 0x{2:064x}", "X 0 0 harness-mismatch", "D 0 0 0,6",
             f"S 0 1 call 1 1 {t} 0x{'33' * 20} 0 100 1 - 0x12345678 0x", f"W 0 1 0x{0:064x} 0x{1:064x} 0",
             "D 0 1 1,6", "E 0 2", "DONE 0 1"])
         (tr,) = RF.parse_output(text)
@@ -235,6 +235,7 @@ class TestComparison(unittest.TestCase):
         self.assertEqual((e.env["block.chainid"], e.balances, len(e.writes), e.calls[0][1]), (31337, (7, 8), 2, "0xddca3f43"))
         states = RF.track(tr, [0, 1])
         self.assertEqual(states[1][2], {1: 6})          # the reverted write is not applied
+        self.assertEqual(RF.harness_notes([tr]), {"harness-mismatch": 1})
         self.assertEqual(states[2][2], {0: 1, 1: 6})     # a fork's state ...
         tr.execs[2].dump = [0, 6]
         with self.assertRaises(RF.FragmentsError):       # ... must match its dump
@@ -371,6 +372,7 @@ class TestToyEndToEnd(unittest.TestCase):
         g = rec["guard_coverage"]
         self.assertEqual((g["reaches"], g["falsified"], g["unfalsified"]), (7, 7, []))
         self.assertEqual(rec["corpus"]["boundary"], 10)
+        self.assertEqual(rec["harness_notes"], {})
         self.assertEqual([e for e in rec["storage_layout"]["adapter"] if "_owner" in e or "_paused" in e],
                          ["inherited_storage: _owner (slot 0, offset 0) from the compiled storage layout",
                           "inherited_storage: _paused (slot 0, offset 20) from the compiled storage layout"])
