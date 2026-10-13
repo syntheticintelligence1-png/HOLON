@@ -100,6 +100,25 @@ class TestModel(_Toy):
         with self.assertRaises(self.machine.ModelError):
             self.machine.ExtractedModel(doc, self.a19.info)
 
+    def test_an_order_list_places_records_without_seq(self):
+        """The follow-up's minimum (A19-03): an "order" list over the checks instead of seq on every record."""
+        doc = load_json(TOY / "book.a19.json")
+        a = next(x for x in doc["actions"] if x["name"] == "deposit")
+        for sec in ("checks", "panics", "calls", "writes", "events"):
+            for r in a.get(sec) or []:
+                r.pop("seq", None)
+        for g in a["guards"]:
+            for r in g.get("reaches") or []:
+                r.pop("seq", None)
+        a["order"] = [["check", 0], ["guard", f"{S}:21", 0], ["guard", f"{S}:47", 0], ["call", 0],
+                      ["guard", f"{S}:48", 0], ["panic", 0], ["panic", 1]]
+        m = self.machine.ExtractedModel(doc, self.a19.info)
+        self.assertEqual([c.id for c in m.reaches("deposit")], [c.id for c in self.a19.reaches("deposit")])
+        from holon import extracted_eval as X
+        for args in ({"amount": 3}, {"amount": 0}):
+            self.assertEqual(X.step(m, pre_state(), "deposit", args, env()),
+                             X.step(self.a19, pre_state(), "deposit", args, env()))
+
     def test_loop_bodies_given_as_lists_are_classified(self):
         doc = load_json(TOY / "book.a19.json")
         lp = next(x for x in doc["actions"] if x["name"] == "seal")["loops"][0]

@@ -55,7 +55,6 @@ from . import window as W
 
 ROOT = Path(__file__).resolve().parents[1]
 DIFF_VERSION = "holon-differential/0.1"
-_SPAN = re.compile(r"^(?P<u>\S+?\.\w+):(?P<lo>\d+)(?:-(?P<hi>\d+))?")
 APPLIED = ("guard_missing", "ghost")
 
 
@@ -70,17 +69,13 @@ def sha256_file(p: Path) -> str:
 # ------------------------------------------------------------------------------------------------ spans
 def span(src) -> tuple[str, int, int] | None:
     """(unit, lo, hi) of a source span "<unit>:<lo>[-<hi>]" (anything may follow); None otherwise."""
-    if not isinstance(src, str):
-        return None
-    m = _SPAN.match(src.strip())
-    if not m:
-        return None
-    lo = int(m["lo"])
-    return m["u"], lo, int(m["hi"] or lo)
+    from .machine import source_span
+    return source_span(src)
 
 
 def overlap(a, b) -> bool:
-    return bool(a and b and a[0] == b[0] and a[1] <= b[2] and b[1] <= a[2])
+    from .machine import spans_overlap
+    return spans_overlap(a, b)
 
 
 # ------------------------------------------------------------------------------------------------ the abstraction

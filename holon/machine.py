@@ -73,7 +73,7 @@ FORMAT = {
     "inherited_storage": "inherited_storage", "params": "params", "payable": "payable", "mutability": "mutability",
     "returns": "returns", "declared_in": "declared_in", "reaches": "reaches", "panics": "panics", "calls": "calls",
     "checks": "checks", "writes": "writes", "mstores": "mstores", "events": "events", "loops": "loops",
-    "post": "post", "seq": "seq", "steps": "steps",
+    "post": "post", "seq": "seq", "steps": "steps", "order": "order",
 }
 # the sections of an action (and of a loop body) that hold program records, in tie-break order for equal seq: an
 # implicit check before a guard reach at the same point (an assert is both: Panic 0x01 is its revert data)
@@ -459,6 +459,25 @@ def _pairs(xs, key: str = "value") -> list:
     return out
 
 
+_SPAN_RX = re.compile(r"^(?P<u>\S+?\.\w+):(?P<lo>\d+)(?:-(?P<hi>\d+))?")
+
+
+def source_span(src) -> tuple[str, int, int] | None:
+    """(unit, lo, hi) of a source span "<unit>:<lo>[-<hi>]" (anything may follow it); None otherwise."""
+    if not isinstance(src, str):
+        return None
+    m = _SPAN_RX.match(src.strip())
+    if not m:
+        return None
+    lo = int(m["lo"])
+    return m["u"], lo, int(m["hi"] or lo)
+
+
+def spans_overlap(a, b) -> bool:
+    """Two source spans of one unit whose line ranges intersect."""
+    return bool(a and b and a[0] == b[0] and a[1] <= b[2] and b[1] <= a[2])
+
+
 def callok_expr(rec: dict):
     """The check of an external call record: its own "check"."expr" when the record has one, else
     ["||", ["!", cond], ["callok", fn, receiver, args..]] (["callok", ..] when unconditional)."""
@@ -468,6 +487,158 @@ def callok_expr(rec: dict):
     ok = ["callok", rec.get("fn"), rec.get("receiver")] + list(rec.get("args") or [])
     cond = rec.get("cond", 1)
     return ok if cond == 1 else ["||", ["!", cond], ok]
+
+
+# ------------------------------------------------------------------------------------------------ programs
+def with_order(a: dict) -> dict:
+    """The action with every top-level record given a seq from the action's "order" list, when its records carry
+    none (the follow-up's minimum, A19-03: [["guard", span, reach index] | ["panic", i] | ["call", i] | ["check", i],
+    ..] over the checks). Writes, memory stores and events, whose terms are over the pre-state, follow every check in
+    document order (their relative order to the checks does not change a step's result). A loop record without seq
+    cannot be placed: ModelError."""
+    order = a.get(FORMAT["order"])
+    recs = list(_records(a))
+    if not isinstance(order, list) or all(isinstance(r.get(FORMAT["seq"]), int) or
+                                          any(isinstance(x, dict) and isinstance(x.get(FORMAT["seq"]), int)
+                                              for x in r.get(FORMAT["reaches"]) or [])
+                                          for _, r in recs):
+        return a
+    out = {k: (json.loads(json.dumps(v)) if k in SECTIONS else v) for k, v in a.items()}
+    for i, item in enumerate(order):
+        kind, *rest = item
+        if kind == "guard":
+            span, k = rest[0], rest[1] if len(rest) > 1 else 0
+            g = next((x for x in out.get("guards") or [] if x.get("src") == span), None)
+            if g is None:
+                raise ModelError(f"{a['name']}: order names guard {span}, which the action does not have")
+            subs = g.get(FORMAT["reaches"])
+            if isinstance(subs, list) and subs:
+                subs[k][FORMAT["seq"]] = i
+            else:
+                g[FORMAT["seq"]] = i
+        elif kind in ("panic", "call", "check"):
+            sec = kind + "s"
+            out[sec][rest[0]][FORMAT["seq"]] = i
+        else:
+            raise ModelError(f"{a['name']}: an order entry of unknown kind {kind!r}")
+    nxt = len(order)
+    for sec in ("writes", "mstores", "events", "loops"):
+        for r in out.get(sec) or []:
+            if not isinstance(r.get(FORMAT["seq"]), int):
+                if sec == "loops":
+                    raise ModelError(f"{a['name']}: a loop record without seq cannot be placed by the order list")
+                r[FORMAT["seq"]] = nxt
+                nxt += 1
+    return out
+
+
+def shape(a: dict) -> str:
+    """"a19" for an action with any section of the planned follow-up shape, else "i19"."""
+    if any(k in a for k in (FORMAT[x] for x in A19_KEYS)):
+        return "a19"
+    if any(isinstance(g, dict) and FORMAT["reaches"] in g for g in a.get("guards") or []):
+        return "a19"
+    return "i19"
+
+def build_program(a: dict) -> Program:
+    """The action's records in program order, with check ids (module docstring). Needs no compiler information."""
+    action = a["name"]
+    shape_ = shape(a)
+    counts: dict = {}
+
+    def cid(span: str) -> str:
+        k = counts.get(span, 0)
+        counts[span] = k + 1
+        return f"{action}#{span}#{k}"
+
+    if shape_ == "i19":
+        steps = []
+        for g in a.get("guards") or []:
+            span = g.get("src") or g.get("kind") or "guard"
+            steps.append(Check(cid(span), action, span, g.get("src"), g.get("kind") or "require",
+                               g.get("reason"), g.get("expr"), section="guards", entry=g))
+        missing = []
+        if a.get("effects"):
+            missing.append("writes")
+        missing.append("events")
+        return Program(action, steps, shape_, missing)
+
+    def items(container, loop_span) -> list:
+        raw = []
+        for sec, r in _records(container):
+            if sec == "guards":
+                subs = r.get(FORMAT["reaches"])
+                if isinstance(subs, list) and subs:
+                    for x in subs:
+                        raw.append((sec, dict(x), r))
+                else:
+                    raw.append((sec, r, r))
+            else:
+                raw.append((sec, r, r))
+        for sec, r, _ in raw:
+            if not isinstance(r.get(FORMAT["seq"]), int):
+                raise ModelError(f"{action}: a {sec} record without an integer seq in a document of the A19 shape "
+                                 f"({canonical(r)[:160]})")
+        raw.sort(key=lambda x: (x[1][FORMAT["seq"]], SECTIONS.index(x[0])))
+        seqs = [x[1][FORMAT["seq"]] for x in raw]
+        if len(set(seqs)) != len(seqs):
+            dup = sorted({s for s in seqs if seqs.count(s) > 1})
+            # an assert is a guard reach and a Panic 0x01 at one point: the panic decides (SECTIONS order)
+            kinds = {s: sorted({x[0] for x in raw if x[1][FORMAT["seq"]] == s}) for s in dup}
+            if any(v != ["guards", "panics"] for v in kinds.values()):
+                raise ModelError(f"{action}: two records share seq {dup[:4]} ({kinds})")
+        out = []
+        for sec, r, parent in raw:
+            seq = r[FORMAT["seq"]]
+            if sec == "guards":
+                span = parent.get("src") or "guard"
+                out.append(Check(cid(span), action, span, parent.get("src"), parent.get("kind") or "require",
+                                 parent.get("reason"), r.get("expr", parent.get("expr")), seq=seq,
+                                 stack=r.get("stack"), section=sec, entry=parent, loop=loop_span))
+            elif sec == "panics":
+                span = r.get("src") or "panic"
+                out.append(Check(cid(span), action, span, r.get("src"), "panic", None, r.get("expr"),
+                                 code=r.get("code"), seq=seq, stack=r.get("stack"), section=sec, entry=r,
+                                 loop=loop_span))
+            elif sec == "calls":
+                span = r.get("src") or "call"
+                out.append(Check(cid(span), action, span, r.get("src"), "call", None, callok_expr(r), seq=seq,
+                                 stack=r.get("stack"), section=sec, entry=r, loop=loop_span))
+            elif sec == "checks":
+                span = r.get("src") or r.get("kind") or "check"
+                out.append(Check(cid(span), action, span, r.get("src"), r.get("kind") or "check", None,
+                                 r.get("expr"), seq=seq, stack=r.get("stack"), section=sec, entry=r,
+                                 loop=loop_span))
+            elif sec == "writes":
+                out.append(Write(seq, r.get("src"), r.get("stack"), r.get("family"), list(r.get("path") or []),
+                                 r.get("value"), r.get("cond", 1), r))
+            elif sec == "mstores":
+                out.append(MStore(seq, r.get("src"), r.get("stack"), r.get("region"), r.get("op", "mstore"),
+                                  r.get("offset"), r.get("value"), r.get("cond", 1), r))
+            elif sec == "events":
+                out.append(Event(seq, r.get("src"), r.get("stack"), r.get("event"), r.get("signature"),
+                                 r.get("topic0"), list(r.get("args") or []), list(r.get("indexed") or []),
+                                 bool(r.get("anonymous")), r.get("cond", 1), r))
+            elif sec == "loops":
+                span = r.get("src")
+                body = items(r.get(FORMAT["steps"]), span)
+                out.append(Loop(seq, span, r.get("stack"), r.get("kind", "for"), r.get("cond", 1),
+                                _pairs(r.get("carried"), "entry"), r.get("head", 1), _pairs(r.get("next")),
+                                r.get("break", 0), _pairs(r.get("at_break")), r.get("count"), body, r))
+        return out
+
+    steps = items(with_order(a), None)
+    missing = []
+    if FORMAT["writes"] not in a and a.get("effects"):
+        missing.append("writes")
+    if FORMAT["events"] not in a:
+        missing.append("events")
+    return Program(action, steps, shape_, missing)
+
+
+def document_programs(doc: dict) -> dict:
+    """action name -> Program of every action of a transitions document (no compiler information)."""
+    return {a["name"]: build_program(a) for a in sorted(doc.get("actions") or [], key=lambda a: a["name"])}
 
 
 # ------------------------------------------------------------------------------------------------ the model
@@ -498,7 +669,7 @@ class ExtractedModel:
                                      "families nor in the contract's storage layout")
                 self.families[name] = Family(name, int(le["slot"]), int(le["offset"]), le["type"], False,
                                              le.get("contract", ""))
-        self._programs = {a: self._program(a) for a in sorted(self.actions)}
+        self._programs = {a: build_program(self.actions[a]) for a in sorted(self.actions)}
 
     def _declare(self, s: dict, own: bool) -> None:
         le = self.layout_entries.get(s["name"])
@@ -587,108 +758,6 @@ class ExtractedModel:
                     yield s2, r2
                     if s2 == "loops":
                         stack.extend(_records(r2.get(FORMAT["steps"])))
-
-    # ---------------------------------------------------------------- programs (one dispatch point per section)
-    def shape(self, a: dict) -> str:
-        if any(k in a for k in (FORMAT[x] for x in A19_KEYS)):
-            return "a19"
-        if any(isinstance(g, dict) and FORMAT["reaches"] in g for g in a.get("guards") or []):
-            return "a19"
-        return "i19"
-
-    def _program(self, action: str) -> Program:
-        a = self.actions[action]
-        shape = self.shape(a)
-        counts: dict = {}
-
-        def cid(span: str) -> str:
-            k = counts.get(span, 0)
-            counts[span] = k + 1
-            return f"{action}#{span}#{k}"
-
-        if shape == "i19":
-            steps = []
-            for g in a.get("guards") or []:
-                span = g.get("src") or g.get("kind") or "guard"
-                steps.append(Check(cid(span), action, span, g.get("src"), g.get("kind") or "require",
-                                   g.get("reason"), g.get("expr"), section="guards", entry=g))
-            missing = []
-            if a.get("effects"):
-                missing.append("writes")
-            missing.append("events")
-            return Program(action, steps, shape, missing)
-
-        def items(container, loop_span) -> list:
-            raw = []
-            for sec, r in _records(container):
-                if sec == "guards":
-                    subs = r.get(FORMAT["reaches"])
-                    if isinstance(subs, list) and subs:
-                        for x in subs:
-                            raw.append((sec, dict(x), r))
-                    else:
-                        raw.append((sec, r, r))
-                else:
-                    raw.append((sec, r, r))
-            for sec, r, _ in raw:
-                if not isinstance(r.get(FORMAT["seq"]), int):
-                    raise ModelError(f"{action}: a {sec} record without an integer seq in a document of the A19 shape "
-                                     f"({canonical(r)[:160]})")
-            raw.sort(key=lambda x: (x[1][FORMAT["seq"]], SECTIONS.index(x[0])))
-            seqs = [x[1][FORMAT["seq"]] for x in raw]
-            if len(set(seqs)) != len(seqs):
-                dup = sorted({s for s in seqs if seqs.count(s) > 1})
-                # an assert is a guard reach and a Panic 0x01 at one point: the panic decides (SECTIONS order)
-                kinds = {s: sorted({x[0] for x in raw if x[1][FORMAT["seq"]] == s}) for s in dup}
-                if any(v != ["guards", "panics"] for v in kinds.values()):
-                    raise ModelError(f"{action}: two records share seq {dup[:4]} ({kinds})")
-            out = []
-            for sec, r, parent in raw:
-                seq = r[FORMAT["seq"]]
-                if sec == "guards":
-                    span = parent.get("src") or "guard"
-                    out.append(Check(cid(span), action, span, parent.get("src"), parent.get("kind") or "require",
-                                     parent.get("reason"), r.get("expr", parent.get("expr")), seq=seq,
-                                     stack=r.get("stack"), section=sec, entry=parent, loop=loop_span))
-                elif sec == "panics":
-                    span = r.get("src") or "panic"
-                    out.append(Check(cid(span), action, span, r.get("src"), "panic", None, r.get("expr"),
-                                     code=r.get("code"), seq=seq, stack=r.get("stack"), section=sec, entry=r,
-                                     loop=loop_span))
-                elif sec == "calls":
-                    span = r.get("src") or "call"
-                    out.append(Check(cid(span), action, span, r.get("src"), "call", None, callok_expr(r), seq=seq,
-                                     stack=r.get("stack"), section=sec, entry=r, loop=loop_span))
-                elif sec == "checks":
-                    span = r.get("src") or r.get("kind") or "check"
-                    out.append(Check(cid(span), action, span, r.get("src"), r.get("kind") or "check", None,
-                                     r.get("expr"), seq=seq, stack=r.get("stack"), section=sec, entry=r,
-                                     loop=loop_span))
-                elif sec == "writes":
-                    out.append(Write(seq, r.get("src"), r.get("stack"), r.get("family"), list(r.get("path") or []),
-                                     r.get("value"), r.get("cond", 1), r))
-                elif sec == "mstores":
-                    out.append(MStore(seq, r.get("src"), r.get("stack"), r.get("region"), r.get("op", "mstore"),
-                                      r.get("offset"), r.get("value"), r.get("cond", 1), r))
-                elif sec == "events":
-                    out.append(Event(seq, r.get("src"), r.get("stack"), r.get("event"), r.get("signature"),
-                                     r.get("topic0"), list(r.get("args") or []), list(r.get("indexed") or []),
-                                     bool(r.get("anonymous")), r.get("cond", 1), r))
-                elif sec == "loops":
-                    span = r.get("src")
-                    body = items(r.get(FORMAT["steps"]), span)
-                    out.append(Loop(seq, span, r.get("stack"), r.get("kind", "for"), r.get("cond", 1),
-                                    _pairs(r.get("carried"), "entry"), r.get("head", 1), _pairs(r.get("next")),
-                                    r.get("break", 0), _pairs(r.get("at_break")), r.get("count"), body, r))
-            return out
-
-        steps = items(a, None)
-        missing = []
-        if FORMAT["writes"] not in a and a.get("effects"):
-            missing.append("writes")
-        if FORMAT["events"] not in a:
-            missing.append("events")
-        return Program(action, steps, shape, missing)
 
     def program(self, action: str) -> Program:
         return self._programs[action]
