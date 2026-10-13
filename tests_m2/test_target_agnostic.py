@@ -77,6 +77,10 @@ def norm_record(f: Path, b: bytes) -> bytes:
     # I14 adds the v2 evidence fields; without them the record is exactly the pinned one
     for k in ("evidence_levels", "evidence_triage", "evidence_override"):
         rec.pop(k, None)
+    # I41 adds prover to every record: a record its generators decided ("generator") is exactly the pinned one; an
+    # agent prover is kept, so an agent-proved M0 or M1 record changes the hash
+    if rec.get("prover") == "generator":
+        rec.pop("prover")
     return json.dumps(s(rec), sort_keys=True).encode()
 
 

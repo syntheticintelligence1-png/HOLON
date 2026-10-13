@@ -385,7 +385,11 @@ def real_wrong_proof(lid: str, body: str = "{==}") -> str:
     rec = load_json(ROOT / "results" / "M2" / f"{lid}.json")
     binders = law["statement"]["binders"]
     n = len(binders) + sum(1 for b in binders if b["type"] == "Reach")
-    model = Path(rec["artifacts"]["model"]).name
+    # amended (spec/M3/amendments.jsonl; I20's SORT-width records name no model): a record without artifacts.model is
+    # a law holon run decides without a Bend model of its document, so the proof imports the model holon would name
+    # after that document (holon.mpipeline.model_name), which the regenerated tree does not hold either
+    model = (Path(rec["artifacts"]["model"]).name if rec["artifacts"].get("model")
+             else re.sub(r"[^A-Za-z0-9_]", "_", Path(law["facts"]).stem) + ".bend")
     params = ", ".join(f"p{i}" for i in range(n))
     return (f"import Base\nimport ../../model/{model} as M\nimport ../../laws/{lid}/LAWS.bend as Laws\n\n"
             f"def Laws.{lid.lower()}({params}):\n  {body}\n")
