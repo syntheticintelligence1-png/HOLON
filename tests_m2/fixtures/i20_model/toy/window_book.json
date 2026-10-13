@@ -1,0 +1,19 @@
+{
+ "abstraction": "tests_m2/fixtures/i20_model/toy/book_abstraction.json",
+ "corpus": "tests_m2/fixtures/i20_model/toy/window_states.json",
+ "doc": "Window declaration of the toy (holon.window): the toy abstraction's fields over the raw families of book.a19.json.",
+ "facts": "tests_m2/fixtures/i20_model/toy/book.a19.json",
+ "fields": {
+  "allowed": {"external": "IGate", "reason": "the gate's allowed set is the gate's storage"},
+  "count": {"term": ["storage", "count"]},
+  "entries": {"list": {"from": 1, "item": {"record": {
+   "amount": {"term": ["member", ["map", ["storage", "entries"], ["var", "k"]], "amount"]},
+   "who": {"term": ["member", ["map", ["storage", "entries"], ["var", "k"]], "who"]}}}, "to": ["storage", "count"]}},
+  "log": {"observations": "step outcomes, not storage"},
+  "owner": {"term": ["storage", "_owner"]},
+  "stopped": {"term": ["storage", "_stopped"]},
+  "t": {"env": "block.timestamp"},
+  "total": {"term": ["storage", "total"]}
+ },
+ "window_version": "holon-window/0.1"
+}
