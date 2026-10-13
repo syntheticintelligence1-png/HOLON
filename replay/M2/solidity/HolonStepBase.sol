@@ -14,6 +14,9 @@
 //                                   kind 1  abstract row: payload = abi.encode(uint256[] row)
 //                                   kind 2  call: payload = abi.encode(address caller, uint256 value, uint256 timestamp
 //                                           (0: unchanged), bytes32[] blobhashes, address to (0: the target), bytes data)
+//                                   kind 3  poked call: payload = abi.encode(bytes32[] slots, bytes32[] words, bytes call)
+//                                           with call a kind 2 payload: the target's slots are set to the words
+//                                           (vm.store) and then the call runs, as one step
 //                                 a fork step runs from a snapshot of the state before it and is reverted afterwards
 //    "slots": ["0x<32 bytes>", ..] storage slots of the target read with vm.load after every step (its layout's slots)
 //    "init": [uint, ...]}         the deployment parameters, given to holonDeploy
@@ -27,6 +30,7 @@
 //   V <tid> <id> <chainid> <basefee> <prevrandao> <coinbase> <gaslimit> <blobbasefee> <origin> <gasprice>
 //     <target balance> <caller balance>            the block and transaction environment of a call step, and the
 //                                                  balances before it (the call's value not yet transferred)
+//   P <tid> <id> <slot> <word>                      a poked call's vm.store, before its S line (0 for zero)
 //   W <tid> <id> <slot> <value> <reverted>          every storage write to the target during the step, in order
 //   L <tid> <id> <topics> <data>                    every log the target emitted (topics comma-separated, or -)
 //   C <tid> <id> <to> <data> <ok> <ret>             every external call the target made, in order, with its answer:
@@ -62,6 +66,7 @@ interface HolonStepVm {
     function warp(uint256) external;
     function blobhashes(bytes32[] calldata) external;
     function load(address, bytes32) external view returns (bytes32);
+    function store(address, bytes32, bytes32) external;
     function pauseGasMetering() external;
     function readFile(string calldata) external view returns (string memory);
     function writeLine(string calldata, string calldata) external;
@@ -263,10 +268,9 @@ abstract contract HolonStepBase is Test {
                 envRecord(tid, id, fork, SV.stopAndReturnStateDiff());
             }
         } else if (kind == 2) {
-            HolonCall memory c;
-            (c.caller, c.value, c.timestamp, c.blobs, c.to, c.data) =
-                abi.decode(payload, (address, uint256, uint256, bytes32[], address, bytes));
-            holonExec(tid, id, fork, c);
+            holonExec(tid, id, fork, holonDecodeCall(payload));
+        } else if (kind == 3) {
+            holonExec(tid, id, fork, holonPoke(tid, id, payload, true));
         } else {
             revert("HolonStepBase: unknown step kind");
         }
@@ -274,6 +278,22 @@ abstract contract HolonStepBase is Test {
             SV.revertToState(snap);
             SV.deleteStateSnapshot(snap);
         }
+    }
+
+    function holonDecodeCall(bytes memory payload) internal pure returns (HolonCall memory c) {
+        (c.caller, c.value, c.timestamp, c.blobs, c.to, c.data) =
+            abi.decode(payload, (address, uint256, uint256, bytes32[], address, bytes));
+    }
+
+    /// A poked call (kind 3): set the target's slots (vm.store; one P line each when recorded), then return the call.
+    function holonPoke(uint256 tid, uint256 id, bytes memory payload, bool record) internal returns (HolonCall memory) {
+        (bytes32[] memory ps, bytes32[] memory ws, bytes memory cp) = abi.decode(payload, (bytes32[], bytes32[], bytes));
+        require(ps.length == ws.length, "HolonStepBase: a poke needs one word per slot");
+        for (uint256 i = 0; i < ps.length; i++) {
+            SV.store(holonTarget, ps[i], ws[i]);
+            if (record) holonLine(string.concat("P ", pre(tid, id), hw(ps[i]), " ", hw(ws[i])));
+        }
+        return holonDecodeCall(cp);
     }
 
     function holonLoad() internal returns (uint256[] memory lens, bytes[] memory steps, uint256[] memory init) {
@@ -340,9 +360,10 @@ abstract contract HolonStepBase is Test {
             bool isCall;
             (isCall, c) = holonAbstract(0, abi.decode(payload, (uint256[])));
             require(isCall, "HolonStepBase: the last step is not a call");
+        } else if (kind == 3) {
+            c = holonPoke(0, 0, payload, false);
         } else {
-            (c.caller, c.value, c.timestamp, c.blobs, c.to, c.data) =
-                abi.decode(payload, (address, uint256, uint256, bytes32[], address, bytes));
+            c = holonDecodeCall(payload);
         }
         if (c.timestamp != 0) SV.warp(c.timestamp);
         if (c.to == address(0)) c.to = holonTarget;

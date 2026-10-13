@@ -397,6 +397,19 @@ class TestToyEndToEnd(unittest.TestCase):
         unf = {u["id"] for u in rec["guard_coverage"]["unfalsified"]}
         self.assertFalse(unf & (set(abi) | set(cv)), unf)
 
+    def test_the_boundary_corpus_pokes_dirty_bool_bytes(self):
+        """The paused flag's storage byte at 2 and at 255 (vm.store before the call, the harness's poked call): the
+        document models the compiler's raw read of the byte, so both sides take the flag as set."""
+        _, det, _ = self.faithful()
+        poked = [c for c in det["compared"] if str(c["meta"].get("leaf", "")).startswith("storage:")]
+        self.assertEqual({c["meta"]["value"] for c in poked}, {"0x2", "0xff"})
+        self.assertEqual({c["action"] for c in poked}, {"deposit", "withdraw"})
+        for c in poked:
+            with self.subTest(step=(c["trace"], c["step"])):
+                self.assertEqual((c["diff"], c["real"]["status"], c["real"]["revert"]),
+                                 ([], "revert", ["error", "paused"]))
+                self.assertEqual(c["model"]["guard"], f"{c['action']}#{SRC}:21#0")
+
     def test_the_real_panic_is_located_at_the_checked_accumulator(self):
         rec, _, _ = self.faithful()
         self.assertEqual(rec["panics"], [{"code": "0x11", "model_src": f"{SRC}:51", "real_site": f"{SRC}:51",

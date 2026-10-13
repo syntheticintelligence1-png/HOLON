@@ -10,7 +10,9 @@ Sources, in this order (holon.replay_fragments runs them):
   boundary  fork steps: the first successful call of each action in the translation run (the first run of the base
             traces), with one ABI leaf replaced by a value at a boundary of its type or of a width of the document's
             sorts (0, 1, 2^w - 1, 2^w, max uint), and a bytes leaf cut or padded to the lengths the action's checks
-            compare it with;
+            compare it with; and the same call poked (vm.store, before the call) with a dirty byte (2 and 255) at
+            every bool storage location its reaches read (Evaluator.reads on the call's state): the document models
+            the compiler's raw reads of a bool's byte, so a byte other than 0 and 1 is a boundary of its storage;
   target    fork steps built for one reach each (Search.target): a base call of the translation run, or a call built
             from the ABI for an action the corpus never calls, mutated on the atoms of the reach's term (its parameters,
             their bytes and words, the caller, msg.value, the clock, the blob hashes; a dirty calldata word for an ABI
@@ -38,6 +40,7 @@ PER_REACH = 2            # targeting steps kept per reach
 SUFFIX_PER_REACH = 2     # suffix traces per reach the single-step search cannot reach
 MAX_BASES = 48           # base calls tried per reach
 FRESH = "0x" + "00" * 18 + "dead"   # a caller no corpus step uses
+DIRTY_BOOL = (2, 255)    # the bytes a bool's storage location is poked with (the boundary corpus)
 CMP = ("==", "!=", "<", "<=", ">", ">=")
 MASK = (1 << 256) - 1
 
@@ -221,6 +224,7 @@ class Evaluator:
             if i.get("name") in args:
                 self.args[i["name"]] = abi_to_term(i, args[i["name"]])
         self.answers = answers   # (name, [arg ints]) -> int | U, for the calls the step did not make
+        self.reads: list | None = None   # when a list: (slot, offset) of every bool storage location loaded
         self.heads = {"?": self._cond, "!": self._lnot, "&&": self._and, "||": self._or, "~": self._bnot,
                       "not": self._bnot, "neg": self._neg, "trunc": self._trunc, "param": self._param,
                       "caller": self._caller, "this": self._this, "storage": self._storage, "sload": self._sload,
@@ -235,6 +239,8 @@ class Evaluator:
         if t.get("encoding") != "inplace" or t.get("members") or ref.type.startswith("t_array"):
             return ref
         n = int(t.get("numberOfBytes", "32"))
+        if self.reads is not None and t.get("label") == "bool":
+            self.reads.append((ref.slot, ref.offset))
         w = self.state.get(ref.slot, 0)
         return (w >> (8 * ref.offset)) & ((1 << (8 * n)) - 1)
 
@@ -1054,7 +1060,31 @@ class Search:
                                                          "value": label})
                         if st is not None:
                             forks.setdefault((b.tid, b.pos), []).append(st)
+            for st in self.dirty_bools(b):
+                forks.setdefault((b.tid, b.pos), []).append(st)
         return forks
+
+    def dirty_bools(self, b: Base) -> list[Step]:
+        """The call b again, poked with each DIRTY_BOOL byte at each bool storage location its reaches read (in
+        reach order, the other bytes of the slot kept)."""
+        ev = self.evaluator(b, b.args, b.env)
+        ev.reads = []
+        for r in self.view.reaches.get(b.action, []):
+            if r.expr is not None:
+                ev.ev(r.expr)
+        out, seen = [], set()
+        for slot, off in ev.reads:
+            if (slot, off) in seen:
+                continue
+            seen.add((slot, off))
+            w = b.state.get(slot, 0)
+            for v in DIRTY_BOOL:
+                st = self._fork(b, b.args, b.env, {"source": "boundary", "leaf": f"storage:{hex(slot)}+{off}",
+                                                   "value": hex(v)})
+                if st is not None:
+                    st.pokes = [(slot, (w & ~(0xFF << (8 * off)) & MASK) | (v << (8 * off)))]
+                    out.append(st)
+        return out
 
     def _lens(self, action: str, path: tuple) -> set[int]:
         out = set()
@@ -1090,7 +1120,7 @@ def reason_function(search: Search | None, log: dict, outcome_text):
 
 def _copy_step(s: Step, meta: dict) -> Step:
     return Step(s.kind, fork=s.fork, row=list(s.row), caller=s.caller, value=s.value, timestamp=s.timestamp,
-                blobs=list(s.blobs), to=s.to, data=s.data, meta=dict(meta))
+                blobs=list(s.blobs), to=s.to, data=s.data, meta=dict(meta), pokes=list(s.pokes))
 
 
 def _word_of(t, param_path, path):

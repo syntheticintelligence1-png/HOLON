@@ -14,7 +14,8 @@ transaction environment, every storage write to the target (vm.startStateDiffRec
 every log the target emitted (vm.recordLogs), every external call the target made with its answer (re-run in order from
 the state before the step, as the target), and vm.load of every slot of the document's storage layout (inherited
 storage included) after the step. A fork step runs from a snapshot and is reverted: the boundary and guard-targeting
-steps (holon.fragments_corpus) branch off the corpus traces. One harness run serves many traces (chunks of about
+steps (holon.fragments_corpus) branch off the corpus traces. A poked call sets slots of the target (vm.store) before
+its call, in the same step: the boundary corpus's dirty bool bytes. One harness run serves many traces (chunks of about
 --max-steps steps); the corpus is built from a first, translation, run of the base traces and compared on a second run
 with the fork steps inserted.
 
@@ -85,7 +86,7 @@ RECORD_KIND = "extracted"
 OBSERVABLES = ("events", "revert", "status", "storage")
 PANIC = "4e487b71"
 ERROR_STRING = "08c379a0"
-STEP_ABSTRACT, STEP_CALL = 1, 2
+STEP_ABSTRACT, STEP_CALL, STEP_POKE = 1, 2, 3
 MAX_STEPS = 400
 MAX_DUMP = 1 << 30          # a debugger dump larger than this is not read (locate_panics)
 ZERO_ADDR = "0x" + "00" * 20
@@ -119,7 +120,8 @@ def hex32(v: int) -> str:
 @dataclass
 class Step:
     """One harness step. kind "abstract": row is an abstract row (the binding's abstract facts); kind "call": a call
-    (caller, value, timestamp (0 keeps the clock), blobs, to (None: the target), data). fork: run from a snapshot and
+    (caller, value, timestamp (0 keeps the clock), blobs, to (None: the target), data), after the target's slots are set
+    to pokes [(slot, word)] when there are any (vm.store, the harness's kind 3). fork: run from a snapshot and
     reverted. meta: what built it (corpus source, the reach it targets, ...), carried into the details."""
     kind: str
     fork: bool = False
@@ -131,6 +133,7 @@ class Step:
     to: str | None = None
     data: str = "0x"
     meta: dict = field(default_factory=dict)
+    pokes: list = field(default_factory=list)
 
     def encode(self) -> str:
         if self.kind == "abstract":
@@ -142,6 +145,11 @@ class Step:
                  {"type": "address"}, {"type": "bytes"}],
                 [self.caller, self.value, self.timestamp, list(self.blobs), self.to or ZERO_ADDR, self.data])
             k = STEP_CALL
+            if self.pokes:
+                payload = abi.encode_args([{"type": "bytes32[]"}, {"type": "bytes32[]"}, {"type": "bytes"}],
+                                          [[hex32(sl) for sl, _ in self.pokes], [hex32(w) for _, w in self.pokes],
+                                           "0x" + payload.hex()])
+                k = STEP_POKE
         else:
             raise FragmentsError(f"unknown step kind {self.kind}")
         return "0x" + abi.encode_args([{"type": "uint8"}, {"type": "bool"}, {"type": "bytes"}],
@@ -149,7 +157,7 @@ class Step:
 
     def key(self) -> tuple:
         return (self.kind, tuple(self.row), self.caller, self.value, self.timestamp, tuple(self.blobs), self.to,
-                self.data)
+                self.data, tuple(tuple(p) for p in self.pokes))
 
 
 @dataclass
@@ -175,6 +183,7 @@ class Exec:
     calls: list = field(default_factory=list)     # (to, data, ok, ret)
     dump: list | None = None
     notes: list = field(default_factory=list)
+    pokes: list = field(default_factory=list)     # (slot, word) set with vm.store before the call (a poked call)
 
 
 @dataclass
@@ -397,6 +406,7 @@ def parse_output(text: str) -> list[TraceRun]:
     """The harness's lines (see replay/M2/solidity/HolonStepBase.sol) as TraceRuns, in trace order."""
     runs: dict[int, TraceRun] = {}
     cur: dict[tuple, Exec] = {}
+    pokes: dict[tuple, list] = {}
     for line in text.splitlines():
         f = line.split(" ")
         tag = f[0]
@@ -408,6 +418,7 @@ def parse_output(text: str) -> list[TraceRun]:
             e = Exec(tid, sid, f[3], f[4] == "1", f[5] == "1", None if f[6] == "-" else f[6].lower(),
                      None if f[7] == "-" else f[7].lower(), int(f[8]), int(f[9]), int(f[10]),
                      [b.lower() for b in _hexwords(f[11])], f[12].lower(), f[13].lower())
+            e.pokes = pokes.pop((tid, sid), [])
             runs[tid].execs.append(e)
             cur[(tid, sid)] = e
         elif tag == "K":
@@ -429,6 +440,8 @@ def parse_output(text: str) -> list[TraceRun]:
             cur[(int(f[1]), f[2])].logs.append(([t.lower() for t in _hexwords(f[3])], f[4].lower()))
         elif tag == "C":
             cur[(int(f[1]), f[2])].calls.append((f[3].lower(), f[4].lower(), f[5] == "1", f[6].lower()))
+        elif tag == "P":
+            pokes.setdefault((int(f[1]), f[2]), []).append((word(f[3]), word(f[4])))
         elif tag == "D":
             cur[(int(f[1]), f[2])].dump = [0 if v == "0" else int(v, 16) for v in _hexwords(f[3])]
         elif tag == "X":
@@ -451,11 +464,12 @@ def apply_writes(state: dict, writes: list) -> dict:
 
 def track(run: TraceRun, slots: list[int]) -> list[tuple[Exec, dict, dict]]:
     """(exec, state before, state after) for every executed step of the trace, the deployment first. A kept step's
-    writes carry over; a fork's do not. Every state after must match the harness's vm.load dump."""
+    writes carry over; a fork's do not. A poked call's state before holds its pokes. Every state after must match the
+    harness's vm.load dump."""
     state: dict = {}
     out = []
     for e in run.execs:
-        before = state
+        before = apply_writes(state, [(sl, w, False) for sl, w in e.pokes]) if e.pokes else state
         after = apply_writes(before, e.writes) if (e.ok or e.kind == "env") else dict(before)
         if e.dump is not None and slots:
             if len(e.dump) != len(slots):
