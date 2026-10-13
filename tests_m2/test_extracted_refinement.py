@@ -52,6 +52,33 @@ Rules
   - A status difference is explained only by a mechanical delta, never by prose.
   - The raw model is authoritative.
   - No skips. Predictions are never tuned.
+
+Contract tightening before the build (lead, 2026-10-13). This was added after the prereg commit 8839b7d and before any
+I20 outcome existed. It is additive only: new clauses and new test functions, while the key, the predictions and the
+tests above are unchanged. It fixes what the refinement compares and how much of the extracted document the corpus
+must exercise, so that P1 cannot pass on a comparison of statuses alone. Every guard (each of its reaches), implicit
+check and event that the extracted document records is part of the model.
+  7. Observables. Each corpus step compares the model against the real contract on four observables:
+       status    ok or revert;
+       revert    on a revert, the revert data: the Error(string) reason, a custom error's selector, or the Panic code;
+       storage   on ok, the value of every storage slot that a write of the step touches on either side: the
+                 model's effects, and the real contract's storage read with vm.load at the slots of the document's
+                 storage layout, inherited storage included;
+       events    the emitted logs (topics and data) of every event the document records.
+     A difference in any observable is a disagreement. results/M2/refinement/extracted.json gains
+       "observables": ["events", "revert", "status", "storage"],
+       "storage_slots": n                         the number of (step, slot) comparisons,
+       "by_action": {"<action>": {"ok": n, "revert": n}},
+       "panics": [{"src", "code", "steps"}]       steps where both sides Panic, by the Panic's source line and code,
+       "guard_coverage": {"reaches": n, "falsified": n, "unfalsified": [{"id", "reason"}]}
+     reaches counts every guard reach and every implicit check the document records. falsified counts those that some
+     corpus step violates on both sides (the real contract reverts there). unfalsified lists every other one, with the
+     reason the corpus could not violate it: its negation is unsatisfiable under the document's sorts, or a stated
+     bound. The boundary corpus targets every reach.
+  8. Each of the 8 modelled actions has at least one ok step and at least one revert step.
+  9. The REFUTED I15 witnesses at Rollup.sol:363 run as corpus steps, and both sides Panic 0x11 there.
+ 10. Determinism: two runs of `holon model` in a copy of the repo write byte-identical files, equal to the committed
+     ones, and so do two runs of `holon differential`.
 """
 import json
 import unittest
@@ -165,6 +192,67 @@ class TestConstruction(unittest.TestCase):
     def test_hevm_is_recorded(self):
         h = need(M2 / "hevm.json")
         self.assertIn(h["status"], ("run", "not_run"))
+
+
+class TestObservables(unittest.TestCase):
+    """Contract tightening (clauses 7-9): what the refinement compares and how much of the document it exercises."""
+    MODELLED = ("commitBatch", "commitState", "commitBatchWithProof", "revertBatch", "challengeState", "proveState",
+                "finalizeBatch", "setPause")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.r = need(M2 / "refinement" / "extracted.json")
+
+    def test_four_observables_are_compared(self):
+        self.assertEqual(sorted(self.r["observables"]), ["events", "revert", "status", "storage"])
+        self.assertGreater(self.r["storage_slots"], 0)
+
+    def test_every_modelled_action_both_succeeds_and_reverts(self):
+        for name in self.MODELLED:
+            with self.subTest(action=name):
+                a = self.r["by_action"][name]
+                self.assertGreaterEqual(a["ok"], 1)
+                self.assertGreaterEqual(a["revert"], 1)
+
+    def test_every_guard_reach_is_falsified_or_justified(self):
+        g = self.r["guard_coverage"]
+        self.assertGreater(g["reaches"], 0)
+        self.assertEqual(g["falsified"] + len(g["unfalsified"]), g["reaches"])
+        for u in g["unfalsified"]:
+            with self.subTest(reach=u.get("id")):
+                self.assertTrue(isinstance(u.get("reason"), str) and u["reason"].strip())
+
+    def test_the_checked_accumulator_panics_on_both_sides(self):
+        hits = [p for p in self.r["panics"] if p["src"].startswith("contracts/contracts/l1/rollup/Rollup.sol:363")
+                and int(str(p["code"]), 0) == 0x11]
+        self.assertTrue(hits and hits[0]["steps"] >= 1, self.r["panics"])
+
+
+class TestDeterminism(unittest.TestCase):
+    """Contract tightening (clause 10)."""
+
+    def _twice(self, args, paths):
+        """Two runs in a throwaway copy of the repo write the same bytes, equal to the committed files."""
+        import shutil
+        from tests_m2._m2 import copy_repo, run_holon
+        repo = copy_repo()
+        try:
+            outs = []
+            for _ in range(2):
+                p = run_holon(args, cwd=repo, timeout=3600)
+                self.assertEqual(p.returncode, 0, p.stderr[-1500:])
+                outs.append({x: (repo / x).read_bytes() for x in paths})
+            self.assertEqual(outs[0], outs[1])
+            self.assertEqual(outs[0], {x: (ROOT / x).read_bytes() for x in paths})
+        finally:
+            shutil.rmtree(repo.parent, ignore_errors=True)
+
+    def test_model_is_byte_identical_across_runs(self):
+        self._twice(["model", "--facts", "spec/M2/facts/morph_rollup.extracted.json", "--out", "gen/M2/extracted/"],
+                    ["gen/M2/extracted/model.bend", "gen/M2/extracted/window_check.json"])
+
+    def test_differential_is_byte_identical_across_runs(self):
+        self._twice(["differential", "--milestone", "M2"], ["gen/M2/abstraction_diff.json", "results/M2/differential.json"])
 
 
 if __name__ == "__main__":
