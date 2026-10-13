@@ -638,6 +638,20 @@ class Search:
     def evaluator(self, b: Base, args: dict, env: dict) -> Evaluator:
         return Evaluator(self.tgt.layout, b.state, b.fn, args, env, self.answers)
 
+    @staticmethod
+    def with_length(b: Base, args: dict, env: dict, raw: str | None) -> dict:
+        """env with msg.data.length the length of the calldata the candidate sends (raw, else the call encoded from
+        args): a synthesized base, or a mutation that changes a dynamic argument, sends other calldata than the
+        base's."""
+        if raw is not None:
+            data = raw
+        else:
+            try:
+                data = abi.encode_call(b.fn, args)
+            except abi.AbiError:
+                return env
+        return {**env, "msg.data.length": (len(data) - 2) // 2}
+
     # ------------------------------------------------------------ synthesized bases (actions the corpus never calls)
     def synthesized(self, action: str) -> list[Base]:
         fn = self.fn_of.get(action)
@@ -907,6 +921,7 @@ class Search:
         for b in order[:MAX_BASES]:
             cands = ([("as built", b.args, b.env, None)] if b.ok is None else []) + self.mutations(b, r, seq)
             for label, args, env, raw in cands:
+                env = self.with_length(b, args, env, raw)
                 st["candidates"] += 1
                 ev = self.evaluator(b, args, env)
                 h = self._hit(k, seq, ev)
