@@ -166,36 +166,9 @@ def quarantined_fingerprints(root: Path) -> set[str]:
     return {f for f in out if isinstance(f, str)}
 
 
-# `law` is a Bend keyword (bend2/bend.ts: a top-level `law Name :`); between tokens Bend skips whitespace and
-# `#` comments, newlines included, so the name and the colon may sit on different lines (audit F-M2-21)
-_LAW_DECL = re.compile(r"(?<![\w.])law\s+[A-Za-z0-9_.]+\s*:")
-
-
-def strip_bend_comments(text: str) -> str:
-    """Bend source with every `#` comment removed (to the end of its line), string and char literals kept whole,
-    the way Bend's parse_skip treats them; line breaks are kept."""
-    out = []
-    for line in text.splitlines(keepends=True):
-        i, cut, in_str = 0, None, False
-        while i < len(line):
-            ch = line[i]
-            if in_str:
-                if ch == "\\":
-                    i += 2
-                    continue
-                if ch == '"':
-                    in_str = False
-            elif ch == '"':
-                in_str = True
-            elif ch == "'" and i + 2 < len(line) and line[i + 2] == "'":
-                i += 3
-                continue
-            elif ch == "#":
-                cut = i
-                break
-            i += 1
-        out.append(line if cut is None else line[:cut] + ("\n" if line.endswith("\n") else ""))
-    return "".join(out)
+# The comment-aware law scan (audit F-M2-21) lives in holon.bend since I41, so the prover intake applies G3's rule to a
+# submitted proof without importing the gate; the names are kept here for G3 and its callers.
+from .bend import LAW_DECL as _LAW_DECL, strip_comments as strip_bend_comments  # noqa: E402,F401
 
 
 def laws_in_proofs(gen_dir: Path) -> list[Path]:

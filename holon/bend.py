@@ -341,3 +341,69 @@ ESCAPE_PATTERNS = {
 def escape_hatches(src: str) -> list[str]:
     """Strict on purpose: comments are scanned too, so generators never write '?' anywhere."""
     return sorted(k for k, rx in ESCAPE_PATTERNS.items() if rx.search(src))
+
+
+# `law` is a Bend keyword (bend2/bend.ts: a top-level `law Name :`); between tokens Bend skips whitespace and
+# `#` comments, newlines included, so the name and the colon may sit on different lines (audit F-M2-21). Moved here
+# from holon.gate (I41): G3's scan of gen/<m>/proofs/ (holon.gate.laws_in_proofs) and the prover intake's
+# declares_law check (holon.intake) are one rule.
+LAW_DECL = re.compile(r"(?<![\w.])law\s+[A-Za-z0-9_.]+\s*:")
+
+
+def strip_comments(text: str) -> str:
+    """Bend source with every `#` comment removed (to the end of its line), string and char literals kept whole,
+    the way Bend's parse_skip treats them; line breaks are kept."""
+    out = []
+    for line in text.splitlines(keepends=True):
+        i, cut, in_str = 0, None, False
+        while i < len(line):
+            ch = line[i]
+            if in_str:
+                if ch == "\\":
+                    i += 2
+                    continue
+                if ch == '"':
+                    in_str = False
+            elif ch == '"':
+                in_str = True
+            elif ch == "'" and i + 2 < len(line) and line[i + 2] == "'":
+                i += 3
+                continue
+            elif ch == "#":
+                cut = i
+                break
+            i += 1
+        out.append(line if cut is None else line[:cut] + ("\n" if line.endswith("\n") else ""))
+    return "".join(out)
+
+
+def declares_law(text: str) -> bool:
+    """Whether Bend source declares a law, comments removed as Bend removes them (G3's rule for proof files)."""
+    return LAW_DECL.search(strip_comments(text)) is not None
+
+
+def run_budgeted(args: list, cwd, budget_s: float, cfg: dict | None = None) -> Run:
+    """run() under a hard wall-clock budget (the prover intake, I41): the checker runs in its own process group,
+    and the whole group is killed when the budget runs out, so nothing it spawned outlives the check. A run killed
+    at the budget is Run(code=None, out ending in "[timeout]"), with the seconds it ran."""
+    import signal
+    cfg = cfg or config()
+    try:
+        prefix = checker_cmd(cfg)
+    except FingerprintError as e:
+        raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
+    cmd = prefix + [str(a) for a in args]
+    t0 = time.monotonic()
+    p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=_env(),
+                         start_new_session=True)
+    try:
+        out, _ = p.communicate(timeout=budget_s)
+        return Run(p.returncode, out or "", round(time.monotonic() - t0, 3), cmd)
+    except subprocess.TimeoutExpired:
+        secs = round(time.monotonic() - t0, 3)
+        try:
+            os.killpg(p.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            p.kill()
+        out, _ = p.communicate()
+        return Run(None, (out or "") + "\n[timeout]", secs, cmd)

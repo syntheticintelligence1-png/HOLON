@@ -17,6 +17,11 @@ report through holon.filter), refinement_refs (I16, refinement_refs below) and c
 null unless the law's facts document is an extracted one) are filled. A pending field holds "pending:I<n>", never a
 made-up value; no field is pending since I19.
 
+prover (I41; whitepaper §9.1 "Provers (untrusted: tactic generators, agents) -> PROOF/") says who proved what:
+"generator" for every record the pipelines decide (a proof generator, a counter-law, or nothing: UNKNOWN), and
+"agent:<session>" only on a PROVED record whose proof is an agent's submission that the prover intake accepted
+(holon.intake; holon.mpipeline writes it). It has no pending value.
+
 refinement_refs (Def 4.7, §8.6 "the refinement records of the edges used") is the sorted list of
   * "results/M2/refinement/<edge>.json" for every per-edge refinement record (holon.refinement) of the
     law's milestone and facts whose edge is in the law's cone;
@@ -406,14 +411,15 @@ def refinement_refs(law: dict, cone_set: set[str], root: Path | str = ROOT) -> l
 
 def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_facts: str | None,
               compiled_path: Path | None, root: Path | str = ROOT, lean_entry: dict | None = None,
-              ledger_required: bool = True) -> dict:
+              ledger_required: bool = True, prover: str = "generator") -> dict:
     """The v2 fields of a finished record (status, kernel, bound and replay already set).
 
     base_facts is the registered facts file (repo-relative) the run's facts stand for;
     compiled_path is the compiled model the refuter executed; lean_entry is the record's lean4 kernel
     entry (holon.lean.kernel_entry; None where the Lean emitters do not apply). ledger_required=False (test
     milestones only, holon.mpipeline.test_milestone: fixtures that are no target) records a document without a ledger
-    bundle as ledger_match "none" with no model assumptions, which the v2 schema never accepts; otherwise LedgerError."""
+    bundle as ledger_match "none" with no model assumptions, which the v2 schema never accepts; otherwise LedgerError.
+    prover: "generator", or "agent:<session>" for a PROVED record whose proof the prover intake accepted (I41)."""
     model_text = Path(model_path).read_text()
     c = cone(statement_text, model_text)
     refuted = rec["status"] == "REFUTED"
@@ -431,6 +437,7 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
                                witness_sha256)
     return {
         "record_version": RECORD_VERSION,
+        "prover": prover,
         "model_sha256": sha256_file(model_path),
         "compiled_sha256": sha256_file(compiled_path) if compiled_path else None,
         "generator_sha256": generator_sha256(law["ir_version"], root),

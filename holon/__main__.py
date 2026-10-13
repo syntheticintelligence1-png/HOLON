@@ -34,6 +34,8 @@
                                                              results/M2/differential.json; I20)
   python -m holon fragments [--facts DOC] [--binding PATH] [--out PATH] ...   (extracted refinement, I20)
   python -m holon hevm [--out PATH]                     (optional hevm equivalence, results/M2/hevm.json; I20)
+  python -m holon intake [--milestone M] [--root DIR] [--inbox DIR] [--law ID ...] [--budget-s S] [--json]
+  python -m holon intake --list [--milestone M] [--root DIR] [--json]   (the untrusted prover intake, I41)
 """
 from __future__ import annotations
 
@@ -83,6 +85,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["hevm"]:  # likewise for holon.hevm_equiv (I20, optional)
         from . import hevm_equiv
         return hevm_equiv.main(argv[1:])
+    if argv[:1] == ["intake"]:  # likewise for holon.intake (the untrusted prover intake, I41)
+        from . import intake
+        return intake.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")

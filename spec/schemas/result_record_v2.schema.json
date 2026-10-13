@@ -6,7 +6,7 @@
   "required": ["law_id", "statement_hash", "facts_sha256", "status", "premises", "replay", "record_version", "model_sha256",
                "compiled_sha256", "generator_sha256", "cone", "ledger_match", "model_assumptions", "scope_v2", "kernels", "independence_class",
                "refinement_refs", "coverage", "non_vacuity", "witness_provenance", "filter_bin",
-               "evidence_levels", "evidence_triage", "evidence_override"],
+               "evidence_levels", "evidence_triage", "evidence_override", "prover"],
   "properties": {
     "law_id": {"type": "string", "pattern": "^L[0-9]?_[A-Za-z0-9_]+$"},
     "statement_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
@@ -16,6 +16,8 @@
     "replay": {"type": "object", "required": ["status"],
                "properties": {"status": {"enum": ["not_run", "passed", "failed", "not_applicable"]}}},
     "record_version": {"const": "holon-record/0.2"},
+    "prover": {"type": "string", "pattern": "^(generator|agent:[A-Za-z0-9][A-Za-z0-9_.-]{0,63})$",
+               "description": "I41 (whitepaper 9.1, 10.4): who proved what. generator for every record the pipelines decide (a proof generator, a counter-law, or UNKNOWN); agent:<session> only on a PROVED record whose proof is the agent's inbox submission the prover intake accepted (holon.intake). No pending value."},
     "model_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "compiled_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$", "description": "sha256 of the compiled model (.mjs) the refuter executed"},
     "generator_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$", "description": "sha256 over the generator entry modules and every holon module they import"},
@@ -120,6 +122,9 @@
                                          "why": {"type": "string", "pattern": "\\S"}}}
   },
   "allOf": [
+    {"$comment": "I41: an agent prover only on a PROVED record (an agent's refused submission leaves the record its generators wrote)",
+     "if": {"required": ["prover"], "properties": {"prover": {"type": "string", "pattern": "^agent:"}}},
+     "then": {"properties": {"status": {"const": "PROVED"}}}},
     {"if": {"properties": {"status": {"const": "REFUTED"}}},
      "then": {"properties": {"witness_provenance": {"type": "object"}, "filter_bin": {"enum": ["finding", "model_defect", "pending"]}}}},
     {"if": {"properties": {"status": {"enum": ["PROVED", "UNKNOWN"]}}},
