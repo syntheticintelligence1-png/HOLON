@@ -338,6 +338,16 @@ The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
 
 **Order in practice (2026-10-12).** Done: I1–I18, with I16 built early because it needs only I11. I59 (= I23a, data fetch only) runs in the background. Next is I19, then strictly I20, I21, I22, I23 and onward. Any other out-of-order step is announced, with its reason, before it starts.
 
+**Order in practice (2026-10-13, parallel mode authorized by the human).** Work now runs in dependency order instead of strictly one iteration at a time. Anything whose dependencies are done starts now, and anything that depends on unfinished work waits for it.
+- **I19 follow-up (A19), running:** an audit, a fix and an adversarial verification of the I19 extraction.
+- **I20, built in two halves now:** a model side (machine, window, SORT-width, differential, re-extraction) and a real-contract side (Foundry refinement harness, observables, corpus, guard targeting, hevm).
+  - Neither half commits outputs that depend on A19.
+  - An integrator wires A19's additions and runs I20 once A19 merges.
+- **Preregs drafted now:** I21, I22 and I23, which execute after I20; and I24, I30 and I41, which are M3 iterations whose dependencies (I14, I15, I10, I8, I13) are all done.
+  - Preregs merge in iteration order.
+  - Each build starts when its prereg is merged and its dependencies are finished.
+- **I59 (= I23a)** keeps fetching.
+
 **Calendar, honestly.** M2 gets 23 sessions (5 for debts, 18 for foundations and extraction) against a whitepaper budget of about one month. M3 gets 23, M4 7 and M5 5. The plan states plainly that M2 exit (a) cannot be met in this container without data the human supplies, and that M3's blind rerun cannot be fully uncontaminated on the development target.
 
 ---
