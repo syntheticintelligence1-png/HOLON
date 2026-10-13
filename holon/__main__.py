@@ -25,6 +25,8 @@
   python -m holon extract solidity [--milestone M2] [--sidecar PATH] [--root DIR] [--source DIR] [--out PATH] [--check]
   python -m holon coverage --milestone M2 [--root DIR] [--out PATH] [--check]   (gen/M2/coverage.json, G8; I19)
   python -m holon link --milestone M2 [--root DIR] [--out PATH] [--check]       (gen/M2/link.json; I19)
+  python -m holon fragments [--facts DOC] [--binding PATH] [--out PATH] ...   (extracted refinement, I20)
+  python -m holon hevm [--out PATH]                     (optional hevm equivalence, results/M2/hevm.json; I20)
 """
 from __future__ import annotations
 
@@ -62,6 +64,12 @@ def main(argv=None) -> int:
     if argv[:1] == ["link"]:  # likewise for holon.frontends.link (I19)
         from .frontends import link
         return link.main(argv[1:])
+    if argv[:1] == ["fragments"]:  # likewise for holon.replay_fragments (I20)
+        from . import replay_fragments
+        return replay_fragments.main(argv[1:])
+    if argv[:1] == ["hevm"]:  # likewise for holon.hevm_equiv (I20, optional)
+        from . import hevm_equiv
+        return hevm_equiv.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
