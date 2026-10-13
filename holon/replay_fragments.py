@@ -185,6 +185,7 @@ class TraceRun:
     execs: list                   # Exec in execution order; execs[0] is the deployment (id "d")
     steps: list                   # the Step list the trace ran (deployment excluded)
     code: str = "0x"              # the target's runtime code after the deployment
+    impl_code: str | None = None  # an EIP-1967 proxy target's implementation code (where its immutables are)
 
 
 # ---------------------------------------------------------------- binding and project
@@ -411,6 +412,8 @@ def parse_output(text: str) -> list[TraceRun]:
             cur[(tid, sid)] = e
         elif tag == "K":
             runs[int(f[1])].code = f[2].lower()
+        elif tag == "Q":
+            runs[int(f[1])].impl_code = f[3].lower()
         elif tag == "V":
             vals = f[3:]
             env = {}
@@ -513,6 +516,7 @@ class Target:
     calls: dict            # selector -> (name, ABI entry)
     layout: Layout
     errors: dict = field(default_factory=dict)    # selector -> custom error name (compiled ABI)
+    immutables: dict = field(default_factory=dict)    # name -> (byte offset, length) in the runtime code
 
     @classmethod
     def build(cls, proj: Path, binding: dict, doc: dict) -> "Target":
@@ -530,7 +534,7 @@ class Target:
                                  f"{[view.by_selector[s] for s in missing]}")
         errors = {abi.selector(e["name"], e["inputs"]): e["name"] for e in art.get("abi") or []
                   if e.get("type") == "error"}
-        return cls(doc, view, fns, interface_selectors(proj, doc), Layout(lay), errors)
+        return cls(doc, view, fns, interface_selectors(proj, doc), Layout(lay), errors, immutables_of(proj, art))
 
     def action_of(self, data: str) -> str | None:
         if data in ("", "0x"):
@@ -538,8 +542,43 @@ class Target:
         return self.view.action_of(data[:10])
 
 
-def model_call(tgt: Target, e: Exec, before: dict, target_addr: str, code: str | None = None) \
-        -> tuple[str, dict, dict, dict] | None:
+def immutables_of(proj: Path, art: dict) -> dict:
+    """{name: (byte offset, length)} of the target's immutables in its runtime code: the compiled artifact's
+    deployedBytecode.immutableReferences, named by the declarations of the artifacts' ASTs (the target's first)."""
+    refs = ((art.get("deployedBytecode") or {}).get("immutableReferences") or {})
+    if not refs:
+        return {}
+    want = {int(k) for k in refs}
+    names: dict = {}
+
+    def scan(node):
+        stack = [node]
+        while stack:
+            x = stack.pop()
+            if isinstance(x, dict):
+                if x.get("nodeType") == "VariableDeclaration" and x.get("id") in want:
+                    names.setdefault(x["id"], x.get("name"))
+                stack.extend(x.values())
+            elif isinstance(x, list):
+                stack.extend(x)
+    scan(art.get("ast"))
+    if want - set(names):
+        for p in sorted(foundry_out(proj).glob("*/*.json")):
+            try:
+                scan(json.loads(p.read_text()).get("ast"))
+            except (OSError, ValueError):
+                continue
+            if not want - set(names):
+                break
+    out = {}
+    for k, v in sorted(refs.items(), key=lambda kv: int(kv[0])):
+        if int(k) in names and v:
+            out[names[int(k)]] = (int(v[0]["start"]), int(v[0]["length"]))
+    return dict(sorted(out.items()))
+
+
+def model_call(tgt: Target, e: Exec, before: dict, target_addr: str, code: str | None = None,
+               impl_code: str | None = None) -> tuple[str, dict, dict, dict] | None:
     """(action, state, args, env) of a step that calls the target with a document action's selector, else None.
     Raises abi.AbiError when the calldata does not decode (the corpus never builds such a step)."""
     if e.kind != "call" or e.to != target_addr:
@@ -571,6 +610,14 @@ def model_call(tgt: Target, e: Exec, before: dict, target_addr: str, code: str |
         env["balance"][e.caller] = e.balances[1]
     if code is not None:
         env["code"] = {target_addr: code}
+    if tgt.immutables:
+        src = impl_code or code or "0x"
+        imm = {}
+        for name, (start, n) in tgt.immutables.items():
+            w = src[2 + 2 * start: 2 + 2 * (start + n)]
+            if len(w) == 2 * n:
+                imm[name] = "0x" + w
+        env["immutable"] = imm
     state = {hex32(k): hex32(v) for k, v in sorted(before.items())}
     return action, state, args, env
 
@@ -665,7 +712,7 @@ def load_evaluator(spec: str | None, root: Path = ROOT):
         mach = importlib.import_module("holon.machine")
     except ImportError as e:
         raise FragmentsError(f"the extracted model's evaluator is not installed ({e}); pass --evaluator")
-    return mach.load_extracted, ev.step
+    return (lambda path, source=None: mach.load_extracted(path, root, source=source)), ev.step
 
 
 def check_reach_ids(model, view: DocView) -> str | None:
@@ -705,8 +752,10 @@ def disagreement_id(action: str, inp: dict) -> str:
     return f"D-x-{action}-{sha256_json([action, inp])[:16]}"
 
 
-def compare_runs(runs: list[TraceRun], tgt: Target, slots: list[int], model, step_fn) -> tuple[list[Compared], list[dict]]:
-    """Every compared step, and the disagreement entries to file (one per distinct (action, input))."""
+def compare_runs(runs: list[TraceRun], tgt: Target, slots: list[int], model, step_fn,
+                 observers=()) -> tuple[list[Compared], list[dict]]:
+    """Every compared step, and the disagreement entries to file (one per distinct (action, input)). Each observer
+    is called with (Compared, state, args, env) of every compared step (the width evaluation, width_values)."""
     out, dis, seen = [], [], set()
     for tr in runs:
         steps_by_id = {str(i): s for i, s in enumerate(tr.steps)}
@@ -715,7 +764,7 @@ def compare_runs(runs: list[TraceRun], tgt: Target, slots: list[int], model, ste
             if e.id == "d":
                 continue
             st = steps_by_id.get(e.id)
-            mc = model_call(tgt, e, before, tr.target, tr.code)
+            mc = model_call(tgt, e, before, tr.target, tr.code, tr.impl_code)
             if mc is not None:
                 action, state, args, env = mc
                 real = real_outcome(e, before, after)
@@ -729,6 +778,8 @@ def compare_runs(runs: list[TraceRun], tgt: Target, slots: list[int], model, ste
                 meta = dict(st.meta) if st else {}
                 c = Compared(tr.tid, e.id, action, m, real, diff, n, sha256_json(inp), meta, list(kept), st)
                 out.append(c)
+                for ob in observers:
+                    ob(c, state, args, env)
                 if diff:
                     did = disagreement_id(action, inp)
                     if did not in seen:
@@ -940,7 +991,8 @@ def run(args) -> int:
     slots = view.dump_slots()
     init = FC.binding_init(binding, root)
     load, step_fn = load_evaluator(args.evaluator, root)
-    model = load(str(doc_path))
+    src = binding.get("source")     # the extraction's source tree (a fixture's), else the configured checkout
+    model = load(str(doc_path), str(root / src)) if (src and not args.evaluator) else load(str(doc_path))
     mismatch = check_reach_ids(model, view)
     if mismatch:
         raise FragmentsError(f"reach ids differ between the evaluator and holon.fragments_doc: {mismatch}")
@@ -964,7 +1016,8 @@ def run(args) -> int:
     if nb or nt or suffix:
         print(f"fragments: {nb} boundary and {nt} targeting fork steps, {len(suffix)} suffix traces; second run")
         runs = run_harness(proj, tc, binding, traces, slots, init, args.max_steps, args.jobs, tag="full")
-    compared, new = compare_runs(runs, tgt, slots, model, step_fn)
+    wv = WidthValues(model, root) if not args.evaluator else None
+    compared, new = compare_runs(runs, tgt, slots, model, step_fn, [wv.observe] if wv and wv.sites else [])
     groups = panic_groups(compared)
     located = {} if args.no_locate else locate_panics(proj, tc, binding, groups, init, slots)
     if args.no_file:
@@ -978,8 +1031,7 @@ def run(args) -> int:
              "corpus": {**counts, "boundary": nb, "target": nt, "suffix": len(suffix), "m1_seed": FC.M1_SEED,
                         "inputs_sha256": sha256_json([c.input_sha for c in compared])},
              "storage_layout": {"slots": len(slots), "document": sum(1 for e in view.layout if e.source == "storage"),
-                                "inherited": sum(1 for e in view.layout if e.source == "inherited_storage"),
-                                "adapter": view.adapted},
+                                "inherited": sum(1 for e in view.layout if e.source == "inherited_storage")},
              "command": harness_command(binding),
              "harness_notes": harness_notes(runs),
              "toolchain": {k: tc[k] for k in PIN_KEYS}}
@@ -989,6 +1041,9 @@ def run(args) -> int:
     out = Path(args.out) if args.out else root / RECORD
     out = out if out.is_absolute() else root / out
     write_json(out, rec)
+    side = out.with_suffix("")      # results/M2/refinement/extracted/: what the run measures beside the comparison
+    if wv and wv.sites:
+        write_json(side / "width_values.json", wv.document(_rel(doc_path, root), rec["corpus"]["inputs_sha256"]))
     details = Path(args.details) if args.details else work / "details.json"
     write_json(details, run_details(runs, compared, log, view))
     print(f"fragments: {rec['traces']} traces, {rec['steps']} steps compared, {rec['storage_slots']} slot comparisons, "
@@ -997,6 +1052,49 @@ def run(args) -> int:
     for p in rec["panics"]:
         print(f"  panic {p['code']} at {p['src']} on {p['steps']} steps (model {p['model_src']})")
     return 0 if rec["unexplained"] == 0 else 1
+
+
+class WidthValues:
+    """The width sites' corpus evaluation (holon.sorts.width; the "width_corpus" of the adoption sidecar): for every
+    width site of the milestone's adopted documents whose document is the refined one, every compared step of an entry
+    point evaluates the site's stores on the extracted model (holon.sorts.width.store_values, holon.extracted_eval);
+    the document records how many steps reach the store, the largest value stored, and the first values wider than the
+    field (witness candidates)."""
+
+    def __init__(self, model, root: Path):
+        from .sorts import width
+        self.width = width
+        self.model = model
+        rel = model.path.as_posix() if getattr(model, "path", None) else None
+        ms = str(Path(rel).parts[1]) if rel and len(Path(rel).parts) > 2 else "M2"
+        self.sites = [s for s in width.basis_elements(ms, root) if s["document"] == rel]
+        self.acc = {width.site_id(s["span"], s["record"], s["field"]): {"steps": 0, "reaching": 0, "max": 0,
+                                                                         "over": []} for s in self.sites}
+
+    def observe(self, c, state, args, env) -> None:
+        for s in self.sites:
+            if c.action not in (s.get("entry_points") or []):
+                continue
+            a = self.acc[self.width.site_id(s["span"], s["record"], s["field"])]
+            a["steps"] += 1
+            vals = self.width.store_values(self.model, {"state": state, "action": c.action, "args": args, "env": env}, s)
+            if vals:
+                a["reaching"] += 1
+                a["max"] = max(a["max"], max(vals))
+                bad = [v for v in vals if v >> s["width"]]
+                if bad and len(a["over"]) < 8:
+                    a["over"].append({"trace": c.tid, "step": c.id, "value": hex(bad[0])})
+
+    def document(self, facts_rel: str, inputs_sha: str) -> dict:
+        sites = {}
+        for s in self.sites:
+            sid = self.width.site_id(s["span"], s["record"], s["field"])
+            a = self.acc[sid]
+            sites[sid] = {"span": s["span"], "field": s["field"], "width": s["width"],
+                          "entry_points": s.get("entry_points") or [], "steps": a["steps"], "reaching": a["reaching"],
+                          "max": hex(a["max"]), "over": a["over"]}
+        return {"document": "width_values", "facts": facts_rel, "inputs_sha256": inputs_sha,
+                "evaluator": "holon.extracted_eval (holon.sorts.width.store_values)", "sites": sites}
 
 
 def harness_notes(runs: list[TraceRun]) -> dict:

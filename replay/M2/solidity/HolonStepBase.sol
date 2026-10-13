@@ -22,6 +22,8 @@
 //   S <tid> <id> <call|env> <fork> <ok> <to> <caller> <value> <timestamp> <number> <blobs> <data> <ret>
 //                                                  one per step (id d: the deployment); env steps write - for the call
 //   K <tid> <code>                                 the target's runtime code, after the deployment
+//   Q <tid> <impl> <code>                          when the target is an EIP-1967 proxy (its implementation slot is not
+//                                                  zero): the implementation's address and runtime code (its immutables)
 //   V <tid> <id> <chainid> <basefee> <prevrandao> <coinbase> <gaslimit> <blobbasefee> <origin> <gasprice>
 //     <target balance> <caller balance>            the block and transaction environment of a call step, and the
 //                                                  balances before it (the call's value not yet transferred)
@@ -74,6 +76,8 @@ interface HolonStepVm {
 
 abstract contract HolonStepBase is Test {
     HolonStepVm internal constant SV = HolonStepVm(address(uint160(uint256(keccak256("hevm cheat code")))));
+    /// bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1), the EIP-1967 implementation slot
+    bytes32 internal constant EIP1967_IMPLEMENTATION = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     struct HolonCall {
         address caller;
@@ -289,6 +293,8 @@ abstract contract HolonStepBase is Test {
         holonTarget = target;
         holonLine(string.concat("T ", dec(tid), " ", ha(target), " ", ha(address(this))));
         holonLine(string.concat("K ", dec(tid), " ", hx(target.code)));
+        address impl = address(uint160(uint256(SV.load(target, EIP1967_IMPLEMENTATION))));
+        if (impl != address(0)) holonLine(string.concat("Q ", dec(tid), " ", ha(impl), " ", hx(impl.code)));
         envRecord(tid, type(uint256).max, false, acc);
     }
 

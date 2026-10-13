@@ -591,7 +591,7 @@ class Search:
                 if e.caller:
                     self.callers.add(e.caller)
                 self.blobs.update(e.blobs)
-                mc = model_call(tgt, e, before, tr.target)
+                mc = model_call(tgt, e, before, tr.target, tr.code, tr.impl_code)
                 if mc is None:
                     continue
                 action, _state, args, env = mc
@@ -993,7 +993,7 @@ class Search:
                 out.add(t[0])
             elif t[0] in ("env", "storage", "call", "callok", "immutable") and len(t) > 1 and isinstance(t[1], str):
                 out.add(f"{t[0]} {t[1]}")
-            elif t[0] in ("phi", "unknown", "carried", "exit", "count", "mem", "mload"):
+            elif t[0] in ("unknown", "carried", "exit", "count", "iter", "returned", "mem", "mload"):
                 out.add(t[0])
         return out
 
