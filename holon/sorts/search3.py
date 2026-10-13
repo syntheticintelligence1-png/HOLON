@@ -598,7 +598,13 @@ def pools_of(model: Model, trace: list, state: dict, doc: dict, sorts: dict) -> 
         if k < (1 << 64):
             nums.add(k)
     byts: list = []
-    for p in sorted(model.kh) + sorted(model.sh):
+    # the preimages of the hashes the state holds first (a header whose hash a commit stored), then the others
+    held = set(state.values())
+    pre = sorted(model.kh) + sorted(model.sh)
+    first = [p for p in pre if model.kh.get(p) in held or model.sh.get(p) in held]
+    fs = set(first)
+    pre = first + [p for p in pre if p not in fs]
+    for p in pre:
         b = bytes.fromhex(p[2:])
         if b not in byts and len(b) <= 512:
             byts.append(b)

@@ -1073,7 +1073,10 @@ def run(args) -> int:
         extra["morph_commit"] = checkout_sha
     if args.evaluator and args.evaluator.endswith(".bend"):   # the evaluator is a model file: name it and its hash
         ep = Path(args.evaluator) if Path(args.evaluator).is_absolute() else root / args.evaluator
-        extra["evaluator"] = _rel(ep, root)
+        try:   # the path as given (holon model writes <model>.bend as a link to an importable file name)
+            extra["evaluator"] = Path(os.path.abspath(ep)).relative_to(root).as_posix()
+        except ValueError:
+            extra["evaluator"] = ep.name
         extra["evaluator_sha256"] = hashlib.sha256(ep.read_bytes()).hexdigest()
     rec = build_record(runs, compared, entries, view, root, reason_of, located, extra)
     out = Path(args.out) if args.out else root / RECORD
