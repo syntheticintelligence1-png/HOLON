@@ -39,6 +39,24 @@ IR_VERSION = "holon-ir/0.3"
 # SORT-width (I20) derives nothing unless the milestone adopts extracted documents (holon.sorts.reextract), so the
 # catalog entry leaves every earlier derivation byte-identical
 CATALOG = {"SORT": {"site": _sites, "width": _width}}
+# I24: catalog versions. holon-rules/1.0 is M2's (SORT/site and width) and every test milestone's by default;
+# holon-rules/1.1 is M3's: rule PAR, one producer per sub-form (holon.rules.par), run in par.SUBFORMS order
+from . import par as _par  # noqa: E402
+PAR_CATALOG_VERSION = "holon-rules/1.1"
+CATALOGS = {RULE_CATALOG_VERSION: CATALOG, PAR_CATALOG_VERSION: {"PAR": dict(_par.PRODUCERS)}}
+
+
+def catalog_version(milestone: str) -> str:
+    """The rule-catalog version a milestone derives with: holon-rules/1.1 from M3 on; holon-rules/1.0 for M0-M2 and
+    for every test milestone (T<k>), whose catalog `--catalog` may replace."""
+    import re
+    m = re.fullmatch(r"M(\d+)", milestone or "")
+    return PAR_CATALOG_VERSION if m and int(m.group(1)) >= 3 else RULE_CATALOG_VERSION
+
+
+def target_milestone(milestone: str) -> bool:
+    import re
+    return re.fullmatch(r"M\d+", milestone or "") is not None
 
 
 class Refused(ValueError):
@@ -230,6 +248,223 @@ def compute(milestone: str, root: Path, facts: list[str] | None = None, assignme
     return {"laws": laws, "derivation": derivation, "derivation_text": dtext, "registry": registry, "obstructions": obs}
 
 
+# ====================================================================== rule PAR (I24)
+def _json_text(p: Path) -> str | None:
+    try:
+        return p.read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+
+def _committed_par_inputs(milestone: str, root: Path, inputs: Inputs):
+    """M3 on: the linked codec documents, their diagrams and the evidence set, each byte for byte what holon codecs,
+    diagram and evidence write now (else Refused: a stale input). Returns ([(path, diagram)], evidence, uncovered)."""
+    from ..diagram import DiagramError, linked_diagrams
+    from ..diagram import evidence as EV
+    from ..diagram import linked as L
+    ad_rel, link_rel = L.default_sidecars(milestone)
+    try:
+        fresh = L.render_all(root, milestone, ad_rel, link_rel)
+    except L.SidecarError as e:
+        raise Refused(f"the linked codec layer cannot be rebuilt: {e}") from e
+    except L.LinkedError as e:
+        raise DeriveError(str(e)) from e
+    have = {p.name: p.read_text(encoding="utf-8") for p in L.committed_codecs(milestone, root)}
+    if have != fresh:
+        raise Refused(f"gen/{milestone}/codec is stale: it is not what `holon codecs --milestone {milestone}` writes now")
+    try:
+        dtexts = linked_diagrams(milestone, root)
+    except DiagramError as e:
+        raise Refused(f"the component diagrams cannot be rebuilt: {e}") from e
+    for model, text in dtexts.items():
+        if _json_text(root / "gen" / milestone / "diagram" / f"{model}.json") != text:
+            raise Refused(f"gen/{milestone}/diagram/{model}.json is stale: it is not what `holon diagram --milestone "
+                          f"{milestone}` writes now")
+    ev_p = root / "gen" / milestone / "evidence.json"
+    try:
+        etext = EV.render(EV.build_milestone(milestone, root))
+    except (EV.EvidenceError, DiagramError) as e:
+        raise Refused(f"the evidence set cannot be rebuilt: {e}") from e
+    if _json_text(ev_p) != etext:
+        raise Refused(f"gen/{milestone}/evidence.json is stale: it is not what `holon evidence --milestone "
+                      f"{milestone}` writes now")
+    ev = inputs.json(ev_p)
+    inputs.read(root / ad_rel)
+    inputs.read(root / link_rel)
+    inputs.read(root / "spec" / "M2" / "lib" / "evidence_lexical.json")
+    for rel in json.loads((root / ad_rel).read_text(encoding="utf-8")).get("documents") or []:
+        inputs.read(root / rel)
+    comps = []
+    for p in L.committed_codecs(milestone, root):
+        dg = inputs.json(root / "gen" / milestone / "diagram" / p.name)
+        comps.append((p, dg))
+    try:
+        unc = L.uncovered(root, ad_rel, link_rel)
+    except L.SidecarError as e:
+        raise Refused(str(e)) from e
+    return comps, ev, unc
+
+
+def _sidecars_of(doc: dict, root: Path) -> tuple[str | None, str | None]:
+    """The adoption and link sidecars a linked codec document lists among its inputs."""
+    ad = ln = None
+    for i in doc.get("inputs") or []:
+        try:
+            d = json.loads((root / i["path"]).read_text(encoding="utf-8"))
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+        if isinstance(d, dict) and "derive_extracted_version" in d:
+            ad = i["path"]
+        elif isinstance(d, dict) and isinstance(d.get("roles"), dict):
+            ln = i["path"]
+    return ad, ln
+
+
+def _given_par_inputs(milestone: str, root: Path, inputs: Inputs, paths: list[Path], codecs: list[Path],
+                      assignment: dict | None):
+    """A test milestone's --facts and --codec documents: their diagrams and the evidence set built in memory. Returns
+    ([(path, diagram)] of the fact documents, [(path, diagram)] of the codec documents, evidence, uncovered)."""
+    from ..diagram import DiagramError
+    from ..diagram import evidence as EV
+    from ..diagram import linked as L
+    from ..diagram.build import build as build_diagram
+    fdocs, cdocs = [], []
+    for p in paths:
+        inputs.read(p)
+        try:
+            fdocs.append((p, build_diagram(p, root).to_json()))
+        except DiagramError as e:
+            raise DeriveError(f"{inputs.rel(p)}: no diagram: {e}") from e
+    unc_src = set()
+    for p in codecs:
+        raw = inputs.read(p)
+        doc = json.loads(raw.decode("utf-8"))
+        if not L.is_linked(doc):
+            raise ValueError(f"--codec {inputs.rel(p)}: not a linked codec document ({L.LINKED_VERSION})")
+        try:
+            dg = L.diagram(doc, inputs.rel(p), sha256_bytes(raw))
+        except L.LinkedError as e:
+            raise DeriveError(str(e)) from e
+        cdocs.append((p, dg))
+        ad, ln = _sidecars_of(doc, root)
+        if ad and ln:
+            unc_src.add((ad, ln))
+    if assignment is None:
+        assignment = {"models": {}, "sites": [], "sorts_sha256": None}
+    try:
+        ev = EV.build(paths, root, diagrams={d["model"]: d for _, d in fdocs}, assignment=assignment,
+                      milestone=milestone, components=cdocs, adopted=False)
+    except EV.EvidenceError as e:
+        raise Refused(f"the evidence set cannot be built: {e}") from e
+    unc = []
+    for ad, ln in sorted(unc_src):
+        inputs.read(root / ad)
+        inputs.read(root / ln)
+        unc += L.uncovered(root, ad, ln)
+    return fdocs, cdocs, ev, sorted({json.dumps(u, sort_keys=True): u for u in unc}.values(),
+                                    key=lambda u: (u["document"], u["function"] or ""))
+
+
+def _earlier_laws(milestone: str, root: Path, inputs: Inputs) -> list[tuple[str, dict]]:
+    """P11: the laws a derivation is linked against: laws/M<j> for j < k (a test milestone: every laws/M<j>)."""
+    import re
+    m = re.fullmatch(r"M(\d+)", milestone)
+    out = []
+    for d in sorted((root / "laws").glob("M*")):
+        mm = re.fullmatch(r"M(\d+)", d.name)
+        if not mm or not d.is_dir() or (m and int(mm.group(1)) >= int(m.group(1))):
+            continue
+        for p in sorted(d.glob("L*.json")):
+            out.append((d.name, inputs.json(p)))
+    return out
+
+
+def compute_par(milestone: str, root: Path, cv: str, facts: list[str] | None = None,
+                codecs: list[str] | None = None, assignment: str | None = None) -> dict:
+    """Everything derive writes for a catalog with rule PAR (rules P0-P12, X8), as documents (nothing is written)."""
+    from ..gen import refs as R
+    cat = CATALOGS[cv]
+    if "SORT" in cat:
+        raise DeriveError(f"catalog {cv} holds SORT and PAR: this derive runs PAR only (SORT enters M3 with I30)")
+    inputs = Inputs(root)
+    given = bool(facts) or bool(codecs)
+    A = None
+    if given:
+        paths = _documents(milestone, root, facts) if facts else []
+        cpaths = _documents(milestone, root, codecs) if codecs else []
+        if paths:
+            if not assignment:
+                raise ValueError("--facts documents need --assignment (their sorts: evidence level E5)")
+            ap = Path(assignment)
+            A = inputs.json(ap if ap.is_absolute() else Path.cwd() / ap)
+            docs_ = [Document(p, inputs, milestone, root) for p in paths]
+            bad = _stale(A, docs_)
+            if bad:
+                raise Refused(f"the assignment is stale: it does not list " + "; ".join(bad))
+        fdocs, cdocs, ev, unc = _given_par_inputs(milestone, root, inputs, paths, cpaths, A)
+        comps = cdocs
+    else:
+        if not target_milestone(milestone):
+            raise ValueError(f"{milestone}: a test milestone derives PAR from --facts and --codec documents")
+        comps, ev, unc = _committed_par_inputs(milestone, root, inputs)
+        fdocs = []
+    documents = []
+    for p, dg in fdocs + comps:
+        d = Document(p, inputs, milestone, root)
+        documents.append((d, dg))
+    models = [dg["model"] for _, dg in documents]
+    if len(set(models)) != len(models):
+        raise ValueError(f"two documents give one model: {sorted(models)}")
+    laws, entries, basis, cycle_rank = {}, [], [], {}
+    for d, dg in sorted(documents, key=lambda x: x[1]["model"]):
+        pd = _par.ParDoc(rel=d.rel, facts=d.facts, diagram=dg,
+                         atoms=[a for a in ev["atoms"] if a["model"] == dg["model"]],
+                         oracle_binders=list(d.params), lib_builtins=dict(d.builtins))
+        try:
+            acc = _par.derive_document(pd, cat["PAR"])
+        except _par.ParError as e:
+            raise DeriveError(f"{d.rel}: {e}") from e
+        for lid, x in acc.laws.items():
+            if lid in laws:
+                raise DeriveError(f"two basis elements map to one law id: {lid}")
+            law = {"ir_version": IR_VERSION, "law_id": lid, "milestone": milestone, "rule": "PAR",
+                   "subform": x["subform"], "rule_catalog_version": cv, "facts": d.rel, "facts_sha256": d.sha256,
+                   "notes": x["notes"], "statement": x["statement"]}
+            laws[lid] = law
+            entries.append({"law_id": lid, "rule": "PAR", "subform": x["subform"], "facts": d.rel,
+                            "basis": x["basis"], "entry_points": x["entry_points"],
+                            "statement_hash": R.law_hash(law, d.facts, oracles=d.orc, root=root)})
+        basis += acc.basis
+        cycle_rank[dg["model"]] = {k: acc.cycle[k] for k in ("E", "V", "kappa", "rank", "tree", "non_tree")}
+    links = []
+    canon_new = {lid: _par.canonical_json(_par.canonical(law)) for lid, law in laws.items()}
+    for om, old in _earlier_laws(milestone, root, inputs):
+        co = _par.canonical_json(_par.canonical(old))
+        for lid, cn in canon_new.items():
+            if cn == co:
+                nb = [b["name"] for b in laws[lid]["statement"].get("binders", [])]
+                ob = [b["name"] for b in (old["statement"].get("binders") or old["statement"].get("forall") or [])]
+                links.append({"old": old["law_id"], "old_milestone": om, "new": lid, "new_milestone": milestone,
+                              "basis": "alpha-equivalent", "binder_map": dict(zip(nb, ob))})
+    links.sort(key=lambda x: (x["old_milestone"], x["old"], x["new"]))
+    entries.sort(key=lambda e: e["law_id"])
+    basis.sort(key=_par.basis_sort_key)
+    sorts_sha = A.get("sorts_sha256") if A is not None else None
+    derivation = {"document": "derivation", "derive_version": DERIVE_VERSION, "milestone": milestone,
+                  "rule_catalog_version": cv, "sorts_sha256": sorts_sha, "inputs": inputs.listing(), "laws": entries,
+                  "links": links, "evidence_sha256": ev["evidence_sha256"], "cycle_rank": dict(sorted(cycle_rank.items())),
+                  "par_basis": basis, "uncovered": unc}
+    dtext = dumps(derivation)
+    named = sorted({law["facts"] for law in laws.values()})
+    shas = {d.rel: d.sha256 for d, _ in documents}
+    registry = {"milestone": milestone, "ir_version": IR_VERSION, "rule_catalog_version": cv,
+                "facts": named[0] if named else None, "facts_sha256": shas[named[0]] if named else None,
+                "facts_files": {r: shas[r] for r in named}, "statements": {e["law_id"]: e["statement_hash"] for e in entries},
+                "sorts_sha256": sorts_sha, "derivation_sha256": sha256_bytes(dtext.encode("utf-8")),
+                "evidence_sha256": ev["evidence_sha256"]}
+    return {"laws": laws, "derivation": derivation, "derivation_text": dtext, "registry": registry, "obstructions": None}
+
+
 def diff(base: dict, new: dict) -> dict:
     """The derive diff of `new` against `base` (two DERIVATION documents)."""
     b = {e["law_id"]: e for e in base.get("laws", [])}
@@ -253,10 +488,25 @@ def diff(base: dict, new: dict) -> dict:
 
 def derive(milestone: str, root: str | None = None, out: str | None = None, obstructions: str | None = None,
            facts: list[str] | None = None, assignment: str | None = None, against: str | None = None,
-           diff_path: str | None = None, log=print) -> int:
+           diff_path: str | None = None, log=print, catalog: str | None = None, codecs: list[str] | None = None) -> int:
     root_p = Path(root).resolve() if root else ROOT
+    cv = catalog or catalog_version(milestone)
+    if cv not in CATALOGS:
+        print(f"holon derive: unknown catalog {cv!r} (known: {sorted(CATALOGS)})", file=sys.stderr)
+        return 1
+    if catalog and target_milestone(milestone) and catalog != catalog_version(milestone):
+        print(f"holon derive: refused: {milestone} derives with {catalog_version(milestone)}; --catalog {catalog} "
+              "replaces the catalog of a test milestone only", file=sys.stderr)
+        return 1
+    if codecs and "PAR" not in CATALOGS[cv]:
+        print(f"holon derive: --codec documents are derived by rule PAR, which catalog {cv} does not hold",
+              file=sys.stderr)
+        return 1
     try:
-        res = compute(milestone, root_p, facts, assignment)
+        if "PAR" in CATALOGS[cv]:
+            res = compute_par(milestone, root_p, cv, facts, codecs, assignment)
+        else:
+            res = compute(milestone, root_p, facts, assignment)
         base = None
         if against:
             ap = Path(against)
@@ -282,13 +532,14 @@ def derive(milestone: str, root: str | None = None, out: str | None = None, obst
         (laws_dir / f"{lid}.json").write_text(dumps(law), encoding="utf-8")
     (laws_dir / "DERIVATION.json").write_text(res["derivation_text"], encoding="utf-8")
     (laws_dir / "REGISTRY.json").write_text(dumps(res["registry"]), encoding="utf-8")
-    obs_p.parent.mkdir(parents=True, exist_ok=True)
-    obs_p.write_text(dumps(res["obstructions"]), encoding="utf-8")
+    if res["obstructions"] is not None:   # a catalog without SORT writes no obstructions file (I24)
+        obs_p.parent.mkdir(parents=True, exist_ok=True)
+        obs_p.write_text(dumps(res["obstructions"]), encoding="utf-8")
     if against and diff_path:
         d = diff(base, res["derivation"])
         Path(diff_path).parent.mkdir(parents=True, exist_ok=True)
         Path(diff_path).write_text(dumps(d), encoding="utf-8")
-    n_obs = len(res["obstructions"]["obstructions"])
+    n_obs = len(res["obstructions"]["obstructions"]) if res["obstructions"] is not None else 0
     log(f"holon derive: {len(res['laws'])} laws, {n_obs} obstructions -> {laws_dir}")
     for e in res["derivation"]["laws"]:
         log(f"  {e['law_id']:58s} {', '.join(e['entry_points'])}")
@@ -306,7 +557,10 @@ def main(argv=None) -> int:
     ap.add_argument("--assignment", help="the frozen sort assignment (default <root>/gen/<milestone>/sorts/assignment.json)")
     ap.add_argument("--against", help="a laws directory holding a DERIVATION.json to diff against")
     ap.add_argument("--diff", help="where to write the derive diff (with --against)")
+    ap.add_argument("--catalog", help="a rule-catalog version of CATALOGS replacing a test milestone's catalog (I24)")
+    ap.add_argument("--codec", action="append", help="a linked codec document to derive from (test milestones; I24)")
     a = ap.parse_args(argv)
     if bool(a.against) != bool(a.diff):
         ap.error("--against and --diff go together")
-    return derive(a.milestone, a.root, a.out, a.obstructions, a.facts, a.assignment, a.against, a.diff)
+    return derive(a.milestone, a.root, a.out, a.obstructions, a.facts, a.assignment, a.against, a.diff,
+                  catalog=a.catalog, codecs=a.codec)

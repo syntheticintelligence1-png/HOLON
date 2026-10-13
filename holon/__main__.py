@@ -34,6 +34,10 @@
                                                              results/M2/differential.json; I20)
   python -m holon fragments [--facts DOC] [--binding PATH] [--out PATH] ...   (extracted refinement, I20)
   python -m holon hevm [--out PATH]                     (optional hevm equivalence, results/M2/hevm.json; I20)
+  python -m holon codecs --milestone M3 [--root DIR] [--adoption PATH] [--link PATH] [--out DIR] [--check]
+                                                        (the linked codec documents gen/<M>/codec/<role>.json; I24)
+  python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
+                                                        (the back-test across documents, results/M3/backtest.json; I24)
 """
 from __future__ import annotations
 
@@ -83,6 +87,12 @@ def main(argv=None) -> int:
     if argv[:1] == ["hevm"]:  # likewise for holon.hevm_equiv (I20, optional)
         from . import hevm_equiv
         return hevm_equiv.main(argv[1:])
+    if argv[:1] == ["codecs"]:  # likewise for holon.diagram.linked (the linked codec layer, I24)
+        from .diagram import linked
+        return linked.main(argv[1:])
+    if argv[:1] == ["backtest"]:  # likewise for holon.backtest (the back-test across documents, I24)
+        from . import backtest
+        return backtest.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")

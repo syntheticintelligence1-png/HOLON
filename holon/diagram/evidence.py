@@ -724,17 +724,25 @@ def adopted_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, by
 
 
 def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, assignment: dict | None = None,
-          milestone: str | None = None) -> dict:
+          milestone: str | None = None, components: list | None = None, adopted: bool = True) -> dict:
     """The evidence document of the given fact documents (paths inside root); see the module docstring. diagrams:
     {model stem: diagram JSON} (default: the committed gen/M2/diagram/<stem>.json); assignment: a document shaped
     like gen/M2/sorts/assignment.json, of which only models[<stem>]["assignment"], "sites" and "sorts_sha256" are
-    read (default: the committed one). Independent of the order of fact_paths."""
+    read (default: the committed one; from M3 on, null when the milestone has none: no sorts assignment covers an M3
+    document until I30). components: linked codec documents (I24, rule X7), each (path, diagram JSON or None for the
+    committed gen/<M>/diagram/<role>.json): one model per component, with its E1, E2 and E6 atoms. adopted: whether the
+    transitions documents the milestone adopts are covered (anchors only, I20). Independent of the order of
+    fact_paths."""
     root = Path(root).resolve()
     inp = _Inputs(root)
     gm = gen_milestone(milestone)
     lex = Lexicon(inp.read_json(root / LEXICAL))
     if assignment is None:
-        assignment = inp.read_json(root / "gen" / gm / "sorts" / "assignment.json")
+        ap = root / "gen" / gm / "sorts" / "assignment.json"
+        if not fact_paths and gm != "M2" and not ap.exists():
+            assignment = {"models": {}, "sites": [], "sorts_sha256": None}
+        else:
+            assignment = inp.read_json(ap)
     if not isinstance(assignment, dict) or not isinstance(assignment.get("models"), dict):
         raise EvidenceError("the sorts assignment has no models")
     sites = assignment.get("sites") or []
@@ -769,7 +777,36 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
                         "diagram": drel, "anchors": an}
         atoms += a
         unresolved += u
-    for rel, raw, d in adopted_documents(gm, root, inp):   # I20: no diagram, anchors only, no atoms
+    for cp, cdg in components or []:   # I24: linked codec documents (rule X7)
+        from . import linked as L
+        rel = inp.rel(Path(cp))
+        raw = inp.read_bytes(root / rel)
+        try:
+            doc = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError) as e:
+            raise EvidenceError(f"{rel}: not JSON ({e})") from e
+        if not L.is_linked(doc):
+            raise EvidenceError(f"{rel}: not a linked codec document")
+        key = doc["component"]
+        if key in models:
+            raise EvidenceError(f"two documents share the model name {key}")
+        sha = hashlib.sha256(raw).hexdigest()
+        if cdg is None:
+            drel = f"gen/{gm}/diagram/{key}.json"
+            cdg = inp.read_json(root / drel)
+        else:
+            drel = None
+        for k, want in (("model", key), ("facts", rel), ("facts_sha256", sha), ("facts_version", L.LINKED_VERSION)):
+            if cdg.get(k) != want:
+                raise EvidenceError(f"{key}: the diagram's {k} is {cdg.get(k)!r}, not {want!r} (a stale diagram: "
+                                    "regenerate it with `holon diagram`)")
+        try:
+            atoms += L.atoms(doc, cdg, lex)
+        except (KeyError, TypeError, L.LinkedError) as e:
+            raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
+        models[key] = {"facts": rel, "facts_sha256": sha, "facts_version": L.LINKED_VERSION, "diagram": drel,
+                       "anchors": L.anchors(cdg)}
+    for rel, raw, d in (adopted_documents(gm, root, inp) if adopted else []):   # I20: no diagram, anchors only
         key = Path(rel).name[:-len(".json")]
         if key in models:
             raise EvidenceError(f"two documents share the model name {key}")
@@ -784,6 +821,22 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
            "models": models, "atoms": _unique(atoms), "unresolved": _unique(unresolved)}
     doc["evidence_sha256"] = body_sha256(doc)
     return doc
+
+
+def build_milestone(milestone: str, root: Path | str = ROOT) -> dict:
+    """The evidence set `holon evidence --milestone M` writes: up to M2 over the milestone's fact documents
+    (holon.diagram.fact_documents); from M3 on (I24) over the linked codec documents gen/<M>/codec/*.json and their
+    committed diagrams, never a hand-written document (Q19), plus the adopted transitions documents (anchors only)."""
+    from . import fact_documents
+    from .linked import committed_codecs, linked_milestone
+    root = Path(root).resolve()
+    if linked_milestone(milestone):
+        comps = [(p, None) for p in committed_codecs(milestone, root)]
+        if not comps:
+            raise EvidenceError(f"no linked codec documents under gen/{milestone}/codec (run `holon codecs "
+                                f"--milestone {milestone}`)")
+        return build([], root, milestone=milestone, components=comps)
+    return build(fact_documents(milestone, root), root, milestone=milestone)
 
 
 def _unique(items: list[dict]) -> list[dict]:
@@ -801,13 +854,14 @@ def _named(st: dict, irv: str, an: dict) -> set[str]:
 
     def walk(t):
         if isinstance(t, dict):
-            if irv == IR01:
-                f = t.get("call")
-                if isinstance(f, str):
-                    if f in an["codec"]:
-                        out.add(an["codec"][f])
-                    out.update(an["domains"].get(f, []))
-            elif irv in (IR02, IR03):
+            # holon-ir/0.1, and the codec terms holon-ir/0.3 adds (I24: laws over a holon-facts/0.1 document or a
+            # linked codec document): a call names its CODEC edge, a domain predicate the edges it is the domain of
+            f = t.get("call") if irv in (IR01, IR03) else None
+            if isinstance(f, str):
+                if f in an["codec"]:
+                    out.add(an["codec"][f])
+                out.update(an["domains"].get(f, []))
+            if irv in (IR02, IR03):
                 a = t.get("act")
                 if isinstance(a, str) and a in an["actions"]:
                     out.add(an["actions"][a])
@@ -848,8 +902,11 @@ def _named(st: dict, irv: str, an: dict) -> set[str]:
     return out
 
 
-def _version(st: dict) -> int | None:
-    """L4: the one value the premises fix for the record field "version" (holon-ir/0.1), else None."""
+def _version(st: dict, tag_premise: bool = False) -> int | None:
+    """L4: the one value the premises fix for the record field "version" (holon-ir/0.1, and the codec terms of
+    holon-ir/0.3), else None. tag_premise (holon-ir/0.3, I24 rule X8c): a premise that a byte-string decoder of the
+    statement reads the one byte v ({"eq": [{"call": T, "args": [{"var": b}]}, {"some": {"bytes": "0x<v>"}}]}) fixes
+    the version v of a law over a linked carrier, read as the version premise."""
     vals = set()
     for p in st.get("assume") or []:
         eq = p.get("eq") if isinstance(p, dict) else None
@@ -861,6 +918,15 @@ def _version(st: dict) -> int | None:
                     and isinstance(b, dict) and set(b) == {"bytes"} and isinstance(b["bytes"], str)):
                 try:
                     vals.add(int(b["bytes"], 16))
+                except ValueError:
+                    continue
+            if (tag_premise and isinstance(a, dict) and set(a) == {"call", "args"} and isinstance(a["call"], str)
+                    and isinstance(a["args"], list) and len(a["args"]) == 1 and isinstance(a["args"][0], dict)
+                    and set(a["args"][0]) == {"var"} and isinstance(b, dict) and set(b) == {"some"}
+                    and isinstance(b["some"], dict) and set(b["some"]) == {"bytes"}
+                    and isinstance(b["some"]["bytes"], str) and len(b["some"]["bytes"]) == 4):
+                try:
+                    vals.add(int(b["some"]["bytes"], 16))
                 except ValueError:
                     continue
     return next(iter(vals)) if len(vals) == 1 else None
@@ -882,7 +948,7 @@ def law_evidence(law: dict, doc: dict) -> dict:
     named = _named(st, irv, an)
     context = list(an["trans"]) if any(isinstance(b, dict) and b.get("type") in PATH_BINDERS
                                        for b in st.get("binders") or []) else []
-    version = _version(st) if irv == IR01 else None
+    version = _version(st) if irv == IR01 else (_version(st, tag_premise=True) if irv == IR03 else None)
     N = named | set(context)
     rel = [a for a in doc.get("atoms") or [] if a["model"] == model and a["p"] in N and a["q"] in N
            and (a["p"] in named or a["q"] in named)
@@ -1007,15 +1073,21 @@ def gevid(milestone: str, root: Path | str = ROOT) -> dict:
         if doc.get("evidence_sha256") != body_sha256(doc):
             problems.append(f"{rel}: evidence_sha256 {doc.get('evidence_sha256')!r} is not the hash of its body")
         sp = Path("gen") / gm / "sorts" / "assignment.json"
+        from .linked import linked_milestone
+        if linked_milestone(milestone) and not (root / sp).exists():   # I24 (G4): no sorts assignment covers M3 yet
+            if doc.get("sorts_sha256") is not None:
+                problems.append(f"{rel}: sorts_sha256 {doc.get('sorts_sha256')!r}, but {sp.as_posix()} does not exist "
+                                "(null expected)")
+        else:
+            try:
+                want = json.loads((root / sp).read_text(encoding="utf-8")).get("sorts_sha256")
+                if doc.get("sorts_sha256") != want:
+                    problems.append(f"{rel}: sorts_sha256 {doc.get('sorts_sha256')!r} differs from "
+                                    f"{sp.as_posix()}'s {want!r}")
+            except (OSError, ValueError, AttributeError) as e:
+                problems.append(f"{sp.as_posix()}: unreadable ({type(e).__name__}: {e}), so sorts_sha256 is unchecked")
         try:
-            want = json.loads((root / sp).read_text(encoding="utf-8")).get("sorts_sha256")
-            if doc.get("sorts_sha256") != want:
-                problems.append(f"{rel}: sorts_sha256 {doc.get('sorts_sha256')!r} differs from "
-                                f"{sp.as_posix()}'s {want!r}")
-        except (OSError, ValueError, AttributeError) as e:
-            problems.append(f"{sp.as_posix()}: unreadable ({type(e).__name__}: {e}), so sorts_sha256 is unchecked")
-        try:
-            fresh = render(build(fact_documents(gm, root), root, milestone=gm))
+            fresh = render(build_milestone(gm, root))
             if fresh != text:
                 problems.append(f"{rel}: a fresh build from the committed inputs does not reproduce it byte for byte "
                                 f"(rerun `holon evidence --milestone {gm}`, or an input drifted)")
@@ -1101,8 +1173,6 @@ def gevid(milestone: str, root: Path | str = ROOT) -> dict:
 
 # ====================================================================== CLI
 def main(argv=None) -> int:
-    from . import fact_documents
-
     ap = argparse.ArgumentParser(prog="holon evidence")
     ap.add_argument("--milestone", default="M2")
     ap.add_argument("--root", help="repository root holding the inputs (default: this checkout)")
@@ -1110,7 +1180,7 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else ROOT
     try:
-        doc = build(fact_documents(a.milestone, root), root, milestone=a.milestone)
+        doc = build_milestone(a.milestone, root)
         text = render(doc)
     except (EvidenceError, DiagramError) as e:
         print(f"holon evidence: {e}", file=sys.stderr)
