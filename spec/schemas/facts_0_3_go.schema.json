@@ -126,6 +126,23 @@
           }
         },
         "loops": {"type": "array", "items": {"$ref": "#/$defs/loop"}},
+        "globals": {
+          "type": "array",
+          "description": "I19 follow-up (A19-13; holon/frontends/go/extract.py docstring): the package variables a package initializer assigns as a whole, sorted by global.",
+          "items": {
+            "type": "object",
+            "required": ["global", "package", "span", "type", "value", "cells"],
+            "additionalProperties": false,
+            "properties": {
+              "global": {"type": "string"},
+              "package": {"type": "string"},
+              "span": {"type": "string"},
+              "type": {"type": "string"},
+              "value": {"$ref": "#/$defs/term"},
+              "cells": {"oneOf": [{"type": "array", "items": {"$ref": "#/$defs/cell"}}, {"type": "null"}]}
+            }
+          }
+        },
         "coverage": {
           "type": "object",
           "required": ["functions", "with_paths", "debt"],
