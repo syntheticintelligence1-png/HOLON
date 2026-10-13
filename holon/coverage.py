@@ -44,7 +44,17 @@ def accounting_sidecars(m: str, root=ROOT) -> list[tuple[Path, dict, object]]:
     """(path, sidecar, frontend module) of every extraction sidecar of m whose frontend accounts for statements."""
     from . import frontends
     out = []
-    for sp in frontends.sidecars(m, root):
+    paths = list(frontends.sidecars(m, root))
+    from .sorts.typed_sidecar import SidecarError, load as load_typed, typed
+    if typed(m) and str(m).startswith("M"):   # I30: a typed milestone's documents are its typed-sorts sidecar's
+        try:
+            docs = set(load_typed(m, Path(root)).doc.get("documents") or [])
+        except (SidecarError, OSError, ValueError):
+            docs = set()
+        for sp in sorted(Path(root).glob("spec/*/lib/extract_*.json")):
+            if sp not in paths and frontends.load_sidecar(sp).get("output") in docs:
+                paths.append(sp)
+    for sp in paths:
         side = frontends.load_sidecar(sp)
         mod = frontends._frontend(side["frontend"])
         if mod is not None and callable(getattr(mod, "coverage_document", None)) and "transitions" in side:

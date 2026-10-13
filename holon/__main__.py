@@ -42,6 +42,17 @@ import json
 import sys
 
 
+def _typed_milestone(argv: list) -> bool:
+    """Does the command name a milestone typed by I30's rules (M3 and later, T<n> with n >= 30)?"""
+    from .sorts.typed_sidecar import typed
+    for i, x in enumerate(argv):
+        if x == "--milestone" and i + 1 < len(argv):
+            return typed(argv[i + 1])
+        if x.startswith("--milestone="):
+            return typed(x.split("=", 1)[1])
+    return False
+
+
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
     if argv[:1] == ["checker-upgrade"]:  # its flags go to holon.checker_upgrade unparsed
@@ -83,6 +94,18 @@ def main(argv=None) -> int:
     if argv[:1] == ["hevm"]:  # likewise for holon.hevm_equiv (I20, optional)
         from . import hevm_equiv
         return hevm_equiv.main(argv[1:])
+    if argv[:1] == ["types"]:  # likewise for holon.sorts.types3 (I30: nominal types and the ghost-taint check)
+        from .sorts import types3
+        return types3.main(argv[1:])
+    if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
+        from .sorts import termsize
+        return termsize.main(argv[1:])
+    if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
+        from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
+        return model3.main(argv[1:])
+    if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv):
+        from .sorts import run3     # the I30 laws of a typed milestone (I30): run, replay
+        return run3.main(argv)
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")

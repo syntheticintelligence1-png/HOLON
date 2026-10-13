@@ -950,7 +950,8 @@ class Gen:
         if which not in self.hashes:
             raise GenError(f"{sc.action}: {which} is not a hash parameter of the model")
         tab = self.gx(sc, "kh" if which == "keccak256" else "sh")
-        return self.leaf(f"h_get({tab}, {self.b(t[1], sc)})", None, t)
+        fn = "h_get" if which == "keccak256" else "hs_get"
+        return self.leaf(f"{fn}({tab}, {self.b(t[1], sc)})", None, t)
 
     def t_keccak256(self, t, sc):
         return self.hash("keccak256", t, sc)
@@ -1210,6 +1211,12 @@ def lg_rev(xs: List<&2, HLog>, +acc: List<&2, HLog>) -> List<&2, HLog>:
     case Con{h, t}:
       lg_rev(t, Con{h, acc})
 
+def hs_get(+xs: List<&2, HKB>, +k: List<&2, U32>) -> W:
+  h_get(xs, k)
+
+def kt_id(+xs: List<&2, HKB>) -> List<&2, HKB>:
+  xs
+
 def st_after(+o: HOut, +st: HSt) -> HSt:
   ite(HSt, u_nz(o_code(o)), st, o_post(o))
 
@@ -1304,6 +1311,9 @@ def _calls_in(t, pc: list, out: list) -> None:
                 _calls_in(x, pc, out)
         return
     h = t[0]
+    if h == "mloop":
+        return      # a memory loop's calls run once per iteration under its own variable: its loop record's call
+        # records check them (a call term outside its iteration has no meaning)
     if h == "?" and len(t) == 4:
         _calls_in(t[1], pc, out)
         _calls_in(t[2], pc + [(t[1], True)], out)
@@ -1779,8 +1789,7 @@ class Machine(Gen):
             sets.append((f"x{j}_{xi}", f"e{k_}"))
         sets += [(f"cn{j}", self.gx(sc, f"it{j}")), (f"ld{j}", "0n")]
         self.add(f"def lx_{p}(+x: {X}) -> {X}:\n" + "\n".join(lets + [f"  {self.set_fields(sc, 'x', sets)}"]) + "\n")
-        bf = f"{body_first}(x)" if body_first != f"lb_{p}" else "x"
-        self.add(f"def lh_{p}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      lb_{p}({bf})\n"
+        self.add(f"def lh_{p}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      {body_first}(x)\n"
                  f"    case False{{}}:\n      lx_{p}(x)\n")
         self.add(f"def li_{p}(+x: {X}) -> {X}:\n  lh_{p}({self.cond(lp.head, sc)}, x)\n")
         self.add(f"def lpz_{p}(d: Nat, +x: {X}) -> {X}:\n  match d:\n    case 0n:\n      x\n    case 1n+q:\n"
@@ -2209,9 +2218,11 @@ def site_section(mm: Machine, acts: list, sites: list) -> list[str]:
 # ================================================================================================ the model
 def _env_record(mm: Machine) -> list[str]:
     fs = sorted({(f, ty) for f, ty, _k in mm.env_fields})
+    keys = {f: k for f, _ty, k in mm.env_fields}
     if not fs:
         fs = [("e_none", "W")]
-    return [_record("HEnv", fs)] + _getters("ge_", "HEnv", fs)
+    doc = "".join(f"# HEnv.{f}: {keys[f]}\n" for f, _ty in fs if f in keys)
+    return [doc + _record("HEnv", fs)] + _getters("ge_", "HEnv", fs)
 
 
 def _arg_records(mm: Machine, acts: list) -> list[str]:
@@ -2347,6 +2358,7 @@ def generate(milestone: str, root: Path, doc_rel: str, *, typed: bool = True, si
                           basis=basis, site_rows=sites, header=header)
     mm.basis = basis
     mm.n1 = n1_sorts(mo.get("assignment") or {}, basis.sites)
+    mm.hashes = hashes
     return text, mm
 
 
@@ -2369,6 +2381,31 @@ def init_of(milestone: str, root: Path, sidecar: str | None, doc_rel: str) -> di
     return deploy3.deployment(Path(root), sc.binding, doc_rel)
 
 
+def importable(name: str) -> str:
+    """The file name Bend can import a model under: the pinned checker's import paths are plain names (letters,
+    digits, _ and -), so a model named after its document (morph_rollup.extracted) is written as
+    morph_rollup_extracted.bend, and <name>.bend is a symbolic link to it (one file, two names)."""
+    return re.sub(r"[^A-Za-z0-9_-]", "_", name) + ".bend"
+
+
+def write_model_file(out: Path, name: str, text: str) -> Path:
+    """Write the model under its importable name and link <name>.bend to it; returns the <name>.bend path."""
+    import os
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    plain = out / importable(name)
+    if not plain.is_file() or plain.read_text(encoding="utf-8") != text:
+        plain.write_text(text, encoding="utf-8")
+    link = out / f"{name}.bend"
+    if link.name != plain.name:
+        if link.is_symlink() and os.readlink(link) == plain.name:
+            return link
+        if link.exists() or link.is_symlink():
+            link.unlink()
+        os.symlink(plain.name, link)
+    return link
+
+
 def write_models(milestone: str, root: Path, out: Path, *, typed: bool = True, sidecar: str | None = None,
                  facts: list | None = None) -> list[Path]:
     root = Path(root)
@@ -2379,8 +2416,7 @@ def write_models(milestone: str, root: Path, out: Path, *, typed: bool = True, s
         init = init_of(milestone, root, sidecar, rel)
         text, _mm = generate(milestone, root, rel, typed=typed, sidecar=sidecar, init=init)
         name = model_name(rel)
-        p = out / f"{name}.bend"
-        p.write_text(text, encoding="utf-8")
+        p = write_model_file(out, name, text)
         (out / f"{name}.init.json").write_text(json.dumps(init, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
                                                encoding="utf-8")
         written.append(p)
