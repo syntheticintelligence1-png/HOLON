@@ -45,6 +45,7 @@ from pathlib import Path
 
 from .. import ir
 from . import net
+from . import target as TG
 from .store import Snapshot, StoreError, canon_bytes, resolve_snapshot
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -70,13 +71,15 @@ def log(msg: str) -> None:
 
 
 class Fetcher:
-    def __init__(self, side: dict, snap: Snapshot, workers: int = 8, batch: int = 10, blob_workers: int = 12):
+    def __init__(self, side: dict, snap: Snapshot, workers: int = 8, batch: int = 10, blob_workers: int = 12,
+                 milestone: str = "M2"):
         self.side, self.snap, self.workers, self.batch = side, snap, max(1, workers), max(1, batch)
         self.blob_workers = max(1, blob_workers)
         self.http = net.Http(floors={net.host(side["sources"]["blob_archive"]): ARCHIVE_INTERVAL})
-        self.address = side["contracts"]["Rollup"]["address"].lower()
+        tgt = TG.load(milestone)
+        self.address = TG.contract(side, tgt)["address"].lower()
         self.topics = sorted(t.lower() for t in side["events"].values())
-        self.commit_topic = side["events"]["CommitBatch(uint256,bytes32)"].lower()
+        self.commit_topic = TG.topic(side, tgt, "commit")
         self.page_blocks = int(side["limits"]["get_logs_max_blocks"])
         urls = []
         for s in side["sources"]["execution"]:
@@ -596,14 +599,14 @@ def main(argv=None) -> int:
         if hi == w["to_block"] and to_hash != w["to_block_hash"].lower():
             print("historical fetch --offline: the state's to_block hash differs from the sidecar's", file=sys.stderr)
             return 2
-        commit_topic = side["events"]["CommitBatch(uint256,bytes32)"].lower()
+        commit_topic = TG.topic(side, TG.load(a.milestone), "commit")
         doc, missing = build_index(side, snap, lo, hi, to_hash, commit_topic)
         out = Path(a.index) if a.index else default_index(a.milestone)
         write_index(doc, out)
         log(f"wrote {out} (offline): counts {doc['counts']}, unavailable {missing}")
         snap.close()
         return 1 if missing["tx"] or missing["receipt"] else 0
-    f = Fetcher(side, snap, a.workers, a.batch, a.blob_workers)
+    f = Fetcher(side, snap, a.workers, a.batch, a.blob_workers, a.milestone)
     log(f"historical fetch: window [{lo}, {hi}], snapshot {snap.dir}, execution sources "
         f"{[r.host for r in f.rpcs]}, explorer {'yes' if f.etherscan_key else 'no'}")
     to_hash = f.block_hash(hi)

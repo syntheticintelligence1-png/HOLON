@@ -27,9 +27,6 @@ from pathlib import Path
 
 from ..keccak import keccak256
 
-IROLLUP = "contracts/contracts/l1/rollup/IRollup.sol"
-ROLLUP = "contracts/contracts/l1/rollup/Rollup.sol"
-COMMIT_FUNCTIONS = ("commitBatch", "commitState", "commitBatchWithProof")
 ELEMENTARY = re.compile(r"^(u?int\d*|bytes\d*|address|bool|string)(\[\d*\])*$")
 
 
@@ -171,16 +168,16 @@ def decode(fn: dict, calldata: bytes) -> dict:
 
 
 # ---------------------------------------------------------------- the ABI from the pinned checkout
-def _git(morph: Path, *args: str) -> str:
-    p = subprocess.run(["git", "-C", str(morph), *args], capture_output=True, text=True, timeout=120)
+def _git(checkout: Path, *args: str) -> str:
+    p = subprocess.run(["git", "-C", str(checkout), *args], capture_output=True, text=True, timeout=120)
     if p.returncode != 0:
         raise AbiError(f"git {' '.join(args)}: {p.stderr.strip()[:300]}")
     return p.stdout
 
 
-def _solc_abi(solc: str, source: str) -> list[dict]:
+def _solc_abi(solc: str, source: str, contract: str) -> list[dict]:
     with tempfile.TemporaryDirectory(prefix="holon-abi-") as d:
-        f = Path(d) / "IRollup.sol"
+        f = Path(d) / f"{contract}.sol"
         f.write_text(source)
         p = subprocess.run([solc, "--combined-json", "abi", f.name], cwd=d, capture_output=True, text=True, timeout=300)
         if p.returncode != 0:
@@ -188,10 +185,10 @@ def _solc_abi(solc: str, source: str) -> list[dict]:
         doc = json.loads(p.stdout)
     abi = []
     for name, c in sorted(doc["contracts"].items()):
-        if name.endswith(":IRollup"):
+        if name.endswith(":" + contract):
             abi = c["abi"] if isinstance(c["abi"], list) else json.loads(c["abi"])
     if not abi:
-        raise AbiError("no IRollup in the solc output")
+        raise AbiError(f"no {contract} in the solc output")
     return [x for x in abi if x.get("type") == "function"]
 
 
@@ -217,28 +214,31 @@ def _elementary_functions(source: str) -> list[str]:
 
 
 class PinnedAbi:
-    def __init__(self, morph: Path, commit: str, solc: str):
-        self.morph, self.commit, self.solc = Path(morph), commit, solc
-        self.pinned = {}                     # selector -> function ABI (IRollup at the pinned commit)
-        for fn in _solc_abi(solc, (self.morph / IROLLUP).read_text()):
+    def __init__(self, checkout: Path, commit: str, solc: str, target: dict):
+        self.checkout, self.commit, self.solc = Path(checkout), commit, solc
+        self.commit_functions = tuple(target["commit_functions"])
+        iface, impl, cname = target["abi"]["interface"], target["abi"]["implementation"], target["abi"]["interface_contract"]
+        self.interface = iface
+        self.pinned = {}                     # selector -> function ABI (the interface at the pinned commit)
+        for fn in _solc_abi(solc, (self.checkout / iface).read_text(), cname):
             self.pinned[selector(signature(fn))] = fn
         self.names: dict[str, dict] = {}     # selector -> {"name", "signature", "origin"}
-        self.legacy: dict[str, dict] = {}    # selector -> (function ABI, origin) for historical IRollup functions
+        self.legacy: dict[str, dict] = {}    # selector -> (function ABI, origin) for historical interface functions
         self.history_errors: list[str] = []
         for sel, fn in self.pinned.items():
             self.names[sel] = {"name": fn["name"], "signature": signature(fn), "origin": "pinned"}
-        for sig in _elementary_functions((self.morph / ROLLUP).read_text()):
+        for sig in _elementary_functions((self.checkout / impl).read_text()):
             self.names.setdefault(selector(sig), {"name": sig.split("(")[0], "signature": sig, "origin": "pinned"})
-        for path in (IROLLUP, ROLLUP):
-            for rev in _git(self.morph, "log", "--format=%H", commit, "--", path).split():
+        for path in (iface, impl):
+            for rev in _git(self.checkout, "log", "--format=%H", commit, "--", path).split():
                 try:
-                    src = _git(self.morph, "show", f"{rev}:{path}")
+                    src = _git(self.checkout, "show", f"{rev}:{path}")
                 except AbiError as e:
                     self.history_errors.append(f"{rev[:12]} {path}: {e}")
                     continue
-                if path == IROLLUP:
+                if path == iface:
                     try:
-                        fns = _solc_abi(solc, src)
+                        fns = _solc_abi(solc, src, cname)
                     except AbiError as e:
                         self.history_errors.append(f"{rev[:12]} {path}: {str(e)[:120]}")
                         fns = []
@@ -252,13 +252,13 @@ class PinnedAbi:
                         self.names.setdefault(selector(sig), {"name": sig.split("(")[0], "signature": sig, "origin": rev})
 
     def commit_selectors(self) -> dict[str, str]:
-        return {s: signature(f) for s, f in sorted(self.pinned.items()) if f["name"] in COMMIT_FUNCTIONS}
+        return {s: signature(f) for s, f in sorted(self.pinned.items()) if f["name"] in self.commit_functions}
 
     def describe(self) -> dict:
-        return {"source": f"{IROLLUP} at {self.commit} (pinned solc)",
-                "commit_selectors": {s: signature(f) for s, f in sorted(self.pinned.items()) if f["name"] in COMMIT_FUNCTIONS},
+        return {"source": f"{self.interface} at {self.commit} (pinned solc)",
+                "commit_selectors": self.commit_selectors(),
                 "history_signatures": {s: v["signature"] for s, v in sorted(self.names.items())
-                                       if v["origin"] != "pinned" and v["name"] in COMMIT_FUNCTIONS},
+                                       if v["origin"] != "pinned" and v["name"] in self.commit_functions},
                 "history_errors": self.history_errors}
 
 

@@ -1,6 +1,6 @@
 """`python -m holon historical replay`: the first per-edge replay of real on-chain inputs through the models.
 
-    python -m holon historical replay [--milestone M2] [--index PATH] [--out PATH] [--morph PATH] [--work DIR]
+    python -m holon historical replay [--milestone M2] [--index PATH] [--out PATH] [--checkout PATH] [--work DIR]
 
 Reads the index (results/M2/historical/index.json) and the snapshot it names, and writes
 results/M2/historical/replay.json and results/M2/historical/disagreements.json (canonical JSON,
@@ -76,11 +76,11 @@ from ..keccak import keccak256
 from . import abi as A
 from . import checks as CH
 from . import net
+from . import target as TG
 from .fetch import default_index, sidecar
 from .store import Snapshot
 
 ROOT = Path(__file__).resolve().parents[2]
-ZERO32 = "0x" + "00" * 32
 
 
 def default_out(milestone: str = "M2", root: Path = ROOT) -> Path:
@@ -130,7 +130,7 @@ def versioned_hash(commitment_hex: str) -> str:
 
 
 # ---------------------------------------------------------------- the Go decoders
-def run_go_decoders(headers: list[bytes], morph: Path, work: Path | None, model: CH.HeaderModel) -> tuple[dict, str]:
+def run_go_decoders(headers: list[bytes], checkout: Path, work: Path | None, model: CH.HeaderModel) -> tuple[dict, str]:
     """{header hex: (real dec_go, real ok_go)} from the pinned checkout's common/batch, and the error text ('' on
     success). Uses the I16 binding and harness unchanged (holon.refinement.go_jobs / run_go)."""
     from .. import refinement as R
@@ -143,7 +143,7 @@ def run_go_decoders(headers: list[bytes], morph: Path, work: Path | None, model:
     if work is None:
         tmp = work = Path(tempfile.mkdtemp(prefix="holon-hist-go-"))
     try:
-        out = R.run_go(ROOT, morph, work, bind, jobs)
+        out = R.run_go(ROOT, checkout, work, bind, jobs)
     except (R.RefineError, OSError) as e:
         return {}, str(e)[-1500:]
     finally:
@@ -158,7 +158,7 @@ def run_go_decoders(headers: list[bytes], morph: Path, work: Path | None, model:
 KZG_HARNESS = Path(__file__).resolve().parent / "go" / "holon_kzg_test.go"
 
 
-def run_kzg(paths: list[str], morph: Path, work: Path | None) -> tuple[list[str], str]:
+def run_kzg(paths: list[str], checkout: Path, work: Path | None) -> tuple[list[str], str]:
     """One line per blob file: its KZG commitment ("0x" + hex) or "error: ..", from kzg4844.BlobToCommitment of the
     pinned checkout's go-ethereum, run by holon/historical/go/holon_kzg_test.go in a scratch copy of common/batch
     (the workspace the I16 codec harness uses). Returns ([], error text) when the harness cannot run."""
@@ -174,7 +174,7 @@ def run_kzg(paths: list[str], morph: Path, work: Path | None) -> tuple[list[str]
         shutil.rmtree(ws, ignore_errors=True)
         ws.mkdir(parents=True)
         for d in ("bindings", "common"):
-            shutil.copytree(morph / d, ws / d, symlinks=True)
+            shutil.copytree(checkout / d, ws / d, symlinks=True)
         (ws / "go.work").write_text("go 1.24.0\n\nuse (\n\t./bindings\n\t./common\n)\n")
         shutil.copy(KZG_HARNESS, ws / "common" / "batch" / KZG_HARNESS.name)
         (ws / "in.txt").write_text("".join(f"{p}\n" for p in paths))
@@ -196,26 +196,28 @@ def run_kzg(paths: list[str], morph: Path, work: Path | None) -> tuple[list[str]
 
 
 # ---------------------------------------------------------------- replay
-def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, work: Path | None = None) -> tuple[dict, dict]:
+def replay(index_path: Path, milestone: str = "M2", checkout: Path | None = None, work: Path | None = None) -> tuple[dict, dict]:
+    import types
     from ..replay import check_checkout, morph_path, replay_config
     side = sidecar(milestone)
     idx = json.loads(Path(index_path).read_text())
     d = Data(idx)
     events_by_topic = {t.lower(): sig.split("(")[0] for sig, t in side["events"].items()}
-    commit_topic = side["events"]["CommitBatch(uint256,bytes32)"].lower()
-    revert_topic = side["events"]["RevertBatch(uint256,bytes32)"].lower()
-    upgrade_topic = side["events"]["Upgraded(address)"].lower()
-    address = side["contracts"]["Rollup"]["address"].lower()
+    tgt = TG.load(milestone)
+    commit_topic, revert_topic, upgrade_topic = (TG.topic(side, tgt, w) for w in ("commit", "revert", "upgrade"))
+    address = TG.contract(side, tgt)["address"].lower()
 
     # ------------------------------------------------ the pinned ABI, the model
-    morph = Path(morph) if morph else morph_path(argparse.Namespace(morph=None), ROOT)
+    checkout = Path(checkout) if checkout else morph_path(types.SimpleNamespace(), ROOT)  # config replay checkout
     model = CH.model(ROOT)
-    morph_sha = check_checkout(morph, model.facts["target"]["commit"])
+    checkout_sha = check_checkout(checkout, model.facts["target"]["commit"])
     cfg = replay_config(ROOT)
     solc = cfg.get("solc")
     if not solc or not Path(solc).exists() or A.solc_sha256(solc) != cfg.get("solc_sha256"):
         raise SystemExit(f"historical replay: the pinned solc ({solc}) is missing or differs from replay.solc_sha256")
-    pabi = A.PinnedAbi(morph, morph_sha, solc)
+    pabi = A.PinnedAbi(checkout, checkout_sha, solc, tgt)
+    commit_fns = pabi.commit_functions
+    parent_field = tgt["parent_header"]
     commit_sels = pabi.commit_selectors()
 
     # ------------------------------------------------ events
@@ -254,7 +256,7 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
         to = (tx.get("to") or "").lower()
         nm = pabi.names.get(sel) if to == address else None
         name = nm["name"] if nm else None
-        if name not in A.COMMIT_FUNCTIONS:
+        if name not in commit_fns:
             if not clogs:
                 continue
             if name is not None:  # a known non-commit function that emitted CommitBatch: the genesis import
@@ -295,7 +297,7 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
                                      it["commitment"]))
             blobs.append(b)
         c = {"tx": h, "block": _int(tx["blockNumber"]), "tx_index": _int(tx["transactionIndex"]), "status": status,
-             "function": name if name in A.COMMIT_FUNCTIONS else "other",
+             "function": name if name in commit_fns else "other",
              "abi": "decoded" if dec is not None else "undecodable",
              "batch_index": int(clogs[0]["topics"][1], 16) if clogs else None,
              "batch_hash": clogs[0]["topics"][2].lower() if clogs else None,
@@ -307,11 +309,11 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
             first = lambda v: next(iter(v.values()))  # noqa: E731 - the BatchDataInput struct is the first parameter
             if dec is not None:
                 parents[len(commits) - 1] = (first(dec), "pinned")
-            elif legacy_dec is not None and isinstance(first(legacy_dec), dict) and "parentBatchHeader" in first(legacy_dec):
+            elif legacy_dec is not None and isinstance(first(legacy_dec), dict) and parent_field in first(legacy_dec):
                 legacy[len(commits) - 1] = (first(legacy_dec), legacy_origin)
 
     # ------------------------------------------------ blob bytes against their commitments (kzg4844, pinned go-ethereum)
-    kzg_out, kzg_err = run_kzg([p for _, _, p, _ in kzg_todo], morph, work)
+    kzg_out, kzg_err = run_kzg([p for _, _, p, _ in kzg_todo], checkout, work)
     for n, (ci, bi, _, served) in enumerate(kzg_todo):
         b = commits[ci]["blobs"][bi]
         r = kzg_out[n] if kzg_out else None
@@ -327,13 +329,13 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
     # ------------------------------------------------ header checks (model) and Go decoders on every distinct header
     allh = {}
     for i, (inp, _) in list(parents.items()) + list(legacy.items()):
-        allh.setdefault(bytes(inp["parentBatchHeader"]), None)
+        allh.setdefault(bytes(inp[parent_field]), None)
     hlist = list(allh)
     checked = {}
     for k in range(0, len(hlist), 4000):
         for hb, row in zip(hlist[k:k + 4000], model.check(hlist[k:k + 4000])):
             checked[hb] = row
-    go_real, go_err = run_go_decoders(hlist, morph, work, model)
+    go_real, go_err = run_go_decoders(hlist, checkout, work, model)
     by_keccak = {row["keccak"]: hb for hb, row in checked.items()}
 
     def parent_entry(c: dict, hb: bytes) -> dict:
@@ -354,22 +356,22 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
                 "blob_versioned_hash": "0x" + bv.hex() if bv is not None else None, "go_decoder": go}
 
     for i, (inp, _) in parents.items():
-        commits[i]["parent"] = parent_entry(commits[i], bytes(inp["parentBatchHeader"]))
+        commits[i]["parent"] = parent_entry(commits[i], bytes(inp[parent_field]))
     for i, (inp, origin) in legacy.items():
-        lp = parent_entry(commits[i], bytes(inp["parentBatchHeader"]))
+        lp = parent_entry(commits[i], bytes(inp[parent_field]))
         lp["diff_ranges"] = ranges(lp.pop("diff_cells"))
         commits[i]["legacy_parent"] = {**lp, "abi_origin": origin}
 
     # ------------------------------------------------ rebuild: enc_sol on the commit's own inputs
     rebuild_jobs, rebuild_of = [], {}
+    need = TG.rebuild_inputs(tgt)
     for i, (inp, _) in list(parents.items()) + list(legacy.items()):
         c = commits[i]
-        need = ("version", "numL1Messages", "lastBlockNumber", "prevStateRoot", "postStateRoot", "withdrawalRoot")
         if not all(n in inp for n in need):
             c["rebuild"] = {"status": "not_applicable"}
             continue
         hk = by_keccak.get(c["batch_hash"]) if c["batch_hash"] else None
-        ph = bytes(inp["parentBatchHeader"])
+        ph = bytes(inp[parent_field])
         prow = checked[ph]
         if hk is None or prow["dec_go"] is None:
             c["rebuild"] = {"status": "no_header" if hk is None else "parent_outside_dec_go"}
@@ -379,21 +381,10 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
         if kf is None:
             c["rebuild"] = {"status": "header_outside_dec_go"}
             continue
-        w = model.widths
-        hx = lambda v, n: "0x" + int(v).to_bytes(n, "big").hex()  # noqa: E731
         try:
-            obj = {
-                "version": hx(inp["version"], w["version"]),
-                "batchIndex": hx(int(pf["batchIndex"], 16) + 1, w["batchIndex"]),
-                "l1MessagePopped": hx(inp["numL1Messages"], w["l1MessagePopped"]),
-                "totalL1MessagePopped": hx(int(pf["totalL1MessagePopped"], 16) + inp["numL1Messages"], w["totalL1MessagePopped"]),
-                "dataHash": kf["dataHash"], "blobVersionedHash": kf["blobVersionedHash"],
-                "prevStateHash": inp["prevStateRoot"], "postStateHash": inp["postStateRoot"],
-                "withdrawRootHash": inp["withdrawalRoot"], "sequencerSetVerifyHash": ZERO32,
-                "parentBatchHash": prow["keccak"],
-                "lastBlockNumber": hx(inp["lastBlockNumber"], w["lastBlockNumber"]),
-            }
-        except (OverflowError, KeyError, ValueError):
+            obj = {f: rebuild_value(op, model.widths[f], inp, pf, prow["keccak"], kf.get(f))
+                   for f, op in tgt["rebuild"]["fields"].items()}
+        except (OverflowError, KeyError, ValueError, TypeError):
             c["rebuild"] = {"status": "not_applicable"}
             continue
         from ..model_eval import header_in
@@ -428,7 +419,7 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
     dis = disagreements(commits, checked, go_real, by_keccak)
     rep = {"window": idx["window"], "index_sha256": idx["index_sha256"], "events": events,
            "last_upgrade_block": last_upgrade, "commits": commits, "genesis": genesis, "reverts": reverts,
-           "abi": pabi.describe(), "morph_commit": morph_sha, "model_engine": model.engine,
+           "abi": pabi.describe(), "checkout_commit": checkout_sha, "model_engine": model.engine,
            "facts": model.facts_rel, "go_harness_error": go_err or None, "kzg_harness_error": kzg_err or None,
            "summary": summary(commits, reverts, genesis, last_upgrade, status_from_logs, dis, go_err)}
     return rep, dis
@@ -494,6 +485,35 @@ def disagreements(commits: list[dict], checked: dict, go_real: dict, by_keccak: 
                    "holon.refinement.classify(entry) computed from links only ({} for a new entry: unexplained).",
             "compared": compared, "by_edge": dict(sorted(by_edge.items())), "by_class": dict(sorted(by_class.items())),
             "disagreements": entries}
+
+
+def rebuild_value(op: list, width: int, calldata: dict, parent: dict, parent_keccak: str, header_value: str | None) -> str:
+    """One Header field of a rebuild (holon.historical.target, rebuild.fields), as "0x" + hex of exactly width bytes."""
+    def hx(v) -> str:
+        if isinstance(v, str):
+            b = bytes.fromhex(v[2:])
+            if len(b) != width:
+                raise ValueError(f"{len(b)} bytes for a {width}-byte field")
+            return "0x" + b.hex()
+        if isinstance(v, (bytes, bytearray)):
+            return hx("0x" + bytes(v).hex())
+        return "0x" + int(v).to_bytes(width, "big").hex()
+    kind = op[0]
+    if kind == "calldata":
+        return hx(calldata[op[1]])
+    if kind == "parent_plus":
+        return hx(int(parent[op[1]], 16) + op[2])
+    if kind == "parent_plus_calldata":
+        return hx(int(parent[op[1]], 16) + int(calldata[op[2]]))
+    if kind == "parent_keccak":
+        return hx(parent_keccak)
+    if kind == "zero":
+        return "0x" + "00" * width
+    if kind == "header":
+        if header_value is None:
+            raise ValueError("no header value")
+        return hx(header_value)
+    raise ValueError(f"unknown rebuild op {kind!r}")
 
 
 def ranges(cells: list[int]) -> list[list[int]]:
@@ -582,7 +602,7 @@ def main(argv=None) -> int:
     ap.add_argument("--index")
     ap.add_argument("--out")
     ap.add_argument("--disagreements", help="default: disagreements.json next to --out")
-    ap.add_argument("--morph", help="morph checkout at the facts' commit (default: config replay.morph)")
+    ap.add_argument("--checkout", help="the target's checkout at the facts' commit (default: the replay config's)")
     ap.add_argument("--work", help="scratch directory for the Go harness (default: a temporary directory)")
     a = ap.parse_args(argv)
     index = Path(a.index) if a.index else default_index(a.milestone)
@@ -590,7 +610,7 @@ def main(argv=None) -> int:
         print(f"historical replay: no index at {index}: run python -m holon historical fetch first", file=sys.stderr)
         return 2
     out = Path(a.out) if a.out else default_out(a.milestone)
-    rep, dis = replay(index, a.milestone, Path(a.morph) if a.morph else None, Path(a.work) if a.work else None)
+    rep, dis = replay(index, a.milestone, Path(a.checkout) if a.checkout else None, Path(a.work) if a.work else None)
     write(rep, out)
     dpath = Path(a.disagreements) if a.disagreements else out.with_name("disagreements.json")
     write(dis, dpath)

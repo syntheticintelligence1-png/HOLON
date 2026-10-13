@@ -1,0 +1,36 @@
+{
+  "doc": "Target library of the historical replay (holon/historical), I59 build. The frozen instrument is historical.json beside this file (chain, contract address, topics, window, sources); this file names what the generic replay code must not: which contract of the instrument is replayed, where its ABI lives in the pinned checkout, which functions commit, which calldata field is the parent header, which events link and revert, and how a header is rebuilt from a commit's inputs. Read by holon.historical.target; every value cites the pinned source.",
+  "contract": "Rollup",
+  "abi": {
+    "interface": "contracts/contracts/l1/rollup/IRollup.sol",
+    "interface_contract": "IRollup",
+    "implementation": "contracts/contracts/l1/rollup/Rollup.sol",
+    "source": "historical.json contracts.Rollup.abi: IRollup.sol and Rollup.sol at the facts' commit"
+  },
+  "commit_functions": ["commitBatch", "commitState", "commitBatchWithProof"],
+  "commit_functions_source": "IRollup.sol at 3e44e79 (the contract's function enum, tests_m2/test_historical.py)",
+  "parent_header": "parentBatchHeader",
+  "parent_header_source": "IRollup.sol BatchDataInput.parentBatchHeader, the first parameter of every commit function",
+  "events": {
+    "commit": "CommitBatch(uint256,bytes32)",
+    "revert": "RevertBatch(uint256,bytes32)",
+    "upgrade": "Upgraded(address)"
+  },
+  "rebuild": {
+    "source": "Rollup.sol _commitBatchWithBatchData, the header build block (lines 343-370 at 3e44e79): storeVersion(version), storeBatchIndex(parent index + 1), storeL1MessagePopped(numL1Messages), storeTotalL1MessagePopped(parent total + numL1Messages), storeDataHash(dataHash computed on chain), storeBlobVersionedHash(computed on chain), storePrevStateHash(prevStateRoot), storePostStateHash(postStateRoot), storeWithdrawRootHash(withdrawalRoot), storeSequencerSetVerifyHash(bytes32(0)), storeParentBatchHash(keccak256(parent)), storeLastBlockNumber(lastBlockNumber) when version >= 1",
+    "fields": {
+      "version": ["calldata", "version"],
+      "batchIndex": ["parent_plus", "batchIndex", 1],
+      "l1MessagePopped": ["calldata", "numL1Messages"],
+      "totalL1MessagePopped": ["parent_plus_calldata", "totalL1MessagePopped", "numL1Messages"],
+      "dataHash": ["header"],
+      "blobVersionedHash": ["header"],
+      "prevStateHash": ["calldata", "prevStateRoot"],
+      "postStateHash": ["calldata", "postStateRoot"],
+      "withdrawRootHash": ["calldata", "withdrawalRoot"],
+      "sequencerSetVerifyHash": ["zero"],
+      "parentBatchHash": ["parent_keccak"],
+      "lastBlockNumber": ["calldata", "lastBlockNumber"]
+    }
+  }
+}
