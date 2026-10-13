@@ -1,0 +1,7129 @@
+{
+  "actions": [
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "isChallenger",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:529"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "map",
+              [
+                "storage",
+                "isChallenger"
+              ],
+              [
+                "param",
+                "_account"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "account is already a challenger",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:528"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "addChallenger",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0x0ceb6780",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:527-531"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [],
+      "guards": [],
+      "modifiers": [],
+      "name": "batchChallengedSuccess",
+      "principal": null,
+      "selector": "0x910129d4",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:697-699"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [],
+      "guards": [],
+      "modifiers": [],
+      "name": "batchExist",
+      "principal": null,
+      "selector": "0x21e2f9e0",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:703-705"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [],
+      "guards": [],
+      "modifiers": [],
+      "name": "batchInChallenge",
+      "principal": null,
+      "selector": "0xde8b3035",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:691-693"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [],
+      "guards": [],
+      "modifiers": [],
+      "name": "batchInsideChallengeWindow",
+      "principal": null,
+      "selector": "0x18af3b2b",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:709-711"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "batchChallenged",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:485"
+        },
+        {
+          "family": "challenges",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:486"
+        },
+        {
+          "family": "batchDataStore",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:491"
+        },
+        {
+          "family": "inChallenge",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:495"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "map",
+            [
+              "storage",
+              "isChallenger"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "only challenger allowed",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:126"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ],
+          "kind": "modifier",
+          "reason": "pending revert request",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "storage",
+              "_paused"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Pausable: paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "storage",
+              "inChallenge"
+            ]
+          ],
+          "kind": "require",
+          "reason": "already in challenge",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:475"
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "storage",
+              "lastFinalizedBatchIndex"
+            ],
+            [
+              "param",
+              "batchIndex"
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch already finalized",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:476"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                "param",
+                "batchIndex"
+              ]
+            ],
+            [
+              "param",
+              "_batchHash"
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:477"
+        },
+        {
+          "expr": [
+            "&&",
+            [
+              ">",
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "batchDataStore"
+                  ],
+                  [
+                    "param",
+                    "batchIndex"
+                  ]
+                ],
+                "originTimestamp"
+              ],
+              0
+            ],
+            [
+              "!=",
+              [
+                "map",
+                [
+                  "storage",
+                  "committedBatches"
+                ],
+                [
+                  "param",
+                  "batchIndex"
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch not exist",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:478"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "member",
+              [
+                "map",
+                [
+                  "storage",
+                  "challenges"
+                ],
+                [
+                  "param",
+                  "batchIndex"
+                ]
+              ],
+              "challenger"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "batch already challenged",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:479"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "member",
+              [
+                "map",
+                [
+                  "storage",
+                  "batchDataStore"
+                ],
+                [
+                  "param",
+                  "batchIndex"
+                ]
+              ],
+              "finalizeTimestamp"
+            ],
+            [
+              "env",
+              "block.timestamp"
+            ]
+          ],
+          "kind": "require",
+          "reason": "cannot challenge batch outside the challenge window",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:481"
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.value"
+            ],
+            [
+              "call",
+              "ISubmitter.challengeDeposit"
+            ]
+          ],
+          "kind": "require",
+          "reason": "insufficient value",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:483"
+        }
+      ],
+      "modifiers": [
+        "onlyChallenger",
+        "nonReqRevert",
+        "whenNotPaused"
+      ],
+      "name": "challengeState",
+      "principal": {
+        "modifier": "onlyChallenger",
+        "predicate": [
+          "map",
+          [
+            "storage",
+            "isChallenger"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0xcd4edc69",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:471-496"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "proveRemaining",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:566"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "storage",
+                  "proveRemaining"
+                ],
+                0
+              ]
+            ],
+            [
+              "at",
+              0,
+              [
+                "call",
+                "address.call",
+                [
+                  "param",
+                  "receiver"
+                ],
+                [
+                  "str",
+                  ""
+                ],
+                [
+                  "value",
+                  [
+                    "storage",
+                    "proveRemaining"
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "Rollup: ETH transfer failed",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:817"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "claimProveRemaining",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0xb35dac4e",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:564-569"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "batchChallengeReward",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:675"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "!=",
+            [
+              "map",
+              [
+                "storage",
+                "batchChallengeReward"
+              ],
+              [
+                "caller"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "invalid batchChallengeReward",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:674"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "batchChallengeReward"
+                  ],
+                  [
+                    "caller"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "at",
+              0,
+              [
+                "call",
+                "address.call",
+                [
+                  "param",
+                  "receiver"
+                ],
+                [
+                  "str",
+                  ""
+                ],
+                [
+                  "value",
+                  [
+                    "map",
+                    [
+                      "storage",
+                      "batchChallengeReward"
+                    ],
+                    [
+                      "caller"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "Rollup: ETH transfer failed",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:817"
+        }
+      ],
+      "modifiers": [],
+      "name": "claimReward",
+      "principal": null,
+      "selector": "0xd279c191",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:672-678"
+    },
+    {
+      "cost": {
+        "terms": [
+          {
+            "iters": [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "numL1Messages"
+            ],
+            "loop": "contracts/contracts/l1/rollup/Rollup.sol:936-943"
+          }
+        ]
+      },
+      "edges": [
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:910"
+        },
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:916"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:883"
+        }
+      ],
+      "effects": [
+        {
+          "family": "committedBatches",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:357"
+        },
+        {
+          "family": "committedStateRoots",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:358"
+        },
+        {
+          "family": "batchBlobVersionedHashes",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:359"
+        },
+        {
+          "family": "batchDataStore",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371"
+        },
+        {
+          "family": "lastCommittedBatchIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:373"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "call",
+            "ISubmitter.isActive",
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "only active submitter allowed",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ],
+          "kind": "modifier",
+          "reason": "pending revert request",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "storage",
+              "_paused"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Pausable: paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Empty batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              ">=",
+              [
+                "len",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ]
+              ],
+              249
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length too small",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ]
+              ],
+              257
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length is incorrect",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "byte",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    0
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reason": "Unsupported batch version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "batchBlobVersionedHashes"
+              ],
+              [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                1
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "commitBatch requires no stored blob hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:261"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "<",
+                [
+                  "+",
+                  [
+                    "call",
+                    "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+                  ],
+                  [
+                    "storage",
+                    "rollupDelayPeriod"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ],
+            [
+              ">",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "numL1Messages"
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "l1msg delay",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:265"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "version"
+                ],
+                2
+              ]
+            ],
+            [
+              ">",
+              [
+                "unknown",
+                "contracts/contracts/l1/rollup/Rollup.sol:901-908",
+                "i"
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "V2 requires at least 1 blob",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "==",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "version"
+              ],
+              2
+            ],
+            [
+              "==",
+              [
+                "blobhash",
+                1
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "legacy batches support exactly 1 blob",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "expr": [
+            "<=",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "version"
+            ],
+            2
+          ],
+          "kind": "require",
+          "reason": "invalid version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "prevStateRoot"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "previous state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "postStateRoot"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "new state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                1
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "batch already committed",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            [
+              "storage",
+              "lastCommittedBatchIndex"
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch index",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "keccak256",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect parent batch hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:313"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedStateRoots"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "prevStateRoot"
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect previous state root",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        }
+      ],
+      "modifiers": [
+        "onlyActiveSubmitter",
+        "nonReqRevert",
+        "whenNotPaused"
+      ],
+      "name": "commitBatch",
+      "principal": {
+        "modifier": "onlyActiveSubmitter",
+        "predicate": [
+          "call",
+          "ISubmitter.isActive",
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0x41f756da",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269"
+    },
+    {
+      "cost": {
+        "terms": [
+          {
+            "iters": [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "numL1Messages"
+            ],
+            "loop": "contracts/contracts/l1/rollup/Rollup.sol:936-943"
+          }
+        ]
+      },
+      "edges": [
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        },
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:406"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:910"
+        },
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:916"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:883"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:767-777"
+        },
+        {
+          "fn": "IRollupVerifier.verifyAggregateProof",
+          "kind": "COMMIT",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+        }
+      ],
+      "effects": [
+        {
+          "family": "committedBatches",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:357"
+        },
+        {
+          "family": "committedStateRoots",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:358"
+        },
+        {
+          "family": "batchBlobVersionedHashes",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:359"
+        },
+        {
+          "family": "batchDataStore",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371"
+        },
+        {
+          "family": "lastCommittedBatchIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:373"
+        },
+        {
+          "family": "batchDataStore",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:421"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ],
+          "kind": "modifier",
+          "reason": "pending revert request",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "storage",
+              "_paused"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Pausable: paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "<",
+                    [
+                      "+",
+                      [
+                        "member",
+                        [
+                          "map",
+                          [
+                            "storage",
+                            "batchDataStore"
+                          ],
+                          [
+                            "storage",
+                            "lastCommittedBatchIndex"
+                          ]
+                        ],
+                        "originTimestamp"
+                      ],
+                      [
+                        "storage",
+                        "rollupDelayPeriod"
+                      ]
+                    ],
+                    [
+                      "env",
+                      "block.timestamp"
+                    ]
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "+",
+                    [
+                      "call",
+                      "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+                    ],
+                    [
+                      "storage",
+                      "rollupDelayPeriod"
+                    ]
+                  ],
+                  [
+                    "env",
+                    "block.timestamp"
+                  ]
+                ]
+              ]
+            ],
+            [
+              ">",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "numL1Messages"
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "l1msg delay",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:398"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "<",
+              [
+                "+",
+                [
+                  "member",
+                  [
+                    "map",
+                    [
+                      "storage",
+                      "batchDataStore"
+                    ],
+                    [
+                      "storage",
+                      "lastCommittedBatchIndex"
+                    ]
+                  ],
+                  "originTimestamp"
+                ],
+                [
+                  "storage",
+                  "rollupDelayPeriod"
+                ]
+              ],
+              [
+                "env",
+                "block.timestamp"
+              ]
+            ],
+            [
+              "<",
+              [
+                "+",
+                [
+                  "call",
+                  "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+                ],
+                [
+                  "storage",
+                  "rollupDelayPeriod"
+                ]
+              ],
+              [
+                "env",
+                "block.timestamp"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "invalid timing",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:400"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Empty batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              ">=",
+              [
+                "len",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ]
+              ],
+              249
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length too small",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ]
+              ],
+              257
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length is incorrect",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "byte",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    0
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reason": "Unsupported batch version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "batchBlobVersionedHashes"
+                  ],
+                  [
+                    "+",
+                    [
+                      ">>",
+                      [
+                        "word",
+                        [
+                          "member",
+                          [
+                            "param",
+                            "batchDataInput"
+                          ],
+                          "parentBatchHeader"
+                        ],
+                        1
+                      ],
+                      192
+                    ],
+                    1
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "blobhash",
+                0
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "must not carry blob when using stored blob hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:406"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "batchBlobVersionedHashes"
+                      ],
+                      [
+                        "+",
+                        [
+                          ">>",
+                          [
+                            "word",
+                            [
+                              "member",
+                              [
+                                "param",
+                                "batchDataInput"
+                              ],
+                              "parentBatchHeader"
+                            ],
+                            1
+                          ],
+                          192
+                        ],
+                        1
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "version"
+                  ],
+                  2
+                ]
+              ]
+            ],
+            [
+              ">",
+              [
+                "unknown",
+                "contracts/contracts/l1/rollup/Rollup.sol:901-908",
+                "i"
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "V2 requires at least 1 blob",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "batchBlobVersionedHashes"
+                      ],
+                      [
+                        "+",
+                        [
+                          ">>",
+                          [
+                            "word",
+                            [
+                              "member",
+                              [
+                                "param",
+                                "batchDataInput"
+                              ],
+                              "parentBatchHeader"
+                            ],
+                            1
+                          ],
+                          192
+                        ],
+                        1
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "version"
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "blobhash",
+                1
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "legacy batches support exactly 1 blob",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "expr": [
+            "<=",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "version"
+            ],
+            2
+          ],
+          "kind": "require",
+          "reason": "invalid version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "prevStateRoot"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "previous state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "postStateRoot"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "new state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                1
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "batch already committed",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            [
+              "storage",
+              "lastCommittedBatchIndex"
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch index",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "keccak256",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect parent batch hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:313"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedStateRoots"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "prevStateRoot"
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect previous state root",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "+",
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  1
+                ],
+                192
+              ],
+              1
+            ],
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "param",
+                  "_batchHeader"
+                ],
+                1
+              ],
+              192
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:417"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "store",
+                [
+                  "storage",
+                  "committedBatches"
+                ],
+                [
+                  [
+                    "map",
+                    [
+                      "+",
+                      [
+                        ">>",
+                        [
+                          "word",
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "parentBatchHeader"
+                          ],
+                          1
+                        ],
+                        192
+                      ],
+                      1
+                    ]
+                  ]
+                ],
+                [
+                  "keccak256",
+                  [
+                    "?",
+                    [
+                      ">=",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "version"
+                      ],
+                      1
+                    ],
+                    [
+                      "slice",
+                      [
+                        "mem",
+                        [
+                          "mstore8",
+                          0,
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "version"
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          1,
+                          [
+                            "<<",
+                            [
+                              "+",
+                              [
+                                ">>",
+                                [
+                                  "word",
+                                  [
+                                    "member",
+                                    [
+                                      "param",
+                                      "batchDataInput"
+                                    ],
+                                    "parentBatchHeader"
+                                  ],
+                                  1
+                                ],
+                                192
+                              ],
+                              1
+                            ],
+                            192
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          9,
+                          [
+                            "<<",
+                            [
+                              "member",
+                              [
+                                "param",
+                                "batchDataInput"
+                              ],
+                              "numL1Messages"
+                            ],
+                            192
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          17,
+                          [
+                            "<<",
+                            [
+                              "+",
+                              [
+                                ">>",
+                                [
+                                  "word",
+                                  [
+                                    "member",
+                                    [
+                                      "param",
+                                      "batchDataInput"
+                                    ],
+                                    "parentBatchHeader"
+                                  ],
+                                  17
+                                ],
+                                192
+                              ],
+                              [
+                                "member",
+                                [
+                                  "param",
+                                  "batchDataInput"
+                                ],
+                                "numL1Messages"
+                              ]
+                            ],
+                            192
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          25,
+                          [
+                            "keccak256",
+                            [
+                              "?",
+                              [
+                                "==",
+                                [
+                                  "member",
+                                  [
+                                    "param",
+                                    "batchDataInput"
+                                  ],
+                                  "numL1Messages"
+                                ],
+                                0
+                              ],
+                              [
+                                "slice",
+                                [
+                                  "mem",
+                                  [
+                                    "mstore",
+                                    0,
+                                    [
+                                      "<<",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "lastBlockNumber"
+                                      ],
+                                      192
+                                    ]
+                                  ],
+                                  [
+                                    "mstore",
+                                    8,
+                                    [
+                                      "<<",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "numL1Messages"
+                                      ],
+                                      240
+                                    ]
+                                  ]
+                                ],
+                                0,
+                                [
+                                  "?",
+                                  [
+                                    "==",
+                                    [
+                                      "member",
+                                      [
+                                        "param",
+                                        "batchDataInput"
+                                      ],
+                                      "numL1Messages"
+                                    ],
+                                    0
+                                  ],
+                                  10,
+                                  [
+                                    "-",
+                                    [
+                                      "phi",
+                                      "contracts/contracts/l1/rollup/Rollup.sol:936-943",
+                                      "_ptr"
+                                    ],
+                                    0
+                                  ]
+                                ]
+                              ],
+                              [
+                                "slice",
+                                [
+                                  "mem",
+                                  [
+                                    "mstore",
+                                    0,
+                                    [
+                                      "<<",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "lastBlockNumber"
+                                      ],
+                                      192
+                                    ]
+                                  ],
+                                  [
+                                    "mstore",
+                                    8,
+                                    [
+                                      "<<",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "numL1Messages"
+                                      ],
+                                      240
+                                    ]
+                                  ],
+                                  [
+                                    "loop",
+                                    "contracts/contracts/l1/rollup/Rollup.sol:936-943"
+                                  ]
+                                ],
+                                0,
+                                [
+                                  "?",
+                                  [
+                                    "==",
+                                    [
+                                      "member",
+                                      [
+                                        "param",
+                                        "batchDataInput"
+                                      ],
+                                      "numL1Messages"
+                                    ],
+                                    0
+                                  ],
+                                  10,
+                                  [
+                                    "-",
+                                    [
+                                      "phi",
+                                      "contracts/contracts/l1/rollup/Rollup.sol:936-943",
+                                      "_ptr"
+                                    ],
+                                    0
+                                  ]
+                                ]
+                              ]
+                            ]
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          57,
+                          [
+                            "?",
+                            [
+                              "!=",
+                              [
+                                "map",
+                                [
+                                  "storage",
+                                  "batchBlobVersionedHashes"
+                                ],
+                                [
+                                  "+",
+                                  [
+                                    ">>",
+                                    [
+                                      "word",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "parentBatchHeader"
+                                      ],
+                                      1
+                                    ],
+                                    192
+                                  ],
+                                  1
+                                ]
+                              ],
+                              0
+                            ],
+                            [
+                              "map",
+                              [
+                                "storage",
+                                "batchBlobVersionedHashes"
+                              ],
+                              [
+                                "+",
+                                [
+                                  ">>",
+                                  [
+                                    "word",
+                                    [
+                                      "member",
+                                      [
+                                        "param",
+                                        "batchDataInput"
+                                      ],
+                                      "parentBatchHeader"
+                                    ],
+                                    1
+                                  ],
+                                  192
+                                ],
+                                1
+                              ]
+                            ],
+                            [
+                              "?",
+                              [
+                                "==",
+                                [
+                                  "member",
+                                  [
+                                    "param",
+                                    "batchDataInput"
+                                  ],
+                                  "version"
+                                ],
+                                2
+                              ],
+                              [
+                                "keccak256",
+                                [
+                                  "slice",
+                                  [
+                                    "mem",
+                                    [
+                                      "unknown",
+                                      "contracts/contracts/l1/rollup/Rollup.sol:901-908"
+                                    ]
+                                  ],
+                                  0,
+                                  [
+                                    "*",
+                                    [
+                                      "unknown",
+                                      "contracts/contracts/l1/rollup/Rollup.sol:901-908",
+                                      "i"
+                                    ],
+                                    32
+                                  ]
+                                ]
+                              ],
+                              [
+                                "?",
+                                [
+                                  "==",
+                                  [
+                                    "blobhash",
+                                    0
+                                  ],
+                                  0
+                                ],
+                                463520946527561903920979615716011323696915893422270006750744924475581808660,
+                                [
+                                  "blobhash",
+                                  0
+                                ]
+                              ]
+                            ]
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          89,
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "prevStateRoot"
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          121,
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "postStateRoot"
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          153,
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "withdrawalRoot"
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          185,
+                          0
+                        ],
+                        [
+                          "mstore",
+                          217,
+                          [
+                            "keccak256",
+                            [
+                              "member",
+                              [
+                                "param",
+                                "batchDataInput"
+                              ],
+                              "parentBatchHeader"
+                            ]
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          249,
+                          [
+                            "<<",
+                            [
+                              "member",
+                              [
+                                "param",
+                                "batchDataInput"
+                              ],
+                              "lastBlockNumber"
+                            ],
+                            192
+                          ]
+                        ]
+                      ],
+                      0,
+                      [
+                        "?",
+                        [
+                          ">=",
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "version"
+                          ],
+                          1
+                        ],
+                        257,
+                        249
+                      ]
+                    ],
+                    [
+                      "slice",
+                      [
+                        "mem",
+                        [
+                          "mstore8",
+                          0,
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "version"
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          1,
+                          [
+                            "<<",
+                            [
+                              "+",
+                              [
+                                ">>",
+                                [
+                                  "word",
+                                  [
+                                    "member",
+                                    [
+                                      "param",
+                                      "batchDataInput"
+                                    ],
+                                    "parentBatchHeader"
+                                  ],
+                                  1
+                                ],
+                                192
+                              ],
+                              1
+                            ],
+                            192
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          9,
+                          [
+                            "<<",
+                            [
+                              "member",
+                              [
+                                "param",
+                                "batchDataInput"
+                              ],
+                              "numL1Messages"
+                            ],
+                            192
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          17,
+                          [
+                            "<<",
+                            [
+                              "+",
+                              [
+                                ">>",
+                                [
+                                  "word",
+                                  [
+                                    "member",
+                                    [
+                                      "param",
+                                      "batchDataInput"
+                                    ],
+                                    "parentBatchHeader"
+                                  ],
+                                  17
+                                ],
+                                192
+                              ],
+                              [
+                                "member",
+                                [
+                                  "param",
+                                  "batchDataInput"
+                                ],
+                                "numL1Messages"
+                              ]
+                            ],
+                            192
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          25,
+                          [
+                            "keccak256",
+                            [
+                              "?",
+                              [
+                                "==",
+                                [
+                                  "member",
+                                  [
+                                    "param",
+                                    "batchDataInput"
+                                  ],
+                                  "numL1Messages"
+                                ],
+                                0
+                              ],
+                              [
+                                "slice",
+                                [
+                                  "mem",
+                                  [
+                                    "mstore",
+                                    0,
+                                    [
+                                      "<<",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "lastBlockNumber"
+                                      ],
+                                      192
+                                    ]
+                                  ],
+                                  [
+                                    "mstore",
+                                    8,
+                                    [
+                                      "<<",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "numL1Messages"
+                                      ],
+                                      240
+                                    ]
+                                  ]
+                                ],
+                                0,
+                                [
+                                  "?",
+                                  [
+                                    "==",
+                                    [
+                                      "member",
+                                      [
+                                        "param",
+                                        "batchDataInput"
+                                      ],
+                                      "numL1Messages"
+                                    ],
+                                    0
+                                  ],
+                                  10,
+                                  [
+                                    "-",
+                                    [
+                                      "phi",
+                                      "contracts/contracts/l1/rollup/Rollup.sol:936-943",
+                                      "_ptr"
+                                    ],
+                                    0
+                                  ]
+                                ]
+                              ],
+                              [
+                                "slice",
+                                [
+                                  "mem",
+                                  [
+                                    "mstore",
+                                    0,
+                                    [
+                                      "<<",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "lastBlockNumber"
+                                      ],
+                                      192
+                                    ]
+                                  ],
+                                  [
+                                    "mstore",
+                                    8,
+                                    [
+                                      "<<",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "numL1Messages"
+                                      ],
+                                      240
+                                    ]
+                                  ],
+                                  [
+                                    "loop",
+                                    "contracts/contracts/l1/rollup/Rollup.sol:936-943"
+                                  ]
+                                ],
+                                0,
+                                [
+                                  "?",
+                                  [
+                                    "==",
+                                    [
+                                      "member",
+                                      [
+                                        "param",
+                                        "batchDataInput"
+                                      ],
+                                      "numL1Messages"
+                                    ],
+                                    0
+                                  ],
+                                  10,
+                                  [
+                                    "-",
+                                    [
+                                      "phi",
+                                      "contracts/contracts/l1/rollup/Rollup.sol:936-943",
+                                      "_ptr"
+                                    ],
+                                    0
+                                  ]
+                                ]
+                              ]
+                            ]
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          57,
+                          [
+                            "?",
+                            [
+                              "!=",
+                              [
+                                "map",
+                                [
+                                  "storage",
+                                  "batchBlobVersionedHashes"
+                                ],
+                                [
+                                  "+",
+                                  [
+                                    ">>",
+                                    [
+                                      "word",
+                                      [
+                                        "member",
+                                        [
+                                          "param",
+                                          "batchDataInput"
+                                        ],
+                                        "parentBatchHeader"
+                                      ],
+                                      1
+                                    ],
+                                    192
+                                  ],
+                                  1
+                                ]
+                              ],
+                              0
+                            ],
+                            [
+                              "map",
+                              [
+                                "storage",
+                                "batchBlobVersionedHashes"
+                              ],
+                              [
+                                "+",
+                                [
+                                  ">>",
+                                  [
+                                    "word",
+                                    [
+                                      "member",
+                                      [
+                                        "param",
+                                        "batchDataInput"
+                                      ],
+                                      "parentBatchHeader"
+                                    ],
+                                    1
+                                  ],
+                                  192
+                                ],
+                                1
+                              ]
+                            ],
+                            [
+                              "?",
+                              [
+                                "==",
+                                [
+                                  "member",
+                                  [
+                                    "param",
+                                    "batchDataInput"
+                                  ],
+                                  "version"
+                                ],
+                                2
+                              ],
+                              [
+                                "keccak256",
+                                [
+                                  "slice",
+                                  [
+                                    "mem",
+                                    [
+                                      "unknown",
+                                      "contracts/contracts/l1/rollup/Rollup.sol:901-908"
+                                    ]
+                                  ],
+                                  0,
+                                  [
+                                    "*",
+                                    [
+                                      "unknown",
+                                      "contracts/contracts/l1/rollup/Rollup.sol:901-908",
+                                      "i"
+                                    ],
+                                    32
+                                  ]
+                                ]
+                              ],
+                              [
+                                "?",
+                                [
+                                  "==",
+                                  [
+                                    "blobhash",
+                                    0
+                                  ],
+                                  0
+                                ],
+                                463520946527561903920979615716011323696915893422270006750744924475581808660,
+                                [
+                                  "blobhash",
+                                  0
+                                ]
+                              ]
+                            ]
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          89,
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "prevStateRoot"
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          121,
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "postStateRoot"
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          153,
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "withdrawalRoot"
+                          ]
+                        ],
+                        [
+                          "mstore",
+                          185,
+                          0
+                        ],
+                        [
+                          "mstore",
+                          217,
+                          [
+                            "keccak256",
+                            [
+                              "member",
+                              [
+                                "param",
+                                "batchDataInput"
+                              ],
+                              "parentBatchHeader"
+                            ]
+                          ]
+                        ]
+                      ],
+                      0,
+                      [
+                        "?",
+                        [
+                          ">=",
+                          [
+                            "member",
+                            [
+                              "param",
+                              "batchDataInput"
+                            ],
+                            "version"
+                          ],
+                          1
+                        ],
+                        257,
+                        249
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "keccak256",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:418"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "param",
+                "_batchProof"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Invalid batch proof",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+        }
+      ],
+      "modifiers": [
+        "nonReqRevert",
+        "whenNotPaused"
+      ],
+      "name": "commitBatchWithProof",
+      "principal": null,
+      "selector": "0x1544ba3a",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-425"
+    },
+    {
+      "cost": {
+        "terms": [
+          {
+            "iters": [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "numL1Messages"
+            ],
+            "loop": "contracts/contracts/l1/rollup/Rollup.sol:936-943"
+          }
+        ]
+      },
+      "edges": [
+        {
+          "fn": "blobhash",
+          "kind": "COMMIT",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:276"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:883"
+        }
+      ],
+      "effects": [
+        {
+          "family": "committedBatches",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:357"
+        },
+        {
+          "family": "committedStateRoots",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:358"
+        },
+        {
+          "family": "batchBlobVersionedHashes",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:359"
+        },
+        {
+          "family": "batchDataStore",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371"
+        },
+        {
+          "family": "lastCommittedBatchIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:373"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "call",
+            "ISubmitter.isActive",
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "only active submitter allowed",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ],
+          "kind": "modifier",
+          "reason": "pending revert request",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "storage",
+              "_paused"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Pausable: paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "blobhash",
+              0
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "commitState must not carry blob",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:276"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Empty batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              ">=",
+              [
+                "len",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ]
+              ],
+              249
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length too small",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ]
+              ],
+              257
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length is incorrect",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "byte",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    0
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "batchDataInput"
+                        ],
+                        "parentBatchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reason": "Unsupported batch version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "map",
+              [
+                "storage",
+                "batchBlobVersionedHashes"
+              ],
+              [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                1
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "no stored blob hash for this batch",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:279"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "<",
+                [
+                  "+",
+                  [
+                    "call",
+                    "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+                  ],
+                  [
+                    "storage",
+                    "rollupDelayPeriod"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ],
+            [
+              ">",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "numL1Messages"
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "l1msg delay",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:283"
+        },
+        {
+          "expr": [
+            "<=",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "version"
+            ],
+            2
+          ],
+          "kind": "require",
+          "reason": "invalid version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "prevStateRoot"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "previous state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "postStateRoot"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "new state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                1
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "batch already committed",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            [
+              "storage",
+              "lastCommittedBatchIndex"
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch index",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "keccak256",
+              [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect parent batch hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:313"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedStateRoots"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "parentBatchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "prevStateRoot"
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect previous state root",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        }
+      ],
+      "modifiers": [
+        "onlyActiveSubmitter",
+        "nonReqRevert",
+        "whenNotPaused"
+      ],
+      "name": "commitState",
+      "principal": {
+        "modifier": "onlyActiveSubmitter",
+        "predicate": [
+          "call",
+          "ISubmitter.isActive",
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0x67caa37a",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286"
+    },
+    {
+      "cost": {
+        "terms": [
+          {
+            "iters": [
+              "/",
+              [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    9
+                  ],
+                  192
+                ],
+                255
+              ],
+              256
+            ],
+            "loop": "contracts/contracts/l1/rollup/Rollup.sol:744-751"
+          }
+        ]
+      },
+      "edges": [
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        }
+      ],
+      "effects": [
+        {
+          "family": "lastFinalizedBatchIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:644"
+        },
+        {
+          "family": "withdrawalRoots",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:648"
+        },
+        {
+          "family": "finalizedStateRoots",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:649"
+        },
+        {
+          "family": "batchDataStore",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:657"
+        },
+        {
+          "family": "committedStateRoots",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:658"
+        },
+        {
+          "family": "batchBlobVersionedHashes",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:659"
+        },
+        {
+          "family": "challenges",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:660"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ],
+          "kind": "modifier",
+          "reason": "pending revert request",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "storage",
+              "_paused"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Pausable: paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Empty batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              ">=",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              249
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length too small",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              257
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length is incorrect",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "byte",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    0
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reason": "Unsupported batch version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "keccak256",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:629"
+        },
+        {
+          "expr": [
+            "&&",
+            [
+              ">",
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "batchDataStore"
+                  ],
+                  [
+                    ">>",
+                    [
+                      "word",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      1
+                    ],
+                    192
+                  ]
+                ],
+                "originTimestamp"
+              ],
+              0
+            ],
+            [
+              "!=",
+              [
+                "map",
+                [
+                  "storage",
+                  "committedBatches"
+                ],
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch not exist",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:630"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!=",
+                [
+                  "member",
+                  [
+                    "map",
+                    [
+                      "storage",
+                      "challenges"
+                    ],
+                    [
+                      ">>",
+                      [
+                        "word",
+                        [
+                          "param",
+                          "_batchHeader"
+                        ],
+                        1
+                      ],
+                      192
+                    ]
+                  ],
+                  "challenger"
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "member",
+                  [
+                    "map",
+                    [
+                      "storage",
+                      "challenges"
+                    ],
+                    [
+                      ">>",
+                      [
+                        "word",
+                        [
+                          "param",
+                          "_batchHeader"
+                        ],
+                        1
+                      ],
+                      192
+                    ]
+                  ],
+                  "finished"
+                ]
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch in challenge",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:631"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "member",
+              [
+                "map",
+                [
+                  "storage",
+                  "challenges"
+                ],
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ]
+              ],
+              "challengeSuccess"
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch should be revert",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:632"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              ">",
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "batchDataStore"
+                  ],
+                  [
+                    ">>",
+                    [
+                      "word",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      1
+                    ],
+                    192
+                  ]
+                ],
+                "finalizeTimestamp"
+              ],
+              [
+                "env",
+                "block.timestamp"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch in challenge window",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:633"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "finalizedStateRoots"
+              ],
+              [
+                "-",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                1
+              ]
+            ],
+            [
+              "word",
+              [
+                "param",
+                "_batchHeader"
+              ],
+              89
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect previous state root",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:635-638"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "finalizedStateRoots"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "batch already verified",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:640"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "+",
+              [
+                "storage",
+                "lastFinalizedBatchIndex"
+              ],
+              1
+            ],
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "param",
+                  "_batchHeader"
+                ],
+                1
+              ],
+              192
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch index",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:643"
+        }
+      ],
+      "modifiers": [
+        "nonReqRevert",
+        "whenNotPaused"
+      ],
+      "name": "finalizeBatch",
+      "principal": null,
+      "selector": "0x13361101",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-668"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        }
+      ],
+      "effects": [
+        {
+          "family": "committedBatches",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:241"
+        },
+        {
+          "family": "batchDataStore",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:242"
+        },
+        {
+          "family": "batchBlobVersionedHashes",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:243"
+        },
+        {
+          "family": "committedStateRoots",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:245"
+        },
+        {
+          "family": "finalizedStateRoots",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:246"
+        },
+        {
+          "family": "lastCommittedBatchIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:247"
+        },
+        {
+          "family": "lastFinalizedBatchIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:248"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "finalizedStateRoots"
+              ],
+              0
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "genesis batch imported",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:228"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Empty batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              ">=",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              249
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length too small",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              257
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length is incorrect",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "byte",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    0
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reason": "Unsupported batch version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "param",
+                  "_batchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "invalid batch index",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:233"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "word",
+              [
+                "param",
+                "_batchHeader"
+              ],
+              121
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "zero state root",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:235"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "param",
+                  "_batchHeader"
+                ],
+                9
+              ],
+              192
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "l1 message popped should be 0",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:237"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "word",
+              [
+                "param",
+                "_batchHeader"
+              ],
+              25
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "zero data hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:238"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "word",
+              [
+                "param",
+                "_batchHeader"
+              ],
+              57
+            ],
+            463520946527561903920979615716011323696915893422270006750744924475581808660
+          ],
+          "kind": "require",
+          "reason": "invalid versioned hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:239"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "importGenesisBatch",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0xb3e0a509",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:226-252"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "_owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:85"
+        },
+        {
+          "family": "_initialized",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:90"
+        },
+        {
+          "family": "_initializing",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:92"
+        },
+        {
+          "family": "_initializing",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:96"
+        },
+        {
+          "family": "_paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:39"
+        },
+        {
+          "family": "submitterContract",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:176"
+        },
+        {
+          "family": "messageQueue",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:177"
+        },
+        {
+          "family": "verifier",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:178"
+        },
+        {
+          "family": "finalizationPeriodSeconds",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:179"
+        },
+        {
+          "family": "proofWindow",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:180"
+        },
+        {
+          "family": "proofRewardPercent",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:181"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "||",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "storage",
+                  "_initializing"
+                ]
+              ],
+              [
+                "<",
+                [
+                  "storage",
+                  "_initialized"
+                ],
+                1
+              ]
+            ],
+            [
+              "&&",
+              [
+                "!",
+                [
+                  ">",
+                  [
+                    "len",
+                    [
+                      "code",
+                      [
+                        "this"
+                      ]
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "storage",
+                  "_initialized"
+                ],
+                1
+              ]
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Initializable: contract is already initialized",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:86-89"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "||",
+              [
+                "==",
+                [
+                  "param",
+                  "_messageQueue"
+                ],
+                0
+              ],
+              [
+                "==",
+                [
+                  "param",
+                  "_verifier"
+                ],
+                0
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reason": "ErrZeroAddress",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:169"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "param",
+              "_submitterContract"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "invalid submitter contract",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:171"
+        },
+        {
+          "expr": [
+            "?",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            1,
+            [
+              "storage",
+              "_initializing"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Initializable: contract is not initializing",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133"
+        }
+      ],
+      "modifiers": [
+        "initializer"
+      ],
+      "name": "initialize",
+      "principal": null,
+      "selector": "0x728cdbca",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:160-186"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "_initialized",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:121"
+        },
+        {
+          "family": "_initializing",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:122"
+        },
+        {
+          "family": "_initializing",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:124"
+        },
+        {
+          "family": "committedStateRoots",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:193"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              2
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Initializable: contract is already initialized",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120"
+        },
+        {
+          "expr": 1,
+          "kind": "require",
+          "reason": "must have initialized!",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:189"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "param",
+              "_prevStateRoot"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "can not set state root with bytes32(0)!",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:190"
+        }
+      ],
+      "modifiers": [
+        "reinitializer"
+      ],
+      "name": "initialize2",
+      "principal": null,
+      "selector": "0x61267290",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:188-195"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "_initialized",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:121"
+        },
+        {
+          "family": "_initializing",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:122"
+        },
+        {
+          "family": "_initializing",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:124"
+        },
+        {
+          "family": "rollupDelayPeriod",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:201"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              3
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Initializable: contract is already initialized",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120"
+        },
+        {
+          "expr": [
+            "!=",
+            [
+              "param",
+              "_rollupDelayPeriod"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "invalid rollup delay period",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:200"
+        }
+      ],
+      "modifiers": [
+        "reinitializer"
+      ],
+      "name": "initialize3",
+      "principal": null,
+      "selector": "0xcf9a6745",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:199-203"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "_initialized",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:121"
+        },
+        {
+          "family": "_initializing",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:122"
+        },
+        {
+          "family": "_initializing",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:124"
+        },
+        {
+          "family": "legacyCutoverBatchIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:216"
+        },
+        {
+          "family": "submitterContract",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:218"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              4
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Initializable: contract is already initialized",
+          "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "caller"
+            ],
+            [
+              "sload",
+              81955473079516046949633743016697847541294818689821282749996681496272635257091
+            ]
+          ],
+          "kind": "require",
+          "reason": "only proxy admin",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:210"
+        },
+        {
+          "expr": [
+            "&&",
+            [
+              "!=",
+              [
+                "param",
+                "_newSubmitter"
+              ],
+              0
+            ],
+            [
+              ">",
+              [
+                "len",
+                [
+                  "code",
+                  [
+                    "param",
+                    "_newSubmitter"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "invalid submitter",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:211"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "lastCommittedBatchIndex"
+            ],
+            [
+              "param",
+              "_expectedLegacyCutoverBatchIndex"
+            ]
+          ],
+          "kind": "require",
+          "reason": "cutover batch mismatch",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:212"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "storage",
+              "inChallenge"
+            ]
+          ],
+          "kind": "require",
+          "reason": "challenge in progress",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:213"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "pending revert request",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:214"
+        }
+      ],
+      "modifiers": [
+        "reinitializer"
+      ],
+      "name": "initialize4",
+      "principal": null,
+      "selector": "0x843bc9a1",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:209-219"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [],
+      "guards": [],
+      "modifiers": [],
+      "name": "isBatchFinalized",
+      "principal": null,
+      "selector": "0x116a1f42",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:685-687"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:767-777"
+        },
+        {
+          "fn": "IRollupVerifier.verifyAggregateProof",
+          "kind": "COMMIT",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+        }
+      ],
+      "effects": [],
+      "guards": [
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Empty batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              ">=",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              249
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length too small",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              257
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length is incorrect",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "byte",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    0
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reason": "Unsupported batch version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "keccak256",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:719"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "param",
+                "_batchProof"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Invalid batch proof",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+        }
+      ],
+      "modifiers": [],
+      "name": "proveCommittedBatchState",
+      "principal": null,
+      "selector": "0xb8d0a1b0",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:714-722"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        },
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:767-777"
+        },
+        {
+          "fn": "IRollupVerifier.verifyAggregateProof",
+          "kind": "COMMIT",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+        }
+      ],
+      "effects": [
+        {
+          "family": "challenges",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:609"
+        },
+        {
+          "family": "inChallenge",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:610"
+        },
+        {
+          "family": "challenges",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:615"
+        },
+        {
+          "family": "proveRemaining",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:794"
+        },
+        {
+          "family": "batchChallengeReward",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:795"
+        },
+        {
+          "family": "revertReqIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:804"
+        },
+        {
+          "family": "batchChallengeReward",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:807"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ],
+          "kind": "modifier",
+          "reason": "pending revert request",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "storage",
+              "_paused"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Pausable: paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            "call",
+            "ISubmitter.isActive",
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "only active submitter allowed",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Empty batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              ">=",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              249
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length too small",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              257
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length is incorrect",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "byte",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    0
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reason": "Unsupported batch version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "keccak256",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:603"
+        },
+        {
+          "expr": [
+            "&&",
+            [
+              "!=",
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "challenges"
+                  ],
+                  [
+                    ">>",
+                    [
+                      "word",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      1
+                    ],
+                    192
+                  ]
+                ],
+                "challenger"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "challenges"
+                  ],
+                  [
+                    ">>",
+                    [
+                      "word",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      1
+                    ],
+                    192
+                  ]
+                ],
+                "finished"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch in challenge",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:606"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "<=",
+              [
+                "+",
+                [
+                  "member",
+                  [
+                    "map",
+                    [
+                      "storage",
+                      "challenges"
+                    ],
+                    [
+                      ">>",
+                      [
+                        "word",
+                        [
+                          "param",
+                          "_batchHeader"
+                        ],
+                        1
+                      ],
+                      192
+                    ]
+                  ],
+                  "startTime"
+                ],
+                [
+                  "storage",
+                  "proofWindow"
+                ]
+              ],
+              [
+                "env",
+                "block.timestamp"
+              ]
+            ],
+            [
+              ">",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchProof"
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reason": "Invalid batch proof",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+        }
+      ],
+      "modifiers": [
+        "nonReqRevert",
+        "whenNotPaused",
+        "onlyActiveSubmitter"
+      ],
+      "name": "proveState",
+      "principal": {
+        "modifier": "onlyActiveSubmitter",
+        "predicate": [
+          "call",
+          "ISubmitter.isActive",
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0xb3484425",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:595-622"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [],
+      "guards": [],
+      "modifiers": [],
+      "name": "receive",
+      "principal": null,
+      "selector": null,
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:148"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "isChallenger",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:537"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "map",
+            [
+              "storage",
+              "isChallenger"
+            ],
+            [
+              "param",
+              "_account"
+            ]
+          ],
+          "kind": "require",
+          "reason": "account is not a challenger",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:536"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "removeChallenger",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0x6c578c1d",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:535-539"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:242"
+        }
+      ],
+      "effects": [
+        {
+          "family": "lastCommittedBatchIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:443"
+        },
+        {
+          "family": "committedBatches",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:447"
+        },
+        {
+          "family": "batchChallengeReward",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:450"
+        },
+        {
+          "family": "inChallenge",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:451"
+        },
+        {
+          "family": "challenges",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:453"
+        },
+        {
+          "family": "revertReqIndex",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:456"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "param",
+              "_count"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "count must be nonzero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:431"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              "len",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "Empty batch header",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              ">=",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              249
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length too small",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "param",
+                  "_batchHeader"
+                ]
+              ],
+              257
+            ]
+          ],
+          "kind": "require",
+          "reason": "batch header length is incorrect",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "byte",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    0
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "||",
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  [
+                    "==",
+                    [
+                      "byte",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      0
+                    ],
+                    2
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reason": "Unsupported batch version",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            [
+              "keccak256",
+              [
+                "param",
+                "_batchHeader"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "incorrect batch hash",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:436"
+        },
+        {
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "committedBatches"
+              ],
+              [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                [
+                  "param",
+                  "_count"
+                ]
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reason": "reverting must start from the ending",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:439"
+        },
+        {
+          "expr": [
+            ">",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "param",
+                  "_batchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            [
+              "storage",
+              "lastFinalizedBatchIndex"
+            ]
+          ],
+          "kind": "require",
+          "reason": "can only revert unFinalized batch",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:441"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "revertBatch",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0x10d44583",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:430-468"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "_paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:107"
+        },
+        {
+          "family": "_paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:95"
+        },
+        {
+          "family": "batchChallengeReward",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:578-579"
+        },
+        {
+          "family": "challenges",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:580"
+        },
+        {
+          "family": "inChallenge",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:581"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "param",
+                "_status"
+              ]
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "_paused"
+              ]
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Pausable: paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "param",
+              "_status"
+            ],
+            [
+              "storage",
+              "_paused"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Pausable: not paused",
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "setPause",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0xbedb86fb",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:573-588"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "finalizationPeriodSeconds",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:512"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "&&",
+            [
+              ">",
+              [
+                "param",
+                "_newPeriod"
+              ],
+              0
+            ],
+            [
+              "!=",
+              [
+                "param",
+                "_newPeriod"
+              ],
+              [
+                "storage",
+                "finalizationPeriodSeconds"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "invalid new finalize period",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:510"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "updateFinalizePeriodSeconds",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0xe3fff1dd",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:509-514"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "proofWindow",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:503"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "&&",
+            [
+              ">",
+              [
+                "param",
+                "_newWindow"
+              ],
+              0
+            ],
+            [
+              "!=",
+              [
+                "param",
+                "_newWindow"
+              ],
+              [
+                "storage",
+                "proofWindow"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "invalid new proof window",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:501"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "updateProofWindow",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0x57e0af6c",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:500-505"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "proofRewardPercent",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:558"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "&&",
+            [
+              "&&",
+              [
+                ">",
+                [
+                  "param",
+                  "_newProofRewardPercent"
+                ],
+                0
+              ],
+              [
+                "<=",
+                [
+                  "param",
+                  "_newProofRewardPercent"
+                ],
+                100
+              ]
+            ],
+            [
+              "!=",
+              [
+                "param",
+                "_newProofRewardPercent"
+              ],
+              [
+                "storage",
+                "proofRewardPercent"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "invalid proof reward percentage",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:553-556"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "updateRewardPercentage",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0xa4f209b0",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:552-560"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "rollupDelayPeriod",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:521"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "&&",
+            [
+              ">",
+              [
+                "param",
+                "_newPeriod"
+              ],
+              0
+            ],
+            [
+              "!=",
+              [
+                "param",
+                "_newPeriod"
+              ],
+              [
+                "storage",
+                "rollupDelayPeriod"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "invalid new rollup delay period",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:519"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "updateRollupDelayPeriod",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0xc5553892",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:518-523"
+    },
+    {
+      "cost": {
+        "terms": []
+      },
+      "edges": [],
+      "effects": [
+        {
+          "family": "verifier",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:546"
+        }
+      ],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reason": "Ownable: caller is not the owner",
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "expr": [
+            "&&",
+            [
+              "!=",
+              [
+                "param",
+                "_newVerifier"
+              ],
+              0
+            ],
+            [
+              "!=",
+              [
+                "param",
+                "_newVerifier"
+              ],
+              [
+                "storage",
+                "verifier"
+              ]
+            ]
+          ],
+          "kind": "require",
+          "reason": "invalid new verifier",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:544"
+        }
+      ],
+      "modifiers": [
+        "onlyOwner"
+      ],
+      "name": "updateVerifier",
+      "principal": {
+        "modifier": "onlyOwner",
+        "predicate": [
+          "==",
+          [
+            "storage",
+            "_owner"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "selector": "0x97fc007c",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:543-548"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls, sload) are free: every value of them is possible."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts (checked arithmetic, array bounds, ABI decoding, failing external calls) are not guards: only explicit require, assert and revert (and Yul revert/invalid) are."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop body is walked once at a generic iteration: what it changes is a phi term of the loop (locals, storage families, memory regions), a guard inside it holds at every iteration, and its cost term counts the header's bound."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+    },
+    {
+      "id": "A-span",
+      "text": "One guard per span: a require or revert reached again (a second inlined call of the same function) keeps the expression of its first reach."
+    }
+  ],
+  "constants": {
+    "EIP1967_PROXY_ADMIN_SLOT": "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103",
+    "ZERO_VERSIONED_HASH": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+  },
+  "contract": "Rollup",
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.2",
+    "inputs": [
+      {
+        "sha256": "1fbf2a131b895514f0027866cc0deff151ea16424b4aed2b8c573d2275cfa9e8",
+        "unit": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol"
+      },
+      {
+        "sha256": "a2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+        "unit": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol"
+      },
+      {
+        "sha256": "c05b019a0b3bee8f3fac2da7c929f7d665b97d6d046aa35126615fff11205119",
+        "unit": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol"
+      },
+      {
+        "sha256": "db92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+        "unit": "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol"
+      },
+      {
+        "sha256": "5fb301961e45cb482fe4e05646d2f529aa449fe0e90c6671475d6a32356fa2d4",
+        "unit": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol"
+      },
+      {
+        "sha256": "59245b916ed1e966c5bf2fd25a76e42b7c38d144cce9967b6ef28e42d9496c1a",
+        "unit": "contracts/contracts/l1/rollup/IL1MessageQueue.sol"
+      },
+      {
+        "sha256": "24e4861d9a369b0e8fec7471d8150474a54de907709d4287e63457d9bf5ff327",
+        "unit": "contracts/contracts/l1/rollup/IRollup.sol"
+      },
+      {
+        "sha256": "42637f2de9c520e230487acfa247d0c3b13b9f0b76f5e90194d3bc0a18e40786",
+        "unit": "contracts/contracts/l1/rollup/ISubmitter.sol"
+      },
+      {
+        "sha256": "134b0f2dc5356af913c0a12c0a2febe29360b053a5acae57bdda575a2fb832b8",
+        "unit": "contracts/contracts/l1/rollup/Rollup.sol"
+      },
+      {
+        "sha256": "e35600fd708f375e3bb3d308044cb57967d5c3655b89707cac1eb8356fc6d312",
+        "unit": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol"
+      },
+      {
+        "sha256": "bd6e60f57b9548e1d787861c2a08c5948e142872d4d8dd22951f24c02485bc9d",
+        "unit": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol"
+      },
+      {
+        "sha256": "7b859a80a68eb1bd3b2dfa21d87bae9969156e1b2e0bb063a8ac0efef5601296",
+        "unit": "contracts/contracts/libraries/verifier/IRollupVerifier.sol"
+      }
+    ],
+    "kind": "transitions",
+    "method": "extracted",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "storageLayout"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "spec/M2/lib/extract_rollup.json",
+      "sha256": "73c1242801c3781193f744d14f7f67a5c96ef1d29c5574bf94bdc1208d6affef"
+    },
+    "toolchain": {
+      "solc": {
+        "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+        "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "submitterContract",
+      "offset": 0,
+      "slot": 151,
+      "value": "address",
+      "width": 160
+    },
+    {
+      "kind": "scalar",
+      "name": "finalizationPeriodSeconds",
+      "offset": 0,
+      "slot": 152,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "proofWindow",
+      "offset": 0,
+      "slot": 153,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "__maxNumTxInChunk",
+      "offset": 0,
+      "slot": 154,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "messageQueue",
+      "offset": 0,
+      "slot": 155,
+      "value": "address",
+      "width": 160
+    },
+    {
+      "kind": "scalar",
+      "name": "verifier",
+      "offset": 0,
+      "slot": 156,
+      "value": "address",
+      "width": 160
+    },
+    {
+      "kind": "scalar",
+      "name": "lastFinalizedBatchIndex",
+      "offset": 0,
+      "slot": 157,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "lastCommittedBatchIndex",
+      "offset": 0,
+      "slot": 158,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "key": "address",
+      "kind": "mapping",
+      "name": "isChallenger",
+      "offset": 0,
+      "slot": 159,
+      "value": "bool",
+      "width": 8
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "finalizedStateRoots",
+      "offset": 0,
+      "slot": 160,
+      "value": "bytes32",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "committedBatches",
+      "offset": 0,
+      "slot": 161,
+      "value": "bytes32",
+      "width": 256
+    },
+    {
+      "fields": [
+        {
+          "name": "originTimestamp",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "name": "finalizeTimestamp",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "name": "blockNumber",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "name": "submitter",
+          "type": "address",
+          "width": 160
+        }
+      ],
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "batchDataStore",
+      "offset": 0,
+      "slot": 162,
+      "value": "struct IRollup.BatchData"
+    },
+    {
+      "key": "bytes32",
+      "kind": "mapping",
+      "name": "withdrawalRoots",
+      "offset": 0,
+      "slot": 163,
+      "value": "bool",
+      "width": 8
+    },
+    {
+      "fields": [
+        {
+          "name": "batchIndex",
+          "type": "uint64",
+          "width": 64
+        },
+        {
+          "name": "challenger",
+          "type": "address",
+          "width": 160
+        },
+        {
+          "name": "challengeDeposit",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "name": "startTime",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "name": "challengeSuccess",
+          "type": "bool",
+          "width": 8
+        },
+        {
+          "name": "finished",
+          "type": "bool",
+          "width": 8
+        }
+      ],
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "challenges",
+      "offset": 0,
+      "slot": 164,
+      "value": "struct IRollup.BatchChallenge"
+    },
+    {
+      "key": "address",
+      "kind": "mapping",
+      "name": "batchChallengeReward",
+      "offset": 0,
+      "slot": 165,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "inChallenge",
+      "offset": 0,
+      "slot": 166,
+      "value": "bool",
+      "width": 8
+    },
+    {
+      "kind": "scalar",
+      "name": "batchChallenged",
+      "offset": 0,
+      "slot": 167,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "revertReqIndex",
+      "offset": 0,
+      "slot": 168,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "proofRewardPercent",
+      "offset": 0,
+      "slot": 169,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "proveRemaining",
+      "offset": 0,
+      "slot": 170,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "committedStateRoots",
+      "offset": 0,
+      "slot": 171,
+      "value": "bytes32",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "rollupDelayPeriod",
+      "offset": 0,
+      "slot": 172,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "batchBlobVersionedHashes",
+      "offset": 0,
+      "slot": 173,
+      "value": "bytes32",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "legacyCutoverBatchIndex",
+      "offset": 0,
+      "slot": 174,
+      "value": "uint256",
+      "width": 256
+    }
+  ],
+  "target": {
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "repo": "morph-l2/morph",
+    "scope": "rollup contract: storage families, transitions of every external/public function, cost terms, principal predicates, hash/commit edges, coverage"
+  }
+}
