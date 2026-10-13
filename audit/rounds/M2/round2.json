@@ -1,0 +1,104 @@
+{
+  "round": 2,
+  "milestone": "M2",
+  "target_commit": "8d9f02da4648d2150b4994261ced05aa6da72c8e",
+  "auditor": {
+    "session": "I21 auditor (a fresh session of the builders' model family; instruments holon/audit/hostile.py and holon/audit/vacuity.py)",
+    "family": "same",
+    "counts_toward_convergence": false
+  },
+  "attacks": [
+    {
+      "id": "A1",
+      "category": "model_vs_code",
+      "tried": "sol_loader: the 2561-input header corpus (sidecar header_corpus, seed 20261021) through each of the 9 non-dominated Rollup._loadBatchHeader call sites by its public function (importGenesisBatch, commitBatch, commitState, commitBatchWithProof x2, revertBatch, proveState, finalizeBatch, proveCommittedBatchState), each from a state where every check before the call site passes (harness HolonHostile.t.sol: bare, genesis, delay and stored states); plus the 3 malformed ABI encodings per call site; compared with the extracted load_sol paths and the frozen ok_sol on the compiled M0 model. 23049 calls, 0 mismatches, 6 of 6 paths, the 4 extracted reasons; :309 recorded as dominated.",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A2",
+      "category": "model_vs_code",
+      "tried": "sol_encoder: the 1024-input encoder corpus (version 0..255 x 4 root patterns) through commitBatch, commitState and commitBatchWithProof, every other field valid, plus 3 malformed encodings each; compared with the extracted enc_sol (0 mismatches, 5 of 5 paths) and the frozen enc_sol (27 mismatches: zero roots at versions 0..2, the frozen encoder defined where the code reverts); CODEC labels of the diagram against the code (only CODEC.enc_sol contradicted). Reproduces F-M2-36.",
+      "result": "finding",
+      "findings": [
+        "F-M2-38"
+      ]
+    },
+    {
+      "id": "A3",
+      "category": "model_vs_code",
+      "tried": "go_header: the header corpus through the 16 exported BatchHeaderBytes methods of morph-l2/common/batch and the 15 of morph-l2/node/types by name, validate by an in-package harness; compared with the extracted paths (error or not, and on a nil error the decoders' reads) and the frozen ok_go and dec_go: 79391 calls, 0 mismatches, 0 panics; 222 of the 223 extracted paths exercised, the last one infeasible (F-M2-39).",
+      "result": "finding",
+      "findings": [
+        "F-M2-39"
+      ]
+    },
+    {
+      "id": "A4",
+      "category": "model_vs_code",
+      "tried": "go_encoders: (BatchHeaderV0).Bytes and (BatchHeaderV1).Bytes on 34 structs (one field at a time from the zero struct: uint64 fields {0, 1, 2^64-1}, hash fields {0, 2^256-1}, EncodedBytes {nil, 1 byte, own length}); compared with the extracted encoder paths and layouts and the frozen enc_go_v0/enc_go_v1: 0 mismatches, 4 of 4 paths.",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A5",
+      "category": "model_vs_code",
+      "tried": "rollup_act: I20's refinement harness (holon.replay_fragments) on 1240 hostile calls of the 33 actions the extracted model compiles (the 8 modelled ones from corpus bases that succeed): one ABI leaf at a time ({0, 1, 2^w-2, 2^w-1}, bytes32 {0, 1, 2^256-1}, bools, the 51-input act header corpus for header arguments), the caller (satisfying, failing, zero), msg.value {0, 1}, forked at the base state and after genesis; compared on status, revert data, storage and events: 0 disagreements; one Panic 0x11 (revertBatch, Rollup.sol:439), a check the document records.",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A6",
+      "category": "model_vs_code",
+      "tried": "batchdata_act: from NewBatchData every sequence of up to 3 Append calls (7 block-context lengths x 3 payload lengths x 3 hash counts: 254080 sequences), then each of the 10 exported methods, and each method on a nil receiver; compared with the batch-data model (75895 sequences within its 512-byte bound, 0 mismatches) and the extracted paths and sites: the open site batch_data.go:75:36 decided reachable (NewBatchData, Append(empty), DataHash), 7 nil-receiver panics explained by go-nil-deref-not-modelled.",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A7",
+      "category": "vacuity",
+      "tried": "vacuity: the 27 records of results/M2 and results/M2/extracted_m1; the 10 PROVED premised laws' inhabitants replayed on the compiled models the records name (sha256 checked), premises evaluated (Reach and the model's hit ghost; explore.mjs for the others), site operands evaluated by probes the model's generator emits; degenerate rule applied; representative search (BFS, runs of at most 6 actions): all 10 satisfiable, 5 site laws degenerate as predicted, each with a representative; REFUTED laws' counter-witnesses replayed.",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A8",
+      "category": "bindings_ledger",
+      "tried": "bindings_ledger: the 12 hypotheses of results/M2/hypotheses.json through the round's binding (audit/rounds/M2/round2/harness/hypotheses.json): CF-agg (EVM KECCAK256, 273 lists), CF-hdr (the codec libraries and common/batch Hash, 768 headers), Hyp-Z0-kzg (kzg4844 of the Go module graph), Hyp-messenger (L1CrossDomainMessenger with its queue, 90 calls), Hyp-ISubmitter (Submitter.sol, 584 operation sequences), HypT (the tx codec, 180 transactions), HypZ (the zstd codec, 165 cases) tested; HypC, HypF, HypP, HypSeal and HypV-proof1 untestable with the missing piece named. Hyp-ISubmitter and HypZ fail.",
+      "result": "finding",
+      "findings": [
+        "F-M2-40",
+        "F-M2-41",
+        "F-M2-42"
+      ]
+    },
+    {
+      "id": "A9",
+      "category": "mutation_adequacy",
+      "tried": "mutation_adequacy: one planted partiality mutant per surface (a scratch document or model with a length constant, comparison constant, cache condition, site status or guard changed; never written to the repository) and the three A4 canaries (an added contradicting premise, an inhabitant moved to the initial state, an equality hypothesis with its value altered).",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A10",
+      "category": "determinism",
+      "tried": "determinism: python -m holon audit hostile --check and python -m holon audit vacuity --check, each rebuilding its record from a fresh git archive of the target commit, compared byte for byte.",
+      "result": "no_finding",
+      "findings": []
+    },
+    {
+      "id": "A11",
+      "category": "model_vs_code",
+      "tried": "go_consumer: (*Derivation).UnPackData and (*BatchInfo).ParseBatch of node/derivation, the four ABIs loaded as NewDerivationClient loads them, on the header corpus inside a well-formed commitBatch calldata under each of the 4 selectors (10244 inputs, one zero blob each) and on the calldata and blobs of all 62172 commits of I59's snapshot (sha256-checked): 0 mismatches against UnPackData's contract, the extracted BatchIndex/TotalL1MessagePopped paths and the frozen ok_go. ParseBatch rejects 2954 real commits at BatchIndex (batches 2..7575, 281-byte version-0 parents the pinned Solidity loader accepts: target finding T1, L_dom_hdr) and 8 after its header steps (the zero blob: target finding T2).",
+      "result": "no_finding",
+      "findings": []
+    }
+  ],
+  "findings": [
+    "F-M2-38",
+    "F-M2-39",
+    "F-M2-40",
+    "F-M2-41",
+    "F-M2-42"
+  ]
+}

@@ -1,0 +1,918 @@
+{
+  "canaries": [
+    {
+      "detected": true,
+      "kind": "unsatisfiable_premise",
+      "satisfiable": false,
+      "what": "results/M2/extracted_m1/L_disch_stale.json with the premise {\"obsv\": \"kappa\", \"of\": {\"var\": \"s\"}} == false added to its own == true"
+    },
+    {
+      "degenerate_reason": "initial_state",
+      "detected": true,
+      "kind": "degenerate_inhabitant",
+      "what": "results/M2/extracted_m1/L_undo_BD.json's inhabitant with every state at the initial state (premises hold: True)"
+    },
+    {
+      "detected": true,
+      "kind": "false_hypothesis",
+      "what": "Hyp-Z0-kzg with its stated value altered in the last nibble"
+    }
+  ],
+  "checkout_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "degenerate_rule": "An inhabitant of a PROVED law is degenerate iff (a) its state is the model's initial state (its run is empty), or (b) the law is a SORT-site law and the subtrahend of the site's subtraction evaluates to 0 at the inhabitant (its state and action) on the compiled model, so that minuend >= subtrahend holds for every minuend.",
+  "hypotheses": {
+    "CF-agg": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": "the EVM's KECCAK256 over abi.encodePacked of the 32-byte words (solc 0.8.24 and forge at the pinned toolchain): the opcode Rollup._computeBlobVersionedHash applies to the blob hashes of a version 2 batch (contracts/contracts/l1/rollup/Rollup.sol:891-912)",
+      "reason": null,
+      "result": "pass",
+      "sample": 273,
+      "test": "CF(agg, S) on the fixed 273-value sample of List<Nat> (the empty list, 16 singletons, 256 pairs of 0..15, each a list of 32-byte words): the 273 images are pairwise different",
+      "verdict": "tested"
+    },
+    "CF-hdr": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol computeBatchHash after BatchHeaderCodecV0/V1.loadAndValidate (the loading and hashing Rollup._loadBatchHeader performs; EVM KECCAK256) and morph-l2/common/batch (BatchHeaderBytes).Hash (go-ethereum crypto.Keccak256Hash of the pinned module graph)",
+      "reason": null,
+      "result": "pass",
+      "sample": 768,
+      "test": "CF(hdr_hash, S) on 768 in-domain headers (256 each of version 0 with 249 bytes, version 1 and version 2 with 257 bytes; bodies from the round's seeded sha256 chain): both sides accept every header, their batch hashes agree, and the 768 hashes are pairwise different",
+      "verdict": "tested"
+    },
+    "Hyp-ISubmitter": {
+      "counterexample": {
+        "active": {
+          "isActive": false,
+          "minimumStake": "2000000000000000000",
+          "operations": [
+            "addSubmitter",
+            "stake",
+            "setMinimumStake(+1 ether)"
+          ],
+          "registered": true,
+          "slashed": false,
+          "stake": "1000000000000000000",
+          "withdrawing": false
+        },
+        "deposit": {
+          "challengeDeposit": "100000000000000001",
+          "initial": "100000000000000000",
+          "operations": [
+            "updateChallengeDeposit(+1)"
+          ]
+        }
+      },
+      "finding": "F-M2-40",
+      "implementation": "contracts/contracts/l1/rollup/Submitter.sol (behind a TransparentUpgradeableProxy, initialized with minimumStake 1 ether, challengeDeposit 0.1 ether, rewardPercentage 50; its rollup is a stand-in with code that reports batch indices 0 and calls slash)",
+      "reason": null,
+      "result": "fail",
+      "sample": 1672,
+      "test": "every sequence of 1 to 3 of its 8 public operations on one submitter (584 sequences, breadth-first), observed after every step: isActive(s) holds exactly when stakeOf(s) > 0 and s was not slashed, and challengeDeposit() keeps its initial value; a slash (the rollup's _challengerWin) deactivates",
+      "verdict": "tested"
+    },
+    "Hyp-Z0-kzg": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": "github.com/morph-l2/go-ethereum crypto/kzg4844 (BlobToCommitment, CalcBlobHashV1 with sha256) of the pinned Go module graph",
+      "observed": {
+        "value": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+      },
+      "reason": null,
+      "result": "pass",
+      "sample": 3,
+      "test": "the KZG versioned hash of the all-zero blob, computed, equals common/blob EmptyVersionedHash (Go) and the ZERO_VERSIONED_HASH literal of Rollup.sol",
+      "verdict": "tested"
+    },
+    "Hyp-messenger": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": "contracts/contracts/l1/L1CrossDomainMessenger.sol with contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol (both behind TransparentUpgradeableProxy, wired to each other; maxGasLimit 10,000,000; a contracts/contracts/libraries/common/Whitelist.sol with no entry; l2BaseFee 0)",
+      "observed": {
+        "succeeded": 36,
+        "violations": 0
+      },
+      "reason": null,
+      "result": "pass",
+      "sample": 90,
+      "test": "90 sendMessage calls in order (2 targets x 3 values x 3 messages x 5 gas limits), msg.value = value: each successful call grows nextCrossDomainMessageIndex by exactly 1 and the queue emits exactly one QueueTransaction, whose queueIndex is the index before the call; a reverted call enqueues nothing",
+      "verdict": "tested"
+    },
+    "HypC": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": null,
+      "reason": "no implementation of the zkEVM circuits or of a prover runs here: the pinned checkout holds only the verifier contracts, and a valid aggregate proof for any batch cannot be produced (the circuits live outside the pinned checkout)",
+      "result": null,
+      "sample": null,
+      "test": "not run: no implementation of the zkEVM circuits or of a prover runs here: the pinned checkout holds only the verifier contracts, and a valid aggregate proof for any batch cannot be produced (the circuits live outside the pinned checkout)",
+      "verdict": "untestable"
+    },
+    "HypF": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": null,
+      "reason": "the node's L1 fetcher reads an L1 execution endpoint and a beacon endpoint over RPC; none runs here (I59's snapshot holds the committed calldata and blobs, not a fetcher to compare them with)",
+      "result": null,
+      "sample": null,
+      "test": "not run: the node's L1 fetcher reads an L1 execution endpoint and a beacon endpoint over RPC; none runs here (I59's snapshot holds the committed calldata and blobs, not a fetcher to compare them with)",
+      "verdict": "untestable"
+    },
+    "HypP": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": null,
+      "reason": "no L2 chain runs here: the predeploys exist only in an L2 genesis state, and the hypothesis names no checkable property of them (its record, spec/M2/lib/oracles.json, states none)",
+      "result": null,
+      "sample": null,
+      "test": "not run: no L2 chain runs here: the predeploys exist only in an L2 genesis state, and the hypothesis names no checkable property of them (its record, spec/M2/lib/oracles.json, states none)",
+      "verdict": "untestable"
+    },
+    "HypSeal": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": null,
+      "reason": "the sequencer's sealing loop runs only inside a running L2 node (consensus and block production); no such node runs here",
+      "result": null,
+      "sample": null,
+      "test": "not run: the sequencer's sealing loop runs only inside a running L2 node (consensus and block production); no such node runs here",
+      "verdict": "untestable"
+    },
+    "HypT": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": "github.com/morph-l2/go-ethereum core/types (Transaction.MarshalBinary and UnmarshalBinary) of the pinned Go module graph",
+      "observed": {
+        "not_encoded": [
+          "morph v0 fee 0 data 0, to false, signed false: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 0, to false, signed true: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 0, to true, signed false: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 0, to true, signed true: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 1, to false, signed false: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 1, to false, signed true: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 1, to true, signed false: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 1, to true, signed true: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 100, to false, signed false: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 100, to false, signed true: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 100, to true, signed false: encode: invalid FeeTokenID for v0 morph tx",
+          "morph v0 fee 0 data 100, to true, signed true: encode: invalid FeeTokenID for v0 morph tx"
+        ],
+        "violations": 0
+      },
+      "reason": null,
+      "result": "pass",
+      "sample": 180,
+      "test": "every transaction type (legacy, access list, dynamic fee, blob, L1 message, and the Morph type in versions 0 and 1 with every fee token, reference and memo variant), unsigned and signed, with 0, 1 and 100 data bytes and with and without a recipient: every encoding the codec produces decodes, and re-encodes to the same bytes with the same hash",
+      "verdict": "tested"
+    },
+    "HypV-proof1": {
+      "counterexample": null,
+      "finding": null,
+      "implementation": null,
+      "reason": "the hypothesis is the stand-in's rule on proof tokens (proof 1 accepted, proof 2 rejected); the real verifier (contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol and the zkEVM verifiers) takes proof bytes, and no valid aggregate proof for any public input can be produced here (no prover), so token 1 has no real counterpart to run",
+      "result": null,
+      "sample": null,
+      "test": "not run: the hypothesis is the stand-in's rule on proof tokens (proof 1 accepted, proof 2 rejected); the real verifier (contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol and the zkEVM verifiers) takes proof bytes, and no valid aggregate proof for any public input can be produced here (no prover), so token 1 has no real counterpart to run",
+      "verdict": "untestable"
+    },
+    "HypZ": {
+      "counterexample": {
+        "decoded": "error:empty input",
+        "encoded_length": 0,
+        "pad": 0,
+        "x_kind": "chain",
+        "x_length": 0
+      },
+      "finding": "F-M2-41",
+      "implementation": "morph-l2/common/codec/zstd CompressBatchBytes and DecompressBatchBytes (github.com/morph-l2/morph-da-codec bindings of the pinned Go module graph), the codec ParseBatch decodes blob payloads with",
+      "observed": {
+        "not_encoded": 0,
+        "violating_x_lengths": [
+          0
+        ],
+        "violations": 15
+      },
+      "reason": null,
+      "result": "fail",
+      "sample": 165,
+      "test": "Dec(Enc x ++ 0^k) = x for 33 payloads x (11 lengths from 0 to 120000 bytes, each seeded-random, all zeros and a byte ramp) and k in {0, 1, 32, 1000, 131072}: decoding succeeds and returns x exactly",
+      "verdict": "tested"
+    }
+  },
+  "laws": {
+    "results/M2/L_sort_site_def_bvh_at_6126d1f1.json": {
+      "degenerate": true,
+      "degenerate_reason": "initial_state",
+      "finding": null,
+      "inhabitant": {
+        "evaluations": 1,
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 0,
+        "site_operands": {
+          "minuend": 1,
+          "subtrahend": 0
+        },
+        "source": "record"
+      },
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": {
+        "inhabitant": {
+          "a": {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 1,
+            "post": 121,
+            "prev": 110,
+            "ver": 1,
+            "who": 2
+          },
+          "s": {
+            "run": [
+              {
+                "blobs": [
+                  17
+                ],
+                "lbn": 1,
+                "n": 0,
+                "op": "commitBatch",
+                "parent": 0,
+                "post": 110,
+                "prev": 100,
+                "ver": 1,
+                "who": 2
+              }
+            ]
+          }
+        },
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 1,
+        "site_operands": {
+          "minuend": 2,
+          "subtrahend": 1
+        }
+      },
+      "representative_bound": "breadth-first over runs of at most 6 successful policy actions from the initial state (states deduplicated, observation log excluded), every policy action at each state as the inhabitant's action; 4128 states",
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/L_sort_site_def_bvh_at_e064679d.json": {
+      "degenerate": true,
+      "degenerate_reason": "initial_state",
+      "finding": null,
+      "inhabitant": {
+        "evaluations": 1,
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 0,
+        "site_operands": {
+          "minuend": 1,
+          "subtrahend": 1
+        },
+        "source": "record"
+      },
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": {
+        "inhabitant": {
+          "a": {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 1,
+            "post": 121,
+            "prev": 110,
+            "ver": 1,
+            "who": 2
+          },
+          "s": {
+            "run": [
+              {
+                "blobs": [
+                  17
+                ],
+                "lbn": 1,
+                "n": 0,
+                "op": "commitBatch",
+                "parent": 0,
+                "post": 110,
+                "prev": 100,
+                "ver": 1,
+                "who": 2
+              }
+            ]
+          }
+        },
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 1,
+        "site_operands": {
+          "minuend": 1,
+          "subtrahend": 1
+        }
+      },
+      "representative_bound": "breadth-first over runs of at most 6 successful policy actions from the initial state (states deduplicated, observation log excluded), every policy action at each state as the inhabitant's action; 4128 states",
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/L_sort_site_def_lci_356891e4.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "UNKNOWN"
+    },
+    "results/M2/L_sort_site_def_w_b4cd5068.json": {
+      "degenerate": true,
+      "degenerate_reason": "initial_state",
+      "finding": null,
+      "inhabitant": {
+        "evaluations": 2,
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 0,
+        "site_operands": {
+          "minuend": 0,
+          "subtrahend": 0
+        },
+        "source": "record"
+      },
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": {
+        "inhabitant": {
+          "a": {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 1,
+            "post": 123,
+            "prev": 110,
+            "ver": 1,
+            "who": 2
+          },
+          "s": {
+            "run": [
+              {
+                "blobs": [
+                  17
+                ],
+                "lbn": 1,
+                "n": 0,
+                "op": "commitBatch",
+                "parent": 0,
+                "post": 110,
+                "prev": 100,
+                "ver": 1,
+                "who": 2
+              },
+              {
+                "dt": 40,
+                "op": "wait"
+              },
+              {
+                "idx": 1,
+                "op": "finalizeBatch",
+                "who": 5
+              }
+            ]
+          }
+        },
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 3,
+        "site_operands": {
+          "minuend": 1,
+          "subtrahend": 1
+        }
+      },
+      "representative_bound": "breadth-first over runs of at most 6 successful policy actions from the initial state (states deduplicated, observation log excluded), every policy action at each state as the inhabitant's action; 4128 states",
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "UNKNOWN"
+    },
+    "results/M2/L_sort_site_rollup_363_1fc7f88a.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "evaluations": 1,
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 3,
+        "site_operands": {
+          "minuend": 20,
+          "subtrahend": 21
+        },
+        "source": "counter_witness"
+      },
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "REFUTED"
+    },
+    "results/M2/L_sort_site_rollup_441_b4cd5068.json": {
+      "degenerate": true,
+      "degenerate_reason": "zero_subtrahend",
+      "finding": null,
+      "inhabitant": {
+        "evaluations": 1,
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 1,
+        "site_operands": {
+          "minuend": 1,
+          "subtrahend": 0
+        },
+        "source": "record"
+      },
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": {
+        "inhabitant": {
+          "a": {
+            "count": 1,
+            "idx": 2,
+            "op": "revertBatch",
+            "who": 1
+          },
+          "s": {
+            "run": [
+              {
+                "blobs": [
+                  17
+                ],
+                "lbn": 1,
+                "n": 0,
+                "op": "commitBatch",
+                "parent": 0,
+                "post": 110,
+                "prev": 100,
+                "ver": 1,
+                "who": 2
+              },
+              {
+                "blobs": [
+                  27
+                ],
+                "lbn": 2,
+                "n": 0,
+                "op": "commitBatch",
+                "parent": 1,
+                "post": 121,
+                "prev": 110,
+                "ver": 1,
+                "who": 2
+              },
+              {
+                "dt": 40,
+                "op": "wait"
+              },
+              {
+                "idx": 1,
+                "op": "finalizeBatch",
+                "who": 5
+              }
+            ]
+          }
+        },
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 4,
+        "site_operands": {
+          "minuend": 2,
+          "subtrahend": 1
+        }
+      },
+      "representative_bound": "breadth-first over runs of at most 6 successful policy actions from the initial state (states deduplicated, observation log excluded), every policy action at each state as the inhabitant's action; 4128 states",
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/L_sort_site_rollup_485_495_b4cd5068.json": {
+      "degenerate": true,
+      "degenerate_reason": "zero_subtrahend",
+      "finding": null,
+      "inhabitant": {
+        "evaluations": 1,
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 1,
+        "site_operands": {
+          "minuend": 1,
+          "subtrahend": 0
+        },
+        "source": "record"
+      },
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": {
+        "inhabitant": {
+          "a": {
+            "idx": 2,
+            "op": "challengeState",
+            "value": 1,
+            "who": 4
+          },
+          "s": {
+            "run": [
+              {
+                "blobs": [
+                  17
+                ],
+                "lbn": 1,
+                "n": 0,
+                "op": "commitBatch",
+                "parent": 0,
+                "post": 110,
+                "prev": 100,
+                "ver": 1,
+                "who": 2
+              },
+              {
+                "dt": 40,
+                "op": "wait"
+              },
+              {
+                "blobs": [
+                  27
+                ],
+                "lbn": 2,
+                "n": 0,
+                "op": "commitBatch",
+                "parent": 1,
+                "post": 122,
+                "prev": 110,
+                "ver": 1,
+                "who": 2
+              },
+              {
+                "idx": 1,
+                "op": "finalizeBatch",
+                "who": 5
+              }
+            ]
+          }
+        },
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 4,
+        "site_operands": {
+          "minuend": 2,
+          "subtrahend": 1
+        }
+      },
+      "representative_bound": "breadth-first over runs of at most 6 successful policy actions from the initial state (states deduplicated, observation log excluded), every policy action at each state as the inhabitant's action; 4128 states",
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/L_sort_site_rollup_636_e68daf06.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "evaluations": 1,
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 0,
+        "site_operands": {
+          "minuend": 0,
+          "subtrahend": 1
+        },
+        "source": "counter_witness"
+      },
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "REFUTED"
+    },
+    "results/M2/L_sort_site_rollup_644_660_e68daf06.json": {
+      "degenerate": false,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "evaluations": 1,
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 2,
+        "site_operands": {
+          "minuend": 1,
+          "subtrahend": 1
+        },
+        "source": "record"
+      },
+      "model": "gen/M2/model/morph_rollup.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/L_sort_width_batchheadercodecv0_144_1abeb29c.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": null,
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "UNKNOWN"
+    },
+    "results/M2/L_sort_width_batchheadercodecv0_166_8ad80b42.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": null,
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "UNKNOWN"
+    },
+    "results/M2/extracted_m1/L_disch_delay_nofree.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": false,
+      "representative": null,
+      "satisfiable": null,
+      "status": "REFUTED"
+    },
+    "results/M2/extracted_m1/L_disch_delay_pay.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": false,
+      "representative": null,
+      "satisfiable": null,
+      "status": "PROVED"
+    },
+    "results/M2/extracted_m1/L_disch_delay_prove.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": false,
+      "representative": null,
+      "satisfiable": null,
+      "status": "PROVED"
+    },
+    "results/M2/extracted_m1/L_disch_delay_wait.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": false,
+      "representative": null,
+      "satisfiable": null,
+      "status": "PROVED"
+    },
+    "results/M2/extracted_m1/L_disch_stale.json": {
+      "degenerate": false,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "premises": [
+          true,
+          true
+        ],
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 3,
+        "site_operands": null,
+        "source": "record"
+      },
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/extracted_m1/L_disch_stale_commit.json": {
+      "degenerate": false,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "premises": [
+          true,
+          true
+        ],
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 3,
+        "site_operands": null,
+        "source": "record"
+      },
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/extracted_m1/L_fact_Z.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "premises": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 0,
+        "site_operands": null,
+        "source": "counter_witness"
+      },
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "REFUTED"
+    },
+    "results/M2/extracted_m1/L_nat_eta2.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": false,
+      "representative": null,
+      "satisfiable": null,
+      "status": "REFUTED"
+    },
+    "results/M2/extracted_m1/L_sort_remaining.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": false,
+      "representative": null,
+      "satisfiable": null,
+      "status": "REFUTED"
+    },
+    "results/M2/extracted_m1/L_sym_omega.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "premises": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 2,
+        "site_operands": null,
+        "source": "counter_witness"
+      },
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "REFUTED"
+    },
+    "results/M2/extracted_m1/L_tag_BVH.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": null,
+      "model": null,
+      "premised": false,
+      "representative": null,
+      "satisfiable": null,
+      "status": "UNKNOWN"
+    },
+    "results/M2/extracted_m1/L_undo_BD.json": {
+      "degenerate": false,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "premises": [
+          true
+        ],
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 6,
+        "site_operands": null,
+        "source": "record"
+      },
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/extracted_m1/L_undo_BVH.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "premises": [
+          true,
+          true,
+          true
+        ],
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 0,
+        "site_operands": null,
+        "source": "counter_witness"
+      },
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "REFUTED"
+    },
+    "results/M2/extracted_m1/L_undo_CSR.json": {
+      "degenerate": false,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "premises": [
+          true
+        ],
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 6,
+        "site_operands": null,
+        "source": "record"
+      },
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": true,
+      "status": "PROVED"
+    },
+    "results/M2/extracted_m1/L_undo_cancel.json": {
+      "degenerate": null,
+      "degenerate_reason": null,
+      "finding": null,
+      "inhabitant": {
+        "premises": [
+          true
+        ],
+        "premises_hold": true,
+        "replayed": true,
+        "run_length": 2,
+        "site_operands": null,
+        "source": "counter_witness"
+      },
+      "model": "gen/M2/extracted/m1/model/m1_view.bend",
+      "premised": true,
+      "representative": null,
+      "satisfiable": null,
+      "status": "REFUTED"
+    }
+  },
+  "milestone": "M2",
+  "round": 2,
+  "target_commit": "8d9f02da4648d2150b4994261ced05aa6da72c8e",
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "go_version": "go version go1.24.7 linux/amd64",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  }
+}
