@@ -205,8 +205,17 @@ def law_facts(law: dict, m: str, root: Path) -> str:
     return law.get("facts") or registry_facts(m, root)
 
 
+def _width(law: dict) -> bool:
+    """A SORT-width law (I20, holon.sorts.width): about the extracted model, which no law emitter targets."""
+    from .sorts.width import width_law
+    return width_law(law) is not None
+
+
 def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
+    if _width(law):   # the extracted model (holon model's gen/<m>/extracted/model.bend)
+        from .sorts.width import model_path as width_model
+        return width_model(m, root)
     return root / "gen" / m / "model" / f"{model_name(law_facts(law, m, root))}.bend"
 
 
@@ -215,6 +224,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     pipelines emit it; None when the emitter cannot express that form."""
     from .model_eval import model_name
     from .mpipeline import layout
+    if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
+        return None
     fp = root / law_facts(law, m, root)
     imp = f"{layout(m, root, law['law_id'])[2]}model/{model_name(fp)}.bend"   # as the pipelines import it (I10)
     if law["ir_version"] == "holon-ir/0.1":
@@ -256,7 +267,11 @@ def bound_counter(bound: dict, rec: dict) -> str | None:
 
 
 def statement_text(law: dict, m: str, root: Path) -> str:
-    """The emitted frozen statement (never a counter-law), or the IR's names when it is inexpressible."""
+    """The emitted frozen statement (never a counter-law), or the IR's names when it is inexpressible (a width law:
+    the roots its record's cone is computed from, holon.sorts.width.roots_text)."""
+    if _width(law):
+        from .sorts.width import roots_text
+        return roots_text(law, root)
     t = _emit(law, m, root, counter=False)
     return t if t is not None else records.ir_roots_text(law)
 

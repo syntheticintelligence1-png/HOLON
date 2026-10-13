@@ -1,6 +1,6 @@
 {
   "ledger_version": "holon-ledger/0.1",
-  "doc": "Milestone M2's extension of spec/ledger/assumptions.json (holon.records.milestone_extensions; I15-B). A bundle there classifies the definitions of the model generated for its facts at the milestone that registered it (M1 for the rollup). The M2 model of the same facts adds definitions, which only this file classifies: holon.records reads it for records of milestone M2 (a run over derived facts, such as a mutation, checks that every definition in a law's cone is classified). The base ledger is not edited, so the documents built from it (gen/M2/diagram, gen/M2/evidence.json) are unchanged.",
+  "doc": "Milestone M2's extension of spec/ledger/assumptions.json (holon.records.milestone_extensions; I15-B). A bundle there classifies the definitions of the model generated for its facts at the milestone that registered it (M1 for the rollup). The M2 model of the same facts adds definitions, which only this file classifies: holon.records reads it for records of milestone M2 (a run over derived facts, such as a mutation, checks that every definition in a law's cone is classified). The base ledger is not edited, so the documents built from it (gen/M2/diagram, gen/M2/evidence.json) are unchanged. Its \"bundles\" register the documents first modelled at M2 (holon.records.all_bundles): I20's extracted rollup document, whose model is gen/M2/extracted/model.bend.",
   "extends": [
     {
       "facts": "spec/M1/facts/morph_rollup.json",
@@ -14,6 +14,100 @@
             "perm_*"
           ],
           "why": "what the M2 model of this document adds to the M1 model: Reach, the reachable states (s0, and one step of the model's own step from a reachable state; I8); HO_<p> and ap_<p>, an oracle parameter's table and its lookup (I12: the parameter is universally quantified and its hypothesis is a premise of the laws that need it; a stand-in entry the model still holds stays in the record's ledger_assumptions); perm_<class>, the permission predicate of a principal class, derived from the actions' permission guards (audit F-M2-26, holon.diagram.principals), which the facts transcribe with source lines"
+        }
+      ]
+    }
+  ],
+  "bundles": [
+    {
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+      "model": "extracted/model",
+      "doc": "The extracted model of this document (holon.machine_bend: gen/M2/extracted/model.bend, I20): the document's own assumptions, each introduced by the definitions that carry it, and the generator's environment table.",
+      "entries": [
+        {
+          "id": "A-env",
+          "kind": "abstraction",
+          "source": "spec/M2/facts/morph_rollup.extracted.json#/assumptions/0",
+          "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments.",
+          "introduced_by": [
+            "HEnv",
+            "ge_*"
+          ]
+        },
+        {
+          "id": "A-implicit",
+          "kind": "abstraction",
+          "source": "spec/M2/facts/morph_rollup.extracted.json#/assumptions/1",
+          "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check.",
+          "introduced_by": [
+            "chk_*"
+          ]
+        },
+        {
+          "id": "A-loop",
+          "kind": "abstraction",
+          "source": "spec/M2/facts/morph_rollup.extracted.json#/assumptions/2",
+          "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever).",
+          "introduced_by": [
+            "chk_*"
+          ]
+        },
+        {
+          "id": "A-reach",
+          "kind": "abstraction",
+          "source": "spec/M2/facts/morph_rollup.extracted.json#/assumptions/3",
+          "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions.",
+          "introduced_by": [
+            "k_*"
+          ]
+        },
+        {
+          "id": "A-reentrancy",
+          "kind": "abstraction",
+          "source": "spec/M2/facts/morph_rollup.extracted.json#/assumptions/4",
+          "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction.",
+          "introduced_by": [
+            "post_*",
+            "step_*"
+          ]
+        },
+        {
+          "id": "extracted-env-terms",
+          "kind": "abstraction",
+          "source": "holon/machine_bend.py",
+          "text": "A term the Bend generator does not translate (an unknown or loop term, a component of a low-level call, a loop's decision, and the others listed with their ids in the header of gen/M2/extracted/model.bend) is a value of the environment table unk: Bend checks the model for every value of it, and holon.extracted_eval, the evaluator of record, computes it from the step's inputs.",
+          "introduced_by": [
+            "ge_unk"
+          ]
+        }
+      ],
+      "no_assumption": [
+        {
+          "defs": [
+            "ite",
+            "nth_d",
+            "w_*",
+            "l_*",
+            "m_*",
+            "kv_*",
+            "kb_*",
+            "kl_*"
+          ],
+          "why": "word, list, memory and table utilities of the generator prelude (holon.machine_bend.BEND_PRELUDE): exact 256-bit arithmetic, byte lists and key-value lookups; no modelling choice"
+        },
+        {
+          "defs": [
+            "H*",
+            "S*",
+            "A_*",
+            "g_*",
+            "gs_*",
+            "ss_*",
+            "ga_*",
+            "ks_*"
+          ],
+          "why": "record plumbing generated from the compiler's storage layout and ABI: the store (one field per family), struct records, argument records, their getters and setters, and mapping-of-struct lookups"
         }
       ]
     }

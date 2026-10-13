@@ -190,10 +190,13 @@ def load_ledger(root: Path | str = ROOT) -> dict:
 
 
 def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, milestone: str | None = None) -> list[dict]:
-    """The ledger's bundles, plus the bundles of a sidecar ledger.json next to a facts file (a fixture
-    or a target outside spec/ may carry its own ledger; I6). With a milestone, a bundle extended by
-    spec/<milestone>/ledger.json (milestone_extensions) carries the extension's no_assumption groups too."""
+    """The ledger's bundles, the "bundles" of every milestone ledger spec/M<n>/ledger.json (a document first
+    modelled at that milestone, I20: the extracted model's), plus the bundles of a sidecar ledger.json next to a
+    facts file (a fixture or a target outside spec/ may carry its own ledger; I6). With a milestone, a bundle extended
+    by spec/<milestone>/ledger.json (milestone_extensions) carries the extension's no_assumption groups too."""
     out = list(load_ledger(root)["bundles"])
+    for p in sorted(Path(root).glob("spec/M*/ledger.json")):   # the bundles a milestone registers (I20: a document
+        out += list(json.loads(p.read_text(encoding="utf-8")).get("bundles") or [])   # first modelled there)
     if facts_path is not None:
         side = (Path(root) / facts_path).parent / "ledger.json"
         if side.exists():

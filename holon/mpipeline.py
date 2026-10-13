@@ -630,6 +630,9 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             from .sorts import width as WD
             fp = fpath_of(law)
             rec = WD.record(law, milestone, ROOT, kver, R.law_hash(law, F.load(fp), root=ROOT), F.sha256_file(fp))
+            rec.update(scope_fields(law, rec))   # a 0.3 record's scope is its statement's (F-M2-01)
+            rec.update(WD.v2_fields(law, rec, milestone, ROOT, cfg))   # the v2 fields over the extracted model
+            rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
             (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
             summary[lid] = rec["status"]
             oracles_of[lid] = None
