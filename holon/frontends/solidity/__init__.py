@@ -18,8 +18,11 @@ compiler's output and the source tree; never a fact document, a law or a result,
 A sidecar with "transitions" ({"contract", "commit_interfaces"}, I19) yields a transitions document instead of a
 layout document: storage (the compiler's storageLayout, holon.frontends.solidity.storage) and every external or public
 function's guards, effects, cost terms, principal predicate and hash/commit edges (holon.frontends.solidity
-.transitions; contract: the docstring of tests_m2/test_extract_transitions.py). coverage_document gives the statement
-coverage of such a sidecar's contract (holon.coverage, gate check G8).
+.transitions; contract: the docstring of tests_m2/test_extract_transitions.py), extended by the I19 follow-up (A19)
+with every guard reach, implicit checks, external calls, written values, memory writes, events, loop records, the
+action interface, inherited storage and inherited actions (the module docstring of holon.frontends.solidity
+.transitions). coverage_document gives the statement coverage of such a sidecar's contract (holon.coverage, gate
+check G8).
 """
 from __future__ import annotations
 

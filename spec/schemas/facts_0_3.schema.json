@@ -809,8 +809,15 @@
             "integer",
             "null"
           ]
+        },
+        "slot": {
+          "type": "integer"
+        },
+        "offset": {
+          "type": "integer"
         }
-      }
+      },
+      "description": "A struct member: name, type label, width (bits of an elementary type, else null); in storage descriptions also the compiler's slot and offset relative to the struct."
     },
     "tr_family": {
       "type": "object",
@@ -853,6 +860,18 @@
           "items": {
             "$ref": "#/$defs/tr_member"
           }
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length": {
+          "type": "integer"
+        },
+        "declared_in": {
+          "type": "string"
         }
       },
       "allOf": [
@@ -871,7 +890,7 @@
           }
         }
       ],
-      "description": "A storage family: slot and offset from the compiler's storage layout."
+      "description": "A storage family: slot and offset from the compiler's storage layout; keys (nested mappings), length (fixed arrays), declared_in (inherited storage)."
     },
     "tr_guard": {
       "type": "object",
@@ -879,7 +898,8 @@
         "src",
         "kind",
         "reason",
-        "expr"
+        "expr",
+        "reaches"
       ],
       "additionalProperties": false,
       "properties": {
@@ -901,6 +921,13 @@
         },
         "expr": {
           "$ref": "#/$defs/tr_term"
+        },
+        "reaches": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/tr_reach"
+          }
         }
       }
     },
@@ -915,7 +942,21 @@
         "guards",
         "effects",
         "cost",
-        "edges"
+        "edges",
+        "declared_in",
+        "params",
+        "returns",
+        "payable",
+        "mutability",
+        "checks",
+        "panics",
+        "calls",
+        "writes",
+        "mstores",
+        "events",
+        "loops",
+        "post",
+        "order"
       ],
       "additionalProperties": false,
       "properties": {
@@ -1043,8 +1084,99 @@
               }
             }
           }
+        },
+        "declared_in": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_param"
+          }
+        },
+        "returns": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/tr_term"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "payable": {
+          "type": "boolean"
+        },
+        "mutability": {
+          "type": "string"
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_check"
+          }
+        },
+        "panics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_panic"
+          }
+        },
+        "calls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_call"
+          }
+        },
+        "writes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_write"
+          }
+        },
+        "mstores": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_mstore"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_event"
+          }
+        },
+        "loops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_loop"
+          }
+        },
+        "post": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/tr_term"
+          }
+        },
+        "order": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 3,
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ]
+            }
+          }
         }
-      }
+      },
+      "description": "An action (I19): name, selector, src, modifiers, principal, guards, effects, cost, edges; the I19 follow-up (A19) adds declared_in, params, returns, payable, mutability, checks, panics, calls, writes, mstores, events, loops, post and order (holon.frontends.solidity.transitions)."
     },
     "tr_assumption": {
       "type": "object",
@@ -1056,7 +1188,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^A-(env|implicit|loop|reentrancy|span)$"
+          "pattern": "^A-(env|implicit|loop|reach|reentrancy)$"
         },
         "text": {
           "type": "string"
@@ -1073,7 +1205,8 @@
         "constants",
         "storage",
         "actions",
-        "assumptions"
+        "assumptions",
+        "inherited_storage"
       ],
       "additionalProperties": false,
       "properties": {
@@ -1145,9 +1278,24 @@
           "items": {
             "$ref": "#/$defs/tr_assumption"
           }
+        },
+        "inherited_storage": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/tr_family"
+              },
+              {
+                "required": [
+                  "declared_in"
+                ]
+              }
+            ]
+          }
         }
       },
-      "description": "A Solidity transitions document (I19, holon.frontends.solidity.transitions): the contract's constants, storage families and actions (guards, effects, cost terms, principal, edges)."
+      "description": "A Solidity transitions document (I19, holon.frontends.solidity.transitions): the contract's constants, storage families, inherited storage (A19) and actions (guards with every reach, effects, cost terms, principal, edges, and the A19 records)."
     },
     "go": {
       "type": "object",
@@ -1221,6 +1369,641 @@
         }
       },
       "description": "A Go frontend document (I18): the envelope plus all Go content under go, which spec/schemas/facts_0_3_go.schema.json closes."
+    },
+    "tr_reach": {
+      "type": "object",
+      "required": [
+        "seq",
+        "stack",
+        "expr"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "type": "integer"
+        },
+        "stack": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/span"
+          }
+        },
+        "expr": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "loop": {
+          "type": "integer"
+        },
+        "code": {
+          "const": 1
+        }
+      },
+      "description": "One reach of a guard (A19-03): its walk-order seq, call stack, expression; loop when made in a loop's generic iteration; code 1 for an assert."
+    },
+    "tr_param": {
+      "type": "object",
+      "required": [
+        "name",
+        "type",
+        "width",
+        "location"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "width": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "location": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_member"
+          }
+        }
+      },
+      "description": "An action parameter (A19-12)."
+    },
+    "tr_check": {
+      "type": "object",
+      "required": [
+        "seq",
+        "src",
+        "stack",
+        "kind",
+        "expr"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "type": "integer"
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "stack": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/span"
+          }
+        },
+        "loop": {
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "callvalue",
+            "abi",
+            "slice",
+            "uncaught"
+          ]
+        },
+        "expr": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "param": {
+          "type": "string"
+        }
+      },
+      "description": "An implicit check that is not a panic (A19-02)."
+    },
+    "tr_panic": {
+      "type": "object",
+      "required": [
+        "seq",
+        "src",
+        "stack",
+        "code",
+        "op",
+        "args",
+        "expr"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "type": "integer"
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "stack": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/span"
+          }
+        },
+        "loop": {
+          "type": "integer"
+        },
+        "code": {
+          "enum": [
+            17,
+            18,
+            33,
+            49,
+            50
+          ]
+        },
+        "op": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_term"
+          }
+        },
+        "expr": {
+          "$ref": "#/$defs/tr_term"
+        }
+      },
+      "description": "A checked operation and its Panic code (A19-02)."
+    },
+    "tr_call": {
+      "type": "object",
+      "required": [
+        "seq",
+        "src",
+        "stack",
+        "fn",
+        "receiver",
+        "args",
+        "value",
+        "mutability",
+        "cond",
+        "commit",
+        "expr"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "type": "integer"
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "stack": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/span"
+          }
+        },
+        "loop": {
+          "type": "integer"
+        },
+        "fn": {
+          "type": "string"
+        },
+        "receiver": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/tr_term"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_term"
+          }
+        },
+        "value": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "mutability": {
+          "type": "string"
+        },
+        "cond": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "commit": {
+          "type": "boolean"
+        },
+        "try": {
+          "const": true
+        },
+        "expr": {
+          "$ref": "#/$defs/tr_term"
+        }
+      },
+      "description": "An external call (A19-02)."
+    },
+    "tr_write": {
+      "type": "object",
+      "required": [
+        "seq",
+        "src",
+        "stack",
+        "family",
+        "path",
+        "value",
+        "cond"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "type": "integer"
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "stack": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/span"
+          }
+        },
+        "loop": {
+          "type": "integer"
+        },
+        "family": {
+          "type": "string"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "value": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "cond": {
+          "$ref": "#/$defs/tr_term"
+        }
+      },
+      "description": "A storage write (A19-01)."
+    },
+    "tr_mstore": {
+      "type": "object",
+      "required": [
+        "seq",
+        "src",
+        "stack",
+        "region",
+        "op",
+        "offset",
+        "value",
+        "cond"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "type": "integer"
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "stack": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/span"
+          }
+        },
+        "loop": {
+          "type": "integer"
+        },
+        "region": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/span"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "op": {
+          "enum": [
+            "mstore",
+            "mstore8",
+            "calldatacopy"
+          ]
+        },
+        "offset": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "value": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "cond": {
+          "$ref": "#/$defs/tr_term"
+        }
+      },
+      "description": "A Yul memory write (A19-01)."
+    },
+    "tr_event": {
+      "type": "object",
+      "required": [
+        "seq",
+        "src",
+        "stack",
+        "event",
+        "signature",
+        "topic0",
+        "args",
+        "indexed",
+        "anonymous",
+        "cond"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "type": "integer"
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "stack": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/span"
+          }
+        },
+        "loop": {
+          "type": "integer"
+        },
+        "event": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "topic0": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_term"
+          }
+        },
+        "indexed": {
+          "type": "array",
+          "items": {
+            "type": "boolean"
+          }
+        },
+        "anonymous": {
+          "type": "boolean"
+        },
+        "cond": {
+          "$ref": "#/$defs/tr_term"
+        }
+      },
+      "description": "An emitted event (A19-09)."
+    },
+    "tr_loop": {
+      "type": "object",
+      "required": [
+        "seq",
+        "src",
+        "stack",
+        "kind",
+        "cond",
+        "carried",
+        "regions",
+        "head",
+        "next",
+        "break",
+        "at_break",
+        "returns",
+        "count",
+        "bound",
+        "exit",
+        "steps"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "type": "integer"
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "stack": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/span"
+          }
+        },
+        "loop": {
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "for",
+            "while",
+            "dowhile",
+            "yulfor"
+          ]
+        },
+        "cond": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "carried": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "entry",
+              "value"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "array"
+                ]
+              },
+              "entry": {
+                "$ref": "#/$defs/tr_term"
+              },
+              "value": {
+                "$ref": "#/$defs/tr_term"
+              }
+            }
+          }
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "region",
+              "writes"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "region": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/span"
+                }
+              },
+              "writes": {
+                "oneOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/tr_term"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "head": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "next": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "value"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "array"
+                ]
+              },
+              "value": {
+                "$ref": "#/$defs/tr_term"
+              }
+            }
+          }
+        },
+        "break": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "at_break": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "value"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "array"
+                ]
+              },
+              "value": {
+                "$ref": "#/$defs/tr_term"
+              }
+            }
+          }
+        },
+        "returns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "cond",
+              "value"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "cond": {
+                "$ref": "#/$defs/tr_term"
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/tr_term"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "count": {
+          "$ref": "#/$defs/tr_term"
+        },
+        "bound": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/tr_term"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exit": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "value"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "array"
+                ]
+              },
+              "value": {
+                "$ref": "#/$defs/tr_term"
+              }
+            }
+          }
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      },
+      "description": "A loop record (A19-04)."
     }
   }
 }

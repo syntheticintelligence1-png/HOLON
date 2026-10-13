@@ -7,10 +7,21 @@ ContractDefinition, not an inherited one), in declaration order:
 
   {"name", "slot", "offset", "kind": "scalar" | "mapping" | "array",
    "key": "<type>"          (mappings: the key type's label)
+   "keys": ["<type>", ...]  (nested mappings only, mapping(a => mapping(b => c)): every key's label, outermost first;
+                             value, width and fields then describe the innermost value c)
    "value": "<type>"        (the label of the variable's type; of a mapping's value type; of an array's element type)
    "width": bits            (when that value type is elementary: 8 * the compiler's numberOfBytes)
-   "fields": [{"name", "type", "width"}]   (when that value type is a struct: its members in order; width as above,
-                                             null for a member that is not elementary)}
+   "length": n              (fixed-size arrays: the declared length; dynamic arrays have none)
+   "fields": [{"name", "type", "width", "slot", "offset"}]
+                            (when that value type is a struct: its members in order; width as above, null for a member
+                             that is not elementary; slot and offset relative to the struct's first slot, from the
+                             compiler's layout of the struct type)}
+
+inherited (I19 follow-up A19-10): the layout entries of the state variables the contract inherits (every entry of the
+compiler's storageLayout of the contract whose astId the contract does not declare itself), in (slot, offset) order,
+with the same shape plus "declared_in": the name of the contract whose AST declares the variable (read from the AST,
+never from the layout's "contract" field, which names the derived contract). Entries that share a name are told apart
+by declared_in and slot.
 
 Constants and immutables are not storage (the compiler's layout leaves them out). The contract's own constants
 (VariableDeclaration with constant true) are listed separately by `constants`, their values folded from the AST:
@@ -46,7 +57,8 @@ def _fields(types: dict, t: dict) -> list[dict]:
     out = []
     for m in t.get("members") or []:
         mt = types[m["type"]]
-        out.append({"name": m["label"], "type": mt["label"], "width": _bits(mt) if _elementary(mt) else None})
+        out.append({"name": m["label"], "type": mt["label"], "width": _bits(mt) if _elementary(mt) else None,
+                    "slot": int(m["slot"]), "offset": int(m["offset"])})
     return out
 
 
@@ -59,16 +71,30 @@ def _value(types: dict, tid: str, entry: dict) -> None:
         entry["fields"] = _fields(types, t)
 
 
+def _length(t: dict):
+    m = re.search(r"\[(\d+)\]$", str(t.get("label", "")))
+    return int(m.group(1)) if m and t.get("encoding") != "dynamic_array" else None
+
+
 def describe(types: dict, tid: str, entry: dict) -> dict:
-    """Kind, key, value, width and fields of a state variable of type tid (solc storageLayout type id)."""
+    """Kind, key(s), value, width, length and fields of a state variable of type tid (solc storageLayout type id)."""
     t = types[tid]
     enc = t.get("encoding")
     if enc == "mapping":
         entry["kind"] = "mapping"
         entry["key"] = types[t["key"]]["label"]
-        _value(types, t["value"], entry)
+        keys, vt = [entry["key"]], t["value"]
+        while types[vt].get("encoding") == "mapping":
+            keys.append(types[types[vt]["key"]]["label"])
+            vt = types[vt]["value"]
+        if len(keys) > 1:
+            entry["keys"] = keys
+        _value(types, vt, entry)
     elif "base" in t and (enc == "dynamic_array" or str(t.get("label", "")).endswith("]")):
         entry["kind"] = "array"
+        n = _length(t)
+        if n is not None:
+            entry["length"] = n
         _value(types, t["base"], entry)
     else:
         entry["kind"] = "scalar"
@@ -94,6 +120,27 @@ def families(compiled, index, contract: dict) -> list[dict]:
         entry = {"name": s["label"], "slot": int(s["slot"]), "offset": int(s["offset"])}
         out.append(describe(types, s["type"], entry))
     return out
+
+
+def inherited(compiled, index, contract: dict) -> list[dict]:
+    """The inherited storage of `contract` (module docstring): the layout entries it does not declare, in (slot,
+    offset) order, each with declared_in from the AST."""
+    lay = _layout(compiled, index, contract)
+    types = lay.get("types") or {}
+    own = {n["id"] for n in contract.get("nodes") or [] if n.get("nodeType") == "VariableDeclaration"}
+    out = []
+    for s in lay.get("storage") or []:
+        if s["astId"] in own:
+            continue
+        decl = index.nodes.get(s["astId"]) or {}
+        owner = index.nodes.get(decl.get("scope")) or {}
+        if owner.get("nodeType") != "ContractDefinition":
+            raise ExtractionError(f"inherited state variable {s['label']}: its declaring contract is not in the AST")
+        entry = {"name": s["label"], "slot": int(s["slot"]), "offset": int(s["offset"])}
+        describe(types, s["type"], entry)
+        entry["declared_in"] = owner["name"]
+        out.append(entry)
+    return sorted(out, key=lambda e: (e["slot"], e["offset"]))
 
 
 def render_constant(value, type_string: str):
