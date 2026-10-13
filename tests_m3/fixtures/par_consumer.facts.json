@@ -1,0 +1,32 @@
+{
+  "facts_version": "holon-facts/0.2",
+  "target": {"repo": "holon/fixture-par", "commit": "0000000000000000000000000000000000000000",
+             "scope": "I24 PAR fixture, sub-form consumer agreement: post delivers data to a consumer and stores two commitments of it; the second keeps the previous commitment when keep is set. Not a real target; never replayed."},
+  "extraction": {"method": "hand-written fixture (I24 prereg)", "date": "2026-10-13"},
+  "abstractions": ["Values are Nat; data is a list of Nat."],
+  "params": {},
+  "types": {},
+  "state": [["com1", "Nat", "first stored commitment"],
+            ["com2", "Nat", "second stored commitment"],
+            ["log", "List<Obs>", "observations (newest first)"]],
+  "ghost_state": [],
+  "initial": {"doc": "nothing committed", "com1": 0, "com2": 0, "log": []},
+  "principals": {"1": "anyone"},
+  "reasons": {},
+  "defs": {
+    "dig": {"params": [["xs", "List<Nat>"]], "type": "Nat", "body": ["+", ["call", "nth", "xs", 0], 1], "src": "Fixture.sol:5",
+            "doc": "the commitment of a data list"}
+  },
+  "actions": [
+    {"name": "post", "src": "Fixture.sol:10-20", "principal": "anyone", "inputs": [["data", "List<Nat>"], ["keep", "Bool"]],
+     "guards": [{"let": "c1", "expr": ["call", "dig", "data"], "src": "Fixture.sol:12"},
+                {"let": "c2", "expr": ["?", "keep", "com2", ["call", "dig", "data"]], "src": "Fixture.sol:13-15"}],
+     "effects": {"com1": "c1", "com2": "c2"}, "effects_src": "Fixture.sol:16-17"}
+  ],
+  "migrations": {},
+  "observers": {},
+  "consumers": {"feed": {"doc": "the data a post delivers to its consumer", "input": "data"}},
+  "policy": "generic",
+  "search": {"domains": {"post": {"data": [[1]], "keep": [false, true]}}, "prefixDepth": 2, "maxPrefixes": 100},
+  "coverage": {"modelled": ["post"], "debt": []}
+}

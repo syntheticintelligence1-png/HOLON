@@ -1,0 +1,766 @@
+{
+  "assumptions": [
+    {
+      "id": "A-dirty",
+      "text": "Memory at the free pointer is not zeroed: every region a walk allocates (mload(0x40)) starts with unknown cells (memory_init dirty), so a byte that no op writes is unknown, never zero."
+    },
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage, block, msg and tx members, blobhash, results of external calls, memory reads, and values computed from them) are free: a revert whose failing condition mentions one belongs to the transition, not to the edge (rule J1), and conditions on them are projected away."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts (checked arithmetic, array bounds, ABI decoding) are not part of an edge's partiality: only explicit require, revert and branch conditions on inputs are."
+    }
+  ],
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.1",
+    "inputs": [
+      {
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "unit": "fx/Codec.sol"
+      }
+    ],
+    "method": "extracted",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "tests_m3/fixtures/par_linked/extract_solidity.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "toolchain": {
+      "solc": {
+        "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+        "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "functions": {
+    "enc_x": {
+      "debt": [],
+      "entry": {
+        "fn": "Codec.encodeRec",
+        "src": "fx/Codec.sol:10-35"
+      },
+      "exact": true,
+      "from": "Rec",
+      "kind": "encoder",
+      "lang": "solidity-evm-memory",
+      "memory_init": "dirty",
+      "paths": [
+        {
+          "cond": [
+            [
+              "!",
+              [
+                "<=",
+                "version",
+                2
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "bad version",
+          "src": "fx/Codec.sol:11"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "version",
+              2
+            ],
+            [
+              "!",
+              [
+                "!=",
+                "a",
+                0
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "a is zero",
+          "src": "fx/Codec.sol:12"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "version",
+              2
+            ],
+            [
+              "!=",
+              "a",
+              0
+            ],
+            [
+              ">=",
+              "version",
+              1
+            ]
+          ],
+          "length": 9,
+          "ops": [
+            {
+              "offset": 0,
+              "op": "mstore8",
+              "origin": {
+                "fn": "Codec.storeVersion",
+                "src": "fx/Codec.sol:20",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:20"
+                ]
+              },
+              "src": [
+                {
+                  "field": "version",
+                  "from": 0,
+                  "len": 1
+                }
+              ],
+              "width": 1
+            },
+            {
+              "offset": 1,
+              "op": "mstore",
+              "origin": {
+                "fn": "Codec.store",
+                "src": "fx/Codec.sol:21",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:21"
+                ]
+              },
+              "src": [
+                {
+                  "field": "a",
+                  "from": 0,
+                  "len": 2
+                },
+                {
+                  "zeros": 30
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 3,
+              "op": "mstore",
+              "origin": {
+                "fn": "Codec.store",
+                "src": "fx/Codec.sol:22",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:22"
+                ]
+              },
+              "src": [
+                {
+                  "field": "b",
+                  "from": 0,
+                  "len": 2
+                },
+                {
+                  "zeros": 30
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 5,
+              "op": "mstore",
+              "origin": {
+                "fn": "Codec.store",
+                "src": "fx/Codec.sol:23",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:23"
+                ]
+              },
+              "src": [
+                {
+                  "zeros": 32
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 7,
+              "op": "mstore",
+              "origin": {
+                "fn": "Codec.store",
+                "src": "fx/Codec.sol:24",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:24"
+                ]
+              },
+              "src": [
+                {
+                  "field": "c",
+                  "from": 0,
+                  "len": 2
+                },
+                {
+                  "zeros": 30
+                }
+              ],
+              "width": 32
+            }
+          ],
+          "outcome": "ok"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "version",
+              2
+            ],
+            [
+              "!=",
+              "a",
+              0
+            ],
+            [
+              "!",
+              [
+                ">=",
+                "version",
+                1
+              ]
+            ]
+          ],
+          "length": 7,
+          "ops": [
+            {
+              "offset": 0,
+              "op": "mstore8",
+              "origin": {
+                "fn": "Codec.storeVersion",
+                "src": "fx/Codec.sol:20",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:20"
+                ]
+              },
+              "src": [
+                {
+                  "field": "version",
+                  "from": 0,
+                  "len": 1
+                }
+              ],
+              "width": 1
+            },
+            {
+              "offset": 1,
+              "op": "mstore",
+              "origin": {
+                "fn": "Codec.store",
+                "src": "fx/Codec.sol:21",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:21"
+                ]
+              },
+              "src": [
+                {
+                  "field": "a",
+                  "from": 0,
+                  "len": 2
+                },
+                {
+                  "zeros": 30
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 3,
+              "op": "mstore",
+              "origin": {
+                "fn": "Codec.store",
+                "src": "fx/Codec.sol:22",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:22"
+                ]
+              },
+              "src": [
+                {
+                  "field": "b",
+                  "from": 0,
+                  "len": 2
+                },
+                {
+                  "zeros": 30
+                }
+              ],
+              "width": 32
+            },
+            {
+              "offset": 5,
+              "op": "mstore",
+              "origin": {
+                "fn": "Codec.store",
+                "src": "fx/Codec.sol:23",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:23"
+                ]
+              },
+              "src": [
+                {
+                  "zeros": 32
+                }
+              ],
+              "width": 32
+            }
+          ],
+          "outcome": "ok"
+        }
+      ],
+      "sink": {
+        "op": "keccak256",
+        "stack": [
+          "fx/Codec.sol:30"
+        ]
+      },
+      "to": "Maybe<Bytes>",
+      "walk": {
+        "debt": [],
+        "functions": [
+          "Codec.encodeRec",
+          "Codec.store",
+          "Codec.storeVersion"
+        ],
+        "paths": {
+          "ok": 2,
+          "other": 0,
+          "revert": 2
+        },
+        "sinks": [
+          {
+            "op": "keccak256",
+            "selected": true,
+            "stack": [
+              "fx/Codec.sol:30"
+            ]
+          }
+        ]
+      }
+    },
+    "load_x": {
+      "debt": [],
+      "entry": {
+        "fn": "Codec.loadHeader",
+        "src": "fx/Codec.sol:40-50"
+      },
+      "exact": true,
+      "from": "Bytes",
+      "kind": "loader",
+      "lang": "solidity-evm-memory",
+      "memory_init": "dirty",
+      "paths": [
+        {
+          "cond": [
+            [
+              "!",
+              [
+                ">",
+                [
+                  "len",
+                  "header"
+                ],
+                0
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "empty",
+          "src": "fx/Codec.sol:41"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "header"
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "byte",
+                "header",
+                0
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                ">=",
+                [
+                  "len",
+                  "header"
+                ],
+                7
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "too short",
+          "src": "fx/Codec.sol:43"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "header"
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "byte",
+                "header",
+                0
+              ],
+              0
+            ],
+            [
+              ">=",
+              [
+                "len",
+                "header"
+              ],
+              7
+            ]
+          ],
+          "length": [
+            "len",
+            "header"
+          ],
+          "ops": [
+            {
+              "offset": 0,
+              "op": "calldatacopy",
+              "origin": {
+                "fn": "Codec.loadHeader",
+                "src": "fx/Codec.sol:42",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:42"
+                ]
+              },
+              "src": [
+                {
+                  "from": 0,
+                  "input": "header",
+                  "len": [
+                    "len",
+                    "header"
+                  ]
+                }
+              ],
+              "width": [
+                "len",
+                "header"
+              ]
+            }
+          ],
+          "outcome": "ok"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "header"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  "header",
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              "||",
+              [
+                "==",
+                [
+                  "byte",
+                  "header",
+                  0
+                ],
+                1
+              ],
+              [
+                "==",
+                [
+                  "byte",
+                  "header",
+                  0
+                ],
+                2
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "len",
+                  "header"
+                ],
+                9
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "bad length",
+          "src": "fx/Codec.sol:45"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "header"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  "header",
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              "||",
+              [
+                "==",
+                [
+                  "byte",
+                  "header",
+                  0
+                ],
+                1
+              ],
+              [
+                "==",
+                [
+                  "byte",
+                  "header",
+                  0
+                ],
+                2
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                "header"
+              ],
+              9
+            ]
+          ],
+          "length": [
+            "len",
+            "header"
+          ],
+          "ops": [
+            {
+              "offset": 0,
+              "op": "calldatacopy",
+              "origin": {
+                "fn": "Codec.loadHeader",
+                "src": "fx/Codec.sol:42",
+                "stack": [
+                  "fx/Codec.sol:10",
+                  "fx/Codec.sol:42"
+                ]
+              },
+              "src": [
+                {
+                  "from": 0,
+                  "input": "header",
+                  "len": [
+                    "len",
+                    "header"
+                  ]
+                }
+              ],
+              "width": [
+                "len",
+                "header"
+              ]
+            }
+          ],
+          "outcome": "ok"
+        },
+        {
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                "header"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "byte",
+                  "header",
+                  0
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "||",
+                [
+                  "==",
+                  [
+                    "byte",
+                    "header",
+                    0
+                  ],
+                  1
+                ],
+                [
+                  "==",
+                  [
+                    "byte",
+                    "header",
+                    0
+                  ],
+                  2
+                ]
+              ]
+            ]
+          ],
+          "outcome": "revert",
+          "reason": "unsupported",
+          "src": "fx/Codec.sol:47"
+        }
+      ],
+      "sink": {
+        "op": "keccak256",
+        "stack": [
+          "fx/Codec.sol:49"
+        ]
+      },
+      "to": "Maybe<Bytes>",
+      "walk": {
+        "debt": [],
+        "functions": [
+          "Codec.loadHeader"
+        ],
+        "paths": {
+          "ok": 2,
+          "other": 0,
+          "revert": 4
+        },
+        "sinks": [
+          {
+            "op": "keccak256",
+            "selected": true,
+            "stack": [
+              "fx/Codec.sol:49"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "target": {
+    "commit": null,
+    "repo": "holon/fixture-par-linked",
+    "scope": "I24 planted fixture: a Solidity record encoder and header loader linked to a Go codec package"
+  },
+  "types": {
+    "Bytes": {
+      "kind": "bytes"
+    },
+    "Rec": {
+      "fields": [
+        {
+          "name": "version",
+          "truncates": false,
+          "value_bits": 8,
+          "value_type": "uint8",
+          "width": 1
+        },
+        {
+          "name": "a",
+          "truncates": false,
+          "value_bits": 16,
+          "value_type": "uint16",
+          "width": 2
+        },
+        {
+          "name": "b",
+          "truncates": false,
+          "value_bits": 16,
+          "value_type": "uint16",
+          "width": 2
+        },
+        {
+          "name": "c",
+          "truncates": false,
+          "value_bits": 16,
+          "value_type": "uint16",
+          "width": 2
+        }
+      ],
+      "kind": "record"
+    }
+  }
+}

@@ -82,6 +82,181 @@
         "fixture_slow_depth": 28,
         "m0_gate_wall_s_max": 900
       }
+    },
+    "I24": {
+      "title": "Rules engine and PAR, all sub-forms, over the extracted documents (the first M3 laws)",
+      "plan": "docs/BUILD_PLAN.md#i24",
+      "prompt": "prompts/I24_par.md",
+      "predictions": [
+        {
+          "id": "I24-P1",
+          "claim": "The PAR cycle basis of the one M3 diagram, gen/M3/diagram/header_length.json (the linked codec component of I19's link role header_length over the extracted documents spec/M3/lib/derive_extracted.json adopts; TRANS, CODEC and HASH edges over every carrier, BFS rule P8), has exactly |E|-|V|+kappa = 20-17+1 = 4 elements, as spec/M3/lib/par_basis.json computed at the prereg: the non-tree edges CODEC.BatchHeaderBytes_BlobHashesHash, CODEC.BatchHeaderBytes_BlobVersionedHash, CODEC.BatchHeaderV1_Bytes and CODEC.load_sol. DERIVATION.json cycle_rank is {header_length: the sidecar's cycle}, and none of the 4 adds a law: the two blob getters' cycles (against the tree edge BlobCommitHash) restate the three PAR-weak laws at their common versions (rule X8c: BlobHashesHash at 2, BlobVersionedHash at 0 and 1; recorded as the duplicates L_par_cy_BatchHeaderBytes_BlobHashesHash_v2, L_par_cy_BatchHeaderBytes_BlobVersionedHash_v0 and _v1), the V1 encoder and the version-2 patch share no version ({1} and {2}: no_common_version), and load_sol's self-loop is not_a_parallel_pair. No TRANS edge enters the basis: the extracted transitions document has no M3 diagram (gap G1).",
+          "check": "tests_m3/test_derive_par.py::TestPredictedMorph::test_cycle_basis_count_equals_the_preregistered_rank"
+        },
+        {
+          "id": "I24-P2",
+          "claim": "holon derive --milestone M3 emits exactly the 80 PAR laws spec/M3/lib/par_basis.json lists, all over the linked codec document gen/M3/codec/header_length.json and none from a hand document (Q19): 70 round trip, one per E1 inverse atom (enc_sol 11/12/12 at versions 0/1/2, BatchHeaderV0_Bytes 11, BatchHeaderV1_Bytes 12, the version-2 patch BatchCache_createBatchHeaderWithSequencerSetHash 12); 6 cross-component (each Go encoder against enc_sol at its one version, full and pinned, the pin SequencerSetVerifyHash = 32 zero bytes); 3 PAR-weak (rule X8c, one per common version under the tag premise BatchHeaderBytes_Version(b) = Some(v): BlobCommitHash with BlobHashesHash at version 2, with BlobVersionedHash at versions 0 and 1); 1 domain coherence (L_par_dom_BatchHeaderBytes_validate_ok_load_sol). No branch, totality, cycle, recompute, consumer or init law; the only reasons recorded are totality explicit_option x15, weak no_common_version x2 (BlobHashesHash with BlobVersionedHash, the patch with the V1 encoder), cycle no_common_version x1 and not_a_parallel_pair x1 (besides the three cycle duplicates).",
+          "check": "tests_m3/test_derive_par.py::TestPredictedMorph::test_the_morph_par_laws"
+        },
+        {
+          "id": "I24-P3",
+          "claim": "Every sub-form generator produces its fixture law and each decides as designed (the ten tests_m3/fixtures/par_<subform>.facts.json and the linked fixture tests_m3/fixtures/par_linked/, derived together as T24 under holon-rules/1.1 and run): round_trip L_par_rt_enc_rt_sol_dec_rt_v0 REFUTED (b != 0), _pinned PROVED; cross_component L_par_cc_enc_cc_go_enc_cc_sol_v0 REFUTED (b != 0), _pinned PROVED, L_par_rt_enc_cc_go_dec_cc_v0 PROVED, L_par_rt_enc_cc_sol_dec_cc_v0 REFUTED, _pinned PROVED; branch L_par_br_enc_br_fast_enc_br_slow_v1 REFUTED (b != 0); weak L_par_weak_enc_wk_go_enc_wk_sol_v0 REFUTED (a != b), levels [E6], intent_question; domain L_par_dom_ok_dm_go_ok_dm_sol REFUTED (version 0, length > 5); totality L_par_tot_dec_tt REFUTED; cycle L_par_cy_dec_cy_sol REFUTED; recompute L_par_rc_reput_put_enc_held REFUTED (held != 0 and != enc(v)); consumer L_par_cs_feed_post_dig_com1 PROVED, L_par_cs_feed_post_dig_com2 REFUTED (post with keep); init L_par_init_pop_g0 REFUTED, L_par_init_sync_g0 PROVED. The linked fixture's 28 laws (rules X1-X9): 18 round trips PROVED, L_par_rt_enc_x_HdrBytes_B_v2 and L_par_rt_Cache_makeV2_HdrBytes_B_v2 REFUTED (getter B rejects the 9-byte version-2 header); L_par_cc_RecV0_Bytes_enc_x_v0 REFUTED (C != 0), _pinned PROVED; L_par_cc_RecV1_Bytes_enc_x_v1, L_par_cc_Cache_makeV2_enc_x_v2 and both _pinned REFUTED (byte 6: 0xff against 0, a witness enc_x stores); L_par_weak_HdrBytes_Root_HdrBytes_RootNew_v2 (scoped to the one common version 2 by the tag premise, rule X8c) REFUTED by a version-2 byte string of length 9 or 11 (Root decodes length 9 there, RootNew length 11), an intent question; L_par_dom_HdrBytes_validate_ok_load_x REFUTED (version 0, length >= 8). Counted once for the eleven fixtures: they were built to have these outcomes.",
+          "check": "tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_round_trip_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_cross_component_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_branch_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_weak_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_domain_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_totality_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_cycle_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_recompute_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_consumer_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_init_fixture and tests_m3/test_par_outcomes.py::TestFixtureOutcomes::test_linked_fixture"
+        },
+        {
+          "id": "I24-P4",
+          "claim": "All 70 round trips are PROVED (every BatchHeaderBytes getter accepts the length and version byte each encoder writes, 249 at version 0 and 257 at versions 1 and 2, and reads the field it recovers). The 3 unpinned cross-component laws L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0, L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1 and L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2 are REFUTED, each by a Go header whose SequencerSetVerifyHash is nonzero (enc_sol writes 32 zero bytes at 185..216) and a Solidity header of the law's version that enc_sol stores (prevStateHash and postStateHash nonzero, rule X9). The 3 _pinned laws are PROVED and inhabited, among them the version-2 law of the Go patch: the extracted version-2 Go encoding agrees with enc_sol, where M0's L_par_hdr_v2 over the hand enc_go_v1 (writing version 1) is REFUTED (O2).",
+          "check": "tests_m3/test_par_outcomes.py::TestMorphOutcomes::test_round_trips_are_proved and tests_m3/test_par_outcomes.py::TestMorphOutcomes::test_cross_component_laws"
+        },
+        {
+          "id": "I24-P5",
+          "claim": "The byte-string laws are decided at probes (rule X9): L_par_dom_BatchHeaderBytes_validate_ok_load_sol is REFUTED by a byte string whose byte 0 is 0 and whose length exceeds 249 (O1: Solidity's loader accepts length >= 249 at version 0, Go's validate exactly 249). The three PAR-weak laws L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2 and L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0 and _v1 are UNKNOWN, their records naming the probe bound and carrying no witness: under the tag premise both getters accept the same (length, tag) pairs (257 at version 2; 249 at version 0; 257 at version 1) and read the same bytes 57..88, so no probe refutes them, and a byte-string law has no proof route (gap G6, whitepaper §8.4's case split on length and version is not built). Unscoped, both pairs would be REFUTED by a header of a version outside one getter's label; rule X8c (common versions only, never widened) rules that instantiation out.",
+          "check": "tests_m3/test_par_outcomes.py::TestMorphOutcomes::test_byte_string_laws"
+        },
+        {
+          "id": "I24-P6",
+          "claim": "holon backtest --milestone M3 (rules B1-B5 over the frozen name map spec/M3/lib/backtest_map.json: collapse, then alpha-equivalence) pairs 4 of the 8 M0 laws and accepts every pairing: L_par_hdr_v0 -> L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned, L_par_hdr_v1 -> L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned and L_par_hdr_ssvh -> L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1 by bridges (each hand encoder equals its extracted image, Bend-checked); L_dom_hdr -> L_par_dom_BatchHeaderBytes_validate_ok_load_sol by witness transfer (both REFUTED; the M3 counter-witness refutes the M0 law on the hand model). L_par_hdr_v2 (the image of the hand enc_go_v1 carries version 1 only; candidates L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1 and _pinned) and L_rt_go_v0, L_rt_go_v1, L_rt_go_v2 (dec_go and view have no image) are open rule gaps (G5). results/M3/backtest.json is complete and its exit_blockers are exactly gap:M0:L_par_hdr_v2, gap:M0:L_rt_go_v0, gap:M0:L_rt_go_v1 and gap:M0:L_rt_go_v2, so M3 exit cannot be claimed until I45 closes them.",
+          "check": "tests_m3/test_par_outcomes.py::TestBacktest::test_backtest_table"
+        },
+        {
+          "id": "I24-P7",
+          "claim": "Every M3 PAR record carries the status, evidence levels and triage spec/M3/lib/par_basis.json lists (levels as law_evidence computes them over gen/M3/evidence.json, the tag premise read as the version premise): the 70 round trips [E1, E2], the 6 cross-component laws [E1], the 3 PAR-weak laws [E6], the domain law []. Statuses: 73 PROVED, 4 REFUTED, 3 UNKNOWN. The REFUTED laws are 4 findings (the 3 unpinned cross-component laws and the domain law) and no Morph law is an intent question (the E6-only laws are UNKNOWN, I24-P5): evidence_triage counts none 76, finding 4.",
+          "check": "tests_m3/test_par_outcomes.py::TestMorphOutcomes::test_evidence_triage_of_the_m3_records"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I24-R1",
+          "claim": "Gates M0, M1 and M2 pass; M0-M2 laws, records and statement hashes are unchanged.",
+          "check": "gate"
+        },
+        {
+          "id": "I24-R2",
+          "claim": "PAR is not in M2's catalog: holon derive --milestone M2 reproduces laws/M2/ and gen/M2/sorts/obstructions.json byte for byte (I15-R4).",
+          "check": "tests_m3/test_derive_par.py::TestRegistry::test_m2_derivation_is_unchanged"
+        },
+        {
+          "id": "I24-R3",
+          "claim": "The matched M0 outcomes are identical: each M3 law the back-test pairs has its M0 law's status (L_par_hdr_v0, L_par_hdr_v1 PROVED; L_par_hdr_ssvh, L_dom_hdr REFUTED), and every paired row of results/M3/backtest.json records same_status true.",
+          "check": "tests_m3/test_par_outcomes.py::TestBacktest::test_matched_m0_outcomes_are_identical"
+        },
+        {
+          "id": "I24-R4",
+          "claim": "The linked codec layer adds M3 only: holon diagram and holon evidence --milestone M2 rewrite gen/M2/diagram/ and gen/M2/evidence.json byte for byte.",
+          "check": "tests_m3/test_derive_par.py::TestM2Unchanged::test_m2_diagrams_and_evidence_regenerate_byte_for_byte"
+        },
+        {
+          "id": "I24-R5",
+          "claim": "Construction check, not counted: the registry gains catalog versions (M2 holon-rules/1.0 unchanged, M3 holon-rules/1.1 = PAR's ten sub-forms; --catalog refused on M2); derive --milestone M3 writes laws, REGISTRY and DERIVATION, byte-identical across runs and equal to the committed laws/M3/; every law is holon-ir/0.3 valid under the additively extended schema; the registry's hashes are holon.gen.refs.law_hash; DERIVATION follows rules P0-P12 and X8 exactly as tests_m3/_i24x.py writes them, lists the 8 uncovered constructs (G1, G2), has no link and adds no STATEMENT_DIFF line; stale codec documents, diagrams or evidence are refused.",
+          "check": "tests_m3/test_derive_par.py::TestRegistry::test_catalogs and tests_m3/test_derive_par.py::TestRegistry::test_catalog_override_is_refused_on_m2 and tests_m3/test_derive_par.py::TestDeriveM3::test_cli_writes_laws_registry_and_derivation and tests_m3/test_derive_par.py::TestDeriveM3::test_two_runs_are_byte_identical_and_match_the_committed_files and tests_m3/test_derive_par.py::TestDeriveM3::test_law_ir and tests_m3/test_derive_par.py::TestDeriveM3::test_registry and tests_m3/test_derive_par.py::TestDeriveM3::test_derivation_follows_the_rules and tests_m3/test_derive_par.py::TestDeriveM3::test_uncovered_is_listed and tests_m3/test_derive_par.py::TestDeriveM3::test_no_link_and_no_log_line and tests_m3/test_derive_par.py::TestDeriveM3::test_stale_inputs_are_refused"
+        },
+        {
+          "id": "I24-R6",
+          "claim": "Construction check, not counted (Q19): the M3 documents are exactly the three extracted documents and the link roles are I19's; the prereg sidecars par_basis.json and backtest_map.json are their computations over unchanged inputs (sha256); holon codecs, diagram and evidence --milestone M3 write the component, its diagram and its 161 atoms exactly as rules X1-X7 give them; with facts/morph_header.json and spec/M1/facts/ removed, codecs, diagram, evidence and derive --milestone M3 still write exactly the committed M3 files.",
+          "check": "tests_m3/test_derive_par.py::TestSidecars::test_the_m3_documents_are_the_extracted_ones and tests_m3/test_derive_par.py::TestSidecars::test_par_basis_is_the_computation and tests_m3/test_derive_par.py::TestSidecars::test_backtest_map_is_the_computation and tests_m3/test_derive_par.py::TestLinkedLayer::test_codecs_writes_the_component and tests_m3/test_derive_par.py::TestLinkedLayer::test_m3_diagram_is_the_component_diagram and tests_m3/test_derive_par.py::TestLinkedLayer::test_m3_evidence and tests_m3/test_derive_par.py::TestLinkedLayer::test_no_hand_document_is_read_for_m3"
+        },
+        {
+          "id": "I24-R7",
+          "claim": "Construction check, not counted: each planted facts fixture derives (T24, holon-rules/1.1) exactly the laws, basis elements, reasons, duplicates and cycle ranks rules P0-P12 give, and the linked fixture exactly the component, the 28 laws and the basis rules X1-X8 give.",
+          "check": "tests_m3/test_derive_par.py::TestFixtureDerivation::test_fixture_laws_and_basis and tests_m3/test_derive_par.py::TestLinkedFixtureDerivation::test_the_linked_fixture_component and tests_m3/test_derive_par.py::TestLinkedFixtureDerivation::test_linked_fixture_laws_and_basis"
+        },
+        {
+          "id": "I24-R8",
+          "claim": "Construction check, not counted (honesty, AGENTS rules 2 and 4): holon/rules/par.py, holon/diagram/linked.py and holon/gen/linked.py hold no target or fixture identifier and no law id; laws do not depend on earlier milestones' laws (removing laws/M0 changes only DERIVATION's inputs); renaming a facts fixture's or the linked fixture's identifiers renames its laws and changes nothing else.",
+          "check": "tests_m3/test_derive_par.py::TestGenericCode::test_new_code_names_no_target_and_no_fixture_identifier and tests_m3/test_derive_par.py::TestGenericCode::test_laws_do_not_depend_on_earlier_milestones and tests_m3/test_derive_par.py::TestGenericCode::test_renaming_fixture_identifiers_renames_the_derivation and tests_m3/test_derive_par.py::TestGenericCode::test_renaming_the_linked_fixture_renames_its_derivation"
+        },
+        {
+          "id": "I24-R9",
+          "claim": "Construction check, not counted: every M3 PAR law (80) has a record valid under v1 and v2 with its registry hash; the 38 PROVED premised laws (35 enc_sol round trips, 3 pinned cross-component laws) are inhabited (G11V); refs follow the functions named (a layout cell of BatchHeaderV1_Bytes restales its 14 laws, a source id none); the 6 bridge and 1 witness-transfer files under gen/M3/backtest/ check with Bend; holon backtest reproduces results/M3/backtest.json; holon gate --milestone M3 --checks G2,G3,G5,G9,G11,GEVID passes.",
+          "check": "tests_m3/test_par_outcomes.py::TestM3Construction::test_every_m3_law_has_a_valid_record and tests_m3/test_par_outcomes.py::TestM3Construction::test_proved_premised_laws_are_not_vacuous and tests_m3/test_par_outcomes.py::TestM3Construction::test_statement_refs_follow_the_functions_named and tests_m3/test_par_outcomes.py::TestBacktest::test_bridges_and_witness_transfers_check and tests_m3/test_par_outcomes.py::TestBacktest::test_backtest_cli_reproduces_the_table and tests_m3/test_par_outcomes.py::TestM3Construction::test_partial_gate_m3_passes"
+        }
+      ],
+      "outcome_paths": [
+        "laws/M3/L_par_",
+        "results/M3/L_par_",
+        "gen/M3/laws/L_par_",
+        "gen/M3/proofs/L_par_",
+        "gen/M3/L_par_",
+        "gen/M3/codec/",
+        "gen/M3/model/header_length",
+        "gen/M3/backtest/",
+        "results/M3/backtest.json"
+      ],
+      "tests": [
+        "tests_m3/test_derive_par.py",
+        "tests_m3/test_par_outcomes.py"
+      ],
+      "thresholds": {
+        "rule_catalog_version": "holon-rules/1.1",
+        "subform_order": [
+          "round_trip",
+          "cross_component_codec",
+          "branch",
+          "weak",
+          "domain_coherence",
+          "totality",
+          "cycle",
+          "recompute",
+          "consumer",
+          "init"
+        ],
+        "m3_documents": [
+          "spec/M2/facts/morph_batch.go.extracted.json",
+          "spec/M2/facts/morph_header.extracted.json",
+          "spec/M2/facts/morph_rollup.extracted.json"
+        ],
+        "linked_version": "holon-linked/0.1",
+        "cycle_edge_kinds": [
+          "CODEC",
+          "HASH",
+          "TRANS"
+        ],
+        "cycle_basis_rank": {
+          "header_length": 4,
+          "total": 4
+        },
+        "par_laws": {
+          "round_trip": 70,
+          "cross_component_codec": 6,
+          "weak": 3,
+          "domain_coherence": 1,
+          "total": 80
+        },
+        "linked_fixture_laws": 28,
+        "byte_string_probes": "lengths and tag bytes k - 1, k, k + 1 and 0 for every integer constant k of the two sides' ok conditions; first difference by (length, tag); a law no probe refutes is UNKNOWN with that bound",
+        "refutation": {
+          "prefixDepth_default": 3,
+          "maxPrefixes_default": 3000,
+          "nat_boundary_variants": [
+            "v - 1 (when v >= 1)",
+            "v + 1",
+            "0"
+          ],
+          "list_boundary_variants": [
+            "[] (empty list)"
+          ]
+        },
+        "backtest_against": "M0",
+        "backtest_pairing": "collapse under the frozen name map spec/M3/lib/backtest_map.json, then alpha-equivalence (rule P11's normal form, the facts file aside)",
+        "backtest_acceptance": [
+          "bridges",
+          "witness"
+        ],
+        "partial_gate_checks": [
+          "G2",
+          "G3",
+          "G5",
+          "G9",
+          "G11",
+          "GEVID"
+        ],
+        "morph_statuses": {
+          "PROVED": 73,
+          "REFUTED": 4,
+          "UNKNOWN": 3
+        },
+        "linked_tag_premise": "rule X8c: a versioned instance over the linked carrier gets, per common version v, {eq: [T(b), Some(0x<v>)]} with T the one unversioned decoder reading (tag_index, 1); none or several such decoders: reason no_version_premise, no law"
+      }
     }
   }
 }

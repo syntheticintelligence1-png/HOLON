@@ -1,0 +1,41 @@
+{
+  "facts_version": "holon-facts/0.1",
+  "target": {"repo": "holon/fixture-par", "commit": "0000000000000000000000000000000000000000",
+             "scope": "I24 PAR fixture, sub-form totality (the O4 class): a Go decoder of interface bytes that panics outside its validity check instead of returning an error, so its codomain is declared without an option. Not a real target; never replayed."},
+  "extraction": {"method": "hand-written fixture (I24 prereg)", "date": "2026-10-13"},
+  "types": {
+    "Byte": {"kind": "byte"},
+    "Bytes": {"kind": "bytes"},
+    "Bool": {"kind": "bool"},
+    "Fields": {"kind": "list_of_bytes", "doc": "decoded fields in getter order"},
+    "Header": {"kind": "record", "fields": [
+      {"name": "version", "width": 1, "sol": "-", "go": "-"},
+      {"name": "a", "width": 2, "sol": "-", "go": "A uint16"},
+      {"name": "b", "width": 2, "sol": "-", "go": "B uint16"}
+    ]}
+  },
+  "functions": {
+    "ok_tt": {
+      "kind": "predicate", "from": "Bytes", "to": "Bool", "lang": "go",
+      "source": [{"file": "fixture/clone.go", "fn": "Canonical"}],
+      "meaning": "true iff Clone does not panic on b",
+      "rules": [
+        {"if": "empty", "then": false, "code": "b[0] on an empty slice panics"},
+        {"if": {"version_in": [0]}, "then": {"len_eq": 5}, "code": "b[3:5] panics when len(b) < 5; longer input is rejected by a panic too"},
+        {"if": "otherwise", "then": false, "code": "unknown version: panic"}
+      ]
+    },
+    "dec_tt": {
+      "kind": "decoder", "from": "Bytes", "to": "Fields", "lang": "go",
+      "source": [{"file": "fixture/clone.go", "fn": "Clone"}],
+      "meaning": "the fields in getter order; panics (no error result) when ok_tt fails",
+      "guard": "ok_tt",
+      "getters": [
+        {"name": "version", "offset": 0, "width": 1, "code": "b[0]"},
+        {"name": "a", "offset": 1, "width": 2, "code": "b[1:3]"},
+        {"name": "b", "offset": 3, "width": 2, "code": "b[3:5]"}
+      ]
+    }
+  },
+  "assumptions": [{"id": "A-fixture", "text": "a fixture: nothing is assumed"}]
+}

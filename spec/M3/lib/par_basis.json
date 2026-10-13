@@ -1,0 +1,1008 @@
+{
+ "components": {
+  "header_length": {
+   "atoms": {
+    "E1/common_decoder": 32,
+    "E1/inverse": 70,
+    "E2": 55,
+    "E6": 4
+   },
+   "carriers": {
+    "BatchHeaderV0": "record",
+    "BatchHeaderV1": "record",
+    "Bytes": "bytes",
+    "Bytes@0+1": "slot",
+    "Bytes@1+8": "slot",
+    "Bytes@121+32": "slot",
+    "Bytes@153+32": "slot",
+    "Bytes@17+8": "slot",
+    "Bytes@185+32": "slot",
+    "Bytes@217+32": "slot",
+    "Bytes@249+8": "slot",
+    "Bytes@25+32": "slot",
+    "Bytes@57+32": "slot",
+    "Bytes@89+32": "slot",
+    "Bytes@9+8": "slot",
+    "Header": "record"
+   },
+   "cycle": {
+    "E": 20,
+    "V": 17,
+    "kappa": 1,
+    "non_tree": [
+     "CODEC.BatchHeaderBytes_BlobHashesHash",
+     "CODEC.BatchHeaderBytes_BlobVersionedHash",
+     "CODEC.BatchHeaderV1_Bytes",
+     "CODEC.load_sol"
+    ],
+    "rank": 4,
+    "tree": [
+     "CODEC.BatchHeaderV0_Bytes",
+     "CODEC.BatchCache_createBatchHeaderWithSequencerSetHash",
+     "CODEC.BatchHeaderBytes_BatchIndex",
+     "CODEC.BatchHeaderBytes_BlobCommitHash",
+     "CODEC.BatchHeaderBytes_DataHash",
+     "CODEC.BatchHeaderBytes_L1MessagePopped",
+     "CODEC.BatchHeaderBytes_LastBlockNumber",
+     "CODEC.BatchHeaderBytes_ParentBatchHash",
+     "CODEC.BatchHeaderBytes_PostStateRoot",
+     "CODEC.BatchHeaderBytes_PrevStateRoot",
+     "CODEC.BatchHeaderBytes_SequencerSetVerifyHash",
+     "CODEC.BatchHeaderBytes_TotalL1MessagePopped",
+     "CODEC.BatchHeaderBytes_Version",
+     "CODEC.BatchHeaderBytes_WithdrawalRoot",
+     "CODEC.enc_sol",
+     "HASH.keccak256"
+    ]
+   },
+   "duplicates": {
+    "L_par_cy_BatchHeaderBytes_BlobHashesHash_v2": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2",
+    "L_par_cy_BatchHeaderBytes_BlobVersionedHash_v0": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0",
+    "L_par_cy_BatchHeaderBytes_BlobVersionedHash_v1": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1"
+   },
+   "facts": "gen/M3/codec/header_length.json",
+   "functions": {
+    "BatchCache_createBatchHeaderWithSequencerSetHash": {
+     "from": "BatchHeaderV1",
+     "kind": "encoder",
+     "source": "(*morph-l2/common/batch.BatchCache).createBatchHeaderWithSequencerSetHash",
+     "to": "Bytes",
+     "versions": "2"
+    },
+    "BatchHeaderBytes_BatchIndex": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+     "to": "Bytes@1+8",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_BlobCommitHash": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).BlobCommitHash",
+     "to": "Bytes@57+32",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_BlobHashesHash": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).BlobHashesHash",
+     "to": "Bytes@57+32",
+     "versions": "2"
+    },
+    "BatchHeaderBytes_BlobVersionedHash": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).BlobVersionedHash",
+     "to": "Bytes@57+32",
+     "versions": "0..1"
+    },
+    "BatchHeaderBytes_DataHash": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).DataHash",
+     "to": "Bytes@25+32",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_L1MessagePopped": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).L1MessagePopped",
+     "to": "Bytes@9+8",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_LastBlockNumber": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+     "to": "Bytes@249+8",
+     "versions": "1..2"
+    },
+    "BatchHeaderBytes_ParentBatchHash": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).ParentBatchHash",
+     "to": "Bytes@217+32",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_PostStateRoot": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).PostStateRoot",
+     "to": "Bytes@121+32",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_PrevStateRoot": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).PrevStateRoot",
+     "to": "Bytes@89+32",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_SequencerSetVerifyHash": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).SequencerSetVerifyHash",
+     "to": "Bytes@185+32",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_TotalL1MessagePopped": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+     "to": "Bytes@17+8",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_Version": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).Version",
+     "to": "Bytes@0+1",
+     "versions": null
+    },
+    "BatchHeaderBytes_WithdrawalRoot": {
+     "from": "Bytes",
+     "kind": "decoder",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).WithdrawalRoot",
+     "to": "Bytes@153+32",
+     "versions": "0..2"
+    },
+    "BatchHeaderBytes_validate": {
+     "from": "Bytes",
+     "kind": "predicate",
+     "source": "(morph-l2/common/batch.BatchHeaderBytes).validate",
+     "to": null,
+     "versions": "0..2"
+    },
+    "BatchHeaderV0_Bytes": {
+     "from": "BatchHeaderV0",
+     "kind": "encoder",
+     "source": "(morph-l2/common/batch.BatchHeaderV0).Bytes",
+     "to": "Bytes",
+     "versions": "0"
+    },
+    "BatchHeaderV1_Bytes": {
+     "from": "BatchHeaderV1",
+     "kind": "encoder",
+     "source": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+     "to": "Bytes",
+     "versions": "1"
+    },
+    "enc_sol": {
+     "from": "Header",
+     "kind": "encoder",
+     "source": "Rollup._commitBatchWithBatchData",
+     "to": "Bytes",
+     "versions": "0..2"
+    },
+    "load_sol": {
+     "from": "Bytes",
+     "kind": "loader",
+     "source": "Rollup._loadBatchHeader",
+     "to": "Bytes",
+     "versions": "0..2"
+    }
+   },
+   "laws": {
+    "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": {
+     "levels": [
+      "E1"
+     ],
+     "status": "REFUTED",
+     "subform": "cross_component_codec",
+     "triage": "finding"
+    },
+    "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned": {
+     "levels": [
+      "E1"
+     ],
+     "status": "PROVED",
+     "subform": "cross_component_codec",
+     "triage": "none"
+    },
+    "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0": {
+     "levels": [
+      "E1"
+     ],
+     "status": "REFUTED",
+     "subform": "cross_component_codec",
+     "triage": "finding"
+    },
+    "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned": {
+     "levels": [
+      "E1"
+     ],
+     "status": "PROVED",
+     "subform": "cross_component_codec",
+     "triage": "none"
+    },
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": {
+     "levels": [
+      "E1"
+     ],
+     "status": "REFUTED",
+     "subform": "cross_component_codec",
+     "triage": "finding"
+    },
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned": {
+     "levels": [
+      "E1"
+     ],
+     "status": "PROVED",
+     "subform": "cross_component_codec",
+     "triage": "none"
+    },
+    "L_par_dom_BatchHeaderBytes_validate_ok_load_sol": {
+     "levels": [],
+     "status": "REFUTED",
+     "subform": "domain_coherence",
+     "triage": "finding"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2": {
+     "levels": [
+      "E1",
+      "E2"
+     ],
+     "status": "PROVED",
+     "subform": "round_trip",
+     "triage": "none"
+    },
+    "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2": {
+     "levels": [
+      "E6"
+     ],
+     "status": "UNKNOWN",
+     "subform": "weak",
+     "triage": "none"
+    },
+    "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0": {
+     "levels": [
+      "E6"
+     ],
+     "status": "UNKNOWN",
+     "subform": "weak",
+     "triage": "none"
+    },
+    "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1": {
+     "levels": [
+      "E6"
+     ],
+     "status": "UNKNOWN",
+     "subform": "weak",
+     "triage": "none"
+    }
+   },
+   "linked_carrier": "Bytes",
+   "reasons": {
+    "cycle/no_common_version": 1,
+    "cycle/not_a_parallel_pair": 1,
+    "totality/explicit_option": 15,
+    "weak/no_common_version": 2
+   },
+   "tag_index": 0
+  }
+ },
+ "doc": "I24 prereg sidecar (BUILD_PLAN I24 'Preregister': the basis count |E|-|V|+kappa computed in the prereg, each fixture's derived law and outcome, the new Morph laws beyond M0). Computed at the prereg by tests_m3/_i24x.py::par_basis_doc (rules X0-X9 and P0-P12 of the docstring of tests_m3/test_derive_par.py, written out a second time, independently of holon/) from the inputs listed with their sha256: the M3 adoption (spec/M3/lib/derive_extracted.json: the three extracted documents that replace the M0-M2 hand documents, Q19), the link roles (spec/M3/lib/link.json, I19's roles verbatim), the documents themselves and the I14 E6 lexicon. How each value was computed: (1) components: one per link role whose Solidity source is a loader edge and whose Go source is a tagged predicate (rule X1); for Morph the role header_length links the Solidity loader load_sol (input type Bytes) with the Go predicate (morph-l2/common/batch.BatchHeaderBytes).validate, so the component holds enc_sol and load_sol (morph_header.extracted.json), the encoders BatchHeaderV0.Bytes and BatchHeaderV1.Bytes, the patch (*BatchCache).createBatchHeaderWithSequencerSetHash, the 14 BatchHeaderBytes getters and validate (morph_batch.go.extracted.json). (2) carriers and functions: rules X2-X5 (names, layouts by the I17/I18 cell semantics, versions read at the tag byte 0, the tag index of validate). (3) cycle: the deterministic BFS spanning forest of rule P8 over the CODEC and HASH edges of the component diagram (rule X6): |E| = 20 (19 CODEC: 4 encoders, 1 loader, 14 decoders; 1 HASH: keccak256), |V| = 17 (Header, BatchHeaderV0, BatchHeaderV1, Bytes, 12 decoder slots, keccak256), kappa = 1, rank = 20 - 17 + 1 = 4. (4) atoms: rule X7 (E1 by position, E2 written and read positions, E6 by the I14 lexicon). (5) laws: rule X8 (P1 per inverse atom, P2 per encoder pair and version, P3-P8 as written, a law over the linked byte carrier scoped to each common version by the tag premise of X8c); statuses by direct evaluation of the layouts and the decoders' conditions (tests_m3/_i24x.py::decide, rule X9); levels and triage by I14's law_evidence over the component atoms. (6) uncovered: what the adopted documents hold outside every component (gaps G1, G2). The build never reads this file; the tests compare holon's outputs with it, and recompute it to check it was not edited.",
+ "edge_kinds": [
+  "CODEC",
+  "HASH",
+  "TRANS"
+ ],
+ "inputs": [
+  {
+   "path": "spec/M2/facts/morph_batch.go.extracted.json",
+   "sha256": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573"
+  },
+  {
+   "path": "spec/M2/facts/morph_header.extracted.json",
+   "sha256": "0f3caeb4d06e85e337733d444ed48da55f8679c026f43bb4f26aefeb2bffe646"
+  },
+  {
+   "path": "spec/M2/facts/morph_rollup.extracted.json",
+   "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+  },
+  {
+   "path": "spec/M2/lib/evidence_lexical.json",
+   "sha256": "0c1b71a550906dd674c31dbf757a1b364a6806af06b3ebfc80ec38c12c869e0e"
+  },
+  {
+   "path": "spec/M3/lib/derive_extracted.json",
+   "sha256": "87749c82c2e790561357e5d99b22ff1aa895774e3064a39e8e80f98e30466a6f"
+  },
+  {
+   "path": "spec/M3/lib/link.json",
+   "sha256": "b6bf12b1e31b85f1a440a83e8b32f356d917a1b8d3cb79f8d27c5cb32d8f8371"
+  }
+ ],
+ "par_basis_version": "holon-i24-par-basis/0.1",
+ "total": {
+  "E": 20,
+  "V": 17,
+  "kappa": 1,
+  "laws": 80,
+  "rank": 4
+ },
+ "uncovered": [
+  {
+   "document": "spec/M2/facts/morph_batch.go.extracted.json",
+   "function": "(*morph-l2/common/batch.BatchData).Encode",
+   "reason": "outside"
+  },
+  {
+   "document": "spec/M2/facts/morph_batch.go.extracted.json",
+   "function": "morph-l2/common/batch.BuildBlockContext",
+   "reason": "outside"
+  },
+  {
+   "document": "spec/M2/facts/morph_batch.go.extracted.json",
+   "function": "morph-l2/common/batch.HeightFromBlockContextBytes",
+   "reason": "outside"
+  },
+  {
+   "document": "spec/M2/facts/morph_batch.go.extracted.json",
+   "function": "morph-l2/common/batch.Uint16ToBigEndianBytes",
+   "reason": "outside"
+  },
+  {
+   "document": "spec/M2/facts/morph_batch.go.extracted.json",
+   "function": "morph-l2/common/batch.Uint64ToBigEndianBytes",
+   "reason": "outside"
+  },
+  {
+   "document": "spec/M2/facts/morph_batch.go.extracted.json",
+   "function": "morph-l2/common/batch.encodeBatchHeaderKey",
+   "reason": "outside"
+  },
+  {
+   "document": "spec/M2/facts/morph_batch.go.extracted.json",
+   "function": "morph-l2/common/batch.encodeBatchKey",
+   "reason": "outside"
+  },
+  {
+   "document": "spec/M2/facts/morph_rollup.extracted.json",
+   "function": null,
+   "reason": "transitions"
+  }
+ ]
+}

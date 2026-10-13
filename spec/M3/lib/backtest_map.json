@@ -1,0 +1,117 @@
+{
+ "against": "M0",
+ "components": [
+  "header_length"
+ ],
+ "doc": "I24 prereg sidecar: the back-test name map mu (rule B1 of the docstring of tests_m3/test_derive_par.py), from the names of the M0 hand document facts/morph_header.json, which every M0 law is about, to the names of the M3 linked codec component. holon backtest reads it (it never recomputes it); it is never an input of the derivation, which reads extracted documents only (Q19). Computed at the prereg by tests_m3/_i24x.py::backtest_map_doc from the inputs listed: functions: a hand function maps to the component function whose code name (Solidity: the entry function's name; Go: Type.Method) is one of the identifier chains of the hand function's source[].fn strings, with a compatible kind (encoder to encoder; predicate to a loader, whose image is its domain predicate ok_<loader>, or to a predicate; decoder to decoder); none or several give no image: enc_sol -> enc_sol (_commitBatchWithBatchData), enc_go_v0 -> BatchHeaderV0_Bytes, enc_go_v1 -> BatchHeaderV1_Bytes, ok_sol -> ok_load_sol (_loadBatchHeader), ok_go -> BatchHeaderBytes_validate (BatchHeaderBytes.validate); dec_go ('BatchHeaderBytes getters') and view (no source) have no image. fields: a hand field F of the record maps to the Solidity record's field named F, and to each Go record's field whose last path segment is the first word of F's 'go' annotation (BatchIndex, ..., PrevStateRoot for prevStateHash, WithdrawalRoot for withdrawRootHash, SequencerSetVerifyHash, LastBlockNumber); version has no Go image and sequencerSetVerifyHash no Solidity one (the Solidity encoder writes 32 zero bytes there and has no such input). types: the hand record Header maps to every component record holding an image of one of its fields (Header, BatchHeaderV0, BatchHeaderV1); the hand byte type Bytes to the linked carrier whose Solidity member is named Bytes.",
+ "fields": {
+  "Header": {
+   "batchIndex": {
+    "BatchHeaderV0": "BatchIndex",
+    "BatchHeaderV1": "BatchHeaderV0.BatchIndex",
+    "Header": "batchIndex"
+   },
+   "blobVersionedHash": {
+    "BatchHeaderV0": "BlobVersionedHash",
+    "BatchHeaderV1": "BatchHeaderV0.BlobVersionedHash",
+    "Header": "blobVersionedHash"
+   },
+   "dataHash": {
+    "BatchHeaderV0": "DataHash",
+    "BatchHeaderV1": "BatchHeaderV0.DataHash",
+    "Header": "dataHash"
+   },
+   "l1MessagePopped": {
+    "BatchHeaderV0": "L1MessagePopped",
+    "BatchHeaderV1": "BatchHeaderV0.L1MessagePopped",
+    "Header": "l1MessagePopped"
+   },
+   "lastBlockNumber": {
+    "BatchHeaderV1": "LastBlockNumber",
+    "Header": "lastBlockNumber"
+   },
+   "parentBatchHash": {
+    "BatchHeaderV0": "ParentBatchHash",
+    "BatchHeaderV1": "BatchHeaderV0.ParentBatchHash",
+    "Header": "parentBatchHash"
+   },
+   "postStateHash": {
+    "BatchHeaderV0": "PostStateRoot",
+    "BatchHeaderV1": "BatchHeaderV0.PostStateRoot",
+    "Header": "postStateHash"
+   },
+   "prevStateHash": {
+    "BatchHeaderV0": "PrevStateRoot",
+    "BatchHeaderV1": "BatchHeaderV0.PrevStateRoot",
+    "Header": "prevStateHash"
+   },
+   "sequencerSetVerifyHash": {
+    "BatchHeaderV0": "SequencerSetVerifyHash",
+    "BatchHeaderV1": "BatchHeaderV0.SequencerSetVerifyHash"
+   },
+   "totalL1MessagePopped": {
+    "BatchHeaderV0": "TotalL1MessagePopped",
+    "BatchHeaderV1": "BatchHeaderV0.TotalL1MessagePopped",
+    "Header": "totalL1MessagePopped"
+   },
+   "version": {
+    "Header": "version"
+   },
+   "withdrawRootHash": {
+    "BatchHeaderV0": "WithdrawalRoot",
+    "BatchHeaderV1": "BatchHeaderV0.WithdrawalRoot",
+    "Header": "withdrawRootHash"
+   }
+  }
+ },
+ "functions": {
+  "dec_go": null,
+  "enc_go_v0": "BatchHeaderV0_Bytes",
+  "enc_go_v1": "BatchHeaderV1_Bytes",
+  "enc_sol": "enc_sol",
+  "ok_go": "BatchHeaderBytes_validate",
+  "ok_sol": "ok_load_sol",
+  "view": null
+ },
+ "hand": "facts/morph_header.json",
+ "inputs": [
+  {
+   "path": "facts/morph_header.json",
+   "sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80"
+  },
+  {
+   "path": "spec/M2/facts/morph_batch.go.extracted.json",
+   "sha256": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573"
+  },
+  {
+   "path": "spec/M2/facts/morph_header.extracted.json",
+   "sha256": "0f3caeb4d06e85e337733d444ed48da55f8679c026f43bb4f26aefeb2bffe646"
+  },
+  {
+   "path": "spec/M2/facts/morph_rollup.extracted.json",
+   "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+  },
+  {
+   "path": "spec/M3/lib/derive_extracted.json",
+   "sha256": "87749c82c2e790561357e5d99b22ff1aa895774e3064a39e8e80f98e30466a6f"
+  },
+  {
+   "path": "spec/M3/lib/link.json",
+   "sha256": "b6bf12b1e31b85f1a440a83e8b32f356d917a1b8d3cb79f8d27c5cb32d8f8371"
+  }
+ ],
+ "map_version": "holon-backtest-map/0.1",
+ "types": {
+  "Bool": [],
+  "Byte": [],
+  "Bytes": [
+   "Bytes"
+  ],
+  "Fields": [],
+  "Header": [
+   "BatchHeaderV0",
+   "BatchHeaderV1",
+   "Header"
+  ]
+ }
+}

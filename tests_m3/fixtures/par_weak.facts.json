@@ -1,0 +1,42 @@
+{
+  "facts_version": "holon-facts/0.1",
+  "target": {"repo": "holon/fixture-par", "commit": "0000000000000000000000000000000000000000",
+             "scope": "I24 PAR fixture, sub-form PAR-weak: two encoders of one record whose code names share tokens and nothing else relates them (no decoder, different source functions); they store a and b in swapped order. Not a real target; never replayed."},
+  "extraction": {"method": "hand-written fixture (I24 prereg)", "date": "2026-10-13"},
+  "types": {
+    "Byte": {"kind": "byte"},
+    "Bytes": {"kind": "bytes"},
+    "Bool": {"kind": "bool"},
+    "Fields": {"kind": "list_of_bytes", "doc": "decoded fields in getter order"},
+    "Header": {"kind": "record", "fields": [
+      {"name": "version", "width": 1, "sol": "uint8 version", "go": "-"},
+      {"name": "a", "width": 2, "sol": "uint16 a", "go": "A uint16"},
+      {"name": "b", "width": 2, "sol": "uint16 b", "go": "B uint16"}
+    ]}
+  },
+  "functions": {
+    "enc_wk_go": {
+      "kind": "encoder", "from": "Header", "to": "Bytes", "lang": "go-bytes",
+      "source": [{"file": "fixture/pack.go", "fn": "PackBatchHeader"}],
+      "memory_init": "zeros", "length": 5,
+      "ops": [
+        {"op": "set_byte", "offset": 0, "src": [{"const": 0}], "code": "out[0] = 0"},
+        {"op": "copy", "offset": 1, "src": [{"field": "a"}], "code": "copy(out[1:], h.A)"},
+        {"op": "copy", "offset": 3, "src": [{"field": "b"}], "code": "copy(out[3:], h.B)"}
+      ]
+    },
+    "enc_wk_sol": {
+      "kind": "encoder", "from": "Header", "to": "Bytes", "lang": "solidity-evm-memory",
+      "source": [{"file": "fixture/Store.sol", "fn": "encodeBatchHeader"}],
+      "memory_init": "dirty",
+      "domain": {"version_le": 0, "code": "require(version == 0)"},
+      "length_by_version": {"0": 5},
+      "ops": [
+        {"op": "mstore8", "offset": 0, "src": [{"field": "version"}], "code": "mstore8(p, version)"},
+        {"op": "mstore", "offset": 1, "src": [{"field": "b"}, {"zeros": 30}], "code": "mstore(add(p, 1), shl(240, b))"},
+        {"op": "mstore", "offset": 3, "src": [{"field": "a"}, {"zeros": 30}], "code": "mstore(add(p, 3), shl(240, a))"}
+      ]
+    }
+  },
+  "assumptions": [{"id": "A-fixture", "text": "a fixture: nothing is assumed"}]
+}

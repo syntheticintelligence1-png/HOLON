@@ -1,0 +1,41 @@
+{
+  "facts_version": "holon-facts/0.1",
+  "target": {"repo": "holon/fixture-par", "commit": "0000000000000000000000000000000000000000",
+             "scope": "I24 PAR fixture, sub-form branch agreement: one Go function with a fast path and a slow path, transcribed as two encoders that cite the same source function; the fast path omits b. Not a real target; never replayed."},
+  "extraction": {"method": "hand-written fixture (I24 prereg)", "date": "2026-10-13"},
+  "types": {
+    "Byte": {"kind": "byte"},
+    "Bytes": {"kind": "bytes"},
+    "Bool": {"kind": "bool"},
+    "Fields": {"kind": "list_of_bytes", "doc": "decoded fields in getter order"},
+    "Header": {"kind": "record", "fields": [
+      {"name": "version", "width": 1, "sol": "-", "go": "-"},
+      {"name": "a", "width": 2, "sol": "-", "go": "A uint16"},
+      {"name": "b", "width": 2, "sol": "-", "go": "B uint16"}
+    ]}
+  },
+  "functions": {
+    "enc_br_fast": {
+      "kind": "encoder", "from": "Header", "to": "Bytes", "lang": "go-bytes",
+      "source": [{"file": "fixture/estimate.go", "fn": "EstimateSize"}],
+      "memory_init": "zeros", "length": 5,
+      "notes": "fast path (taken when the caller asserts b is empty): b is not copied",
+      "ops": [
+        {"op": "set_byte", "offset": 0, "src": [{"const": 1}], "code": "out[0] = 1"},
+        {"op": "copy", "offset": 1, "src": [{"field": "a"}], "code": "copy(out[1:], h.A)"}
+      ]
+    },
+    "enc_br_slow": {
+      "kind": "encoder", "from": "Header", "to": "Bytes", "lang": "go-bytes",
+      "source": [{"file": "fixture/estimate.go", "fn": "EstimateSize"}],
+      "memory_init": "zeros", "length": 5,
+      "notes": "slow path: every field is copied",
+      "ops": [
+        {"op": "set_byte", "offset": 0, "src": [{"const": 1}], "code": "out[0] = 1"},
+        {"op": "copy", "offset": 1, "src": [{"field": "a"}], "code": "copy(out[1:], h.A)"},
+        {"op": "copy", "offset": 3, "src": [{"field": "b"}], "code": "copy(out[3:], h.B)"}
+      ]
+    }
+  },
+  "assumptions": [{"id": "A-fixture", "text": "a fixture: nothing is assumed"}]
+}

@@ -1,0 +1,32 @@
+{
+  "facts_version": "holon-facts/0.2",
+  "target": {"repo": "holon/fixture-par", "commit": "0000000000000000000000000000000000000000",
+             "scope": "I24 PAR fixture, sub-form recomputation (E4): put commits enc(v) into held; reput commits enc(v) only when held is empty and otherwise keeps what held holds (the shape of a recommit that reuses a residue). Each recomputes the value the other stores. Not a real target; never replayed."},
+  "extraction": {"method": "hand-written fixture (I24 prereg)", "date": "2026-10-13"},
+  "abstractions": ["Values are Nat; 0 means nothing held."],
+  "params": {"K": 7},
+  "types": {},
+  "state": [["held", "Nat", "the stored commitment"],
+            ["log", "List<Obs>", "observations (newest first)"]],
+  "ghost_state": [],
+  "initial": {"doc": "nothing held", "held": 0, "log": []},
+  "principals": {"1": "anyone"},
+  "reasons": {},
+  "defs": {
+    "enc": {"params": [["v", "Nat"]], "type": "Nat", "body": ["+", "v", "K"], "src": "Fixture.sol:5",
+            "doc": "the commitment of v"}
+  },
+  "actions": [
+    {"name": "put", "src": "Fixture.sol:10-14", "principal": "anyone", "inputs": [["v", "Nat"]],
+     "guards": [{"let": "h", "expr": ["call", "enc", "v"], "src": "Fixture.sol:11"}],
+     "effects": {"held": "h"}, "effects_src": "Fixture.sol:12"},
+    {"name": "reput", "src": "Fixture.sol:20-26", "principal": "anyone", "inputs": [["v", "Nat"]],
+     "guards": [{"let": "h", "expr": ["?", ["==", "held", 0], ["call", "enc", "v"], "held"], "src": "Fixture.sol:21-23"}],
+     "effects": {"held": "h"}, "effects_src": "Fixture.sol:24"}
+  ],
+  "migrations": {},
+  "observers": {},
+  "policy": "generic",
+  "search": {"domains": {"put": {"v": [1, 2]}, "reput": {"v": [1, 2]}}, "prefixDepth": 2, "maxPrefixes": 100},
+  "coverage": {"modelled": ["put", "reput"], "debt": []}
+}
