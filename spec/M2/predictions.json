@@ -2409,6 +2409,190 @@
         "codec_parents": 62172,
         "exit_b_threshold_q6": 0.8
       }
+    },
+    "I60": {
+      "title": "A1 mutation adequacy on real code, replacement catalog",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I60; kill criterion, threshold and exit of docs/BUILD_PLAN.md#i22)",
+      "prompt": "prompts/I60_mutation_replacement.md",
+      "predictions": [
+        {
+          "id": "I60-P1",
+          "claim": "Baseline. The null mutant (the unmutated pinned files in a scratch copy), re-extracted from scratch with I17, I19 (with A19) and I18 and projected onto the holon-facts/0.1 header schema, decides M0 exactly as results/M0 does (L_par_hdr_v0, L_par_hdr_v1, L_rt_go_v0, L_rt_go_v1, L_rt_go_v2 PROVED; L_par_hdr_v2, L_par_hdr_ssvh, L_dom_hdr REFUTED), M1x as results/M2/differential.json 'extracted' (7 PROVED, 7 REFUTED, L_tag_BVH UNKNOWN) and M2 as results/M2 (6 PROVED, 4 UNKNOWN, 2 REFUTED). Its extraction succeeds and its projection has no error.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_the_baseline_reproduces_every_committed_status"
+        },
+        {
+          "id": "I60-P2",
+          "claim": "Stratum A totals and M2 exit (b). 95 of the 192 stratum-A mutants are killed (rate_all 95/192 = 0.4948), none ends in error, no law outside a predicted set satisfies K1 or K2, and no law is a replay disagreement or a baseline finding. rate_non_equivalent of stratum A is below 0.80, so M2 exit (b) is not met: with no killed mutant equivalent it would need at least 74 of the 97 survivors adjudicated equivalent.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_stratum_a_totals_and_exit_b"
+        },
+        {
+          "id": "I60-P3",
+          "claim": "Kills per operator in stratum A (killed/mutants): mstore_offset 21/22, shl_width 8/12, drop_delete 0/7, swap_cursor 0/12, cmp_boundary 2/23, cmp_boundary_mirror 0/15, mload_offset 0/22, shr_width 0/9, putuint64_offset 14/14, copy_offset 26/28, drop_len_check 0/4, go_slice_offset 24/24.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_kills_by_operator_in_stratum_a"
+        },
+        {
+          "id": "I60-P4",
+          "claim": "mstore_offset (the K of mstore(add(p, K), v) to K-1 and K+1 at the 11 codec store sites): 21 of 22 killed. Where the shifted store leaves no byte unwritten (A001, A003-A006, A008, A021) the kill is K1; where it leaves one (A002, A007, A009-A017, A019, A020, A022) the model has no witness and the kill is K2 alone, the code's fresh memory reading 0 at the unwritten byte. A001-A020 are killed by all five non-REFUTED codec laws (L_par_hdr_v0, L_par_hdr_v1, L_rt_go_v0, L_rt_go_v1, L_rt_go_v2), A021-A022 by L_par_hdr_v1, L_rt_go_v1 and L_rt_go_v2. A018 (the sequencer-set store at 186) survives, filed proof_lost_unwitnessed on those five laws: its only unwritten byte, 185, is 0 in the code as the ssvh = 0 premise wants.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_codec_store_offsets_kill_by_k1_where_every_byte_is_written"
+        },
+        {
+          "id": "I60-P5",
+          "claim": "shl_width: the 8 codec-store mutants (A027-A034) are killed by K1, A027-A032 by the five non-REFUTED codec laws and A033-A034 by L_par_hdr_v1, L_rt_go_v1 and L_rt_go_v2; the 4 in Rollup._commitBatch (A023-A026, Rollup.sol:871 and :873, the data-hash preimage) survive with the projected header document unchanged.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_shl_width_kills_the_codec_stores_and_not_the_preimage"
+        },
+        {
+          "id": "I60-P6",
+          "claim": "cmp_boundary (>= and > flipped): of the 23 mutants exactly A058 (Rollup.sol:333, version 1 gets the 249-byte length: K1) and A059 (Rollup.sol:353, version 1 skips the lastBlockNumber store: K2) are killed, each by L_par_hdr_v1 and L_rt_go_v1 and no other law; the other 21 survive.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_cmp_boundary_kills_exactly_the_two_header_build_sites"
+        },
+        {
+          "id": "I60-P7",
+          "claim": "cmp_boundary_mirror (<= and < flipped, new in I60): none of the 15 mutants is killed. A081 (Rollup.sol:293, version 2 now reverts) ends with L_rt_go_v2 proof_lost_unwitnessed: its premise loses every execution, so no candidate falsifies it.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_the_mirrored_flips_survive_and_one_proof_is_lost"
+        },
+        {
+          "id": "I60-P8",
+          "claim": "Solidity decoders (new in I60): none of the 31 getter mutants (mload_offset A092-A113, shr_width A114-A122) is killed and none changes the projected header document; the 6 tce mutants (A110-A113, A121, A122) change no extracted document.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_solidity_decoders_never_reach_a_law"
+        },
+        {
+          "id": "I60-P9",
+          "claim": "The window view m1_view is byte-identical to the baseline's for every mutant, so all 15 M1x laws are carried with their baseline statuses in every record; none of the 7 drop_delete and 12 swap_cursor mutants is killed.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_the_window_view_never_changes"
+        },
+        {
+          "id": "I60-P10",
+          "claim": "All 14 putuint64_offset mutants are killed: A123-A128 by L_par_hdr_v0 and A129-A135 by L_par_hdr_v1 through K1; A136 (PutUint64 on the 7-byte batchBytes[250:], a panic for every header) by L_par_hdr_v1 through K2 alone.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_every_putuint64_offset_mutant_is_killed"
+        },
+        {
+          "id": "I60-P11",
+          "claim": "26 of the 28 copy_offset mutants are killed by K1 (the V0 encoder's by L_par_hdr_v0, the V1 encoder's by L_par_hdr_v1); A148 and A162 (the sequencerSetVerifyHash copy moved to 186) survive: under every codec law's ssvh = 0 premise the shifted zeros equal the original bytes.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_copy_offset_kills_all_but_the_two_shifted_sequencer_set_hashes"
+        },
+        {
+          "id": "I60-P12",
+          "claim": "go_slice_offset (new in I60, a getter's b[lo:hi] shifted by -1 and +1): all 24 mutants are killed by K1, by the round-trip laws whose version reads the getter: BlobVersionedHash (A177, A178) by L_rt_go_v0 and L_rt_go_v1, BlobHashesHash (A179, A180) by L_rt_go_v2, LastBlockNumber (A191, A192) by L_rt_go_v1 and L_rt_go_v2, every other getter by all three.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_every_go_getter_shift_is_killed_by_the_round_trip_laws"
+        },
+        {
+          "id": "I60-P13",
+          "claim": "None of the 4 stratum-A drop_len_check mutants is killed. The three validate drops (A165-A167) show a masked obstruction on L_dom_hdr (a 1-byte header [v]: Go now accepts, Solidity rejects) and are filed rule_gap (law_unmoved); the Version drop (A168) shows none, leaves the projection unchanged and is filed extraction_gap (model).",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_dropped_go_length_checks_survive"
+        },
+        {
+          "id": "I60-P14",
+          "claim": "Exactly 40 stratum-A mutants show a masked obstruction (a predicted law REFUTED at baseline whose model hit replays on the mutant code and not on the original): L_par_hdr_ssvh for 36 K1-killed codec mutants (A001, A003-A006, A008, A021, A027-A034, A058, A129-A135, A151-A161, A163, A164) and L_dom_hdr for A076 (BatchHeaderCodecV0.sol:32, a 249-byte version-0 header now rejected by Solidity) and A165-A167.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_masked_obstructions"
+        },
+        {
+          "id": "I60-P15",
+          "claim": "79 stratum-A mutants are killed by K1: the 95 kills less the 16 K2-only ones (A002, A007, A009-A017, A019, A020, A022, A059, A136); k1_only.A counts them less any adjudicated equivalent.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_k1_only_rate"
+        },
+        {
+          "id": "I60-P16",
+          "claim": "None of the 50 stratum-B mutants is killed; each has an empty predicted set and is filed rule_gap (no_law) or extraction_gap (frontend). The 14 genesis encoder mutants (B001-B008, B011-B016) and the 28 node/types mutants (B023-B050) change their extracted document.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_stratum_b_has_no_decision_path"
+        },
+        {
+          "id": "I60-P17",
+          "claim": "Law families in stratum A (by_family, recomputed from the records): PAR-codec laws are predicted for 91 mutants and kill 71; PAR-round-trip for 77 and kill 55; PAR-domain for 6 and kill 0; M1x:DISCH, M1x:FACT, M1x:NAT, M1x:SORT, M1x:SYM and M1x:UNDO are each predicted for 100 and kill 0; M2:SORT/site is predicted for 99 and M2:SORT/width for 73, and both kill 0; no other family appears (so no law derived only on a mutant adds a family or a predicted mutant).",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_law_families"
+        },
+        {
+          "id": "I60-P18",
+          "claim": "The i20_step corpus detects the 7 swapped cursors on paths its m1 traces exercise (A045 Rollup.sol:312, A047 :417, A048 :441, A049 :476, A050 and A051 :489, A052 :643).",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_the_corpus_sees_seven_swapped_cursors"
+        },
+        {
+          "id": "I60-P19",
+          "claim": "Every stratum-A mutant except the 6 tce ones changes at least one extracted document (normalized), so no stratum-A survivor but those is a frontend-stage extraction gap.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_the_frontends_see_every_stratum_a_mutant_but_the_tce_ones"
+        },
+        {
+          "id": "I60-P20",
+          "claim": "No M2 law moves: in every record no M2 law, baseline or derived only on the mutant, is REFUTED unless it is REFUTED at baseline, and no PROVED M2 law loses its proof (SORT-site laws decide on the hand model; SORT-width laws have no Reach predicate on the extracted model).",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestPredictions::test_no_m2_law_moves"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I60-R1",
+          "claim": "Gates M0, M1 and M2 pass at the iteration's last commit. I60 changes no law, statement, facts document, extracted document or result record outside its outcome paths (the gate's regenerated results/M2/metrics.json gains only its mutation_adequacy entry), never writes to the pinned checkout, to sol_deps or to spec/M2/disagreements.json, and leaves the extractors, the M0 pipeline (but the projection's additive generator extensions), holon differential, holon derive, holon fragments and the I16 and I20 harnesses unchanged.",
+          "check": "gate and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_the_pinned_checkout_and_sol_deps_are_untouched"
+        },
+        {
+          "id": "I60-R2",
+          "claim": "Construction: the frozen instrument and diff sheet are intact (sha256 pinned; threshold 0.80 on stratum A, seed 20261060, 192 + 50 mutants; the in-scope files are the pinned bytes the committed extractions read; every mutant is its operator's rewrite; the sheet is the reference rendering; the pins hold at 04e2293; of the 122 Solidity mutants, all of which compile, exactly the 6 tce ones leave Rollup's deployed bytecode unchanged); holon.mutate.operators enumerates exactly the 242 mutants; apply checks the original text; holon/mutate names nothing of the target; mutate sheet --check reproduces the sheet; run --dry-run refuses (exit 2, nothing written) a missing, unparsable, foreign or incomplete review or adjudication or a review that is not signed off, and accepts a complete signed-off pair.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestInstrument::test_the_instrument_is_the_frozen_one and tests_m2/test_mutation_adequacy_i60.py::TestInstrument::test_threshold_seed_strata_and_counts and tests_m2/test_mutation_adequacy_i60.py::TestInstrument::test_in_scope_files_are_the_pinned_bytes_the_extractions_read and tests_m2/test_mutation_adequacy_i60.py::TestInstrument::test_each_mutant_is_its_operators_rewrite and tests_m2/test_mutation_adequacy_i60.py::TestInstrument::test_the_diff_sheet_is_the_rendering_of_the_catalog and tests_m2/test_mutation_adequacy_i60.py::TestInstrument::test_the_pins_hold_at_the_pinned_commit and tests_m2/test_mutation_adequacy_i60.py::TestInstrument::test_the_tce_mutants_leave_rollup_bytecode_unchanged and tests_m2/test_mutation_adequacy_i60.py::TestOperators::test_operators_enumerate_exactly_the_catalog and tests_m2/test_mutation_adequacy_i60.py::TestOperators::test_apply_checks_the_original_text and tests_m2/test_mutation_adequacy_i60.py::TestOperators::test_the_sheet_cli_reproduces_the_frozen_sheet and tests_m2/test_mutation_adequacy_i60.py::TestOperators::test_mutate_code_holds_no_target_vocabulary and tests_m2/test_mutation_adequacy_i60.py::TestOperators::test_run_refuses_without_the_review_and_the_adjudication"
+        },
+        {
+          "id": "I60-R3",
+          "claim": "Construction (the I22 review's scope and predicted-set findings): the scope, sites, actions, edges, predicted sets and structural classes are recomputed from the pinned checkout and the pinned artifacts by the instrument's own rules, never from laws or outcomes: the Solidity scope is the walker's 92 reached functions of the adopted rollup document plus the two unreached codec functions (coverage as gen/M2/coverage.json); actions are the per-action closures; stratum A's Go file is the codec file the M2 diagram adopts and stratum B the 11 other files with an I18 codec; the sites are what solc's AST and go/ast give; the structural counts are A reachable 103, masked 2, projection_carried 14, abstraction_carried 51, no_predicted_law 22 and B no_predicted_law 50.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestScope::test_the_solidity_scope_is_the_walkers_reached_set and tests_m2/test_mutation_adequacy_i60.py::TestScope::test_actions_are_the_per_action_closures and tests_m2/test_mutation_adequacy_i60.py::TestScope::test_the_go_strata_follow_the_diagram_and_the_codecs and tests_m2/test_mutation_adequacy_i60.py::TestScope::test_the_sites_are_recomputed_from_the_pinned_checkout and tests_m2/test_mutation_adequacy_i60.py::TestScope::test_edges_and_predicted_sets_follow_the_rules and tests_m2/test_mutation_adequacy_i60.py::TestScope::test_structural_classes_follow_the_rule"
+        },
+        {
+          "id": "I60-R4",
+          "claim": "Construction: the projection of the committed extracted documents equals the frozen header facts where I17 and I18 compared them (enc_sol layouts for versions 0, 1, 2; enc_go_v0, enc_go_v1; the dec_go getters; view; ok_sol and ok_go on I17's loader grid), and holon mutate project --check reproduces gen/M2/mutation_i60/header.projected.json.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestProjection::test_the_projection_of_the_pinned_code_equals_the_frozen_facts and tests_m2/test_mutation_adequacy_i60.py::TestProjection::test_the_committed_projection_is_reproduced"
+        },
+        {
+          "id": "I60-R5",
+          "claim": "Construction (the I22 review's replay findings): the replay harness holon.mutate.replay runs the given tree's own code, by claim, at exact field values: on the unmutated checkout every role reproduces the real-side outputs I16 recorded on its per-edge corpus (results/M2/refinement/<edge>.json outputs_sha256.real); planted edits outside the catalog are seen exactly where the code changed; values follow the declared meanings (a revert or error that is the function's value is not a violation; an inner role with no value makes no execution); for trace laws (holon.mutate.replay.trace_claim) every witness trace I15 replayed for the two baseline-REFUTED M2 laws falsifies its law on the unmutated tree, a reverted step is a no-op, and a planted removal of the :363 underflow makes the :363 witnesses hold.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestReplayHarness::test_the_harness_reproduces_i16s_real_outputs_on_the_original_code and tests_m2/test_mutation_adequacy_i60.py::TestReplayHarness::test_planted_changes_are_executed and tests_m2/test_mutation_adequacy_i60.py::TestReplayHarness::test_values_follow_the_declared_meanings and tests_m2/test_mutation_adequacy_i60.py::TestReplayHarness::test_trace_witnesses_follow_the_declared_meanings"
+        },
+        {
+          "id": "I60-R6",
+          "claim": "Order (delegated steps): the two-lens catalog review docs/iterations/I60_catalog_review.json (fairness and soundness, fresh agents, delegation recorded) signed off this instrument with no blocking finding; the delegated blind panel's adjudication spec/M2/equivalent_mutants_i60.json covers the 242 mutants once, names this instrument, catalog, sheet and review, records the delegation, marks every tce mutant equivalent and any other mutant equivalent only when a judge called it equivalent and the refuter confirmed it; commits come in the order prereg, review, adjudication (committed alone), results (the optional panel record docs/iterations/I60_equivalence_panel.json after the adjudication); and the run started after I21's exit: the tree of the records' pipeline_commit holds audit/rounds/M2/round2.json and no open high finding in audit/M2_findings.jsonl.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestReviewAndAdjudication::test_the_catalog_review_signed_off_this_instrument and tests_m2/test_mutation_adequacy_i60.py::TestReviewAndAdjudication::test_every_mutant_is_adjudicated_once_by_the_delegated_panel and tests_m2/test_mutation_adequacy_i60.py::TestReviewAndAdjudication::test_the_review_and_the_adjudication_came_in_order and tests_m2/test_mutation_adequacy_i60.py::TestReviewAndAdjudication::test_the_run_started_after_i21s_exit"
+        },
+        {
+          "id": "I60-R7",
+          "claim": "Construction: the summary names its inputs; the baseline reproduces the pinned statuses, every committed extracted document and the projection, and records for each PROVED law the pinned record's accepted generator; every decided law has its own input hashed and its family; every record covers the baseline law set; documents and own inputs are compared with the baseline by hash; predicted sets are exactly the instrument's, and a law new on a mutant is predicted iff its entry points meet the mutant's actions and is localized iff its basis span lies inside the mutated function (recomputed from the pinned AST); every PROVED-to-UNKNOWN law is a completed rejection by the baseline generator (else error); how, kill, outcome, masked obstructions, unwitnessed proof losses, replay disagreements and baseline findings follow the kill criterion (K1 two-sided replay; K2 (a) own input changed, (b) the baseline generator completed and Bend rejected, (c) a code-level localized falsification); errors are scoped to laws; each record holds exactly its channel runs and flags; survivors are classified mechanically beside their structural class; the rates per stratum, operator and every law family, k1_only, detection, the unpredicted and masked rates, dedup and the contradiction-reversed rate, and the summary's lists, are recomputed and mutate rate --check reproduces the summary; run --check reruns a sample identically at the pipeline commit.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestResults::test_summary_names_its_inputs and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_the_baseline_reproduces_the_pinned_statuses_and_documents and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_every_record_covers_the_baseline_law_set and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_own_inputs_and_documents_are_compared_with_the_baseline and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_predicted_sets_follow_the_rule and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_new_laws_are_localized_to_the_mutated_function and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_proof_losses_are_completed_rejections_of_the_baseline_generator and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_kill_decisions_follow_the_criterion and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_errors_are_scoped_to_laws and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_every_record_holds_exactly_its_channel_runs and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_survivors_are_classified_mechanically and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_the_rates_are_recomputed and tests_m2/test_mutation_adequacy_i60.py::TestResults::test_the_summary_lists_are_the_records and tests_m2/test_mutation_adequacy_i60.py::TestDeterminism::test_a_sample_reruns_identically_at_the_pipeline_commit"
+        },
+        {
+          "id": "I60-R8",
+          "claim": "Exit (BUILD_PLAN I22, M2 exit (b), Q6): rate_non_equivalent of stratum A >= 0.80, recomputed by test. I60-P2 forecasts that it fails; the threshold never moves.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestResults::test_m2_exit_b_the_rate_meets_the_threshold"
+        },
+        {
+          "id": "I60-R9",
+          "claim": "Whitepaper §13 metric 'mutation adequacy' and §12.1 'Sensitivity': results/M2/metrics.json reports mutation_adequacy {source results/M2/mutation_i60/summary.json, threshold 0.8, rate_all, rate_non_equivalent, meets_threshold} of stratum A, I22-R6's name and shape (I23 reads it), and the metric leaves not_applicable.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestResults::test_metrics_report_mutation_adequacy"
+        },
+        {
+          "id": "I60-R10",
+          "claim": "I22 is retired honestly: its key stays in spec/M2/predictions.json unchanged and unscored (no outcome path of it is ever written); the 40 test keys of its run (classes TestOperators, TestProjection, TestAdjudication, TestResults, TestDeterminism, TestPredictions) are removed from tests_m2/test_mutation_adequacy.py with one spec/M2/amendments.jsonl line each (iteration I22, kind retired_by_rejection), never skipped; its TestInstrument is unchanged.",
+          "check": "tests_m2/test_mutation_adequacy_i60.py::TestI22Retirement::test_the_i22_key_stays_and_is_never_scored and tests_m2/test_mutation_adequacy_i60.py::TestI22Retirement::test_the_run_tests_are_retired_by_amendment"
+        }
+      ],
+      "outcome_paths": [
+        "results/M2/mutation_i60/",
+        "gen/M2/mutation_i60/",
+        "replay/M2/mutation_i60/",
+        "spec/M2/equivalent_mutants_i60.json",
+        "docs/iterations/I60_catalog_review.json",
+        "docs/iterations/I60_equivalence_panel.json",
+        "docs/iterations/I60.md"
+      ],
+      "tests": [
+        "tests_m2/test_mutation_adequacy_i60.py"
+      ],
+      "thresholds": {
+        "kill_rate_non_equivalent": 0.8,
+        "stratum": "A",
+        "meets": "5 * killed_non_equivalent_A >= 4 * non_equivalent_A",
+        "seed": 20261060,
+        "mutants": {
+          "A": 192,
+          "B": 50
+        },
+        "replay_candidates": 16,
+        "instrument": "spec/M2/lib/mutation_catalog_i60.json",
+        "i20_step_min_steps": 2432
+      }
     }
   }
 }
