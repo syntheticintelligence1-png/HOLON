@@ -56,9 +56,10 @@ def host(url: str) -> str:
 class Pacer:
     """Per-host spacing between requests. The interval grows on a rate limit and shrinks slowly on success."""
 
-    def __init__(self, interval: float = 0.05, floor: float = 0.02, ceiling: float = 2.0):
+    def __init__(self, interval: float = 0.05, floor: float = 0.02, ceiling: float = 2.0, pause_on_limit: float = 10.0):
         self.lock = threading.Lock()
         self.interval, self.floor, self.ceiling = interval, floor, ceiling
+        self.pause_on_limit = pause_on_limit
         self.next_at = 0.0
         self.pause_until = 0.0
 
@@ -80,24 +81,25 @@ class Pacer:
     def limited(self, retry_after: float | None = None) -> None:
         with self.lock:
             self.interval = min(self.ceiling, self.interval * 1.5 + 0.02)
-            pause = min(30.0, retry_after) if retry_after else min(10.0, self.interval * 5)
+            pause = min(60.0, retry_after) if retry_after else min(self.pause_on_limit, max(1.0, self.interval * 5))
             self.pause_until = max(self.pause_until, time.monotonic() + pause)
 
 
 class Http:
     """A small client: one Pacer per host, bounded retries with exponential backoff and jitter."""
 
-    def __init__(self, retries: int = 7, timeout: float = 90.0, intervals: dict | None = None):
+    def __init__(self, retries: int = 7, timeout: float = 90.0, floors: dict | None = None):
         self.retries, self.timeout = retries, timeout
         self.pacers: dict[str, Pacer] = {}
-        self.intervals = intervals or {}
+        self.floors = floors or {}
         self.lock = threading.Lock()
         self.calls: dict[str, int] = {}
 
     def pacer(self, h: str) -> Pacer:
         with self.lock:
             if h not in self.pacers:
-                self.pacers[h] = Pacer(self.intervals.get(h, 0.05))
+                f = self.floors.get(h)
+                self.pacers[h] = Pacer(f, f, max(2.0, 20 * f), pause_on_limit=60.0) if f else Pacer()
             return self.pacers[h]
 
     def request(self, url: str, body: bytes | None = None, headers: dict | None = None) -> tuple[int, bytes]:

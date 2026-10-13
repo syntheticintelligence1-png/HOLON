@@ -3,10 +3,10 @@
 // The replay copies this file into a scratch copy of morph common/batch at the facts' commit (the same
 // workspace the I16 codec harness uses) and runs
 //   (cd common && HOLON_KZG_IN=… HOLON_KZG_OUT=… go test ./batch -run '^TestHolonKzg$' -count=1 -v)
-// For every input line "<blob file> <commitment hex>" it reads the blob (gzip when the name ends in .gz),
-// computes kzg4844.BlobToCommitment with the go-ethereum fork the checkout pins, and writes one output line
-// per input, in input order: "ok" (the blob commits to the commitment), "mismatch", or "error: <reason>".
-// It compares nothing else and decides nothing: the replay reads the lines.
+// For every input line "<blob file>" it reads the blob (gzip when the name ends in .gz) and computes
+// kzg4844.BlobToCommitment with the go-ethereum fork the checkout pins. It writes one output line per input,
+// in input order: the commitment as "0x" + hex, or "error: <reason>" (unreadable, not 131072 bytes, or not a
+// canonical blob). It compares nothing and decides nothing: the replay hashes the commitments.
 package batch
 
 import (
@@ -25,7 +25,7 @@ import (
 	"github.com/morph-l2/go-ethereum/crypto/kzg4844"
 )
 
-func holonKzgOne(path, commitHex string) string {
+func holonKzgOne(path string) string {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return "error: read"
@@ -45,18 +45,11 @@ func holonKzgOne(path, commitHex string) string {
 		return fmt.Sprintf("error: %d bytes", len(raw))
 	}
 	copy(blob[:], raw)
-	want, err := hex.DecodeString(strings.TrimPrefix(commitHex, "0x"))
-	if err != nil || len(want) != 48 {
-		return "error: commitment"
-	}
 	got, err := kzg4844.BlobToCommitment(&blob)
 	if err != nil {
 		return "error: not a canonical blob"
 	}
-	if bytes.Equal(got[:], want) {
-		return "ok"
-	}
-	return "mismatch"
+	return "0x" + hex.EncodeToString(got[:])
 }
 
 func TestHolonKzg(t *testing.T) {
@@ -84,12 +77,7 @@ func TestHolonKzg(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			for i := range jobs {
-				parts := strings.Fields(lines[i])
-				if len(parts) != 2 {
-					out[i] = "error: input line"
-					continue
-				}
-				out[i] = holonKzgOne(parts[0], parts[1])
+				out[i] = holonKzgOne(lines[i])
 			}
 		}()
 	}

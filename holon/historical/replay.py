@@ -19,7 +19,12 @@ missing receipt with a log of the transaction counts as success, since only succ
 logs, and is counted in summary.status_from_logs); function by selector; abi "decoded" iff the selector is a
 pinned commit function's and the calldata decodes strictly under the pinned ABI; batch_index and batch_hash
 from the transaction's CommitBatch log; the transaction's blob versioned hashes and, per blob, its source and
-commitment_ok (0x01 || sha256(commitment)[1:] == versioned hash; null when unavailable).
+commitment_ok: the blob's KZG commitment hashes to the transaction's versioned hash
+(0x01 || sha256(commitment)[1:]), null when unavailable. The commitment is the one computed from the blob's own
+bytes by kzg4844.BlobToCommitment of the pinned checkout's go-ethereum (holon/historical/go/holon_kzg_test.go in
+a scratch copy of common/batch); a commitment served with the blob (beacon sidecars) must equal it. Only for a
+blob the fetch hashed but could not keep on disk is the served commitment used alone (verified at fetch time),
+and if the Go harness cannot run every kept blob has commitment_ok false and kzg "not_run".
 
 "parent" (decoded successful commits): batchDataInput.parentBatchHeader with
   - the per-header checks of holon.historical.checks (frozen M0 model);
@@ -31,10 +36,9 @@ commitment_ok (0x01 || sha256(commitment)[1:] == versioned hash; null when unava
     ok_go on the same bytes ("agree" | "disagree" | "not_run" when the harness could not run).
 
 Supplementary, outside the preregistered fields (never read by the tests):
-  - blobs[i].kzg: the blob's bytes against its commitment, kzg4844.BlobToCommitment of the pinned checkout's
-    go-ethereum (holon/historical/go/holon_kzg_test.go in a scratch copy of common/batch): "ok" | "mismatch" |
-    "error" | "not_kept" (verified at fetch time but not kept on disk) | "not_run"; null when unavailable.
-    commitment_ok only says the served commitment hashes to the versioned hash; kzg says the bytes are the blob;
+  - blobs[i].kzg: how commitment_ok was decided: "computed" (from the bytes), "served_differs" (a served
+    commitment differs from the computed one: commitment_ok false), "error" (the bytes are not a canonical
+    blob: commitment_ok false), "not_kept" (the served commitment, checked at fetch time), "not_run";
   - "legacy_parent": the same checks for a successful commit whose selector is a historical signature
     (decoded with that signature's ABI, "abi_origin" its IRollup.sol revision); "abi" stays "undecodable";
   - "rebuild": the encoder edge on real inputs. For a commit of batch k whose header H_k (the header that
@@ -153,13 +157,13 @@ def run_go_decoders(headers: list[bytes], morph: Path, work: Path | None, model:
 KZG_HARNESS = Path(__file__).resolve().parent / "go" / "holon_kzg_test.go"
 
 
-def run_kzg(blobs: list[tuple[str, str]], morph: Path, work: Path | None) -> tuple[list[str], str]:
-    """One line per (blob file, commitment): "ok" | "mismatch" | "error: .." from kzg4844.BlobToCommitment of the
+def run_kzg(paths: list[str], morph: Path, work: Path | None) -> tuple[list[str], str]:
+    """One line per blob file: its KZG commitment ("0x" + hex) or "error: ..", from kzg4844.BlobToCommitment of the
     pinned checkout's go-ethereum, run by holon/historical/go/holon_kzg_test.go in a scratch copy of common/batch
     (the workspace the I16 codec harness uses). Returns ([], error text) when the harness cannot run."""
     import os
     import subprocess
-    if not blobs:
+    if not paths:
         return [], ""
     tmp = None
     if work is None:
@@ -172,15 +176,15 @@ def run_kzg(blobs: list[tuple[str, str]], morph: Path, work: Path | None) -> tup
             shutil.copytree(morph / d, ws / d, symlinks=True)
         (ws / "go.work").write_text("go 1.24.0\n\nuse (\n\t./bindings\n\t./common\n)\n")
         shutil.copy(KZG_HARNESS, ws / "common" / "batch" / KZG_HARNESS.name)
-        (ws / "in.txt").write_text("".join(f"{p} {c}\n" for p, c in blobs))
+        (ws / "in.txt").write_text("".join(f"{p}\n" for p in paths))
         p = subprocess.run(["go", "test", "./batch", "-run", "^TestHolonKzg$", "-count=1", "-v", "-timeout", "6h"],
                            cwd=ws / "common", capture_output=True, text=True, timeout=6 * 3600,
                            env={**os.environ, "HOLON_KZG_IN": str(ws / "in.txt"), "HOLON_KZG_OUT": str(ws / "out.txt")})
         if p.returncode != 0 or not (ws / "out.txt").exists():
             return [], f"kzg harness failed (exit {p.returncode}): {(p.stdout + p.stderr)[-1500:]}"
         out = (ws / "out.txt").read_text().splitlines()
-        if len(out) != len(blobs):
-            return [], f"kzg harness wrote {len(out)} lines for {len(blobs)} blobs"
+        if len(out) != len(paths):
+            return [], f"kzg harness wrote {len(out)} lines for {len(paths)} blobs"
         return out, ""
     except (OSError, subprocess.SubprocessError) as e:
         return [], f"kzg harness: {type(e).__name__}: {e}"[-1500:]
@@ -237,7 +241,7 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
 
     # ------------------------------------------------ commits
     commits, genesis, parents, legacy = [], [], {}, {}
-    kzg_todo: list[tuple[int, int, str, str]] = []
+    kzg_todo: list[tuple[int, int, str, str | None]] = []
     status_from_logs = 0
     order = sorted(d.txs.values(), key=lambda t: (_int(t["blockNumber"]), _int(t["transactionIndex"])))
     for tx in order:
@@ -279,12 +283,11 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
         for vh in bvh:
             it = d.blobs.get(h, {}).get(vh)
             src = blob_source(it, side)
-            b = {"versioned_hash": vh, "source": src,
-                 "commitment_ok": None if src == "unavailable" else versioned_hash(it["commitment"]) == vh,
-                 "kzg": None}
+            b = {"versioned_hash": vh, "source": src, "commitment_ok": None, "kzg": None}
             if src != "unavailable":
                 if it.get("kept") is False:
-                    b["kzg"] = "not_kept"
+                    served = it.get("commitment")
+                    b["kzg"], b["commitment_ok"] = "not_kept", bool(served) and versioned_hash(served) == vh
                 else:
                     gz = d.snap.path(it["sha256"], True)
                     kzg_todo.append((len(commits), len(blobs), str(gz if gz.exists() else d.snap.path(it["sha256"])),
@@ -307,10 +310,18 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
                 legacy[len(commits) - 1] = (first(legacy_dec), legacy_origin)
 
     # ------------------------------------------------ blob bytes against their commitments (kzg4844, pinned go-ethereum)
-    kzg_out, kzg_err = run_kzg([(p, cm) for _, _, p, cm in kzg_todo], morph, work)
-    for n, (ci, bi, _, _) in enumerate(kzg_todo):
-        r = kzg_out[n] if kzg_out else "not_run"
-        commits[ci]["blobs"][bi]["kzg"] = "error" if r.startswith("error") else r
+    kzg_out, kzg_err = run_kzg([p for _, _, p, _ in kzg_todo], morph, work)
+    for n, (ci, bi, _, served) in enumerate(kzg_todo):
+        b = commits[ci]["blobs"][bi]
+        r = kzg_out[n] if kzg_out else None
+        if r is None:
+            b["kzg"], b["commitment_ok"] = "not_run", False
+        elif not r.startswith("0x"):
+            b["kzg"], b["commitment_ok"] = "error", False
+        elif served is not None and served.lower() != r:
+            b["kzg"], b["commitment_ok"] = "served_differs", False
+        else:
+            b["kzg"], b["commitment_ok"] = "computed", versioned_hash(r) == b["versioned_hash"]
 
     # ------------------------------------------------ header checks (model) and Go decoders on every distinct header
     allh = {}

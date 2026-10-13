@@ -12,10 +12,12 @@ not fetched again):
   2. tx       eth_getTransactionByHash for every transaction a log belongs to (JSON-RPC batches).
   3. blob     every blob of every commit transaction (a transaction with a CommitBatch log and blob versioned
               hashes): from the beacon API (/eth/v1/beacon/blob_sidecars/<slot>) when the block is inside the
-              blob retention window, otherwise from the blob archive (api.blobscan.com /blobs/<versioned hash>).
-              A blob is kept only when it is 131072 bytes and the commitment served with it hashes to the
-              versioned hash (0x01 || sha256(commitment)[1:]); a blob no source serves that way is
-              "unavailable", never faked. Phases 3 and 4 run concurrently (different hosts).
+              blob retention window, otherwise from the blob archive (api.blobscan.com
+              /blobs/<versioned hash>/data). A blob is kept only when it is 131072 bytes and, when a commitment
+              is served with it (beacon sidecars), that commitment hashes to the versioned hash
+              (0x01 || sha256(commitment)[1:]). Archive blobs carry no commitment in the index: the replay
+              computes each blob's KZG commitment from its bytes. A blob no source serves is "unavailable",
+              never faked. Phases 3 and 4 run concurrently (different hosts).
   4. receipt  eth_getTransactionReceipt for the same transactions.
   5. index    results/M2/historical/index.json (or --index): canonical JSON (sorted keys, indent=1),
               a function of the window and the state only.
@@ -51,6 +53,7 @@ GENESIS_TIME = 1606824023            # mainnet beacon genesis (also read from th
 RETENTION_SLOTS = 4096 * 32          # MIN_EPOCHS_FOR_BLOB_SIDECARS_REQUESTS
 RETENTION_MARGIN = 256 * 32          # do not ask the beacon for blocks this close to its pruning edge
 MIN_FREE_BYTES = 1_500_000_000       # below this, blobs are verified and hashed but not kept (recorded)
+ARCHIVE_INTERVAL = 0.15              # the blob archive answers 503 to bursts: at most ~6.7 requests/s
 HISTORY_WORDS = ("archive", "pruned", "history", "missing trie node", "not available", "personal token")
 
 
@@ -70,7 +73,7 @@ class Fetcher:
     def __init__(self, side: dict, snap: Snapshot, workers: int = 8, batch: int = 10, blob_workers: int = 12):
         self.side, self.snap, self.workers, self.batch = side, snap, max(1, workers), max(1, batch)
         self.blob_workers = max(1, blob_workers)
-        self.http = net.Http()
+        self.http = net.Http(floors={net.host(side["sources"]["blob_archive"]): ARCHIVE_INTERVAL})
         self.address = side["contracts"]["Rollup"]["address"].lower()
         self.topics = sorted(t.lower() for t in side["events"].values())
         self.commit_topic = side["events"]["CommitBatch(uint256,bytes32)"].lower()
@@ -360,52 +363,66 @@ class Fetcher:
             out[versioned_hash(c)] = (blob, "0x" + c.hex())
         return out
 
-    def _archive_blob(self, vh: str) -> tuple[bytes, str] | None:
+    def _archive_data(self, vh: str) -> bytes | None:
+        """The blob's bytes from the blob archive (one request: /blobs/<versioned hash>/data)."""
+        try:
+            status, body = self.http.request(f"{self.archive}/blobs/{vh}/data")
+        except net.TransientError:
+            return None
+        if status != 200:
+            return None
+        try:
+            d = json.loads(body)
+            data = d if isinstance(d, str) else (d.get("data") if isinstance(d, dict) else None)
+        except ValueError:
+            data = body.decode("ascii", "replace").strip()
+        if not (isinstance(data, str) and data.startswith("0x")):
+            return None
+        try:
+            return bytes.fromhex(data[2:])
+        except ValueError:
+            return None
+
+    def _archive_commitment(self, vh: str) -> str | None:
+        """The commitment the blob archive records for the blob (/blobs/<versioned hash>)."""
         try:
             doc = self.http.get_json(f"{self.archive}/blobs/{vh}")
         except (net.SourceError, net.TransientError):
             return None
         c = doc.get("commitment") if isinstance(doc, dict) else None
-        data = doc.get("data") if isinstance(doc, dict) else None
-        if not isinstance(data, str):
-            try:
-                status, body = self.http.request(f"{self.archive}/blobs/{vh}/data")
-            except net.TransientError:
-                return None
-            if status != 200:
-                return None
-            try:
-                d = json.loads(body)
-                data = d if isinstance(d, str) else (d.get("data") if isinstance(d, dict) else None)
-            except ValueError:
-                data = body.decode("ascii", "replace").strip()
-        if not (isinstance(c, str) and isinstance(data, str) and data.startswith("0x")):
-            return None
-        try:
-            return bytes.fromhex(data[2:]), c.lower()
-        except ValueError:
-            return None
+        return c.lower() if isinstance(c, str) and c.startswith("0x") else None
 
     def _blob_task(self, block: int, tx: str, hashes: list[str], beacon_ok: bool, genesis: int) -> list[tuple]:
-        """[(versioned hash, position, blob bytes | None, commitment | None, source host)] for one transaction."""
+        """[(versioned hash, position, blob bytes | None, commitment | None, source host, keep)] for one transaction.
+
+        A beacon blob comes with its sidecar's commitment, which must hash to the versioned hash. An archive blob is
+        fetched with one request and kept with no commitment: the replay computes its KZG commitment from the bytes
+        (kzg4844 in the pinned checkout's go-ethereum) and checks that against the versioned hash. Only when the
+        disk is short (the blob is hashed but not kept) is the archive's recorded commitment fetched and checked
+        here, since the bytes will not be there to check later."""
         res, beacon = [], None
+        keep = shutil.disk_usage(self.snap.dir).free > MIN_FREE_BYTES
         for pos, vh in enumerate(hashes):
-            got, src = None, None
+            blob, comm, src = None, None, None
             if beacon_ok:
                 if beacon is None:
                     beacon = self._beacon_blobs(block, genesis) or {}
                 if vh in beacon:
-                    got, src = beacon[vh], net.host(self.beacon)
-            if got is None:
-                a = self._archive_blob(vh)
-                if a is not None:
-                    got, src = a, net.host(self.archive)
-            if got is not None and (len(got[0]) != BLOB_BYTES or versioned_hash(bytes.fromhex(got[1][2:])) != vh):
-                got = None  # a blob that is not a blob, or a commitment that does not hash to the versioned hash
-            if got is None:
-                res.append((vh, pos, None, None, net.host(self.archive)))
+                    (blob, comm), src = beacon[vh], net.host(self.beacon)
+            if blob is None:
+                blob = self._archive_data(vh)
+                src = net.host(self.archive) if blob is not None else None
+                if blob is not None and not keep:
+                    comm = self._archive_commitment(vh)
+                    if comm is None:
+                        blob = None
+            if blob is not None and (len(blob) != BLOB_BYTES
+                                     or (comm is not None and versioned_hash(bytes.fromhex(comm[2:])) != vh)):
+                blob = None  # not a blob, or a served commitment that does not hash to the versioned hash
+            if blob is None:
+                res.append((vh, pos, None, None, net.host(self.archive), keep))
             else:
-                res.append((vh, pos, got[0], got[1], src))
+                res.append((vh, pos, blob, comm, src, keep))
         return res
 
     def blob_jobs(self, txs: list[tuple[int, str]], commit_txs: set[str]) -> list[tuple[int, str, list[str]]]:
@@ -430,14 +447,13 @@ class Fetcher:
 
     def store_blobs(self, tx: str, block: int, res: list[tuple]) -> int:
         bad = 0
-        for vh, pos, blob, comm, src in res:
+        for vh, pos, blob, comm, src, keep in res:
             key = f"{tx}:{vh}"
             if blob is None:
                 self.snap.put_item("blob", key, block, tx, None, src, "unavailable",
                                    {"versioned_hash": vh, "position": pos})
                 bad += 1
                 continue
-            keep = shutil.disk_usage(self.snap.dir).free > MIN_FREE_BYTES
             sha = self.snap.put(blob, gz=True) if keep else hashlib.sha256(blob).hexdigest()
             self.snap.put_item("blob", key, block, tx, sha, src, "ok",
                                {"versioned_hash": vh, "position": pos, "commitment": comm, "kept": keep})
