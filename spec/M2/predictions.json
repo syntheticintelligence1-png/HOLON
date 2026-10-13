@@ -1872,6 +1872,90 @@
       "thresholds": {
         "blob_retrievable_min": 0.99
       }
+    },
+    "I19": {
+      "title": "Solidity frontend II: storage, transitions, cost terms, principals, linking, G8",
+      "plan": "docs/BUILD_PLAN.md#i19",
+      "prompt": "prompts/I19_solidity_transitions.md",
+      "predictions": [
+        {
+          "id": "I19-P1",
+          "claim": "The extracted storage families are exactly Rollup's 24 own state variables in declaration order, with the names, kinds, value types, widths and struct fields listed in the test, at slots 151..174.",
+          "check": "tests_m2/test_extract_transitions.py::TestMorph::test_storage_families_are_the_24_declared_at_slots_151_to_174"
+        },
+        {
+          "id": "I19-P2",
+          "claim": "Every M1 require guard of the 8 modelled actions whose span lies in the extraction's closure is matched by span to an extracted guard of the same action in the same relative order; the unmatched M1 guards are exactly the 2 'oracle:' verifier rules and the 4 inside L1MessageQueueWithGasPriceOracle.sol.",
+          "check": "tests_m2/test_extract_transitions.py::TestMorph::test_modelled_guards_are_found_in_order_and_only_the_out_of_contract_ones_are_missing"
+        },
+        {
+          "id": "I19-P3",
+          "claim": "The committedBatches abstraction guards (:311 in the three commits, :436 in revertBatch) are extracted as reads of the committedBatches family.",
+          "check": "tests_m2/test_extract_transitions.py::TestMorph::test_committed_batches_checks_read_the_raw_family"
+        },
+        {
+          "id": "I19-P4",
+          "claim": "Principal predicates: onlyOwner (revertBatch, setPause); onlyActiveSubmitter = ISubmitter.isActive(caller) (commitBatch, commitState, proveState); onlyChallenger = isChallenger[caller] (challengeState); none for finalizeBatch and commitBatchWithProof.",
+          "check": "tests_m2/test_extract_transitions.py::TestMorph::test_principal_predicates"
+        },
+        {
+          "id": "I19-P5",
+          "claim": "Each of the three commits has exactly one cost term, the loop at Rollup.sol:936 iterating numL1Messages times; finalizeBatch has exactly one, the loop at :744.",
+          "check": "tests_m2/test_extract_transitions.py::TestMorph::test_loop_bounds_become_cost_terms"
+        },
+        {
+          "id": "I19-P6",
+          "claim": "commitBatch has a blobhash COMMIT edge and a HASH edge at BatchHeaderCodecV0.sol:242; commitState a blobhash COMMIT edge; proveState and commitBatchWithProof an IRollupVerifier.verifyAggregateProof COMMIT edge.",
+          "check": "tests_m2/test_extract_transitions.py::TestMorph::test_hash_and_commit_edges"
+        },
+        {
+          "id": "I19-P7",
+          "claim": "Coverage: unaccounted = 0 for the rollup document.",
+          "check": "tests_m2/test_coverage.py::TestCoverage::test_nothing_is_unaccounted"
+        },
+        {
+          "id": "I19-P8",
+          "claim": "Debt includes the storage-writing loops at :444 (revertBatch) and :489 (challengeState), the submitter call at :120 (external_call) and the value transfer at :816 (value_transfer).",
+          "check": "tests_m2/test_coverage.py::TestCoverage::test_storage_writing_loops_and_external_calls_are_debt"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I19-R1",
+          "claim": "The header length per version ([[0,249],[1,257],[2,257]]) and the zero versioned hash agree across Solidity and Go (the values are already recorded in the I17 and I18 documents).",
+          "check": "tests_m2/test_coverage.py::TestLink::test_header_lengths_and_the_zero_versioned_hash_agree_across_languages"
+        },
+        {
+          "id": "I19-R2",
+          "claim": "Gates M0, M1 and M2 pass; G8 passes on M2; no record says pending:I19.",
+          "check": "gate and tests_m2/test_coverage.py::TestRecordsAndGate"
+        },
+        {
+          "id": "I19-R3",
+          "claim": "Construction: the extraction and the coverage report are byte-identical across runs and equal the committed files.",
+          "check": "tests_m2/test_extract_transitions.py::TestMorph::test_extraction_is_deterministic_and_matches_the_committed_file and tests_m2/test_coverage.py::TestCoverage::test_coverage_cli_reproduces_the_report"
+        },
+        {
+          "id": "I19-R4",
+          "claim": "Construction: the planted toy contract extracts exactly as constructed.",
+          "check": "tests_m2/test_extract_transitions.py::TestToy"
+        },
+        {
+          "id": "I19-R5",
+          "claim": "M0, M1 and M2 statements and statuses are unchanged; gen/M0 and gen/M1 are byte-identical.",
+          "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged"
+        }
+      ],
+      "outcome_paths": [
+        "spec/M2/facts/morph_rollup.extracted.json",
+        "gen/M2/coverage.json",
+        "gen/M2/link.json"
+      ],
+      "tests": [
+        "tests_m2/test_extract_transitions.py",
+        "tests_m2/test_coverage.py"
+      ],
+      "thresholds": {}
     }
   }
 }
