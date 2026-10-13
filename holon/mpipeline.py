@@ -625,6 +625,16 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         if only is not None and lid not in only:
             continue
         sid = site_law(law) if m2plus(milestone) else None   # a SORT-site law (I15)
+        if m2plus(milestone) and law.get("rule") == "SORT" and law.get("subform") == "width":
+            # a SORT-width law over an extracted document (I20): decided by holon.sorts.width, never by the machine
+            from .sorts import width as WD
+            fp = fpath_of(law)
+            rec = WD.record(law, milestone, ROOT, kver, R.law_hash(law, F.load(fp), root=ROOT), F.sha256_file(fp))
+            (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
+            summary[lid] = rec["status"]
+            oracles_of[lid] = None
+            log(f"{lid:22s} {rec['status']:8s} {'not_run':8s} {rec['triage']}")
+            continue
         cm, model_src, imp0, facts_sha = machine_for(law)
         d = gen / lid
         ld, pd, up = layout(milestone, gen, lid)   # I10: d for M0 and M1

@@ -156,6 +156,8 @@ class _Closure:
         self.tmpl("action")
         if a is None:
             return
+        if isinstance(a.get("effects"), list):   # an extracted transitions document (I20): the action as stated is the ref
+            return
         self.sig()
         for g in a.get("guards", []):
             self.expr(g.get("require", g.get("expr")))
@@ -330,8 +332,25 @@ class _Closure:
             self.term(t["on"])
             self.term(t["from"])
             return
+        if isinstance(t.get("width_site"), str) and "on" in t and "from" in t:   # a SORT-width term (I20)
+            self.width(t["width_site"])
+            self.term(t["on"])
+            self.term(t["from"])
+            return
         for v in t.values():
             self.term(v)
+
+    def width(self, sid: str) -> None:
+        """width:<ID>: the width site's spec (holon.sorts.width.width_ref: the store, its field and widths, its entry
+        points), and the entry points' actions as the extracted document states them (A_<name>)."""
+        if "width:" + sid in self.out:
+            return
+        from ..sorts.width import width_ref
+        spec = width_ref(sid, self.law, self.root)
+        self.out["width:" + sid] = _h(spec)
+        acts = {a.get("name"): a for a in self.f.get("actions") or [] if isinstance(a, dict)}
+        for n in spec.get("entry_points") or []:
+            self.put("A_" + n, strip_meta(acts.get(n)) if n in acts else None)
 
     def site(self, sid: str) -> None:
         """site:<ID>: the site's spec (holon.sorts.sites.site_ref), from the facts, their library and the sidecar."""
