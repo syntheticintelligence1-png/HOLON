@@ -456,6 +456,13 @@ def main_model(args) -> int:
     oracle parameters; with --out, write <DIR>/<model>.bend."""
     cfg = bend.config(ROOT)
     fp = (ROOT / args.facts) if not Path(args.facts).is_absolute() else Path(args.facts)
+    try:
+        doc = json.loads(fp.read_text())
+    except (OSError, ValueError):
+        doc = None
+    from . import machine as extracted_machine
+    if extracted_machine.is_transitions(doc):   # an extracted transitions document (I20): the raw-family model
+        return extracted_machine.main_model(args)
     cm = milestone_model(args.milestone, fp, cfg)
     r = bend.check(cm.source, cfg)
     print(f"model {cm.source}")
