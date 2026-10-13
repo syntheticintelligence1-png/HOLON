@@ -116,7 +116,13 @@ def compute(milestone: str, root: Path = ROOT, results: Path | None = None) -> d
                            "at its pre-fix commit (§13 corpus; BUILD_PLAN I48, I51); this milestone has none",
         "precision": "needs adjudicated findings split into true defects, intended asymmetries and model defects "
                      "(BUILD_PLAN I51, I53); the records' filter_bin is provisional (I4)",
-        "certificate_coverage": "every record's coverage field is still pending:I19 (BUILD_PLAN I19 fills it)",
+        "certificate_coverage": (
+            "no record has a coverage entry: every law's facts document is hand-written, so its coverage is null "
+            "(holon.records.coverage_field, I19) and no certificate is about an extracted document yet (BUILD_PLAN "
+            "I20 adopts the extracted rollup facts)" if not any(isinstance(r.get("coverage"), dict)
+                                                               for r in recs.values()) else
+            f"{sum(isinstance(r.get('coverage'), dict) for r in recs.values())} records carry a coverage entry "
+            "(gen/<M>/coverage.json); the share of covered code elements is not computed yet"),
         "unknown_calibration": "the UNKNOWN rate's calibration is measured on unsolved controls (BUILD_PLAN I48, I53); "
                                "this milestone has none",
         "mutation_adequacy": "A1 mutation adequacy on real code is BUILD_PLAN I22 (blocked by Q6); the M0/M1 "

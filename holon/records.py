@@ -13,8 +13,9 @@ and witness, and G7 re-checks it from scratch.
 
 plus the cone of the law, its model_assumptions, the generator hash and the fields later
 iterations fill: non_vacuity (I3), witness_provenance / filter_bin (I4, from the replay
-report through holon.filter) and refinement_refs (I16, refinement_refs below) are filled; coverage
-(I19) is still pending. A pending field holds "pending:I<n>", never a made-up value.
+report through holon.filter), refinement_refs (I16, refinement_refs below) and coverage (I19, coverage_field:
+null unless the law's facts document is an extracted one) are filled. A pending field holds "pending:I<n>", never a
+made-up value; no field is pending since I19.
 
 refinement_refs (Def 4.7, §8.6 "the refinement records of the edges used") is the sorted list of
   * "results/M2/refinement/<edge>.json" for every per-edge refinement record (holon.refinement) of the
@@ -437,12 +438,30 @@ def v2_fields(law: dict, rec: dict, statement_text: str, model_path: Path, base_
         "kernels": kernels(rec, lean_entry),
         "independence_class": independence_class(rec, lean_entry),
         "refinement_refs": refinement_refs(law, set(c), root),
-        "coverage": "pending:I19",
+        "coverage": coverage_field(law, root),
         "non_vacuity": None,  # set by the pipeline from holon.inhabit (I3)
         "witness_provenance": wp,
         "filter_bin": fb,
         **evidence_fields(law, rec, root),
     }
+
+
+def coverage_field(law: dict, root: Path | str = ROOT) -> dict | None:
+    """I19 (§8.6 coverage; holon.coverage): {"document", "debt", "unaccounted"} for an M2+ law whose facts document is
+    an extracted document (*.extracted.json), the numbers of debt entries and unaccounted statements of that document
+    in the committed report gen/<milestone>/coverage.json; null for every other law (hand-written facts: M0, M1 and,
+    until I20 adopts an extracted document, M2). A law over an extracted document that the report does not list is an
+    error: run `python -m holon coverage` first."""
+    facts = law.get("facts")
+    if law.get("milestone") in ("M0", "M1") or not isinstance(facts, str) or not facts.endswith(".extracted.json"):
+        return None
+    rp = Path(root) / "gen" / law["milestone"] / "coverage.json"
+    rep = json.loads(rp.read_text()) if rp.exists() else {"documents": []}
+    for d in rep.get("documents", []):
+        if d.get("document") == facts:
+            return {"document": facts, "debt": len(d["debt"]), "unaccounted": len(d["unaccounted"])}
+    raise ValueError(f"{law.get('law_id')}: its facts document {facts} has no entry in "
+                     f"gen/{law['milestone']}/coverage.json (python -m holon coverage --milestone {law['milestone']})")
 
 
 def evidence_fields(law: dict, rec: dict, root: Path | str = ROOT) -> dict:

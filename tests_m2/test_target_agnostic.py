@@ -65,6 +65,9 @@ def norm_record(f: Path, b: bytes) -> bytes:
     # every other field is compared as before
     if isinstance(rec.get("refinement_refs"), list):
         rec["refinement_refs"] = "pending:I16"
+    # I19 fills coverage: a filled coverage (null or an object) is compared as its pinned pre-I19 value "pending:I19"
+    if "coverage" in rec and (rec["coverage"] is None or isinstance(rec["coverage"], dict)):
+        rec["coverage"] = "pending:I19"
     # I9 adds a checked lean4 kernel entry, which earns I2; without it the record is exactly the pinned one
     lean = [k for k in rec.get("kernels", []) if k.get("name") == "lean4"]
     if lean:

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "HOLON result record v2 (additive to the frozen schemas/result_record.schema.json)",
-  "description": "One field per whitepaper §8.6 item: status, statement_hash (law hash), model_sha256 (model hash), premises, scope_v2, kernels, independence_class, refinement_refs, replay (witness replay status), coverage. A field a later iteration fills holds the constant 'pending:I<n>'; that iteration replaces the constant here and asserts the removal in its own test (non_vacuity: filled by I3; refinement_refs: filled by I16).",
+  "description": "One field per whitepaper §8.6 item: status, statement_hash (law hash), model_sha256 (model hash), premises, scope_v2, kernels, independence_class, refinement_refs, replay (witness replay status), coverage. A field a later iteration fills holds the constant 'pending:I<n>'; that iteration replaces the constant here and asserts the removal in its own test (non_vacuity: filled by I3; refinement_refs: filled by I16; coverage: filled by I19, so no field is pending).",
   "type": "object",
   "required": ["law_id", "statement_hash", "facts_sha256", "status", "premises", "replay", "record_version", "model_sha256",
                "compiled_sha256", "generator_sha256", "cone", "ledger_match", "model_assumptions", "scope_v2", "kernels", "independence_class",
@@ -67,7 +67,11 @@
                         "description": "I16: the refinement records of the edges the cone uses (holon.records.refinement_refs): per-edge records under results/M2/refinement/ and trace-corpus per_action entries of replay/<m>/report.json. 'pending:I16' is no longer accepted.",
                         "items": {"type": "string",
                                   "pattern": "^(results/M2/refinement/[A-Za-z0-9_]+\\.json|replay/M[0-9]+/report\\.json#/refinement/per_action/[A-Za-z0-9_]+)$"}},
-    "coverage": {"const": "pending:I19"},
+    "coverage": {"oneOf": [{"type": "null"},
+                           {"type": "object", "required": ["document", "debt", "unaccounted"], "additionalProperties": false,
+                            "properties": {"document": {"type": "string", "pattern": "^spec/M[0-9]+/facts/[A-Za-z0-9_.]+\\.extracted\\.json$"},
+                                           "debt": {"type": "integer"}, "unaccounted": {"type": "integer"}}}],
+                 "description": "I19 (holon.records.coverage_field): for an M2+ law whose facts document is an extracted document, its numbers of debt entries and unaccounted statements in gen/<milestone>/coverage.json; null otherwise. 'pending:I19' is no longer accepted."},
     "non_vacuity": {
       "type": "object",
       "required": ["status", "law", "witness", "reachable", "degenerate", "parent_statement_hash", "bound"],
