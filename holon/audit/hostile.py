@@ -14,7 +14,7 @@ from there. The real code runs in scratch copies of the pinned checkout (nothing
 harness sources of audit/rounds/M2/round2/harness/ copied in. The model side is only the extracted documents of the
 target tree (spec/M2/facts/*.extracted.json, whose path conditions are evaluated here term by term) and the compiled
 models (holon.model_eval for the frozen header facts; holon.mpipeline's compiled machine for the batch-data facts;
-I20's extracted rollup model through holon.replay_fragments). tests/reference/ is never read (AGENTS rule 5).
+I20's extracted rollup model through holon.replay_fragments). The test oracle is never read (AGENTS rule 5).
 Nothing here names the target: names come from the sidecar, the documents, the compiled artifacts and the harnesses.
 
 Surfaces (sidecar "surfaces"; the sidecar's corpora are minimums):
