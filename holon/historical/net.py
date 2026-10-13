@@ -7,6 +7,7 @@ every secret value before they are raised (`scrub`).
 """
 from __future__ import annotations
 
+import http.client
 import json
 import os
 import random
@@ -133,7 +134,8 @@ class Http:
                 retry_after = float(ra) if ra and ra.isdigit() else None
                 last = f"HTTP {e.code}: {data[:200]!r}"
                 pacer.limited(retry_after)
-            except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as e:
+            except (urllib.error.URLError, TimeoutError, ConnectionError, OSError, http.client.HTTPException) as e:
+                # HTTPException covers a body cut off mid-read (IncompleteRead) or a garbled status line
                 last = f"{type(e).__name__}: {e}"
                 pacer.limited()
             if attempt < self.retries:
