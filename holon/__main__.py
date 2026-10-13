@@ -23,6 +23,8 @@
   python -m holon metrics --milestone M [--root DIR]    (results/<M>/metrics.json, I16)
   python -m holon extract <frontend> ...                (fact extraction, holon-facts/0.3; I17 solidity, I18 go)
   python -m holon extract solidity [--milestone M2] [--sidecar PATH] [--root DIR] [--source DIR] [--out PATH] [--check]
+  python -m holon coverage --milestone M2 [--root DIR] [--out PATH] [--check]   (gen/M2/coverage.json, G8; I19)
+  python -m holon link --milestone M2 [--root DIR] [--out PATH] [--check]       (gen/M2/link.json; I19)
 """
 from __future__ import annotations
 
@@ -54,6 +56,12 @@ def main(argv=None) -> int:
     if argv[:1] == ["extract"]:  # likewise for holon.frontends (the frontend named by the next argument, I17)
         from . import frontends
         return frontends.main(argv[1:])
+    if argv[:1] == ["coverage"]:  # likewise for holon.coverage (I19)
+        from . import coverage
+        return coverage.main(argv[1:])
+    if argv[:1] == ["link"]:  # likewise for holon.frontends.link (I19)
+        from .frontends import link
+        return link.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
