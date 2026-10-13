@@ -1,0 +1,85 @@
+{
+  "doc": "Audit round M2/2, auditor A4: the round's binding of each key of results/M2/hypotheses.json to an implementation of its real oracle and a check (holon/audit/vacuity.py). A tested hypothesis runs harness items (go: audit/rounds/M2/round2/harness/go/holon_vacuity_test.go, the JSON key of its input; solidity: harness/solidity/HolonVacuity.t.sol, its HOLON_VACUITY_ITEM) on inputs holon/audit/vacuity.py generates from the fields below, and the check judges the outputs: cf (pairwise different images on the fixed sample of the parameter's domain, spec/M2/lib/oracles.json), cf_agree (in-domain headers: both sides accept, their hashes agree and are pairwise different), equal (every value named equals the computed one), queue_append (every successful call grows the queue by exactly one message at the previous next index, a reverted one by none), registry (after every step of every operation sequence, isActive holds exactly when the stake is nonzero and no slash happened, and the deposit keeps its initial value), roundtrip (every encoding the codec produces decodes and re-encodes to itself), padded_decode (Dec(Enc x ++ 0^k) = x for every x Enc accepts). An untestable hypothesis names what is missing. The implementations are the pinned checkout's code (3e44e79), its Go module graph and the EVM; nothing of holon/ or tests/.",
+  "hypotheses": {
+    "CF-agg": {
+      "verdict": "tested",
+      "check": "cf",
+      "run": {"item": "keccak_words"},
+      "implementation": "the EVM's KECCAK256 over abi.encodePacked of the 32-byte words (solc 0.8.24 and forge at the pinned toolchain): the opcode Rollup._computeBlobVersionedHash applies to the blob hashes of a version 2 batch (contracts/contracts/l1/rollup/Rollup.sol:891-912)",
+      "test": "CF(agg, S) on the fixed 273-value sample of List<Nat> (the empty list, 16 singletons, 256 pairs of 0..15, each a list of 32-byte words): the 273 images are pairwise different"
+    },
+    "CF-hdr": {
+      "verdict": "tested",
+      "check": "cf_agree",
+      "inputs": {"lengths": {"0": 249, "1": 257, "2": 257}, "per_version": 256},
+      "runs": {"solidity": "header_hash", "go": "header_hash"},
+      "implementation": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol computeBatchHash after BatchHeaderCodecV0/V1.loadAndValidate (the loading and hashing Rollup._loadBatchHeader performs; EVM KECCAK256) and morph-l2/common/batch (BatchHeaderBytes).Hash (go-ethereum crypto.Keccak256Hash of the pinned module graph)",
+      "test": "CF(hdr_hash, S) on 768 in-domain headers (256 each of version 0 with 249 bytes, version 1 and version 2 with 257 bytes; bodies from the round's seeded sha256 chain): both sides accept every header, their batch hashes agree, and the 768 hashes are pairwise different"
+    },
+    "Hyp-ISubmitter": {
+      "verdict": "tested",
+      "check": "registry",
+      "inputs": {"ops": 8, "max_length": 3, "initial_deposit": "100000000000000000",
+                 "names": ["addSubmitter", "stake", "setMinimumStake(+1 ether)", "updateChallengeDeposit(+1)", "withdraw", "removeSubmitter", "slash (by the rollup)", "claimWithdrawal"]},
+      "runs": {"solidity": "submitter"},
+      "implementation": "contracts/contracts/l1/rollup/Submitter.sol (behind a TransparentUpgradeableProxy, initialized with minimumStake 1 ether, challengeDeposit 0.1 ether, rewardPercentage 50; its rollup is a stand-in with code that reports batch indices 0 and calls slash)",
+      "test": "every sequence of 1 to 3 of its 8 public operations on one submitter (584 sequences, breadth-first), observed after every step: isActive(s) holds exactly when stakeOf(s) > 0 and s was not slashed, and challengeDeposit() keeps its initial value; a slash (the rollup's _challengerWin) deactivates"
+    },
+    "Hyp-Z0-kzg": {
+      "verdict": "tested",
+      "check": "equal",
+      "runs": {"go": "zero_blob"},
+      "sources": [{"path": "contracts/contracts/l1/rollup/Rollup.sol", "name": "ZERO_VERSIONED_HASH"}],
+      "implementation": "github.com/morph-l2/go-ethereum crypto/kzg4844 (BlobToCommitment, CalcBlobHashV1 with sha256) of the pinned Go module graph",
+      "test": "the KZG versioned hash of the all-zero blob, computed, equals common/blob EmptyVersionedHash (Go) and the ZERO_VERSIONED_HASH literal of Rollup.sol"
+    },
+    "Hyp-messenger": {
+      "verdict": "tested",
+      "check": "queue_append",
+      "inputs": {"targets": ["0x000000000000000000000000000000000000bEEF", "0x0000000000000000000000000000000000000000"],
+                 "values": [0, 1, 1000000000000000000],
+                 "messages": ["0x", "0x01", "0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324252627282930313233343536373839404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f60616263"],
+                 "gas_limits": [0, 21000, 1000000, 10000000, 10000001]},
+      "runs": {"solidity": "messenger"},
+      "implementation": "contracts/contracts/l1/L1CrossDomainMessenger.sol with contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol (both behind TransparentUpgradeableProxy, wired to each other; maxGasLimit 10,000,000; a contracts/contracts/libraries/common/Whitelist.sol with no entry; l2BaseFee 0)",
+      "test": "90 sendMessage calls in order (2 targets x 3 values x 3 messages x 5 gas limits), msg.value = value: each successful call grows nextCrossDomainMessageIndex by exactly 1 and the queue emits exactly one QueueTransaction, whose queueIndex is the index before the call; a reverted call enqueues nothing"
+    },
+    "HypC": {
+      "verdict": "untestable",
+      "reason": "no implementation of the zkEVM circuits or of a prover runs here: the pinned checkout holds only the verifier contracts, and a valid aggregate proof for any batch cannot be produced (the circuits live outside the pinned checkout)"
+    },
+    "HypF": {
+      "verdict": "untestable",
+      "reason": "the node's L1 fetcher reads an L1 execution endpoint and a beacon endpoint over RPC; none runs here (I59's snapshot holds the committed calldata and blobs, not a fetcher to compare them with)"
+    },
+    "HypP": {
+      "verdict": "untestable",
+      "reason": "no L2 chain runs here: the predeploys exist only in an L2 genesis state, and the hypothesis names no checkable property of them (its record, spec/M2/lib/oracles.json, states none)"
+    },
+    "HypSeal": {
+      "verdict": "untestable",
+      "reason": "the sequencer's sealing loop runs only inside a running L2 node (consensus and block production); no such node runs here"
+    },
+    "HypT": {
+      "verdict": "tested",
+      "check": "roundtrip",
+      "runs": {"go": "tx"},
+      "implementation": "github.com/morph-l2/go-ethereum core/types (Transaction.MarshalBinary and UnmarshalBinary) of the pinned Go module graph",
+      "test": "every transaction type (legacy, access list, dynamic fee, blob, L1 message, and the Morph type in versions 0 and 1 with every fee token, reference and memo variant), unsigned and signed, with 0, 1 and 100 data bytes and with and without a recipient: every encoding the codec produces decodes, and re-encodes to the same bytes with the same hash"
+    },
+    "HypV-proof1": {
+      "verdict": "untestable",
+      "reason": "the hypothesis is the stand-in's rule on proof tokens (proof 1 accepted, proof 2 rejected); the real verifier (contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol and the zkEVM verifiers) takes proof bytes, and no valid aggregate proof for any public input can be produced here (no prover), so token 1 has no real counterpart to run"
+    },
+    "HypZ": {
+      "verdict": "tested",
+      "check": "padded_decode",
+      "inputs": {"lengths": [0, 1, 2, 31, 32, 33, 100, 1000, 4096, 50000, 120000],
+                 "contents": ["chain", "zeros", "ramp"],
+                 "pads": [0, 1, 32, 1000, 131072]},
+      "runs": {"go": "codec"},
+      "implementation": "morph-l2/common/codec/zstd CompressBatchBytes and DecompressBatchBytes (github.com/morph-l2/morph-da-codec bindings of the pinned Go module graph), the codec ParseBatch decodes blob payloads with",
+      "test": "Dec(Enc x ++ 0^k) = x for 33 payloads x (11 lengths from 0 to 120000 bytes, each seeded-random, all zeros and a byte ramp) and k in {0, 1, 32, 1000, 131072}: decoding succeeds and returns x exactly"
+    }
+  }
+}
