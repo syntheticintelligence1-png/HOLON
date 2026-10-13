@@ -1,0 +1,33 @@
+{
+ "abstract": {
+  "doc": "Abstract rows are the M1 trace harness's step encoding (holon.mreplay.encode_step) of these facts' actions; the M1 refinement corpus and the I15 witnesses are written in them.",
+  "facts": "spec/M1/facts/morph_rollup.json"
+ },
+ "doc": "Binding of the I20 refinement of the extracted rollup document (holon/replay_fragments.py): the generic step harness on the real Rollup at the pinned commit, deployed as the M1 trace harness deploys it.",
+ "facts": "spec/M2/facts/morph_rollup.extracted.json",
+ "harness": {
+  "contract": "HolonExtractedStepTest",
+  "files": [
+   "replay/M2/solidity/HolonStepBase.sol",
+   "replay/M1/solidity/HolonTraceReplay.t.sol",
+   "replay/M2/solidity/HolonExtractedStep.t.sol"
+  ],
+  "last_contract": "HolonExtractedLastTest"
+ },
+ "init": {
+  "doc": "holonDeploy's [F, W, D, t0, r0]: the M1 facts' initial state, as holon.mreplay.run_forge passes it",
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "keys": ["F", "W", "D", "t", "fsr.0"]
+ },
+ "project": {
+  "doc": "the scratch project mirrors the checkout's contracts/ Foundry tree, so a project path p is the document unit contracts/p",
+  "drop": ["mock", "test"],
+  "foundry_dir": "contracts",
+  "kind": "checkout",
+  "unit_prefix": "contracts/"
+ },
+ "target": {
+  "contract": "Rollup",
+  "source": "contracts/l1/rollup/Rollup.sol"
+ }
+}
