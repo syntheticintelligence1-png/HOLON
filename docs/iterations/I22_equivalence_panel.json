@@ -1,0 +1,1007 @@
+{
+ "adjudication_version": "holon-equivalent-mutants/0.1",
+ "mutants_sha256": "37e91910afde0955a0de040dd88750ae7bdaab1c3e9c19eec28267ab82bf4272",
+ "diff_sheet_sha256": "9b366e7a3e2d69d1c86d6d3190c713e482dffa3fa16e1d88a26de474b96745c9",
+ "adjudicator": "human",
+ "catalog_signed_off": false,
+ "delegation": {
+  "decision": "The human did not read the diffs. On 2026-10-13 they asked for the equivalence verdicts to come from fresh agents with no context instead. 'adjudicator' stays 'human' because the frozen contract requires it and the human owns the decision; every verdict below is the panel's. The catalog sign-off is the human's own.",
+  "panel": "Fresh workflow agents with no conversation context (run wf_4bf90e2a-17a). Each saw only a blind folder: the diff sheet trimmed to the equivalence definition, the operator list and the 110 mutant sections (byte-identical to the frozen sheet's sections; trimmed sheet sha256 66f07640ce5629ec02bcdd1bda100ac791871680a91ac0578a259670238b9324), and the pinned source (morph-l2/morph 3e44e795: contracts/contracts with its OpenZeppelin imports, and common/). They never saw the predictions, the prompt, the tests, the threshold or any result.",
+  "procedure": "Per file group (codec libraries 31, Rollup.sol 33, batch_header.go 46): two independent judges, one reasoning from the source and one building distinguishing scenarios (it ran every Go mutant against the original). Then one adversarial refuter attacked every mutant that either judge called equivalent. The rule, fixed before the run: a mutant is equivalent iff the refuter confirms it; disagreement or doubt means not equivalent.",
+  "blindness_audit": "Every tool call of the 8 panel agents was scanned for paths outside the blind folder. None was read. The only outside paths touched were the Go toolchain and module cache.",
+  "outcome": "2 equivalent (M057, M058); 108 not equivalent. M018: both judges said equivalent, but the refuter showed their premise was false (the BatchHeaderCodecTest mock compiles and is exercised by the repo's tests), so it counts as not equivalent."
+ },
+ "verdicts": {
+  "M001": {
+   "equivalent": false,
+   "reason": "storeBatchIndex (V0.sol:144), called at Rollup.sol:343, writes the index at header bytes 0..7 instead of 1..8. That puts idx>>56 over the version byte and leaves byte 8 as 0. Witness: after importGenesisBatch, commitBatch for batch 1 gives a header differing at bytes 7-8 (byte 0 too for version 1), so committedBatches[1] and the CommitBatch batchHash differ (simulated in work/adj-codec-witness/sim.py).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M002": {
+   "equivalent": false,
+   "reason": "storeBatchIndex at offset 2 shifts the index one byte right. Its low byte lands at byte 9, which storeL1MessagePopped then overwrites, and byte 1 keeps stale memory. For any commit of batch 1 the batchIndex field is no longer 1 (byte 8 differs), so the keccak stored in committedBatches[1] and the CommitBatch event data differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M003": {
+   "equivalent": false,
+   "reason": "storeL1MessagePopped at offset 8 overwrites byte 8 (low byte of batchIndex) with 0 and shifts numL1Messages one byte left. Committing batch 1 with numL1Messages=0 already changes header byte 8 (0x01 becomes 0x00), so committedBatches[1] and the CommitBatch hash differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M004": {
+   "equivalent": false,
+   "reason": "storeL1MessagePopped at offset 10 stores numL1Messages>>8, because its low byte at offset 17 is then overwritten by the total store. This only matches the original when numL1Messages=0. A commitBatch with numL1Messages=1 (one message queued via the messenger) gives header byte 16 = 0x00 instead of 0x01, so committedBatches[1] and the event hash differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M005": {
+   "equivalent": false,
+   "reason": "storeTotalL1MessagePopped at offset 16 overwrites the low byte of l1MessagePopped and shifts total left by a byte (byte 24 becomes 0). Committing batch 1 with numL1Messages=1 (total=1), or with a genesis header whose total is nonzero, changes header bytes 16/23/24, so committedBatches[1] differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M006": {
+   "equivalent": false,
+   "reason": "storeTotalL1MessagePopped at offset 18 stores total>>8, since its low byte at 25 is overwritten by dataHash and byte 17 stays 0. With total>=1 (one L1 message popped, or a genesis header with nonzero total) header byte 24 differs, so committedBatches[i] and the CommitBatch hash differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M007": {
+   "equivalent": false,
+   "reason": "storeDataHash at offset 24 overwrites the low byte of total, shifts the 32-byte dataHash one byte left and leaves byte 56 as stale memory. dataHash is a nonzero keccak, so every commit's header differs at bytes 24..56 and the stored batch hash differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M008": {
+   "equivalent": false,
+   "reason": "storeDataHash at offset 26 leaves byte 25 = 0 and loses the last dataHash byte under the blob hash store at 57. For any commit the header field reads 0||d[0..30] instead of the nonzero keccak d, so committedBatches[i] and the CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M009": {
+   "equivalent": false,
+   "reason": "storeBlobVersionedHash at offset 56 overwrites the last dataHash byte and shifts the versioned hash left, leaving byte 88 stale. With ZERO_VERSIONED_HASH (0x0106...), header byte 57 becomes 0x06 instead of 0x01 on every commit, so the stored batch hash differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M010": {
+   "equivalent": false,
+   "reason": "storeBlobVersionedHash at offset 58 leaves byte 57 unwritten and loses the last versioned-hash byte under prevStateHash at 89. Any commit (blob hash 0x0106... is nonzero) yields a different header from byte 57 on, so committedBatches[i] differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M011": {
+   "equivalent": false,
+   "reason": "storePrevStateHash at offset 88 overwrites the last blob-hash byte and shifts prevStateRoot left. prevStateRoot is required nonzero (Rollup.sol:294), so the header always differs around bytes 88..120 and the stored batch hash and CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M012": {
+   "equivalent": false,
+   "reason": "storePrevStateHash at offset 90 stores 0||prev[0..30], because its last byte is overwritten by postStateHash at 121. That equals the original only for prev=0, which Rollup.sol:294 forbids, so every commit's batch hash differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M013": {
+   "equivalent": false,
+   "reason": "storePostStateHash at offset 120 overwrites the last prevStateRoot byte and shifts postStateRoot left. postStateRoot is required nonzero (Rollup.sol:295), so every commit's header and its stored hash in committedBatches differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M014": {
+   "equivalent": false,
+   "reason": "storePostStateHash at offset 122 stores 0||post[0..30], because its last byte is overwritten by withdrawRootHash at 153. postStateRoot is nonzero by Rollup.sol:295, so every commit's header and batch hash differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M015": {
+   "equivalent": false,
+   "reason": "storeWithdrawRootHash at offset 152 overwrites the last postStateRoot byte and shifts withdrawalRoot left. Committing with any nonzero withdrawalRoot (an unchecked submitter input) changes header bytes 152..184, so committedBatches[i] differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M016": {
+   "equivalent": false,
+   "reason": "storeWithdrawRootHash at offset 154 leaves byte 153 unwritten and loses the last root byte under the sequencer-hash store at 185, so the field becomes 0||w[0..30]. With withdrawalRoot=...01, header byte 184 is 0x00 instead of 0x01 and the stored batch hash differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M017": {
+   "equivalent": false,
+   "reason": "storeSequencerSetVerifyHash(0) at offset 184 zeroes byte 184, the last withdrawalRoot byte. Byte 216 stays 0 because that memory is fresh. Committing with a withdrawalRoot whose low byte is nonzero (e.g. ...01) gives a different header, so committedBatches[i] and the CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M018": {
+   "equivalent": false,
+   "reason": "Not equivalent. Both judges set aside the only other caller with a false claim. contracts/mock/BatchHeaderCodecTest.sol does compile: its struct BatchHeaderData declares `bytes32 parentBatchHash;` at line 31, so `data.parentBatchHash` at line 113 resolves. The repo also uses it: contracts/test/base/BatchHeaderCodeV0.t.sol:16 deploys `new BatchHeaderCodecTest()`, and lines 107-122 call `computeBatchHashWithData` and assert the result.\n\nDistinguishing scenario: deploy BatchHeaderCodecTest and call `computeBatchHashWithData(data)` with the test's own data (version 0, batchIndex 1, dataHash 0x2463..fb51, blob 0x0106..4014, prev = post = 1, withdrawRoot 4, sequencerSetVerifyHash 0xf1f58308..a1b067, parentBatchHash 0x5db19913..77623c). The function takes `_batchPtr = mload(0x40)` (=0x80) on fresh memory, because the calldata struct needs no memory decoding, and passes the caller-controlled sequencerSetVerifyHash to the mutated store at line 112. In the original, header bytes 185..216 hold the hash. In the mutant, byte 185 stays 0, bytes 186..216 hold hash bytes 0..30, and byte 217 is overwritten by parentBatchHash.\n\nI ran a Go simulation of the exact mstore sequence plus keccak256 over 249 bytes (work/ref-codec/common/m018sim/sim_test.go):\n- original return value: 0xf14fe204d280f7483ae29385d880e7ba7a8a715c3450004da41cf82bfdd8415d. This matches the hash the repo test asserts, which confirms the simulation is faithful.\n- mutant return value: 0xc8ff0eb190a646ce2ff96ebe338d82c1edf4225bcc24ae9e49e5338868ab207a.\nSo the return data differs, and the repo's own test_btach_decode1 would fail on the mutant. Any non-zero sequencerSetVerifyHash gives a difference.\n\nRollup and MockRollup on their own: I found no distinguishing scenario, and the judges' memory argument holds. Rollup.sol:351 stores bytes32(0). newBatchPtr is the free pointer after _commitBatch (Rollup.sol:337). The free pointer only grows (loadAndValidate bumps it by the exact length, _commitBatch reserves 10+32n bytes, the V2 blob scratch bumps after writing, and ABIv2 external calls with returns bump it by the rounded returndatasize). The only writes above the free pointer are external-call encodings and outputs of at most 36 bytes, plus the _commitBatch prelude reaching F+39 below newBatchPtr. So newBatchPtr+185 is untouched, still-zero memory in commitBatch, commitState and commitBatchWithProof; the simulation with seq=0 gives the same hash for both. Equivalence would hold only if the scope were limited to Rollup's bytecode. The sheet and task say library code is reached through its callers, and BatchHeaderCodecTest is a compiling caller with a public entry point, so the verdict is NOT equivalent.",
+   "panel": {
+    "source_judge": true,
+    "witness_judge": true,
+    "refuter_confirmed": false
+   }
+  },
+  "M019": {
+   "equivalent": false,
+   "reason": "storeParentBatchHash at offset 216 shifts the 32-byte parent hash one byte left and leaves byte 248 as fresh 0. The parent hash is a nonzero keccak, so every commit's header differs at 216..248 and committedBatches[i] differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M020": {
+   "equivalent": false,
+   "reason": "storeParentBatchHash at offset 218 leaves byte 217 as 0 and stores h[0..30] in 218..248; for V0 the last byte falls outside the 249-byte header and for V1 it is overwritten by lastBlockNumber at 249. Since h is a nonzero keccak, every commit's batch hash differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M021": {
+   "equivalent": false,
+   "reason": "storeLastBlockNumber at offset 248 (version>=1 commits only) overwrites the last parent-hash byte and shifts the field left. A version-1 commitBatch with lastBlockNumber=1 changes header bytes 248, 255 and 256 of the 257-byte header, so committedBatches[i] and the CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M022": {
+   "equivalent": false,
+   "reason": "storeLastBlockNumber at offset 250 stores lastBlockNumber>>8 in bytes 249..256, with byte 249 as fresh 0 and the low byte past the 257-byte header. A version-1 commit with lastBlockNumber=1 gives header byte 256 = 0x00 instead of 0x01, so the stored batch hash differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M023": {
+   "equivalent": false,
+   "reason": "With shl(184) the batchIndex field becomes idx>>8, because the low byte lands at offset 9 and is overwritten by storeL1MessagePopped. Committing batch 1 writes index 0 into the header (byte 8 differs), so committedBatches[1] and the CommitBatch hash differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M024": {
+   "equivalent": false,
+   "reason": "With shl(200) the batchIndex field becomes (idx<<8) mod 2^64. Committing batch 1 encodes 256 instead of 1 (header bytes 7 and 8 differ), so committedBatches[1] and the CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M025": {
+   "equivalent": false,
+   "reason": "With shl(184) the l1MessagePopped field becomes numL1Messages>>8, which differs from the original whenever numL1Messages is nonzero. A commitBatch with numL1Messages=1 (one message queued via the messenger, read by getCrossDomainMessage) changes header byte 16, so committedBatches[i] differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M026": {
+   "equivalent": false,
+   "reason": "With shl(200) the l1MessagePopped field becomes (n<<8) mod 2^64. A commitBatch with numL1Messages=1 stores 256 in the header (bytes 15-16 differ), so committedBatches[i] and the CommitBatch hash differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M027": {
+   "equivalent": false,
+   "reason": "With shl(184) the totalL1MessagePopped field becomes total>>8. Committing with total>=1 (numL1Messages=1, or a genesis header whose total is nonzero, which importGenesisBatch does not check) changes header byte 24, so the stored batch hash differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M028": {
+   "equivalent": false,
+   "reason": "With shl(200) the totalL1MessagePopped field becomes (total<<8) mod 2^64. With total=1 the header encodes 256 (bytes 23-24 differ), so committedBatches[i] and the CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M029": {
+   "equivalent": false,
+   "reason": "With shl(184) the V1 lastBlockNumber field becomes lbn>>8, and its low byte falls past the 257-byte header. A version-1 commitBatch with lastBlockNumber=1 changes header byte 256, so committedBatches[i] differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M030": {
+   "equivalent": false,
+   "reason": "With shl(200) the V1 lastBlockNumber field becomes (lbn<<8) mod 2^64. A version-1 commitBatch with lastBlockNumber=1 encodes 256 (bytes 255-256 differ), so the stored batch hash and CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M031": {
+   "equivalent": false,
+   "reason": "Rollup.sol:871: lastBlockNumber is a validated uint64, so shl(184) puts it in bytes 1..8, and the store at dataPtr+8 then overwrites its last byte. With commitBatch(lastBlockNumber=1) the data hash preimage starts 00..00 instead of 00..01, so the dataHash, committedBatches[n+1] and the CommitBatch event hash all differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M032": {
+   "equivalent": false,
+   "reason": "Rollup.sol:871: shl(200) drops the top byte of lastBlockNumber and shifts the rest one byte left, leaving byte 7 zero. With commitBatch(lastBlockNumber=1) the first 8 preimage bytes become 00..0100 instead of 00..0001, so the dataHash, the stored batch hash and the CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M033": {
+   "equivalent": false,
+   "reason": "Rollup.sol:873: shl(232) writes numL1Messages one byte late, as [0, hi] instead of [hi, lo]. With one L1 message enqueued and commitBatch(numL1Messages=1), the preimage bytes 8..9 are 0000 instead of 0001, so the dataHash, committedBatches and the CommitBatch event differ. They agree only when numL1Messages=0.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M034": {
+   "equivalent": false,
+   "reason": "Rollup.sol:873: shl(248) keeps only the low byte, giving [lo, 0] instead of [hi, lo]. With commitBatch(numL1Messages=1) and a message in the queue, bytes 8..9 of the preimage are 0100 instead of 0001, so the dataHash, the stored batch hash and the CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M035": {
+   "equivalent": false,
+   "reason": "Rollup.sol:453: commit batch 1, challengeState(1), then owner revertBatch(header1,1). The original zeroes challenges[1]; the mutant leaves the challenger, deposit and startTime in storage, which the challenges(1) getter shows.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M036": {
+   "equivalent": false,
+   "reason": "Rollup.sol:580: after a challenge on batch k, owner calls setPause(true). The original deletes challenges[k]; the mutant keeps it, so the storage differs and batchInChallenge(k) still returns true.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M037": {
+   "equivalent": false,
+   "reason": "Rollup.sol:657: import genesis (batchDataStore[0]=(ts,ts,0,0)), commit batch 1, wait out the window, then finalizeBatch(header1). The original clears batchDataStore[0]; the mutant keeps it, so the getter and batchExist(0) differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M038": {
+   "equivalent": false,
+   "reason": "Rollup.sol:658: in the same genesis, commit 1, finalize 1 flow, the original deletes committedStateRoots[0] (set at import, line 245). The mutant keeps the state root, and committedStateRoots(0) returns it.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M039": {
+   "equivalent": false,
+   "reason": "Rollup.sol:659: in the genesis, commit 1, finalize 1 flow, the original deletes batchBlobVersionedHashes[0] (ZERO_VERSIONED_HASH, set at line 243). The mutant keeps it, and the getter differs.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M040": {
+   "equivalent": false,
+   "reason": "Rollup.sol:660: challenge batch 1 and defend it via proveState with an accepted proof (finished=true), then finalize 1 and finalize 2. The original deletes challenges[1]; the mutant leaves the challenger, deposit and finished flag in storage.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M041": {
+   "equivalent": false,
+   "reason": "Rollup.sol:312: after genesis and commit of batch 1, lastCommitted=1 and lastFinalized=0. commitBatch with parent=header1 passes in the original but reverts \"incorrect batch index\" in the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M042": {
+   "equivalent": false,
+   "reason": "Rollup.sol:389: genesis at T0, batch 1 committed at T0+d, no pending L1 message (so l1MsgQueueDelayed is false). At t=T0+d+1, commitBatchWithProof reverts \"invalid timing\" in the original, but in the mutant rollupDelay is true (it uses batch 0's timestamp T0), so the call proceeds and succeeds or reverts with different data.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M043": {
+   "equivalent": false,
+   "reason": "Rollup.sol:417: after _commitBatchWithBatchData, lastCommittedBatchIndex is the new index, which is greater than lastFinalizedBatchIndex. So calling commitBatchWithProof with the new batch's header passes this check and reaches the verifier in the original, but reverts \"incorrect batch header\" in the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M044": {
+   "equivalent": false,
+   "reason": "Rollup.sol:441: committed batch hashes exist only at indexes <= lastCommittedBatchIndex. So owner revertBatch(header1,1) after committing batch 1 succeeds in the original (RevertBatch event, slot cleared) but reverts \"can only revert unFinalized batch\" in the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M045": {
+   "equivalent": false,
+   "reason": "Rollup.sol:476: a challengeable batch must be committed, so batchIndex <= lastCommittedBatchIndex. A valid challengeState(1, hash1) with the deposit, inside the window, succeeds in the original but reverts \"batch already finalized\" in the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M046": {
+   "equivalent": false,
+   "reason": "Rollup.sol:489: the loop now runs from lastCommitted+1 to lastCommitted, so it never executes. With batches 1 and 2 committed, challengeState(1) adds proofWindow (>0) to batchDataStore[2].finalizeTimestamp in the original only.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M047": {
+   "equivalent": false,
+   "reason": "Rollup.sol:489: the loop bound is now lastFinalized, below the start lastFinalized+1, so the body never runs. With batches 1 and 2 committed, challengeState(1) extends batchDataStore[2].finalizeTimestamp by proofWindow only in the original.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M048": {
+   "equivalent": false,
+   "reason": "Rollup.sol:643: a finalizable batch is committed, so _batchIndex <= lastCommittedBatchIndex. finalizeBatch(header1) after the window succeeds in the original (FinalizeBatch event, lastFinalized=1) but reverts \"incorrect batch index\" in the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M049": {
+   "equivalent": false,
+   "reason": "V0.sol:32 changes from length>=249 to length>249, so an exactly 249-byte V0 header now reverts. Witness: the owner calls importGenesisBatch with a valid 249-byte V0 genesis header. The original succeeds, writing storage and emitting CommitBatch and FinalizeBatch; the mutant reverts with \"batch header length too small\".",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M050": {
+   "equivalent": false,
+   "reason": "Rollup.sol:265: >= 0 on a uint16 is always true. With an L1 message pending longer than rollupDelayPeriod, commitBatch(numL1Messages=0) reverts \"l1msg delay\" in the original, while the mutant commits the batch.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M051": {
+   "equivalent": false,
+   "reason": "Rollup.sol:283: commit batch 1, owner reverts it (its blob hash stays stored), then an L1 message stays pending past rollupDelayPeriod. commitState(numL1Messages=0) with no blob reverts \"l1msg delay\" in the original and succeeds in the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M052": {
+   "equivalent": false,
+   "reason": "Rollup.sol:333: for version 1 the mutant uses header length 249 instead of 257. commitBatch(version=1) stores keccak over 249 bytes instead of 257, so committedBatches[n+1] and the CommitBatch event differ.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M053": {
+   "equivalent": false,
+   "reason": "Rollup.sol:353: for version 1 the mutant skips storeLastBlockNumber. Header bytes 249..256 then hold whatever memory there contained, which does not depend on lastBlockNumber (likely zero), while the hash still covers 257 bytes. So commitBatch(version=1, lastBlockNumber=1) gives a different committedBatches hash and CommitBatch event.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M054": {
+   "equivalent": false,
+   "reason": "Rollup.sol:398: >= 0 is always true. With the last commit recent (rollupDelay false) and an L1 message pending past the delay, commitBatchWithProof(numL1Messages=0) reverts \"l1msg delay\" in the original. The mutant continues and either succeeds or reverts with a different reason.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M055": {
+   "equivalent": false,
+   "reason": "Rollup.sol:431: owner revertBatch(header1, 0) reverts with Error(\"count must be nonzero\") in the original. The mutant continues to line 439, where committedBatches[idx+0] is the nonzero hash, so it reverts with Error(\"reverting must start from the ending\"): different revert data.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M056": {
+   "equivalent": false,
+   "reason": "Rollup.sol:441: commit batch 1, finalize it, then owner revertBatch(header1, 1) (committedBatches[1] is still set and [2]==0). The original reverts \"can only revert unFinalized batch\". The mutant succeeds: it sets lastCommittedBatchIndex=0, clears committedBatches[1] and emits RevertBatch.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M057": {
+   "equivalent": true,
+   "reason": "I could not find a distinguishing scenario. For a uint256, `_count >= 0` is always true, so the mutant can only behave differently if the original's `_count > 0` is ever evaluated with _count==0. That would mean the loop ran all c iterations without hitting the break. It cannot. Rollup.sol:431 rejects c==0, and :439 uses checked arithmetic for b+c, so the sum cannot wrap, and it requires committedBatches[b+c]==0. Inside the loop (:444-467), the only storage writes are: zeroing committedBatches[_batchIndex] for indices b..b+c-1 (:447), batchChallengeReward and inChallenge (:450-451), `delete challenges` (:453) and revertReqIndex (:456). None of them writes a nonzero value into committedBatches. There are no external calls in the loop: batchInChallenge (:691-693) is a public view called internally, and emit makes no call. So nothing can reenter and refill committedBatches[b+c]. The unchecked increment (:460-461) cannot wrap, because _batchIndex stays at or below b+c, which is bounded. After iteration k (k=1..c), :463 reads committedBatches[b+k]. At the latest when k=c, it reads committedBatches[b+c]==0, and the break at :464-465 fires before the while condition is re-evaluated, possibly earlier. So every evaluation of the condition sees _count>=1, where both versions are true. The two versions follow the same path on every reachable state: same reverts, same events and same storage. Only gas could differ, and gas is not an observable.",
+   "panel": {
+    "source_judge": true,
+    "witness_judge": true,
+    "refuter_confirmed": true
+   }
+  },
+  "M058": {
+   "equivalent": true,
+   "reason": "I could not find a distinguishing scenario. The mutant's condition `revertReqIndex >= 0 && _batchIndex == revertReqIndex` reduces to `_batchIndex == revertReqIndex`. It differs from the original only when revertReqIndex==0 and _batchIndex==0. (1) This state is unreachable inside the loop. Rollup.sol:441 requires _batchIndex > lastFinalizedBatchIndex >= 0, so the first iteration has _batchIndex>=1. Each later iteration only increments it (:460), and it cannot wrap, because _batchIndex <= b+c and b+c is checked at :439. (2) Even if the state were reached, the mutant would write 0 into revertReqIndex, a uint256 at Rollup.sol:91 in its own slot, which already holds 0. Every storage slot would be unchanged. The branch emits no event and makes no call, and the return data and revert behaviour are identical. revertReqIndex is otherwise only set to batchIndex in _challengerWin (:804) and read in nonReqRevert (:132) and initialize4 (:214), so neither path is affected. Only gas could differ, and gas is not an observable.",
+   "panel": {
+    "source_judge": true,
+    "witness_judge": true,
+    "refuter_confirmed": true
+   }
+  },
+  "M059": {
+   "equivalent": false,
+   "reason": "Rollup.sol:483: challengeState(batch, hash) with msg.value exactly equal to ISubmitter.challengeDeposit() succeeds in the original (ChallengeState event, challenge stored) and reverts \"insufficient value\" in the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M060": {
+   "equivalent": false,
+   "reason": "Rollup.sol:704: after genesis, commit 1 and finalize 1, batchDataStore[0] is deleted (line 657) but committedBatches[0] stays. The public view batchExist(0) returns false in the original and true in the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M061": {
+   "equivalent": false,
+   "reason": "Rollup.sol:710: a batch committed at T has finalizeTimestamp T+P. At block.timestamp == T+P, batchInsideChallengeWindow returns false in the original and true in the mutant, and finalizeBatch succeeds in the original but reverts \"batch in challenge window\" in the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M062": {
+   "equivalent": false,
+   "reason": "Rollup.sol:758: proveCommittedBatchState(validHeader, \"\") reverts with Error(\"Invalid batch proof\") in the original. The mutant forwards the empty proof to the verifier (MultipleVersionRollupVerifier, then the SP1 verifier), which reverts with different data, or accepts it if the owner set a permissive verifier.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M063": {
+   "equivalent": false,
+   "reason": "Rollup.sol:825: proveCommittedBatchState(\"\", \"\") reverts with Error(\"Empty batch header\") in the original. In the mutant, line 826 indexes batchHeader[0] on empty calldata and reverts with Panic(0x32): different revert data.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M064": {
+   "equivalent": false,
+   "reason": "Rollup.sol:913: commitBatch(version=2) sent with no blobs reverts \"V2 requires at least 1 blob\" in the original. The mutant uses keccak256(\"\") as the blob hash and commits the batch successfully.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M065": {
+   "equivalent": false,
+   "reason": "batch_header.go:218 PutUint64 at [0:] instead of [1:]. Run in work/adj-go-witness/common/harness: BatchHeaderV0{BatchIndex:1,...}.Bytes() has byte 7=0x01, byte 8=0x00 on the mutant against byte 7=0x00, byte 8=0x01 on the original. With BatchIndex=0x0102..08, byte 0 (the version) also becomes 0x01.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M066": {
+   "equivalent": false,
+   "reason": "batch_header.go:218 PutUint64 at [2:]. Run: BatchHeaderV0{BatchIndex:1}.Bytes() byte 8 is 0x00 on the mutant and 0x01 on the original, because L1MessagePopped later overwrites byte 9 and the low byte of BatchIndex is lost.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M067": {
+   "equivalent": false,
+   "reason": "batch_header.go:219 PutUint64 at [8:]. Run: V0 with BatchIndex=1 and L1MessagePopped=1, Bytes() differs at bytes 8, 15 and 16 (orig 01,00,01 vs mut 00,01,00): the low byte of BatchIndex is clobbered and the field is shifted.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M068": {
+   "equivalent": false,
+   "reason": "batch_header.go:219 PutUint64 at [10:]. Run: V0 with L1MessagePopped=1, Bytes() byte 16 is 0x00 on the mutant against 0x01 on the original, because TotalL1MessagePopped later overwrites byte 17.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M069": {
+   "equivalent": false,
+   "reason": "batch_header.go:220 PutUint64 at [16:]. Run: V0 with L1MessagePopped=1 and TotalL1MessagePopped=1, Bytes() differs at bytes 16, 23 and 24 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M070": {
+   "equivalent": false,
+   "reason": "batch_header.go:220 PutUint64 at [18:]. Run: V0 with TotalL1MessagePopped=1, Bytes() byte 24 is 0x00 on the mutant against 0x01 on the original, because the DataHash copy at 25 overwrites the low byte.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M071": {
+   "equivalent": false,
+   "reason": "batch_header.go:246 PutUint64 at [0:] in V1. Run: even the zero BatchHeaderV1{}.Bytes() returns byte 0 (version) = 0x00 on the mutant against 0x01 on the original, so the bytes then read back as version 0 with length 257.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M072": {
+   "equivalent": false,
+   "reason": "batch_header.go:246 PutUint64 at [2:] in V1. Run: BatchHeaderV1 with BatchIndex=1, Bytes() byte 8 is 0x00 on the mutant against 0x01 on the original.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M073": {
+   "equivalent": false,
+   "reason": "batch_header.go:247 PutUint64 at [8:] in V1. Run: BatchIndex=1 and L1MessagePopped=1, Bytes() differs at bytes 8, 15 and 16 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M074": {
+   "equivalent": false,
+   "reason": "batch_header.go:247 PutUint64 at [10:] in V1. Run: L1MessagePopped=1, Bytes() byte 16 is 0x00 on the mutant against 0x01 on the original.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M075": {
+   "equivalent": false,
+   "reason": "batch_header.go:248 PutUint64 at [16:] in V1. Run: L1MessagePopped=1 and TotalL1MessagePopped=1, Bytes() differs at bytes 16, 23 and 24 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M076": {
+   "equivalent": false,
+   "reason": "batch_header.go:248 PutUint64 at [18:] in V1. Run: TotalL1MessagePopped=1, Bytes() byte 24 is 0x00 on the mutant against 0x01 on the original, because DataHash overwrites it.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M077": {
+   "equivalent": false,
+   "reason": "batch_header.go:256 PutUint64 at [248:] in V1. Run: LastBlockNumber=1 and ParentBatchHash ending in 0x01, Bytes() differs at bytes 248, 255 and 256 (orig 01,00,01 vs mut 00,01,00): the last byte of ParentBatchHash is clobbered and byte 256 is left as 0.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M078": {
+   "equivalent": false,
+   "reason": "batch_header.go:256 PutUint64 at [250:] on a 257-byte slice leaves only 7 bytes. Run: BatchHeaderV1{}.Bytes() panics on the mutant with 'index out of range [7] with length 7', and returns 257 bytes on the original.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M079": {
+   "equivalent": false,
+   "reason": "batch_header.go:221 copy DataHash at [24:]. Run: V0 with TotalL1MessagePopped=1 and DataHash=01..01, Bytes() differs at bytes 25, 55 and 56; with full values byte 24 (the low byte of TotalL1MessagePopped) is overwritten too.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M080": {
+   "equivalent": false,
+   "reason": "batch_header.go:221 copy DataHash at [26:]. Run: V0 with DataHash=0x01..01, Bytes() differs at bytes 25, 26 and 56 (orig 01,00,01 vs mut 00,01,00): byte 25 stays 0 and the last DataHash byte is overwritten by BlobVersionedHash.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M081": {
+   "equivalent": false,
+   "reason": "batch_header.go:222 copy BlobVersionedHash at [56:]. Run: V0 with BlobVersionedHash=01..01, Bytes() differs at bytes 57, 87 and 88; with full values byte 56 (the last DataHash byte) is clobbered too.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M082": {
+   "equivalent": false,
+   "reason": "batch_header.go:222 copy BlobVersionedHash at [58:]. Run: V0 Bytes() differs at bytes 57, 58 and 88 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M083": {
+   "equivalent": false,
+   "reason": "batch_header.go:223 copy PrevStateRoot at [88:]. Run: V0 Bytes() differs at bytes 89, 119 and 120, and with full values at byte 88 as well (the last BlobVersionedHash byte is clobbered).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M084": {
+   "equivalent": false,
+   "reason": "batch_header.go:223 copy PrevStateRoot at [90:]. Run: V0 Bytes() differs at bytes 89, 90 and 120 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M085": {
+   "equivalent": false,
+   "reason": "batch_header.go:224 copy PostStateRoot at [120:]. Run: V0 Bytes() differs at bytes 121, 151 and 152, and with full values at byte 120 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M086": {
+   "equivalent": false,
+   "reason": "batch_header.go:224 copy PostStateRoot at [122:]. Run: V0 Bytes() differs at bytes 121, 122 and 152 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M087": {
+   "equivalent": false,
+   "reason": "batch_header.go:225 copy WithdrawalRoot at [152:]. Run: V0 Bytes() differs at bytes 153, 183 and 184, and with full values at byte 152 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M088": {
+   "equivalent": false,
+   "reason": "batch_header.go:225 copy WithdrawalRoot at [154:]. Run: V0 Bytes() differs at bytes 153, 154 and 184 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M089": {
+   "equivalent": false,
+   "reason": "batch_header.go:226 copy SequencerSetVerifyHash at [184:]. Run: V0 Bytes() differs at bytes 185, 215 and 216, and with full values at byte 184 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M090": {
+   "equivalent": false,
+   "reason": "batch_header.go:226 copy SequencerSetVerifyHash at [186:]. Run: V0 Bytes() differs at bytes 185, 186 and 216 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M091": {
+   "equivalent": false,
+   "reason": "batch_header.go:227 copy ParentBatchHash at [216:]. Run: V0 Bytes() differs at bytes 217, 247 and 248: byte 248 is left as 0, and with full values byte 216 is clobbered too.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M092": {
+   "equivalent": false,
+   "reason": "batch_header.go:227 copy ParentBatchHash at [218:] into a 249-byte slice, so the copy is truncated to 31 bytes. Run: V0 Bytes() differs at bytes 217, 218 and 248 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M093": {
+   "equivalent": false,
+   "reason": "batch_header.go:249 V1 copy DataHash at [24:]. Run: BatchHeaderV1 Bytes() differs at bytes 25, 55 and 56, and with full values at byte 24 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M094": {
+   "equivalent": false,
+   "reason": "batch_header.go:249 V1 copy DataHash at [26:]. Run: V1 Bytes() differs at bytes 25, 26 and 56 (orig 01,00,01 vs mut 00,01,00).",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M095": {
+   "equivalent": false,
+   "reason": "batch_header.go:250 V1 copy BlobVersionedHash at [56:]. Run: V1 Bytes() differs at bytes 57, 87 and 88, and with full values at byte 56 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M096": {
+   "equivalent": false,
+   "reason": "batch_header.go:250 V1 copy BlobVersionedHash at [58:]. Run: V1 Bytes() differs at bytes 57, 58 and 88.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M097": {
+   "equivalent": false,
+   "reason": "batch_header.go:251 V1 copy PrevStateRoot at [88:]. Run: V1 Bytes() differs at bytes 89, 119 and 120, and with full values at byte 88 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M098": {
+   "equivalent": false,
+   "reason": "batch_header.go:251 V1 copy PrevStateRoot at [90:]. Run: V1 Bytes() differs at bytes 89, 90 and 120.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M099": {
+   "equivalent": false,
+   "reason": "batch_header.go:252 V1 copy PostStateRoot at [120:]. Run: V1 Bytes() differs at bytes 121, 151 and 152, and with full values at byte 120 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M100": {
+   "equivalent": false,
+   "reason": "batch_header.go:252 V1 copy PostStateRoot at [122:]. Run: V1 Bytes() differs at bytes 121, 122 and 152.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M101": {
+   "equivalent": false,
+   "reason": "batch_header.go:253 V1 copy WithdrawalRoot at [152:]. Run: V1 Bytes() differs at bytes 153, 183 and 184, and with full values at byte 152 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M102": {
+   "equivalent": false,
+   "reason": "batch_header.go:253 V1 copy WithdrawalRoot at [154:]. Run: V1 Bytes() differs at bytes 153, 154 and 184.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M103": {
+   "equivalent": false,
+   "reason": "batch_header.go:254 V1 copy SequencerSetVerifyHash at [184:]. Run: V1 Bytes() differs at bytes 185, 215 and 216, and with full values at byte 184 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M104": {
+   "equivalent": false,
+   "reason": "batch_header.go:254 V1 copy SequencerSetVerifyHash at [186:]. Run: V1 Bytes() differs at bytes 185, 186 and 216.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M105": {
+   "equivalent": false,
+   "reason": "batch_header.go:255 V1 copy ParentBatchHash at [216:]. Run: V1 Bytes() differs at bytes 217, 247 and 248, and with full values at byte 216 as well.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M106": {
+   "equivalent": false,
+   "reason": "batch_header.go:255 V1 copy ParentBatchHash at [218:]. Run: V1 Bytes() differs at bytes 217, 218 and 248: byte 248 is lost, because LastBlockNumber is written at 249.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M107": {
+   "equivalent": false,
+   "reason": "batch_header.go:44 V0 length check removed. Run: on BatchHeaderBytes{0x00} (length 1), Hash() returns ErrInvalidBatchHeaderLength on the original but a keccak hash with nil error on the mutant, and BatchIndex() panics on the mutant ('slice bounds out of range [:9]').",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M108": {
+   "equivalent": false,
+   "reason": "batch_header.go:48 V1 length check removed. Run: on BatchHeaderBytes{0x01} (length 1), Hash() returns ErrInvalidBatchHeaderLength on the original but a hash with nil error on the mutant, and BatchIndex() panics on the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M109": {
+   "equivalent": false,
+   "reason": "batch_header.go:52 V2 length check removed. Run: on BatchHeaderBytes{0x02} (length 1), Hash() returns ErrInvalidBatchHeaderLength on the original but a hash with nil error on the mutant, and BatchIndex() panics on the mutant.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  },
+  "M110": {
+   "equivalent": false,
+   "reason": "batch_header.go:73 empty check removed in Version. Run: on a nil or empty BatchHeaderBytes, Version() (and Hash(), BatchIndex() and the rest, through validate) returns ErrEmptyBatchHeaderBytes on the original but panics on the mutant with 'index out of range [0] with length 0'.",
+   "panel": {
+    "source_judge": false,
+    "witness_judge": false,
+    "refuter_confirmed": null
+   }
+  }
+ },
+ "status": "NOT committed as spec/M2/equivalent_mutants.json: the catalog these verdicts adjudicate was not signed off (docs/iterations/I22_catalog_review.json). Kept as the record of the blind panel; the replacement catalog gets its own blind adjudication."
+}
