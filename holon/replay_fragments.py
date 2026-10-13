@@ -58,6 +58,13 @@ model's reach span and code; with a last-step contract in the binding, the real 
 of each group is located in a debugger dump (holon.mreplay.locate_panic) and reported as "src" ("model_src" keeps the
 model's span). Per-step digests and the corpus search log go to --details (default <work>/details.json).
 
+Beside the record (its path without .json: results/M2/refinement/extracted/) the run writes what it measures for other
+generators: width_values.json, every width site's stores evaluated on the extracted model at every compared step of
+its entry points (holon.sorts.width reads it), and window_states.json, the corpus of the window declaration that names
+the document (holon.window; holon model compares the window view with the hand abstraction on it): every executed
+abstract step of the base traces paired with the abstraction's state after it, under the decode tables the binding's
+"window" encodings learn from the steps' inputs (window_states, learn_decode).
+
 Nothing here names a target: names come from the binding, the document and the compiled artifacts.
 """
 from __future__ import annotations
@@ -122,7 +129,9 @@ class Step:
     """One harness step. kind "abstract": row is an abstract row (the binding's abstract facts); kind "call": a call
     (caller, value, timestamp (0 keeps the clock), blobs, to (None: the target), data), after the target's slots are set
     to pokes [(slot, word)] when there are any (vm.store, the harness's kind 3). fork: run from a snapshot and
-    reverted. meta: what built it (corpus source, the reach it targets, ...), carried into the details."""
+    reverted. meta: what built it (corpus source, the reach it targets, ...), carried into the details. abstract: the
+    abstract action an abstract row encodes (the binding's abstract facts; the window corpus pairs its abstract state
+    with the real storage after the step); never encoded."""
     kind: str
     fork: bool = False
     row: list = field(default_factory=list)
@@ -134,6 +143,7 @@ class Step:
     data: str = "0x"
     meta: dict = field(default_factory=dict)
     pokes: list = field(default_factory=list)
+    abstract: dict | None = None
 
     def encode(self) -> str:
         if self.kind == "abstract":
@@ -1058,6 +1068,10 @@ def run(args) -> int:
     side = out.with_suffix("")      # results/M2/refinement/extracted/: what the run measures beside the comparison
     if wv and wv.sites:
         write_json(side / "width_values.json", wv.document(_rel(doc_path, root), rec["corpus"]["inputs_sha256"]))
+    ws = window_states(model, binding, root, runs, slots) if not args.evaluator else None
+    if ws is not None:              # the window declaration's corpus (holon model's window_check.json reads it)
+        write_json(side / "window_states.json", ws)
+        print(f"fragments: window corpus: {len(ws['states'])} distinct states of {ws['paired_states']} paired")
     details = Path(args.details) if args.details else work / "details.json"
     write_json(details, run_details(runs, compared, log, view))
     print(f"fragments: {rec['traces']} traces, {rec['steps']} steps compared, {rec['storage_slots']} slot comparisons, "
@@ -1109,6 +1123,216 @@ class WidthValues:
                           "max": hex(a["max"]), "over": a["over"]}
         return {"document": "width_values", "facts": facts_rel, "inputs_sha256": inputs_sha,
                 "evaluator": "holon.extracted_eval (holon.sorts.width.store_values)", "sites": sites}
+
+
+CONCRETE = {"caller": lambda e: e.caller, "msg.value": lambda e: e.value, "block.timestamp": lambda e: e.timestamp,
+            "block.number": lambda e: e.number, "blobhash": lambda e: list(e.blobs)}
+_DEF = re.compile(r"def:([A-Za-z_][A-Za-z0-9_]*)\((.*)\)$")
+
+
+def _concrete_value(spec: str, e: Exec):
+    """A concrete value of a step: one of CONCRETE, or "keccak:<name>", the keccak256 of the concatenated 32-byte
+    words of a list value."""
+    kind, _, name = str(spec).partition(":") if str(spec).startswith("keccak:") else ("", "", str(spec))
+    if name not in CONCRETE:
+        raise FragmentsError(f"window encoding: unknown concrete value {spec!r} (known: {sorted(CONCRETE)}, "
+                             "keccak:<list value>)")
+    v = CONCRETE[name](e)
+    if v is None:
+        return None
+    if kind == "keccak":
+        if not isinstance(v, list):
+            raise FragmentsError(f"window encoding: {spec!r} needs a list value")
+        from .keccak import keccak256
+        return int.from_bytes(keccak256(b"".join(word(x).to_bytes(32, "big") for x in v)), "big")
+    return [word(x) for x in v] if isinstance(v, list) else word(v)
+
+
+def _plain(v):
+    if isinstance(v, bool):
+        return int(v)
+    if isinstance(v, list):
+        return [int(x) for x in v]
+    return v if isinstance(v, int) else None
+
+
+def _abstract_value(spec: str, action: dict, state: dict, defs: dict | None = None):
+    """An abstract value of a step: "input:<name>" (the abstract action's input), "state:<field>" (the abstraction's
+    state after the step) or "def:<name>(<input:x>,..)" (the abstraction's definition on the action's inputs, on its
+    compiled model; looked up in defs)."""
+    m = _DEF.match(str(spec))
+    if m:
+        args = tuple(_abstract_value(a.strip(), action, state) for a in m.group(2).split(",") if a.strip())
+        if any(a is None for a in args):
+            return None
+        return (defs or {}).get((m.group(1), json.dumps(args)))
+    kind, _, name = str(spec).partition(":")
+    if kind == "input":
+        return _plain(action.get(name))
+    if kind == "state":
+        return _plain(state.get(name) if isinstance(state, dict) else None)
+    raise FragmentsError(f"window encoding: {spec!r} is none of input:<name>, state:<field>, def:<name>(..)")
+
+
+def _def_calls(encodings: list[dict], pairs: list) -> list[tuple[str, str]]:
+    """Every (definition, json args) the encodings' "def:" abstract values need on the pairs."""
+    out = set()
+    for en in encodings:
+        m = _DEF.match(str(en.get("abstract")))
+        if not m:
+            continue
+        for action, state, e in pairs:
+            if _holds(en, action, state):
+                args = tuple(_abstract_value(a.strip(), action, state) for a in m.group(2).split(",") if a.strip())
+                if all(a is not None for a in args):
+                    out.add((m.group(1), json.dumps(args)))
+    return sorted(out)
+
+
+def _holds(en: dict, action: dict, state: dict) -> bool:
+    return all(_abstract_value(k, action, state) == _plain(v) for k, v in sorted((en.get("when") or {}).items()))
+
+
+def learn_decode(encodings: list[dict], pairs: list[tuple[dict, dict, Exec]], defs: dict | None = None
+                 ) -> tuple[dict, dict]:
+    """(decode, learned) of the binding's window encodings over (abstract action, abstract state after it, the
+    concrete step) pairs. An encoding {"kind": "table" | "offset", "abstract": _abstract_value spec, "concrete":
+    _concrete_value spec, "when"?: {abstract spec: value}, "fields": [...]} pairs each step's abstract value with its
+    concrete one (a list pairs elementwise when both have the same length; a table pairs the target's calls only, and
+    only the steps where "when" holds): a table maps every concrete value seen to its abstract token (0 to 0: an
+    absent key), an offset is the one difference concrete - abstract over all pairs. The tables of a field are merged.
+    They are what the harness's translation of the abstract rows does (or, for a "def:" value, the abstraction's own
+    stand-in for a concrete function of the inputs), learned from the steps' inputs, never from the storage the window
+    compares. A concrete value seen with two tokens, an offset that is not constant, or a field given both an offset
+    and a table, is a FragmentsError (the binding's encoding is not the harness's)."""
+    per_field: dict = {}
+    learned = {}
+    for i, en in enumerate(encodings):
+        kind = en.get("kind")
+        if kind not in ("table", "offset"):
+            raise FragmentsError(f"window encoding {i}: kind {kind!r} is neither table nor offset")
+        table: dict = {}
+        diffs: set = set()
+        n = 0
+        for action, state, e in pairs:
+            if (kind == "table" and e.kind != "call") or not _holds(en, action, state):
+                continue
+            av = _abstract_value(en["abstract"], action, state, defs)
+            cv = _concrete_value(en["concrete"], e)
+            if av is None or cv is None:
+                continue
+            if isinstance(av, list) != isinstance(cv, list) or (isinstance(av, list) and len(av) != len(cv)):
+                continue
+            for a, c in (zip(av, cv) if isinstance(av, list) else [(av, cv)]):
+                n += 1
+                if kind == "offset":
+                    diffs.add(c - a)
+                elif table.setdefault(c, a) != a:
+                    raise FragmentsError(f"window encoding {i} ({en['abstract']} ~ {en['concrete']}): the concrete "
+                                         f"value 0x{c:x} stands for both {table[c]} and {a}")
+        if kind == "offset" and len(diffs) > 1:
+            raise FragmentsError(f"window encoding {i} ({en['abstract']} ~ {en['concrete']}): the offset is not "
+                                 f"constant ({sorted(diffs)[:4]})")
+        learned[f"{en['abstract']} ~ {en['concrete']}"] = {"kind": kind, "pairs": n,
+                                                            "entries": len(table) if kind == "table" else None}
+        for f in en.get("fields") or []:
+            have = per_field.setdefault(f, {"kind": kind, "table": {}, "diffs": set()})
+            if have["kind"] != kind:
+                raise FragmentsError(f"window encoding {i}: field {f} has both an offset and a table")
+            for c, a in table.items():
+                if have["table"].setdefault(c, a) != a:
+                    raise FragmentsError(f"window encoding {i}: field {f}: 0x{c:x} stands for both "
+                                         f"{have['table'][c]} and {a}")
+            have["diffs"] |= diffs
+    decode = {}
+    for f, have in sorted(per_field.items()):
+        if have["kind"] == "offset":
+            if len(have["diffs"]) > 1:
+                raise FragmentsError(f"window field {f}: its offsets differ ({sorted(have['diffs'])[:4]})")
+            if have["diffs"]:
+                decode[f] = {"sub": next(iter(have["diffs"]))}
+        else:
+            t = have["table"]
+            if t.get(0, 0) != 0:
+                raise FragmentsError(f"window field {f}: zero stands for {t[0]}")
+            t[0] = 0
+            decode[f] = {"table": {"0x%x" % c: a for c, a in sorted(t.items())}}
+    return decode, learned
+
+
+def window_states(model, binding: dict, root: Path, runs: list[TraceRun], slots: list[int]) -> dict | None:
+    """The corpus of the window declaration that names the refined document (holon.window: its "corpus"), or None when
+    there is no declaration or the binding has no abstract facts. Every base trace of abstract rows (the m1 and
+    witness sources) gives one state per executed abstract step, plus the deployment's: the real storage after it (the
+    tracked state, which vm.load confirms; only the slots the window view reads are kept) paired with the
+    abstraction's state after the same prefix of abstract actions, on its compiled model (holon.window.abstract_states;
+    only the fields the view maps). Identical (raw, abstract) pairs are kept once. The decode tables are the binding's
+    "window" encodings, learned from the steps' inputs (learn_decode)."""
+    from . import window as W
+    from .mpipeline import CompiledMachine
+    decl = W.declaration_for(model, root)
+    a = binding.get("abstract")
+    if decl is None or not decl.get("corpus") or not a:
+        return None
+    traces = []
+    for tr in runs:
+        steps_by_id = {str(i): s for i, s in enumerate(tr.steps)}
+        want = [s for s in tr.steps if s.abstract is not None and not s.fork]
+        if not want:
+            continue
+        deploy, rows = None, []
+        for e, _before, after in track(tr, slots):
+            if e.id == "d":
+                deploy = after
+                continue
+            st = steps_by_id.get(e.id)
+            if st is not None and st.abstract is not None and not st.fork:
+                rows.append((st, e, after))
+        if len(rows) != len(want) or deploy is None:
+            raise FragmentsError(f"trace {tr.tid}: {len(rows)} of its {len(want)} abstract steps ran")
+        traces.append((str(want[0].meta.get("label") or f"t{tr.tid}"), deploy, rows))
+    cm = CompiledMachine.build(root / a["facts"])
+    states = W.abstract_states(cm, [[st.abstract for st, _e, _r in rows] for _l, _d, rows in traces])
+    s0 = cm.calls([{"fn": "s0", "args": []}], instances=True)[0]
+    pairs = [(st.abstract, ast, e) for (_l, _d, rows), sts in zip(traces, states) for (st, e, _r), ast in zip(rows, sts)]
+    encodings = (binding.get("window") or {}).get("encodings") or []
+    need = _def_calls(encodings, pairs)
+    got = cm.calls([{"fn": f"d_{fn}", "args": [{"val": x} for x in json.loads(args)]} for fn, args in need],
+                   instances=True) if need else []
+    bad = [(k, v) for k, v in zip(need, got) if isinstance(v, dict) and "error" in v]
+    if bad:
+        raise FragmentsError(f"window encoding: the abstraction cannot evaluate {bad[0][0]}: {bad[0][1]['error']}")
+    decode, learned = learn_decode(encodings, pairs, dict(zip(need, got)))
+    mapped = sorted(k for k, mp in (decl.get("fields") or {}).items() if any(x in mp for x in ("term", "list", "residue")))
+    subsets: dict = {}
+
+    def raw_subset(sid: str, raw: dict) -> dict:
+        key = tuple(sorted(raw.items()))
+        if key not in subsets:
+            reads: set = set()
+            vw = W.view(model, decl, raw, reads)
+            sub = {k: raw[k] for k in sorted(reads) if raw.get(k)}
+            if W.view(model, decl, sub) != vw:
+                raise FragmentsError(f"window state {sid}: the slots the view reads do not determine it")
+            subsets[key] = sub
+        return subsets[key]
+
+    items, seen, paired = [], set(), 0
+    for (label, deploy, rows), sts in zip(traces, states):
+        for sid, raw, ast in [(f"{label}:d", deploy, s0)] + [(f"{label}:{k}", r, x)
+                                                             for k, ((_s, _e, r), x) in enumerate(zip(rows, sts))]:
+            sub = raw_subset(sid, raw)
+            ab = {k: ast.get(k) for k in mapped if k in ast}
+            paired += 1
+            key = sha256_json([{hex32(k): hex32(v) for k, v in sub.items()}, ab])
+            if key in seen:
+                continue
+            seen.add(key)
+            items.append({"id": sid, "raw": sub, "abstract": ab})
+    doc = W.corpus_states(decl["facts"], items, decode)
+    doc.update({"abstraction": decl["abstraction"], "declaration": decl.get("_path"), "paired_states": paired,
+                "encodings": learned})
+    return doc
 
 
 def harness_notes(runs: list[TraceRun]) -> dict:

@@ -32,7 +32,8 @@ documents.
                                         (family_unmapped): the input of holon.differential's deltas
   view(model, decl, raw)                the abstraction fields the declaration maps, evaluated on raw storage
   check(model, decl, root)              window_check.json: {"states", "disagreements", ...} over the corpus states
-  corpus_states(...)                    the corpus-states document from (abstract trace, raw states) pairs
+  corpus_states(...)                    the corpus-states document from (abstract trace, raw states) pairs (holon
+                                        fragments writes the declaration's corpus: holon.replay_fragments.window_states)
 """
 from __future__ import annotations
 
@@ -248,9 +249,32 @@ def _word(e: _View, t):
     return e.as_int(v) if not isinstance(v, dict) else v
 
 
-def view(model, decl: dict, raw: dict) -> dict:
-    """{field: value | {"unsupported": reason}} for every field the declaration maps from raw storage."""
+class _Reads(dict):
+    """A raw state that records every slot read from it (view's reads)."""
+
+    def __init__(self, data: dict, acc: set):
+        super().__init__(data)
+        self.acc = acc
+
+    def get(self, k, default=None):
+        self.acc.add(k)
+        return super().get(k, default)
+
+    def __getitem__(self, k):
+        self.acc.add(k)
+        return super().__getitem__(k)
+
+    def __contains__(self, k):
+        self.acc.add(k)
+        return super().__contains__(k)
+
+
+def view(model, decl: dict, raw: dict, reads: set | None = None) -> dict:
+    """{field: value | {"unsupported": reason}} for every field the declaration maps from raw storage. reads: when a
+    set, every slot the view reads is added to it (a corpus producer keeps only those)."""
     e = _View(model, raw)
+    if reads is not None:
+        e.state = _Reads(e.state, reads)
     out = {}
     for name, mp in sorted((decl.get("fields") or {}).items()):
         k = _kind(mp)
@@ -341,7 +365,7 @@ def compare(vw: dict, abstract: dict, decl: dict | None = None) -> list[dict]:
             if len(got) != len(want):
                 out.append({"field": name, "window": {"length": len(got)}, "abstraction": {"length": len(want)}})
             for i, (g, w) in enumerate(zip(got, want)):
-                if isinstance(g, dict):
+                if isinstance(g, dict) and "undecoded" not in g:   # a record item (an undecoded value is a scalar)
                     for rf in sorted(g):
                         if g[rf] != (w or {}).get(rf):
                             out.append({"field": f"{name}[{i}].{rf}", "window": g[rf],

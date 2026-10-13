@@ -17,11 +17,20 @@
  "init": {
   "doc": "holonDeploy's [F, W, D, t0, r0]: the M1 facts' initial state, as holon.mreplay.run_forge passes it",
   "facts": "spec/M1/facts/morph_rollup.json",
-  "keys": ["F", "W", "D", "t", "fsr.0"]
+  "keys": [
+   "F",
+   "W",
+   "D",
+   "t",
+   "fsr.0"
+  ]
  },
  "project": {
   "doc": "the scratch project mirrors the checkout's contracts/ Foundry tree, so a project path p is the document unit contracts/p",
-  "drop": ["mock", "test"],
+  "drop": [
+   "mock",
+   "test"
+  ],
   "foundry_dir": "contracts",
   "kind": "checkout",
   "unit_prefix": "contracts/"
@@ -29,5 +38,53 @@
  "target": {
   "contract": "Rollup",
   "source": "contracts/l1/rollup/Rollup.sol"
+ },
+ "window": {
+  "doc": "The token encodings of the abstract rows, as the M1 trace harness translates them (replay/M1/solidity/HolonTraceReplay.t.sol: a principal is the caller who2addr(who), a time is EPOCH + t, a blob token is the blob hash blobEnc(v)), and the abstraction's stand-in for a version-2 blob hash (its abstractions: keccak256 over the blob hashes is agg(), the definition blob_hash at version 2); holon fragments learns each one from the steps' abstract inputs and their concrete calls (holon.replay_fragments.learn_decode) and writes it as the decode tables of the window corpus (results/M2/refinement/extracted/window_states.json, holon.window).",
+  "encodings": [
+   {
+    "abstract": "input:who",
+    "concrete": "caller",
+    "fields": [
+     "chs.c",
+     "s_bd.s",
+     "win.bds"
+    ],
+    "kind": "table"
+   },
+   {
+    "abstract": "state:t",
+    "concrete": "block.timestamp",
+    "fields": [
+     "chs.s",
+     "s_bd.f",
+     "s_bd.o",
+     "win.bdf",
+     "win.bdo"
+    ],
+    "kind": "offset"
+   },
+   {
+    "abstract": "input:blobs",
+    "concrete": "blobhash",
+    "fields": [
+     "s_bvh",
+     "win.bvh"
+    ],
+    "kind": "table"
+   },
+   {
+    "abstract": "def:blob_hash(input:ver,input:blobs)",
+    "concrete": "keccak:blobhash",
+    "fields": [
+     "s_bvh",
+     "win.bvh"
+    ],
+    "kind": "table",
+    "when": {
+     "input:ver": 2
+    }
+   }
+  ]
  }
 }

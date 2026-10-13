@@ -249,6 +249,46 @@ class TestComparison(unittest.TestCase):
         self.assertEqual([s.data for s in out[0]], ["0x01", "0xaa", "0x02", "0xbb"])
         self.assertEqual(out[0][1].meta["also"], [{"source": "target", "targets": "r"}])
 
+    def _exec(self, kind, caller, ts, blobs):
+        return self.RF.Exec(0, "0", kind, False, True, None, caller, 0, ts, 1, blobs, "0x", "0x")
+
+    def test_the_window_decode_is_learned_from_the_steps_inputs(self):
+        """The window corpus's token encodings: a table (caller and blob tokens, elementwise; zero is zero) and an
+        offset (the clock), learned from abstract inputs and concrete calls, never from storage."""
+        enc = [{"kind": "table", "abstract": "input:who", "concrete": "caller", "fields": ["c"]},
+               {"kind": "offset", "abstract": "state:t", "concrete": "block.timestamp", "fields": ["s", "r.f"]},
+               {"kind": "table", "abstract": "input:blobs", "concrete": "blobhash", "fields": ["b"]}]
+        pairs = [({"op": "a", "who": 2, "blobs": [7]}, {"t": 10}, self._exec("call", "0x1002", 1010, ["0x" + "07" * 32])),
+                 ({"op": "w", "dt": 5}, {"t": 15}, self._exec("env", None, 1015, [])),
+                 ({"op": "a", "who": 3, "blobs": []}, {"t": 15}, self._exec("call", "0x1003", 1015, []))]
+        dec, learned = self.RF.learn_decode(enc, pairs)
+        self.assertEqual(dec["c"], {"table": {"0x0": 0, "0x1002": 2, "0x1003": 3}})
+        self.assertEqual(dec["s"], {"sub": 1000})
+        self.assertEqual(dec["r.f"], {"sub": 1000})
+        self.assertEqual(dec["b"], {"table": {"0x0": 0, "0x%x" % int("07" * 32, 16): 7}})   # holon.window's key form
+        self.assertEqual(learned["state:t ~ block.timestamp"]["pairs"], 3)
+        bad = pairs + [({"op": "a", "who": 4, "blobs": []}, {"t": 15}, self._exec("call", "0x1002", 1015, []))]
+        with self.assertRaises(self.RF.FragmentsError):
+            self.RF.learn_decode(enc, bad)          # one caller for two principals: not the harness's encoding
+        drift = pairs + [({"op": "w", "dt": 1}, {"t": 16}, self._exec("env", None, 1018, []))]
+        with self.assertRaises(self.RF.FragmentsError):
+            self.RF.learn_decode(enc, drift)        # the clock's offset moved
+
+    def test_a_definition_of_the_abstraction_decodes_a_hash_of_the_inputs(self):
+        """A "def:" abstract value (the abstraction's stand-in, evaluated on its compiled model) paired with a keccak
+        of a concrete list, only where "when" holds; its table merges with the field's other tables."""
+        from holon.keccak import keccak256
+        enc = [{"kind": "table", "abstract": "input:blobs", "concrete": "blobhash", "fields": ["b"]},
+               {"kind": "table", "abstract": "def:h(input:ver,input:blobs)", "concrete": "keccak:blobhash",
+                "when": {"input:ver": 2}, "fields": ["b"]}]
+        w7 = "0x" + "07" * 32
+        pairs = [({"op": "a", "ver": 2, "blobs": [7]}, {}, self._exec("call", "0x1002", 1, [w7])),
+                 ({"op": "a", "ver": 1, "blobs": [7]}, {}, self._exec("call", "0x1002", 1, [w7]))]
+        self.assertEqual(self.RF._def_calls(enc, pairs), [("h", "[2, [7]]")])
+        dec, _ = self.RF.learn_decode(enc, pairs, {("h", "[2, [7]]"): 1007})
+        k = int.from_bytes(keccak256(bytes.fromhex(w7[2:])), "big")
+        self.assertEqual(dec["b"]["table"], {"0x0": 0, "0x%x" % int(w7, 16): 7, "0x%x" % k: 1007})
+
 
 class TestHevmGeneration(unittest.TestCase):
     """The two sides holon.hevm_equiv hands to hevm, built from the facts and the binding (no hevm needed here)."""

@@ -71,7 +71,8 @@ def abstract_facts(binding: dict, root: Path = ROOT) -> dict | None:
 
 def rows(trace: list[dict], facts: dict, source: str, label: str) -> list[Step]:
     from .mreplay import encode_step
-    return [Step("abstract", row=encode_step(a, facts), meta={"source": source, "label": label}) for a in trace]
+    return [Step("abstract", row=encode_step(a, facts), meta={"source": source, "label": label}, abstract=dict(a))
+            for a in trace]
 
 
 def m1_traces(binding: dict, root: Path = ROOT, n: int = M1_SIZE, seed: int = M1_SEED) -> list[list[dict]]:
