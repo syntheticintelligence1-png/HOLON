@@ -412,15 +412,84 @@ class Decider:
         if status != "REFUTED":
             if refuted:
                 lp = self.write_law(law_ir, doc_rel, False, hashes)
-            attempts.append({"kind": "proof", "generator": {"realize": "coercion_guard", "as_member": "tag_exact",
-                                                             "reinterpret": "reach_invariant"}[e["subform"]],
-                             "error": "does not apply: no proof generator of this subform over the M3 model "
-                                      "decided the law", "marker": None})
+            att = self.prove(law, doc_rel, mm, hashes, lp)
+            attempts.append(att)
+            if att.get("marker") == "ALL PROOFS CHECK" and att.get("verdict") == "checked":
+                status = "PROVED"
+                primary_art = {"proof": att["proof"], "checker": att["checker"], "verdict": "checked"}
+                nonvac = self.inhabit(law, doc_rel, ref, model_f, ev, hashes, fns)
         for k, w in witnesses.items():
             w.pop("_steps", None)
         rec = self.record(law_ir, e, status, witnesses, attempts, lp, doc_rel, primary,
-                          primary_art if status == "REFUTED" else None, nonvac)
+                          primary_art if status in ("REFUTED", "PROVED") else None, nonvac)
         return rec
+
+    def prove(self, law: dict, doc_rel: str, mm, hashes: list, lp: Path) -> dict:
+        """The proof generator of the law's subform (realize: coercion_guard; as_member: tag_exact; reinterpret:
+        reach_invariant), checked by bend2 then BendTT; a rejected or inapplicable attempt leaves no proof file."""
+        ctx = self.ctx
+        lid = law["law_id"]
+        gen_name = {"realize": "coercion_guard", "as_member": "tag_exact", "reinterpret": "reach_invariant"}[law["subform"]]
+        pdir = self.paths(lid)["proofs"]
+        shutil.rmtree(pdir, ignore_errors=True)
+        att = {"kind": "proof", "generator": gen_name, "marker": None}
+        if gen_name != "coercion_guard":
+            att["error"] = ("does not apply: no " + gen_name + " generator over the M3 model (its mapping slots go "
+                            "through the law's hash parameter, which the statement leaves unconstrained)")
+            return att
+        model_text = ctx.model_path(doc_rel).read_text(encoding="utf-8")
+        try:
+            text = P3.coercion_guard(law, mm, model_text, P3.rel_import(pdir, ctx.import_path(doc_rel)),
+                                     P3.rel_import(pdir, lp), hashes)
+        except P3.NoProof as ex:
+            att["error"] = f"does not apply: {ex}"
+            return att
+        pdir.mkdir(parents=True, exist_ok=True)
+        p = pdir / "PROOF.bend"
+        p.write_text(text, encoding="utf-8")
+        checker, verdict = check_file(p)
+        att.update({"marker": checker["marker"], "verdict": verdict, "checker": checker, "proof": rel(p, ctx.root)})
+        if checker["marker"] != "ALL PROOFS CHECK" or verdict != "checked":
+            r = bend.check(p) if checker["marker"] != "ALL PROOFS CHECK" else None
+            att["error"] = ("bend2 rejected the proof: " + (r.out or "")[:400]) if r is not None else \
+                "BendTT rejected the proof"
+            shutil.rmtree(pdir, ignore_errors=True)
+            att.pop("proof", None)
+        return att
+
+    def inhabit(self, law: dict, doc_rel: str, ref, model_f, ev, hashes: list, fns: dict) -> dict:
+        """The non-vacuity record of a PROVED law (G11V): a reachable trace whose last step reaches a hit (chit_<x>),
+        searched like a witness (S1, S2) and proved like a counter-law, in gen/<M>/<id>/nonvac/."""
+        ctx = self.ctx
+        lid = law["law_id"]
+        x = lid[len("L_sort_"):]
+        sh = ctx.registry["statements"][lid]
+        out = {"status": "unknown", "law": None, "witness": None, "reachable": None, "degenerate": None,
+               "parent_statement_hash": sh, "bound": None}
+        d = self.paths(lid)["nonvac"]
+        shutil.rmtree(d, ignore_errors=True)
+        steps = ref.inhabit(law)
+        if steps is None:
+            return {**out, "bound": "no reachable state and step reach a hit within the search budget"}
+        kh, shs, _vals = S3.settle(model_f, steps, [f"chit_{x}"])
+        m = model_f(empty=True)
+        acts = [m.act(st) for st in steps]
+        d.mkdir(parents=True, exist_ok=True)
+        lp = d / "LAWS.bend"
+        lp.write_text(P3.inhabitant_law(law, sh, P3.rel_import(d, ctx.import_path(doc_rel)), hashes), encoding="utf-8")
+        p = d / "PROOF.bend"
+        p.write_text(P3.inhabitant_proof(law, P3.rel_import(d, ctx.import_path(doc_rel)), P3.rel_import(d, lp), hashes,
+                                         acts, {"keccak256": kh, "sha256": shs}, P3.Lit(ev.recs)), encoding="utf-8")
+        checker, verdict = check_file(p)
+        doc = ctx.models[doc_rel][4]
+        w = {"steps": [step_json(doc, st, fns) for st in steps],
+             "hashes": {h: [["0x" + k[2:], "0x%064x" % v] for k, v in sorted(({"keccak256": kh, "sha256": shs}[h]
+                                                                               or {}).items())] for h in hashes}}
+        if checker["marker"] != "ALL PROOFS CHECK" or verdict != "checked":
+            shutil.rmtree(d, ignore_errors=True)
+            return {**out, "witness": w, "bound": f"the inhabitant does not check ({checker['marker']}, {verdict})"}
+        return {**out, "status": "inhabited", "law": rel(lp, ctx.root), "witness": w, "reachable": True,
+                "bound": f"at-site inhabitant through {steps[-1].action}: {len(steps) - 1} prefix steps"}
 
     def repair(self, real: Real, steps: list, doc, fns: dict, model_f) -> list:
         """The witness's external-call answers as the deployment's dependencies give them: the real run's calls, in

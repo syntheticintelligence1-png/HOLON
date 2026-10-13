@@ -565,7 +565,24 @@ class Synth:
 
 
 # ------------------------------------------------------------------------------------------------ pools
+_LITERALS: dict = {}
+
+
+def canonical_step(st) -> str:
+    return json.dumps([st.action, st.args, {k: v for k, v in st.env.items() if k != "calls"}], sort_keys=True,
+                      default=str)
+
+
 def doc_literals(doc: dict) -> list[int]:
+    key = id(doc)
+    if key in _LITERALS and _LITERALS[key][0] is doc:
+        return _LITERALS[key][1]
+    lits = _doc_literals(doc)
+    _LITERALS[key] = (doc, lits)
+    return lits
+
+
+def _doc_literals(doc: dict) -> list[int]:
     out: set = set()
     for a in doc.get("actions") or []:
         _ints([a.get(k) for k in ("guards", "checks", "panics", "writes", "calls", "loops")], out)
@@ -664,9 +681,18 @@ class Refuter:
         self.ts0 = int(self.m.init.get("timestamp") or 1) or 1
         self.cache: dict = {}
 
+    def pools(self, g: str, trace: list) -> tuple[dict, dict]:
+        """(state, pools) of a reachable state (cached: a state handle is never reused for another state)."""
+        key = (g, len(self.m.kh), len(self.m.sh))
+        hit = self.cache.get(key)
+        if hit is None or hit[0] != [canonical_step(st) for st in trace]:
+            state = self.m.state(g)
+            hit = ([canonical_step(st) for st in trace], state, pools_of(self.m, trace, state, self.doc, self.sorts))
+            self.cache[key] = hit
+        return hit[1], hit[2]
+
     def synth(self, g: str, a: str, trace: list, **kw):
-        state = self.m.state(g)
-        pools = pools_of(self.m, trace, state, self.doc, self.sorts)
+        _state, pools = self.pools(g, trace)
         return Synth(self.m, pools, kw.pop("evals", self.synth_evals)).synth(g, a, trace[-1] if trace else None,
                                                                           self.ts0, **kw)
 
@@ -703,8 +729,7 @@ class Refuter:
             seen = set()
             kept = []
             cands = [st]
-            state = self.m.state(g)
-            pools = pools_of(self.m, trace, state, self.doc, self.sorts)
+            state, pools = self.pools(g, trace)
             sy = Synth(self.m, pools, 0)
             for leaf, ty in sy.leaves(a):
                 if leaf[0] == "env" and leaf[1] in ("msg.value",):
@@ -734,24 +759,33 @@ class Refuter:
         """(witness steps, stage, bound) for one entry point."""
         depth = int(self.budget.get("prefix_depth", 2))
         maxp = int(self.budget.get("max_prefixes", 1000))
-        frontier = [([], self.m.s0())]
-        tried = 0
-        for d in range(depth + 1):
+        g0 = self.m.s0()
+        tried = 1
+        st = self.entry_at(law, entry, g0, [])
+        if st is not None:
+            self.log(f"  {entry}: witness at depth 0")
+            return [st], "S1", f"S1+S2: 1 prefix (depth <= {depth})"
+        # breadth first: the prefixes of depth d are tried in their parents' order, each parent's successors
+        # generated when its turn comes (a parent whose turn never comes is never expanded)
+        level = [([], g0)]
+        for d in range(1, depth + 1):
             nxt = []
-            for trace, g in frontier:
+            for trace, g in level:
                 if tried >= maxp:
                     break
-                tried += 1
-                st = self.entry_at(law, entry, g, trace)
-                if st is not None:
-                    self.log(f"  {entry}: witness at depth {d} after {tried} prefixes")
-                    return trace + [st], ("S1" if d == 0 else "S2"), f"S1+S2: {tried} prefixes (depth <= {depth})"
-                if d < depth:
-                    nxt += self.successors(g, trace, entry, maxp - tried)
-            self.log(f"  {entry}: depth {d}: {tried} prefixes tried, {len(nxt)} successors "
+                for t2, g2 in self.successors(g, trace, entry, maxp - tried):
+                    tried += 1
+                    st = self.entry_at(law, entry, g2, t2)
+                    if st is not None:
+                        self.log(f"  {entry}: witness at depth {d} after {tried} prefixes")
+                        return t2 + [st], "S2", f"S1+S2: {tried} prefixes (depth <= {depth})"
+                    nxt.append((t2, g2))
+                    if tried >= maxp:
+                        break
+            self.log(f"  {entry}: depth {d}: {tried} prefixes tried "
                      f"({', '.join(sorted({t[-1].action for t, _g in nxt}))[:200]})")
-            frontier = nxt
-            if tried >= maxp or not frontier:
+            level = nxt
+            if tried >= maxp or not level:
                 break
         bound = f"S1+S2: {tried} prefixes of at most {depth} successful steps (max {maxp}), no witness"
         # S3: the other entry points' witnesses, steps inserted, the last step replaced by this entry point's

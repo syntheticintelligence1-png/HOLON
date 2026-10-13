@@ -17,6 +17,7 @@ spec/M3/lib/term_size.json's measure counts each as one term. Nothing here names
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 
 from ..gen.mlaws import law_name
@@ -178,3 +179,188 @@ def inhabitant_proof(law: dict, model_import: str, laws_import: str, hashes: lis
         tup = f"(t_{nm}(), {tup})"
     lines.append(f"def Laws.nv_{lid.lower()}():\n  {tup}")
     return "\n".join(lines) + "\n"
+
+
+# ------------------------------------------------------------------------------------------------ coercion_guard
+class NoProof(Exception):
+    """The generator does not apply (named)."""
+
+
+def model_names(text: str) -> set:
+    """The definitions, types and constructors the model declares (a proof qualifies them with M.)."""
+    out = set(re.findall(r"(?m)^def\s+(\w+)\s*\(", text)) | set(re.findall(r"(?m)^type\s+(\w+)", text))
+    for body in re.findall(r"(?m)^type\s+\w+[^\n]*\n((?:  \w+\{[^\n]*\n)+)", text):
+        out |= set(re.findall(r"(?m)^  (\w+)\{", body))
+    return out
+
+
+def qualify(code: str, names: set) -> str:
+    """The model's definitions and constructors in a term, qualified by M (Bend's builtins keep their names)."""
+    def sub(m):
+        n = m.group(1)
+        return ("M." + n if n in names else n) + m.group(2)
+    return re.sub(r"(?<![\w.])([A-Za-z_]\w*)(\s*[({])", sub, code)
+
+
+def _at(cond: str, ctx: str) -> str:
+    """A statement's condition (a term of its context x) at a given context term."""
+    return re.sub(r"(?<![\w.])x(?![\w{])", lambda _m: ctx, cond)
+
+
+def _orders(expr) -> list:
+    """(A, B) pairs a passed condition establishes as A >= B (unsigned): [">=", A, B], ["<=", B, A], ["!", ["<", A, B]],
+    ["!", [">", B, A]], and each conjunct of a conjunction."""
+    out = []
+    if not isinstance(expr, list) or not expr:
+        return out
+    h = expr[0]
+    if h == ">=" and len(expr) == 3:
+        out.append((expr[1], expr[2]))
+    elif h == "<=" and len(expr) == 3:
+        out.append((expr[2], expr[1]))
+    elif h == "!" and len(expr) == 2 and isinstance(expr[1], list) and len(expr[1]) == 3 and expr[1][0] in ("<", ">"):
+        a, b = expr[1][1], expr[1][2]
+        out.append((a, b) if expr[1][0] == "<" else (b, a))
+    elif h == "&&":
+        for y in expr[1:]:
+            out += _orders(y)
+    return out
+
+
+def _difference(expr):
+    """(A, B) of a realization check of a difference: ["fits", n, ["-", A, B]]."""
+    if (isinstance(expr, list) and len(expr) == 3 and expr[0] == "fits" and isinstance(expr[2], list)
+            and len(expr[2]) == 3 and expr[2][0] == "-"):
+        return expr[2][1], expr[2][2]
+    return None
+
+
+def coercion_guard(law: dict, mm, model_text: str, model_import: str, laws_import: str, hashes: list) -> str:
+    """The proof of a realize law whose every hit is a realization check (I15's coercion_guard over the typed model).
+
+    For each entry point the action's program is mirrored statement by statement from its context x0(st, ar, en, ..)
+    (unconditional writes and events advance the context; each check is a lemma that matches its condition c, with
+    the equation {condition == c}): a failing check other than the hit ends the run with its own code, which the law
+    accepts by computation; at the hit, a failing realization contradicts ONE earlier passed check that orders the
+    same two operands (A >= B), through one lemma by case on the comparison. No reachability is assumed (the lemmas
+    hold for every state). Raises NoProof when a statement it cannot mirror (a loop, an external call, a conditional
+    write or event) is in the program, or no earlier check orders the operands."""
+    from ..rules.sort import canonical, ghost_x
+    lid = law["law_id"]
+    x = ghost_x(lid)
+    if law["subform"] != "realize":
+        raise NoProof("coercion_guard decides realize laws")
+    names = model_names(model_text)
+    tb = tabs_binders(hashes)
+    tparams = "".join(f", +{n}: List<&2, M.HKB>" for n, _h in tb)
+    targs = "".join(f", {n}" for n, _h in tb)
+    per_action: dict = {}
+    for h in law["hits"]:
+        if h["kind"] != "realization_check":
+            raise NoProof(f"{h['action']}: a hit that is not a realization check")
+        per_action.setdefault(h["action"], []).append(h["at"])
+    out = [PHEADER, "import Base", f"import {model_import} as M", f"import {laws_import} as Laws", "",
+           "# class coercion_guard: each entry point's program mirrored from its context x0; at the hit a failing",
+           "# realization contradicts one earlier passed check that orders the operands of the realized difference;",
+           "# no reachability is assumed (every lemma holds for every state).", "",
+           "def efq(-P: Type, x: Empty) -> P:\n  match x:\n",
+           "def cg_false_ne_true(e: {False{} == True{} : Bool}) -> Empty:\n"
+           "  (%Equal.sym(Bool, False{}, True{}, e) : M.is_true(_)\n  Unit{})\n",
+           "def cg_true_ne_false(e: {True{} == False{} : Bool}) -> Empty:\n  (%e : M.is_true(_)\n  Unit{})\n"]
+    lemmas: dict = {}
+    mirrors: dict = {}
+    for a in sorted(per_action):
+        ba = re.sub(r"[^A-Za-z0-9_]", "_", a)
+        if len(per_action[a]) != 1:
+            raise NoProof(f"{a}: {len(per_action[a])} hits in one action")
+        K = mm.cidx_of(a, per_action[a][0]) + 1
+        stmts = sorted(mm.stmts.get(a) or [], key=lambda r: -r["i"])     # program order (the chain is built backwards)
+        ctx = f"M.x0_{ba}(st, ar, en{targs})"
+        defs = []
+        for r in stmts:
+            if not r["top"]:
+                continue
+            if r["calls"]:
+                raise NoProof(f"{a}: an external call at statement {r['i']}")
+            if r["kind"] in ("write", "event"):
+                if r["cond"] is not None:
+                    raise NoProof(f"{a}: a conditional {r['kind']} at statement {r['i']}")
+                ctx = f"M.{r['helper']}({ctx})"
+                continue
+            if r["kind"] != "check":
+                raise NoProof(f"{a}: a {r['kind']} record in the program")
+            defs.append({"i": r["i"], "helper": r["helper"], "code": r["code"], "raw": r["cond"],
+                         "cond": qualify(_at(r["cond"], "@CTX@"), names).replace("@CTX@", ctx), "ctx": ctx,
+                         "expr": r["expr"]})
+        hit = [j for j, d in enumerate(defs) if d["code"] == K]
+        if len(hit) != 1:
+            raise NoProof(f"{a}: the hit is not one check of the program")
+        hj = hit[0]
+        ab = _difference(defs[hj]["expr"])
+        if ab is None:
+            raise NoProof(f"{a}: the hit is not the realization of a difference")
+        src = None
+        for j in range(hj):
+            if any(canonical([p, q]) == canonical(list(ab)) for p, q in _orders(defs[j]["expr"])):
+                src = j
+                break
+        if src is None:
+            raise NoProof(f"{a}: no earlier check orders the operands of the realized difference")
+        raw = defs[hj]["raw"]
+        m = re.match(r"is_some_(T_\w+)\(realize_(T_\w+)\(", raw)
+        if m is None or not raw.endswith("))"):
+            raise NoProof(f"{a}: the hit's condition is not a realization")
+        tu, ts = m.group(1), m.group(2)
+        diff = qualify(_at(raw[m.end():-2], "@CTX@"), names).replace("@CTX@", defs[hj]["ctx"])
+        lem = f"cg_rz_{ts}_{tu}"
+        lemmas[lem] = (
+            f"# the sign of a signed value\n"
+            f"def cg_ng_{ts}(v: M.{ts}) -> Bool:\n  match v:\n    case M.{ts}{{ng, p}}:\n      ng\n\n"
+            f"# A >= B (not (A < B)) contradicts a failing realization of A - B: by case on A < B\n"
+            f"def {lem}_b(b: Bool, +p: M.W, e1: {{Bool.not(b) == True{{}} : Bool}}, "
+            f"e2: {{M.is_some_{tu}(M.rzg_{ts}(b, p)) == False{{}} : Bool}}) -> Empty:\n  match b:\n"
+            f"    case True{{}}:\n      cg_false_ne_true(e1)\n    case False{{}}:\n      cg_true_ne_false(e2)\n\n"
+            f"def {lem}(d: M.{ts}, e1: {{Bool.not(cg_ng_{ts}(d)) == True{{}} : Bool}}, "
+            f"e2: {{M.is_some_{tu}(M.realize_{ts}(d)) == False{{}} : Bool}}) -> Empty:\n  match d:\n"
+            f"    case M.{ts}{{ng, p}}:\n      {lem}_b(ng, p, e1, e2)\n")
+        cz = f"M.cz_{x}_{ba}"
+        sig = f"+st: M.HSt, +ar: M.AR_{ba}, +en: M.HEnv{tparams}"
+        texts = []                      # the last check first: a definition precedes its use
+        for j in range(len(defs) - 1, -1, -1):
+            d = defs[j]
+            carry = src < j <= hj
+            goal = f"{{{cz}(M.o_code(M.xo_{ba}(M.{d['helper']}(c, {d['ctx']})))) == True{{}} : Bool}}"
+            es = f", es: {{{defs[src]['cond']} == True{{}} : Bool}}" if carry else ""
+            if j + 1 < len(defs):
+                n = defs[j + 1]
+                pass_es = ", e" if (j == src and src < hj) else (", es" if src < j < hj else "")
+                t_branch = f"cg_{x}_{ba}_{n['i']}({n['cond']}, st, ar, en{targs}{pass_es}, {{==}})"
+            else:
+                t_branch = "{==}"
+            if j == hj:
+                fgoal = f"{{{cz}(M.o_code(M.xo_{ba}(M.{d['helper']}(False{{}}, {d['ctx']})))) == True{{}} : Bool}}"
+                f_branch = f"efq({fgoal}, {lem}({diff}, es, e))"
+            else:
+                f_branch = "{==}"
+            texts.append(f"def cg_{x}_{ba}_{d['i']}(c: Bool, {sig}{es}, e: {{{d['cond']} == c : Bool}}) -> {goal}:\n"
+                         f"  match c:\n    case True{{}}:\n      {t_branch}\n    case False{{}}:\n      {f_branch}\n")
+        mirrors[ba] = (texts, defs[0])
+    for lem in sorted(lemmas):
+        out.append(lemmas[lem])
+    for ba in sorted(mirrors):
+        out += mirrors[ba][0]
+    acts = re.findall(r"(?m)^  A_(\w+)\{ar: AR_\w+, en: HEnv\}$", model_text)
+    if not acts:
+        raise NoProof("the model declares no action constructors")
+    cases = []
+    for ba in acts:
+        if ba not in mirrors:
+            cases.append(f"    case M.A_{ba}{{_, _}}:\n      {{==}}\n")
+            continue
+        d0 = mirrors[ba][1]
+        c0 = qualify(_at(d0["raw"], "@CTX@"), names).replace("@CTX@", f"M.x0_{ba}(M.gh_get_st(s), ar, en{targs})")
+        cases.append(f"    case M.A_{ba}{{+ar, +en}}:\n      cg_{x}_{ba}_{d0['i']}({c0}, M.gh_get_st(s), ar, en{targs}, "
+                     f"{{==}})\n")
+    params = "".join(f"{n}, " for n, _h in tb)
+    out.append(f"def Laws.{law_name(lid)}({params}s, r_s, a):\n  match a:\n" + "".join(cases))
+    return "\n".join(out)

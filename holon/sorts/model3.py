@@ -1348,6 +1348,9 @@ class Machine(Gen):
     def __init__(self, m: ExtractedModel, **kw):
         super().__init__(m, **kw)
         self.action_defs: dict = {}
+        self.stmts: dict = {}          # action -> statement records (holon.sorts.proofs3's coercion_guard mirrors them)
+        self.first: dict = {}          # action -> the first statement def of its program
+        self._cond = None
         self.action_ctx: dict = {}
         self.cidx: dict = {}
         self.nstmt = 0
@@ -1411,6 +1414,7 @@ class Machine(Gen):
         self.register_loops(prog.steps, sc)
         end = f"sz_{ba}"
         first = self.chain(prog.steps, sc, end)
+        self.first[a] = first
         body = self.defs
         fs = self.ctx_fields[a]
         hs = ", ".join(f"+{'kh' if h == 'keccak256' else 'sh'}: List<&2, HKB>" for h in self.hashes)
@@ -1507,8 +1511,16 @@ class Machine(Gen):
             if s.src and str(s.src) not in msg:
                 msg = f"{msg} (at {s.src})"
             raise GenError(msg) from None
-        body = self.call_guards(terms, sc, body, i)
+        guarded = self.call_guards(terms, sc, body, i)
         name = f"s_{ba}_{i}"
+        info = {"i": i, "name": name, "kind": type(s).__name__.lower(), "calls": guarded != body,
+                "cond": None, "expr": None, "code": None, "next": nxt, "top": not sc.loops or s.entry.get("loop") is None}
+        if isinstance(s, Check):
+            info.update(cond=self._cond, expr=s.expr, code=self.cidx[s.id] + 1, helper=f"k_{ba}_{i}")
+        elif isinstance(s, (Write, Event)):
+            info.update(cond=self._cond, helper=(f"wr_{ba}_{i}" if isinstance(s, Write) else f"ev_{ba}_{i}"))
+        self.stmts.setdefault(a, []).append(info)
+        body = guarded
         self.add(f"# {comment(f'{type(s).__name__.lower()} {s.src}')}\ndef {name}(+x: {X}) -> {X}:\n  {body}\n")
         return name
 
@@ -1541,6 +1553,7 @@ class Machine(Gen):
         X = self.xt(sc.action)
         k = self.cidx[c.id]
         cond = self.cond(c.expr, sc)
+        self._cond = cond
         rv = self.revert_code(c, sc)
         kn = f"k_{ba}_{i}"
         self.add(f"# {comment(c.id)}\ndef {kn}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n"
@@ -1617,12 +1630,14 @@ class Machine(Gen):
         wn = f"wr_{ba}_{i}"
         lines = self.write_body(w, sc)
         self.add(f"def {wn}(+x: {X}) -> {X}:\n" + "\n".join(lines) + "\n")
+        self._cond = None
         if w.cond in (1, True):
             return f"{nxt}({wn}(x))"
         cn = f"wc_{ba}_{i}"
         self.add(f"def {cn}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      {nxt}({wn}(x))\n"
                  f"    case False{{}}:\n      {nxt}(x)\n")
-        return f"{cn}({self.cond(w.cond, sc)}, x)"
+        self._cond = self.cond(w.cond, sc)
+        return f"{cn}({self._cond}, x)"
 
     def write_body(self, w: Write, sc: Scope) -> list[str]:
         fam = w.family
@@ -1715,12 +1730,14 @@ class Machine(Gen):
         lgc = self.gx(sc, "lg")
         new = "Con{HLog{" + tl + ", " + data + "}, " + lgc + "}"
         self.add(f"def {en}(+x: {X}) -> {X}:\n  {self.sx(sc, 'lg', 'x', new)}\n")
+        self._cond = None
         if ev.cond in (1, True):
             return f"{nxt}({en}(x))"
         cn = f"ec_{ba}_{i}"
         self.add(f"def {cn}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      {nxt}({en}(x))\n"
                  f"    case False{{}}:\n      {nxt}(x)\n")
-        return f"{cn}({self.cond(ev.cond, sc)}, x)"
+        self._cond = self.cond(ev.cond, sc)
+        return f"{cn}({self._cond}, x)"
 
     # loops
     def set_fields(self, sc: Scope, x: str, pairs: list) -> str:
@@ -1777,7 +1794,10 @@ class Machine(Gen):
         self.add(f"def lc_{p}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      {self.sx(sc, f'ld{j}', 'x', '2n')}\n"
                  f"    case False{{}}:\n      {nxt_dec}\n")
         self.add(f"def lb_{p}(+x: {X}) -> {X}:\n  lc_{p}(u_nz({self.gx(sc, 'cd')}), x)\n")
-        body_first = self.chain(lp.body, sc, f"lb_{p}")
+        # the body's chain ends in lz (the iteration ran to its end); lb decides after it, also when a check of the
+        # body failed and ended the chain early (its code is set: the loop stops)
+        self.add(f"def lz_{p}(+x: {X}) -> {X}:\n  x\n")
+        body_first = self.chain(lp.body, sc, f"lz_{p}")
         # the normal exit (the head failed): the count, the exit values of the names that are not carried
         lets, sets = [], []
         for k_, (n, e) in enumerate(lp.exits):
@@ -1789,7 +1809,7 @@ class Machine(Gen):
             sets.append((f"x{j}_{xi}", f"e{k_}"))
         sets += [(f"cn{j}", self.gx(sc, f"it{j}")), (f"ld{j}", "0n")]
         self.add(f"def lx_{p}(+x: {X}) -> {X}:\n" + "\n".join(lets + [f"  {self.set_fields(sc, 'x', sets)}"]) + "\n")
-        self.add(f"def lh_{p}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      {body_first}(x)\n"
+        self.add(f"def lh_{p}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      lb_{p}({body_first}(x))\n"
                  f"    case False{{}}:\n      lx_{p}(x)\n")
         self.add(f"def li_{p}(+x: {X}) -> {X}:\n  lh_{p}({self.cond(lp.head, sc)}, x)\n")
         self.add(f"def lpz_{p}(d: Nat, +x: {X}) -> {X}:\n  match d:\n    case 0n:\n      x\n    case 1n+q:\n"
