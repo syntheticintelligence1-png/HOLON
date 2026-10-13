@@ -41,6 +41,7 @@ Supplementary, outside the preregistered fields (never read by the tests):
     blob: commitment_ok false), "not_kept" (the served commitment, checked at fetch time), "not_run";
   - "legacy_parent": the same checks for a successful commit whose selector is a historical signature
     (decoded with that signature's ABI, "abi_origin" its IRollup.sol revision); "abi" stays "undecodable";
+    its differing cells are given as inclusive runs, "diff_ranges" (as is "rebuild"'s), to keep the file small;
   - "rebuild": the encoder edge on real inputs. For a commit of batch k whose header H_k (the header that
     hashes to the commit's emitted batchHash) appears as a later commit's parent, the model's enc_sol is run
     on a Header built from the commit's own inputs: version, numL1Messages, lastBlockNumber, prevStateRoot,
@@ -355,7 +356,9 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
     for i, (inp, _) in parents.items():
         commits[i]["parent"] = parent_entry(commits[i], bytes(inp["parentBatchHeader"]))
     for i, (inp, origin) in legacy.items():
-        commits[i]["legacy_parent"] = {**parent_entry(commits[i], bytes(inp["parentBatchHeader"])), "abi_origin": origin}
+        lp = parent_entry(commits[i], bytes(inp["parentBatchHeader"]))
+        lp["diff_ranges"] = ranges(lp.pop("diff_cells"))
+        commits[i]["legacy_parent"] = {**lp, "abi_origin": origin}
 
     # ------------------------------------------------ rebuild: enc_sol on the commit's own inputs
     rebuild_jobs, rebuild_of = [], {}
@@ -406,7 +409,7 @@ def replay(index_path: Path, milestone: str = "M2", morph: Path | None = None, w
             continue
         n = max(len(enc), len(hk))
         diff = [x for x in range(n) if x >= len(enc) or x >= len(hk) or enc[x] != hk[x]]
-        commits[i]["rebuild"] = {"status": "ok"} if not diff else {"status": "diff", "diff_cells": diff}
+        commits[i]["rebuild"] = {"status": "ok"} if not diff else {"status": "diff", "diff_ranges": ranges(diff)}
 
     # ------------------------------------------------ reverts
     reverts = []
@@ -493,6 +496,23 @@ def disagreements(commits: list[dict], checked: dict, go_real: dict, by_keccak: 
             "disagreements": entries}
 
 
+def ranges(cells: list[int]) -> list[list[int]]:
+    """Sorted cell indices as inclusive [first, last] runs (the supplementary fields' compact diff_cells)."""
+    out: list[list[int]] = []
+    for c in cells:
+        if out and c == out[-1][1] + 1:
+            out[-1][1] = c
+        else:
+            out.append([c, c])
+    return out
+
+
+def _cells(p: dict) -> list[int]:
+    if "diff_cells" in p:
+        return p["diff_cells"]
+    return [i for a, b in p.get("diff_ranges", []) for i in range(a, b + 1)]
+
+
 def _count(xs) -> dict:
     out: dict = {}
     for x in xs:
@@ -520,7 +540,7 @@ def summary(commits, reverts, genesis, last_upgrade, status_from_logs, dis, go_e
                 "ok_sol_false": sum(1 for p in ps if not p["ok_sol"]),
                 "ok_go_false": sum(1 for p in ps if not p["ok_go"]),
                 "roundtrip": _count(p["roundtrip"] for p in ps),
-                "diff_cells_outside_ssvh": sum(1 for p in ps if any(i not in range(185, 217) for i in p["diff_cells"])),
+                "diff_cells_outside_ssvh": sum(1 for p in ps if any(i not in range(185, 217) for i in _cells(p))),
                 "ssvh_nonzero": len(nz), "ssvh_nonzero_max_batch_index": max(nz) if nz else None,
                 "ssvh_zero_min_batch_index": min(z) if z else None,
                 "go_decoder": _count(p["go_decoder"] for p in ps)}
