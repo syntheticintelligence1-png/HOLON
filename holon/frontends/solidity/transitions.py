@@ -86,7 +86,6 @@ one the walk never reached (dead code), is unaccounted.
 """
 from __future__ import annotations
 
-import json
 import re
 from dataclasses import dataclass, field
 
@@ -255,10 +254,6 @@ def render(t):
             return ["struct", t[1], [[m, render(v)] for m, v in zip(t[2], t[3])]]
         return [h] + [render(x) for x in t[1:]]
     raise ExtractionError(f"a value the document cannot hold: {t!r:.200}")
-
-
-def _key(x) -> str:
-    return json.dumps(x, sort_keys=True)
 
 
 # ------------------------------------------------------------------------------------------------ frames and state
