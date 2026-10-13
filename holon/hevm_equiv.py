@@ -17,8 +17,10 @@ hevm proves that both return the same bytes for every calldata (and every call v
 A negative control per version runs hevm once more against a mutant of side B (the first masked field loses its
 top bit): it must come out "not_equivalent", or the record shows that the check did not discriminate.
 
-results/M2/hevm.json (canonical JSON, no timings): {"status": "run" | "not_run", "reason", ...}. "not_run" when hevm
-or its SMT solver cannot be found or does not start (the reason says which); "run" otherwise, with one entry per
+The tools are pinned in config/holon.json "hevm" (version, url and sha256 of hevm and of its solver cvc5, and where
+they are installed): a binary is used only when its sha256 is the pin's. results/M2/hevm.json (canonical JSON, no
+timings): {"status": "run" | "not_run", "reason", ...}. "not_run" when hevm or its SMT solver cannot be found, is not
+the pinned binary, or does not start (the reason says which); "run" otherwise, with one entry per
 (edge, version): {"edge", "version", "result": "equivalent" | "not_equivalent" | "unknown", "detail", "a_sha256",
 "b_sha256"}, the tool and solver digests and the pins. Nothing here names a target: the codec's names come from the
 binding and the facts.
@@ -42,8 +44,6 @@ ROOT = Path(__file__).resolve().parents[1]
 BINDING = Path("replay") / "M2" / "hevm_store.json"
 OUT = Path("results") / "M2" / "hevm.json"
 TOOLS = Path.home() / ".holon" / "tools"
-HEVM_SOURCE = "https://github.com/argotorg/hevm/releases/download/release/0.55.1/hevm-x86_64-linux"
-SOLVER_SOURCE = "https://github.com/cvc5/cvc5/releases/download/cvc5-1.2.0/cvc5-Linux-x86_64-static.zip"
 WRAPPER = "HolonHevmStore.sol"
 
 
@@ -55,13 +55,28 @@ def sha256_file(p: Path) -> str:
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
-def find_tool(explicit: str | None, env: str, pattern: str) -> Path | None:
-    """An explicit path, else $env, else the newest ~/.holon/tools/<pattern> (sorted), else None."""
-    for c in (explicit, os.environ.get(env)):
+def pins(root: Path = ROOT) -> dict:
+    """config/holon.json "hevm": {version, url, sha256, path, solver: {name, version, url, sha256, path}}."""
+    cfg = json.loads((Path(root) / "config" / "holon.json").read_text())
+    h = cfg.get("hevm")
+    if not isinstance(h, dict) or not isinstance(h.get("solver"), dict):
+        raise HevmError("config/holon.json pins no hevm (\"hevm\": {version, url, sha256, path, solver})")
+    return h
+
+
+def find_tool(explicit: str | None, env: str, pin: dict) -> tuple[Path | None, str | None]:
+    """(the binary, None) for an explicit path, else $env, else the pin's path, when its sha256 is the pin's; else
+    (None, why)."""
+    for c in (explicit, os.environ.get(env), pin.get("path")):
         if c:
-            return Path(c) if Path(c).is_file() else None
-    hits = sorted(TOOLS.glob(pattern))
-    return hits[-1] if hits else None
+            p = Path(c)
+            if not p.is_file():
+                return None, f"{p} does not exist"
+            got = sha256_file(p)
+            if got != pin.get("sha256"):
+                return None, f"{p} has sha256 {got}, not the pinned {pin.get('sha256')} ({pin.get('url')})"
+            return p, None
+    return None, "no path given and none pinned"
 
 
 def _out(cmd: list[str], env: dict | None = None, timeout: int = 60, cwd: Path | None = None) -> tuple[int, str]:
@@ -262,13 +277,15 @@ def run(args) -> int:
     out = Path(args.out) if args.out else root / OUT
     rec = {"binding": bpath.relative_to(root).as_posix(), "facts": binding["facts"],
            "facts_sha256": sha256_file(facts_path), "edges": []}
-    hevm = find_tool(args.hevm, "HOLON_HEVM", "hevm-*/hevm")
-    solver = find_tool(args.solver, "HOLON_HEVM_SOLVER", "cvc5-*/cvc5")
+    pin = pins(root)
+    hevm, why_h = find_tool(args.hevm, "HOLON_HEVM", pin)
+    solver, why_s = find_tool(args.solver, "HOLON_HEVM_SOLVER", pin["solver"])
     why = None
     if hevm is None:
-        why = f"hevm is not installed (looked for --hevm, $HOLON_HEVM and {TOOLS}/hevm-*/hevm; source {HEVM_SOURCE})"
+        why = f"hevm {pin.get('version')} is not installed as pinned in config/holon.json ({why_h})"
     elif solver is None:
-        why = f"no SMT solver for hevm (looked for --solver, $HOLON_HEVM_SOLVER and {TOOLS}/cvc5-*/cvc5)"
+        why = f"the SMT solver {pin['solver'].get('name')} {pin['solver'].get('version')} is not installed as pinned " \
+              f"in config/holon.json ({why_s})"
     if why is None:
         c, v = _out([str(hevm), "version"])
         c2, sv = _out([str(solver), "--version"])
@@ -279,9 +296,9 @@ def run(args) -> int:
         write(out, rec)
         print(f"hevm: not_run: {why}")
         return 0
-    rec["hevm"] = {"version": v.strip().split()[0], "sha256": sha256_file(hevm), "source": HEVM_SOURCE}
+    rec["hevm"] = {"version": v.strip().split()[0], "sha256": sha256_file(hevm), "source": pin["url"]}
     rec["solver"] = {"name": "cvc5", "version": sv.splitlines()[0].strip(), "sha256": sha256_file(solver),
-                     "source": SOLVER_SOURCE}
+                     "source": pin["solver"]["url"]}
     morph = morph_path(args, root)
     rec["morph_commit"] = check_checkout(morph, facts["target"]["commit"])
     tc = toolchain(argparse.Namespace(forge=None, solc=None, write_pins=False, morph=str(morph)), root)
