@@ -228,6 +228,9 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I15): a SORT-site term, every hit of the site has minuend >= subtrahend (holon.sorts.sites)
     if "site" in t and "on" in t and "from" in t:
         return f"site_ok[{t['site']}]({render_term(t['on'])}, {render_term(t['from'])})"
+    # holon-ir/0.3 (I30): a SORT coercion term, every hit of coercion ID while action A runs from state S is Some
+    if "coerce" in t and "on" in t and "from" in t:
+        return f"coerce_ok[{t['coerce']}]({render_term(t['on'])}, {render_term(t['from'])})"
     # holon-ir/0.3 (I20): a SORT-width term, every store at the site fits the field's width (holon.sorts.width)
     if "width_site" in t and "on" in t and "from" in t:
         return f"width_ok[{t['width_site']}]({render_term(t['on'])}, {render_term(t['from'])})"

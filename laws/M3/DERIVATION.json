@@ -1,0 +1,268 @@
+{
+  "derive_version": "holon-derive/0.1",
+  "document": "derivation",
+  "inputs": [
+    {
+      "path": "gen/M3/sorts/assignment.json",
+      "sha256": "1fa800ee65969c575b5310b3d9d14913b7f82f3b5e65d5ebc30afe3fb9ea818f"
+    },
+    {
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    },
+    {
+      "path": "spec/M3/lib/sort_seeds.json",
+      "sha256": "74701ad8e12a64e63396a88d755c091ddffa6342cf4c5292870115dcfde2b12a"
+    },
+    {
+      "path": "spec/M3/lib/sort_types.json",
+      "sha256": "9318a9aa27a5e6a8571099f09bd81ab545f87bbd724e1755422df6f771c52150"
+    }
+  ],
+  "laws": [
+    {
+      "basis": {
+        "expr": [
+          "-",
+          [
+            "+",
+            [
+              "storage",
+              "proofWindow"
+            ],
+            [
+              "member",
+              [
+                "map",
+                [
+                  "storage",
+                  "challenges"
+                ],
+                [
+                  "storage",
+                  "batchChallenged"
+                ]
+              ],
+              "startTime"
+            ]
+          ],
+          [
+            "env",
+            "block.timestamp"
+          ]
+        ],
+        "kind": "site",
+        "model": "morph_rollup.extracted",
+        "site_id": "morph_rollup.extracted:contracts/contracts/l1/rollup/Rollup.sol:363:4a64383b",
+        "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
+      },
+      "coercion": {
+        "from": "SDur",
+        "to": "Dur"
+      },
+      "entry_points": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "hits": [
+        {
+          "action": "commitBatch",
+          "at": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "kind": "realization_check"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "kind": "realization_check"
+        },
+        {
+          "action": "commitState",
+          "at": "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "kind": "realization_check"
+        }
+      ],
+      "law_id": "L_sort_realize_rollup_363_4a64383b",
+      "rule": "SORT",
+      "statement_hash": "sha256:c1291bddfc427bc498ee4a00393dd73ad768b0ce09f9e049988c2de41bc9f9e2",
+      "subform": "realize"
+    },
+    {
+      "basis": {
+        "action": "commitState",
+        "at": "writes[2]",
+        "kind": "member_read",
+        "model": "morph_rollup.extracted",
+        "read": [
+          "map",
+          [
+            "storage",
+            "batchBlobVersionedHashes"
+          ],
+          [
+            "+",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            1
+          ]
+        ],
+        "registers": [
+          "batchBlobVersionedHashes"
+        ],
+        "site": "contracts/contracts/l1/rollup/Rollup.sol:359",
+        "span": "contracts/contracts/l1/rollup/Rollup.sol:279"
+      },
+      "coercion": {
+        "from": "Dig[Agg] + Dig[VH]",
+        "member_fn": [
+          "?",
+          [
+            "==",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "version"
+            ],
+            2
+          ],
+          [
+            "sort",
+            "Dig[Agg]"
+          ],
+          [
+            "sort",
+            "Dig[VH]"
+          ]
+        ],
+        "members": [
+          "Dig[Agg]",
+          "Dig[VH]"
+        ],
+        "to": null
+      },
+      "entry_points": [
+        "commitState"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "hits": [
+        {
+          "action": "commitState",
+          "at": "writes[2]",
+          "kind": "copy_write"
+        }
+      ],
+      "law_id": "L_sort_tag_rollup_279_e01ea84a",
+      "rule": "SORT",
+      "statement_hash": "sha256:81ae5a5d3e36b0196e4a48fa2a24715f8afad3e204a40e5abae374de8dc874d3",
+      "subform": "as_member"
+    },
+    {
+      "basis": {
+        "action": "commitBatchWithProof",
+        "at": "writes[2]",
+        "kind": "member_read",
+        "model": "morph_rollup.extracted",
+        "read": [
+          "map",
+          [
+            "storage",
+            "batchBlobVersionedHashes"
+          ],
+          [
+            "+",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            1
+          ]
+        ],
+        "registers": [
+          "batchBlobVersionedHashes"
+        ],
+        "site": "contracts/contracts/l1/rollup/Rollup.sol:359",
+        "span": "contracts/contracts/l1/rollup/Rollup.sol:406"
+      },
+      "coercion": {
+        "from": "Dig[Agg] + Dig[VH]",
+        "member_fn": [
+          "?",
+          [
+            "==",
+            [
+              "member",
+              [
+                "param",
+                "batchDataInput"
+              ],
+              "version"
+            ],
+            2
+          ],
+          [
+            "sort",
+            "Dig[Agg]"
+          ],
+          [
+            "sort",
+            "Dig[VH]"
+          ]
+        ],
+        "members": [
+          "Dig[Agg]",
+          "Dig[VH]"
+        ],
+        "to": null
+      },
+      "entry_points": [
+        "commitBatchWithProof"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "hits": [
+        {
+          "action": "commitBatchWithProof",
+          "at": "writes[2]",
+          "kind": "copy_write"
+        }
+      ],
+      "law_id": "L_sort_tag_rollup_406_e01ea84a",
+      "rule": "SORT",
+      "statement_hash": "sha256:5a41e02e0d3f3028fdfbb8914648eb97ad3849f3d41532f08b9a3f278dbf1414",
+      "subform": "as_member"
+    }
+  ],
+  "links": [],
+  "milestone": "M3",
+  "rule_catalog_version": "holon-rules/1.2",
+  "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874"
+}

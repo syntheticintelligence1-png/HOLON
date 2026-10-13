@@ -31,6 +31,8 @@ from pathlib import Path
 from ..sorts import check as _check
 from ..sorts import sites as _sites
 from ..sorts import width as _width
+from ..sorts.typed_sidecar import typed as _typed
+from . import sort as _sort
 
 ROOT = Path(__file__).resolve().parents[2]
 RULE_CATALOG_VERSION = "holon-rules/1.0"
@@ -39,6 +41,19 @@ IR_VERSION = "holon-ir/0.3"
 # SORT-width (I20) derives nothing unless the milestone adopts extracted documents (holon.sorts.reextract), so the
 # catalog entry leaves every earlier derivation byte-identical
 CATALOG = {"SORT": {"site": _sites, "width": _width}}
+# Catalog versions (I24, I30). holon-rules/1.0 is M2's catalog (and every test milestone's below T30). From I30 on, M3
+# and later (and test milestones T<n> with n >= 30) take holon-rules/1.2: the rules of holon-rules/1.1, the M3 catalog
+# before I30 (I24's PAR, when present), unchanged, plus SORT's typed subforms realize, as_member and reinterpret
+# (holon.rules.sort; whitepaper §7.8). M2 keeps I15's SORT/site and I20's SORT/width.
+CATALOGS = {RULE_CATALOG_VERSION: CATALOG}
+TYPED_CATALOG_VERSION = "holon-rules/1.2"
+CATALOGS[TYPED_CATALOG_VERSION] = {**{r: subs for r, subs in CATALOGS.get("holon-rules/1.1", {}).items()},
+                                   "SORT": dict(_sort.PRODUCERS)}
+
+
+def catalog_version(milestone: str) -> str:
+    """The rule catalog version a milestone derives with (see CATALOGS)."""
+    return TYPED_CATALOG_VERSION if _typed(milestone) else RULE_CATALOG_VERSION
 
 
 class Refused(ValueError):
@@ -154,8 +169,123 @@ def _stale(assignment: dict, docs: list[Document]) -> list[str]:
     return bad
 
 
-def compute(milestone: str, root: Path, facts: list[str] | None = None, assignment: str | None = None) -> dict:
+class TypedDocument:
+    """A transitions document of a typed milestone (I30): its relative path, sha256, the document and its basis."""
+
+    def __init__(self, path: Path, inputs: Inputs, assignment: dict, seeds: dict):
+        self.path = path
+        self.rel = inputs.rel(path)
+        data = inputs.read(path)
+        self.sha256 = sha256_bytes(data)
+        self.facts = json.loads(data.decode("utf-8"))
+        self.model = path.stem
+        self.assignment = assignment
+        self.seeds = seeds
+        self._basis = None
+
+    @property
+    def basis(self):
+        if self._basis is None:
+            self._basis = _sort.DocBasis(self.rel, self.facts, self.model, self.assignment, self.seeds)
+        return self._basis
+
+
+def compute_typed(milestone: str, root: Path, facts: list[str] | None = None, assignment: str | None = None,
+                  sidecar: str | None = None) -> dict:
+    """derive for a typed milestone (M3+, T30+; I30): the sidecar's transitions documents (or --facts), the frozen
+    assignment gen/<M>/sorts/assignment.json (read, never written: Thm 6.18) and every producer of the milestone's
+    catalog. No hand-written fact document, no I13 output and no target library is read (Q19)."""
+    from ..gen import refs as R
+    from ..sorts import extracted as X
+    from ..sorts.typed_sidecar import SidecarError, load
+    inputs = Inputs(root)
+    try:
+        sc = load(milestone, root, sidecar)
+    except SidecarError as e:
+        raise ValueError(str(e)) from e
+    inputs.read(sc.path)
+    seeds = inputs.json(sc.seeds)
+    if facts:
+        paths = []
+        for f in facts:
+            p = Path(f)
+            p = (p if p.is_absolute() else (root / p if (root / p).exists() else Path.cwd() / p)).resolve()
+            try:
+                p.relative_to(root)
+            except ValueError:
+                raise ValueError(f"--facts {f}: not inside the root {root} (inputs are read from --root only)") from None
+            paths.append(p)
+    else:
+        paths = sc.documents
+    stems = [p.stem for p in paths]
+    if len(set(stems)) != len(stems):
+        raise ValueError(f"two documents name the same model: {sorted(stems)}")
+    ap = Path(assignment) if assignment else root / "gen" / milestone / "sorts" / "assignment.json"
+    if not ap.is_absolute():
+        ap = Path.cwd() / ap
+    A = inputs.json(ap)
+    docs = [TypedDocument(p, inputs, A, seeds) for p in sorted(paths, key=lambda p: p.stem)]
+    bad = _stale(A, docs)
+    if bad:
+        raise Refused(f"the assignment {inputs.rel(ap)} is stale: it does not list " + "; ".join(bad))
+    for d in docs:
+        if d.facts.get("facts_version") != "holon-facts/0.3" or (d.facts.get("extraction") or {}).get("kind") != \
+                "transitions":
+            raise ValueError(f"{d.rel}: a typed milestone derives over holon-facts/0.3 transitions documents")
+        if d.model not in (A.get("models") or {}):
+            raise Refused(f"the assignment {inputs.rel(ap)} has no model {d.model}")
+    cv = catalog_version(milestone)
+    catalog = CATALOGS[cv]
+    ctx = Context(milestone, root, [], A, set())
+    ctx.rule_catalog_version = cv
+    ctx.typed_documents = docs
+    ctx.sidecar = sc
+    pairs = []
+    try:
+        for rule in sorted(catalog):
+            for sub in sorted(catalog[rule]):
+                pairs += catalog[rule][sub].produce(ctx)
+    except _sort.SortRuleError as e:
+        raise DeriveError(str(e)) from e
+    ids = [law["law_id"] for law, _ in pairs]
+    dup = sorted({i for i in ids if ids.count(i) > 1})
+    if dup:
+        raise DeriveError(f"two basis elements map to one law id: {dup}")
+    by_rel = {d.rel: d for d in docs}
+    laws, entries = {}, []
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        d = by_rel[law["facts"]]
+        entry = dict(entry, statement_hash=R.law_hash(law, d.facts, root=root))
+        laws[law["law_id"]] = law
+        entries.append(entry)
+    obstructions = []
+    for d in docs:
+        obstructions += X.obstructions(d.model, d.facts, A)
+    listing = inputs.listing()
+    derivation = {"document": "derivation", "derive_version": DERIVE_VERSION, "milestone": milestone,
+                  "rule_catalog_version": cv, "sorts_sha256": A.get("sorts_sha256"),
+                  "inputs": listing, "laws": entries, "links": []}
+    dtext = dumps(derivation)
+    named = sorted({law["facts"] for law in laws.values()})
+    registry = {"milestone": milestone, "ir_version": IR_VERSION, "rule_catalog_version": cv,
+                "facts": named[0] if named else None,
+                "facts_sha256": by_rel[named[0]].sha256 if named else None,
+                "facts_files": {r: by_rel[r].sha256 for r in named},
+                "statements": {e["law_id"]: e["statement_hash"] for e in entries},
+                "sorts_sha256": A.get("sorts_sha256"), "derivation_sha256": sha256_bytes(dtext.encode("utf-8"))}
+    ev = root / "gen" / milestone / "evidence.json"
+    if ev.exists():   # the milestone's evidence set: its identity is copied, never recomputed here
+        registry["evidence_sha256"] = json.loads(ev.read_text(encoding="utf-8")).get("evidence_sha256")
+    obs = {"document": "obstructions", "derive_version": DERIVE_VERSION, "milestone": milestone, "inputs": listing,
+           "sorts_sha256": A.get("sorts_sha256"), "obstructions": sorted(obstructions, key=lambda o: o["id"])}
+    return {"laws": laws, "derivation": derivation, "derivation_text": dtext, "registry": registry, "obstructions": obs}
+
+
+def compute(milestone: str, root: Path, facts: list[str] | None = None, assignment: str | None = None,
+            sidecar: str | None = None) -> dict:
     """Everything derive writes, as documents (nothing is written here)."""
+    if _typed(milestone):
+        return compute_typed(milestone, root, facts, assignment, sidecar)
     from ..gen import refs as R
     inputs = Inputs(root)
     paths = _documents(milestone, root, facts)
@@ -253,10 +383,10 @@ def diff(base: dict, new: dict) -> dict:
 
 def derive(milestone: str, root: str | None = None, out: str | None = None, obstructions: str | None = None,
            facts: list[str] | None = None, assignment: str | None = None, against: str | None = None,
-           diff_path: str | None = None, log=print) -> int:
+           diff_path: str | None = None, log=print, sidecar: str | None = None) -> int:
     root_p = Path(root).resolve() if root else ROOT
     try:
-        res = compute(milestone, root_p, facts, assignment)
+        res = compute(milestone, root_p, facts, assignment, sidecar)
         base = None
         if against:
             ap = Path(against)
@@ -306,7 +436,10 @@ def main(argv=None) -> int:
     ap.add_argument("--assignment", help="the frozen sort assignment (default <root>/gen/<milestone>/sorts/assignment.json)")
     ap.add_argument("--against", help="a laws directory holding a DERIVATION.json to diff against")
     ap.add_argument("--diff", help="where to write the derive diff (with --against)")
+    ap.add_argument("--sidecar", help="the typed-sorts sidecar of an M3+ or T30+ milestone (default "
+                                      "spec/<M>/lib/sort_types.json)")
     a = ap.parse_args(argv)
     if bool(a.against) != bool(a.diff):
         ap.error("--against and --diff go together")
-    return derive(a.milestone, a.root, a.out, a.obstructions, a.facts, a.assignment, a.against, a.diff)
+    return derive(a.milestone, a.root, a.out, a.obstructions, a.facts, a.assignment, a.against, a.diff,
+                  sidecar=a.sidecar)

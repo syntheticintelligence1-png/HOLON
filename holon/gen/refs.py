@@ -36,6 +36,9 @@ refs is the transitive closure of what the statement names, over the facts def g
                      so a template change that keeps its version still fails G2 by name.
   fn:NAME            a name the facts, the library and the generator do not define: hashed as absent, so defining
                      it changes the hash
+  coerce:ID          a SORT coercion term {"coerce": ID, "on": A, "from": S} (I30): sha256 of canonical {"template":
+                     "holon.rules.sort/coerce_ok", "template_version": 1, "subform", "basis", "hits"}, recomputed from
+                     the document, the frozen assignment and the sidecars (holon.rules.sort.coerce_ref)
   site:ID            a SORT-site term {"site": ID, "on": A, "from": S} (I15): the site's spec as holon.sorts.sites
                      computes it from the facts and the SORT-site sidecar of the law's milestone (template id and
                      version, the basis element and the hit points), so G2 needs no derive output; the term also
@@ -337,6 +340,11 @@ class _Closure:
             self.term(t["on"])
             self.term(t["from"])
             return
+        if isinstance(t.get("coerce"), str) and "on" in t and "from" in t:   # a SORT coercion term (I30)
+            self.coerce(t["coerce"])
+            self.term(t["on"])
+            self.term(t["from"])
+            return
         for v in t.values():
             self.term(v)
 
@@ -350,6 +358,20 @@ class _Closure:
         self.out["width:" + sid] = _h(spec)
         acts = {a.get("name"): a for a in self.f.get("actions") or [] if isinstance(a, dict)}
         for n in spec.get("entry_points") or []:
+            self.put("A_" + n, strip_meta(acts.get(n)) if n in acts else None)
+
+    def coerce(self, cid: str) -> None:
+        """coerce:<ID>: the coercion's spec (holon.rules.sort.coerce_ref: template, subform, basis element and hits),
+        recomputed from the document, the frozen assignment and the sidecars; and the entry points' actions as the
+        extracted document states them (A_<name>)."""
+        if "coerce:" + cid in self.out:
+            return
+        from ..rules.sort import coerce_ref
+        spec = coerce_ref(cid, self.law, self.root)
+        self.out["coerce:" + cid] = _h(spec)
+        acts = {a.get("name"): a for a in self.f.get("actions") or [] if isinstance(a, dict)}
+        for h in spec.get("hits") or []:
+            n = h.get("action")
             self.put("A_" + n, strip_meta(acts.get(n)) if n in acts else None)
 
     def site(self, sid: str) -> None:
