@@ -284,6 +284,11 @@ class TestAgreement(unittest.TestCase):
         for f in files:
             with self.subTest(record=f.name):
                 r = load_json(f)
+                if r.get("kind") == "extracted":   # amended (I20, spec/M2/amendments.jsonl): the step refinement
+                    self.assertEqual(r["disagreements"], [])   # record of I20's contract lists its disagreement
+                    self.assertEqual(r["unexplained"], 0)      # entries; zero of them on any step
+                    self.assertGreater(r["steps"], 0)
+                    continue
                 self.assertEqual(r["disagreements"], 0)
                 self.assertEqual(r["disagreement_ids"], [])
                 self.assertEqual(r["agree"], r["compared"])
@@ -473,7 +478,8 @@ class TestDisagreements(unittest.TestCase):
                 self.assertEqual(want, e["class"], e)
                 ids.add(e["id"])
         for f in sorted(H.REF_DIR.glob("*.json")):
-            for did in load_json(f)["disagreement_ids"]:
+            r = load_json(f)   # amended (I20): a step refinement record lists its entries under "disagreements"
+            for did in (r["disagreement_ids"] if r.get("kind") != "extracted" else [d["id"] for d in r["disagreements"]]):
                 self.assertIn(did, ids, f"{f.name}: {did} has no entry")
         self.assertEqual(R.check_disagreements(ROOT), [])
 
