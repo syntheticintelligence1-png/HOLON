@@ -1,0 +1,1885 @@
+{
+  "deltas": [
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "external:active",
+      "kind": "external",
+      "names": [
+        "active",
+        "commitBatch",
+        "commitState",
+        "proveState"
+      ],
+      "reason": "held by ISubmitter: the active submitter set is the submitter contract's storage (Rollup reads it through ISubmitter.isActive)",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "external:enq",
+      "kind": "external",
+      "names": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "enq",
+        "sendMessage"
+      ],
+      "reason": "held by IL1MessageQueue: the message enqueue times are the message queue's storage",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "external:qlen",
+      "kind": "external",
+      "names": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "qlen",
+        "sendMessage"
+      ],
+      "reason": "held by IL1MessageQueue: the message queue's length is the message queue's storage",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "external:qpend",
+      "kind": "external",
+      "names": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "qpend"
+      ],
+      "reason": "held by IL1MessageQueue: the pending queue index is the message queue's storage",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:ContextUpgradeable.__gap",
+      "kind": "family_unmapped",
+      "names": [
+        "ContextUpgradeable.__gap"
+      ],
+      "reason": "slot 1 offset 0 (inherited from contracts/contracts/l1/rollup/Rollup.sol:Rollup)",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:OwnableUpgradeable.__gap",
+      "kind": "family_unmapped",
+      "names": [
+        "OwnableUpgradeable.__gap"
+      ],
+      "reason": "slot 52 offset 0 (inherited from contracts/contracts/l1/rollup/Rollup.sol:Rollup)",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:PausableUpgradeable.__gap",
+      "kind": "family_unmapped",
+      "names": [
+        "PausableUpgradeable.__gap"
+      ],
+      "reason": "slot 102 offset 0 (inherited from contracts/contracts/l1/rollup/Rollup.sol:Rollup)",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:__maxNumTxInChunk",
+      "kind": "family_unmapped",
+      "names": [
+        "__maxNumTxInChunk"
+      ],
+      "reason": "slot 154 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:_initialized",
+      "kind": "family_unmapped",
+      "names": [
+        "_initialized"
+      ],
+      "reason": "slot 0 offset 0 (inherited from contracts/contracts/l1/rollup/Rollup.sol:Rollup)",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:_initializing",
+      "kind": "family_unmapped",
+      "names": [
+        "_initializing"
+      ],
+      "reason": "slot 0 offset 1 (inherited from contracts/contracts/l1/rollup/Rollup.sol:Rollup)",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:_owner",
+      "kind": "family_unmapped",
+      "names": [
+        "_owner"
+      ],
+      "reason": "slot 51 offset 0 (inherited from contracts/contracts/l1/rollup/Rollup.sol:Rollup)",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:batchChallengeReward",
+      "kind": "family_unmapped",
+      "names": [
+        "batchChallengeReward"
+      ],
+      "reason": "slot 165 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:committedBatches",
+      "kind": "family_unmapped",
+      "names": [
+        "committedBatches"
+      ],
+      "reason": "slot 161 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:isChallenger",
+      "kind": "family_unmapped",
+      "names": [
+        "isChallenger"
+      ],
+      "reason": "slot 159 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:legacyCutoverBatchIndex",
+      "kind": "family_unmapped",
+      "names": [
+        "legacyCutoverBatchIndex"
+      ],
+      "reason": "slot 174 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:messageQueue",
+      "kind": "family_unmapped",
+      "names": [
+        "messageQueue"
+      ],
+      "reason": "slot 155 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:proofRewardPercent",
+      "kind": "family_unmapped",
+      "names": [
+        "proofRewardPercent"
+      ],
+      "reason": "slot 169 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:proveRemaining",
+      "kind": "family_unmapped",
+      "names": [
+        "proveRemaining"
+      ],
+      "reason": "slot 170 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:submitterContract",
+      "kind": "family_unmapped",
+      "names": [
+        "submitterContract"
+      ],
+      "reason": "slot 151 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:verifier",
+      "kind": "family_unmapped",
+      "names": [
+        "verifier"
+      ],
+      "reason": "slot 156 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "family_unmapped:withdrawalRoots",
+      "kind": "family_unmapped",
+      "names": [
+        "withdrawalRoots"
+      ],
+      "reason": "slot 163 offset 0",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "ghost:Entry.tag",
+      "kind": "ghost",
+      "names": [
+        "Entry.tag",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "tag_at",
+        "tags_exact"
+      ],
+      "reason": "a ghost field of Entry (no raw family)",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "ghost:s_tag",
+      "kind": "ghost",
+      "names": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "revertBatch",
+        "s_tag"
+      ],
+      "reason": "a ghost field of the abstraction (no raw family)",
+      "src": null
+    },
+    {
+      "action": "challengeState",
+      "check_kind": "calldatasize",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:challengeState#contracts/contracts/l1/rollup/Rollup.sol:471-496#0",
+      "kind": "guard_extra",
+      "names": [
+        "challengeState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:471-496"
+    },
+    {
+      "action": "challengeState",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:challengeState#contracts/contracts/l1/rollup/Rollup.sol:472#0",
+      "kind": "guard_extra",
+      "names": [
+        "challengeState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:472"
+    },
+    {
+      "action": "challengeState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#0",
+      "kind": "guard_extra",
+      "names": [
+        "challengeState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:489"
+    },
+    {
+      "action": "challengeState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#1",
+      "kind": "guard_extra",
+      "names": [
+        "challengeState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:489"
+    },
+    {
+      "action": "challengeState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:challengeState#contracts/contracts/l1/rollup/Rollup.sol:491#0",
+      "kind": "guard_extra",
+      "names": [
+        "challengeState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:491"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "calldatasize",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:255-269#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:260#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:260"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:267#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:267"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:313"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:319#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:319"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:320#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:320"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:354"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:368"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:368"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "call",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:937"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "commitBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatch"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:313"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:319#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:319"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:320#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:320"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:354"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:368"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:368"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "callvalue",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:382-425#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-425"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "calldatasize",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:382-425#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-425"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:389#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:389"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "call",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:393"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393-394#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:393-394"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:403#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:403"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:409#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:409"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:417#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:417"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:418#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:418"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "call",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#2",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#2",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#2",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "call",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:937"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#2",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#2",
+      "kind": "guard_extra",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "callvalue",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:273-286#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "calldatasize",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:273-286#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:278#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:278"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "call",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:281#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:281"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:281#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:281"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:283#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:283"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:283#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:283"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:313"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:319#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:319"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:320#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:320"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:354"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:368"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:368"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "call",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:937"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "commitState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+      "kind": "guard_extra",
+      "names": [
+        "commitState"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "callvalue",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:625-668#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-668"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "calldatasize",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:625-668#1",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-668"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:657#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:657"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:658#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:658"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:659#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:659"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:660#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:660"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "call",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:749#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:749"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "finalizeBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:finalizeBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+      "kind": "guard_extra",
+      "names": [
+        "finalizeBatch"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "callvalue",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:595-622#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:595-622"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "calldatasize",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:595-622#1",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:595-622"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:613#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:613"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "call",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:793#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:793"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:794#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:794"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:794#1",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:794"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:795#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:795"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "call",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:806#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:806"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:807#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:807"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:807#1",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:807"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "proveState",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:proveState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+      "kind": "guard_extra",
+      "names": [
+        "proveState"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "revertBatch",
+      "check_kind": "callvalue",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:revertBatch#contracts/contracts/l1/rollup/Rollup.sol:430-468#0",
+      "kind": "guard_extra",
+      "names": [
+        "revertBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:430-468"
+    },
+    {
+      "action": "revertBatch",
+      "check_kind": "calldatasize",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:revertBatch#contracts/contracts/l1/rollup/Rollup.sol:430-468#1",
+      "kind": "guard_extra",
+      "names": [
+        "revertBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:430-468"
+    },
+    {
+      "action": "revertBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:revertBatch#contracts/contracts/l1/rollup/Rollup.sol:443#0",
+      "kind": "guard_extra",
+      "names": [
+        "revertBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:443"
+    },
+    {
+      "action": "revertBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:revertBatch#contracts/contracts/l1/rollup/Rollup.sol:450#0",
+      "kind": "guard_extra",
+      "names": [
+        "revertBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:450"
+    },
+    {
+      "action": "revertBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:revertBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+      "kind": "guard_extra",
+      "names": [
+        "revertBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:825"
+    },
+    {
+      "action": "revertBatch",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:revertBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+      "kind": "guard_extra",
+      "names": [
+        "revertBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:826"
+    },
+    {
+      "action": "revertBatch",
+      "check_kind": "revert",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:revertBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+      "kind": "guard_extra",
+      "names": [
+        "revertBatch"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:844"
+    },
+    {
+      "action": "revertBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:revertBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+      "kind": "guard_extra",
+      "names": [
+        "revertBatch"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+    },
+    {
+      "action": "revertBatch",
+      "check_kind": "require",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:revertBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+      "kind": "guard_extra",
+      "names": [
+        "revertBatch"
+      ],
+      "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+    },
+    {
+      "action": "setPause",
+      "check_kind": "modifier",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:setPause#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+      "kind": "guard_extra",
+      "names": [
+        "setPause"
+      ],
+      "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+      "action": "setPause",
+      "check_kind": "modifier",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:setPause#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84#0",
+      "kind": "guard_extra",
+      "names": [
+        "setPause"
+      ],
+      "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84"
+    },
+    {
+      "action": "setPause",
+      "check_kind": "abi",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:setPause#contracts/contracts/l1/rollup/Rollup.sol:573#0",
+      "kind": "guard_extra",
+      "names": [
+        "setPause"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:573"
+    },
+    {
+      "action": "setPause",
+      "check_kind": "callvalue",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:setPause#contracts/contracts/l1/rollup/Rollup.sol:573-588#0",
+      "kind": "guard_extra",
+      "names": [
+        "setPause"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:573-588"
+    },
+    {
+      "action": "setPause",
+      "check_kind": "calldatasize",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:setPause#contracts/contracts/l1/rollup/Rollup.sol:573-588#1",
+      "kind": "guard_extra",
+      "names": [
+        "setPause"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:573-588"
+    },
+    {
+      "action": "setPause",
+      "check_kind": "panic",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "guard_extra:setPause#contracts/contracts/l1/rollup/Rollup.sol:578-579#0",
+      "kind": "guard_extra",
+      "names": [
+        "setPause"
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:578-579"
+    },
+    {
+      "action": "commitBatch",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "guard": 21,
+      "id": "guard_missing:commitBatch:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+      "kind": "guard_missing",
+      "names": [
+        "commitBatch",
+        "qlen"
+      ],
+      "reason": 15,
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "guard": 25,
+      "id": "guard_missing:commitBatchWithProof:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+      "kind": "guard_missing",
+      "names": [
+        "commitBatchWithProof",
+        "qlen"
+      ],
+      "reason": 15,
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "guard": 30,
+      "id": "guard_missing:commitBatchWithProof:oracle: IRollupVerifier.verifyAggregateProof",
+      "kind": "guard_missing",
+      "names": [
+        "commitBatchWithProof"
+      ],
+      "reason": 22,
+      "src": "oracle: IRollupVerifier.verifyAggregateProof"
+    },
+    {
+      "action": "commitState",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "guard": 20,
+      "id": "guard_missing:commitState:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+      "kind": "guard_missing",
+      "names": [
+        "commitState",
+        "qlen"
+      ],
+      "reason": 15,
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108"
+    },
+    {
+      "action": "commitState",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "guard": 11,
+      "id": "guard_missing:commitState:contracts/contracts/l1/rollup/Rollup.sol:262-266",
+      "kind": "guard_missing",
+      "names": [
+        "D",
+        "commitState",
+        "t"
+      ],
+      "reason": 5,
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266"
+    },
+    {
+      "action": "finalizeBatch",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "guard": 14,
+      "id": "guard_missing:finalizeBatch:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325 popCrossDomainMessage",
+      "kind": "guard_missing",
+      "names": [
+        "finalizeBatch",
+        "qpend"
+      ],
+      "reason": 40,
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325 popCrossDomainMessage"
+    },
+    {
+      "action": "proveState",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "guard": 9,
+      "id": "guard_missing:proveState:oracle: IRollupVerifier.verifyAggregateProof",
+      "kind": "guard_missing",
+      "names": [
+        "proveState"
+      ],
+      "reason": 22,
+      "src": "oracle: IRollupVerifier.verifyAggregateProof"
+    },
+    {
+      "action": "setPause",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "guard": 2,
+      "id": "guard_missing:setPause:@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:106 _unpause whenPaused",
+      "kind": "guard_missing",
+      "names": [
+        "paused",
+        "setPause"
+      ],
+      "reason": 39,
+      "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:106 _unpause whenPaused"
+    },
+    {
+      "action": "setPause",
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "guard": 1,
+      "id": "guard_missing:setPause:@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:94 _pause whenNotPaused",
+      "kind": "guard_missing",
+      "names": [
+        "paused",
+        "setPause"
+      ],
+      "reason": 3,
+      "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:94 _pause whenNotPaused"
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:Entry.hb",
+      "kind": "state_unmapped",
+      "names": [
+        "Entry.hb",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "hdr_of"
+      ],
+      "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:Entry.lbn",
+      "kind": "state_unmapped",
+      "names": [
+        "Entry.lbn",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "hdr_of"
+      ],
+      "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:Entry.n",
+      "kind": "state_unmapped",
+      "names": [
+        "Entry.n",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "go_append_heap",
+        "go_append_slice",
+        "hdr_of"
+      ],
+      "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:Entry.post",
+      "kind": "state_unmapped",
+      "names": [
+        "Entry.post",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "hdr_of"
+      ],
+      "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:Entry.prev",
+      "kind": "state_unmapped",
+      "names": [
+        "Entry.prev",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "hdr_of"
+      ],
+      "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:Entry.tot",
+      "kind": "state_unmapped",
+      "names": [
+        "Entry.tot",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "hdr_of"
+      ],
+      "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:Entry.ver",
+      "kind": "state_unmapped",
+      "names": [
+        "Entry.ver",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "hdr_of",
+        "tags_exact"
+      ],
+      "reason": "a header field: committedBatches holds only the keccak256 of the header bytes",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:chals",
+      "kind": "state_unmapped",
+      "names": [
+        "challengeState",
+        "chals"
+      ],
+      "reason": "not determined by the raw families: isChallenger is a mapping keyed by address: the set of its keys is not storage",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:log",
+      "kind": "state_unmapped",
+      "names": [
+        "log"
+      ],
+      "reason": "the record of step outcomes: the abstraction's log records step outcomes (ok or a revert reason), not storage",
+      "src": null
+    },
+    {
+      "declaration": "spec/M2/lib/window_rollup.json",
+      "id": "state_unmapped:t",
+      "kind": "state_unmapped",
+      "names": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "kappa",
+        "proveState",
+        "sendMessage",
+        "t",
+        "wait"
+      ],
+      "reason": "the environment (block.timestamp): the abstraction keeps the clock as state; the contract reads it from the block",
+      "src": null
+    }
+  ],
+  "differential_version": "holon-differential/0.1",
+  "document": "abstraction_diff"
+}

@@ -1,0 +1,95 @@
+{
+  "differential_version": "holon-differential/0.1",
+  "document": "differential",
+  "laws": {
+    "L_disch_delay_nofree": {
+      "deltas": [
+        "guard_missing:commitBatch:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+        "guard_missing:commitBatchWithProof:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+        "guard_missing:commitBatchWithProof:oracle: IRollupVerifier.verifyAggregateProof",
+        "guard_missing:commitState:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:108",
+        "guard_missing:commitState:contracts/contracts/l1/rollup/Rollup.sol:262-266",
+        "guard_missing:finalizeBatch:contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325 popCrossDomainMessage",
+        "guard_missing:proveState:oracle: IRollupVerifier.verifyAggregateProof",
+        "guard_missing:setPause:@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:106 _unpause whenPaused",
+        "guard_missing:setPause:@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:94 _pause whenNotPaused"
+      ],
+      "extracted": "REFUTED",
+      "m1": "PROVED"
+    },
+    "L_disch_delay_pay": {
+      "deltas": [],
+      "extracted": "PROVED",
+      "m1": "PROVED"
+    },
+    "L_disch_delay_prove": {
+      "deltas": [],
+      "extracted": "PROVED",
+      "m1": "PROVED"
+    },
+    "L_disch_delay_wait": {
+      "deltas": [],
+      "extracted": "PROVED",
+      "m1": "PROVED"
+    },
+    "L_disch_stale": {
+      "deltas": [],
+      "extracted": "PROVED",
+      "m1": "PROVED"
+    },
+    "L_disch_stale_commit": {
+      "deltas": [],
+      "extracted": "PROVED",
+      "m1": "PROVED"
+    },
+    "L_fact_Z": {
+      "deltas": [],
+      "extracted": "REFUTED",
+      "m1": "REFUTED"
+    },
+    "L_nat_eta2": {
+      "deltas": [],
+      "extracted": "REFUTED",
+      "m1": "REFUTED"
+    },
+    "L_sort_remaining": {
+      "deltas": [],
+      "extracted": "REFUTED",
+      "m1": "REFUTED"
+    },
+    "L_sym_omega": {
+      "deltas": [],
+      "extracted": "REFUTED",
+      "m1": "REFUTED"
+    },
+    "L_tag_BVH": {
+      "deltas": [
+        "ghost:Entry.tag",
+        "ghost:s_tag"
+      ],
+      "extracted": "UNKNOWN",
+      "m1": "REFUTED",
+      "not_run": "the statement reads ghost state through tags_ok: the extracted model has no ghost field, so the law is not run on it"
+    },
+    "L_undo_BD": {
+      "deltas": [],
+      "extracted": "PROVED",
+      "m1": "PROVED"
+    },
+    "L_undo_BVH": {
+      "deltas": [],
+      "extracted": "REFUTED",
+      "m1": "REFUTED"
+    },
+    "L_undo_CSR": {
+      "deltas": [],
+      "extracted": "PROVED",
+      "m1": "PROVED"
+    },
+    "L_undo_cancel": {
+      "deltas": [],
+      "extracted": "REFUTED",
+      "m1": "REFUTED"
+    }
+  }
+}
