@@ -36,3 +36,14 @@ Compile I19's extracted rollup state machine into a Bend model, with raw storage
 - **AGENTS.md is binding.** Never edit `facts/`, `spec/M1/facts/` or `laws/M1/`.
 - **Deltas are mechanical:** each one is a concrete difference between the documents, touching the law's cone. Prose never explains a status difference.
 - **No tuning, no skips.** A miss is a Surprise reported with its evidence.
+
+## Contract tightening (2026-10-13, before the build)
+
+Clauses 7 to 10 of the contract docstring were added after the prereg and before any outcome existed. They are additive and leave the key and predictions unchanged.
+- **Clause 7: observables.** Each refinement step compares status, revert data (reason, custom-error selector or Panic code), every touched storage slot (read with `vm.load` at the document's layout) and emitted events.
+- **Clause 7: guard coverage.** The boundary corpus targets every guard reach and implicit check. Each one is falsified on both sides, or listed with a reason.
+- **Clause 8:** every modelled action both succeeds and reverts in the corpus.
+- **Clause 9:** both sides Panic 0x11 at Rollup.sol:363 on I15's witnesses.
+- **Clause 10:** `holon model` and `holon differential` are deterministic.
+
+Compile every guard reach, implicit check and event that the extracted document records (I19 follow-up A19), not only the first reach of each guard.
