@@ -421,21 +421,26 @@ class TestToyEndToEnd(unittest.TestCase):
         self.assertEqual(rec["evaluator"], "holon.extracted_eval:step (model: holon.machine.load_extracted)")
 
     def test_the_targeting_search_reaches_the_implicit_checks(self):
-        """Dirty calldata for an ABI range check, a call value for the call-value checks; both sides revert there."""
+        """Dirty calldata for an ABI range check, a call value for the call-value checks, the calldata cut short for
+        the calldatasize checks of the actions with arguments; both sides revert there."""
         rec, det, _ = self.faithful()
         muts = {c["meta"].get("targets"): c["meta"].get("mutation") for c in det["compared"]
                 if c["meta"].get("source") == "target"}
         abi = [r.id for r in self.model.all_reaches() if r.kind == "abi"]
         cv = [r.id for r in self.model.all_reaches() if r.kind == "callvalue"]
-        self.assertTrue(abi and cv)
+        cs = [r.id for r in self.model.all_reaches() if r.kind == "calldatasize"]
+        self.assertTrue(abi and cv and cs)
         for rid in abi:
             with self.subTest(reach=rid):
                 self.assertTrue(str(muts.get(rid)).startswith("dirty "), muts)
         for rid in cv:
             with self.subTest(reach=rid):
                 self.assertEqual(muts.get(rid), "msg.value=1")
+        for rid in cs:
+            with self.subTest(reach=rid):
+                self.assertTrue(str(muts.get(rid)).startswith("calldata length="), muts)
         unf = {u["id"] for u in rec["guard_coverage"]["unfalsified"]}
-        self.assertFalse(unf & (set(abi) | set(cv)), unf)
+        self.assertFalse(unf & (set(abi) | set(cv) | set(cs)), unf)
 
     def test_the_boundary_corpus_pokes_dirty_bool_bytes(self):
         """The paused flag's storage byte at 2 and at 255 (vm.store before the call, the harness's poked call): the

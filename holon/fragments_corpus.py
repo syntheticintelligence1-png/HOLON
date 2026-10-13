@@ -16,7 +16,8 @@ Sources, in this order (holon.replay_fragments runs them):
   target    fork steps built for one reach each (Search.target): a base call of the translation run, or a call built
             from the ABI for an action the corpus never calls, mutated on the atoms of the reach's term (its parameters,
             their bytes and words, the caller, msg.value, the clock, the blob hashes; a dirty calldata word for an ABI
-            range check) and kept when the term evaluator here (Evaluator) finds every earlier reach of the action
+            range check; the call's calldata cut to the lengths a calldatasize check compares, the selector kept)
+            and kept when the term evaluator here (Evaluator) finds every earlier reach of the action
             holding and that one false. A reach the search cannot violate gets a mechanical reason (counts, atoms and
             what the targeting steps did on both sides).
 Every value comes from the documents (the extracted document, the binding and its abstract facts, the I15 records),
@@ -779,6 +780,15 @@ class Search:
                 if who != b.env.get("caller"):
                     out.append((f"caller={who}", b.args, {**b.env, "caller": who}, None))
         envs = {t[1] for t in acc if t and t[0] == "env" and len(t) > 1}
+        if "msg.data.length" in envs:   # a calldatasize check: the same call cut short (selector kept)
+            try:
+                full = abi.encode_call(b.fn, b.args)
+            except abi.AbiError:
+                full = None
+            nfull = (len(full) - 2) // 2 if full else 0
+            for v in _uniq(other_values(lambda s: s == ["env", "msg.data.length"]) + [4]):
+                if full and 4 <= v < nfull:
+                    out.append((f"calldata length={v}", b.args, {**b.env, "msg.data.length": v}, full[:2 + 2 * v]))
         if "msg.value" in envs:
             for v in _uniq(other_values(lambda s: s == ["env", "msg.value"]) + [0, 1]):
                 if v >= 0 and v != b.env.get("msg.value"):

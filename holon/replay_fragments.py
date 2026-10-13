@@ -604,7 +604,8 @@ def immutables_of(proj: Path, art: dict) -> dict:
 def model_call(tgt: Target, e: Exec, before: dict, target_addr: str, code: str | None = None,
                impl_code: str | None = None) -> tuple[str, dict, dict, dict] | None:
     """(action, state, args, env) of a step that calls the target with a document action's selector, else None.
-    Raises abi.AbiError when the calldata does not decode (the corpus never builds such a step)."""
+    Calldata that does not decode strictly gives its raw words (dirty calldata), and calldata shorter than its
+    arguments gives none (the model's calldatasize check reads only msg.data.length)."""
     if e.kind != "call" or e.to != target_addr:
         return None
     action = tgt.action_of(e.data)
@@ -616,7 +617,10 @@ def model_call(tgt: Target, e: Exec, before: dict, target_addr: str, code: str |
         try:
             args = abi.decode_args(fn["inputs"], bytes.fromhex(e.data[10:]))
         except abi.AbiError:   # dirty calldata (an ABI range check's target): the raw words, for the model to reject
-            args = abi.decode_args(fn["inputs"], bytes.fromhex(e.data[10:]), strict=False)
+            try:
+                args = abi.decode_args(fn["inputs"], bytes.fromhex(e.data[10:]), strict=False)
+            except abi.AbiError:   # calldata shorter than its arguments (a calldatasize check's target): none
+                args = {}
     calls = []
     for to, data, ok, ret in e.calls:
         name, fe = tgt.calls.get(data[:10], (None, None))
