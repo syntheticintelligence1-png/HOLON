@@ -5,9 +5,17 @@ The log is append-only: one JSON object per line, {"kind", "law_id", "old": IR, 
 A frozen statement may change only through an entry that this module accepts:
 
   reextraction     the changed refs come from extractor output that G1 reproduces from the pinned code with
-                   the pinned extractor (and `holon derive` reproduces the new statement). A facts file whose
-                   extraction.method says it was written by hand never qualifies. No pinned extractor exists
-                   yet, so today every reextraction is rejected, with the reason.
+                   the pinned extractor, and `holon derive` reproduces the new statement from the same (rule,
+                   subform, basis element) (I20; holon.sorts.reextract). Accepted unsigned only when: the
+                   entry's "facts" is an extracted document (extraction.method "extracted") whose sidecar,
+                   extracted again from the pinned checkout by its frontend, gives it byte for byte; the
+                   statement is unchanged and the refs whose hashes differ between the old derivation (the
+                   reextract sidecar disabled) and the new are exactly the entry's "refs", each SORT-site spec
+                   carrying that document's evidence; the entry's old_hash/new_hash are the recomputed ones; and
+                   holon.rules.compute on the tree gives the new statement with new_hash from the entry's
+                   "derivation" (rule, subform, basis), which is also the old law's in HEAD's DERIVATION.json. A
+                   facts file written by hand never qualifies. `python -m holon.statement_diff reextract
+                   --milestone M [--append]` builds the entries a re-derivation needs (reextraction_entries).
   binding_change   an emitted def changed under a fixed statement: a generated, kernel-checked equivalence law
                    between the old and the new def, or a signature. No equivalence generator exists yet, so an
                    unsigned binding_change is rejected.
@@ -119,8 +127,8 @@ def verify_signature(entry: dict, root: Path) -> tuple[bool, str]:
 
 
 # ---------------------------------------------------------------- entries
-def check_entry(entry: dict, root: Path) -> dict:
-    root = Path(root)
+def check_entry(entry: dict, root: Path | None = None) -> dict:
+    root = Path(root or ir.ROOT)
     if not isinstance(entry, dict):
         return _res(False, "an entry is a JSON object")
     kind = entry.get("kind")
@@ -162,21 +170,182 @@ def check_entry(entry: dict, root: Path) -> dict:
     return _res(False, f"{kind} without a checked {new['law_id']} => {old['law_id']} ({imp['status']}: {imp['reason']})", imp)
 
 
-def _reextraction(entry: dict, old: dict, new: dict, root: Path) -> dict:
-    rel = entry.get("facts") or new.get("facts")
-    if not isinstance(rel, str) or not (root / rel).is_file():
-        return _res(False, f"a reextraction names the facts file it comes from (got {rel!r})")
+_REPRO: dict = {}     # (root, document, its sha256, sidecar sha256) -> (ok, why): one re-extraction per process
+_DERIVED: dict = {}   # (root, milestone, inputs fingerprint) -> holon.rules.compute(..)
+
+
+def reproduce_extraction(rel: str, root: Path) -> tuple[bool, str]:
+    """G1 for one extracted document: its sidecar (extraction.sidecar.path, still at extraction.sidecar.sha256)
+    extracted again by its frontend from the pinned code (holon.frontends.extract checks the source checkout's commit
+    and cleanliness and the pinned solc) gives the document byte for byte. A document whose extraction.method says it
+    was written by hand never qualifies."""
+    root = Path(root)
+    p = root / rel
+    if not p.is_file():
+        return False, f"the reextraction names {rel!r}, which does not exist"
+    data = p.read_bytes()
     try:
-        facts = json.loads((root / rel).read_text())
+        doc = json.loads(data.decode("utf-8"))
     except ValueError as e:
-        return _res(False, f"{rel} is not JSON: {e}")
-    ext = facts.get("extraction") if isinstance(facts, dict) else None
+        return False, f"{rel} is not JSON: {e}"
+    ext = doc.get("extraction") if isinstance(doc, dict) else None
     method = str(ext.get("method", "")) if isinstance(ext, dict) else ""
     if not method or "hand" in method.lower():
-        return _res(False, f"{rel} is hand-written (extraction.method = {method!r}): a reextraction must come from "
-                           "extractor output that G1 reproduces from the pinned code with the pinned extractor")
-    return _res(False, f"no pinned extractor reproduces {rel} (extraction.method = {method!r}): G1 cannot re-run an "
-                       "extraction and `holon derive` does not exist yet, so no reextraction is accepted")
+        return False, (f"{rel} is hand-written (extraction.method = {method!r}): a reextraction must come from "
+                       "extractor output that G1 reproduces from the pinned code with the pinned extractor")
+    if doc.get("facts_version") != "holon-facts/0.3" or method != "extracted":
+        return False, (f"{rel} is not extractor output (facts_version {doc.get('facts_version')!r}, extraction.method "
+                       f"{method!r}): a reextraction must come from extractor output that G1 reproduces from the pinned "
+                       "code with the pinned extractor")
+    side = (ext or {}).get("sidecar") or {}
+    srel, ssha = side.get("path"), side.get("sha256")
+    if not isinstance(srel, str) or not (root / srel).is_file():
+        return False, f"{rel}: its extraction names no sidecar in the tree ({srel!r})"
+    got = hashlib.sha256((root / srel).read_bytes()).hexdigest()
+    if got != ssha:
+        return False, f"{rel}: its sidecar {srel} hashes to {got[:12]}.., the document records {str(ssha)[:12]}.."
+    key = (str(root.resolve()), rel, hashlib.sha256(data).hexdigest(), got)
+    if key not in _REPRO:
+        from . import frontends
+        try:
+            fresh = frontends.render(frontends.extract(root / srel, root))
+        except (frontends.Refused, frontends.ExtractionError) as e:
+            _REPRO[key] = (False, f"G1 cannot re-extract {rel} from the pinned code: {type(e).__name__}: {e}")
+        else:
+            _REPRO[key] = ((True, f"G1 re-extracts {rel} byte for byte with {ext.get('frontend_version')}")
+                           if fresh == data else
+                           (False, f"G1 re-extracts {rel} from the pinned code with the pinned extractor and gets other "
+                                   "bytes: the document is not what the extractor writes"))
+    return _REPRO[key]
+
+
+def _derived(milestone: str, root: Path) -> dict:
+    from . import rules
+    from .sorts import reextract
+    fp = []
+    for p in [reextract.sidecar_path(milestone, root)] + sorted((root / "spec").glob("*/lib/window_*.json")):
+        fp.append((p.as_posix(), hashlib.sha256(p.read_bytes()).hexdigest() if p.is_file() else None))
+    sc = reextract.sidecar(milestone, root) or {}
+    for rel in sc.get("documents") or []:
+        q = root / rel
+        fp.append((rel, hashlib.sha256(q.read_bytes()).hexdigest() if q.is_file() else None))
+    key = (str(root.resolve()), milestone, json.dumps(fp))
+    if key not in _DERIVED:
+        _DERIVED[key] = rules.compute(milestone, root)
+    return _DERIVED[key]
+
+
+def _facts_of(law: dict, root: Path) -> dict:
+    return json.loads((root / law["facts"]).read_text())
+
+
+def _ref_view(law: dict, root: Path, old: bool) -> tuple[dict, str]:
+    """(refs, statement hash) of a law on the current tree; old: as before the milestone adopted extracted documents
+    (holon.sorts.reextract.disabled)."""
+    from .gen import refs as R
+    from .sorts import reextract
+    facts = _facts_of(law, root)
+    if old:
+        with reextract.disabled():
+            return R.refs(law, facts, root=root), R.law_hash(law, facts, root=root)
+    return R.refs(law, facts, root=root), R.law_hash(law, facts, root=root)
+
+
+def _reextraction(entry: dict, old: dict, new: dict, root: Path) -> dict:
+    """A reextraction is accepted unsigned only when (1) G1 reproduces the document it names from the pinned code with
+    the pinned extractor, (2) the statement's refs that changed are exactly the entry's, each now hashing what the
+    entry says and each carrying that document's evidence, with no other ref and no statement field changed, and (3)
+    holon derive reproduces the new statement, with its hash, from the same (rule, subform, basis element) as the old
+    one. (I20; holon.sorts.reextract.)"""
+    rel = entry.get("facts")
+    if not isinstance(rel, str):
+        return _res(False, f"a reextraction names the extracted document its changed refs come from (got {rel!r})")
+    ok, why = reproduce_extraction(rel, root)
+    if not ok:
+        return _res(False, why)
+    for k in ("old_hash", "new_hash", "refs", "derivation", "milestone"):
+        if k not in entry:
+            return _res(False, f"a reextraction entry carries {k!r}")
+    if core(old) != core(new):
+        return _res(False, "a reextraction changes the statement's refs, not the statement: old and new differ")
+    refs = entry["refs"]
+    if not isinstance(refs, dict) or not refs:
+        return _res(False, "a reextraction lists the refs that changed")
+    try:
+        r_old, h_old = _ref_view(old, root, old=True)
+        r_new, h_new = _ref_view(new, root, old=False)
+    except (OSError, ValueError, KeyError) as e:
+        return _res(False, f"the refs cannot be recomputed: {type(e).__name__}: {e}")
+    changed = sorted(k for k in set(r_old) | set(r_new) if r_old.get(k) != r_new.get(k))
+    if changed != sorted(refs):
+        return _res(False, f"the refs that changed are {changed}, the entry lists {sorted(refs)}")
+    for k in changed:
+        if refs[k] != {"old": r_old.get(k), "new": r_new.get(k)}:
+            return _res(False, f"ref {k}: the entry's hashes are not the recomputed ones")
+        if not k.startswith("site:"):
+            return _res(False, f"ref {k}: only a SORT-site spec carries extracted evidence")
+        from .sorts.sites import site_ref
+        from .gen.targetlib import Library, lib_files
+        f = _facts_of(new, root)
+        lib = Library([json.loads(p.read_text()) for p in lib_files(root / new["facts"], root)], f.get("params", {}))
+        spec = site_ref(k[len("site:"):], new, f, lib.builtins, root)
+        docs = [x.get("document") for x in spec.get("extracted") or []] if isinstance(spec, dict) else []
+        if rel not in docs:
+            return _res(False, f"ref {k}: its spec carries no evidence of {rel}")
+    if (h_old, h_new) != (entry["old_hash"], entry["new_hash"]):
+        return _res(False, "the entry's statement hashes are not the recomputed ones")
+    try:
+        der = _derived(entry["milestone"], root)
+    except Exception as e:  # noqa: BLE001  (a derive that fails reproduces nothing)
+        return _res(False, f"holon derive fails on the tree: {type(e).__name__}: {e}")
+    law = der["laws"].get(new["law_id"])
+    de = next((e for e in der["derivation"]["laws"] if e["law_id"] == new["law_id"]), None)
+    if law is None or de is None or core(law) != core(new):
+        return _res(False, f"holon derive does not reproduce the new statement of {new['law_id']}")
+    if de.get("statement_hash") != entry["new_hash"]:
+        return _res(False, f"holon derive gives {new['law_id']} the hash {de.get('statement_hash')}, the entry "
+                           f"{entry['new_hash']}")
+    same = {k: de.get(k) for k in ("rule", "subform", "basis")}
+    if same != entry["derivation"]:
+        return _res(False, "holon derive derives the law from another (rule, subform, basis element) than the entry's")
+    if in_git(root):
+        before = _json_or_none(blob_at(root, "HEAD", f"laws/{entry['milestone']}/DERIVATION.json"))
+        if isinstance(before, dict):
+            ob = next((e for e in before.get("laws") or [] if e.get("law_id") == old["law_id"]), None)
+            if ob is None or {k: ob.get(k) for k in ("rule", "subform", "basis")} != same:
+                return _res(False, "the old statement was not derived from the same (rule, subform, basis element)")
+    return _res(True, f"reextraction: {why}; refs {', '.join(changed)} carry its evidence; holon derive reproduces "
+                      f"the new statement from {same['rule']}/{same['subform']} {json.dumps(same['basis'], sort_keys=True)[:120]}")
+
+
+def reextraction_entries(milestone: str, root: Path) -> list[dict]:
+    """The reextraction entries the milestone's re-derivation needs (holon.sorts.reextract): for every law of
+    laws/<M> whose committed statement hash (laws/<M>/REGISTRY.json) differs from holon derive's on the tree and whose
+    derivation carries extracted evidence, {"kind": "reextraction", ...} with the law as committed (old) and as derived
+    (new). Entries are not appended here (append checks each one)."""
+    root = Path(root)
+    reg = json.loads((root / "laws" / milestone / "REGISTRY.json").read_text())
+    der = _derived(milestone, root)
+    out = []
+    for e in der["derivation"]["laws"]:
+        lid = e["law_id"]
+        if "extracted" not in e or lid not in (reg.get("statements") or {}):
+            continue
+        if reg["statements"][lid] == e["statement_hash"]:
+            continue
+        old = json.loads((root / "laws" / milestone / f"{lid}.json").read_text())
+        new = der["laws"][lid]
+        r_old, h_old = _ref_view(old, root, old=True)
+        r_new, h_new = _ref_view(new, root, old=False)
+        changed = sorted(k for k in set(r_old) | set(r_new) if r_old.get(k) != r_new.get(k))
+        docs = sorted({x["document"] for x in e["extracted"]})
+        out.append({"kind": "reextraction", "law_id": lid, "milestone": milestone, "old": old, "new": new,
+                    "facts": docs[0] if docs else None, "old_hash": h_old, "new_hash": h_new,
+                    "refs": {k: {"old": r_old.get(k), "new": r_new.get(k)} for k in changed},
+                    "derivation": {k: e.get(k) for k in ("rule", "subform", "basis")},
+                    "reason": f"{lid} re-derived on the extracted facts {', '.join(docs)} (holon.sorts.reextract): "
+                              "its site spec gains the extracted checks at its span"})
+    return out
 
 
 # ---------------------------------------------------------------- the log
@@ -242,6 +411,8 @@ def acceptance(entry: dict, result: dict, root: Path) -> dict:
         rel = entry.get(side, {}).get("facts") if _is_law(entry.get(side)) else None
         if isinstance(rel, str) and (root / rel).is_file():
             facts[rel] = _sha((root / rel).read_bytes())
+    if entry.get("kind") == "reextraction" and isinstance(entry.get("facts"), str) and (root / entry["facts"]).is_file():
+        facts[entry["facts"]] = _sha((root / entry["facts"]).read_bytes())   # the extracted document (I20)
     acc = {"kind": entry.get("kind"), "facts": dict(sorted(facts.items()))}
     imp = result.get("implication") or {}
     if imp.get("status") == "PROVED":
@@ -331,8 +502,8 @@ def _verify_committed(e, acc, commit: str, root: Path) -> str | None:
         return "its acceptance record names no checked implication"
     if e.get("kind") in ("weakening", "binding_change") and acc.get("signature") != "verified against keys/":
         return "its acceptance record names no verified signature"
-    if e.get("kind") == "reextraction":
-        return "no reextraction is accepted (no pinned extractor)"
+    if e.get("kind") == "reextraction" and e.get("facts") not in acc["facts"]:
+        return "its acceptance record does not name the extracted document the entry comes from"
     for rel, sha in sorted(acc["facts"].items()):
         b = blob_at(root, commit, rel)
         if b is None or _sha(b) != sha:
@@ -530,11 +701,23 @@ def main(argv: list[str] | None = None) -> int:
     print the verdict of every line."""
     import argparse
     ap = argparse.ArgumentParser(prog="python -m holon.statement_diff")
-    ap.add_argument("command", choices=("append", "check"))
+    ap.add_argument("command", choices=("append", "check", "reextract"))
     ap.add_argument("entry", nargs="?")
     ap.add_argument("--root", default=str(ir.ROOT))
+    ap.add_argument("--milestone", default="M2", help="reextract: the milestone whose laws are re-derived")
+    ap.add_argument("--append", action="store_true", help="reextract: append every accepted entry to the log")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve()
+    if a.command == "reextract":
+        es = reextraction_entries(a.milestone, root)
+        bad = 0
+        for e in es:
+            r = append(e, root) if a.append else check_entry(e, root)
+            print(f"{e['law_id']}: {'accepted' if r['ok'] else 'REJECTED'}{' and appended' if r['ok'] and a.append else ''}"
+                  f": {r['reason']}")
+            bad += not r["ok"]
+        print(f"{len(es)} reextraction entries, {bad} rejected")
+        return 0 if not bad else 1
     if a.command == "append":
         if not a.entry:
             ap.error("append needs ENTRY.json")

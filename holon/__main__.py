@@ -27,6 +27,11 @@
   python -m holon link --milestone M2 [--root DIR] [--out PATH] [--check]       (gen/M2/link.json; I19)
   python -m holon historical fetch [--milestone M2] [--from N] [--to M] [--index PATH] [--snapshot DIR]
   python -m holon historical replay [--milestone M2] [--index PATH] [--out PATH]   (on-chain history, I59)
+  python -m holon model --facts <transitions document> --out DIR   (the extracted model: model.bend, layout.json,
+                                                                    window_check.json; holon.machine, I20)
+  python -m holon differential --milestone M2 [--root DIR]  (the M1 laws on the extracted model through the window
+                                                             view: gen/M2/abstraction_diff.json,
+                                                             results/M2/differential.json; I20)
 """
 from __future__ import annotations
 
@@ -67,6 +72,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["historical"]:  # likewise for holon.historical (fetch | replay, I59)
         from . import historical
         return historical.main(argv[1:])
+    if argv[:1] == ["differential"]:  # likewise for holon.differential (I20)
+        from . import differential
+        return differential.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
@@ -135,6 +143,8 @@ def main(argv=None) -> int:
     md.add_argument("--milestone", default="M2")
     md.add_argument("--facts", required=True, help="the fact document (repo-relative)")
     md.add_argument("--out", help="directory to write <model>.bend into (default: print the build path only)")
+    md.add_argument("--source", help="a transitions document's source tree, when the configuration names none for "
+                                     "its target (holon.machine; a planted fixture)")
     mt = sub.add_parser("metrics", help="write results/<M>/metrics.json and metrics_timing.json (I16)")
     mt.add_argument("--milestone", default="M0")
     mt.add_argument("--root")

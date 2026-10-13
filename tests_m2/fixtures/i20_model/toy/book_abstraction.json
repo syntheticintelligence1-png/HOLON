@@ -1,0 +1,54 @@
+{
+ "abstractions": ["A hand abstraction of src/Book.sol for the I20 model-side unit tests: entries is the list of deposits by id (1..count); mark is a ghost field."],
+ "actions": [
+  {
+   "effects": {
+    "count": ["+", "count", 1],
+    "entries": ["call", "snoc", "entries", ["mk", "E", {"amount": "amount", "mark": 1, "who": "who"}]],
+    "total": ["+", "total", "amount"]
+   },
+   "guards": [
+    {"reason": 1, "require": ["!", "stopped"], "src": "src/Book.sol:21"},
+    {"reason": 2, "require": [">", "amount", 0], "src": "src/Book.sol:47"},
+    {"reason": 3, "require": ["call", "mem", "who", "allowed"], "src": "oracle: IGate.allowed"},
+    {"reason": 4, "require": ["<", ["+", "total", "amount"], 18446744073709551616], "src": "src/Book.sol:49"}
+   ],
+   "inputs": [["who", "Nat"], ["amount", "Nat"]],
+   "name": "deposit",
+   "principal": "anyone",
+   "src": "src/Book.sol:46-53"
+  },
+  {
+   "effects": {"stopped": "on"},
+   "guards": [{"reason": 5, "require": ["==", "who", "owner"], "src": "src/Book.sol:16"}],
+   "inputs": [["who", "Nat"], ["on", "Bool"]],
+   "name": "setStopped",
+   "principal": "owner",
+   "src": "src/Book.sol:63-66"
+  },
+  {
+   "effects": {"t": ["+", "t", "dt"]},
+   "guards": [],
+   "inputs": [["dt", "Nat"]],
+   "name": "wait",
+   "principal": "environment"
+  }
+ ],
+ "defs": {
+  "mark_of": {"body": ["get", ["call", "nth", "entries", "i"], "mark"], "ghost": true, "params": [["entries", "List<E>"], ["i", "Nat"]], "type": "Nat"}
+ },
+ "extraction": {"date": "2026-10-13", "method": "hand-written fixture (I20 model-side unit tests)"},
+ "facts_version": "holon-facts/0.2",
+ "ghost_state": ["marks"],
+ "initial": {"allowed": [], "count": 0, "entries": [], "log": [], "marks": [], "owner": 1, "stopped": false, "t": 0, "total": 0},
+ "observers": {
+  "first_mark": {"body": ["call", "mark_of", "entries", 0], "params": [["s", "State"]], "type": "Nat"},
+  "sum": {"body": "total", "params": [["s", "State"]], "type": "Nat"}
+ },
+ "params": {},
+ "principals": {"1": "owner", "2": "anyone"},
+ "reasons": {"1": "stopped", "2": "zero", "3": "denied", "4": "panic:0x11", "5": "not owner"},
+ "state": [["t", "Nat", "block.timestamp"], ["owner", "Nat", "_owner"], ["stopped", "Bool", "_stopped"], ["total", "Nat", "total"], ["count", "Nat", "count"], ["entries", "List<E>", "entries 1..count"], ["allowed", "List<Nat>", "IGate's allowed set"], ["marks", "List<Nat>", "GHOST marks"], ["log", "List<Obs>", "observations"]],
+ "target": {"commit": null, "repo": "holon/toy-book", "scope": "toy abstraction"},
+ "types": {"E": {"fields": [["amount", "Nat"], ["who", "Nat"], ["mark", "Nat"]], "ghost": ["mark"]}}
+}

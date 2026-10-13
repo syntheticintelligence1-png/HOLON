@@ -1,0 +1,454 @@
+{
+ "abstraction": "spec/M1/facts/morph_rollup.json",
+ "corpus": "results/M2/refinement/extracted/window_states.json",
+ "doc": "Window declaration (holon.window, I20): the M1 rollup abstraction's state fields over the raw storage families of the extracted rollup document. Every mapping is a term of the extracted language; a field the raw families do not determine says why. The raw-family model is authoritative: holon model reports every corpus state where this view and the M1 model disagree (gen/M2/extracted/window_check.json). The token encodings of a corpus (times, principals, blob hashes) are the corpus producer's and travel with the corpus file. A list mapping with \"trim\" compares up to its last non-zero item (a mapping reads 0 at every absent key).",
+ "facts": "spec/M2/facts/morph_rollup.extracted.json",
+ "fields": {
+  "D": {
+   "term": [
+    "storage",
+    "rollupDelayPeriod"
+   ]
+  },
+  "F": {
+   "term": [
+    "storage",
+    "finalizationPeriodSeconds"
+   ]
+  },
+  "W": {
+   "term": [
+    "storage",
+    "proofWindow"
+   ]
+  },
+  "active": {
+   "external": "ISubmitter",
+   "reason": "the active submitter set is the submitter contract's storage (Rollup reads it through ISubmitter.isActive)"
+  },
+  "bc": {
+   "term": [
+    "storage",
+    "batchChallenged"
+   ]
+  },
+  "chals": {
+   "unmapped": "isChallenger is a mapping keyed by address: the set of its keys is not storage"
+  },
+  "chs": {
+   "list": {
+    "from": 0,
+    "item": {
+     "record": {
+      "c": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "challenges"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "challenger"
+       ]
+      },
+      "d": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "challenges"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "challengeDeposit"
+       ]
+      },
+      "f": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "challenges"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "finished"
+       ]
+      },
+      "s": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "challenges"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "startTime"
+       ]
+      },
+      "w": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "challenges"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "challengeSuccess"
+       ]
+      }
+     }
+    },
+    "to": [
+     "storage",
+     "lastCommittedBatchIndex"
+    ],
+    "trim": true
+   }
+  },
+  "enq": {
+   "external": "IL1MessageQueue",
+   "reason": "the message enqueue times are the message queue's storage"
+  },
+  "fsr": {
+   "list": {
+    "from": 0,
+    "item": [
+     "map",
+     [
+      "storage",
+      "finalizedStateRoots"
+     ],
+     [
+      "var",
+      "k"
+     ]
+    ],
+    "to": [
+     "storage",
+     "lastFinalizedBatchIndex"
+    ]
+   }
+  },
+  "inch": {
+   "term": [
+    "storage",
+    "inChallenge"
+   ]
+  },
+  "lfi": {
+   "term": [
+    "storage",
+    "lastFinalizedBatchIndex"
+   ]
+  },
+  "log": {
+   "observations": "the abstraction's log records step outcomes (ok or a revert reason), not storage"
+  },
+  "paused": {
+   "term": [
+    "storage",
+    "_paused"
+   ]
+  },
+  "qlen": {
+   "external": "IL1MessageQueue",
+   "reason": "the message queue's length is the message queue's storage"
+  },
+  "qpend": {
+   "external": "IL1MessageQueue",
+   "reason": "the pending queue index is the message queue's storage"
+  },
+  "rri": {
+   "term": [
+    "storage",
+    "revertReqIndex"
+   ]
+  },
+  "s_bd": {
+   "residue": {
+    "after": [
+     "storage",
+     "lastCommittedBatchIndex"
+    ],
+    "bound": 64,
+    "item": {
+     "record": {
+      "f": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "batchDataStore"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "finalizeTimestamp"
+       ]
+      },
+      "n": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "batchDataStore"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "blockNumber"
+       ]
+      },
+      "o": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "batchDataStore"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "originTimestamp"
+       ]
+      },
+      "s": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "batchDataStore"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "submitter"
+       ]
+      }
+     }
+    }
+   }
+  },
+  "s_bvh": {
+   "residue": {
+    "after": [
+     "storage",
+     "lastCommittedBatchIndex"
+    ],
+    "bound": 64,
+    "item": [
+     "map",
+     [
+      "storage",
+      "batchBlobVersionedHashes"
+     ],
+     [
+      "var",
+      "k"
+     ]
+    ]
+   }
+  },
+  "s_csr": {
+   "residue": {
+    "after": [
+     "storage",
+     "lastCommittedBatchIndex"
+    ],
+    "bound": 64,
+    "item": [
+     "map",
+     [
+      "storage",
+      "committedStateRoots"
+     ],
+     [
+      "var",
+      "k"
+     ]
+    ]
+   }
+  },
+  "t": {
+   "env": "block.timestamp",
+   "reason": "the abstraction keeps the clock as state; the contract reads it from the block"
+  },
+  "win": {
+   "list": {
+    "from": [
+     "storage",
+     "lastFinalizedBatchIndex"
+    ],
+    "item": {
+     "record": {
+      "bdf": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "batchDataStore"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "finalizeTimestamp"
+       ]
+      },
+      "bdn": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "batchDataStore"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "blockNumber"
+       ]
+      },
+      "bdo": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "batchDataStore"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "originTimestamp"
+       ]
+      },
+      "bds": {
+       "term": [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "batchDataStore"
+         ],
+         [
+          "var",
+          "k"
+         ]
+        ],
+        "submitter"
+       ]
+      },
+      "bvh": {
+       "term": [
+        "map",
+        [
+         "storage",
+         "batchBlobVersionedHashes"
+        ],
+        [
+         "var",
+         "k"
+        ]
+       ]
+      },
+      "csr": {
+       "term": [
+        "map",
+        [
+         "storage",
+         "committedStateRoots"
+        ],
+        [
+         "var",
+         "k"
+        ]
+       ]
+      },
+      "hb": {
+       "unmapped": "a header field: committedBatches holds only the keccak256 of the header bytes"
+      },
+      "lbn": {
+       "unmapped": "a header field: committedBatches holds only the keccak256 of the header bytes"
+      },
+      "n": {
+       "unmapped": "a header field: committedBatches holds only the keccak256 of the header bytes"
+      },
+      "post": {
+       "unmapped": "a header field: committedBatches holds only the keccak256 of the header bytes"
+      },
+      "prev": {
+       "unmapped": "a header field: committedBatches holds only the keccak256 of the header bytes"
+      },
+      "tot": {
+       "unmapped": "a header field: committedBatches holds only the keccak256 of the header bytes"
+      },
+      "ver": {
+       "unmapped": "a header field: committedBatches holds only the keccak256 of the header bytes"
+      }
+     }
+    },
+    "to": [
+     "storage",
+     "lastCommittedBatchIndex"
+    ]
+   }
+  }
+ },
+ "window_version": "holon-window/0.1"
+}
