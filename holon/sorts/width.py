@@ -15,7 +15,8 @@ spec/<M>/lib/derive_extracted.json with "width": true):
     the programmer's narrowing, not the store's), checked arithmetic reverts (a panic record) and unchecked
     arithmetic wraps at the type's width.
 
-A value's width (width_of): a parameter's declared width ("params"), a family's or struct member's width, the left
+A value's width (width_of): a parameter's declared width ("params", and its "fields" for a member of a struct
+parameter), a family's width, the left
 operand's width for a right shift by a constant (minus the shift), 8k for ["byte", ..] / a k-byte mask, max of the
 operands (+1 for +) for arithmetic, 256 otherwise.
 
@@ -30,9 +31,11 @@ span, stack, document}, entry_points, stores: [{document, action?, src, stack}]}
 
 Decision (decide). No proof generator applies to a width obligation over an extracted model (it has no reachability
 predicate), so a width law is PROVED by nothing here. The refutation search is bounded and evaluates the store on the
-model (holon.extracted_eval) at the corpus steps the sidecar names ("width_corpus": a steps file of the extracted
-model's inputs, {"steps": [{"id", "state", "action", "args", "env"}]}): a step that reaches the store with a value
-that does not fit is a witness candidate. A reachability-backed counter-law needs the model's Reach (not compiled
+model (holon.extracted_eval) at the corpus steps the sidecar names ("width_corpus": the step refinement's evaluation of
+each site, {"sites": {site id: {"steps", "reaching", "max", "over"}}}, which holon fragments writes beside its record
+(holon.replay_fragments.WidthValues, store_values below on every compared step of an entry point); or a steps file
+of the extracted model's inputs, {"steps": [{"id", "state", "action", "args", "env"}]}, evaluated here): a step that
+reaches the store with a value that does not fit is a witness candidate. A reachability-backed counter-law needs the model's Reach (not compiled
 yet), so a candidate is recorded as such and the status stays UNKNOWN, never REFUTED by a guess; with no candidate the
 law is UNKNOWN with its bound (what was evaluated), and no witness.
 """
@@ -89,6 +92,9 @@ def width_of(t, params: dict, fams: dict) -> int:
     h = t[0]
     if h == "param" and isinstance(params.get(t[1]), int):
         return params[t[1]]
+    if h == "member" and len(t) == 3 and isinstance(t[1], list) and t[1][:1] == ["param"] and len(t[1]) == 2 \
+            and isinstance(params.get((t[1][1], t[2])), int):    # a member of a struct parameter: its field's width
+        return params[(t[1][1], t[2])]
     if h == "storage" and isinstance(fams.get(t[1]), int):
         return fams[t[1]]
     if h == "trunc" and isinstance(t[1], int):
@@ -146,7 +152,13 @@ def transitions_stores(rel: str, doc: dict) -> list[dict]:
     fams = {s["name"]: s.get("width") for s in (doc.get("storage") or []) + (doc.get("inherited_storage") or [])}
     out = []
     for a in sorted(doc.get("actions") or [], key=lambda a: a["name"]):
-        params = {p["name"]: p.get("width") for p in a.get(machine.FORMAT["params"]) or [] if isinstance(p, dict)}
+        params: dict = {}
+        for p in a.get(machine.FORMAT["params"]) or []:
+            if isinstance(p, dict):
+                params[p["name"]] = p.get("width")
+                for f in p.get("fields") or []:   # a struct parameter's members: (parameter, member) -> width
+                    if isinstance(f, dict):
+                        params[(p["name"], f.get("name"))] = f.get("width")
         for sec, r in machine.ExtractedModel.program_records(a):
             if sec == "mstores" and r.get("op", "mstore") == "mstore":
                 v = r.get("value")
@@ -290,6 +302,57 @@ def store_values(model, step: dict, site: dict) -> list[int]:
     return out
 
 
+def model_path(milestone: str, root) -> Path:
+    """The extracted model (holon model's gen/<M>/extracted/model.bend) a width law's record is computed over."""
+    return Path(root) / "gen" / str(milestone) / "extracted" / "model.bend"
+
+
+def roots_text(law: dict, root) -> str:
+    """The extracted model's definitions a width law is about, as `M.<name>` roots of its cone (holon.records.cone):
+    the step definition step_<a> of each entry point (holon.machine_bend), which reaches its checks and its writes."""
+    from ..machine_bend import bname
+    site = next((s for s in basis_elements(str(law.get("milestone") or "M2"), Path(root))
+                 if site_id(s["span"], s["record"], s["field"]) == width_law(law)), None)
+    return " ".join(f"M.step_{bname(a)}" for a in sorted((site or {}).get("entry_points") or []))
+
+
+def compiled_model(model: Path, cfg: dict | None = None) -> Path:
+    """The extracted model compiled to an ES module in the build dir (cached by the text's sha256)."""
+    from .. import bend
+    text = Path(model).read_text()
+    h = hashlib.sha256(text.encode()).hexdigest()
+    src = bend.build_dir(ROOT) / "extracted" / "mjs" / h[:16] / "model.bend"
+    src.parent.mkdir(parents=True, exist_ok=True)
+    art = src.with_suffix(".mjs")
+    if not art.exists():
+        src.write_text(text)
+        r = bend.run([src.name, "-o", art.name], cwd=src.parent, cfg=cfg or bend.config(ROOT))
+        if r.code != 0 or not art.exists():
+            raise WidthError(f"bend failed to compile {model}: {r.out[:1000]}")
+    return art
+
+
+def v2_fields(law: dict, rec: dict, milestone: str, root, cfg: dict | None = None) -> dict:
+    """The v2 fields of a width record (holon.records.v2_fields) over the extracted model gen/<M>/extracted/model.bend:
+    its cone from the entry points' step definitions (roots_text), its facts' ledger bundle (spec/<M>/ledger.json
+    "bundles"), the compiled model's sha256 (the width search itself evaluates the document with holon.extracted_eval,
+    which agrees with the model's chk_/step_ on the toy, tests_m2/test_i20_model_unit.py), and, as for every M2+ record,
+    ledger_assumptions (the ledger entries meeting the cone) beside model_assumptions (the hypothesis premises: none)."""
+    from .. import records as R
+    from .. import inhabit
+    root = Path(root)
+    model = model_path(milestone, root)
+    if not model.is_file():
+        raise WidthError(f"{model} does not exist: run `python -m holon model --facts {law['facts']} --out "
+                         f"{model.parent.relative_to(root)}/` first")
+    out = R.v2_fields(law, rec, roots_text(law, root), model, law["facts"], compiled_model(model, cfg), root)
+    out["ledger_assumptions"] = list(out["model_assumptions"])
+    out["model_assumptions"] = []
+    out["non_vacuity"] = inhabit.inhabit(law, milestone, root, root / "build" / "width_nonvac", cfg or {},
+                                         rec=dict(rec, **out))
+    return out
+
+
 def corpus_of(milestone: str, root) -> dict | None:
     """The width corpus the adoption sidecar names ("width_corpus"), when it exists."""
     from . import reextract
@@ -335,6 +398,20 @@ def decide(law: dict, root=None, corpus=None, model=None) -> dict:
                                                             "an extracted model (it has no reachability predicate)"}]
     if site is None:
         return {"status": "UNKNOWN", "bound": "the width site is not in the adopted documents", "attempts": attempts}
+    ev = ((corpus or {}).get("sites") or {}).get(sid) if isinstance((corpus or {}).get("sites"), dict) else None
+    if ev is not None:   # the refinement run's evaluation of the site on its corpus (holon.replay_fragments.WidthValues)
+        bound = (f"corpus evaluation (holon fragments, {(corpus or {}).get('facts')}): {ev['steps']} steps of the entry "
+                 f"points, {ev['reaching']} reaching {site['span']}, largest value stored {ev['max']} "
+                 f"(width {site['width']} bits)")
+        attempts.append({"kind": "refute", "engine": "corpus evaluation (holon.extracted_eval)", "tried": ev["steps"],
+                         "hit": bool(ev.get("over")), "detail": bound})
+        out = {"status": "UNKNOWN", "bound": bound, "attempts": attempts}
+        if ev.get("over"):
+            c = ev["over"][0]
+            out["witness_candidate"] = {"step": f"trace {c['trace']} step {c['step']}", "value": c["value"],
+                                        "note": "a corpus step stores a value wider than the field; no Reach-backed "
+                                                "counter-law is generated (the extracted model has no Reach yet)"}
+        return out
     steps = (corpus or {}).get("steps") or []
     doc = json.loads((root / law["facts"]).read_text())
     if (doc.get("extraction") or {}).get("kind") != "transitions" or not steps:

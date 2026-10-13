@@ -5,35 +5,35 @@ clauses 1, 7 and 10.
   load_extracted(doc_path, root=None, source=None, info=None) -> ExtractedModel
   python -m holon model --facts <transitions document> --out DIR      (holon.mpipeline.main_model dispatches here)
 
-The document (holon.frontends.solidity.transitions, I19, extended additively by the I19 follow-up A19). This module is
-the one place that reads a document's sections; every other I20 module (holon.extracted_eval, holon.machine_bend,
-holon.window, holon.differential, holon.sorts.width) goes through ExtractedModel. Two shapes are read:
+The document (holon.frontends.solidity.transitions, I19, extended additively by the I19 follow-up A19; its module
+docstring and spec/schemas/facts_0_3.schema.json are the format). This module is the one place that reads a document's
+sections; every other I20 module (holon.extracted_eval, holon.machine_bend, holon.window, holon.differential,
+holon.sorts.width, holon.fragments_doc) goes through it. FORMAT names every key read:
+  document  "storage" (fields with "slot", "offset"), "inherited_storage" [{name, slot, offset, kind, .., declared_in}]
+            (a name declared by two contracts, e.g. "__gap", is the family "<declared_in>.<name>");
+  action    "params" [{name, type, width, location, fields}], "payable", "mutability", "returns", "declared_in";
+            "guards" [{src, kind, reason, error?: {name, signature, selector}, args?, reaches: [{seq, stack, expr,
+                      loop?, code?, args?}]}] (every reach; its own revert data args, an assert's code 1);
+            "checks" [{seq, src, stack, kind: callvalue|calldatasize|abi|slice|uncaught, expr, param?, loop?}];
+            "panics" [{seq, src, stack, code, op, args, expr, loop?}] (checked operations: Panic codes);
+            "calls" [{seq, src, stack, fn, receiver, args, value, mutability, cond, commit, try, expr, loop?}] (a call
+                     whose expr is not 1 is a check: a failing call bubbles its revert data);
+            "writes" [{seq, src, stack, family, path: [[map|index|member, key]..], value, cond, loop?}];
+            "mstores" [{seq, src, stack, region, op, offset, value, cond, loop?}];
+            "events" [{seq, src, stack, event, signature, topic0, args, indexed, topics, anonymous, cond, loop?}];
+            "loops" [{seq, src, stack, kind, cond, carried: [{name, entry, value}], regions, head, next: [{name,
+                     value}], break, at_break: [{name, value}], returns: [{cond, value}], count, bound, exit: [{name,
+                     value}], steps: [seq..], loop?}];
+            "order" (the checks in walk order) and "post" (the families after the action) are not needed here: every
+            record carries "seq", the walk-order counter shared by the records of an action.
+  A record made in a loop's generic iteration carries "loop", the seq of the innermost loop record; that loop's
+  "steps" lists exactly those records. The program of an action is its records without "loop" in seq order, a loop
+  record holding its own records (its body) in seq order. A loop's terms name it by its span, plus its reach index
+  r (the number of earlier loop records of the same span in the action) as a last element when r > 0.
 
-  * the planned A19 shape (a19_i20_designs.json; the key names are not final, FORMAT lists every one read here):
-      document  "storage" (fields gain "slot", "offset"), "inherited_storage" [{name, slot, offset, kind, ..,
-                declared_in}];
-      action    "params" [{name, type, width, location, fields}], "payable", "mutability", "returns", "declared_in";
-                "guards"[i]["reaches"] [{seq, stack, expr}] (every reach; the first equals the guard's expr);
-                "panics" [{seq, src, stack, code, op, args, expr}] (implicit checks: Panic codes);
-                "calls" [{seq, src, stack, fn, receiver, args, value, mutability, cond, commit[, check]}] (a failing
-                external call bubbles its revert data; its check is ["callok", fn, receiver, args..] under cond);
-                "checks" [{seq, kind: callvalue|abi, src, expr}] (the dispatcher's checks);
-                "writes" [{seq, src, stack, family, path: [[map|index|member, key]..], value, cond}];
-                "mstores" [{seq, src, stack, region, op, offset, value, cond}];
-                "events" [{seq, src, stack, event, signature, topic0, args, indexed, anonymous, cond}];
-                "loops" [{seq, src, stack, kind, cond, carried: [{name, entry}], head, next: [{name, value}], break,
-                          at_break: [{name, value}], count, steps}] whose steps hold the same sections for one
-                          generic iteration (a dict of sections, or a list of records tagged by "type" or classified by
-                          their keys: Program.classify);
-      seq is the walk-order counter shared by every record of an action: the program is every record sorted by seq.
-  * the current I19 shape (adapter): "guards" (first reach of each span) in document order are the program's checks;
-    effects carry no values and there are no events, so a program of this shape is incomplete (Program.missing) and
-    an ok step cannot give its writes or events.
-
-Checks. Every guard reach, implicit check (panic), external-call check and dispatcher check is one Check, in program
-order. Its id is "<action>#<span>#<k>": span is the record's src (for a dispatcher check without src, its kind), k
-counts the checks of that span in the action in program order (nested loop records included, in walk order). The
-transaction reverts at the first check whose condition is 0 (holon.extracted_eval).
+Checks. Every guard reach, implicit check (checks, panics) and external-call check is one Check. Its id is
+"<action>#<span>#<k>": span is the record's src, k counts the checks of that span in the action in walk (seq) order,
+loop bodies included. The transaction reverts at the first check whose condition is 0 (holon.extracted_eval).
 
 What the model reads from the compiler (the document leaves it to solc): the storage layout of the contract (types,
 inherited storage), the ABI of every action and of every interface function a call term names, and the selectors of
@@ -62,23 +62,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FACTS_VERSION = "holon-facts/0.3"
 KIND = "transitions"
-INFO_VERSION = "holon-extracted-info/0.1"
+INFO_VERSION = "holon-extracted-info/0.2"
 MACHINE_VERSION = "holon-machine-extracted/0.1"
 WORD = 1 << 256
 MASK = WORD - 1
 
-# Every key of the planned A19 shape this module reads (integration hook: the follow-up's names are not final; a
-# rename is one edit here).
+# Every key of the A19 document this module reads (holon.frontends.solidity.transitions; the schema
+# spec/schemas/facts_0_3.schema.json): one table, so that a rename of the format is one edit here.
 FORMAT = {
     "inherited_storage": "inherited_storage", "params": "params", "payable": "payable", "mutability": "mutability",
     "returns": "returns", "declared_in": "declared_in", "reaches": "reaches", "panics": "panics", "calls": "calls",
     "checks": "checks", "writes": "writes", "mstores": "mstores", "events": "events", "loops": "loops",
-    "post": "post", "seq": "seq", "steps": "steps", "order": "order",
+    "post": "post", "seq": "seq", "steps": "steps", "loop": "loop", "order": "order",
 }
-# the sections of an action (and of a loop body) that hold program records, in tie-break order for equal seq: an
-# implicit check before a guard reach at the same point (an assert is both: Panic 0x01 is its revert data)
+# the sections of an action that hold program records (every record carries a seq unique in the action)
 SECTIONS = ("checks", "panics", "calls", "guards", "loops", "writes", "mstores", "events")
 A19_KEYS = ("panics", "calls", "checks", "writes", "mstores", "events", "loops")
+CHECK_KINDS = ("callvalue", "calldatasize", "abi", "slice", "uncaught")
 
 
 class ModelError(ValueError):
@@ -223,11 +223,22 @@ def compiler_info(asts: dict, layouts: dict, contract: str) -> dict:
     for cname in lin:
         for key, entry in sorted((functions.get(cname) or {}).items()):
             own.setdefault(key, dict(entry, declared_in=cname))
+    # the immutables and constants of the contract over its linearization (most derived first): their declared ABI
+    # types (an ["immutable", name] term's width, e.g. inside abi.encodePacked)
+    immutables: dict = {}
+    for cname in lin:
+        for c in cdefs if cname == contract else [n for n in ix.values() if n.get("nodeType") == "ContractDefinition"
+                                                  and n.get("name") == cname]:
+            for n in c.get("nodes") or []:
+                if n.get("nodeType") == "VariableDeclaration" and n.get("mutability") in ("immutable", "constant") \
+                        and n.get("typeName"):
+                    immutables.setdefault(n["name"], abi_type(n["typeName"], ix))
     return {"info_version": INFO_VERSION, "contract": contract, "unit": hits[0][0], "linearization": lin,
             "layout": {"storage": [{k: s[k] for k in ("label", "slot", "offset", "type", "contract")}
                                    for s in lay.get("storage") or []],
                        "types": lay.get("types") or {}},
-            "functions": own, "members": members, "errors": errors, "events": events}
+            "functions": own, "members": members, "errors": errors, "events": events,
+            "immutables": dict(sorted(immutables.items()))}
 
 
 def _cache_dir(root: Path) -> Path:
@@ -298,20 +309,23 @@ class Family:
 
 @dataclass
 class Check:
-    """A guard reach, an implicit check (panic), an external-call check or a dispatcher check (module docstring)."""
+    """A guard reach, an implicit check (checks, panics) or an external-call check (module docstring)."""
     id: str
     action: str
-    span: str                 # the id's span: the record's src, or the kind of a dispatcher check without one
+    span: str                 # the record's src
     src: object
-    kind: str                 # require | modifier | revert | panic | call | callvalue | abi
+    kind: str                 # require | modifier | revert | panic | call | callvalue | calldatasize | abi | slice | uncaught
     reason: object
     expr: object
-    code: object = None       # a Panic code
+    code: object = None       # a Panic code (a panic record, or an assert's reach: 1)
     seq: object = None
     stack: object = None
     section: str = "guards"
-    entry: dict = field(default_factory=dict)
+    entry: dict = field(default_factory=dict)     # the guard entry (guards) or the record itself
     loop: object = None       # the span of the innermost loop record holding it
+    error: object = None      # a guard's revert data: {name, signature, selector} (the document's), else None
+    args: object = None       # that reach's revert data arguments (terms), else None
+    reach: dict = field(default_factory=dict)     # the guard reach record itself (guards), else the record
 
 
 @dataclass
@@ -351,6 +365,7 @@ class Event:
     indexed: list
     anonymous: bool
     cond: object
+    topics: list = field(default_factory=list)    # the indexed arguments' topic terms (after topic0)
     entry: dict = field(default_factory=dict)
 
 
@@ -361,7 +376,7 @@ class Loop:
     stack: object
     kind: str
     cond: object
-    carried: list            # [(name, entry term)]
+    carried: list            # [(name, entry term, value term)]
     head: object
     next: list               # [(name, value term)]
     brk: object
@@ -369,6 +384,14 @@ class Loop:
     count: object
     body: list               # program records of one generic iteration, in seq order
     entry: dict = field(default_factory=dict)
+    reach: int = 0           # the loop's reach index r in the action (its terms carry r as a last element when r > 0)
+    exits: list = field(default_factory=list)     # [(name, value term)]: the names' values after the loop
+    returns: list = field(default_factory=list)   # [(cond term, value term)]: the iteration's return paths
+
+    def sym(self, tag: str, *rest) -> list:
+        """The term [tag, span, *rest] (+ [r] when r > 0) that names this loop's symbols (iter, carried, exit, count,
+        returned)."""
+        return [tag, self.src, *rest] + ([self.reach] if self.reach else [])
 
 
 @dataclass
@@ -376,8 +399,6 @@ class Program:
     """An action's records in program order (module docstring)."""
     action: str
     steps: list
-    shape: str                # "a19" | "i19"
-    missing: list             # what the document does not give for this action ("writes", "events")
 
     def checks(self) -> list[Check]:
         out = []
@@ -404,47 +425,12 @@ class Program:
         return out
 
 
-def classify(rec: dict) -> str | None:
-    """The section of a record of a loop body given as a list (integration hook: by its "type"/"record" tag, else by
-    its keys)."""
-    t = rec.get("type") or rec.get("record")
-    if isinstance(t, str):
-        t = t.lower().rstrip("s")
-        return {"guard": "guards", "reach": "guards", "panic": "panics", "call": "calls", "check": "checks",
-                "write": "writes", "mstore": "mstores", "event": "events", "loop": "loops"}.get(t)
-    if "carried" in rec or "head" in rec:
-        return "loops"
-    if "code" in rec and "expr" in rec:
-        return "panics"
-    if "family" in rec and "value" in rec:
-        return "writes"
-    if "event" in rec or "topic0" in rec:
-        return "events"
-    if "fn" in rec and "receiver" in rec:
-        return "calls"
-    if "op" in rec and "offset" in rec:
-        return "mstores"
-    if rec.get("kind") in ("callvalue", "abi"):
-        return "checks"
-    if "expr" in rec:
-        return "guards"
-    return None
-
-
-def _records(container) -> list[tuple[str, dict]]:
-    """(section, record) of a container: an action (its sections) or a loop body (a dict of sections, or a list)."""
+def _records(a: dict) -> list[tuple[str, dict]]:
+    """(section, record) of every record of an action's sections (a guard entry once; its reaches are its records)."""
     out = []
-    if isinstance(container, dict):
-        for sec in SECTIONS:
-            for r in container.get(FORMAT.get(sec, sec)) or []:
-                if isinstance(r, dict):
-                    out.append((sec, r))
-    elif isinstance(container, list):
-        for r in container:
+    for sec in SECTIONS:
+        for r in a.get(FORMAT.get(sec, sec)) or []:
             if isinstance(r, dict):
-                sec = classify(r)
-                if sec is None:
-                    raise ModelError(f"a loop body record of unknown kind: {canonical(r)[:200]}")
                 out.append((sec, r))
     return out
 
@@ -453,7 +439,7 @@ def _pairs(xs, key: str = "value") -> list:
     out = []
     for x in xs or []:
         if isinstance(x, dict):
-            out.append((x.get("name"), x.get(key, x.get("entry"))))
+            out.append((x.get("name"), x.get(key)))
         elif isinstance(x, list) and len(x) == 2:
             out.append((x[0], x[1]))
     return out
@@ -478,162 +464,121 @@ def spans_overlap(a, b) -> bool:
     return bool(a and b and a[0] == b[0] and a[1] <= b[2] and b[1] <= a[2])
 
 
-def callok_expr(rec: dict):
-    """The check of an external call record: its own "check"."expr" when the record has one, else
-    ["||", ["!", cond], ["callok", fn, receiver, args..]] (["callok", ..] when unconditional)."""
-    chk = rec.get("check")
-    if isinstance(chk, dict) and "expr" in chk:
-        return chk["expr"]
-    ok = ["callok", rec.get("fn"), rec.get("receiver")] + list(rec.get("args") or [])
-    cond = rec.get("cond", 1)
-    return ok if cond == 1 else ["||", ["!", cond], ok]
+def _label(name) -> str:
+    """A carried name as text: a local's name, or "storage.<family>" for ["storage", family]."""
+    if isinstance(name, list) and len(name) == 2 and name[0] == "storage":
+        return f"storage.{name[1]}"
+    return name if isinstance(name, str) else canonical(name)
+
+
+def call_is_check(rec: dict) -> bool:
+    """A call record whose failure reverts (its expr is not 1): a check (A19 "order" lists exactly these)."""
+    return "expr" in rec and rec.get("expr") != 1
 
 
 # ------------------------------------------------------------------------------------------------ programs
-def with_order(a: dict) -> dict:
-    """The action with every top-level record given a seq from the action's "order" list, when its records carry
-    none (the follow-up's minimum, A19-03: [["guard", span, reach index] | ["panic", i] | ["call", i] | ["check", i],
-    ..] over the checks). Writes, memory stores and events, whose terms are over the pre-state, follow every check in
-    document order (their relative order to the checks does not change a step's result). A loop record without seq
-    cannot be placed: ModelError."""
-    order = a.get(FORMAT["order"])
-    recs = list(_records(a))
-    if not isinstance(order, list) or all(isinstance(r.get(FORMAT["seq"]), int) or
-                                          any(isinstance(x, dict) and isinstance(x.get(FORMAT["seq"]), int)
-                                              for x in r.get(FORMAT["reaches"]) or [])
-                                          for _, r in recs):
-        return a
-    out = {k: (json.loads(json.dumps(v)) if k in SECTIONS else v) for k, v in a.items()}
-    for i, item in enumerate(order):
-        kind, *rest = item
-        if kind == "guard":
-            span, k = rest[0], rest[1] if len(rest) > 1 else 0
-            g = next((x for x in out.get("guards") or [] if x.get("src") == span), None)
-            if g is None:
-                raise ModelError(f"{a['name']}: order names guard {span}, which the action does not have")
-            subs = g.get(FORMAT["reaches"])
-            if isinstance(subs, list) and subs:
-                subs[k][FORMAT["seq"]] = i
-            else:
-                g[FORMAT["seq"]] = i
-        elif kind in ("panic", "call", "check"):
-            sec = kind + "s"
-            out[sec][rest[0]][FORMAT["seq"]] = i
-        else:
-            raise ModelError(f"{a['name']}: an order entry of unknown kind {kind!r}")
-    nxt = len(order)
-    for sec in ("writes", "mstores", "events", "loops"):
-        for r in out.get(sec) or []:
-            if not isinstance(r.get(FORMAT["seq"]), int):
-                if sec == "loops":
-                    raise ModelError(f"{a['name']}: a loop record without seq cannot be placed by the order list")
-                r[FORMAT["seq"]] = nxt
-                nxt += 1
-    return out
+def is_a19(a: dict) -> bool:
+    """An action of the I19 follow-up's shape: every section present and every guard with its reaches."""
+    return all(FORMAT[k] in a for k in A19_KEYS) and all(
+        isinstance(g, dict) and isinstance(g.get(FORMAT["reaches"]), list) and g[FORMAT["reaches"]]
+        for g in a.get("guards") or [])
 
-
-def shape(a: dict) -> str:
-    """"a19" for an action with any section of the planned follow-up shape, else "i19"."""
-    if any(k in a for k in (FORMAT[x] for x in A19_KEYS)):
-        return "a19"
-    if any(isinstance(g, dict) and FORMAT["reaches"] in g for g in a.get("guards") or []):
-        return "a19"
-    return "i19"
 
 def build_program(a: dict) -> Program:
     """The action's records in program order, with check ids (module docstring). Needs no compiler information."""
     action = a["name"]
-    shape_ = shape(a)
+    if not is_a19(a):
+        raise ModelError(f"{action}: not an action of the I19 follow-up's document (holon-frontend-solidity/0.3: "
+                         f"sections {', '.join(A19_KEYS)} and every guard's reaches); re-extract the document")
+    SEQ, LOOP = FORMAT["seq"], FORMAT["loop"]
+    raw = []    # (section, record, parent)
+    for sec, r in _records(a):
+        if sec == "guards":
+            for x in r[FORMAT["reaches"]]:
+                raw.append((sec, x, r))
+        elif sec == "calls" and not call_is_check(r):
+            raw.append(("calls_free", r, r))   # a call whose failure is a value: no check
+        else:
+            raw.append((sec, r, r))
+    for sec, r, _ in raw:
+        if not isinstance(r.get(SEQ), int) or isinstance(r.get(SEQ), bool):
+            raise ModelError(f"{action}: a {sec} record without an integer seq ({canonical(r)[:160]})")
+    seqs = [r[SEQ] for _, r, _ in raw]
+    if len(set(seqs)) != len(seqs):
+        raise ModelError(f"{action}: two records share seq {sorted({s for s in seqs if seqs.count(s) > 1})[:4]}")
+    raw.sort(key=lambda x: x[1][SEQ])
+    loops = {r[SEQ]: r for sec, r, _ in raw if sec == "loops"}
+    children: dict = {}
+    for sec, r, _ in raw:
+        lp = r.get(LOOP)
+        if lp is not None and lp not in loops:
+            raise ModelError(f"{action}: record seq {r[SEQ]} names loop seq {lp}, which is not a loop record")
+        children.setdefault(lp, []).append(r[SEQ])
+    for s, lr in loops.items():
+        steps = lr.get(FORMAT["steps"])
+        if isinstance(steps, list) and sorted(steps) != sorted(children.get(s, [])):
+            raise ModelError(f"{action}: loop seq {s} lists steps {sorted(steps)[:8]}, its records are "
+                             f"{sorted(children.get(s, []))[:8]}")
+    # check ids and loop reach indexes, in walk (seq) order
     counts: dict = {}
+    ids: dict = {}
+    reach_of: dict = {}
+    nloop: dict = {}
+    for sec, r, parent in raw:
+        if sec in ("guards", "panics", "calls", "checks"):
+            span = (parent if sec == "guards" else r).get("src") or sec
+            k = counts.get(span, 0)
+            counts[span] = k + 1
+            ids[r[SEQ]] = f"{action}#{span}#{k}"
+        elif sec == "loops":
+            k = nloop.get(r.get("src"), 0)
+            nloop[r.get("src")] = k + 1
+            reach_of[r[SEQ]] = k
+    by_seq = {r[SEQ]: (sec, r, parent) for sec, r, parent in raw}
 
-    def cid(span: str) -> str:
-        k = counts.get(span, 0)
-        counts[span] = k + 1
-        return f"{action}#{span}#{k}"
+    def make(seq: int, loop_span):
+        sec, r, parent = by_seq[seq]
+        if sec == "guards":
+            span = parent.get("src") or sec
+            return Check(ids[seq], action, span, parent.get("src"), parent.get("kind") or "require",
+                         parent.get("reason"), r.get("expr", parent.get("expr")), code=r.get("code"), seq=seq,
+                         stack=r.get("stack"), section=sec, entry=parent, loop=loop_span, error=parent.get("error"),
+                         args=r.get("args", parent.get("args")), reach=r)
+        if sec == "panics":
+            return Check(ids[seq], action, r.get("src") or sec, r.get("src"), "panic", None, r.get("expr"),
+                         code=r.get("code"), seq=seq, stack=r.get("stack"), section=sec, entry=r, loop=loop_span,
+                         reach=r)
+        if sec == "calls":
+            return Check(ids[seq], action, r.get("src") or sec, r.get("src"), "call", r.get("fn"), r.get("expr"),
+                         seq=seq, stack=r.get("stack"), section=sec, entry=r, loop=loop_span, reach=r)
+        if sec == "checks":
+            kind = r.get("kind")
+            if kind not in CHECK_KINDS:
+                raise ModelError(f"{action}: a check of unknown kind {kind!r} (seq {seq})")
+            return Check(ids[seq], action, r.get("src") or sec, r.get("src"), kind, None, r.get("expr"), seq=seq,
+                         stack=r.get("stack"), section=sec, entry=r, loop=loop_span, reach=r)
+        if sec == "writes":
+            return Write(seq, r.get("src"), r.get("stack"), r.get("family"), list(r.get("path") or []), r.get("value"),
+                         r.get("cond", 1), r)
+        if sec == "mstores":
+            return MStore(seq, r.get("src"), r.get("stack"), r.get("region"), r.get("op", "mstore"), r.get("offset"),
+                          r.get("value"), r.get("cond", 1), r)
+        if sec == "events":
+            return Event(seq, r.get("src"), r.get("stack"), r.get("event"), r.get("signature"), r.get("topic0"),
+                         list(r.get("args") or []), list(r.get("indexed") or []), bool(r.get("anonymous")),
+                         r.get("cond", 1), list(r.get("topics") or []), r)
+        if sec == "loops":
+            span = r.get("src")
+            body = [x for x in (make(s, span) for s in children.get(seq, [])) if x is not None]
+            return Loop(seq, span, r.get("stack"), r.get("kind", "for"), r.get("cond", 1),
+                        [(c.get("name"), c.get("entry"), c.get("value")) for c in r.get("carried") or []],
+                        r.get("head", 1), _pairs(r.get("next")), r.get("break", 0), _pairs(r.get("at_break")),
+                        r.get("count"), body, r, reach_of[seq], _pairs(r.get("exit")),
+                        [(x.get("cond"), x.get("value")) for x in r.get("returns") or []])
+        return None     # calls_free: a call whose failure is a value (its result is a term where it is used)
 
-    if shape_ == "i19":
-        steps = []
-        for g in a.get("guards") or []:
-            span = g.get("src") or g.get("kind") or "guard"
-            steps.append(Check(cid(span), action, span, g.get("src"), g.get("kind") or "require",
-                               g.get("reason"), g.get("expr"), section="guards", entry=g))
-        missing = []
-        if a.get("effects"):
-            missing.append("writes")
-        missing.append("events")
-        return Program(action, steps, shape_, missing)
-
-    def items(container, loop_span) -> list:
-        raw = []
-        for sec, r in _records(container):
-            if sec == "guards":
-                subs = r.get(FORMAT["reaches"])
-                if isinstance(subs, list) and subs:
-                    for x in subs:
-                        raw.append((sec, dict(x), r))
-                else:
-                    raw.append((sec, r, r))
-            else:
-                raw.append((sec, r, r))
-        for sec, r, _ in raw:
-            if not isinstance(r.get(FORMAT["seq"]), int):
-                raise ModelError(f"{action}: a {sec} record without an integer seq in a document of the A19 shape "
-                                 f"({canonical(r)[:160]})")
-        raw.sort(key=lambda x: (x[1][FORMAT["seq"]], SECTIONS.index(x[0])))
-        seqs = [x[1][FORMAT["seq"]] for x in raw]
-        if len(set(seqs)) != len(seqs):
-            dup = sorted({s for s in seqs if seqs.count(s) > 1})
-            # an assert is a guard reach and a Panic 0x01 at one point: the panic decides (SECTIONS order)
-            kinds = {s: sorted({x[0] for x in raw if x[1][FORMAT["seq"]] == s}) for s in dup}
-            if any(v != ["guards", "panics"] for v in kinds.values()):
-                raise ModelError(f"{action}: two records share seq {dup[:4]} ({kinds})")
-        out = []
-        for sec, r, parent in raw:
-            seq = r[FORMAT["seq"]]
-            if sec == "guards":
-                span = parent.get("src") or "guard"
-                out.append(Check(cid(span), action, span, parent.get("src"), parent.get("kind") or "require",
-                                 parent.get("reason"), r.get("expr", parent.get("expr")), seq=seq,
-                                 stack=r.get("stack"), section=sec, entry=parent, loop=loop_span))
-            elif sec == "panics":
-                span = r.get("src") or "panic"
-                out.append(Check(cid(span), action, span, r.get("src"), "panic", None, r.get("expr"),
-                                 code=r.get("code"), seq=seq, stack=r.get("stack"), section=sec, entry=r,
-                                 loop=loop_span))
-            elif sec == "calls":
-                span = r.get("src") or "call"
-                out.append(Check(cid(span), action, span, r.get("src"), "call", None, callok_expr(r), seq=seq,
-                                 stack=r.get("stack"), section=sec, entry=r, loop=loop_span))
-            elif sec == "checks":
-                span = r.get("src") or r.get("kind") or "check"
-                out.append(Check(cid(span), action, span, r.get("src"), r.get("kind") or "check", None,
-                                 r.get("expr"), seq=seq, stack=r.get("stack"), section=sec, entry=r,
-                                 loop=loop_span))
-            elif sec == "writes":
-                out.append(Write(seq, r.get("src"), r.get("stack"), r.get("family"), list(r.get("path") or []),
-                                 r.get("value"), r.get("cond", 1), r))
-            elif sec == "mstores":
-                out.append(MStore(seq, r.get("src"), r.get("stack"), r.get("region"), r.get("op", "mstore"),
-                                  r.get("offset"), r.get("value"), r.get("cond", 1), r))
-            elif sec == "events":
-                out.append(Event(seq, r.get("src"), r.get("stack"), r.get("event"), r.get("signature"),
-                                 r.get("topic0"), list(r.get("args") or []), list(r.get("indexed") or []),
-                                 bool(r.get("anonymous")), r.get("cond", 1), r))
-            elif sec == "loops":
-                span = r.get("src")
-                body = items(r.get(FORMAT["steps"]), span)
-                out.append(Loop(seq, span, r.get("stack"), r.get("kind", "for"), r.get("cond", 1),
-                                _pairs(r.get("carried"), "entry"), r.get("head", 1), _pairs(r.get("next")),
-                                r.get("break", 0), _pairs(r.get("at_break")), r.get("count"), body, r))
-        return out
-
-    steps = items(with_order(a), None)
-    missing = []
-    if FORMAT["writes"] not in a and a.get("effects"):
-        missing.append("writes")
-    if FORMAT["events"] not in a:
-        missing.append("events")
-    return Program(action, steps, shape_, missing)
+    steps = [x for x in (make(s, None) for s in children.get(None, [])) if x is not None]
+    return Program(action, steps)
 
 
 def document_programs(doc: dict) -> dict:
@@ -654,38 +599,50 @@ class ExtractedModel:
         self.sha256 = sha256 or sha256_bytes(dumps(doc).encode("utf-8"))
         self.contract = doc.get("contract")
         self.types: dict = dict((info.get("layout") or {}).get("types") or {})
-        self.layout_entries = {s["label"]: s for s in (info.get("layout") or {}).get("storage") or []}
+        self.layout_list = list((info.get("layout") or {}).get("storage") or [])
+        labels: dict = {}
+        for s in self.layout_list:
+            labels.setdefault(s["label"], []).append(s)
+        # a label declared once in the layout: the family a term names by it (a twice-declared label, e.g. __gap, is
+        # private to its contracts and named by no term)
+        self.layout_entries = {k: v[0] for k, v in labels.items() if len(v) == 1}
         self.actions = {a["name"]: a for a in doc.get("actions") or []}
         self.families: dict[str, Family] = {}
+        names = [s["name"] for s in (doc.get("storage") or []) + list(doc.get(FORMAT["inherited_storage"]) or [])]
         for s in doc.get("storage") or []:
-            self._declare(s, True)
+            self._declare(s, True, names.count(s["name"]) > 1)
         for s in doc.get(FORMAT["inherited_storage"]) or []:
-            self._declare(s, False)
+            self._declare(s, False, names.count(s["name"]) > 1)
         for name in sorted(self.storage_names()):
             if name not in self.families:
                 le = self.layout_entries.get(name)
                 if le is None:
                     raise ModelError(f"the document reads or writes storage {name!r}, which is neither one of its "
-                                     "families nor in the contract's storage layout")
+                                     "families nor a variable declared once in the contract's storage layout")
                 self.families[name] = Family(name, int(le["slot"]), int(le["offset"]), le["type"], False,
                                              le.get("contract", ""))
         self._programs = {a: build_program(self.actions[a]) for a in sorted(self.actions)}
 
-    def _declare(self, s: dict, own: bool) -> None:
-        le = self.layout_entries.get(s["name"])
+    def _declare(self, s: dict, own: bool, shared_name: bool = False) -> None:
+        """A family of the document's storage or inherited storage, checked against the compiler's layout entry of the
+        same label, slot and offset. A name two contracts declare is the family "<declared_in>.<name>"."""
+        le = next((x for x in self.layout_list if x["label"] == s["name"] and int(x["slot"]) == int(s["slot"])
+                   and int(x["offset"]) == int(s.get("offset", 0))), None)
         if le is None:
-            raise ModelError(f"family {s['name']}: not in the compiler's storage layout")
-        if int(le["slot"]) != int(s["slot"]) or int(le["offset"]) != int(s.get("offset", 0)):
+            at = [(x["slot"], x["offset"]) for x in self.layout_list if x["label"] == s["name"]]
             raise ModelError(f"family {s['name']}: the document says slot {s['slot']} offset {s.get('offset')}, "
-                             f"the compiler {le['slot']} {le['offset']}")
+                             f"the compiler's layout has it at {at or 'no slot'}")
         for f in s.get("fields") or []:
             if "slot" in f:
                 mt = self._member(le["type"], f["name"])
                 if mt is None or int(mt["slot"]) != int(f["slot"]) or int(mt["offset"]) != int(f.get("offset", 0)):
                     raise ModelError(f"family {s['name']}: field {f['name']} at slot {f['slot']} offset "
                                      f"{f.get('offset')} is not the compiler's member layout")
-        self.families[s["name"]] = Family(s["name"], int(s["slot"]), int(s.get("offset", 0)), le["type"], own,
-                                          le.get("contract", ""))
+        name = f"{s['declared_in']}.{s['name']}" if shared_name and s.get("declared_in") else s["name"]
+        if name in self.families:
+            raise ModelError(f"family {name}: declared twice")
+        self.families[name] = Family(name, int(s["slot"]), int(s.get("offset", 0)), le["type"], own,
+                                     le.get("contract", ""))
 
     def _member(self, tid: str, name: str) -> dict | None:
         t = self.types.get(tid) or {}
@@ -696,27 +653,33 @@ class ExtractedModel:
     # ---------------------------------------------------------------- what the terms read
     def terms(self):
         """(action name, where, term) of every term the document holds."""
-        def walk_rec(n, where, sec, r):
-            keys = {"guards": ("expr",), "panics": ("expr", "args"), "calls": ("receiver", "args", "value", "cond"),
-                    "checks": ("expr",), "writes": ("path", "value", "cond"), "mstores": ("offset", "value", "cond"),
-                    "events": ("args", "cond"), "loops": ("cond", "head", "break", "count")}[sec]
-            for k in keys:
-                if k in r:
-                    yield n, f"{where}.{k}", r[k]
-            if sec == "guards":
-                for j, x in enumerate(r.get(FORMAT["reaches"]) or []):
-                    if isinstance(x, dict) and "expr" in x:
-                        yield n, f"{where}.reaches[{j}]", x["expr"]
-            if sec == "loops":
-                for k in ("carried", "next", "at_break"):
-                    for nm, t in _pairs(r.get(k), "entry" if k == "carried" else "value"):
-                        yield n, f"{where}.{k}.{nm}", t
-                for j, (s2, r2) in enumerate(_records(r.get(FORMAT["steps"]))):
-                    yield from walk_rec(n, f"{where}.steps[{j}]", s2, r2)
+        keys = {"guards": ("expr", "args"), "panics": ("expr", "args"),
+                "calls": ("receiver", "args", "value", "cond", "expr"), "checks": ("expr",),
+                "writes": ("path", "value", "cond"), "mstores": ("offset", "value", "cond"),
+                "events": ("args", "topics", "cond"), "loops": ("cond", "head", "break", "count", "bound")}
         for a in self.doc.get("actions") or []:
             n = a["name"]
             for sec, r in _records(a):
-                yield from walk_rec(n, sec, sec, r)
+                where = f"{sec}@{r.get('seq', r.get('src'))}"
+                for k in keys[sec]:
+                    if k in r:
+                        yield n, f"{where}.{k}", r[k]
+                if sec == "guards":
+                    for j, x in enumerate(r.get(FORMAT["reaches"]) or []):
+                        for k in ("expr", "args"):
+                            if isinstance(x, dict) and k in x:
+                                yield n, f"{where}.reaches[{j}].{k}", x[k]
+                if sec == "loops":
+                    for k, v in (("carried", "entry"), ("carried", "value"), ("next", "value"), ("at_break", "value"),
+                                 ("exit", "value")):
+                        for nm, t in _pairs(r.get(k), v):
+                            yield n, f"{where}.{k}.{_label(nm)}.{v}", t
+                    for j, x in enumerate(r.get("returns") or []):
+                        yield n, f"{where}.returns[{j}].cond", x.get("cond")
+                        yield n, f"{where}.returns[{j}].value", x.get("value")
+                    for j, x in enumerate(r.get("regions") or []):
+                        if x.get("writes") is not None:
+                            yield n, f"{where}.regions[{j}].writes", x["writes"]
             if a.get("principal"):
                 yield n, "principal", a["principal"].get("predicate")
             for i, t in enumerate((a.get("cost") or {}).get("terms") or []):
@@ -749,15 +712,8 @@ class ExtractedModel:
 
     @staticmethod
     def program_records(a: dict):
-        for sec, r in _records(a):
-            yield sec, r
-            if sec == "loops":
-                stack = list(_records(r.get(FORMAT["steps"])))
-                while stack:
-                    s2, r2 = stack.pop(0)
-                    yield s2, r2
-                    if s2 == "loops":
-                        stack.extend(_records(r2.get(FORMAT["steps"])))
+        """(section, record) of every record of an action (a loop's records are top-level records with "loop")."""
+        yield from _records(a)
 
     def program(self, action: str) -> Program:
         return self._programs[action]
@@ -799,6 +755,10 @@ class ExtractedModel:
         hits = (self.info.get("events") or {}).get(name.rsplit(".", 1)[-1]) or []
         return hits[0] if len(hits) == 1 else None
 
+    def immutable_type(self, name: str) -> dict | None:
+        """The declared ABI type of an immutable or constant of the contract ({type, ..}), from the compiler."""
+        return (self.info.get("immutables") or {}).get(name)
+
     # ---------------------------------------------------------------- storage addressing
     def type_of(self, tid: str) -> dict:
         t = self.types.get(tid)
@@ -829,8 +789,7 @@ class ExtractedModel:
             t = self.types[tid]
             todo += [x for x in (t.get("key"), t.get("value"), t.get("base")) if x]
             todo += [m["type"] for m in t.get("members") or []]
-        progs = {a: {"shape": p.shape, "missing": p.missing, "checks": [c.id for c in p.checks()]}
-                 for a, p in sorted(self._programs.items())}
+        progs = {a: {"checks": [c.id for c in p.checks()]} for a, p in sorted(self._programs.items())}
         return {"document": "extracted_layout", "machine_version": MACHINE_VERSION,
                 "facts": self.path.as_posix() if self.path else None, "facts_sha256": self.sha256,
                 "contract": self.contract, "families": fams, "types": {k: self.types[k] for k in sorted(used)},

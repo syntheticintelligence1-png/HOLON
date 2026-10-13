@@ -3,8 +3,8 @@
 (holon.statement_diff). Not preregistered, not an outcome: the laws, records and STATEMENT_DIFF entries these
 modules produce for the rollup are the integrator's to generate once the I19 follow-up's re-extraction is in.
 
-The adoption is tested in throwaway roots: a planted toy (tests_m2/fixtures/i20_model/toy/book.a19.json, the planned
-follow-up shape), the committed I17 header document, and, for the reextraction channel, a throwaway copy of the
+The adoption is tested in throwaway roots: a planted toy (tests_m2/fixtures/i20_model/toy/book.extracted.json, its
+follow-up extraction), the committed I17 header document, and, for the reextraction channel, a throwaway copy of the
 repository with the rollup adoption (tests_m2/fixtures/i20_model/morph/derive_extracted.json) put in place.
 """
 from __future__ import annotations
@@ -47,7 +47,7 @@ class TestWidthBasis(unittest.TestCase):
     def test_without_an_adoption_nothing_is_derived(self):
         from holon.sorts import width
         self.assertEqual(width.basis_elements("T20", self.root), [])
-        self.assertEqual(width.basis_elements("M2", ROOT), [])   # the committed tree adopts nothing
+        self.assertEqual(width.basis_elements("T21", ROOT), [])   # a milestone without the sidecar
 
     def test_the_header_documents_truncating_stores_come_out(self):
         """The two width sites of the rollup header encoder (the I17 document's truncating fields), not tuned."""
@@ -63,7 +63,7 @@ class TestWidthBasis(unittest.TestCase):
 
     def test_a_memory_store_of_a_wide_value_into_a_narrow_field_is_a_site_and_an_explicit_conversion_is_not(self):
         from holon.sorts import width
-        self.put("toy/book.json", TOY / "book.a19.json")
+        self.put("toy/book.json", TOY / "book.extracted.json")
         adopt(self.root, "T20", ["toy/book.json"])
         sites = width.basis_elements("T20", self.root)
         self.assertEqual([(s["field"], s["width"], s["value_bits"], s["span"], s["entry_points"]) for s in sites],
@@ -82,13 +82,13 @@ class TestWidthBasis(unittest.TestCase):
     def test_law_ir_and_decision_on_a_corpus(self):
         from holon import machine
         from holon.sorts import width
-        self.put("toy/book.json", TOY / "book.a19.json")
+        self.put("toy/book.json", TOY / "book.extracted.json")
         adopt(self.root, "T20", ["toy/book.json"])
         site = width.basis_elements("T20", self.root)[0]
         law = width.law_ir(site, "T20", "0" * 64, "holon-rules/1.0")
         self.assertEqual(law["law_id"], width.law_id("src/Book.sol:86", None, "mem@0", 64))
         self.assertEqual(width.width_law(law), "width:src/Book.sol:86:-.mem@0")
-        model = machine.load_extracted(TOY / "book.a19.json", ROOT, source=TOY)
+        model = machine.load_extracted(TOY / "book.extracted.json", ROOT, source=TOY)
         state = {"0x%064x" % 0: "0x%064x" % 0xA11CE}
         env = {"caller": 0xA11CE, "msg.value": 0}
         corpus = {"steps": [{"id": f"s{i}", "state": state, "action": "stamp", "args": {"idx": v}, "env": env}
@@ -111,10 +111,16 @@ class TestReextraction(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.repo = copy_repo()
-        shutil.copy(MORPH / "derive_extracted.json", cls.repo / "spec" / "M2" / "lib" / "derive_extracted.json")
         from holon import statement_diff as SD
         cls.SD = SD
-        cls.entries = SD.reextraction_entries("M2", cls.repo)
+        log = cls.repo / "laws" / "STATEMENT_DIFF.jsonl"
+        committed = [e for e in (json.loads(x) for x in log.read_text().splitlines() if x.strip())
+                     if e.get("kind") == "reextraction"]
+        if committed:   # the tree adopted the extracted documents (the I20 integration): its committed entries
+            cls.entries = committed
+        else:
+            shutil.copy(MORPH / "derive_extracted.json", cls.repo / "spec" / "M2" / "lib" / "derive_extracted.json")
+            cls.entries = SD.reextraction_entries("M2", cls.repo)
 
     @classmethod
     def tearDownClass(cls):

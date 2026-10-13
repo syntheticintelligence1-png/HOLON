@@ -14,7 +14,8 @@ Without the sidecar nothing here changes a derivation (the milestone keeps its s
   * SORT-site (re-extraction). A site whose span is a source span is re-derived on the extracted facts: the site's
     spec (what the statement ref site:<id> hashes) gains "extracted": per extracted transitions document whose
     window declaration (holon.window) views the site's facts, the document's checks (guard reaches and implicit
-    checks, holon.machine.document_programs) of the site's entry points whose span overlaps the site's span, each
+    checks, holon.machine.document_programs; not the dispatcher's callvalue and calldatasize checks, which sit at the
+    whole function) of the site's entry points whose span overlaps the site's span, each
     {"action", "check", "kind", "code", "expr"} (an empty list says the extraction has no check there). A definition
     site (no source span) is not re-derived. The statement itself is unchanged; its hash changes through the ref,
     so the change goes through a "reextraction" entry of laws/STATEMENT_DIFF.jsonl (holon.statement_diff).
@@ -110,6 +111,8 @@ def site_evidence(milestone: str, root, facts_rel: str, site: dict, hits: list[d
             if a not in progs:
                 continue
             for c in progs[a].checks():
+                if c.kind in ("callvalue", "calldatasize"):
+                    continue    # the dispatcher's checks sit at the whole function: no site's check
                 if spans_overlap(sp, source_span(c.src)):
                     checks.append({"action": a, "check": c.id, "kind": c.kind, "code": c.code, "expr": c.expr})
         out.append({"document": rel, "checks": checks})

@@ -1,9 +1,73 @@
 {
   "actions": [
     {
+      "calls": [
+        {
+          "args": [
+            [
+              "caller"
+            ]
+          ],
+          "commit": false,
+          "cond": 1,
+          "expr": [
+            "callok",
+            "IGate.allowed",
+            [
+              "storage",
+              "gate"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "fn": "IGate.allowed",
+          "mutability": "view",
+          "receiver": [
+            "storage",
+            "gate"
+          ],
+          "seq": 4,
+          "src": "src/Book.sol:48",
+          "stack": [],
+          "value": 0
+        }
+      ],
+      "checks": [
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 0,
+          "src": "src/Book.sol:46-53",
+          "stack": []
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "param",
+              "amount"
+            ],
+            18446744073709551616
+          ],
+          "kind": "abi",
+          "param": "amount",
+          "seq": 1,
+          "src": "src/Book.sol:46",
+          "stack": []
+        }
+      ],
       "cost": {
         "terms": []
       },
+      "declared_in": "Book",
       "edges": [],
       "effects": [
         {
@@ -19,8 +83,66 @@
           "src": "src/Book.sol:51"
         }
       ],
+      "events": [
+        {
+          "anonymous": false,
+          "args": [
+            [
+              "caller"
+            ],
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ],
+            [
+              "param",
+              "amount"
+            ]
+          ],
+          "cond": 1,
+          "event": "Book.Deposited",
+          "indexed": [
+            true,
+            true,
+            false
+          ],
+          "seq": 11,
+          "signature": "Deposited(address,uint256,uint64)",
+          "src": "src/Book.sol:52",
+          "stack": [],
+          "topic0": "0xcd50943caf3a035e3821448b2743faef90aae73ff20c6c1b29ea8213ad1fee1d",
+          "topics": [
+            [
+              "caller"
+            ],
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ]
+          ]
+        }
+      ],
       "guards": [
         {
+          "args": [
+            [
+              "str",
+              "73746f70706564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
           "expr": [
             "!",
             [
@@ -29,10 +151,42 @@
             ]
           ],
           "kind": "modifier",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "73746f70706564"
+                ]
+              ],
+              "expr": [
+                "!",
+                [
+                  "storage",
+                  "_stopped"
+                ]
+              ],
+              "seq": 2,
+              "stack": [
+                "src/Book.sol:46"
+              ]
+            }
+          ],
           "reason": "stopped",
           "src": "src/Book.sol:21"
         },
         {
+          "args": [
+            [
+              "str",
+              "7a65726f"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
           "expr": [
             ">",
             [
@@ -42,10 +196,41 @@
             0
           ],
           "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "7a65726f"
+                ]
+              ],
+              "expr": [
+                ">",
+                [
+                  "param",
+                  "amount"
+                ],
+                0
+              ],
+              "seq": 3,
+              "stack": []
+            }
+          ],
           "reason": "zero",
           "src": "src/Book.sol:47"
         },
         {
+          "args": [
+            [
+              "str",
+              "64656e696564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
           "expr": [
             "call",
             "IGate.allowed",
@@ -54,19 +239,345 @@
             ]
           ],
           "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "64656e696564"
+                ]
+              ],
+              "expr": [
+                "call",
+                "IGate.allowed",
+                [
+                  "caller"
+                ]
+              ],
+              "seq": 5,
+              "stack": []
+            }
+          ],
           "reason": "denied",
           "src": "src/Book.sol:48"
         }
       ],
+      "loops": [],
       "modifiers": [
         "live"
       ],
+      "mstores": [],
+      "mutability": "payable",
       "name": "deposit",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "guard",
+          "src/Book.sol:21",
+          0
+        ],
+        [
+          "guard",
+          "src/Book.sol:47",
+          0
+        ],
+        [
+          "call",
+          0
+        ],
+        [
+          "guard",
+          "src/Book.sol:48",
+          0
+        ],
+        [
+          "panic",
+          0
+        ],
+        [
+          "panic",
+          1
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "storage",
+              "total"
+            ],
+            [
+              "param",
+              "amount"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            64,
+            [
+              "+",
+              [
+                "storage",
+                "total"
+              ],
+              [
+                "param",
+                "amount"
+              ]
+            ]
+          ],
+          "op": "+",
+          "seq": 6,
+          "src": "src/Book.sol:49",
+          "stack": []
+        },
+        {
+          "args": [
+            [
+              "storage",
+              "count"
+            ],
+            1
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ]
+          ],
+          "op": "+",
+          "seq": 8,
+          "src": "src/Book.sol:50",
+          "stack": []
+        }
+      ],
+      "params": [
+        {
+          "location": "default",
+          "name": "amount",
+          "type": "uint64",
+          "width": 64
+        }
+      ],
+      "payable": true,
+      "post": {
+        "count": [
+          "+",
+          [
+            "storage",
+            "count"
+          ],
+          1
+        ],
+        "entries": [
+          "store",
+          [
+            "storage",
+            "entries"
+          ],
+          [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "count"
+                ],
+                1
+              ]
+            ]
+          ],
+          [
+            "struct",
+            "Entry",
+            [
+              [
+                "amount",
+                [
+                  "param",
+                  "amount"
+                ]
+              ],
+              [
+                "who",
+                [
+                  "caller"
+                ]
+              ],
+              [
+                "tag",
+                [
+                  "trunc",
+                  32,
+                  [
+                    "+",
+                    [
+                      "storage",
+                      "count"
+                    ],
+                    1
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "total": [
+          "+",
+          [
+            "storage",
+            "total"
+          ],
+          [
+            "param",
+            "amount"
+          ]
+        ]
+      },
       "principal": null,
+      "returns": null,
       "selector": "0x13765838",
-      "src": "src/Book.sol:46-53"
+      "src": "src/Book.sol:46-53",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "total",
+          "path": [],
+          "seq": 7,
+          "src": "src/Book.sol:49",
+          "stack": [],
+          "value": [
+            "+",
+            [
+              "storage",
+              "total"
+            ],
+            [
+              "param",
+              "amount"
+            ]
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "count",
+          "path": [],
+          "seq": 9,
+          "src": "src/Book.sol:50",
+          "stack": [],
+          "value": [
+            "+",
+            [
+              "storage",
+              "count"
+            ],
+            1
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "entries",
+          "path": [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "count"
+                ],
+                1
+              ]
+            ]
+          ],
+          "seq": 10,
+          "src": "src/Book.sol:51",
+          "stack": [],
+          "value": [
+            "struct",
+            "Entry",
+            [
+              [
+                "amount",
+                [
+                  "param",
+                  "amount"
+                ]
+              ],
+              [
+                "who",
+                [
+                  "caller"
+                ]
+              ],
+              [
+                "tag",
+                [
+                  "trunc",
+                  32,
+                  [
+                    "+",
+                    [
+                      "storage",
+                      "count"
+                    ],
+                    1
+                  ]
+                ]
+              ]
+            ]
+          ]
+        }
+      ]
     },
     {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/Book.sol:72-79",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/Book.sol:72-79",
+          "stack": []
+        }
+      ],
       "cost": {
         "terms": [
           {
@@ -78,10 +589,34 @@
           }
         ]
       },
-      "edges": [],
-      "effects": [],
+      "declared_in": "Book",
+      "edges": [
+        {
+          "fn": "keccak256",
+          "kind": "HASH",
+          "src": "src/Book.sol:78"
+        }
+      ],
+      "effects": [
+        {
+          "family": "last",
+          "src": "src/Book.sol:78"
+        }
+      ],
+      "events": [],
       "guards": [
         {
+          "args": [
+            [
+              "str",
+              "6e6f74206f776e6572"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
           "expr": [
             "==",
             [
@@ -93,20 +628,338 @@
             ]
           ],
           "kind": "modifier",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f74206f776e6572"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "caller"
+                ],
+                [
+                  "storage",
+                  "_owner"
+                ]
+              ],
+              "seq": 2,
+              "stack": [
+                "src/Book.sol:72"
+              ]
+            }
+          ],
           "reason": "not owner",
           "src": "src/Book.sol:16"
         },
         {
-          "expr": 0,
+          "args": [],
+          "error": {
+            "name": "Book.Empty",
+            "selector": "0x3db2a12a",
+            "signature": "Empty()"
+          },
+          "expr": [
+            "!",
+            [
+              "==",
+              [
+                "exit",
+                "src/Book.sol:74-76",
+                "acc"
+              ],
+              0
+            ]
+          ],
           "kind": "revert",
+          "reaches": [
+            {
+              "args": [],
+              "expr": [
+                "!",
+                [
+                  "==",
+                  [
+                    "exit",
+                    "src/Book.sol:74-76",
+                    "acc"
+                  ],
+                  0
+                ]
+              ],
+              "seq": 6,
+              "stack": []
+            }
+          ],
           "reason": "Empty",
           "src": "src/Book.sol:77"
+        }
+      ],
+      "loops": [
+        {
+          "at_break": [],
+          "bound": [
+            "param",
+            "n"
+          ],
+          "break": 0,
+          "carried": [
+            {
+              "entry": 0,
+              "name": "acc",
+              "value": [
+                "carried",
+                "src/Book.sol:74-76",
+                "acc"
+              ]
+            },
+            {
+              "entry": 0,
+              "name": "i",
+              "value": [
+                "iter",
+                "src/Book.sol:74-76"
+              ]
+            }
+          ],
+          "cond": 1,
+          "count": [
+            "param",
+            "n"
+          ],
+          "exit": [
+            {
+              "name": "acc",
+              "value": [
+                "exit",
+                "src/Book.sol:74-76",
+                "acc"
+              ]
+            },
+            {
+              "name": "i",
+              "value": [
+                "param",
+                "n"
+              ]
+            }
+          ],
+          "head": [
+            "<",
+            [
+              "iter",
+              "src/Book.sol:74-76"
+            ],
+            [
+              "param",
+              "n"
+            ]
+          ],
+          "kind": "for",
+          "next": [
+            {
+              "name": "acc",
+              "value": [
+                "+",
+                [
+                  "carried",
+                  "src/Book.sol:74-76",
+                  "acc"
+                ],
+                [
+                  "iter",
+                  "src/Book.sol:74-76"
+                ]
+              ]
+            },
+            {
+              "name": "i",
+              "value": [
+                "+",
+                [
+                  "iter",
+                  "src/Book.sol:74-76"
+                ],
+                1
+              ]
+            }
+          ],
+          "regions": [],
+          "returns": [],
+          "seq": 3,
+          "src": "src/Book.sol:74-76",
+          "stack": [],
+          "steps": [
+            4,
+            5
+          ]
         }
       ],
       "modifiers": [
         "onlyOwner"
       ],
+      "mstores": [],
+      "mutability": "nonpayable",
       "name": "seal",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "guard",
+          "src/Book.sol:16",
+          0
+        ],
+        [
+          "loop",
+          0
+        ],
+        [
+          "panic",
+          0
+        ],
+        [
+          "panic",
+          1
+        ],
+        [
+          "guard",
+          "src/Book.sol:77",
+          0
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "carried",
+              "src/Book.sol:74-76",
+              "acc"
+            ],
+            [
+              "iter",
+              "src/Book.sol:74-76"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "<",
+                [
+                  "iter",
+                  "src/Book.sol:74-76"
+                ],
+                [
+                  "param",
+                  "n"
+                ]
+              ]
+            ],
+            [
+              "fits",
+              256,
+              [
+                "+",
+                [
+                  "carried",
+                  "src/Book.sol:74-76",
+                  "acc"
+                ],
+                [
+                  "iter",
+                  "src/Book.sol:74-76"
+                ]
+              ]
+            ]
+          ],
+          "loop": 3,
+          "op": "+",
+          "seq": 4,
+          "src": "src/Book.sol:75",
+          "stack": []
+        },
+        {
+          "args": [
+            [
+              "iter",
+              "src/Book.sol:74-76"
+            ],
+            1
+          ],
+          "code": 17,
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "<",
+                [
+                  "iter",
+                  "src/Book.sol:74-76"
+                ],
+                [
+                  "param",
+                  "n"
+                ]
+              ]
+            ],
+            [
+              "fits",
+              256,
+              [
+                "+",
+                [
+                  "iter",
+                  "src/Book.sol:74-76"
+                ],
+                1
+              ]
+            ]
+          ],
+          "loop": 3,
+          "op": "+",
+          "seq": 5,
+          "src": "src/Book.sol:74",
+          "stack": []
+        }
+      ],
+      "params": [
+        {
+          "location": "default",
+          "name": "n",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "last": [
+          "keccak256",
+          [
+            "abi.encode",
+            [
+              "exit",
+              "src/Book.sol:74-76",
+              "acc"
+            ],
+            [
+              "storage",
+              "count"
+            ]
+          ]
+        ]
+      },
       "principal": {
         "modifier": "onlyOwner",
         "predicate": [
@@ -120,13 +973,86 @@
           ]
         ]
       },
+      "returns": null,
       "selector": "0x86fe212d",
-      "src": "src/Book.sol:72-79"
+      "src": "src/Book.sol:72-79",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "last",
+          "path": [],
+          "seq": 7,
+          "src": "src/Book.sol:78",
+          "stack": [],
+          "value": [
+            "keccak256",
+            [
+              "abi.encode",
+              [
+                "exit",
+                "src/Book.sol:74-76",
+                "acc"
+              ],
+              [
+                "storage",
+                "count"
+              ]
+            ]
+          ]
+        }
+      ]
     },
     {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/Book.sol:63-66",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/Book.sol:63-66",
+          "stack": []
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "param",
+              "on"
+            ],
+            2
+          ],
+          "kind": "abi",
+          "param": "on",
+          "seq": 2,
+          "src": "src/Book.sol:63",
+          "stack": []
+        }
+      ],
       "cost": {
         "terms": []
       },
+      "declared_in": "Book",
       "edges": [],
       "effects": [
         {
@@ -134,8 +1060,41 @@
           "src": "src/Book.sol:64"
         }
       ],
+      "events": [
+        {
+          "anonymous": false,
+          "args": [
+            [
+              "param",
+              "on"
+            ]
+          ],
+          "cond": 1,
+          "event": "Book.Stopped",
+          "indexed": [
+            false
+          ],
+          "seq": 5,
+          "signature": "Stopped(bool)",
+          "src": "src/Book.sol:65",
+          "stack": [],
+          "topic0": "0x593eae32baa13087e4ace6c5bdb2bca644d29310634cb44a78f0f2a640c6af0e",
+          "topics": []
+        }
+      ],
       "guards": [
         {
+          "args": [
+            [
+              "str",
+              "6e6f74206f776e6572"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
           "expr": [
             "==",
             [
@@ -147,14 +1106,76 @@
             ]
           ],
           "kind": "modifier",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f74206f776e6572"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "caller"
+                ],
+                [
+                  "storage",
+                  "_owner"
+                ]
+              ],
+              "seq": 3,
+              "stack": [
+                "src/Book.sol:63"
+              ]
+            }
+          ],
           "reason": "not owner",
           "src": "src/Book.sol:16"
         }
       ],
+      "loops": [],
       "modifiers": [
         "onlyOwner"
       ],
+      "mstores": [],
+      "mutability": "nonpayable",
       "name": "setStopped",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "check",
+          2
+        ],
+        [
+          "guard",
+          "src/Book.sol:16",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "on",
+          "type": "bool",
+          "width": 8
+        }
+      ],
+      "payable": false,
+      "post": {
+        "_stopped": [
+          "param",
+          "on"
+        ]
+      },
       "principal": {
         "modifier": "onlyOwner",
         "predicate": [
@@ -168,26 +1189,285 @@
           ]
         ]
       },
+      "returns": null,
       "selector": "0xd50e829e",
-      "src": "src/Book.sol:63-66"
+      "src": "src/Book.sol:63-66",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "_stopped",
+          "path": [],
+          "seq": 4,
+          "src": "src/Book.sol:64",
+          "stack": [],
+          "value": [
+            "param",
+            "on"
+          ]
+        }
+      ]
     },
     {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/Book.sol:68-70",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            68
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/Book.sol:68-70",
+          "stack": []
+        }
+      ],
       "cost": {
         "terms": []
       },
+      "declared_in": "Book",
       "edges": [],
       "effects": [],
+      "events": [],
       "guards": [],
+      "loops": [],
       "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
       "name": "share",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "panic",
+          0
+        ],
+        [
+          "panic",
+          1
+        ],
+        [
+          "panic",
+          2
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "param",
+              "a"
+            ],
+            [
+              "param",
+              "b"
+            ]
+          ],
+          "code": 18,
+          "expr": [
+            "!=",
+            [
+              "param",
+              "b"
+            ],
+            0
+          ],
+          "op": "/",
+          "seq": 2,
+          "src": "src/Book.sol:69",
+          "stack": []
+        },
+        {
+          "args": [
+            [
+              "storage",
+              "count"
+            ],
+            [
+              "param",
+              "b"
+            ]
+          ],
+          "code": 18,
+          "expr": [
+            "!=",
+            [
+              "param",
+              "b"
+            ],
+            0
+          ],
+          "op": "%",
+          "seq": 3,
+          "src": "src/Book.sol:69",
+          "stack": []
+        },
+        {
+          "args": [
+            [
+              "/",
+              [
+                "param",
+                "a"
+              ],
+              [
+                "param",
+                "b"
+              ]
+            ],
+            [
+              "%",
+              [
+                "storage",
+                "count"
+              ],
+              [
+                "param",
+                "b"
+              ]
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "/",
+                [
+                  "param",
+                  "a"
+                ],
+                [
+                  "param",
+                  "b"
+                ]
+              ],
+              [
+                "%",
+                [
+                  "storage",
+                  "count"
+                ],
+                [
+                  "param",
+                  "b"
+                ]
+              ]
+            ]
+          ],
+          "op": "+",
+          "seq": 4,
+          "src": "src/Book.sol:69",
+          "stack": []
+        }
+      ],
+      "params": [
+        {
+          "location": "default",
+          "name": "a",
+          "type": "uint256",
+          "width": 256
+        },
+        {
+          "location": "default",
+          "name": "b",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {},
       "principal": null,
+      "returns": [
+        "+",
+        [
+          "/",
+          [
+            "param",
+            "a"
+          ],
+          [
+            "param",
+            "b"
+          ]
+        ],
+        [
+          "%",
+          [
+            "storage",
+            "count"
+          ],
+          [
+            "param",
+            "b"
+          ]
+        ]
+      ],
       "selector": "0xde34d544",
-      "src": "src/Book.sol:68-70"
+      "src": "src/Book.sol:68-70",
+      "writes": []
     },
     {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/Book.sol:81-90",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/Book.sol:81-90",
+          "stack": []
+        }
+      ],
       "cost": {
         "terms": []
       },
+      "declared_in": "Book",
       "edges": [
         {
           "fn": "keccak256",
@@ -201,8 +1481,20 @@
           "src": "src/Book.sol:89"
         }
       ],
+      "events": [],
       "guards": [
         {
+          "args": [
+            [
+              "str",
+              "6e6f74206f776e6572"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
           "expr": [
             "==",
             [
@@ -214,14 +1506,111 @@
             ]
           ],
           "kind": "modifier",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f74206f776e6572"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "caller"
+                ],
+                [
+                  "storage",
+                  "_owner"
+                ]
+              ],
+              "seq": 2,
+              "stack": [
+                "src/Book.sol:81"
+              ]
+            }
+          ],
           "reason": "not owner",
           "src": "src/Book.sol:16"
         }
       ],
+      "loops": [],
       "modifiers": [
         "onlyOwner"
       ],
+      "mstores": [
+        {
+          "cond": 1,
+          "offset": 0,
+          "op": "mstore",
+          "region": [
+            "src/Book.sol:85"
+          ],
+          "seq": 3,
+          "src": "src/Book.sol:86",
+          "stack": [],
+          "value": [
+            "<<",
+            [
+              "param",
+              "idx"
+            ],
+            192
+          ]
+        }
+      ],
+      "mutability": "nonpayable",
       "name": "stamp",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "guard",
+          "src/Book.sol:16",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "idx",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "last": [
+          "keccak256",
+          [
+            "slice",
+            [
+              "mem",
+              [
+                "mstore",
+                0,
+                [
+                  "<<",
+                  [
+                    "param",
+                    "idx"
+                  ],
+                  192
+                ]
+              ]
+            ],
+            0,
+            8
+          ]
+        ]
+      },
       "principal": {
         "modifier": "onlyOwner",
         "predicate": [
@@ -235,13 +1624,79 @@
           ]
         ]
       },
+      "returns": null,
       "selector": "0xfcd31039",
-      "src": "src/Book.sol:81-90"
+      "src": "src/Book.sol:81-90",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "last",
+          "path": [],
+          "seq": 4,
+          "src": "src/Book.sol:89",
+          "stack": [],
+          "value": [
+            "keccak256",
+            [
+              "slice",
+              [
+                "mem",
+                [
+                  "mstore",
+                  0,
+                  [
+                    "<<",
+                    [
+                      "param",
+                      "idx"
+                    ],
+                    192
+                  ]
+                ]
+              ],
+              0,
+              8
+            ]
+          ]
+        }
+      ]
     },
     {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/Book.sol:55-61",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/Book.sol:55-61",
+          "stack": []
+        }
+      ],
       "cost": {
         "terms": []
       },
+      "declared_in": "Book",
       "edges": [],
       "effects": [
         {
@@ -253,8 +1708,41 @@
           "src": "src/Book.sol:59"
         }
       ],
+      "events": [
+        {
+          "anonymous": false,
+          "args": [
+            [
+              "param",
+              "id"
+            ]
+          ],
+          "cond": 1,
+          "event": "Book.Withdrawn",
+          "indexed": [
+            false
+          ],
+          "seq": 7,
+          "signature": "Withdrawn(uint256)",
+          "src": "src/Book.sol:60",
+          "stack": [],
+          "topic0": "0x430648de173157e069201c943adb2d4e340e7cf5b27b1b09c9cb852f03d63b56",
+          "topics": []
+        }
+      ],
       "guards": [
         {
+          "args": [
+            [
+              "str",
+              "73746f70706564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
           "expr": [
             "!",
             [
@@ -263,10 +1751,42 @@
             ]
           ],
           "kind": "modifier",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "73746f70706564"
+                ]
+              ],
+              "expr": [
+                "!",
+                [
+                  "storage",
+                  "_stopped"
+                ]
+              ],
+              "seq": 2,
+              "stack": [
+                "src/Book.sol:55"
+              ]
+            }
+          ],
           "reason": "stopped",
           "src": "src/Book.sol:21"
         },
         {
+          "args": [
+            [
+              "param",
+              "id"
+            ]
+          ],
+          "error": {
+            "name": "Book.NotYours",
+            "selector": "0x3715f556",
+            "signature": "NotYours(uint256)"
+          },
           "expr": [
             "!",
             [
@@ -292,46 +1812,265 @@
             ]
           ],
           "kind": "revert",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "param",
+                  "id"
+                ]
+              ],
+              "expr": [
+                "!",
+                [
+                  "!=",
+                  [
+                    "member",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "entries"
+                      ],
+                      [
+                        "param",
+                        "id"
+                      ]
+                    ],
+                    "who"
+                  ],
+                  [
+                    "caller"
+                  ]
+                ]
+              ],
+              "seq": 3,
+              "stack": []
+            }
+          ],
           "reason": "NotYours",
           "src": "src/Book.sol:57"
         }
       ],
+      "loops": [],
       "modifiers": [
         "live"
       ],
+      "mstores": [],
+      "mutability": "nonpayable",
       "name": "withdraw",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "guard",
+          "src/Book.sol:21",
+          0
+        ],
+        [
+          "guard",
+          "src/Book.sol:57",
+          0
+        ],
+        [
+          "panic",
+          0
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "storage",
+              "total"
+            ],
+            [
+              "member",
+              [
+                "map",
+                [
+                  "storage",
+                  "entries"
+                ],
+                [
+                  "param",
+                  "id"
+                ]
+              ],
+              "amount"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            64,
+            [
+              "-",
+              [
+                "storage",
+                "total"
+              ],
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "entries"
+                  ],
+                  [
+                    "param",
+                    "id"
+                  ]
+                ],
+                "amount"
+              ]
+            ]
+          ],
+          "op": "-",
+          "seq": 4,
+          "src": "src/Book.sol:58",
+          "stack": []
+        }
+      ],
+      "params": [
+        {
+          "location": "default",
+          "name": "id",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "entries": [
+          "store",
+          [
+            "storage",
+            "entries"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "id"
+              ]
+            ]
+          ],
+          0
+        ],
+        "total": [
+          "-",
+          [
+            "storage",
+            "total"
+          ],
+          [
+            "member",
+            [
+              "map",
+              [
+                "storage",
+                "entries"
+              ],
+              [
+                "param",
+                "id"
+              ]
+            ],
+            "amount"
+          ]
+        ]
+      },
       "principal": null,
+      "returns": null,
       "selector": "0x2e1a7d4d",
-      "src": "src/Book.sol:55-61"
+      "src": "src/Book.sol:55-61",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "total",
+          "path": [],
+          "seq": 5,
+          "src": "src/Book.sol:58",
+          "stack": [],
+          "value": [
+            "-",
+            [
+              "storage",
+              "total"
+            ],
+            [
+              "member",
+              [
+                "map",
+                [
+                  "storage",
+                  "entries"
+                ],
+                [
+                  "param",
+                  "id"
+                ]
+              ],
+              "amount"
+            ]
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "entries",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "id"
+              ]
+            ]
+          ],
+          "seq": 6,
+          "src": "src/Book.sol:59",
+          "stack": [],
+          "value": 0
+        }
+      ]
     }
   ],
   "assumptions": [
     {
       "id": "A-env",
-      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls, sload) are free: every value of them is possible."
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
     },
     {
       "id": "A-implicit",
-      "text": "Implicit reverts (checked arithmetic, array bounds, ABI decoding, failing external calls) are not guards: only explicit require, assert and revert (and Yul revert/invalid) are."
+      "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
     },
     {
       "id": "A-loop",
-      "text": "A loop body is walked once at a generic iteration: what it changes is a phi term of the loop (locals, storage families, memory regions), a guard inside it holds at every iteration, and its cost term counts the header's bound."
+      "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
     },
     {
       "id": "A-reentrancy",
       "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
-    },
-    {
-      "id": "A-span",
-      "text": "One guard per span: a require or revert reached again (a second inlined call of the same function) keeps the expression of its first reach."
     }
   ],
   "constants": {},
   "contract": "Book",
   "extraction": {
     "frontend": "solidity",
-    "frontend_version": "holon-frontend-solidity/0.2",
+    "frontend_version": "holon-frontend-solidity/0.3",
     "inputs": [
       {
         "sha256": "2fd18ceb6f7bf946ab28dba5495b0683f2838ab33621c19a7ae77eb4fb74cfd6",
@@ -368,6 +2107,26 @@
     }
   },
   "facts_version": "holon-facts/0.3",
+  "inherited_storage": [
+    {
+      "declared_in": "Owned",
+      "kind": "scalar",
+      "name": "_owner",
+      "offset": 0,
+      "slot": 0,
+      "value": "address",
+      "width": 160
+    },
+    {
+      "declared_in": "Owned",
+      "kind": "scalar",
+      "name": "_stopped",
+      "offset": 20,
+      "slot": 0,
+      "value": "bool",
+      "width": 8
+    }
+  ],
   "storage": [
     {
       "kind": "scalar",
@@ -397,16 +2156,22 @@
       "fields": [
         {
           "name": "amount",
+          "offset": 0,
+          "slot": 0,
           "type": "uint64",
           "width": 64
         },
         {
           "name": "who",
+          "offset": 8,
+          "slot": 0,
           "type": "address",
           "width": 160
         },
         {
           "name": "tag",
+          "offset": 28,
+          "slot": 0,
           "type": "uint32",
           "width": 32
         }

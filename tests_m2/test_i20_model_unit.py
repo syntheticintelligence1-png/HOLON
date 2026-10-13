@@ -4,10 +4,12 @@ holon.extracted_eval (the A/B interface step), holon.machine_bend (the Bend mode
 evaluator), holon.window (classification, view, window_check) and holon.differential (mechanical deltas, the window
 view of the abstraction, ghost reads) on tests_m2/fixtures/i20_model/toy/.
 
-The toy is src/Book.sol. book.extracted.json is its I19 extraction (the current shape); book.a19.json adds, by hand,
-the sections of the planned I19 follow-up shape (writes, panics, calls, dispatcher checks, events, loop records,
-inherited storage). The expected storage words, logs and revert data below were observed on the real contract (forge,
-the pinned solc) from the same pre-state, so the evaluator is checked against the code, not against itself.
+The toy is src/Book.sol. book.extracted.json is its extraction by the I19 follow-up's frontend
+(holon-frontend-solidity/0.3, `holon extract solidity --sidecar tests_m2/fixtures/i20_model/toy/extract_book.json
+--source tests_m2/fixtures/i20_model/toy`): writes, panics, calls, dispatcher checks, events, loop records and
+inherited storage as the integrated model reads them. The expected storage words, logs and revert data below were
+observed on the real contract (forge, the pinned solc) from the same pre-state, so the evaluator is checked against the
+code, not against itself.
 """
 from __future__ import annotations
 
@@ -36,9 +38,10 @@ def pre_state() -> dict:
     return {h32(0): h32(OWNER | (5 << 168)), h32(1): h32(GATE), h32(2): h32(7)}
 
 
-def env(caller=OWNER, value=0, allowed=(True, 1)) -> dict:
+def env(caller=OWNER, value=0, allowed=(True, 1), size=36) -> dict:
+    """size: msg.data.length (the selector and one word per parameter of the toy's actions)."""
     ok, ret = allowed
-    return {"caller": caller, "this": 0x1234, "msg.value": value, "block.timestamp": 100,
+    return {"caller": caller, "this": 0x1234, "msg.value": value, "block.timestamp": 100, "msg.data.length": size,
             "calls": [{"fn": "IGate.allowed", "to": "0x%040x" % GATE, "args": {"who": "0x%040x" % caller},
                        "ok": ok, "ret": h32(ret) if isinstance(ret, int) else ret}]}
 
@@ -53,8 +56,7 @@ class _Toy(unittest.TestCase):
     def setUpClass(cls):
         from holon import machine
         cls.machine = machine
-        cls.a19 = machine.load_extracted(TOY / "book.a19.json", ROOT, source=TOY)
-        cls.i19 = machine.load_extracted(TOY / "book.extracted.json", ROOT, source=TOY)
+        cls.a19 = machine.load_extracted(TOY / "book.extracted.json", ROOT, source=TOY)
 
     def step(self, m, action, args, e=None, state=None):
         from holon import extracted_eval as X
@@ -67,64 +69,52 @@ class TestModel(_Toy):
         self.assertEqual((f["_owner"].slot, f["_owner"].offset, f["_owner"].declared), (0, 0, False))
         self.assertEqual((f["_stopped"].slot, f["_stopped"].offset), (0, 20))
         self.assertEqual((f["total"].slot, f["total"].offset, f["total"].declared), (0, 21, True))
-        self.assertEqual(sorted(self.i19.families), sorted(f))   # the I19 shape resolves them from the layout
 
     def test_check_ids_and_program_order(self):
-        ids = [c.id for c in self.a19.reaches("deposit")]
-        self.assertEqual(ids, ["deposit#abi#0", f"deposit#{S}:21#0", f"deposit#{S}:47#0", f"deposit#{S}:48#0",
-                               f"deposit#{S}:48#1", f"deposit#{S}:49#0", f"deposit#{S}:50#0"])
-        self.assertEqual([c.id for c in self.a19.reaches("share")],
-                         ["share#callvalue#0", f"share#{S}:69#0", f"share#{S}:69#1", f"share#{S}:69#2"])
+        """Every guard reach, implicit check and call check, in walk (seq) order; the dispatcher's checks sit at the
+        function's span, an ABI range check at its parameter."""
+        def kinds(a):
+            return [(c.id, c.kind) for c in self.a19.reaches(a)]
+        self.assertEqual(kinds("deposit"), [
+            (f"deposit#{S}:46-53#0", "calldatasize"), (f"deposit#{S}:46#0", "abi"), (f"deposit#{S}:21#0", "modifier"),
+            (f"deposit#{S}:47#0", "require"), (f"deposit#{S}:48#0", "call"), (f"deposit#{S}:48#1", "require"),
+            (f"deposit#{S}:49#0", "panic"), (f"deposit#{S}:50#0", "panic")])
+        self.assertEqual(kinds("share"), [
+            (f"share#{S}:68-70#0", "callvalue"), (f"share#{S}:68-70#1", "calldatasize"), (f"share#{S}:69#0", "panic"),
+            (f"share#{S}:69#1", "panic"), (f"share#{S}:69#2", "panic")])
         # the loop body's checks are checks of the action, in walk order
         self.assertEqual([c.id for c in self.a19.reaches("seal")],
-                         ["seal#callvalue#0", f"seal#{S}:16#0", f"seal#{S}:75#0", f"seal#{S}:74#0",
-                          f"seal#{S}:77#0"])
-        self.assertEqual([c.id for c in self.i19.reaches("deposit")],
-                         [f"deposit#{S}:21#0", f"deposit#{S}:47#0", f"deposit#{S}:48#0"])
-
-    def test_shapes(self):
-        self.assertEqual({a: self.a19.program(a).shape for a in self.a19.actions}, dict.fromkeys(self.a19.actions, "a19"))
-        self.assertEqual(self.a19.program("deposit").missing, [])
-        self.assertEqual(self.i19.program("deposit").missing, ["writes", "events"])
+                         [f"seal#{S}:72-79#0", f"seal#{S}:72-79#1", f"seal#{S}:16#0", f"seal#{S}:75#0",
+                          f"seal#{S}:74#0", f"seal#{S}:77#0"])
+        lp = next(s for s in self.a19.program("seal").steps if isinstance(s, self.machine.Loop))
+        self.assertEqual([c.id for c in lp.body], [f"seal#{S}:75#0", f"seal#{S}:74#0"])
 
     def test_a_family_off_the_compilers_layout_is_refused(self):
-        doc = load_json(TOY / "book.a19.json")
+        doc = load_json(TOY / "book.extracted.json")
         doc["storage"][0]["offset"] = 0
         with self.assertRaises(self.machine.ModelError):
             self.machine.ExtractedModel(doc, self.a19.info)
 
-    def test_a_record_without_seq_is_refused_in_the_a19_shape(self):
-        doc = load_json(TOY / "book.a19.json")
+    def test_a_record_without_seq_is_refused(self):
+        doc = load_json(TOY / "book.extracted.json")
         a = next(x for x in doc["actions"] if x["name"] == "deposit")
         del a["writes"][0]["seq"]
         with self.assertRaises(self.machine.ModelError):
             self.machine.ExtractedModel(doc, self.a19.info)
 
-    def test_an_order_list_places_records_without_seq(self):
-        """The follow-up's minimum (A19-03): an "order" list over the checks instead of seq on every record."""
-        doc = load_json(TOY / "book.a19.json")
-        a = next(x for x in doc["actions"] if x["name"] == "deposit")
-        for sec in ("checks", "panics", "calls", "writes", "events"):
-            for r in a.get(sec) or []:
-                r.pop("seq", None)
-        for g in a["guards"]:
-            for r in g.get("reaches") or []:
-                r.pop("seq", None)
-        a["order"] = [["check", 0], ["guard", f"{S}:21", 0], ["guard", f"{S}:47", 0], ["call", 0],
-                      ["guard", f"{S}:48", 0], ["panic", 0], ["panic", 1]]
-        m = self.machine.ExtractedModel(doc, self.a19.info)
-        self.assertEqual([c.id for c in m.reaches("deposit")], [c.id for c in self.a19.reaches("deposit")])
-        from holon import extracted_eval as X
-        for args in ({"amount": 3}, {"amount": 0}):
-            self.assertEqual(X.step(m, pre_state(), "deposit", args, env()),
-                             X.step(self.a19, pre_state(), "deposit", args, env()))
-
-    def test_loop_bodies_given_as_lists_are_classified(self):
-        doc = load_json(TOY / "book.a19.json")
+    def test_a_loop_whose_steps_are_not_its_records_is_refused(self):
+        doc = load_json(TOY / "book.extracted.json")
         lp = next(x for x in doc["actions"] if x["name"] == "seal")["loops"][0]
-        lp["steps"] = [dict(p, type="panic") for p in lp["steps"]["panics"]]
-        m = self.machine.ExtractedModel(doc, self.a19.info)
-        self.assertEqual([c.id for c in m.reaches("seal")], [c.id for c in self.a19.reaches("seal")])
+        lp["steps"] = lp["steps"][:1]
+        with self.assertRaises(self.machine.ModelError):
+            self.machine.ExtractedModel(doc, self.a19.info)
+
+    def test_a_document_without_the_follow_up_sections_is_refused(self):
+        doc = load_json(TOY / "book.extracted.json")
+        for a in doc["actions"]:
+            a.pop("writes", None)
+        with self.assertRaises(self.machine.ModelError):
+            self.machine.ExtractedModel(doc, self.a19.info)
 
 
 class TestEvaluator(_Toy):
@@ -150,29 +140,34 @@ class TestEvaluator(_Toy):
         r = self.step(self.a19, "setStopped", {"on": True}, env(caller=0xB0B))
         self.assertEqual(r["guard"], f"setStopped#{S}:16#0")
 
-    def test_custom_error_without_recorded_arguments_gives_its_selector_as_a_prefix(self):
+    def test_custom_errors_carry_their_recorded_arguments(self):
+        # forge saw 0x3715f556 || 8 (NotYours(8)); the document records the error's selector and the reach's args
         r = self.step(self.a19, "withdraw", {"id": 8})
-        self.assertEqual((r["status"], r["revert"], r.get("revert_prefix")), ("revert", "0x3715f556", True))
+        self.assertEqual((r["status"], r["revert"], r.get("revert_prefix")), ("revert", "0x3715f556" + h32(8)[2:], None))
         self.assertEqual(r["guard"], f"withdraw#{S}:57#0")
-        # with the error's arguments recorded (a possible follow-up key), the whole data: forge saw 0x3715f556 || 8
-        doc = load_json(TOY / "book.a19.json")
-        g = next(x for x in doc["actions"] if x["name"] == "withdraw")["guards"][1]
-        g["args"] = [["param", "id"]]
+        # without the arguments, only the selector is determined (a prefix)
+        doc = load_json(TOY / "book.extracted.json")
+        g = next(x for x in next(a for a in doc["actions"] if a["name"] == "withdraw")["guards"] if x["src"] == f"{S}:57")
+        for x in [g] + g["reaches"]:
+            x.pop("args", None)
         m = self.machine.ExtractedModel(doc, self.a19.info)
-        self.assertEqual(self.step(m, "withdraw", {"id": 8})["revert"], "0x3715f556" + h32(8)[2:])
+        r = self.step(m, "withdraw", {"id": 8})
+        self.assertEqual((r["revert"], r.get("revert_prefix")), ("0x3715f556", True))
 
     def test_panics_dispatcher_checks_and_bubbled_calls(self):
-        r = self.step(self.a19, "share", {"a": 9, "b": 0})
+        r = self.step(self.a19, "share", {"a": 9, "b": 0}, env(size=68))
         self.assertEqual((r["revert"], r["guard"]), ("0x4e487b71" + h32(0x12)[2:], f"share#{S}:69#0"))
-        self.assertEqual(self.step(self.a19, "share", {"a": 9, "b": 2})["status"], "ok")
+        self.assertEqual(self.step(self.a19, "share", {"a": 9, "b": 2}, env(size=68))["status"], "ok")
+        r = self.step(self.a19, "share", {"a": 9, "b": 2}, env(size=67))
+        self.assertEqual((r["status"], r["revert"], r["guard"]), ("revert", "0x", f"share#{S}:68-70#1"))
         st = pre_state()
         st[h32(0)] = h32(OWNER | (((1 << 64) - 1) << 168))
         r = self.step(self.a19, "deposit", {"amount": 1}, state=st)
         self.assertEqual((r["revert"], r["guard"]), ("0x4e487b71" + h32(0x11)[2:], f"deposit#{S}:49#0"))
         r = self.step(self.a19, "withdraw", {"id": 8}, env(value=1))
-        self.assertEqual((r["status"], r["revert"], r["guard"]), ("revert", "0x", "withdraw#callvalue#0"))
+        self.assertEqual((r["status"], r["revert"], r["guard"]), ("revert", "0x", f"withdraw#{S}:55-61#0"))
         r = self.step(self.a19, "deposit", {"amount": 1 << 64})
-        self.assertEqual((r["revert"], r["guard"]), ("0x", "deposit#abi#0"))
+        self.assertEqual((r["revert"], r["guard"]), ("0x", f"deposit#{S}:46#0"))
         r = self.step(self.a19, "deposit", {"amount": 1}, env(allowed=(False, "0xdeadbeef")))
         self.assertEqual((r["status"], r["revert"], r["guard"]), ("revert", "0xdeadbeef", f"deposit#{S}:48#0"))
 
@@ -197,11 +192,6 @@ class TestEvaluator(_Toy):
         r = self.step(self.a19, "deposit", {"amount": 3}, e)
         self.assertEqual(r["status"], "unsupported")
         self.assertIn("external calls", r["reason"])
-        # the I19 shape decides reverts, and says it cannot give an ok step's writes and events
-        self.assertEqual(self.step(self.i19, "deposit", {"amount": 0})["guard"], f"deposit#{S}:47#0")
-        r = self.step(self.i19, "deposit", {"amount": 3})
-        self.assertEqual(r["status"], "unsupported")
-        self.assertEqual(r["partial"]["unknown"], ["writes", "events"])
 
 
 class TestBendModel(_Toy):
@@ -213,7 +203,7 @@ class TestBendModel(_Toy):
         cls.bend = bend
         cls.tmp = Path(tempfile.mkdtemp(prefix="holon-i20a-"))
         cls.gen = {}
-        for name, m in (("a19", cls.a19), ("i19", cls.i19)):
+        for name, m in (("a19", cls.a19),):
             g = BendModel(m)
             text = g.generate()
             p = cls.tmp / name / "model.bend"
@@ -243,7 +233,8 @@ class TestBendModel(_Toy):
         def henv(caller, ok):
             e = {"$": "HEnv", "blobs": [], "kec": [], "sha": [], "unk": []}
             for k in g.env_keys:
-                e["e_" + k.replace(".", "_")] = {"caller": caller, "msg.value": 0, "this": 0x1234}.get(k, 0)
+                e["e_" + k.replace(".", "_")] = {"caller": caller, "msg.value": 0, "this": 0x1234,
+                                                 "msg.data.length": 68}.get(k, 0)
             for i, fn in enumerate(g.calls):
                 e[f"c{i}"] = [{"$": "HKL", "b": [caller], "v": [1 if ok else 0, 1]}] if fn == "IGate.allowed" else []
             return e
@@ -265,7 +256,7 @@ class TestBendModel(_Toy):
         res = json.loads(out.stdout)["results"]
         for (act, args, caller, ok, _), got in zip(cases, res):
             with self.subTest(action=act, args=args, caller=caller, ok=ok):
-                e = env(caller=caller, allowed=(ok, 1 if ok else "0x"))
+                e = env(caller=caller, allowed=(ok, 1 if ok else "0x"), size=68)
                 r = self.step(self.a19, act, {k: bool(v) if act == "setStopped" else v for k, v in args.items()}, e)
                 ids = [c.id for c in self.a19.reaches(act)]
                 want = 0 if r["status"] == "ok" else ids.index(r["guard"]) + 1
@@ -321,9 +312,10 @@ class TestWindowAndDifferential(_Toy):
         missing = sorted(i for i, d in ds.items() if d["kind"] == "guard_missing")
         self.assertEqual(missing, ["guard_missing:deposit:oracle: IGate.allowed"])
         extra = sorted(i for i, d in ds.items() if d["kind"] == "guard_extra")
-        # the dispatcher's checks (no span) and the action's own checks without an abstraction require; the checked
-        # add at :49 is matched by the abstraction's require at :49
-        self.assertIn("guard_extra:deposit#abi#0", extra)
+        # the dispatcher's checks (at the function's span: they match no require) and the action's own checks without
+        # an abstraction require; the checked add at :49 is matched by the abstraction's require at :49
+        self.assertIn(f"guard_extra:deposit#{S}:46-53#0", extra)
+        self.assertIn(f"guard_extra:deposit#{S}:46#0", extra)
         self.assertIn(f"guard_extra:deposit#{S}:48#0", extra)
         self.assertNotIn(f"guard_extra:deposit#{S}:49#0", extra)
         self.assertEqual(sorted(i for i, d in ds.items() if d["kind"] == "ghost"), ["ghost:E.mark", "ghost:marks"])
@@ -354,7 +346,7 @@ class TestModelCLI(unittest.TestCase):
         try:
             outs = []
             for k in range(2):
-                p = run_holon(["model", "--facts", "tests_m2/fixtures/i20_model/toy/book.a19.json", "--out",
+                p = run_holon(["model", "--facts", "tests_m2/fixtures/i20_model/toy/book.extracted.json", "--out",
                                str(tmp / str(k)), "--source", str(TOY)], timeout=600)
                 self.assertEqual(p.returncode, 0, p.stdout[-1500:] + p.stderr[-1500:])
                 self.assertIn("ALL PROOFS CHECK", p.stdout)

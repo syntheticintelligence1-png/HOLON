@@ -10,48 +10,50 @@ whitepaper §8.7, Def 4.7). The contract is the docstring of tests_m2/test_extra
          (inherited storage included) and its ABI.
   state  raw storage before the step: {"0x<slot>": "0x<word>"} (or ints); a missing slot is 0.
   args   the action's arguments by parameter name (holon.evm_abi values: ints, bools, 0x-hex for addresses, bytesN and
-         bytes, str for strings, dicts for structs, lists for arrays); normalized by the action's ABI types.
-  env    "caller", "this", "msg.value", "block.<member>", "tx.<member>", "gasleft" (ints or 0x-hex);
+         bytes, str for strings, dicts for structs, lists for arrays); normalized by the action's ABI types (a raw int
+         for a dirty calldata leaf stays that word: the decoder's "abi" check rejects it).
+  env    "caller", "this", "msg.value", "msg.data.length", "block.<member>", "tx.<member>", "gasleft" (ints or 0x-hex);
          "blobhash": [word, ...] (BLOBHASH(i) is 0 past the list);
          "calls": [{"fn": "<Interface>.<function>" | null, "to", "data", "args": {name: value} | null, "ok", "ret"}]
                   the external calls the real code made, with their answers (a call term is answered by the entry with
                   its function and arguments; two different answers for one call are unsupported);
          "unknown": {"<span>": {"<name>": value}}   values of ["unknown", span, name] terms;
-         "phi": {"<span>": {"<name>" | "storage.<family>": [value per iteration, ..., exit value]}} (I19 loops);
-         "immutable", "code", "balance", "blockhash": {key: value} for those terms.
+         "immutable", "code", "balance", "blockhash": {key: value} for those terms (immutable by name, code and balance
+                  by address).
 
 The result. "status" ok or revert, "revert" the raw revert data, "writes" every slot a write of the step touches with
 its new word (packing kept), "events" the logs in order, "guard" the id of the check that reverted (None on ok, and on a
-revert no check of the document decides, such as a failing external call the current I19 shape does not place).
-Extras: "revert_prefix": true when only the leading bytes of the revert data are determined (a custom error whose
-arguments the document does not record: its 4-byte selector), "reason" for an unsupported step, "partial" what is
-known when an ok step's writes or events are not given by the document.
+revert that no check of the document decides, such as a call term whose answer is a revert outside any call check).
+Extras: "revert_prefix": true when only the leading bytes of the revert data are determined (an error whose arguments
+the document does not record: its 4-byte selector), "reason" for an unsupported step.
 
-Semantics. Terms are I17's W4 language with exact 256-bit EVM semantics: + - * ** wrap mod 2^256, / and % give 0 for a
-zero divisor (the Yul semantics; Solidity's checked division is an implicit check, a panic record), shifts of 256 bits
-or more give 0, comparisons are unsigned, && || ! test non-zero, "trunc" keeps the low bits, "~" and "neg" are bitwise
-and two's complement; ["?", c, a, b], && and || evaluate lazily, as the code does. The I19 follow-up's terms:
-["fits", N, [op, a, b]] (the exact, non-modular result of op lies in [0, 2^N)), ["sfits", N, ..] (in [-2^(N-1),
-2^(N-1)), operands two's complement N-bit), ["callok", fn, receiver, args..] (the external call succeeds),
-["carried", span, name] (a loop-carried value at the head of the current iteration), ["exit", span, name] and
-["count", span] (after the loop), ["mloop", span, k, count, write] (a memory write repeated for k < count).
-Storage reads ["storage", f] (and their ["map"], ["member"], ["index"] paths) read the pre-state at the compiler's
-slots (mapping slots keccak256(key . slot), struct members at their slot and offset, packed values masked, bytesN
-left-aligned); ["store", base, path, v] reads v at path and the base elsewhere. Memory regions ["mem", writes...] are
-byte arrays built from their writes; a byte no write determines is unknown and reading it is unsupported (never zero:
-memory may be dirty).
+Semantics. Terms are the language of holon.frontends.solidity.transitions (I17 W4 plus the I19 follow-up) with exact
+256-bit EVM semantics: + - * ** wrap mod 2^256, / and % give 0 for a zero divisor (the Yul semantics; Solidity's checked
+division is an implicit check, a panic record), shifts of 256 bits or more give 0, comparisons are unsigned, && || !
+test non-zero, "trunc" keeps the low bits, "~" and "neg" are bitwise and two's complement; ["?", c, a, b], && and ||
+evaluate lazily, as the code does. ["fits", N, [op, a, b]] (the exact, non-modular result of op lies in [0, 2^N)),
+["sfits", N, ..] (in [-2^(N-1), 2^(N-1)), operands two's complement N-bit), ["callok", fn, receiver, args..] (the
+external call succeeds); a loop's symbols ["iter", loop], ["carried", loop, name], ["count", loop], ["exit", loop,
+name], ["returned", loop, j] are bound by running the loop record (Eval.loop); ["mloop", loop, ["iter", loop], count,
+[write..]] repeats its writes for iter < count and ["when", c, write] writes when c holds. Storage reads ["storage", f]
+(and their ["map"], ["member"], ["index"] paths) read the pre-state at the compiler's slots (mapping slots
+keccak256(key . slot), struct members at their slot and offset, packed values masked as the compiler reads them: a bool
+is its raw byte, bytesN left-aligned); ["store", base, path, v] reads v at path and the base elsewhere. Memory regions
+["mem", writes...] are byte arrays built from their writes; a byte no write determines is unknown and reading it is
+unsupported (never zero: memory may be dirty). abi.encodePacked takes each word's width from its type: a parameter's ABI
+type, a family's or member's storage type, an immutable's declared type, 32 bytes for a hash or a calldata word, 20 for
+an address; a word of no known type is unsupported.
 
-The step runs the action's program (holon.machine.ExtractedModel.program) in order: a check whose condition is 0
-reverts with the revert data of its kind (a panic: Panic(code); an external-call check: the call's own revert data,
-bubbled; a callvalue or ABI check: empty; a guard: Error(reason), a custom error's selector (and its arguments when the
-record gives them), or empty without a reason); a write applies its value at its path when its condition holds; an
-event is encoded from its signature (topic0, indexed arguments as topics, the others ABI-encoded as data); a loop runs
-its body per iteration with its carried values, until its head fails or its break holds (at most MAX_ITERATIONS).
+The step runs the action's program (holon.machine.ExtractedModel.program) in seq order: a check whose condition is 0
+reverts with the revert data the document records (holon.extracted_eval.revert_data); a write applies its value at its
+path when its condition holds; an event is encoded from its signature, topic0 and topic terms; a loop record runs its
+body per iteration (at most MAX_ITERATIONS) when its condition holds. Writes, events and checks are over the pre-state:
+the document states every term over the storage before the transaction (store chains for what the action wrote).
 
 Unsupported, never a guess: a term whose value is not determined by the arguments, the pre-state and env (an unknown
-or phi term without its env value, an external call with no answer, an unknown memory byte, an index past an input's
-length whose implicit revert the document does not place), or an ok step whose writes or events the document does not
-give (the I19 shape): status "unsupported" with "reason"; "partial" holds what is known.
+term without its env value, an external call with no answer, an unknown memory byte, an index past an input's length
+whose implicit revert the document does not place, a packed word of no known width): status "unsupported" with
+"reason". The refinement harness counts it as a status disagreement.
 """
 from __future__ import annotations
 
@@ -67,11 +69,22 @@ ERROR_STRING = bytes.fromhex("08c379a0")
 PANIC = bytes.fromhex("4e487b71")
 MAX_MEM = 1 << 22          # a memory offset beyond this is not a memory address the code can use
 MAX_ITERATIONS = 4096      # a loop that runs longer is unsupported (the bound is stated in the reason)
-SUBST_HEADS = {"carried", "exit", "count"}
+SUBST_HEADS = {"carried", "exit", "count", "iter", "returned"}
 
 
 class Unsupported(Exception):
     """A value the arguments, the pre-state and env do not determine."""
+
+
+_MISSING = object()
+
+
+class Poison:
+    """A loop name whose value the step does not determine (e.g. a memory pointer): reading it is unsupported, carrying
+    it is not (a pointer only placed memory writes, which are not observable)."""
+
+    def __init__(self, reason: str):
+        self.reason = reason
 
 
 class CallReverted(Exception):
@@ -188,7 +201,8 @@ def norm(v, p: dict | None):
             return int.from_bytes(bytes(v)[:32].ljust(32, b"\0"), "big")
         return to_int(v)          # an int is taken as the EVM word (left-aligned) itself
     if t == "bool":
-        return 1 if (v is True or (not isinstance(v, bool) and to_int(v) != 0)) else 0
+        # True/False as 1/0; a raw word (dirty calldata) stays that word: the decoder's "abi" check rejects it
+        return int(v) if isinstance(v, bool) else to_int(v)
     if v is None:
         raise Unsupported(f"missing value of type {t}")
     mi = _UINT.match(t)
@@ -447,7 +461,6 @@ class Eval:
             self.args = {p["name"]: norm(args.get(p["name"]), p) for p in params if p["name"] in (args or {})}
         else:
             self.args = {k: norm(v, None) for k, v in (args or {}).items()}
-        self.phi_index: dict = {}      # loop span -> the iteration whose head values phi terms denote (I19 shape)
         self.subst: dict = {}          # canonical term -> value: carried / exit / count / mloop iteration variables
         self.subst_heads = set(SUBST_HEADS)
         self.failed_call: bytes | None = None
@@ -598,7 +611,10 @@ class Eval:
         if h in self.subst_heads:
             k = canonical(t)
             if k in self.subst:
-                return self.subst[k]
+                v = self.subst[k]
+                if isinstance(v, Poison):
+                    raise Unsupported(v.reason)
+                return v
             if h in SUBST_HEADS:
                 raise Unsupported(f"{h} term {canonical(t)[:120]} outside the loop that defines it")
         f = getattr(self, "t_" + _NAMES.get(h, h.replace(".", "_")), None)
@@ -679,19 +695,6 @@ class Eval:
             v = tab[key]
             return norm(v, None) if not isinstance(v, (bytes, bytearray)) else bytes(v)
         raise Unsupported(f"unknown term {span} {key}: env gives no value")
-
-    def t_phi(self, t):
-        span, name = t[1], t[2]
-        key = name if isinstance(name, str) else ("storage." + name[1] if isinstance(name, list) and len(name) == 2
-                                                  and name[0] == "storage" else canonical(name))
-        vals = ((self.env.get("phi") or {}).get(span) or {}).get(key)
-        if vals is None:
-            raise Unsupported(f"phi term {span} {key}: env gives no iteration values")
-        i = self.phi_index.get(span, len(vals) - 1)
-        if not (0 <= i < len(vals)):
-            raise Unsupported(f"phi term {span} {key}: no value at iteration {i}")
-        v = vals[i]
-        return norm(v, None) if not isinstance(v, (bytes, bytearray)) else bytes(v)
 
     # inputs
     def t_member(self, t):
@@ -906,14 +909,66 @@ class Eval:
         return out + b"".join(tails)
 
     def t_abi_encodePacked(self, t):
+        """Packed encoding: bytes and strings as they are, a word in its type's width (module docstring)."""
         out = b""
         for x in t[1:]:
-            v = self.ev(x)
+            v = self.value(self.ev(x))
             if isinstance(v, (bytes, bytearray)):
                 out += bytes(v)
-            else:
-                raise Unsupported("abi.encodePacked of a word needs its type's width")
+                continue
+            ty = self.term_type(x)
+            if ty is None:
+                raise Unsupported(f"abi.encodePacked of a word of no known type: {canonical(x)[:120]}")
+            n, left = _packed_width(ty)
+            w = self.as_int(v).to_bytes(32, "big")
+            out += w[:n] if left else w[32 - n:]
         return out
+
+    def term_type(self, t) -> str | None:
+        """The Solidity type name of a word term where its source fixes it (a parameter, an immutable or constant, a
+        storage value, an environment member, a hash or a calldata word), else None."""
+        if not isinstance(t, list) or not t or not isinstance(t[0], str):
+            return None
+        h = t[0]
+        if h in ("word", "keccak256", "sha256", "blobhash", "blockhash"):
+            return "bytes32"
+        if h in ("caller", "this"):
+            return "address"
+        if h == "env":
+            return "address" if t[1] in ("block.coinbase", "tx.origin") else "uint256"
+        if h == "immutable":
+            ty = self.m.immutable_type(t[1]) if hasattr(self.m, "immutable_type") else None
+            return (ty or {}).get("type")
+        if h == "param":
+            for p in (self.m.params(self.action) if hasattr(self.m, "params") else None) or []:
+                if p.get("name") == t[1]:
+                    return p.get("type")
+            return None
+        if h in ("storage", "map", "member", "index"):
+            try:
+                ref = self._ref_of(t)
+                lab = str(self.m.type_of(self.locate(ref)[2]).get("label", ""))
+            except (Unsupported, KeyError):
+                return None
+            if lab.startswith(("contract ", "address")):
+                return "address"
+            return "uint8" if lab.startswith("enum ") else lab
+        return None
+
+    def _ref_of(self, t) -> SRef:
+        """The storage location a storage read term names."""
+        h = t[0]
+        if h == "storage":
+            return SRef(t[1])
+        b = self.ev(t[1])
+        if not isinstance(b, SRef):
+            raise Unsupported("not a storage location")
+        if h == "member":
+            return b.extend("member", t[2])
+        k = self.ev(t[2])
+        if h == "map":
+            return b.extend("map", self.as_int(k) if not isinstance(k, (bytes, bytearray)) else bytes(k))
+        return b.extend("index", self.as_int(k))
 
     def t_mem(self, t):
         m = Mem()
@@ -933,19 +988,28 @@ class Eval:
             if n > MAX_MEM:
                 raise Unsupported(f"calldatacopy of {n} bytes")
             m.write(off, b[frm:frm + n].ljust(n, b"\0"))
-        elif k == "mloop":            # ["mloop", span, k, count, write(k)]
+        elif k == "mloop":            # ["mloop", loop, ["iter", loop], count, [write...]]
             kvar, n = w[2], self.iv(w[3])
             if n > MAX_ITERATIONS:
                 raise Unsupported(f"memory loop {w[1]}: {n} iterations (more than {MAX_ITERATIONS})")
             key = canonical(kvar)
             if isinstance(kvar, list) and kvar and isinstance(kvar[0], str):
                 self.subst_heads.add(kvar[0])
-            for j in range(n):
-                self.subst[key] = j
-                try:
-                    self.mem_write(m, w[4])
-                finally:
+            body = w[4] if isinstance(w[4], list) and w[4] and isinstance(w[4][0], list) else [w[4]]
+            saved = self.subst.get(key, _MISSING)
+            try:
+                for j in range(n):
+                    self.subst[key] = j
+                    for x in body:
+                        self.mem_write(m, x)
+            finally:
+                if saved is _MISSING:
                     self.subst.pop(key, None)
+                else:
+                    self.subst[key] = saved
+        elif k == "when":             # ["when", c, write]: a write made only when c holds
+            if self.truth(w[1]):
+                self.mem_write(m, w[2])
         elif k in ("loop", "unknown"):
             m.havoc()
         else:
@@ -969,6 +1033,8 @@ class Eval:
         raise Unsupported("a memory pointer's address depends on the free memory pointer")
 
     def t_store(self, t):
+        if not t[2]:                  # a store at the empty path: the whole variable's new value
+            return self.value(self.ev(t[3]))
         base = self.ev(t[1])
         if not isinstance(base, SRef):
             raise Unsupported("a store into a value that is not storage")
@@ -1124,33 +1190,75 @@ class Eval:
                 continue          # memory is not observable; terms carry the regions they read
 
     def loop(self, lp) -> None:
-        vals = {canonical(n): (n, self.ev(e)) for n, e in lp.carried}
+        """A loop record (A19-04), run concretely: the carried names start at their entry values; each iteration k
+        binds ["iter", loop] to k and ["carried", loop, name] to the names' values, stops when its head fails, runs its
+        body (the records made in the generic iteration), then stops when a return path's condition or its break holds
+        (the names take their at_break values), else steps the names to their next values. Afterwards ["count", loop]
+        is the number of iterations completed, ["exit", loop, name] the names' values (the document's exit values,
+        evaluated with the count and the last values bound), ["returned", loop, j] whether return path j was taken and
+        ["exit", loop, ["return", j]] its value. The loop's terms carry its reach index r as a last element when r > 0
+        (holon.machine.Loop.sym)."""
+        vals = {canonical(n): (n, self._name_value(e)) for n, e, _v in lp.carried}
         k = 0
+        taken = None
+        broke = False
         while True:
             if k > MAX_ITERATIONS:
                 raise Unsupported(f"loop {lp.src}: more than {MAX_ITERATIONS} iterations")
-            bound = self._bind(lp.src, vals)
+            bound = self._bind(lp, vals, k)
+            nxt = None
             try:
                 if not self.truth(lp.head):
                     break
                 self.run(lp.body)
-                if self.truth(lp.brk):
-                    vals.update({canonical(n): (n, self.ev(e)) for n, e in lp.at_break})
+                for j, (cond, value) in enumerate(lp.returns):
+                    if self.truth(cond):
+                        taken = (j, self.value(self.ev(value)))
+                        break
+                if taken is not None:
                     break
-                nxt = {canonical(n): (n, self.ev(e)) for n, e in lp.next}
+                if self.truth(lp.brk):
+                    vals.update({canonical(n): (n, self._name_value(e)) for n, e in lp.at_break})
+                    broke = True
+                    break
+                nxt = {canonical(n): (n, self._name_value(e)) for n, e in lp.next}
             finally:
                 for key in bound:
                     self.subst.pop(key, None)
             vals.update(nxt)
             k += 1
-        for _key, (n, v) in vals.items():
-            self.subst[canonical(["exit", lp.src, n])] = v
-        self.subst[canonical(["count", lp.src])] = k
+        self.subst[canonical(lp.sym("count"))] = k
+        for j in range(len(lp.returns)):
+            self.subst[canonical(lp.sym("returned", j))] = int(taken is not None and taken[0] == j)
+        if taken is not None:
+            self.subst[canonical(lp.sym("exit", ["return", taken[0]]))] = taken[1]
+        # the exit values: the names' values where the loop left off (iteration k, before its head or at its break)
+        bound = self._bind(lp, vals, k)
+        try:
+            exits = {canonical(n): (n, vals[canonical(n)][1]) for n, _e in lp.exits if canonical(n) in vals}
+            for n, e in lp.exits:
+                if canonical(n) not in exits and not (broke or taken is not None):
+                    exits[canonical(n)] = (n, self._name_value(e))
+        finally:
+            for key in bound:
+                self.subst.pop(key, None)
+        for key, (n, v) in sorted(vals.items()):
+            self.subst[canonical(lp.sym("exit", n))] = v
+        for key, (n, v) in sorted(exits.items()):
+            self.subst[canonical(lp.sym("exit", n))] = v
 
-    def _bind(self, span: str, vals: dict) -> list:
-        keys = []
+    def _name_value(self, t):
+        """A loop name's value, or a Poison when the step does not determine it (read later, it is unsupported)."""
+        try:
+            return self.ev(t)
+        except Unsupported as x:
+            return Poison(str(x))
+
+    def _bind(self, lp, vals: dict, k: int) -> list:
+        keys = [canonical(lp.sym("iter"))]
+        self.subst[keys[0]] = k
         for _key, (n, v) in vals.items():
-            key = canonical(["carried", span, n])
+            key = canonical(lp.sym("carried", n))
             self.subst[key] = v
             keys.append(key)
         return keys
@@ -1183,36 +1291,46 @@ class Eval:
             self.touched.append(slot)
 
     def event(self, ev) -> dict:
-        args = [self.value(self.ev(x)) for x in ev.args]
-        if ev.signature:
-            ps = signature_types(ev.signature)
-        else:
-            decl = self.m.event(ev.event) if hasattr(self.m, "event") and ev.event else None
-            if decl is None:
-                raise Unsupported(f"event {ev.event}: no signature and no single declaration")
-            ps = decl["params"]
-        if len(args) != len(ps):
-            raise Unsupported(f"event {ev.event}: {len(args)} arguments for {len(ps)} parameters")
-        idx = list(ev.indexed) if ev.indexed else [bool(p.get("indexed")) for p in ps]
+        """The log of an emit record (A19-09): topic0 (none for an anonymous event), then the document's topic terms
+        of the indexed arguments (V19-04), and as data the ABI encoding of the other arguments by the signature's
+        types."""
+        if not ev.signature:
+            raise Unsupported(f"event {ev.event}: the document gives no signature")
+        ps = signature_types(ev.signature)
+        if len(ev.args) != len(ps) or len(ev.indexed) != len(ps):
+            raise Unsupported(f"event {ev.event}: {len(ev.args)} arguments and {len(ev.indexed)} indexed flags for "
+                              f"{len(ps)} parameters")
         topics = []
         if not ev.anonymous:
-            t0 = ev.topic0
-            if t0 is None:
-                t0 = "0x" + _keccak(str(ev.signature).encode()).hex()
-            topics.append(to_int(t0))
+            if not isinstance(ev.topic0, str):
+                raise Unsupported(f"event {ev.event}: no topic0")
+            topics.append(to_int(ev.topic0))
+        if len(ev.topics) != sum(1 for x in ev.indexed if x):
+            raise Unsupported(f"event {ev.event}: {len(ev.topics)} topic terms for {sum(map(bool, ev.indexed))} "
+                              "indexed arguments")
+        topics += [self.iv(t) for t in ev.topics]
         data_vals, data_ps = [], []
-        for v, p, ix in zip(args, ps, idx):
-            if ix:
-                if p.get("type") in ("bytes", "string"):
-                    topics.append(keccak(to_bytes(v)))
-                elif _is_dynamic(p) or p.get("type", "").startswith("tuple") or "[" in p.get("type", ""):
-                    raise Unsupported(f"event {ev.event}: an indexed {p.get('type')} (in-place encoding)")
-                else:
-                    topics.append(int.from_bytes(_word_of(v, p), "big"))
-            else:
-                data_vals.append(v)
+        for x, p, ix in zip(ev.args, ps, ev.indexed):
+            if not ix:
+                data_vals.append(self.value(self.ev(x)))
                 data_ps.append(p)
         return {"topics": [h32(x) for x in topics], "data": hexb(abi_encode(data_vals, data_ps))}
+
+
+def _packed_width(ty: str) -> tuple[int, bool]:
+    """(bytes, left-aligned) of an elementary type in abi.encodePacked."""
+    ty = ty.strip()
+    if ty in ("address", "address payable") or ty.startswith("contract "):
+        return 20, False
+    if ty == "bool":
+        return 1, False
+    m = _BYTESN.match(ty)
+    if m:
+        return int(m.group(1)), True
+    m = _UINT.match(ty)
+    if m:
+        return int(m.group(1) or 256) // 8, False
+    raise Unsupported(f"abi.encodePacked of a {ty}")
 
 
 def _signed(x: int, bits: int) -> int:
@@ -1245,79 +1363,38 @@ _NAMES = {"?": "ite", "&&": "and", "||": "or", "!": "not", "~": "bnot", "not": "
 
 # ------------------------------------------------------------------------------------------------ revert data
 def revert_data(m, c, e: Eval | None = None) -> tuple[bytes, bool]:
-    """(revert data, whether only its prefix is determined) of a failing check (module docstring)."""
+    """(revert data, whether only its prefix is determined) of a failing check (module docstring), as the document
+    records it: a panic record's or an assert reach's code gives Panic(code); a failing external call (and an uncaught
+    try call) bubbles the call's revert data; the dispatcher's and the decoder's checks (callvalue, calldatasize, abi,
+    slice) revert with empty data; a guard with "error" {selector, signature} reverts with the selector followed by the
+    ABI encoding of its reach's args by the signature's types (Error(string) for a reason); a guard without one reverts
+    with empty data."""
     if c.kind == "panic" or c.code is not None:
         return panic(to_int(c.code)), False
-    if c.kind == "call":
+    if c.kind in ("call", "uncaught"):
         if e is not None and e.failed_call is not None:
             return e.failed_call, False
         raise Unsupported(f"check {c.id}: the external call's failure has no revert data in env")
-    if c.kind in ("callvalue", "abi"):
+    if c.kind in ("callvalue", "calldatasize", "abi", "slice"):
         return b"", False
-    reason = c.reason
-    if isinstance(reason, str):
-        if reason.startswith("panic:"):
-            return panic(to_int(reason.split(":", 1)[1])), False
-        err = m.error(reason) if hasattr(m, "error") and re.fullmatch(r"[A-Za-z_]\w*", reason) else None
-        if err is not None and (c.kind == "revert" or (c.entry or {}).get("error")):
-            sel = bytes.fromhex(err["selector"][2:])
-            if not err.get("params"):
-                return sel, False
-            args = (c.entry or {}).get("args")
-            if isinstance(args, list) and e is not None and len(args) == len(err["params"]):
-                vals = [e.value(e.ev(x)) for x in args]
-                return sel + abi_encode(vals, err["params"]), False
-            return sel, True
-        return error_string(reason), False
-    return b"", False
+    err = c.error if isinstance(c.error, dict) else None
+    if err is None:
+        return b"", False
+    sel = err.get("selector")
+    if not (isinstance(sel, str) and re.fullmatch(r"0x[0-9a-fA-F]{8}", sel)):
+        raise Unsupported(f"check {c.id}: its error has no selector")
+    head = bytes.fromhex(sel[2:])
+    ps = signature_types(err.get("signature") or "")
+    args = c.args if isinstance(c.args, list) else []
+    if not ps:
+        return head, False
+    if e is None or len(args) != len(ps):
+        return head, True
+    vals = [e.value(e.ev(x)) for x in args]
+    return head + abi_encode(vals, ps), False
 
 
 # ------------------------------------------------------------------------------------------------ the step
-def _iterations(e: Eval, span: str) -> int:
-    tab = (e.env.get("phi") or {}).get(span) or {}
-    ns = {len(v) for v in tab.values() if isinstance(v, list)}
-    if len(ns) != 1:
-        raise Unsupported(f"loop {span}: env gives {'no' if not ns else 'inconsistent'} iteration values")
-    return ns.pop() - 1
-
-
-def _phi_loops(expr) -> list[str]:
-    out = []
-
-    def walk(x):
-        if isinstance(x, list) and x:
-            if x[0] == "phi" and len(x) == 3 and isinstance(x[1], str):
-                if x[1] not in out:
-                    out.append(x[1])
-            for y in x[1:] if isinstance(x[0], str) else x:
-                walk(y)
-    walk(expr)
-    return out
-
-
-def _run_i19(e: Eval, program) -> None:
-    """The current I19 shape: the guards in order; a guard inside a loop whose phi terms env gives is checked at every
-    iteration."""
-    for c in program.steps:
-        e.failed_call = None
-        inner = [s for s in _phi_loops(c.expr) if c.src and _within(c.src, s)]
-        if len(inner) > 1:
-            raise Unsupported(f"check {c.id} lies in {len(inner)} loops")
-        if inner:
-            span = inner[0]
-            for i in range(_iterations(e, span)):
-                e.phi_index[span] = i
-                try:
-                    if not e.truth(c.expr):
-                        data, prefix = revert_data(e.m, c, e)
-                        raise Reverted(c, data, prefix)
-                finally:
-                    e.phi_index.pop(span, None)
-        elif not e.truth(c.expr):
-            data, prefix = revert_data(e.m, c, e)
-            raise Reverted(c, data, prefix)
-
-
 def _result(status, revert=None, w=None, evs=None, guard=None, **extra) -> dict:
     out = {"status": status, "revert": revert, "writes": w or {}, "events": evs or [], "guard": guard}
     out.update(extra)
@@ -1331,10 +1408,7 @@ def step(model, state, action: str, args: dict, env: dict) -> dict:
     prog = model.program(action)
     e = Eval(model, state, action, args or {}, env or {})
     try:
-        if prog.shape == "i19":
-            _run_i19(e, prog)
-        else:
-            e.run(prog.steps)
+        e.run(prog.steps)
     except Reverted as x:
         out = _result("revert", hexb(x.data), guard=x.check.id)
         if x.prefix:
@@ -1347,7 +1421,4 @@ def step(model, state, action: str, args: dict, env: dict) -> dict:
     except (ArithmeticError, RecursionError) as x:
         return _result("unsupported", reason=f"{action}: {type(x).__name__}: {x}")
     wd = {h32(k): h32(e.overlay[k]) for k in sorted(e.touched)}
-    if prog.missing:
-        return _result("unsupported", reason=f"{action}: the document does not give its " + " and ".join(prog.missing),
-                       partial={"status": "ok", "writes": wd, "events": e.events, "unknown": list(prog.missing)})
     return _result("ok", None, wd, e.events, None)

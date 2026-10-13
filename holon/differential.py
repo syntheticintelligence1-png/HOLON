@@ -10,7 +10,8 @@ abstraction it views), this module
   1. derives the deltas between the two documents, each from one concrete difference (gen/<M>/abstraction_diff.json):
        guard_missing    an abstraction require of an action the document also has, with no check of that action whose
                         span overlaps the require's span (same unit, intersecting line ranges; the require's src is
-                        "<unit>:<lo>[-<hi>]" followed by anything; a src of another form matches nothing);
+                        "<unit>:<lo>[-<hi>]" followed by anything; a src of another form matches nothing; the
+                        dispatcher's callvalue and calldatasize checks, located at the whole function, match none);
        guard_extra      a check of the document (holon.machine.ExtractedModel.reaches: guard reaches and implicit
                         checks) with no require of the same action whose span overlaps it;
        state_unmapped   an abstraction state or record field the window view cannot express from raw families
@@ -56,6 +57,7 @@ from . import window as W
 ROOT = Path(__file__).resolve().parents[1]
 DIFF_VERSION = "holon-differential/0.1"
 APPLIED = ("guard_missing", "ghost")
+DISPATCHER = ("callvalue", "calldatasize")   # checks of the dispatcher, located at the function (holon.machine)
 
 
 def dumps(obj) -> str:
@@ -258,7 +260,9 @@ def compute_deltas(model, decl: dict, facts: dict, ab: Abstraction) -> list[dict
             continue
         a = ab.actions[an]
         checks = model.reaches(an)
-        cspans = [(c, span(c.src)) for c in checks]
+        # the dispatcher's checks (callvalue, calldatasize) sit at the function's own span: they stand for no require
+        # of the function's body, so they match none
+        cspans = [(c, span(c.src) if c.kind not in DISPATCHER else None) for c in checks]
         reqs = [(i, g) for i, g in enumerate(a.get("guards") or []) if "require" in g]
         for i, g in reqs:
             sp = span(g.get("src"))
@@ -334,10 +338,14 @@ def ghost_reason(law: dict, ab: Abstraction, readers: set) -> str | None:
 
 
 # ------------------------------------------------------------------------------------------------ the run
-def run(milestone: str = "M2", root=None, log=print) -> int:
+def run(milestone: str = "M2", root=None, log=print, out=None) -> int:
+    """The differential of the tree under root; its outputs go under out (default: root itself): gen/<M>/extracted/
+    (m1_view.json, m1/), gen/<M>/abstraction_diff.json, results/<M>/extracted_m1/ and results/<M>/differential.json
+    (G1 regenerates them into a scratch directory, holon.gate.regenerate_m2_outputs)."""
     from . import ir, machine
     from .mpipeline import run_m1
     root = Path(root or ROOT)
+    out = Path(out or root)
     decls = [(p, d) for p, d in W.declarations(root) if p.relative_to(root).parts[1] == milestone]
     if not decls:
         log(f"holon differential: no window declaration under spec/{milestone}/lib/")
@@ -355,7 +363,7 @@ def run(milestone: str = "M2", root=None, log=print) -> int:
         m1 = _milestone_of(decl["abstraction"])
         laws = [law for law in ir.load_laws_any(m1, root) if law.get("facts") == decl["abstraction"]]
         summary = json.loads((root / "results" / m1 / "summary.json").read_text())
-        gen = root / "gen" / milestone / "extracted"
+        gen = out / "gen" / milestone / "extracted"
         gen.mkdir(parents=True, exist_ok=True)
         vf = gen / "m1_view.json"
         vf.write_text(dumps(view_facts(facts, deltas, decl["facts"], model.sha256, drel)), encoding="utf-8")
@@ -363,7 +371,7 @@ def run(milestone: str = "M2", root=None, log=print) -> int:
         ghost_ids = [d["id"] for d in deltas if d["kind"] == "ghost"]
         skip = {law["law_id"]: ghost_reason(law, ab, readers) for law in laws}
         runnable = sorted(lid for lid, why in skip.items() if why is None)
-        out_dir = root / "results" / milestone / "extracted_m1"
+        out_dir = out / "results" / milestone / "extracted_m1"
         statuses: dict = {}
         if runnable:
             res = run_m1(m1, str(vf), str(out_dir), str(gen / "m1"), True, log=log, only=runnable)
@@ -372,7 +380,8 @@ def run(milestone: str = "M2", root=None, log=print) -> int:
             if why is None:
                 continue
             statuses[lid] = "UNKNOWN"
-            rec = {"law_id": lid, "status": "UNKNOWN", "record": "not_run", "facts": vf.relative_to(root).as_posix(),
+            rec = {"law_id": lid, "status": "UNKNOWN", "record": "not_run",
+                   "facts": f"gen/{milestone}/extracted/{vf.name}",
                    "attempts": [{"kind": "not_run", "reason": why}],
                    "deltas": [i for i in ghost_ids if ab.shares(_names(deltas, i), _cone(root, m1, lid))]}
             out_dir.mkdir(parents=True, exist_ok=True)
@@ -389,11 +398,11 @@ def run(milestone: str = "M2", root=None, log=print) -> int:
             laws_out[lid] = {"m1": m1s, "extracted": xs, "deltas": sorted(ds)}
             if skip.get(lid):
                 laws_out[lid]["not_run"] = skip[lid]
-    gm = root / "gen" / milestone
+    gm = out / "gen" / milestone
     gm.mkdir(parents=True, exist_ok=True)
     (gm / "abstraction_diff.json").write_text(dumps({"document": "abstraction_diff", "differential_version": DIFF_VERSION,
                                                      "deltas": diffs}), encoding="utf-8")
-    rm = root / "results" / milestone
+    rm = out / "results" / milestone
     rm.mkdir(parents=True, exist_ok=True)
     (rm / "differential.json").write_text(dumps({"document": "differential", "differential_version": DIFF_VERSION,
                                                  "laws": laws_out}), encoding="utf-8")
