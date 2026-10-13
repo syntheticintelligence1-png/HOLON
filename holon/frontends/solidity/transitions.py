@@ -50,7 +50,9 @@ Terms (JSON arrays; ints are constants mod 2^256, folded with EVM semantics as i
                             ["codehash", a]
   ["immutable", name]       ["blobhash", i]  ["blockhash", i]  ["sload", slot]  ["str", hex]  ["slot", name]
   ["keccak256", b] / ["sha256", b]   a hash of b: input bytes, an abi encoding ["abi.encode"|..., args...], or
-                            ["slice", mem, offset, length] of a memory region
+                            ["slice", mem, offset, length] of a memory region; ["abi.inplace", x] the in-place
+                            encoding of an array or struct x (its elements' encodings, each padded to 32 bytes), whose
+                            keccak256 is the topic of an indexed array or struct argument (events)
   ["mem", write...]         a memory region's writes in order: ["mstore", off, v], ["mstore8", off, v],
                             ["calldatacopy", off, x, from, n], ["when", c, write] (a write made only when c holds),
                             ["mloop", loop, ["iter", loop], count, [write...]] (for every k < count, in order, the
@@ -89,9 +91,25 @@ Terms (JSON arrays; ints are constants mod 2^256, folded with EVM semantics as i
   ["fits", N, [op, a, b]] / ["sfits", N, [op, a, b]]   the exact (integer, not modular) result of op on the unsigned /
                             signed values a and b lies in [0, 2^N) / [-2^(N-1), 2^(N-1)); op is + - * ** neg or sdiv
 Terms are simplified as they are built (ite(c, ite(c, a, b), d) is ite(c, a, d); ite(c, 1, 0) of a boolean c is c;
-ite(x == k, a, b) is b when b with x := k folds to a; x * 1, x - x, ...) and when rendered: inside ite(c, a, b),
-a is rendered knowing c and b knowing !c, and inside a || b (a && b), b knowing !a (a); a conditional whose condition
-is then known is replaced by its branch. A rendered term over TERM_BUDGET nodes is an extraction error (exit 3).
+ite(x == k, a, b) is b when b with x := k folds to a; for c = x or c = !x, x is 0 where x fails and, for a boolean
+x, 1 where it holds, and a conditional whose branches agree at that value of x is the branch taken where x has the
+other value (ite(!x, 0, x) and ite(x, x, 0) are x for any x; ite(!x, 1, x) is 1 for a boolean x); x * 1, x - x, ...)
+and when rendered: inside ite(c, a, b), a is rendered knowing c and b knowing !c, and inside a || b (a && b), b
+knowing !a (a); a conditional whose condition is then known is replaced by its branch, and a term standing where
+only its truthiness counts (a condition: an expr of a guard, check, panic or call, a cond, a loop's head and break, a
+principal's predicate, an operand of !, && and ||, the condition of a conditional or of a when, and the branches of
+a conditional that stands there) is rendered 1 or 0 when it is known to hold or fail. A rendered term over
+TERM_BUDGET nodes is an extraction error (exit 3).
+
+Booleans (V19-02). A term is a boolean (0 or 1) when it is an operator of BOOL_TAGS, a conditional of two booleans, or
+a boolean leaf: a bool entry parameter or bool member of a struct parameter (the ABI decoder checks them, checks
+"abi", before they are used), or the bool result of an external call (the decoder of its return data checks it,
+inside callok). A bool read from storage is not one: the compiler reads the raw byte at its offset and does not clean
+it (with byte 2 stored, a read of the bool is 2), so ["storage", f] of a bool family is a word in [0, 256). The
+compiler cleans a bool where it writes or compares one, and the terms do the same with ["!=", v, 0] (v itself when it
+is a boolean): the ABI encoding (the action's returns, event args and topics, revert data args, external call
+arguments, abi.encode*), storage and memory stores of a bool (writes, struct constructors, inline arrays, pushes),
+and both operands of == and != on bools. Conditions (if, require, !, &&, ||, ?:) use the truthiness of the raw value.
 
 Per action (document "actions", sorted by name). The I19 keys:
   guards     every require, assert and revert reached (Solidity revert, revert E(...), Yul revert/invalid), one entry
@@ -101,6 +119,14 @@ Per action (document "actions", sorted by name). The I19 keys:
              else null. expr: the condition that must hold for the walk to pass the guard: a require's condition c, or
              ["||", ["!", K], c] under the context K; a revert's ["!", K] (0 when unconditional). The entry's src,
              kind, reason and expr are those of its first reach.
+             (V19-03) error and args, present when the revert data is not empty and not a Panic: error {name, signature,
+             selector}: a custom error E(...) (name: the declaring contract's name, a dot and E; signature: E and its
+             canonical ABI parameter types; selector: "0x" and the first 4 bytes of keccak256(signature), checked
+             against the compiler's errorSelector), or {"Error", "Error(string)", "0x08c379a0"} for a string reason
+             (constant or not); args: the argument values in parameter order (named arguments reordered), as the ABI
+             encoder writes them (Booleans). The revert data is the selector followed by abi.encode(args...). The
+             entry's error and args are its first reach's; every reach carries its own args. A guard without error
+             reverts with empty data (require(c), revert(), Yul revert), or with Panic(0x01) (an assert: code 1).
   principal  the first of the action's modifiers whose own code reaches a require whose condition mentions
              ["caller"] (its predicate: that condition), or a revert whose context within the function that reaches
              it mentions ["caller"] (its predicate: the negation of that context).
@@ -120,13 +146,17 @@ loop's generic iteration carries "loop": the seq of the innermost such loop reco
   declared_in  the contract that declares the function.
   params     [{name, type, width (bits of an elementary type, of an address, contract or enum; null otherwise),
              location ("calldata", "memory", "default", ...), fields: [{name, type, width}] for a struct}].
-  returns    the value the action returns (a term, ["tuple", ...] for several), null when it returns nothing or never
-             returns. payable: bool. mutability: the function's stateMutability.
+  returns    the value the action returns, as the ABI encoder writes it (Booleans; a term, ["tuple", ...] for
+             several), null when it returns nothing or never returns. payable: bool. mutability: the function's
+             stateMutability.
   guards[].reaches   every reach of the guard, in walk order: {seq, stack, expr (the condition of that reach, as for
-             the entry), loop?, code? (1 for an assert: its revert is Panic(0x01))}. The first reach's expr is the
-             entry's expr.
+             the entry), loop?, code? (1 for an assert: its revert is Panic(0x01)), args? (V19-03: the revert data's
+             args at that reach)}. The first reach's expr is the entry's expr.
   checks     implicit checks that are not panics: {seq, src, stack, kind, expr, param?}: "callvalue" (first, for an
-             action that is not payable: ["==", ["env", "msg.value"], 0]), "abi" (the ABI decoder's range check of a
+             action that is not payable: ["==", ["env", "msg.value"], 0]), "calldatasize" (V19-05; next, for an action
+             with parameters: [">=", ["env", "msg.data.length"], 4 + h], h the size of the head of the parameters'
+             ABI encoding: 32 bytes per value type and per dynamic type (its offset), a static array or struct in
+             place; shorter calldata reverts with empty data), "abi" (the ABI decoder's range check of a
              parameter narrower than a word: ["<", x, 2^N] for uintN and enums (N their bound), addresses and bools,
              ["sfits", N, x] for intN, the unused low bytes of bytesN zero; a memory or value parameter is checked at
              entry in parameter order, a member of a calldata struct where the walk first reads it), "slice" (a
@@ -137,8 +167,10 @@ loop's generic iteration carries "loop": the seq of the innermost such loop reco
              overflow: + - * ** ++ -- unary - outside unchecked blocks; expr ["fits", N, [op, a, b]] or ["sfits", ...];
              signed / by -1), 18 (0x12: / and % (also inside unchecked blocks), addmod and mulmod: ["!=", d, 0]),
              50 (0x32: an array or bytes index out of bounds: ["<", i, ["len", x]]; a fixed array's length), 33 (0x21:
-             a conversion to an enum: ["<", v, members]), 49 (0x31: pop of an empty storage array). Uncheckedness is
-             lexical: an unchecked block covers its own statements, not the functions it calls; Yul never panics.
+             a conversion to an enum: ["<", v, members]), 49 (0x31: pop of an empty storage array), 65 (0x41, V19-05:
+             a memory allocation new T[](n), new bytes(n), new string(n) of more than 2^64 - 1 elements: ["<=", n,
+             2^64 - 1]). Uncheckedness is lexical: an unchecked block covers its own statements, not the functions it
+             calls; Yul never panics. A push on a storage array does not panic (the compiler checks no length there).
   calls      every external call reached: {seq, src, stack, fn, receiver, args, value, mutability, cond (K), commit
              (a COMMIT edge), try (a try call), expr}: expr the condition under which it does not revert:
              ["||", ["!", K], ["callok", fn, receiver, args...]] for a high-level call and transfer, 1 for a low-level
@@ -149,7 +181,12 @@ loop's generic iteration carries "loop": the seq of the innermost such loop reco
              region, null when the address is not resolved), op (mstore, mstore8, calldatacopy), offset, value
              (calldatacopy: ["input", x, from, n]), cond}.
   events     every emit: {seq, src, stack, event ("<Contract>.<Event>"), signature (canonical ABI types), topic0
-             ("0x" + keccak256(signature); null for an anonymous event), args, indexed: [bool], anonymous, cond}.
+             ("0x" + keccak256(signature); null for an anonymous event), args (as the ABI encoder writes them:
+             Booleans), indexed: [bool], topics, anonymous, cond}. topics (V19-04): the topic of each indexed argument,
+             in order: a string or bytes argument x gives ["keccak256", x] (folded to its value for a constant), an
+             array or struct x gives ["keccak256", ["abi.inplace", x]], any other argument its ABI word. The log's
+             topics are topic0 followed by topics (topics alone for an anonymous event); its data is the ABI encoding
+             of the arguments that are not indexed.
   loops      every loop reached: {seq, src, stack, kind (for, while, dowhile, yulfor), cond (K at the loop), carried:
              [{name, entry, value}] (the names whose value changes from one iteration to the next: entry its value
              before the loop, value its value at the start of the generic iteration: a closed form entry + d * iter
@@ -175,8 +212,8 @@ loop's generic iteration carries "loop": the seq of the innermost such loop reco
              iter = count (exit terms when they do not have a closed form); what follows the loop runs under the
              negation of every ["returned", loop, j].
   post       {family: term} for every family whose value after the action differs from ["storage", family] (a scalar
-             written v is rendered v; a mapping, array or struct family as its store chain), sorted; {} when the
-             action always reverts.
+             written v is rendered v; a mapping, array or struct family as its store chain; a family whose simplified
+             value is ["storage", family] is left out), sorted; {} when the action always reverts.
   order      the checks in walk order: ["check", i] | ["guard", src, k] (reach k of the guard at src) | ["panic", i] |
              ["call", i] (calls whose expr is not 1) | ["loop", i] (where the loop's per-iteration checks start; they
              carry its seq as "loop"). The transaction reverts at the first check whose expr is false.
@@ -242,9 +279,10 @@ ASSUMPTIONS = {
               "external calls and whether they succeed (callok, caught), sload) are free: every value of them is "
               "possible. The result of an external call is a function of its function and arguments."),
     "A-implicit": ("Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata "
-                   "(offsets and lengths inside the calldata) and the range of array elements of narrow types: they "
-                   "are not checked. A member of a calldata struct is range-checked where the walk first reads it "
-                   "under a context, as the compiler validates it on access."),
+                   "(offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic "
+                   "value in memory) and the range of array elements of narrow types: they are not checked. A member "
+                   "of a calldata struct is range-checked where the walk first reads it under a context, as the "
+                   "compiler validates it on access. Running out of gas is not a check."),
     "A-loop": ("A loop is walked at a generic iteration: the names it carries from one iteration to the next are found "
                "by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds "
                "at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops "
@@ -376,8 +414,35 @@ def has_ptr(t) -> bool:
     return is_ite(t) and (has_ptr(t[2]) or has_ptr(t[3]))
 
 
+_BOOL_LEAVES: set = set()      # the boolean leaves of the walk in progress (Walk.run; module docstring, "Booleans")
+
+
 def is_bool(t) -> bool:
-    return t in (0, 1) if isinstance(t, int) else (isinstance(t, tuple) and bool(t) and t[0] in BOOL_TAGS)
+    """Whether the word t is 0 or 1: a constant 0/1, an operator of BOOL_TAGS, a conditional of two booleans, or a
+    boolean leaf of the walk in progress (a bool parameter or parameter member, a bool result of an external call).
+    A bool read from storage is not one: the compiler reads the raw byte (module docstring, "Booleans")."""
+    if isinstance(t, int):
+        return t in (0, 1)
+    if not isinstance(t, tuple) or not t:
+        return False
+    if t[0] in BOOL_TAGS:
+        return True
+    if t[0] == "?" and len(t) == 4:
+        return is_bool(t[2]) and is_bool(t[3])
+    return t in _BOOL_LEAVES
+
+
+def clean_bool(v):
+    """The word the compiler writes for a bool value v (ABI encoding, storage and memory stores, == and !=): v when it
+    is a boolean, else ["!=", v, 0]."""
+    return v if is_bool(v) else fold("!=", v, 0)
+
+
+def abi_word(ts: str, v):
+    """The word the ABI encoder (and a storage or memory store, and == and !=) makes of a value v of type ts: a bool
+    is cleaned (clean_bool); any other value is itself (the walk's values of narrow types are in range: parameters are
+    range-checked, checked arithmetic panics, unchecked arithmetic and conversions truncate, storage reads mask)."""
+    return clean_bool(v) if _bare(ts) == "bool" else v
 
 
 def small(t, limit: int = SMALL_TERM) -> bool:
@@ -420,6 +485,16 @@ def ite(c, a, b):
         x, k = (e[1], e[2]) if isinstance(e[2], int) else (e[2], e[1])
         if isinstance(k, int) and not isinstance(x, int) and small(a) and small(b) and subst(a, x, k) == b:
             return a
+    # c = x or c = !x: x is 0 exactly where x fails (any word x), and 1 where it holds when x is a boolean; when the
+    # branches agree at that value of x, the conditional is the branch taken where x has the other value (ite(!x, 0, x)
+    # is x and ite(x, x, 0) is x for any x; ite(!x, 1, x) is 1 and ite(x, 1, x) is x for a boolean x)
+    negated = isinstance(c, tuple) and len(c) == 2 and c[0] == "!"
+    x = c[1] if negated else c
+    if not isinstance(x, int) and small(a) and small(b):
+        if subst(a, x, 0) == subst(b, x, 0):
+            return b if negated else a
+        if is_bool(x) and subst(a, x, 1) == subst(b, x, 1):
+            return a if negated else b
     return ("?", c, a, b)
 
 
@@ -623,7 +698,11 @@ class _Renderer:
                     known = _Renderer._assume(known, x, False)
         return known
 
-    def go(self, t, known=None):
+    def go(self, t, known=None, cond=False):
+        """t rendered under the known conditions; cond: t stands where only its truthiness counts (a condition: a
+        guard's, check's or call's expr, a context, a loop's head, an operand of !, && and ||, the condition of a
+        conditional or of a when, and the branches of a conditional that stands there), so a term known to hold or
+        fail renders as 1 or 0."""
         self.left -= 1
         if self.left < 0:
             raise ExtractionError(f"a term exceeds the size budget of {TERM_BUDGET} nodes")
@@ -638,17 +717,21 @@ class _Renderer:
         if not isinstance(t, tuple):
             raise ExtractionError(f"a value the document cannot hold: {t!r:.200}")
         h = t[0] if t else "tuple"
+        if cond and known is not None:
+            v = self._lookup(known, t)
+            if v is not None:
+                return int(v)
         if h == "?" and len(t) == 4:
             v = self._lookup(known, t[1])
             if v is True:
-                return self.go(t[2], known)
+                return self.go(t[2], known, cond)
             if v is False:
-                return self.go(t[3], known)
-            c = self.go(t[1], known)
+                return self.go(t[3], known, cond)
+            c = self.go(t[1], known, True)
             if isinstance(c, int):
-                return self.go(t[2] if c else t[3], known)
-            a = self.go(t[2], self._assume(known, t[1], True))
-            b = self.go(t[3], self._assume(known, t[1], False))
+                return self.go(t[2] if c else t[3], known, cond)
+            a = self.go(t[2], self._assume(known, t[1], True), cond)
+            b = self.go(t[3], self._assume(known, t[1], False), cond)
             return a if a == b else ["?", c, a, b]
         if h in ("||", "&&") and len(t) >= 3:
             out, k = [], known
@@ -658,7 +741,7 @@ class _Renderer:
                     if (h == "||") == v:
                         return 1 if h == "||" else 0
                     continue
-                r = self.go(x, k)
+                r = self.go(x, k, True)
                 if isinstance(r, int):
                     if (h == "||") == bool(r):
                         return 1 if h == "||" else 0
@@ -668,6 +751,12 @@ class _Renderer:
             if not out:
                 return 0 if h == "||" else 1
             return out[0] if len(out) == 1 else [h] + out
+        if h == "!" and len(t) == 2:
+            r = self.go(t[1], known, True)
+            return int(not r) if isinstance(r, int) else ["!", r]
+        if h == "when" and len(t) == 3:
+            c = self.go(t[1], known, True)
+            return self.go(t[2], known) if c == 1 else ["when", c, self.go(t[2], known)]
         if h == "store":
             return ["store", self.go(t[1], known), [[a[0], self.go(a[1], known)] for a in t[2]], self.go(t[3], known)]
         if h == "ptr":
@@ -679,10 +768,11 @@ class _Renderer:
         return [h] + [self.go(x, known) for x in t[1:]]
 
 
-def render(t):
-    """A term as JSON (lists, ints, strings), simplified (module docstring); ExtractionError over the budget."""
+def render(t, cond: bool = False):
+    """A term as JSON (lists, ints, strings), simplified (module docstring); cond: t is a condition (only its
+    truthiness counts); ExtractionError over the budget."""
     try:
-        return _Renderer().go(t)
+        return _Renderer().go(t, None, cond)
     except RecursionError as e:
         raise ExtractionError("a term is nested too deeply to render") from e
 
@@ -797,6 +887,7 @@ class Walk:
         self.try_node = None
         self.try_ok = None
         self.abi_seen: set = set()
+        self.bools: set = set()             # the boolean leaves of this walk (is_bool; module docstring, "Booleans")
 
     # -- bookkeeping
     @property
@@ -808,6 +899,10 @@ class Walk:
 
     def r(self, t):
         return render(t)
+
+    def rc(self, t):
+        """A condition rendered (only its truthiness counts)."""
+        return render(t, True)
 
     def tag(self, t: str, defs=()) -> None:
         if not self.recording or not self.stmts or self.stmts[-1] is None:
@@ -873,10 +968,20 @@ class Walk:
 
     # -- the action
     def run(self) -> dict:
+        global _BOOL_LEAVES
+        saved = _BOOL_LEAVES
+        _BOOL_LEAVES = self.bools
+        try:
+            return self._run()
+        finally:
+            _BOOL_LEAVES = saved
+
+    def _run(self) -> dict:
         fn = self.action
         f = Frame(fn=fn, name=self.ix.fn_name(fn), is_action=True)
         for p in fn["parameters"]["parameters"]:
             f.vars[p["id"]] = ("param", p["name"])
+            self.bool_leaves(("param", p["name"]), p.get("typeName") or {}, type_string(p))
         for p in fn["returnParameters"]["parameters"]:
             f.vars[p["id"]] = 0
         self.reach(fn)
@@ -888,10 +993,26 @@ class Walk:
         v = self.chain_function(fn, f)
         return self.result(v)
 
+    def bool_leaves(self, t, tn: dict, ts: str) -> None:
+        """Register t (an entry parameter, validated by the ABI decoder) and the bool members of a struct t as
+        boolean leaves."""
+        if _bare(ts) == "bool":
+            self.bools.add(t)
+            return
+        sd = struct_def(self.ix, tn)
+        if sd is not None:
+            for m in sd.get("members") or []:
+                if _bare(type_string(m.get("typeName") or {}) or type_string(m)) == "bool":
+                    self.bools.add(("member", t, m["name"]))
+
     def entry_checks(self, fn: dict) -> None:
         """callvalue (an action that is not payable) and the ABI range checks of value and memory parameters."""
         if fn.get("stateMutability") != "payable":
             self.check("callvalue", self.span(fn), ("==", ("env", "msg.value"), 0))
+        params = fn["parameters"]["parameters"]
+        if params:  # the decoder needs the head of the parameters' encoding after the selector
+            head = abi_head_size([abi_type(self.ix, p.get("typeName") or {}) for p in params])
+            self.check("calldatasize", self.span(fn), (">=", ("env", "msg.data.length"), 4 + head))
         for p in fn["parameters"]["parameters"]:
             loc = p.get("storageLocation") or "default"
             if loc == "calldata":
@@ -914,7 +1035,7 @@ class Walk:
         principal = None
         if self.principal:
             i = min(self.principal)
-            principal = {"modifier": mods[i], "predicate": self.r(self.principal[i])}
+            principal = {"modifier": mods[i], "predicate": self.rc(self.principal[i])}
         effects = sorted(({"family": fam, "src": src} for fam, src in self.effects), key=lambda e: (e["src"],
                                                                                                     e["family"]))
         sel = fn.get("functionSelector")
@@ -935,7 +1056,9 @@ class Walk:
             for fam in sorted(self.storage):
                 v = self.storage[fam]
                 if v != ("storage", fam):
-                    post[fam] = self.r(post_value(v))
+                    pv = self.r(post_value(v))
+                    if pv != ["storage", fam]:      # a family whose value, simplified, does not change is left out
+                        post[fam] = pv
         cost = []
         for span, reaches in self.cost.items():
             total = 0
@@ -954,7 +1077,7 @@ class Walk:
             "cost": {"terms": cost},
             "edges": [{"kind": k, "fn": f, "src": src} for (k, f, src) in self.edges],
             "params": params_of(self.ix, fn),
-            "returns": self.r(value) if value is not None and self.exit is None else None,
+            "returns": self.r(self.return_words(value)) if value is not None and self.exit is None else None,
             "payable": fn.get("stateMutability") == "payable",
             "mutability": fn.get("stateMutability"),
             "checks": self.checks,
@@ -967,6 +1090,15 @@ class Walk:
             "post": post,
             "order": self.order,
         }
+
+    def return_words(self, value):
+        """The action's return value as the ABI encoder writes it (abi_word per return parameter)."""
+        rets = self.action["returnParameters"]["parameters"]
+        if len(rets) == 1:
+            return abi_word(type_string(rets[0]), value)
+        if isinstance(value, tuple) and value[:1] == ("tuple",) and len(value) == len(rets) + 1:
+            return ("tuple",) + tuple(abi_word(type_string(p), v) for p, v in zip(rets, value[1:]))
+        return value
 
     def chain_function(self, fn: dict, f: Frame):
         """Walk fn's modifiers and body in the frame f (pushed here); returns fn's result."""
@@ -1123,10 +1255,12 @@ class Walk:
             return 1
         if nt == "RevertStatement":
             call = n["errorCall"]
-            for a in call.get("arguments") or []:
-                self.val(self.ev(a))
             name = call["expression"].get("name") or call["expression"].get("memberName")
-            self.guard("revert", n, None, name)
+            ea = self.error_of(call)
+            if ea is None:
+                for a in call.get("arguments") or []:
+                    self.val(self.ev(a))
+            self.guard("revert", n, None, name, data=ea)
             self.exit = "revert"
             return 1
         if nt == "InlineAssembly":
@@ -1329,7 +1463,26 @@ class Walk:
         return self.branch(ok, run_success, lambda: run_catch(0))
 
     # -- guards and checks
-    def guard(self, kind: str, node: dict, cond, reason, code=None) -> None:
+    def reason(self, a: dict):
+        """(reason, data) of the reason argument a of require or revert: data is (error, args), the revert data's
+        error and argument values (module docstring, guards[].error): a custom error E(...) gives E's error_of and
+        reason E; a string gives Error(string) with its value, and reason its text when it is a constant (else
+        null)."""
+        if a.get("nodeType") == "FunctionCall":
+            ea = self.error_of(a)
+            if ea is not None:
+                ex = a.get("expression") or {}
+                return ex.get("name") or ex.get("memberName"), ea
+        rv = self.val(self.ev(a))
+        if a.get("nodeType") == "Literal" and a.get("kind") in ("string", "unicodeString"):
+            return a.get("value") or "", (error_string(), [rv])
+        if isinstance(rv, tuple) and rv[:1] == ("str",):
+            return _text(rv), (error_string(), [rv])
+        return None, (error_string(), [rv])
+
+    def guard(self, kind: str, node: dict, cond, reason, code=None, data=None) -> None:
+        """A require, assert or revert reached (module docstring, guards); data: (error, args) of its revert data
+        (reason), None when it reverts with no data (or with Panic(0x01): code 1)."""
         f = self.frame
         if kind == "require" and f.zone == "modifier" and f.mod_index is not None and self.recording \
                 and mentions_caller(cond):
@@ -1351,17 +1504,22 @@ class Walk:
             expr = neg(k)
         else:
             expr = cond if k == 1 else disj2(neg(k), cond)
-        reach = {"seq": self.seq, "stack": list(self.stack), "expr": self.r(expr)}
+        reach = {"seq": self.seq, "stack": list(self.stack), "expr": self.rc(expr)}
         self.seq += 1
         loop = self.cur_loop()
         if loop is not None:
             reach["loop"] = loop
         if code is not None:
             reach["code"] = code
+        if data is not None:
+            reach["args"] = [self.r(a) for a in data[1]]
         entry = self.guards.get(span)
         if entry is None:
             entry = {"src": span, "kind": "modifier" if f.zone == "modifier" else kind, "reason": reason,
                      "expr": reach["expr"], "reaches": []}
+            if data is not None:
+                entry["error"] = dict(data[0])
+                entry["args"] = reach["args"]
             self.guards[span] = entry
         entry["reaches"].append(reach)
         self.order.append(["guard", span, len(entry["reaches"]) - 1])
@@ -1372,7 +1530,7 @@ class Walk:
             return
         k = conj(self.ctx)
         expr = c if k == 1 else (neg(k) if c == 0 else disj2(neg(k), c))
-        rendered = self.r(expr)
+        rendered = self.rc(expr)
         if kind == "abi":
             key = repr(rendered)
             if key in self.abi_seen:
@@ -1389,7 +1547,7 @@ class Walk:
             k = conj(self.ctx)
             expr = c if k == 1 else (neg(k) if c == 0 else disj2(neg(k), c))
             self.record(self.panics, self.span(node), code=code, op=op, args=[self.r(a) for a in args],
-                        expr=self.r(expr))
+                        expr=self.rc(expr))
             self.order.append(["panic", len(self.panics) - 1])
         if c == 0:
             self.exit = "revert"
@@ -1662,7 +1820,7 @@ class Walk:
         if res.next is not None and len(self.frame.returns) > nret_rec:
             # a return in the generic iteration: the function returns at the iteration that leaves the loop
             for j, (c, v, st, mem) in enumerate(list(self.frame.returns[nret_rec:])):
-                returns.append({"cond": self.r(c), "value": self.r(v) if v is not None else None})
+                returns.append({"cond": self.rc(c), "value": self.r(v) if v is not None else None})
                 self.frame.returns[nret_rec + j] = self._loop_return(j, c, v, st, mem, before, lc, count_t)
         if fams:
             self.debt("loop_storage_write", ", ".join(fams), n)
@@ -1718,17 +1876,17 @@ class Walk:
         if rec is not None:
             rec.update({
                 "kind": kind,
-                "cond": self.r(K),
+                "cond": self.rc(K),
                 "carried": sorted(({"name": self.r(self._display(k, names)), "entry": self.r(self._get(before, k)),
                                     "value": self.r(binding[k])} for k in carried if k[0] != "m"),
                                   key=lambda e: repr(e["name"])),
                 "regions": [{"region": list(k[1][1]), "writes": self._region_writes(k, fin, lc)}
                             for k in carried if k[0] == "m"],
-                "head": self.r(fin.head),
+                "head": self.rc(fin.head),
                 "next": sorted(({"name": self.r(self._display(k, names)), "value": self.r(self._get(fin.next, k))}
                                 for k in carried if k[0] != "m" and fin.next is not None),
                                key=lambda e: repr(e["name"])),
-                "break": self.r(disj([c for c, _ in fin.breaks])),
+                "break": self.rc(disj([c for c, _ in fin.breaks])),
                 "at_break": sorted(({"name": self.r(self._display(k, names)), "value": self.r(self._get(brk, k))}
                                     for k in exit_keys if k[0] != "m" and brk is not None),
                                    key=lambda e: repr(e["name"])),
@@ -1818,7 +1976,7 @@ class Walk:
             span = self.span(node)
             self.effects.setdefault((r.fam, span), None)
             self.record(self.writes, span, family=r.fam, path=[[a[0], self.r(a[1])] for a in r.path],
-                        value=self.r(v), cond=self.r(conj(self.ctx)))
+                        value=self.r(v), cond=self.rc(conj(self.ctx)))
             self.tag("effect")
 
     def ev(self, n: dict):
@@ -1846,6 +2004,8 @@ class Walk:
             ts = (n.get("commonType") or {}).get("typeString") or type_string(n)
             if op in ("+", "-", "*", "/", "%", "**", "<<", ">>"):
                 return self.arith(op, a, b, ts, n)
+            if op in ("==", "!=") and _bare(ts) == "bool":     # the compiler compares cleaned bools
+                a, b = clean_bool(a), clean_bool(b)
             if op in SIGNED_CMP and _is_signed(ts):
                 return fold(SIGNED_CMP[op], a, b)
             return fold(op, a, b)
@@ -1855,7 +2015,7 @@ class Walk:
             return self.conditional(n)
         if nt == "TupleExpression":
             if n.get("isInlineArray"):
-                return ("array",) + tuple(self.val(self.ev(c)) for c in n.get("components") or [])
+                return ("array",) + tuple(abi_word(type_string(c), self.val(self.ev(c))) for c in n.get("components") or [])
             comps = n.get("components") or []
             vals = [self.ev(c) if c is not None else None for c in comps]
             return vals[0] if len(vals) == 1 else ("tuple",) + tuple(vals)
@@ -2098,7 +2258,7 @@ class Walk:
 
     def store(self, lhs: dict, target, v, node: dict) -> None:
         if isinstance(target, Ref):
-            self.write(target, v, node)
+            self.write(target, abi_word(type_string(lhs), self.val(v)), node)
             return
         if lhs.get("nodeType") == "Identifier":
             ref = lhs.get("referencedDeclaration")
@@ -2111,7 +2271,7 @@ class Walk:
             root = _root_decl(lhs)
             if root in self.frame.vars:   # a write into a memory struct or array held by a local
                 self.frame.vars[root] = ("update", self.frame.vars[root], self.val(target) if not isinstance(
-                    target, Ref) else target, self.val(v))
+                    target, Ref) else target, abi_word(type_string(lhs), self.val(v)))
                 self.tag("local", [root])
                 return
         self.unsupported_expr(node, "Assignment")
@@ -2146,6 +2306,7 @@ class Walk:
             if names:
                 by = dict(zip(names, vals))
                 vals = tuple(by.get(m, 0) for m in members)
+            vals = tuple(abi_word(type_string(m), v) for m, v in zip(sd.get("members", []), vals))
             return ("struct", sd.get("name", ""), tuple(members), vals)
         if callee.get("nodeType") == "NewExpression":
             return self.new(n, callee, args, opts)
@@ -2155,7 +2316,7 @@ class Walk:
             base_node = callee["expression"]
             if base_node.get("nodeType") == "Identifier" and (base_node.get("referencedDeclaration") or 0) < 0 \
                     and base_node.get("name") in ("abi", "bytes", "string"):
-                vals = [self.val(self.ev(a)) for a in args]
+                vals = [abi_word(type_string(a), self.val(self.ev(a))) for a in args]
                 return (f"{base_node['name']}.{callee['memberName']}",) + tuple(vals)
         target = self.ix.nodes.get(callee.get("referencedDeclaration")) if callee.get("nodeType") in (
             "Identifier", "MemberAccess") else None
@@ -2165,7 +2326,9 @@ class Walk:
             return self.external(n, callee, target, args, opts, low)
         if callee.get("nodeType") == "MemberAccess" and target is None and callee.get("memberName") in ("push", "pop"):
             base = self.ev(callee["expression"])
-            vals = [self.val(self.ev(a)) for a in args]
+            elem = re.sub(r"\[\d*\](?: (?:storage|memory|calldata)(?: (?:ref|pointer))?)?$", "",
+                          type_string(callee["expression"]))
+            vals = [abi_word(elem, self.val(self.ev(a))) for a in args]
             if isinstance(base, Ref):
                 if callee["memberName"] == "pop":
                     ln = ("len", self.read(base))
@@ -2226,7 +2389,7 @@ class Walk:
 
     def external(self, n: dict, callee: dict, target: dict | None, args: list, opts: dict, low: bool):
         recv = self.val(self.ev(callee["expression"])) if callee.get("nodeType") == "MemberAccess" else None
-        vals = [self.val(self.ev(a)) for a in args]
+        vals = [abi_word(type_string(a), self.val(self.ev(a))) for a in args]
         member = callee.get("memberName") or callee.get("name") or "call"
         iface = None
         if low:
@@ -2257,18 +2420,27 @@ class Walk:
         mut = (target or {}).get("stateMutability") or ("payable" if "value" in opts else "nonpayable")
         if self.recording:
             self.record(self.calls, self.span(n), fn=fname, receiver=self.r(recv), args=[self.r(v) for v in vals],
-                        value=self.r(opts.get("value", 0)), mutability=mut, cond=self.r(k), commit=commit,
-                        **({"try": True} if is_try else {}), expr=self.r(expr))
+                        value=self.r(opts.get("value", 0)), mutability=mut, cond=self.rc(k), commit=commit,
+                        **({"try": True} if is_try else {}), expr=self.rc(expr))
             if reverts:
                 self.order.append(["call", len(self.calls) - 1])
-        return results(n, term)
+        out = results(n, term)
+        ts = type_string(n)
+        types = _tuple_types(ts) if ts.startswith("tuple(") else [ts]
+        for t, cts in zip(list(out[1:]) if len(types) > 1 else [out], types):
+            if _bare(cts) == "bool":            # the ABI decoder validates a returned bool (inside callok)
+                self.bools.add(t)
+        return out
 
     def new(self, n: dict, callee: dict, args: list, opts: dict):
         tn = callee.get("typeName") or {}
         vals = [self.val(self.ev(a)) for a in args]
         d = self.ix.nodes.get(tn.get("referencedDeclaration")) if tn.get("nodeType") == "UserDefinedTypeName" else None
         if d is None or d.get("nodeType") != "ContractDefinition":
-            return ("alloc", type_string(n), vals[0] if vals else 0)
+            size = vals[0] if vals else 0
+            if vals:    # the compiler allocates at most 2^64 - 1 elements, else Panic(0x41)
+                self.panic(65, n, "alloc", [size], fold("<=", size, (1 << 64) - 1))
+            return ("alloc", type_string(n), size)
         fname = f"new {d['name']}"
         self.debt("external_call", fname, n)
         if "value" in opts:
@@ -2278,37 +2450,23 @@ class Walk:
         if self.recording:
             self.record(self.calls, self.span(n), fn=fname, receiver=None, args=[self.r(v) for v in vals],
                         value=self.r(opts.get("value", 0)), mutability="payable" if "value" in opts else "nonpayable",
-                        cond=self.r(k), commit=False, expr=self.r(ok if k == 1 else disj2(neg(k), ok)))
+                        cond=self.rc(k), commit=False, expr=self.rc(ok if k == 1 else disj2(neg(k), ok)))
             self.order.append(["call", len(self.calls) - 1])
         return ("new", d["name"]) + tuple(vals)
 
     def builtin(self, name: str, n: dict, args: list):
         if name in ("require", "assert"):
             c = self.val(self.ev(args[0]))
-            reason = None
+            reason, data = None, None
             if name == "require" and len(args) > 1:
-                a = args[1]
-                if a.get("nodeType") == "Literal" and a.get("kind") in ("string", "unicodeString"):
-                    reason = a.get("value") or ""
-                else:
-                    rv = self.val(self.ev(a))
-                    if isinstance(rv, tuple) and rv[:1] == ("str",):
-                        reason = _text(rv)
-                    elif a.get("nodeType") == "FunctionCall":   # require(c, E(...)): the custom error's name
-                        reason = (a.get("expression") or {}).get("name")
-            self.guard("require", n, c, reason, code=1 if name == "assert" else None)
+                reason, data = self.reason(args[1])
+            self.guard("require", n, c, reason, code=1 if name == "assert" else None, data=data)
             if c == 0:
                 self.exit = "revert"
             return ("tuple",)
         if name == "revert":
-            reason = None
-            if args and args[0].get("nodeType") == "Literal" and args[0].get("kind") in ("string", "unicodeString"):
-                reason = args[0].get("value") or ""
-            elif args:
-                rv = self.val(self.ev(args[0]))
-                if isinstance(rv, tuple) and rv[:1] == ("str",):
-                    reason = _text(rv)
-            self.guard("revert", n, None, reason)
+            reason, data = self.reason(args[0]) if args else (None, None)
+            self.guard("revert", n, None, reason, data=data)
             self.exit = "revert"
             return ("tuple",)
         vals = [self.val(self.ev(a)) for a in args]
@@ -2341,7 +2499,9 @@ class Walk:
         if names:
             by = dict(zip(names, vals))
             vals = [by.get(p["name"], 0) for p in params]
-        sig = f"{decl['name']}({','.join(abi_type(self.ix, p.get('typeName') or {}) for p in params)})"
+        vals = [abi_word(type_string(p), v) for p, v in zip(params, vals)]
+        types = [abi_type(self.ix, p.get("typeName") or {}) for p in params]
+        sig = f"{decl['name']}({','.join(types)})"
         from ...keccak import keccak256
         topic0 = keccak256(sig.encode()).hex()
         if decl.get("eventSelector") and decl["eventSelector"] != topic0:
@@ -2350,10 +2510,35 @@ class Walk:
         anon = bool(decl.get("anonymous"))
         self.tag("event")
         if self.recording:
+            topics = [topic_term(t, v) for p, t, v in zip(params, types, vals) if p.get("indexed")]
             self.record(self.events, self.span(n), event=f"{owner['name']}.{decl['name']}" if owner else decl["name"],
                         signature=sig, topic0=None if anon else "0x" + topic0, args=[self.r(v) for v in vals],
-                        indexed=[bool(p.get("indexed")) for p in params], anonymous=anon,
-                        cond=self.r(conj(self.ctx)))
+                        indexed=[bool(p.get("indexed")) for p in params], topics=[self.r(t) for t in topics],
+                        anonymous=anon, cond=self.rc(conj(self.ctx)))
+
+    def error_of(self, call: dict):
+        """(error, args) of a call of a custom error E(...) (revert E(...), require(c, E(...))): error {name (the
+        declaring contract's name, a dot and E), signature (canonical ABI types), selector ("0x" and the first 4
+        bytes of keccak256(signature))} and the argument values in parameter order as the ABI encoder writes them;
+        None when call does not name an error."""
+        decl = self.ix.nodes.get((call.get("expression") or {}).get("referencedDeclaration"))
+        if decl is None or decl.get("nodeType") != "ErrorDefinition":
+            return None
+        vals = [self.val(self.ev(a)) for a in call.get("arguments") or []]
+        params = decl["parameters"]["parameters"]
+        names = call.get("names") or []
+        if names:
+            by = dict(zip(names, vals))
+            vals = [by.get(p["name"], 0) for p in params]
+        vals = [abi_word(type_string(p), v) for p, v in zip(params, vals)]
+        sig = f"{decl['name']}({','.join(abi_type(self.ix, p.get('typeName') or {}) for p in params)})"
+        from ...keccak import keccak256
+        sel = keccak256(sig.encode())[:4].hex()
+        if decl.get("errorSelector") and decl["errorSelector"] != sel:
+            raise ExtractionError(f"error {sig}: keccak256 of the signature is not the compiler's errorSelector")
+        owner = owner_of(self.ix, decl)
+        name = f"{owner['name']}.{decl['name']}" if owner else decl["name"]
+        return {"name": name, "signature": sig, "selector": "0x" + sel}, vals
 
     # -- inline assembly
     def assembly(self, n: dict) -> None:
@@ -2666,7 +2851,7 @@ class Walk:
         value = entry[2] if op in ("mstore", "mstore8") else ("input", entry[2], entry[3], entry[4])
         c = conj(self.ctx + ([cond] if cond is not None else []))
         self.record(self.mstores, self.span(e), region=list(rid[1]) if rid is not None else None, op=op,
-                    offset=self.r(entry[1]), value=self.r(value), cond=self.r(c))
+                    offset=self.r(entry[1]), value=self.r(value), cond=self.rc(c))
 
     def mload(self, p, e: dict):
         if is_ite(p):
@@ -3128,6 +3313,26 @@ def _external_ref(asm: dict | None, ident: dict):
     return None
 
 
+def _tuple_types(ts: str) -> list[str]:
+    """The component type strings of "tuple(...)"."""
+    inner = ts[len("tuple("):-1]
+    if not inner.strip():
+        return []
+    out, depth, cur = [], 0, ""
+    for ch in inner:
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth -= 1
+        if ch == "," and depth == 0:
+            out.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    out.append(cur)
+    return out
+
+
 def _tuple_arity(ts: str) -> int:
     inner = ts[len("tuple("):-1]
     if not inner.strip():
@@ -3253,6 +3458,66 @@ def abi_type(index: Index, tn: dict) -> str:
     if nt == "FunctionTypeName":
         return "function"
     raise ExtractionError(f"a type the ABI signature cannot hold: {type_string(tn) or nt}")
+
+
+def _abi_components(t: str) -> list[str]:
+    """The component types of a canonical tuple type "(a,b,...)"."""
+    inner, out, depth, cur = t[1:-1], [], 0, ""
+    if not inner:
+        return []
+    for ch in inner:
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth -= 1
+        if ch == "," and depth == 0:
+            out.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    out.append(cur)
+    return out
+
+
+def abi_static_size(t: str) -> int | None:
+    """The bytes a value of canonical ABI type t takes in place (the head of a tuple holding it), None for a dynamic
+    type (string, bytes, T[], and arrays and tuples holding one), whose head is a 32-byte offset."""
+    if t in ("string", "bytes") or t.endswith("[]"):
+        return None
+    m = re.fullmatch(r"(.+)\[(\d+)\]", t)
+    if m:
+        s = abi_static_size(m.group(1))
+        return None if s is None else s * int(m.group(2))
+    if t.startswith("("):
+        sizes = [abi_static_size(c) for c in _abi_components(t)]
+        return None if any(s is None for s in sizes) else sum(sizes)
+    return 32
+
+
+def abi_head_size(types: list[str]) -> int:
+    """The size of the head of the ABI encoding of a tuple of the canonical types: what the decoder of an action's
+    parameters requires of the calldata after the selector."""
+    return sum(32 if s is None else s for s in (abi_static_size(t) for t in types))
+
+
+def error_string() -> dict:
+    """The revert data's error of a string reason: Error(string)."""
+    from ...keccak import keccak256
+    return {"name": "Error", "signature": "Error(string)", "selector": "0x" + keccak256(b"Error(string)")[:4].hex()}
+
+
+def topic_term(t: str, v):
+    """The log topic of an indexed event argument of canonical ABI type t whose ABI word (abi_word) is v: string and
+    bytes ["keccak256", v] (folded for a constant), arrays and tuples ["keccak256", ["abi.inplace", v]] (the in-place
+    encoding: the elements' encodings, each padded to 32 bytes), any other type v itself."""
+    if t in ("string", "bytes"):
+        if isinstance(v, tuple) and v[:1] == ("str",):
+            from ...keccak import keccak256
+            return int.from_bytes(keccak256(bytes.fromhex(v[1])), "big")
+        return ("keccak256", v)
+    if t.endswith("]") or t.startswith("("):
+        return ("keccak256", ("abi.inplace", v))
+    return v
 
 
 # ------------------------------------------------------------------------------------------------ the contract

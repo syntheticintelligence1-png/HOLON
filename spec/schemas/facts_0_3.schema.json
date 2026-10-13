@@ -928,8 +928,39 @@
           "items": {
             "$ref": "#/$defs/tr_reach"
           }
+        },
+        "error": {
+          "$ref": "#/$defs/tr_error"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_term"
+          }
         }
       }
+    },
+    "tr_error": {
+      "type": "object",
+      "required": [
+        "name",
+        "signature",
+        "selector"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "selector": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{8}$"
+        }
+      },
+      "description": "The error of a guard's revert data (V19-03): a custom error (name: the declaring contract, a dot and the error's name; signature with canonical ABI types; selector: the first 4 bytes of keccak256(signature)) or Error(string) for a string reason. The revert data is the selector followed by the ABI encoding of the reach's args."
     },
     "tr_action": {
       "type": "object",
@@ -1396,9 +1427,15 @@
         },
         "code": {
           "const": 1
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_term"
+          }
         }
       },
-      "description": "One reach of a guard (A19-03): its walk-order seq, call stack, expression; loop when made in a loop's generic iteration; code 1 for an assert."
+      "description": "One reach of a guard (A19-03): its walk-order seq, call stack, expression; loop when made in a loop's generic iteration; code 1 for an assert; args: the argument values of the guard's revert data error at this reach (V19-03)."
     },
     "tr_param": {
       "type": "object",
@@ -1463,6 +1500,7 @@
         "kind": {
           "enum": [
             "callvalue",
+            "calldatasize",
             "abi",
             "slice",
             "uncaught"
@@ -1475,7 +1513,7 @@
           "type": "string"
         }
       },
-      "description": "An implicit check that is not a panic (A19-02)."
+      "description": "An implicit check that is not a panic (A19-02; calldatasize: V19-05)."
     },
     "tr_panic": {
       "type": "object",
@@ -1511,7 +1549,8 @@
             18,
             33,
             49,
-            50
+            50,
+            65
           ]
         },
         "op": {
@@ -1527,7 +1566,7 @@
           "$ref": "#/$defs/tr_term"
         }
       },
-      "description": "A checked operation and its Panic code (A19-02)."
+      "description": "A checked operation and its Panic code (A19-02; 65, a memory allocation: V19-05)."
     },
     "tr_call": {
       "type": "object",
@@ -1721,6 +1760,7 @@
         "topic0",
         "args",
         "indexed",
+        "topics",
         "anonymous",
         "cond"
       ],
@@ -1770,6 +1810,13 @@
             "type": "boolean"
           }
         },
+        "topics": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "$ref": "#/$defs/tr_term"
+          }
+        },
         "anonymous": {
           "type": "boolean"
         },
@@ -1777,7 +1824,7 @@
           "$ref": "#/$defs/tr_term"
         }
       },
-      "description": "An emitted event (A19-09)."
+      "description": "An emitted event (A19-09). topics (V19-04): the topic of each indexed argument in order (a string or bytes argument: its keccak256; an array or struct: keccak256 of its in-place encoding; any other: its ABI word); the log's topics are topic0 followed by them (them alone for an anonymous event)."
     },
     "tr_loop": {
       "type": "object",
