@@ -272,11 +272,15 @@ def basis(site: dict) -> dict:
     return {"kind": "site", "site_id": site["id"], "model": site["model"], "span": site["span"], "expr": site["expr"]}
 
 
-def site_spec(site: dict, hits: list[dict]) -> dict:
-    """What the ref "site:<id>" hashes: the template, the basis element and the hits as DERIVATION.json lists them."""
-    return {"template": TEMPLATE, "template_version": TEMPLATE_VERSION,
-            "basis": {"site_id": site["id"], "model": site["model"], "span": site["span"], "expr": site["expr"]},
-            "hits": hits}
+def site_spec(site: dict, hits: list[dict], extracted=None) -> dict:
+    """What the ref "site:<id>" hashes: the template, the basis element and the hits as DERIVATION.json lists them;
+    with "extracted" when the milestone re-derives SORT-site laws on extracted facts (holon.sorts.reextract, I20)."""
+    out = {"template": TEMPLATE, "template_version": TEMPLATE_VERSION,
+           "basis": {"site_id": site["id"], "model": site["model"], "span": site["span"], "expr": site["expr"]},
+           "hits": hits}
+    if extracted is not None:
+        out["extracted"] = extracted
+    return out
 
 
 def recompute_sites(model: str, facts: dict, builtins: dict) -> dict[str, dict]:
@@ -311,8 +315,11 @@ def site_ref(site_id: str, law: dict, facts: dict, builtins: dict, root: Path | 
         site = sites.get(site_id)
         if site is None:
             return {"absent": site_id}
-        _, _, real = load_sidecar(str(law.get("milestone") or "M2"), root)
-        return site_spec(site, hit_points(facts, site, real))
+        ms = str(law.get("milestone") or "M2")
+        _, _, real = load_sidecar(ms, root)
+        hs = hit_points(facts, site, real)
+        from . import reextract
+        return site_spec(site, hs, reextract.site_evidence(ms, root, law.get("facts"), site, hs))
     except (SiteError, F.FlowError, KeyError, TypeError, ValueError, IndexError, OSError) as e:
         return {"error": f"{type(e).__name__}: {e}"}
 
@@ -387,6 +394,10 @@ def produce(ctx) -> list[tuple[dict, dict]]:
             entry = {"law_id": law["law_id"], "rule": RULE, "subform": SUBFORM, "facts": doc.rel, "basis": basis(s),
                      "sort": s["sort"], "obligation": s["obligation"], "realized_in": s["realized_in"],
                      "entry_points": eps, "hits": hs}
+            from . import reextract
+            ev = reextract.site_evidence(ctx.milestone, ctx.root, doc.rel, s, hs)
+            if ev is not None:   # re-derived on extracted facts (I20): the evidence the site ref hashes
+                entry["extracted"] = ev
             out.append((law, entry))
         # every site of the document must instrument: the ghost section is generated (and discarded) here
         mine = [(law, e) for law, e in out if e["facts"] == doc.rel]

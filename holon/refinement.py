@@ -24,7 +24,9 @@ links, under an id that is a function of (edge, input).
 Classes are computed from an entry's links only; its label is never read (classify). check_disagreements
 lists every entry whose computed class is unexplained or differs from its label, and every disagreement id
 a refinement record lists without an entry. The gate check GREF passes iff that list is empty; it reads no
-git (whether a fix commit exists is left to `holon audit`).
+git (whether a fix commit exists is left to `holon audit`). A step refinement record (holon.replay_fragments,
+I20: "disagreements" is a list of {id, class, links}) is checked the same way: every id has an entry, every
+listed class is what the entry's links establish, and its "unexplained" count adds up.
 """
 from __future__ import annotations
 
@@ -149,10 +151,14 @@ def check_disagreements(root: Path | str = ROOT) -> list[str]:
                        f"label {e.get('class')!r})")
         elif got != e.get("class"):
             out.append(f"{e['id']}: labelled {e.get('class')!r} but its links establish {got!r}")
+    entries = {e["id"]: e for e in doc["disagreements"] if isinstance(e, dict) and isinstance(e.get("id"), str)}
     for f in sorted((root / REF_DIR).glob("*.json")):
         rec = _load(f)
         if not isinstance(rec, dict):
             out.append(f"{f.name}: not a refinement record")
+            continue
+        if isinstance(rec.get("disagreements"), list):   # the extracted model's step refinement (I20)
+            out += _check_step_record(f.name, rec, entries, root)
             continue
         dids = rec.get("disagreement_ids")
         if not isinstance(dids, list):
@@ -167,6 +173,28 @@ def check_disagreements(root: Path | str = ROOT) -> list[str]:
             out.append(f"{f.name}: counts {n!r} disagreements but lists {len(set(dids))} distinct ids")
         if isinstance(rec.get("compared"), int) and rec.get("agree", 0) + (rec.get("disagreements") or 0) != rec["compared"]:
             out.append(f"{f.name}: agree + disagreements != compared")
+    return out
+
+
+def _check_step_record(name: str, rec: dict, entries: dict, root: Path) -> list[str]:
+    """A step refinement record (holon.replay_fragments; I20): "disagreements" lists {id, class, links}. Every id has
+    an entry, every listed class is what the entry's links establish, and "unexplained" counts the unexplained ones."""
+    out = []
+    n_unexplained = 0
+    for i, d in enumerate(rec["disagreements"]):
+        if not isinstance(d, dict) or not isinstance(d.get("id"), str):
+            out.append(f"{name}: disagreement #{i} is not an object with a string id")
+            continue
+        e = entries.get(d["id"])
+        if e is None:
+            out.append(f"{d['id']}: listed by {name} but has no entry in {DISAGREEMENTS.as_posix()}")
+            continue
+        got = classify(e, root)
+        n_unexplained += got == "unexplained"
+        if d.get("class") != got:
+            out.append(f"{d['id']}: {name} lists class {d.get('class')!r} but the entry's links establish {got!r}")
+    if rec.get("unexplained") != n_unexplained:
+        out.append(f"{name}: counts {rec.get('unexplained')!r} unexplained disagreements, its entries give {n_unexplained}")
     return out
 
 

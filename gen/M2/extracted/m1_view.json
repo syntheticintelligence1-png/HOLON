@@ -1,0 +1,3180 @@
+{
+  "abstractions": [
+    "Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH).",
+    "Header bytes are presented honestly: a caller presents the stored header of the index it names. A fabricated header cannot match committedBatches (local premise CF(keccak256, {stored headers, presented header})), and only reaches the checks the model encodes for indices > LCI.",
+    "committedBatches is not stored: under the CF premise, committedBatches[k] != 0 <=> k <= LCI (committed indices are 0..LCI, contiguous).",
+    "Per-batch registers live in a window (indices LFI..LCI) and shadow lists (indices LCI+1, LCI+2, ...: residues left by revertBatch). Finalized indices below LFI keep only committedBatches and finalizedStateRoots, as in storage after finalizeBatch's deletes.",
+    "challenges and finalizedStateRoots are arrays indexed by absolute batch index.",
+    "keccak256 over blob hashes (version 2) is the stand-in agg(): an injective encoding offset by AGG_BASE (models CF(keccak256, S) for every finite S).",
+    "Neighbours are oracles: ISubmitter (isActive, challengeDeposit = DEP, slash deactivates), IRollupVerifier (accepts iff proof == 1), messenger (sendMessage appends to the queue).",
+    "Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
+  ],
+  "actions": [
+    {
+      "effects": {
+        "s_bd": [
+          "call",
+          "tail",
+          "s_bd"
+        ],
+        "s_bvh": [
+          "call",
+          "tail",
+          "s_bvh"
+        ],
+        "s_csr": [
+          "call",
+          "tail",
+          "s_csr"
+        ],
+        "s_tag": [
+          "call",
+          "tail",
+          "s_tag"
+        ],
+        "win": [
+          "call",
+          "snoc",
+          "win",
+          [
+            "mk",
+            "Entry",
+            {
+              "bdf": [
+                "+",
+                [
+                  "+",
+                  "t",
+                  "F"
+                ],
+                "prt"
+              ],
+              "bdn": "lbn",
+              "bdo": "t",
+              "bds": "who",
+              "bvh": "bvh",
+              "csr": "post",
+              "hb": "bvh",
+              "lbn": "lbn",
+              "n": "n",
+              "post": "post",
+              "prev": "prev",
+              "tag": "tag",
+              "tot": [
+                "+",
+                "tot",
+                "n"
+              ],
+              "ver": "ver"
+            }
+          ]
+        ]
+      },
+      "guards": [
+        {
+          "reason": 1,
+          "require": [
+            "call",
+            "mem",
+            "who",
+            "active"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "reason": 2,
+          "require": [
+            "==",
+            "rri",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": [
+            "!",
+            "paused"
+          ],
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            "+",
+            "parent",
+            1
+          ],
+          "let": "next",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:260"
+        },
+        {
+          "reason": 4,
+          "require": [
+            "==",
+            [
+              "call",
+              "bvh_at",
+              "lfi",
+              "win",
+              "s_bvh",
+              "next"
+            ],
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:261"
+        },
+        {
+          "expr": [
+            "call",
+            "enq_first",
+            "qpend",
+            "qlen",
+            "enq",
+            "t"
+          ],
+          "let": "ef",
+          "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268"
+        },
+        {
+          "reason": 5,
+          "require": [
+            "||",
+            [
+              "!",
+              [
+                "<",
+                [
+                  "+",
+                  "ef",
+                  "D"
+                ],
+                "t"
+              ]
+            ],
+            [
+              ">",
+              "n",
+              0
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266"
+        },
+        {
+          "expr": [
+            "call",
+            "nth",
+            "blobs",
+            0
+          ],
+          "let": "b0"
+        },
+        {
+          "expr": [
+            "call",
+            "nth",
+            "blobs",
+            1
+          ],
+          "let": "b1"
+        },
+        {
+          "reason": 6,
+          "require": [
+            "||",
+            [
+              "!=",
+              "ver",
+              2
+            ],
+            [
+              ">",
+              [
+                "call",
+                "blob_count",
+                "blobs"
+              ],
+              0
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
+        },
+        {
+          "reason": 7,
+          "require": [
+            "||",
+            [
+              "==",
+              "ver",
+              2
+            ],
+            [
+              "==",
+              "b1",
+              0
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "expr": [
+            "call",
+            "blob_hash",
+            "ver",
+            "blobs"
+          ],
+          "let": "bvh",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:267"
+        },
+        {
+          "expr": [
+            "?",
+            [
+              "==",
+              "ver",
+              2
+            ],
+            2,
+            1
+          ],
+          "let": "tag"
+        },
+        {
+          "reason": 8,
+          "require": [
+            "<=",
+            "ver",
+            2
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "reason": 9,
+          "require": [
+            "!=",
+            "prev",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "reason": 10,
+          "require": [
+            "!=",
+            "post",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "expr": [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ],
+          "let": "lci"
+        },
+        {
+          "note": "committedBatches[parent+1] == 0 <=> parent+1 > LCI (committed indices are exactly 0..LCI)",
+          "reason": 11,
+          "require": [
+            ">",
+            "next",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "reason": 12,
+          "require": [
+            "==",
+            "parent",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "note": "parent == LCI is established, so the read is inside the window",
+          "reason": 14,
+          "require": [
+            "==",
+            [
+              "get",
+              [
+                "call",
+                "w",
+                "lfi",
+                "win",
+                "parent"
+              ],
+              "csr"
+            ],
+            "prev"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "expr": [
+            "get",
+            [
+              "call",
+              "w",
+              "lfi",
+              "win",
+              "parent"
+            ],
+            "tot"
+          ],
+          "let": "tot",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:316"
+        },
+        {
+          "expr": [
+            "get",
+            [
+              "call",
+              "nth_ch",
+              "chs",
+              "bc"
+            ],
+            "s"
+          ],
+          "let": "cstart"
+        },
+        {
+          "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)",
+          "reason": 16,
+          "require": [
+            "||",
+            [
+              "!",
+              "inch"
+            ],
+            [
+              "<=",
+              "t",
+              [
+                "+",
+                "W",
+                "cstart"
+              ]
+            ]
+          ],
+          "site": {
+            "expr": "W + cstart - t",
+            "kind": "realize",
+            "rule": "SORT",
+            "sort": "Dur(signed) realized in uint256"
+          },
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "expr": [
+            "?",
+            "inch",
+            [
+              "-",
+              [
+                "+",
+                "W",
+                "cstart"
+              ],
+              "t"
+            ],
+            0
+          ],
+          "let": "prt",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364"
+        }
+      ],
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "parent",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "lbn",
+          "Nat"
+        ],
+        [
+          "prev",
+          "Nat"
+        ],
+        [
+          "post",
+          "Nat"
+        ],
+        [
+          "blobs",
+          "List<Nat>"
+        ]
+      ],
+      "name": "commitBatch",
+      "principal": "active submitter",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269"
+    },
+    {
+      "effects": {
+        "s_bd": [
+          "call",
+          "tail",
+          "s_bd"
+        ],
+        "s_bvh": [
+          "call",
+          "tail",
+          "s_bvh"
+        ],
+        "s_csr": [
+          "call",
+          "tail",
+          "s_csr"
+        ],
+        "s_tag": [
+          "call",
+          "tail",
+          "s_tag"
+        ],
+        "win": [
+          "call",
+          "snoc",
+          "win",
+          [
+            "mk",
+            "Entry",
+            {
+              "bdf": [
+                "+",
+                [
+                  "+",
+                  "t",
+                  "F"
+                ],
+                "prt"
+              ],
+              "bdn": "lbn",
+              "bdo": "t",
+              "bds": "who",
+              "bvh": "bvh",
+              "csr": "post",
+              "hb": "bvh",
+              "lbn": "lbn",
+              "n": "n",
+              "post": "post",
+              "prev": "prev",
+              "tag": "tag",
+              "tot": [
+                "+",
+                "tot",
+                "n"
+              ],
+              "ver": "ver"
+            }
+          ]
+        ]
+      },
+      "guards": [
+        {
+          "reason": 1,
+          "require": [
+            "call",
+            "mem",
+            "who",
+            "active"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "reason": 2,
+          "require": [
+            "==",
+            "rri",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": [
+            "!",
+            "paused"
+          ],
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            "call",
+            "nth",
+            "blobs",
+            0
+          ],
+          "let": "b0"
+        },
+        {
+          "expr": [
+            "call",
+            "nth",
+            "blobs",
+            1
+          ],
+          "let": "b1"
+        },
+        {
+          "reason": 17,
+          "require": [
+            "==",
+            "b0",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:276"
+        },
+        {
+          "expr": [
+            "+",
+            "parent",
+            1
+          ],
+          "let": "next",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:278"
+        },
+        {
+          "expr": [
+            "call",
+            "bvh_at",
+            "lfi",
+            "win",
+            "s_bvh",
+            "next"
+          ],
+          "let": "bvh"
+        },
+        {
+          "reason": 18,
+          "require": [
+            "!=",
+            "bvh",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:279"
+        },
+        {
+          "expr": [
+            "call",
+            "tag_at",
+            "lfi",
+            "win",
+            "s_tag",
+            "next"
+          ],
+          "let": "tag"
+        },
+        {
+          "expr": [
+            "call",
+            "enq_first",
+            "qpend",
+            "qlen",
+            "enq",
+            "t"
+          ],
+          "let": "ef",
+          "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268"
+        },
+        {
+          "reason": 8,
+          "require": [
+            "<=",
+            "ver",
+            2
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "reason": 9,
+          "require": [
+            "!=",
+            "prev",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "reason": 10,
+          "require": [
+            "!=",
+            "post",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "expr": [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ],
+          "let": "lci"
+        },
+        {
+          "note": "committedBatches[parent+1] == 0 <=> parent+1 > LCI (committed indices are exactly 0..LCI)",
+          "reason": 11,
+          "require": [
+            ">",
+            "next",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "reason": 12,
+          "require": [
+            "==",
+            "parent",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "note": "parent == LCI is established, so the read is inside the window",
+          "reason": 14,
+          "require": [
+            "==",
+            [
+              "get",
+              [
+                "call",
+                "w",
+                "lfi",
+                "win",
+                "parent"
+              ],
+              "csr"
+            ],
+            "prev"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "expr": [
+            "get",
+            [
+              "call",
+              "w",
+              "lfi",
+              "win",
+              "parent"
+            ],
+            "tot"
+          ],
+          "let": "tot",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:316"
+        },
+        {
+          "expr": [
+            "get",
+            [
+              "call",
+              "nth_ch",
+              "chs",
+              "bc"
+            ],
+            "s"
+          ],
+          "let": "cstart"
+        },
+        {
+          "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)",
+          "reason": 16,
+          "require": [
+            "||",
+            [
+              "!",
+              "inch"
+            ],
+            [
+              "<=",
+              "t",
+              [
+                "+",
+                "W",
+                "cstart"
+              ]
+            ]
+          ],
+          "site": {
+            "expr": "W + cstart - t",
+            "kind": "realize",
+            "rule": "SORT",
+            "sort": "Dur(signed) realized in uint256"
+          },
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "expr": [
+            "?",
+            "inch",
+            [
+              "-",
+              [
+                "+",
+                "W",
+                "cstart"
+              ],
+              "t"
+            ],
+            0
+          ],
+          "let": "prt",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364"
+        }
+      ],
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "parent",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "lbn",
+          "Nat"
+        ],
+        [
+          "prev",
+          "Nat"
+        ],
+        [
+          "post",
+          "Nat"
+        ],
+        [
+          "blobs",
+          "List<Nat>"
+        ]
+      ],
+      "name": "commitState",
+      "principal": "active submitter",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:273-286"
+    },
+    {
+      "effects": {
+        "s_bd": [
+          "call",
+          "tail",
+          "s_bd"
+        ],
+        "s_bvh": [
+          "call",
+          "tail",
+          "s_bvh"
+        ],
+        "s_csr": [
+          "call",
+          "tail",
+          "s_csr"
+        ],
+        "s_tag": [
+          "call",
+          "tail",
+          "s_tag"
+        ],
+        "win": [
+          "call",
+          "snoc",
+          "win",
+          [
+            "mk",
+            "Entry",
+            {
+              "bdf": "t",
+              "bdn": "lbn",
+              "bdo": "t",
+              "bds": 0,
+              "bvh": "bvh",
+              "csr": "post",
+              "hb": "bvh",
+              "lbn": "lbn",
+              "n": "n",
+              "post": "post",
+              "prev": "prev",
+              "tag": "tag",
+              "tot": [
+                "+",
+                "tot",
+                "n"
+              ],
+              "ver": "ver"
+            }
+          ]
+        ]
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:421 finalizeTimestamp = block.timestamp",
+      "guards": [
+        {
+          "reason": 2,
+          "require": [
+            "==",
+            "rri",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": [
+            "!",
+            "paused"
+          ],
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ],
+          "let": "lci0"
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "+",
+              [
+                "get",
+                [
+                  "call",
+                  "w",
+                  "lfi",
+                  "win",
+                  "lci0"
+                ],
+                "bdo"
+              ],
+              "D"
+            ],
+            "t"
+          ],
+          "let": "rd",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:389-390"
+        },
+        {
+          "expr": [
+            "call",
+            "enq_first",
+            "qpend",
+            "qlen",
+            "enq",
+            "t"
+          ],
+          "let": "ef"
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "+",
+              "ef",
+              "D"
+            ],
+            "t"
+          ],
+          "let": "qd",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:393-395"
+        },
+        {
+          "reason": 5,
+          "require": [
+            "||",
+            "rd",
+            [
+              "!",
+              "qd"
+            ],
+            [
+              ">",
+              "n",
+              0
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:397-399"
+        },
+        {
+          "reason": 19,
+          "require": [
+            "||",
+            "rd",
+            "qd"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:400"
+        },
+        {
+          "expr": [
+            "+",
+            "parent",
+            1
+          ],
+          "let": "next",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:403"
+        },
+        {
+          "expr": [
+            "call",
+            "nth",
+            "blobs",
+            0
+          ],
+          "let": "b0"
+        },
+        {
+          "expr": [
+            "call",
+            "nth",
+            "blobs",
+            1
+          ],
+          "let": "b1"
+        },
+        {
+          "expr": [
+            "call",
+            "bvh_at",
+            "lfi",
+            "win",
+            "s_bvh",
+            "next"
+          ],
+          "let": "stored"
+        },
+        {
+          "reason": 20,
+          "require": [
+            "||",
+            [
+              "==",
+              "stored",
+              0
+            ],
+            [
+              "==",
+              "b0",
+              0
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:406"
+        },
+        {
+          "reason": 6,
+          "require": [
+            "||",
+            [
+              "!=",
+              "stored",
+              0
+            ],
+            [
+              "!=",
+              "ver",
+              2
+            ],
+            [
+              ">",
+              [
+                "call",
+                "blob_count",
+                "blobs"
+              ],
+              0
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:913"
+        },
+        {
+          "reason": 7,
+          "require": [
+            "||",
+            [
+              "!=",
+              "stored",
+              0
+            ],
+            [
+              "==",
+              "ver",
+              2
+            ],
+            [
+              "==",
+              "b1",
+              0
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "expr": [
+            "?",
+            [
+              "!=",
+              "stored",
+              0
+            ],
+            "stored",
+            [
+              "call",
+              "blob_hash",
+              "ver",
+              "blobs"
+            ]
+          ],
+          "let": "bvh"
+        },
+        {
+          "expr": [
+            "?",
+            [
+              "!=",
+              "stored",
+              0
+            ],
+            [
+              "call",
+              "tag_at",
+              "lfi",
+              "win",
+              "s_tag",
+              "next"
+            ],
+            [
+              "?",
+              [
+                "==",
+                "ver",
+                2
+              ],
+              2,
+              1
+            ]
+          ],
+          "let": "tag"
+        },
+        {
+          "reason": 8,
+          "require": [
+            "<=",
+            "ver",
+            2
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "reason": 9,
+          "require": [
+            "!=",
+            "prev",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "reason": 10,
+          "require": [
+            "!=",
+            "post",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "expr": [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ],
+          "let": "lci"
+        },
+        {
+          "note": "committedBatches[parent+1] == 0 <=> parent+1 > LCI (committed indices are exactly 0..LCI)",
+          "reason": 11,
+          "require": [
+            ">",
+            "next",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "reason": 12,
+          "require": [
+            "==",
+            "parent",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "note": "parent == LCI is established, so the read is inside the window",
+          "reason": 14,
+          "require": [
+            "==",
+            [
+              "get",
+              [
+                "call",
+                "w",
+                "lfi",
+                "win",
+                "parent"
+              ],
+              "csr"
+            ],
+            "prev"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "expr": [
+            "get",
+            [
+              "call",
+              "w",
+              "lfi",
+              "win",
+              "parent"
+            ],
+            "tot"
+          ],
+          "let": "tot",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:316"
+        },
+        {
+          "expr": [
+            "get",
+            [
+              "call",
+              "nth_ch",
+              "chs",
+              "bc"
+            ],
+            "s"
+          ],
+          "let": "cstart"
+        },
+        {
+          "note": "proofWindow + challenges[batchChallenged].startTime - block.timestamp: checked uint256 subtraction (Panic 0x11)",
+          "reason": 16,
+          "require": [
+            "||",
+            [
+              "!",
+              "inch"
+            ],
+            [
+              "<=",
+              "t",
+              [
+                "+",
+                "W",
+                "cstart"
+              ]
+            ]
+          ],
+          "site": {
+            "expr": "W + cstart - t",
+            "kind": "realize",
+            "rule": "SORT",
+            "sort": "Dur(signed) realized in uint256"
+          },
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "expr": [
+            "?",
+            "inch",
+            [
+              "-",
+              [
+                "+",
+                "W",
+                "cstart"
+              ],
+              "t"
+            ],
+            0
+          ],
+          "let": "prt",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:360-364"
+        },
+        {
+          "reason": 21,
+          "require": [
+            "!=",
+            "proof",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+        }
+      ],
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "parent",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "lbn",
+          "Nat"
+        ],
+        [
+          "prev",
+          "Nat"
+        ],
+        [
+          "post",
+          "Nat"
+        ],
+        [
+          "blobs",
+          "List<Nat>"
+        ],
+        [
+          "proof",
+          "Nat"
+        ]
+      ],
+      "name": "commitBatchWithProof",
+      "principal": "anyone",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:382-426"
+    },
+    {
+      "effects": {
+        "chs": [
+          "call",
+          "clear_chs",
+          "chs",
+          "idx",
+          "lci"
+        ],
+        "inch": [
+          "&&",
+          "inch",
+          [
+            "!",
+            [
+              "call",
+              "any_open",
+              "chs",
+              "idx",
+              "lci"
+            ]
+          ]
+        ],
+        "rri": [
+          "?",
+          [
+            "&&",
+            [
+              ">",
+              "rri",
+              0
+            ],
+            [
+              ">=",
+              "rri",
+              "idx"
+            ],
+            [
+              "<=",
+              "rri",
+              "lci"
+            ]
+          ],
+          0,
+          "rri"
+        ],
+        "s_bd": [
+          "call",
+          "concat",
+          [
+            "call",
+            "es_bd",
+            "moved"
+          ],
+          "s_bd"
+        ],
+        "s_bvh": [
+          "call",
+          "concat",
+          [
+            "call",
+            "es_bvh",
+            "moved"
+          ],
+          "s_bvh"
+        ],
+        "s_csr": [
+          "call",
+          "concat",
+          [
+            "call",
+            "es_csr",
+            "moved"
+          ],
+          "s_csr"
+        ],
+        "s_tag": [
+          "call",
+          "concat",
+          [
+            "call",
+            "es_tag",
+            "moved"
+          ],
+          "s_tag"
+        ],
+        "win": [
+          "call",
+          "take",
+          "win",
+          "p"
+        ]
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:443-465 (loop clears committedBatches, refunds/ends open challenges, deletes challenges, resets revertReqIndex; CSR, BVH and batchDataStore are NOT cleared)",
+      "guards": [
+        {
+          "reason": 23,
+          "require": [
+            "==",
+            "who",
+            "OWNER"
+          ],
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "reason": 24,
+          "require": [
+            ">",
+            "count",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:431"
+        },
+        {
+          "expr": [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ],
+          "let": "lci"
+        },
+        {
+          "note": "an honest header for idx matches committedBatches[idx] iff idx <= LCI",
+          "reason": 25,
+          "require": [
+            "<=",
+            "idx",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:436"
+        },
+        {
+          "reason": 26,
+          "require": [
+            ">",
+            [
+              "+",
+              "idx",
+              "count"
+            ],
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:439"
+        },
+        {
+          "reason": 27,
+          "require": [
+            ">",
+            "idx",
+            "lfi"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:441"
+        },
+        {
+          "expr": [
+            "-",
+            "idx",
+            "lfi"
+          ],
+          "let": "p"
+        },
+        {
+          "expr": [
+            "call",
+            "drop",
+            "win",
+            "p"
+          ],
+          "let": "moved"
+        }
+      ],
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "idx",
+          "Nat"
+        ],
+        [
+          "count",
+          "Nat"
+        ]
+      ],
+      "name": "revertBatch",
+      "principal": "owner",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:430-466"
+    },
+    {
+      "effects": {
+        "bc": "idx",
+        "chs": [
+          "call",
+          "set_ch",
+          "chs",
+          "idx",
+          [
+            "mk",
+            "Ch",
+            {
+              "c": "who",
+              "d": "value",
+              "f": false,
+              "s": "t",
+              "w": false
+            }
+          ]
+        ],
+        "inch": true,
+        "win": [
+          "call",
+          "bump_f",
+          "win",
+          [
+            "-",
+            "idx",
+            "lfi"
+          ],
+          "W"
+        ]
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:485-495 (finalizeTimestamp += proofWindow for every unfinalized i != idx)",
+      "guards": [
+        {
+          "reason": 28,
+          "require": [
+            "call",
+            "mem",
+            "who",
+            "chals"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:126"
+        },
+        {
+          "reason": 2,
+          "require": [
+            "==",
+            "rri",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": [
+            "!",
+            "paused"
+          ],
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "reason": 29,
+          "require": [
+            "!",
+            "inch"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:475"
+        },
+        {
+          "reason": 30,
+          "require": [
+            "<",
+            "lfi",
+            "idx"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:476"
+        },
+        {
+          "expr": [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ],
+          "let": "lci"
+        },
+        {
+          "reason": 25,
+          "require": [
+            "<=",
+            "idx",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:477"
+        },
+        {
+          "reason": 31,
+          "require": [
+            ">",
+            [
+              "get",
+              [
+                "call",
+                "w",
+                "lfi",
+                "win",
+                "idx"
+              ],
+              "bdo"
+            ],
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:478 batchExist"
+        },
+        {
+          "reason": 32,
+          "require": [
+            "==",
+            [
+              "get",
+              [
+                "call",
+                "nth_ch",
+                "chs",
+                "idx"
+              ],
+              "c"
+            ],
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:479"
+        },
+        {
+          "reason": 33,
+          "require": [
+            ">",
+            [
+              "get",
+              [
+                "call",
+                "w",
+                "lfi",
+                "win",
+                "idx"
+              ],
+              "bdf"
+            ],
+            "t"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:481 batchInsideChallengeWindow"
+        },
+        {
+          "reason": 34,
+          "require": [
+            ">=",
+            "value",
+            "DEP"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:483"
+        }
+      ],
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "idx",
+          "Nat"
+        ],
+        [
+          "value",
+          "Nat"
+        ]
+      ],
+      "name": "challengeState",
+      "principal": "challenger",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:471-496"
+    },
+    {
+      "effects": {
+        "active": [
+          "?",
+          "timeout",
+          [
+            "call",
+            "remove",
+            [
+              "get",
+              [
+                "call",
+                "w",
+                "lfi",
+                "win",
+                "idx"
+              ],
+              "bds"
+            ],
+            "active"
+          ],
+          "active"
+        ],
+        "chs": [
+          "call",
+          "set_ch",
+          "chs",
+          "idx",
+          [
+            "with",
+            "Ch",
+            "ch",
+            {
+              "f": true,
+              "w": "timeout"
+            }
+          ]
+        ],
+        "inch": false,
+        "rri": [
+          "?",
+          "timeout",
+          "idx",
+          "rri"
+        ]
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:609-621, _challengerWin :803-808 (slash deactivates the batch submitter)",
+      "guards": [
+        {
+          "reason": 2,
+          "require": [
+            "==",
+            "rri",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": [
+            "!",
+            "paused"
+          ],
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "reason": 1,
+          "require": [
+            "call",
+            "mem",
+            "who",
+            "active"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "expr": [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ],
+          "let": "lci"
+        },
+        {
+          "reason": 25,
+          "require": [
+            "<=",
+            "idx",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:603"
+        },
+        {
+          "reason": 35,
+          "require": [
+            "call",
+            "open_ch",
+            "chs",
+            "idx"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:606"
+        },
+        {
+          "expr": [
+            "call",
+            "nth_ch",
+            "chs",
+            "idx"
+          ],
+          "let": "ch"
+        },
+        {
+          "expr": [
+            "<=",
+            [
+              "+",
+              [
+                "get",
+                "ch",
+                "s"
+              ],
+              "W"
+            ],
+            "t"
+          ],
+          "let": "timeout",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:613"
+        },
+        {
+          "reason": 21,
+          "require": [
+            "||",
+            "timeout",
+            [
+              "!=",
+              "proof",
+              0
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:758"
+        }
+      ],
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "idx",
+          "Nat"
+        ],
+        [
+          "proof",
+          "Nat"
+        ]
+      ],
+      "name": "proveState",
+      "principal": "active submitter",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:595-622"
+    },
+    {
+      "effects": {
+        "chs": [
+          "call",
+          "set_ch",
+          "chs",
+          [
+            "-",
+            "idx",
+            1
+          ],
+          [
+            "call",
+            "empty_ch"
+          ]
+        ],
+        "fsr": [
+          "call",
+          "set_nat",
+          "fsr",
+          "idx",
+          [
+            "get",
+            [
+              "call",
+              "w",
+              "lfi",
+              "win",
+              "idx"
+            ],
+            "post"
+          ]
+        ],
+        "lfi": "idx",
+        "qpend": [
+          "?",
+          [
+            "==",
+            "bn",
+            0
+          ],
+          "qpend",
+          "btot"
+        ],
+        "win": [
+          "call",
+          "drop",
+          "win",
+          1
+        ]
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:644-660 (deletes batchDataStore/committedStateRoots/batchBlobVersionedHashes/challenges at idx-1: the old window head)",
+      "guards": [
+        {
+          "reason": 2,
+          "require": [
+            "==",
+            "rri",
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "reason": 3,
+          "require": [
+            "!",
+            "paused"
+          ],
+          "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "expr": [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ],
+          "let": "lci"
+        },
+        {
+          "reason": 25,
+          "require": [
+            "<=",
+            "idx",
+            "lci"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:629"
+        },
+        {
+          "reason": 31,
+          "require": [
+            "&&",
+            [
+              ">=",
+              "idx",
+              "lfi"
+            ],
+            [
+              ">",
+              [
+                "get",
+                [
+                  "call",
+                  "w",
+                  "lfi",
+                  "win",
+                  "idx"
+                ],
+                "bdo"
+              ],
+              0
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:630 batchExist (deleted below LFI)"
+        },
+        {
+          "reason": 35,
+          "require": [
+            "!",
+            [
+              "call",
+              "open_ch",
+              "chs",
+              "idx"
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:631"
+        },
+        {
+          "reason": 36,
+          "require": [
+            "!",
+            [
+              "get",
+              [
+                "call",
+                "nth_ch",
+                "chs",
+                "idx"
+              ],
+              "w"
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:632"
+        },
+        {
+          "reason": 37,
+          "require": [
+            "!",
+            [
+              ">",
+              [
+                "get",
+                [
+                  "call",
+                  "w",
+                  "lfi",
+                  "win",
+                  "idx"
+                ],
+                "bdf"
+              ],
+              "t"
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:633"
+        },
+        {
+          "reason": 41,
+          "require": [
+            ">=",
+            "idx",
+            1
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:636 (_batchIndex - 1, checked)"
+        },
+        {
+          "reason": 14,
+          "require": [
+            "==",
+            [
+              "call",
+              "nth",
+              "fsr",
+              [
+                "-",
+                "idx",
+                1
+              ]
+            ],
+            [
+              "get",
+              [
+                "call",
+                "w",
+                "lfi",
+                "win",
+                "idx"
+              ],
+              "prev"
+            ]
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:635-638"
+        },
+        {
+          "reason": 38,
+          "require": [
+            "==",
+            [
+              "call",
+              "nth",
+              "fsr",
+              "idx"
+            ],
+            0
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:640"
+        },
+        {
+          "reason": 12,
+          "require": [
+            "==",
+            [
+              "+",
+              "lfi",
+              1
+            ],
+            "idx"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:643"
+        },
+        {
+          "expr": [
+            "get",
+            [
+              "call",
+              "w",
+              "lfi",
+              "win",
+              "idx"
+            ],
+            "n"
+          ],
+          "let": "bn"
+        },
+        {
+          "expr": [
+            "get",
+            [
+              "call",
+              "w",
+              "lfi",
+              "win",
+              "idx"
+            ],
+            "tot"
+          ],
+          "let": "btot"
+        }
+      ],
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "name": "finalizeBatch",
+      "principal": "anyone",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:625-669"
+    },
+    {
+      "effects": {
+        "chs": [
+          "?",
+          [
+            "&&",
+            "status",
+            "inch"
+          ],
+          [
+            "call",
+            "set_ch",
+            "chs",
+            "bc",
+            [
+              "call",
+              "empty_ch"
+            ]
+          ],
+          "chs"
+        ],
+        "inch": [
+          "&&",
+          "inch",
+          [
+            "!",
+            "status"
+          ]
+        ],
+        "paused": "status"
+      },
+      "effects_src": "contracts/contracts/l1/rollup/Rollup.sol:575-583 (pausing deletes the open challenge; finalizeTimestamp extensions stay)",
+      "guards": [
+        {
+          "reason": 23,
+          "require": [
+            "==",
+            "who",
+            "OWNER"
+          ],
+          "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        }
+      ],
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ],
+        [
+          "status",
+          "Bool"
+        ]
+      ],
+      "name": "setPause",
+      "principal": "owner",
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:573-588"
+    },
+    {
+      "effects": {
+        "enq": [
+          "call",
+          "snoc",
+          "enq",
+          "t"
+        ],
+        "qlen": [
+          "+",
+          "qlen",
+          1
+        ]
+      },
+      "guards": [],
+      "inputs": [
+        [
+          "who",
+          "Nat"
+        ]
+      ],
+      "name": "sendMessage",
+      "principal": "anyone (through the messenger; fee abstracted as one message cost)",
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:288-301,366-379"
+    },
+    {
+      "effects": {
+        "t": [
+          "+",
+          "t",
+          "dt"
+        ]
+      },
+      "guards": [],
+      "inputs": [
+        [
+          "dt",
+          "Nat"
+        ]
+      ],
+      "name": "wait",
+      "principal": "environment",
+      "src": "environment: time progress"
+    }
+  ],
+  "constants_doc": {
+    "Z": "ZERO_VERSIONED_HASH (Rollup.sol:24) = versioned hash of the all-zero blob (oracle-checked by holon: 0x01 || sha256(0xc0 || 0^47)[1:])"
+  },
+  "consumers": {
+    "blobs_of": {
+      "doc": "the blob sidecar a commit transaction delivers to L2 derivation (the consumer of FACT)",
+      "input": "blobs"
+    }
+  },
+  "coverage": {
+    "debt": [
+      "importGenesisBatch",
+      "initialize",
+      "initialize3",
+      "initialize4",
+      "updateProofWindow",
+      "updateFinalizePeriodSeconds",
+      "updateRollupDelayPeriod",
+      "addChallenger",
+      "removeChallenger",
+      "updateVerifier",
+      "updateRewardPercentage",
+      "claimProveRemaining",
+      "claimReward",
+      "_defenderWin/_challengerWin accounting",
+      "withdrawalRoots",
+      "dataHash contents",
+      "proveCommittedBatchState (view)"
+    ],
+    "modelled": [
+      "commitBatch",
+      "commitState",
+      "commitBatchWithProof",
+      "revertBatch",
+      "challengeState",
+      "proveState",
+      "finalizeBatch",
+      "setPause",
+      "L1MessageQueue.appendCrossDomainMessage",
+      "L1MessageQueue.popCrossDomainMessage",
+      "L1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+      "L1MessageQueue.getCrossDomainMessage (range)",
+      "initialize2"
+    ]
+  },
+  "defs": {
+    "blob_hash": {
+      "body": [
+        "?",
+        [
+          "==",
+          "ver",
+          2
+        ],
+        [
+          "call",
+          "agg",
+          "blobs"
+        ],
+        [
+          "?",
+          [
+            "==",
+            [
+              "call",
+              "nth",
+              "blobs",
+              0
+            ],
+            0
+          ],
+          "Z",
+          [
+            "call",
+            "nth",
+            "blobs",
+            0
+          ]
+        ]
+      ],
+      "params": [
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "blobs",
+          "List<Nat>"
+        ]
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:888-918 _computeBlobVersionedHash",
+      "type": "Nat"
+    },
+    "bvh_at": {
+      "body": [
+        "?",
+        [
+          "<",
+          "idx",
+          "lfi"
+        ],
+        0,
+        [
+          "?",
+          [
+            "<=",
+            "idx",
+            [
+              "call",
+              "lci",
+              "lfi",
+              "win"
+            ]
+          ],
+          [
+            "get",
+            [
+              "call",
+              "w",
+              "lfi",
+              "win",
+              "idx"
+            ],
+            "bvh"
+          ],
+          [
+            "call",
+            "nth",
+            "s_bvh",
+            [
+              "-",
+              [
+                "-",
+                "idx",
+                [
+                  "call",
+                  "lci",
+                  "lfi",
+                  "win"
+                ]
+              ],
+              1
+            ]
+          ]
+        ]
+      ],
+      "doc": "batchBlobVersionedHashes[idx], including residues above LCI",
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ],
+        [
+          "s_bvh",
+          "List<Nat>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "type": "Nat"
+    },
+    "enq_first": {
+      "body": [
+        "?",
+        [
+          "&&",
+          [
+            "<",
+            "qpend",
+            "qlen"
+          ],
+          [
+            "!=",
+            [
+              "call",
+              "nth",
+              "enq",
+              "qpend"
+            ],
+            0
+          ]
+        ],
+        [
+          "call",
+          "nth",
+          "enq",
+          "qpend"
+        ],
+        "t"
+      ],
+      "params": [
+        [
+          "qpend",
+          "Nat"
+        ],
+        [
+          "qlen",
+          "Nat"
+        ],
+        [
+          "enq",
+          "List<Nat>"
+        ],
+        [
+          "t",
+          "Nat"
+        ]
+      ],
+      "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+      "type": "Nat"
+    },
+    "in_win": {
+      "body": [
+        "&&",
+        [
+          ">=",
+          "idx",
+          "lfi"
+        ],
+        [
+          "<=",
+          "idx",
+          [
+            "call",
+            "lci",
+            "lfi",
+            "win"
+          ]
+        ]
+      ],
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "type": "Bool"
+    },
+    "lci": {
+      "body": [
+        "-",
+        [
+          "+",
+          "lfi",
+          [
+            "call",
+            "len",
+            "win"
+          ]
+        ],
+        1
+      ],
+      "doc": "lastCommittedBatchIndex",
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ]
+      ],
+      "type": "Nat"
+    },
+    "open_ch": {
+      "body": [
+        "&&",
+        [
+          "!=",
+          [
+            "get",
+            [
+              "call",
+              "nth_ch",
+              "chs",
+              "idx"
+            ],
+            "c"
+          ],
+          0
+        ],
+        [
+          "!",
+          [
+            "get",
+            [
+              "call",
+              "nth_ch",
+              "chs",
+              "idx"
+            ],
+            "f"
+          ]
+        ]
+      ],
+      "params": [
+        [
+          "chs",
+          "List<Ch>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:685-687 batchInChallenge",
+      "type": "Bool"
+    },
+    "tag_at": {
+      "body": [
+        "?",
+        [
+          "<",
+          "idx",
+          "lfi"
+        ],
+        0,
+        [
+          "?",
+          [
+            "<=",
+            "idx",
+            [
+              "call",
+              "lci",
+              "lfi",
+              "win"
+            ]
+          ],
+          [
+            "get",
+            [
+              "call",
+              "w",
+              "lfi",
+              "win",
+              "idx"
+            ],
+            "tag"
+          ],
+          [
+            "call",
+            "nth",
+            "s_tag",
+            [
+              "-",
+              [
+                "-",
+                "idx",
+                [
+                  "call",
+                  "lci",
+                  "lfi",
+                  "win"
+                ]
+              ],
+              1
+            ]
+          ]
+        ]
+      ],
+      "ghost": true,
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ],
+        [
+          "s_tag",
+          "List<Nat>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "type": "Nat"
+    },
+    "w": {
+      "body": [
+        "?",
+        [
+          "call",
+          "in_win",
+          "lfi",
+          "win",
+          "idx"
+        ],
+        [
+          "call",
+          "win_at",
+          "win",
+          [
+            "-",
+            "idx",
+            "lfi"
+          ]
+        ],
+        [
+          "call",
+          "empty_entry"
+        ]
+      ],
+      "doc": "storage of batch idx; zero outside LFI..LCI (deleted below LFI; callers only read above LCI through bvh_at/tag_at)",
+      "params": [
+        [
+          "lfi",
+          "Nat"
+        ],
+        [
+          "win",
+          "List<Entry>"
+        ],
+        [
+          "idx",
+          "Nat"
+        ]
+      ],
+      "type": "Entry"
+    }
+  },
+  "disch": {
+    "cost": {
+      "commitBatchWithProof": 1000,
+      "sendMessage": 1
+    },
+    "cost_doc": "units: one L1 message = 1; one validity proof = 1000 (assumption c_proof >> c_msg: proving a batch costs far more than sending one L1 message)",
+    "delay": {
+      "action": "wait",
+      "input": "dt"
+    },
+    "doc": "cost model for discharge profiles (whitepaper Def 6.20): one unit per L1 message sent; delay is time waited"
+  },
+  "extraction": {
+    "declaration": "spec/M2/lib/window_rollup.json",
+    "facts": "spec/M2/facts/morph_rollup.extracted.json",
+    "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+    "method": "generated by holon.differential: the window view of spec/M2/facts/morph_rollup.extracted.json over the hand abstraction, its unmatched requires removed",
+    "removed": {
+      "commitBatch": [
+        21
+      ],
+      "commitBatchWithProof": [
+        25,
+        30
+      ],
+      "commitState": [
+        11,
+        20
+      ],
+      "finalizeBatch": [
+        14
+      ],
+      "proveState": [
+        9
+      ],
+      "setPause": [
+        1,
+        2
+      ]
+    }
+  },
+  "facts_version": "holon-facts/0.2",
+  "ghost_state": [
+    "s_tag"
+  ],
+  "initial": {
+    "D": 20,
+    "F": 40,
+    "W": 10,
+    "active": [
+      2,
+      3
+    ],
+    "bc": 0,
+    "chals": [
+      4
+    ],
+    "chs": [],
+    "doc": "after initialize(...) and importGenesisBatch at t = 10 (Rollup.sol:226-252)",
+    "enq": [],
+    "fsr": [
+      100
+    ],
+    "inch": false,
+    "lfi": 0,
+    "log": [],
+    "paused": false,
+    "qlen": 0,
+    "qpend": 0,
+    "rri": 0,
+    "s_bd": [],
+    "s_bvh": [],
+    "s_csr": [],
+    "s_tag": [],
+    "t": 10,
+    "win": [
+      {
+        "bdf": 10,
+        "bdn": 0,
+        "bdo": 10,
+        "bds": 0,
+        "bvh": 1,
+        "csr": 100,
+        "hb": 1,
+        "lbn": 0,
+        "n": 0,
+        "post": 100,
+        "prev": 0,
+        "tag": 1,
+        "tot": 0,
+        "ver": 0
+      }
+    ]
+  },
+  "migrations": {
+    "eta2": {
+      "doc": "initialize2(_prevStateRoot): writes committedStateRoots[LCI] only if it is zero",
+      "effects": {
+        "win": [
+          "?",
+          [
+            "==",
+            [
+              "get",
+              [
+                "call",
+                "win_last",
+                "win"
+              ],
+              "csr"
+            ],
+            0
+          ],
+          [
+            "call",
+            "set_last_csr",
+            "win",
+            "root"
+          ],
+          "win"
+        ]
+      },
+      "inputs": [
+        [
+          "root",
+          "Nat"
+        ]
+      ],
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:188-195"
+    },
+    "legacy": {
+      "doc": "state as written by Rollup before reinitializer(2): committedStateRoots did not exist (all zero)",
+      "effects": {
+        "s_csr": [
+          "call",
+          "zeros_like",
+          "s_csr"
+        ],
+        "win": [
+          "call",
+          "zero_csr",
+          "win"
+        ]
+      }
+    }
+  },
+  "observers": {
+    "csr_last": {
+      "body": [
+        "get",
+        [
+          "call",
+          "win_last",
+          "win"
+        ],
+        "csr"
+      ],
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Nat"
+    },
+    "kappa": {
+      "body": [
+        "&&",
+        "inch",
+        [
+          "<",
+          [
+            "+",
+            "W",
+            [
+              "get",
+              [
+                "call",
+                "nth_ch",
+                "chs",
+                "bc"
+              ],
+              "s"
+            ]
+          ],
+          "t"
+        ]
+      ],
+      "doc": "DISCH guard kappa: an open challenge whose proof window has passed (the realize site at :363 underflows)",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Bool"
+    },
+    "lci_of": {
+      "body": [
+        "call",
+        "lci",
+        "lfi",
+        "win"
+      ],
+      "doc": "LCI of a state",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Nat"
+    },
+    "new_hdr": {
+      "body": [
+        "call",
+        "hdr_of",
+        [
+          "call",
+          "win_last",
+          "win"
+        ]
+      ],
+      "doc": "header of the newest batch (committedBatches[LCI] = keccak256 of it, under CF)",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "List<Nat>"
+    },
+    "tags_ok": {
+      "body": [
+        "call",
+        "tags_exact",
+        "win"
+      ],
+      "doc": "Prop 6.19 ghost-tag exactness: every committed header's blob field has the sort its version implies (v2 <=> aggregate)",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Bool"
+    }
+  },
+  "params": {
+    "AGG_BASE": 1000,
+    "DEP": 1,
+    "OWNER": 1,
+    "Z": 1
+  },
+  "principals": {
+    "1": "owner",
+    "2": "submitter A",
+    "3": "submitter B",
+    "4": "challenger",
+    "5": "anyone"
+  },
+  "reasons": {
+    "1": "only active submitter allowed",
+    "10": "new state root is zero",
+    "11": "batch already committed",
+    "12": "incorrect batch index",
+    "14": "incorrect previous state root",
+    "15": "message index out of range",
+    "16": "panic:0x11",
+    "17": "commitState must not carry blob",
+    "18": "no stored blob hash for this batch",
+    "19": "invalid timing",
+    "2": "pending revert request",
+    "20": "must not carry blob when using stored blob hash",
+    "21": "Invalid batch proof",
+    "22": "invalid proof",
+    "23": "Ownable: caller is not the owner",
+    "24": "count must be nonzero",
+    "25": "incorrect batch hash",
+    "26": "reverting must start from the ending",
+    "27": "can only revert unFinalized batch",
+    "28": "only challenger allowed",
+    "29": "already in challenge",
+    "3": "Pausable: paused",
+    "30": "batch already finalized",
+    "31": "batch not exist",
+    "32": "batch already challenged",
+    "33": "cannot challenge batch outside the challenge window",
+    "34": "insufficient value",
+    "35": "batch in challenge",
+    "36": "batch should be revert",
+    "37": "batch in challenge window",
+    "38": "batch already verified",
+    "39": "Pausable: not paused",
+    "4": "commitBatch requires no stored blob hash",
+    "40": "start index mismatch",
+    "41": "panic:0x11",
+    "5": "l1msg delay",
+    "6": "V2 requires at least 1 blob",
+    "7": "legacy batches support exactly 1 blob",
+    "8": "invalid version",
+    "9": "previous state root is zero"
+  },
+  "shadow": {
+    "s_bd": "bd",
+    "s_bvh": "bvh",
+    "s_csr": "csr",
+    "s_tag": "tag"
+  },
+  "state": [
+    [
+      "t",
+      "Nat",
+      "block.timestamp (environment)"
+    ],
+    [
+      "lfi",
+      "Nat",
+      "lastFinalizedBatchIndex"
+    ],
+    [
+      "inch",
+      "Bool",
+      "inChallenge"
+    ],
+    [
+      "bc",
+      "Nat",
+      "batchChallenged"
+    ],
+    [
+      "rri",
+      "Nat",
+      "revertReqIndex"
+    ],
+    [
+      "paused",
+      "Bool",
+      "Pausable._paused"
+    ],
+    [
+      "W",
+      "Nat",
+      "proofWindow"
+    ],
+    [
+      "F",
+      "Nat",
+      "finalizationPeriodSeconds"
+    ],
+    [
+      "D",
+      "Nat",
+      "rollupDelayPeriod"
+    ],
+    [
+      "qlen",
+      "Nat",
+      "L1MessageQueue.messageQueue.length"
+    ],
+    [
+      "qpend",
+      "Nat",
+      "L1MessageQueue.pendingQueueIndex"
+    ],
+    [
+      "enq",
+      "List<Nat>",
+      "L1MessageQueue.messageEnqueueTime"
+    ],
+    [
+      "active",
+      "List<Nat>",
+      "ISubmitter active set"
+    ],
+    [
+      "chals",
+      "List<Nat>",
+      "isChallenger"
+    ],
+    [
+      "fsr",
+      "List<Nat>",
+      "finalizedStateRoots (absolute index)"
+    ],
+    [
+      "chs",
+      "List<Ch>",
+      "challenges (absolute index)"
+    ],
+    [
+      "win",
+      "List<Entry>",
+      "batches LFI..LCI"
+    ],
+    [
+      "s_csr",
+      "List<Nat>",
+      "committedStateRoots residues at LCI+1.."
+    ],
+    [
+      "s_bd",
+      "List<BD>",
+      "batchDataStore residues at LCI+1.."
+    ],
+    [
+      "s_bvh",
+      "List<Nat>",
+      "batchBlobVersionedHashes residues at LCI+1.."
+    ],
+    [
+      "s_tag",
+      "List<Nat>",
+      "GHOST tags of s_bvh"
+    ],
+    [
+      "log",
+      "List<Obs>",
+      "observations (newest first)"
+    ]
+  ],
+  "target": {
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "repo": "morph-l2/morph",
+    "scope": "Rollup batch lifecycle (commit x3, revert, challenge, prove, finalize, pause) + L1MessageQueue cursors"
+  },
+  "types": {
+    "BD": {
+      "fields": [
+        [
+          "o",
+          "Nat"
+        ],
+        [
+          "f",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "s",
+          "Nat"
+        ]
+      ]
+    },
+    "Ch": {
+      "doc": "BatchChallenge",
+      "fields": [
+        [
+          "c",
+          "Nat"
+        ],
+        [
+          "d",
+          "Nat"
+        ],
+        [
+          "s",
+          "Nat"
+        ],
+        [
+          "w",
+          "Bool"
+        ],
+        [
+          "f",
+          "Bool"
+        ]
+      ]
+    },
+    "Entry": {
+      "doc": "one committed batch: header fields + its per-index registers",
+      "doc_fields": {
+        "bdf": "batchDataStore.finalizeTimestamp",
+        "bdn": "batchDataStore.blockNumber",
+        "bdo": "batchDataStore.originTimestamp",
+        "bds": "batchDataStore.submitter (0 = address(0))",
+        "bvh": "batchBlobVersionedHashes",
+        "csr": "committedStateRoots",
+        "hb": "header bytes 57..89 (blob field)",
+        "tag": "GHOST: writer sort of bvh (1 = versioned hash, 2 = aggregate keccak); never read by modelled code"
+      },
+      "fields": [
+        [
+          "ver",
+          "Nat"
+        ],
+        [
+          "tot",
+          "Nat"
+        ],
+        [
+          "n",
+          "Nat"
+        ],
+        [
+          "hb",
+          "Nat"
+        ],
+        [
+          "prev",
+          "Nat"
+        ],
+        [
+          "post",
+          "Nat"
+        ],
+        [
+          "lbn",
+          "Nat"
+        ],
+        [
+          "csr",
+          "Nat"
+        ],
+        [
+          "bvh",
+          "Nat"
+        ],
+        [
+          "tag",
+          "Nat"
+        ],
+        [
+          "bdo",
+          "Nat"
+        ],
+        [
+          "bdf",
+          "Nat"
+        ],
+        [
+          "bdn",
+          "Nat"
+        ],
+        [
+          "bds",
+          "Nat"
+        ]
+      ],
+      "ghost": [
+        "tag"
+      ]
+    }
+  }
+}

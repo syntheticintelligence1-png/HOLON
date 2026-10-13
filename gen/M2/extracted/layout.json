@@ -1,0 +1,1037 @@
+{
+  "contract": "Rollup",
+  "document": "extracted_layout",
+  "environment_terms": [
+    {
+      "id": 0,
+      "term": "[\"loop\",\"challengeState\",\"contracts/contracts/l1/rollup/Rollup.sol:489-493\"]",
+      "why": "the outcome of a loop's checks (0 or k + 1)"
+    },
+    {
+      "id": 1,
+      "term": "[\"call\",\"address.call\",[\"param\",\"receiver\"],[\"str\",\"\"],[\"value\",[\"storage\",\"proveRemaining\"]]]",
+      "why": "a low-level call"
+    },
+    {
+      "id": 2,
+      "term": "[\"at\",0,[\"call\",\"address.call\",[\"param\",\"receiver\"],[\"str\",\"\"],[\"value\",[\"storage\",\"proveRemaining\"]]]]",
+      "why": "a component of a value that is not a call result"
+    },
+    {
+      "id": 3,
+      "term": "[\"call\",\"address.call\",[\"param\",\"receiver\"],[\"str\",\"\"],[\"value\",[\"map\",[\"storage\",\"batchChallengeReward\"],[\"caller\"]]]]",
+      "why": "a low-level call"
+    },
+    {
+      "id": 4,
+      "term": "[\"at\",0,[\"call\",\"address.call\",[\"param\",\"receiver\"],[\"str\",\"\"],[\"value\",[\"map\",[\"storage\",\"batchChallengeReward\"],[\"caller\"]]]]]",
+      "why": "a component of a value that is not a call result"
+    },
+    {
+      "id": 5,
+      "term": "[\"count\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"]",
+      "why": "an environment value (count)"
+    },
+    {
+      "id": 6,
+      "term": "[\"loop\",\"commitBatch\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]",
+      "why": "the outcome of a loop's checks (0 or k + 1)"
+    },
+    {
+      "id": 7,
+      "term": "[\"loop\",\"commitBatchWithProof\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]",
+      "why": "the outcome of a loop's checks (0 or k + 1)"
+    },
+    {
+      "id": 8,
+      "term": "[\"mem\",[\"mstore\",0,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"lastBlockNumber\"],192]],[\"mstore\",8,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],240]],[\"when\",[\"!\",[\"==\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],0]],[\"mloop\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"],[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],[[\"mstore\",[\"+\",10,[\"*\",32,[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]]],[\"call\",\"IL1MessageQueue.getCrossDomainMessage\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],17],192],[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]]]]]]]]",
+      "why": "memory write when"
+    },
+    {
+      "id": 9,
+      "term": "[\"mem\",[\"mloop\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],[\"count\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],[[\"mstore\",[\"*\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],32],[\"blobhash\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"]]]]]]",
+      "why": "a memory loop"
+    },
+    {
+      "id": 10,
+      "term": "[\"mem\",[\"mstore8\",0,[\"member\",[\"param\",\"batchDataInput\"],\"version\"]],[\"mstore\",1,[\"<<\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1],192]],[\"mstore\",9,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],192]],[\"mstore\",17,[\"<<\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],17],192],[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"]],192]],[\"mstore\",25,[\"keccak256\",[\"slice\",[\"mem\",[\"mstore\",0,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"lastBlockNumber\"],192]],[\"mstore\",8,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],240]],[\"when\",[\"!\",[\"==\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],0]],[\"mloop\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"],[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],[[\"mstore\",[\"+\",10,[\"*\",32,[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]]],[\"call\",\"IL1MessageQueue.getCrossDomainMessage\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],17],192],[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]]]]]]]],0,[\"+\",10,[\"*\",32,[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"]]]]]],[\"mstore\",57,[\"?\",[\"!=\",[\"map\",[\"storage\",\"batchBlobVersionedHashes\"],[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1]],0],[\"map\",[\"storage\",\"batchBlobVersionedHashes\"],[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1]],[\"?\",[\"==\",[\"member\",[\"param\",\"batchDataInput\"],\"version\"],2],[\"keccak256\",[\"slice\",[\"mem\",[\"mloop\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],[\"count\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],[[\"mstore\",[\"*\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],32],[\"blobhash\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"]]]]]],0,[\"*\",[\"count\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],32]]],[\"?\",[\"==\",[\"blobhash\",0],0],463520946527561903920979615716011323696915893422270006750744924475581808660,[\"blobhash\",0]]]]],[\"mstore\",89,[\"member\",[\"param\",\"batchDataInput\"],\"prevStateRoot\"]],[\"mstore\",121,[\"member\",[\"param\",\"batchDataInput\"],\"postStateRoot\"]],[\"mstore\",153,[\"member\",[\"param\",\"batchDataInput\"],\"withdrawalRoot\"]],[\"mstore\",185,0],[\"mstore\",217,[\"keccak256\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"]]],[\"when\",[\">=\",[\"member\",[\"param\",\"batchDataInput\"],\"version\"],1],[\"mstore\",249,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"lastBlockNumber\"],192]]]]",
+      "why": "memory write when"
+    },
+    {
+      "id": 11,
+      "term": "[\"abi.encodePacked\",[\"immutable\",\"LAYER_2_CHAIN_ID\"],[\"word\",[\"param\",\"_batchHeader\"],89],[\"word\",[\"param\",\"_batchHeader\"],121],[\"word\",[\"param\",\"_batchHeader\"],153],[\"word\",[\"param\",\"_batchHeader\"],185],[\"word\",[\"param\",\"_batchHeader\"],25],[\"word\",[\"param\",\"_batchHeader\"],57]]",
+      "why": "term abi.encodePacked"
+    },
+    {
+      "id": 12,
+      "term": "[\"loop\",\"commitState\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]",
+      "why": "the outcome of a loop's checks (0 or k + 1)"
+    },
+    {
+      "id": 13,
+      "term": "[\"loop\",\"finalizeBatch\",\"contracts/contracts/l1/rollup/Rollup.sol:744-751\"]",
+      "why": "the outcome of a loop's checks (0 or k + 1)"
+    },
+    {
+      "id": 14,
+      "term": "[\"code\",[\"this\"]]",
+      "why": "term code"
+    },
+    {
+      "id": 15,
+      "term": "[\"len\",[\"code\",[\"this\"]]]",
+      "why": "the length of a n value"
+    },
+    {
+      "id": 16,
+      "term": "[\"code\",[\"param\",\"_newSubmitter\"]]",
+      "why": "term code"
+    },
+    {
+      "id": 17,
+      "term": "[\"len\",[\"code\",[\"param\",\"_newSubmitter\"]]]",
+      "why": "the length of a n value"
+    },
+    {
+      "id": 18,
+      "term": "[\"loop\",\"revertBatch\",\"contracts/contracts/l1/rollup/Rollup.sol:444-467\"]",
+      "why": "the outcome of a loop's checks (0 or k + 1)"
+    },
+    {
+      "id": 19,
+      "term": "[\"mem\",[\"mstore8\",0,[\"member\",[\"param\",\"batchDataInput\"],\"version\"]],[\"mstore\",1,[\"<<\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1],192]],[\"mstore\",9,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],192]],[\"mstore\",17,[\"<<\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],17],192],[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"]],192]],[\"mstore\",25,[\"keccak256\",[\"slice\",[\"mem\",[\"mstore\",0,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"lastBlockNumber\"],192]],[\"mstore\",8,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],240]],[\"when\",[\"!\",[\"==\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],0]],[\"mloop\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"],[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],[[\"mstore\",[\"+\",10,[\"*\",32,[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]]],[\"call\",\"IL1MessageQueue.getCrossDomainMessage\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],17],192],[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]]]]]]]],0,[\"+\",10,[\"*\",32,[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"]]]]]],[\"mstore\",57,[\"?\",[\"==\",[\"member\",[\"param\",\"batchDataInput\"],\"version\"],2],[\"keccak256\",[\"slice\",[\"mem\",[\"mloop\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],[\"count\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],[[\"mstore\",[\"*\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],32],[\"blobhash\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"]]]]]],0,[\"*\",[\"count\",\"contracts/contracts/l1/rollup/Rollup.sol:901-908\"],32]]],[\"?\",[\"==\",[\"blobhash\",0],0],463520946527561903920979615716011323696915893422270006750744924475581808660,[\"blobhash\",0]]]],[\"mstore\",89,[\"member\",[\"param\",\"batchDataInput\"],\"prevStateRoot\"]],[\"mstore\",121,[\"member\",[\"param\",\"batchDataInput\"],\"postStateRoot\"]],[\"mstore\",153,[\"member\",[\"param\",\"batchDataInput\"],\"withdrawalRoot\"]],[\"mstore\",185,0],[\"mstore\",217,[\"keccak256\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"]]],[\"when\",[\">=\",[\"member\",[\"param\",\"batchDataInput\"],\"version\"],1],[\"mstore\",249,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"lastBlockNumber\"],192]]]]",
+      "why": "memory write when"
+    },
+    {
+      "id": 20,
+      "term": "[\"mem\",[\"mstore8\",0,[\"member\",[\"param\",\"batchDataInput\"],\"version\"]],[\"mstore\",1,[\"<<\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1],192]],[\"mstore\",9,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],192]],[\"mstore\",17,[\"<<\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],17],192],[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"]],192]],[\"mstore\",25,[\"keccak256\",[\"slice\",[\"mem\",[\"mstore\",0,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"lastBlockNumber\"],192]],[\"mstore\",8,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],240]],[\"when\",[\"!\",[\"==\",[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],0]],[\"mloop\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\",[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"],[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"],[[\"mstore\",[\"+\",10,[\"*\",32,[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]]],[\"call\",\"IL1MessageQueue.getCrossDomainMessage\",[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],17],192],[\"iter\",\"contracts/contracts/l1/rollup/Rollup.sol:936-943\"]]]]]]]],0,[\"+\",10,[\"*\",32,[\"member\",[\"param\",\"batchDataInput\"],\"numL1Messages\"]]]]]],[\"mstore\",57,[\"map\",[\"storage\",\"batchBlobVersionedHashes\"],[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1]]],[\"mstore\",89,[\"member\",[\"param\",\"batchDataInput\"],\"prevStateRoot\"]],[\"mstore\",121,[\"member\",[\"param\",\"batchDataInput\"],\"postStateRoot\"]],[\"mstore\",153,[\"member\",[\"param\",\"batchDataInput\"],\"withdrawalRoot\"]],[\"mstore\",185,0],[\"mstore\",217,[\"keccak256\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"]]],[\"when\",[\">=\",[\"member\",[\"param\",\"batchDataInput\"],\"version\"],1],[\"mstore\",249,[\"<<\",[\"member\",[\"param\",\"batchDataInput\"],\"lastBlockNumber\"],192]]]]",
+      "why": "memory write when"
+    }
+  ],
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "families": [
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": false,
+      "label": "uint8",
+      "name": "_initialized",
+      "offset": 0,
+      "slot": 0,
+      "type": "t_uint8"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": false,
+      "label": "bool",
+      "name": "_initializing",
+      "offset": 1,
+      "slot": 0,
+      "type": "t_bool"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": false,
+      "label": "uint256[50]",
+      "name": "ContextUpgradeable.__gap",
+      "offset": 0,
+      "slot": 1,
+      "type": "t_array(t_uint256)50_storage"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": false,
+      "label": "address",
+      "name": "_owner",
+      "offset": 0,
+      "slot": 51,
+      "type": "t_address"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": false,
+      "label": "uint256[49]",
+      "name": "OwnableUpgradeable.__gap",
+      "offset": 0,
+      "slot": 52,
+      "type": "t_array(t_uint256)49_storage"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": false,
+      "label": "bool",
+      "name": "_paused",
+      "offset": 0,
+      "slot": 101,
+      "type": "t_bool"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": false,
+      "label": "uint256[49]",
+      "name": "PausableUpgradeable.__gap",
+      "offset": 0,
+      "slot": 102,
+      "type": "t_array(t_uint256)49_storage"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "address",
+      "name": "submitterContract",
+      "offset": 0,
+      "slot": 151,
+      "type": "t_address"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "finalizationPeriodSeconds",
+      "offset": 0,
+      "slot": 152,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "proofWindow",
+      "offset": 0,
+      "slot": 153,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "__maxNumTxInChunk",
+      "offset": 0,
+      "slot": 154,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "address",
+      "name": "messageQueue",
+      "offset": 0,
+      "slot": 155,
+      "type": "t_address"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "address",
+      "name": "verifier",
+      "offset": 0,
+      "slot": 156,
+      "type": "t_address"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "lastFinalizedBatchIndex",
+      "offset": 0,
+      "slot": 157,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "lastCommittedBatchIndex",
+      "offset": 0,
+      "slot": 158,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "mapping(address => bool)",
+      "name": "isChallenger",
+      "offset": 0,
+      "slot": 159,
+      "type": "t_mapping(t_address,t_bool)"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "mapping(uint256 => bytes32)",
+      "name": "finalizedStateRoots",
+      "offset": 0,
+      "slot": 160,
+      "type": "t_mapping(t_uint256,t_bytes32)"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "mapping(uint256 => bytes32)",
+      "name": "committedBatches",
+      "offset": 0,
+      "slot": 161,
+      "type": "t_mapping(t_uint256,t_bytes32)"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "mapping(uint256 => struct IRollup.BatchData)",
+      "name": "batchDataStore",
+      "offset": 0,
+      "slot": 162,
+      "type": "t_mapping(t_uint256,t_struct(BatchData)3204_storage)"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "mapping(bytes32 => bool)",
+      "name": "withdrawalRoots",
+      "offset": 0,
+      "slot": 163,
+      "type": "t_mapping(t_bytes32,t_bool)"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "mapping(uint256 => struct IRollup.BatchChallenge)",
+      "name": "challenges",
+      "offset": 0,
+      "slot": 164,
+      "type": "t_mapping(t_uint256,t_struct(BatchChallenge)3218_storage)"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "mapping(address => uint256)",
+      "name": "batchChallengeReward",
+      "offset": 0,
+      "slot": 165,
+      "type": "t_mapping(t_address,t_uint256)"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "bool",
+      "name": "inChallenge",
+      "offset": 0,
+      "slot": 166,
+      "type": "t_bool"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "batchChallenged",
+      "offset": 0,
+      "slot": 167,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "revertReqIndex",
+      "offset": 0,
+      "slot": 168,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "proofRewardPercent",
+      "offset": 0,
+      "slot": 169,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "proveRemaining",
+      "offset": 0,
+      "slot": 170,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "mapping(uint256 => bytes32)",
+      "name": "committedStateRoots",
+      "offset": 0,
+      "slot": 171,
+      "type": "t_mapping(t_uint256,t_bytes32)"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "rollupDelayPeriod",
+      "offset": 0,
+      "slot": 172,
+      "type": "t_uint256"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "mapping(uint256 => bytes32)",
+      "name": "batchBlobVersionedHashes",
+      "offset": 0,
+      "slot": 173,
+      "type": "t_mapping(t_uint256,t_bytes32)"
+    },
+    {
+      "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+      "declared": true,
+      "label": "uint256",
+      "name": "legacyCutoverBatchIndex",
+      "offset": 0,
+      "slot": 174,
+      "type": "t_uint256"
+    }
+  ],
+  "machine_version": "holon-machine-extracted/0.1",
+  "programs": {
+    "addChallenger": {
+      "checks": [
+        "addChallenger#contracts/contracts/l1/rollup/Rollup.sol:527-531#0",
+        "addChallenger#contracts/contracts/l1/rollup/Rollup.sol:527-531#1",
+        "addChallenger#contracts/contracts/l1/rollup/Rollup.sol:527#0",
+        "addChallenger#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "addChallenger#contracts/contracts/l1/rollup/Rollup.sol:528#0"
+      ]
+    },
+    "batchChallengedSuccess": {
+      "checks": [
+        "batchChallengedSuccess#contracts/contracts/l1/rollup/Rollup.sol:697-699#0",
+        "batchChallengedSuccess#contracts/contracts/l1/rollup/Rollup.sol:697-699#1"
+      ]
+    },
+    "batchExist": {
+      "checks": [
+        "batchExist#contracts/contracts/l1/rollup/Rollup.sol:703-705#0",
+        "batchExist#contracts/contracts/l1/rollup/Rollup.sol:703-705#1"
+      ]
+    },
+    "batchInChallenge": {
+      "checks": [
+        "batchInChallenge#contracts/contracts/l1/rollup/Rollup.sol:691-693#0",
+        "batchInChallenge#contracts/contracts/l1/rollup/Rollup.sol:691-693#1"
+      ]
+    },
+    "batchInsideChallengeWindow": {
+      "checks": [
+        "batchInsideChallengeWindow#contracts/contracts/l1/rollup/Rollup.sol:709-711#0",
+        "batchInsideChallengeWindow#contracts/contracts/l1/rollup/Rollup.sol:709-711#1"
+      ]
+    },
+    "challengeState": {
+      "checks": [
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:471-496#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:472#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:126#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:476#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:477#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:478#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:479#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:481#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:483#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:483#1",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:491#0",
+        "challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#1"
+      ]
+    },
+    "claimProveRemaining": {
+      "checks": [
+        "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:564-569#0",
+        "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:564-569#1",
+        "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:564#0",
+        "claimProveRemaining#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:817#0"
+      ]
+    },
+    "claimReward": {
+      "checks": [
+        "claimReward#contracts/contracts/l1/rollup/Rollup.sol:672-678#0",
+        "claimReward#contracts/contracts/l1/rollup/Rollup.sol:672-678#1",
+        "claimReward#contracts/contracts/l1/rollup/Rollup.sol:672#0",
+        "claimReward#contracts/contracts/l1/rollup/Rollup.sol:674#0",
+        "claimReward#contracts/contracts/l1/rollup/Rollup.sol:817#0"
+      ]
+    },
+    "commitBatch": {
+      "checks": [
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:255-269#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+        "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:260#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:261#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:263#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:263#1",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:265#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:265#1",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:267#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:913#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:915#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:293#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:294#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:295#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+        "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+        "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:311#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:311#1",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:312#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:314#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:319#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:320#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+        "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:368#1"
+      ]
+    },
+    "commitBatchWithProof": {
+      "checks": [
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:382-425#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:382-425#1",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:389#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393-394#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:398#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:398#1",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+        "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:403#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:406#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:409#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:913#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:915#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:293#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:293#1",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:294#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:295#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+        "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+        "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:311#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:311#1",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:312#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:314#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:319#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:320#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#2",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#2",
+        "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#2",
+        "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#2",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#2",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:417#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:418#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:758#0",
+        "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:779-784#0"
+      ]
+    },
+    "commitState": {
+      "checks": [
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:273-286#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:273-286#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:276#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+        "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:278#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:281#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:281#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:283#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:283#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:293#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:293#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:294#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:295#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+        "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+        "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:311#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:312#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:314#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:319#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:320#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+        "commitState#contracts/contracts/l1/rollup/Rollup.sol:368#1"
+      ]
+    },
+    "finalizeBatch": {
+      "checks": [
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:625-668#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:625-668#1",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "finalizeBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+        "finalizeBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:630#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:631#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:632#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:633#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:636#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:635-638#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:640#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:643#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:749#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:657#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:658#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:659#0",
+        "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:660#0"
+      ]
+    },
+    "importGenesisBatch": {
+      "checks": [
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:226-252#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:226-252#1",
+        "importGenesisBatch#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "importGenesisBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+        "importGenesisBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:233#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:235#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:237#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:238#0",
+        "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:239#0"
+      ]
+    },
+    "initialize": {
+      "checks": [
+        "initialize#contracts/contracts/l1/rollup/Rollup.sol:160-186#0",
+        "initialize#contracts/contracts/l1/rollup/Rollup.sol:160-186#1",
+        "initialize#contracts/contracts/l1/rollup/Rollup.sol:161#0",
+        "initialize#contracts/contracts/l1/rollup/Rollup.sol:162#0",
+        "initialize#contracts/contracts/l1/rollup/Rollup.sol:163#0",
+        "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:86-89#0",
+        "initialize#contracts/contracts/l1/rollup/Rollup.sol:169#0",
+        "initialize#contracts/contracts/l1/rollup/Rollup.sol:171#0",
+        "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133#0",
+        "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133#1",
+        "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133#2",
+        "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133#3"
+      ]
+    },
+    "initialize2": {
+      "checks": [
+        "initialize2#contracts/contracts/l1/rollup/Rollup.sol:188-195#0",
+        "initialize2#contracts/contracts/l1/rollup/Rollup.sol:188-195#1",
+        "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "initialize2#contracts/contracts/l1/rollup/Rollup.sol:189#0",
+        "initialize2#contracts/contracts/l1/rollup/Rollup.sol:190#0"
+      ]
+    },
+    "initialize3": {
+      "checks": [
+        "initialize3#contracts/contracts/l1/rollup/Rollup.sol:199-203#0",
+        "initialize3#contracts/contracts/l1/rollup/Rollup.sol:199-203#1",
+        "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "initialize3#contracts/contracts/l1/rollup/Rollup.sol:200#0"
+      ]
+    },
+    "initialize4": {
+      "checks": [
+        "initialize4#contracts/contracts/l1/rollup/Rollup.sol:209-219#0",
+        "initialize4#contracts/contracts/l1/rollup/Rollup.sol:209-219#1",
+        "initialize4#contracts/contracts/l1/rollup/Rollup.sol:209#0",
+        "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "initialize4#contracts/contracts/l1/rollup/Rollup.sol:210#0",
+        "initialize4#contracts/contracts/l1/rollup/Rollup.sol:211#0",
+        "initialize4#contracts/contracts/l1/rollup/Rollup.sol:212#0",
+        "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+        "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0"
+      ]
+    },
+    "isBatchFinalized": {
+      "checks": [
+        "isBatchFinalized#contracts/contracts/l1/rollup/Rollup.sol:685-687#0",
+        "isBatchFinalized#contracts/contracts/l1/rollup/Rollup.sol:685-687#1"
+      ]
+    },
+    "owner": {
+      "checks": [
+        "owner#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:48-50#0"
+      ]
+    },
+    "paused": {
+      "checks": [
+        "paused#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:69-71#0"
+      ]
+    },
+    "proveCommittedBatchState": {
+      "checks": [
+        "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:714-722#0",
+        "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:714-722#1",
+        "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+        "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "proveCommittedBatchState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+        "proveCommittedBatchState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+        "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+        "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:719#0",
+        "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:758#0",
+        "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:779-784#0"
+      ]
+    },
+    "proveState": {
+      "checks": [
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:595-622#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:595-622#1",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "proveState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+        "proveState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:606#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:613#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:806#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:807#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:807#1",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:758#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:793#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:794#0",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:794#1",
+        "proveState#contracts/contracts/l1/rollup/Rollup.sol:795#0"
+      ]
+    },
+    "receive": {
+      "checks": []
+    },
+    "removeChallenger": {
+      "checks": [
+        "removeChallenger#contracts/contracts/l1/rollup/Rollup.sol:535-539#0",
+        "removeChallenger#contracts/contracts/l1/rollup/Rollup.sol:535-539#1",
+        "removeChallenger#contracts/contracts/l1/rollup/Rollup.sol:535#0",
+        "removeChallenger#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "removeChallenger#contracts/contracts/l1/rollup/Rollup.sol:536#0"
+      ]
+    },
+    "renounceOwnership": {
+      "checks": [
+        "renounceOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:66-68#0",
+        "renounceOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0"
+      ]
+    },
+    "revertBatch": {
+      "checks": [
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:430-468#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:430-468#1",
+        "revertBatch#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:431#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "revertBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+        "revertBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:436#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:439#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:439#1",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:441#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:443#0",
+        "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:450#0"
+      ]
+    },
+    "setPause": {
+      "checks": [
+        "setPause#contracts/contracts/l1/rollup/Rollup.sol:573-588#0",
+        "setPause#contracts/contracts/l1/rollup/Rollup.sol:573-588#1",
+        "setPause#contracts/contracts/l1/rollup/Rollup.sol:573#0",
+        "setPause#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "setPause#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "setPause#contracts/contracts/l1/rollup/Rollup.sol:578-579#0",
+        "setPause#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84#0"
+      ]
+    },
+    "transferOwnership": {
+      "checks": [
+        "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77#0",
+        "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77#1",
+        "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74#0",
+        "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:75#0"
+      ]
+    },
+    "updateFinalizePeriodSeconds": {
+      "checks": [
+        "updateFinalizePeriodSeconds#contracts/contracts/l1/rollup/Rollup.sol:509-514#0",
+        "updateFinalizePeriodSeconds#contracts/contracts/l1/rollup/Rollup.sol:509-514#1",
+        "updateFinalizePeriodSeconds#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateFinalizePeriodSeconds#contracts/contracts/l1/rollup/Rollup.sol:510#0"
+      ]
+    },
+    "updateProofWindow": {
+      "checks": [
+        "updateProofWindow#contracts/contracts/l1/rollup/Rollup.sol:500-505#0",
+        "updateProofWindow#contracts/contracts/l1/rollup/Rollup.sol:500-505#1",
+        "updateProofWindow#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateProofWindow#contracts/contracts/l1/rollup/Rollup.sol:501#0"
+      ]
+    },
+    "updateRewardPercentage": {
+      "checks": [
+        "updateRewardPercentage#contracts/contracts/l1/rollup/Rollup.sol:552-560#0",
+        "updateRewardPercentage#contracts/contracts/l1/rollup/Rollup.sol:552-560#1",
+        "updateRewardPercentage#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateRewardPercentage#contracts/contracts/l1/rollup/Rollup.sol:553-556#0"
+      ]
+    },
+    "updateRollupDelayPeriod": {
+      "checks": [
+        "updateRollupDelayPeriod#contracts/contracts/l1/rollup/Rollup.sol:518-523#0",
+        "updateRollupDelayPeriod#contracts/contracts/l1/rollup/Rollup.sol:518-523#1",
+        "updateRollupDelayPeriod#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateRollupDelayPeriod#contracts/contracts/l1/rollup/Rollup.sol:519#0"
+      ]
+    },
+    "updateVerifier": {
+      "checks": [
+        "updateVerifier#contracts/contracts/l1/rollup/Rollup.sol:543-548#0",
+        "updateVerifier#contracts/contracts/l1/rollup/Rollup.sol:543-548#1",
+        "updateVerifier#contracts/contracts/l1/rollup/Rollup.sol:543#0",
+        "updateVerifier#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateVerifier#contracts/contracts/l1/rollup/Rollup.sol:544#0"
+      ]
+    }
+  },
+  "types": {
+    "t_address": {
+      "encoding": "inplace",
+      "label": "address",
+      "numberOfBytes": "20"
+    },
+    "t_array(t_uint256)49_storage": {
+      "base": "t_uint256",
+      "encoding": "inplace",
+      "label": "uint256[49]",
+      "numberOfBytes": "1568"
+    },
+    "t_array(t_uint256)50_storage": {
+      "base": "t_uint256",
+      "encoding": "inplace",
+      "label": "uint256[50]",
+      "numberOfBytes": "1600"
+    },
+    "t_bool": {
+      "encoding": "inplace",
+      "label": "bool",
+      "numberOfBytes": "1"
+    },
+    "t_bytes32": {
+      "encoding": "inplace",
+      "label": "bytes32",
+      "numberOfBytes": "32"
+    },
+    "t_mapping(t_address,t_bool)": {
+      "encoding": "mapping",
+      "key": "t_address",
+      "label": "mapping(address => bool)",
+      "numberOfBytes": "32",
+      "value": "t_bool"
+    },
+    "t_mapping(t_address,t_uint256)": {
+      "encoding": "mapping",
+      "key": "t_address",
+      "label": "mapping(address => uint256)",
+      "numberOfBytes": "32",
+      "value": "t_uint256"
+    },
+    "t_mapping(t_bytes32,t_bool)": {
+      "encoding": "mapping",
+      "key": "t_bytes32",
+      "label": "mapping(bytes32 => bool)",
+      "numberOfBytes": "32",
+      "value": "t_bool"
+    },
+    "t_mapping(t_uint256,t_bytes32)": {
+      "encoding": "mapping",
+      "key": "t_uint256",
+      "label": "mapping(uint256 => bytes32)",
+      "numberOfBytes": "32",
+      "value": "t_bytes32"
+    },
+    "t_mapping(t_uint256,t_struct(BatchChallenge)3218_storage)": {
+      "encoding": "mapping",
+      "key": "t_uint256",
+      "label": "mapping(uint256 => struct IRollup.BatchChallenge)",
+      "numberOfBytes": "32",
+      "value": "t_struct(BatchChallenge)3218_storage"
+    },
+    "t_mapping(t_uint256,t_struct(BatchData)3204_storage)": {
+      "encoding": "mapping",
+      "key": "t_uint256",
+      "label": "mapping(uint256 => struct IRollup.BatchData)",
+      "numberOfBytes": "32",
+      "value": "t_struct(BatchData)3204_storage"
+    },
+    "t_struct(BatchChallenge)3218_storage": {
+      "encoding": "inplace",
+      "label": "struct IRollup.BatchChallenge",
+      "members": [
+        {
+          "astId": 3207,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "batchIndex",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_uint64"
+        },
+        {
+          "astId": 3209,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "challenger",
+          "offset": 8,
+          "slot": "0",
+          "type": "t_address"
+        },
+        {
+          "astId": 3211,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "challengeDeposit",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_uint256"
+        },
+        {
+          "astId": 3213,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "startTime",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_uint256"
+        },
+        {
+          "astId": 3215,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "challengeSuccess",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_bool"
+        },
+        {
+          "astId": 3217,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "finished",
+          "offset": 1,
+          "slot": "3",
+          "type": "t_bool"
+        }
+      ],
+      "numberOfBytes": "128"
+    },
+    "t_struct(BatchData)3204_storage": {
+      "encoding": "inplace",
+      "label": "struct IRollup.BatchData",
+      "members": [
+        {
+          "astId": 3197,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "originTimestamp",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_uint256"
+        },
+        {
+          "astId": 3199,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "finalizeTimestamp",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_uint256"
+        },
+        {
+          "astId": 3201,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "blockNumber",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_uint256"
+        },
+        {
+          "astId": 3203,
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup",
+          "label": "submitter",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_address"
+        }
+      ],
+      "numberOfBytes": "128"
+    },
+    "t_uint256": {
+      "encoding": "inplace",
+      "label": "uint256",
+      "numberOfBytes": "32"
+    },
+    "t_uint64": {
+      "encoding": "inplace",
+      "label": "uint64",
+      "numberOfBytes": "8"
+    },
+    "t_uint8": {
+      "encoding": "inplace",
+      "label": "uint8",
+      "numberOfBytes": "1"
+    }
+  }
+}

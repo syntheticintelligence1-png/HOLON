@@ -456,6 +456,13 @@ def main_model(args) -> int:
     oracle parameters; with --out, write <DIR>/<model>.bend."""
     cfg = bend.config(ROOT)
     fp = (ROOT / args.facts) if not Path(args.facts).is_absolute() else Path(args.facts)
+    try:
+        doc = json.loads(fp.read_text())
+    except (OSError, ValueError):
+        doc = None
+    from . import machine as extracted_machine
+    if extracted_machine.is_transitions(doc):   # an extracted transitions document (I20): the raw-family model
+        return extracted_machine.main_model(args)
     cm = milestone_model(args.milestone, fp, cfg)
     r = bend.check(cm.source, cfg)
     print(f"model {cm.source}")
@@ -618,6 +625,19 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         if only is not None and lid not in only:
             continue
         sid = site_law(law) if m2plus(milestone) else None   # a SORT-site law (I15)
+        if m2plus(milestone) and law.get("rule") == "SORT" and law.get("subform") == "width":
+            # a SORT-width law over an extracted document (I20): decided by holon.sorts.width, never by the machine
+            from .sorts import width as WD
+            fp = fpath_of(law)
+            rec = WD.record(law, milestone, ROOT, kver, R.law_hash(law, F.load(fp), root=ROOT), F.sha256_file(fp))
+            rec.update(scope_fields(law, rec))   # a 0.3 record's scope is its statement's (F-M2-01)
+            rec.update(WD.v2_fields(law, rec, milestone, ROOT, cfg))   # the v2 fields over the extracted model
+            rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
+            (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
+            summary[lid] = rec["status"]
+            oracles_of[lid] = None
+            log(f"{lid:22s} {rec['status']:8s} {'not_run':8s} {rec['triage']}")
+            continue
         cm, model_src, imp0, facts_sha = machine_for(law)
         d = gen / lid
         ld, pd, up = layout(milestone, gen, lid)   # I10: d for M0 and M1

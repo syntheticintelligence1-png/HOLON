@@ -356,6 +356,9 @@
     },
     {
      "$ref": "#/$defs/t_site"
+    },
+    {
+     "$ref": "#/$defs/t_width_site"
     }
    ]
   },
@@ -709,6 +712,28 @@
     "site": {
      "type": "string",
      "pattern": "^[A-Za-z0-9_]+:[^ ]+:[0-9a-f]{8}$"
+    },
+    "on": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_width_site": {
+   "type": "object",
+   "required": [
+    "width_site",
+    "on",
+    "from"
+   ],
+   "additionalProperties": false,
+   "description": "a SORT-width term (I20, holon.sorts.width): the width site id width:<span>:<record or ->.<field>, the action, the state",
+   "properties": {
+    "width_site": {
+     "type": "string",
+     "pattern": "^width:[^ ]+:[^ ]+$"
     },
     "on": {
      "$ref": "#/$defs/term"

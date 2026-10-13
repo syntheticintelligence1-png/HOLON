@@ -23,12 +23,28 @@
       "sha256": "004d12f43d1074f0746bce4e2c5fb87df4b5a0dca1b720c3523d2a18971f46a0"
     },
     {
+      "path": "spec/M2/facts/morph_header.extracted.json",
+      "sha256": "0f3caeb4d06e85e337733d444ed48da55f8679c026f43bb4f26aefeb2bffe646"
+    },
+    {
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    },
+    {
+      "path": "spec/M2/lib/derive_extracted.json",
+      "sha256": "7615236f3ed4f457c6b6a67bd7324ba7c8ee855cfec883bc9aed166620e0b843"
+    },
+    {
       "path": "spec/M2/lib/oracles.json",
       "sha256": "abce18c7863efe32154ef86eaf0f5ca51b111c06ff3739284172f7d8863ca5c1"
     },
     {
       "path": "spec/M2/lib/sort_sites.json",
       "sha256": "6ba1dba3cd28b6aaeb3fd4b9e72b922f13b0886ae656af60a255e9580a6acd9c"
+    },
+    {
+      "path": "spec/M2/lib/window_rollup.json",
+      "sha256": "c1e746c36e3b05f86fafa8403d11f8970ffbfe137cfc77ed4de3d7ea004218b3"
     },
     {
       "path": "spec/lib/go_slices.lib.json",
@@ -630,6 +646,12 @@
       "entry_points": [
         "finalizeBatch"
       ],
+      "extracted": [
+        {
+          "checks": [],
+          "document": "spec/M2/facts/morph_rollup.extracted.json"
+        }
+      ],
       "facts": "spec/M1/facts/morph_rollup.json",
       "hits": [
         {
@@ -643,7 +665,7 @@
       "realized_in": "Nat",
       "rule": "SORT",
       "sort": "SIdx[queue]",
-      "statement_hash": "sha256:264ad264e7241fc0747a292796fb118c6141e208aa25551cf6aafda0999bb007",
+      "statement_hash": "sha256:cee7c93c06edc735eb8dd235042ea9d670a890be8d9c8c67136143ed08ffaeb7",
       "subform": "site"
     },
     {
@@ -666,6 +688,286 @@
         "commitBatch",
         "commitBatchWithProof",
         "commitState"
+      ],
+      "extracted": [
+        {
+          "checks": [
+            {
+              "action": "commitBatch",
+              "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+              "code": 17,
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "storage",
+                    "inChallenge"
+                  ]
+                ],
+                [
+                  "fits",
+                  256,
+                  [
+                    "+",
+                    [
+                      "storage",
+                      "proofWindow"
+                    ],
+                    [
+                      "member",
+                      [
+                        "map",
+                        [
+                          "storage",
+                          "challenges"
+                        ],
+                        [
+                          "storage",
+                          "batchChallenged"
+                        ]
+                      ],
+                      "startTime"
+                    ]
+                  ]
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "commitBatch",
+              "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+              "code": 17,
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "storage",
+                    "inChallenge"
+                  ]
+                ],
+                [
+                  "fits",
+                  256,
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "storage",
+                        "proofWindow"
+                      ],
+                      [
+                        "member",
+                        [
+                          "map",
+                          [
+                            "storage",
+                            "challenges"
+                          ],
+                          [
+                            "storage",
+                            "batchChallenged"
+                          ]
+                        ],
+                        "startTime"
+                      ]
+                    ],
+                    [
+                      "env",
+                      "block.timestamp"
+                    ]
+                  ]
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "check": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+              "code": 17,
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "storage",
+                    "inChallenge"
+                  ]
+                ],
+                [
+                  "fits",
+                  256,
+                  [
+                    "+",
+                    [
+                      "storage",
+                      "proofWindow"
+                    ],
+                    [
+                      "member",
+                      [
+                        "map",
+                        [
+                          "storage",
+                          "challenges"
+                        ],
+                        [
+                          "storage",
+                          "batchChallenged"
+                        ]
+                      ],
+                      "startTime"
+                    ]
+                  ]
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "check": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+              "code": 17,
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "storage",
+                    "inChallenge"
+                  ]
+                ],
+                [
+                  "fits",
+                  256,
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "storage",
+                        "proofWindow"
+                      ],
+                      [
+                        "member",
+                        [
+                          "map",
+                          [
+                            "storage",
+                            "challenges"
+                          ],
+                          [
+                            "storage",
+                            "batchChallenged"
+                          ]
+                        ],
+                        "startTime"
+                      ]
+                    ],
+                    [
+                      "env",
+                      "block.timestamp"
+                    ]
+                  ]
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "commitState",
+              "check": "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+              "code": 17,
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "storage",
+                    "inChallenge"
+                  ]
+                ],
+                [
+                  "fits",
+                  256,
+                  [
+                    "+",
+                    [
+                      "storage",
+                      "proofWindow"
+                    ],
+                    [
+                      "member",
+                      [
+                        "map",
+                        [
+                          "storage",
+                          "challenges"
+                        ],
+                        [
+                          "storage",
+                          "batchChallenged"
+                        ]
+                      ],
+                      "startTime"
+                    ]
+                  ]
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "commitState",
+              "check": "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+              "code": 17,
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "storage",
+                    "inChallenge"
+                  ]
+                ],
+                [
+                  "fits",
+                  256,
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "storage",
+                        "proofWindow"
+                      ],
+                      [
+                        "member",
+                        [
+                          "map",
+                          [
+                            "storage",
+                            "challenges"
+                          ],
+                          [
+                            "storage",
+                            "batchChallenged"
+                          ]
+                        ],
+                        "startTime"
+                      ]
+                    ],
+                    [
+                      "env",
+                      "block.timestamp"
+                    ]
+                  ]
+                ]
+              ],
+              "kind": "panic"
+            }
+          ],
+          "document": "spec/M2/facts/morph_rollup.extracted.json"
+        }
       ],
       "facts": "spec/M1/facts/morph_rollup.json",
       "hits": [
@@ -690,7 +992,7 @@
       "realized_in": "Nat",
       "rule": "SORT",
       "sort": "SDur",
-      "statement_hash": "sha256:043d0db032134f4e0f3050d4043d9d86425ebce8c30d330f7dc40b9b93de20ee",
+      "statement_hash": "sha256:c96e4f93648a1a4fa42d7b6a230fba8a3e17ff159de663437f12f942df2291c5",
       "subform": "site"
     },
     {
@@ -708,6 +1010,38 @@
       "entry_points": [
         "revertBatch"
       ],
+      "extracted": [
+        {
+          "checks": [
+            {
+              "action": "revertBatch",
+              "check": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:441#0",
+              "code": null,
+              "expr": [
+                ">",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                [
+                  "storage",
+                  "lastFinalizedBatchIndex"
+                ]
+              ],
+              "kind": "require"
+            }
+          ],
+          "document": "spec/M2/facts/morph_rollup.extracted.json"
+        }
+      ],
       "facts": "spec/M1/facts/morph_rollup.json",
       "hits": [
         {
@@ -721,7 +1055,7 @@
       "realized_in": "Nat",
       "rule": "SORT",
       "sort": "Nat (unrefined)",
-      "statement_hash": "sha256:db78c4e1f17504a44e736ed55c1692c2028b8e26063e319ca978be59255d827c",
+      "statement_hash": "sha256:f9fdb9fc834c5c21c29655a5ab6cf7d0e21713155a5f0cb3aed3c05d568d7f51",
       "subform": "site"
     },
     {
@@ -739,6 +1073,188 @@
       "entry_points": [
         "challengeState"
       ],
+      "extracted": [
+        {
+          "checks": [
+            {
+              "action": "challengeState",
+              "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#0",
+              "code": 17,
+              "expr": [
+                "fits",
+                256,
+                [
+                  "+",
+                  [
+                    "storage",
+                    "lastFinalizedBatchIndex"
+                  ],
+                  1
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "challengeState",
+              "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:491#0",
+              "code": 17,
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "&&",
+                    [
+                      "<=",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "storage",
+                            "lastFinalizedBatchIndex"
+                          ],
+                          1
+                        ],
+                        [
+                          "iter",
+                          "contracts/contracts/l1/rollup/Rollup.sol:489-493"
+                        ]
+                      ],
+                      [
+                        "storage",
+                        "lastCommittedBatchIndex"
+                      ]
+                    ],
+                    [
+                      "!=",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "storage",
+                            "lastFinalizedBatchIndex"
+                          ],
+                          1
+                        ],
+                        [
+                          "iter",
+                          "contracts/contracts/l1/rollup/Rollup.sol:489-493"
+                        ]
+                      ],
+                      [
+                        "param",
+                        "batchIndex"
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "fits",
+                  256,
+                  [
+                    "+",
+                    [
+                      "member",
+                      [
+                        "map",
+                        [
+                          "carried",
+                          "contracts/contracts/l1/rollup/Rollup.sol:489-493",
+                          [
+                            "storage",
+                            "batchDataStore"
+                          ]
+                        ],
+                        [
+                          "+",
+                          [
+                            "+",
+                            [
+                              "storage",
+                              "lastFinalizedBatchIndex"
+                            ],
+                            1
+                          ],
+                          [
+                            "iter",
+                            "contracts/contracts/l1/rollup/Rollup.sol:489-493"
+                          ]
+                        ]
+                      ],
+                      "finalizeTimestamp"
+                    ],
+                    [
+                      "storage",
+                      "proofWindow"
+                    ]
+                  ]
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "challengeState",
+              "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#1",
+              "code": 17,
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "<=",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "storage",
+                          "lastFinalizedBatchIndex"
+                        ],
+                        1
+                      ],
+                      [
+                        "iter",
+                        "contracts/contracts/l1/rollup/Rollup.sol:489-493"
+                      ]
+                    ],
+                    [
+                      "storage",
+                      "lastCommittedBatchIndex"
+                    ]
+                  ]
+                ],
+                [
+                  "fits",
+                  256,
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "storage",
+                          "lastFinalizedBatchIndex"
+                        ],
+                        1
+                      ],
+                      [
+                        "iter",
+                        "contracts/contracts/l1/rollup/Rollup.sol:489-493"
+                      ]
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              "kind": "panic"
+            }
+          ],
+          "document": "spec/M2/facts/morph_rollup.extracted.json"
+        }
+      ],
       "facts": "spec/M1/facts/morph_rollup.json",
       "hits": [
         {
@@ -752,7 +1268,7 @@
       "realized_in": "Nat",
       "rule": "SORT",
       "sort": "Nat (unrefined)",
-      "statement_hash": "sha256:df656b68c5877967ee93fe780879ae3ca4362a036dd8713ee284ba3e50049de3",
+      "statement_hash": "sha256:ceeb92360bab72f0687420d198aa1b4316f4933d5c4941e3b6e8cee7b474af93",
       "subform": "site"
     },
     {
@@ -770,6 +1286,79 @@
       "entry_points": [
         "finalizeBatch"
       ],
+      "extracted": [
+        {
+          "checks": [
+            {
+              "action": "finalizeBatch",
+              "check": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:636#0",
+              "code": 17,
+              "expr": [
+                "fits",
+                256,
+                [
+                  "-",
+                  [
+                    ">>",
+                    [
+                      "word",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      1
+                    ],
+                    192
+                  ],
+                  1
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "finalizeBatch",
+              "check": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:635-638#0",
+              "code": null,
+              "expr": [
+                "==",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "finalizedStateRoots"
+                  ],
+                  [
+                    "-",
+                    [
+                      ">>",
+                      [
+                        "word",
+                        [
+                          "param",
+                          "_batchHeader"
+                        ],
+                        1
+                      ],
+                      192
+                    ],
+                    1
+                  ]
+                ],
+                [
+                  "word",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  89
+                ]
+              ],
+              "kind": "require"
+            }
+          ],
+          "document": "spec/M2/facts/morph_rollup.extracted.json"
+        }
+      ],
       "facts": "spec/M1/facts/morph_rollup.json",
       "hits": [
         {
@@ -783,7 +1372,7 @@
       "realized_in": "Nat",
       "rule": "SORT",
       "sort": "Nat (unrefined)",
-      "statement_hash": "sha256:26e1a84517073136fdd64b17d54e8f1b5d2ae27b4cef3daee4d46a686749354d",
+      "statement_hash": "sha256:1f0a9224e622d211801791ba6ab142c8a45a951c9b7213f900187bd6adb838f6",
       "subform": "site"
     },
     {
@@ -801,6 +1390,117 @@
       "entry_points": [
         "finalizeBatch"
       ],
+      "extracted": [
+        {
+          "checks": [
+            {
+              "action": "finalizeBatch",
+              "check": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:657#0",
+              "code": 17,
+              "expr": [
+                "fits",
+                256,
+                [
+                  "-",
+                  [
+                    ">>",
+                    [
+                      "word",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      1
+                    ],
+                    192
+                  ],
+                  1
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "finalizeBatch",
+              "check": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:658#0",
+              "code": 17,
+              "expr": [
+                "fits",
+                256,
+                [
+                  "-",
+                  [
+                    ">>",
+                    [
+                      "word",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      1
+                    ],
+                    192
+                  ],
+                  1
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "finalizeBatch",
+              "check": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:659#0",
+              "code": 17,
+              "expr": [
+                "fits",
+                256,
+                [
+                  "-",
+                  [
+                    ">>",
+                    [
+                      "word",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      1
+                    ],
+                    192
+                  ],
+                  1
+                ]
+              ],
+              "kind": "panic"
+            },
+            {
+              "action": "finalizeBatch",
+              "check": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:660#0",
+              "code": 17,
+              "expr": [
+                "fits",
+                256,
+                [
+                  "-",
+                  [
+                    ">>",
+                    [
+                      "word",
+                      [
+                        "param",
+                        "_batchHeader"
+                      ],
+                      1
+                    ],
+                    192
+                  ],
+                  1
+                ]
+              ],
+              "kind": "panic"
+            }
+          ],
+          "document": "spec/M2/facts/morph_rollup.extracted.json"
+        }
+      ],
       "facts": "spec/M1/facts/morph_rollup.json",
       "hits": [
         {
@@ -814,8 +1514,132 @@
       "realized_in": "Nat",
       "rule": "SORT",
       "sort": "Nat (unrefined)",
-      "statement_hash": "sha256:e79d1e76693ce2b2f048670ad62bd03339d82d3e866e58ab5f2e1119627ac514",
+      "statement_hash": "sha256:dce368cad0524c43545ed2703fe7e4efef8db0a94964e18786584672e1dfc524",
       "subform": "site"
+    },
+    {
+      "basis": {
+        "field": "batchIndex",
+        "kind": "width",
+        "record": "Header",
+        "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144",
+        "stack": [
+          "contracts/contracts/l1/rollup/Rollup.sol:343",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144"
+        ],
+        "value_bits": 256,
+        "width": 64
+      },
+      "entry_points": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_sort_width_batchheadercodecv0_144_1abeb29c",
+      "rule": "SORT",
+      "statement_hash": "sha256:e9d72095a684448d7d150c1550ff43a2b25bee627509e693e6c1e8a596b3c62e",
+      "stores": [
+        {
+          "action": "commitBatch",
+          "document": "spec/M2/facts/morph_rollup.extracted.json",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144",
+          "stack": [
+            "contracts/contracts/l1/rollup/Rollup.sol:268",
+            "contracts/contracts/l1/rollup/Rollup.sol:343"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "document": "spec/M2/facts/morph_rollup.extracted.json",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144",
+          "stack": [
+            "contracts/contracts/l1/rollup/Rollup.sol:411",
+            "contracts/contracts/l1/rollup/Rollup.sol:343"
+          ]
+        },
+        {
+          "action": "commitState",
+          "document": "spec/M2/facts/morph_rollup.extracted.json",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144",
+          "stack": [
+            "contracts/contracts/l1/rollup/Rollup.sol:285",
+            "contracts/contracts/l1/rollup/Rollup.sol:343"
+          ]
+        },
+        {
+          "document": "spec/M2/facts/morph_header.extracted.json",
+          "function": "enc_sol",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144",
+          "stack": [
+            "contracts/contracts/l1/rollup/Rollup.sol:343",
+            "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:144"
+          ]
+        }
+      ],
+      "subform": "width"
+    },
+    {
+      "basis": {
+        "field": "totalL1MessagePopped",
+        "kind": "width",
+        "record": "Header",
+        "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166",
+        "stack": [
+          "contracts/contracts/l1/rollup/Rollup.sol:345",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166"
+        ],
+        "value_bits": 256,
+        "width": 64
+      },
+      "entry_points": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_sort_width_batchheadercodecv0_166_8ad80b42",
+      "rule": "SORT",
+      "statement_hash": "sha256:b6498c3d2763631b94e25bfbbfee058d6f34308905b1d161d45f6de09d3c2e0a",
+      "stores": [
+        {
+          "action": "commitBatch",
+          "document": "spec/M2/facts/morph_rollup.extracted.json",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166",
+          "stack": [
+            "contracts/contracts/l1/rollup/Rollup.sol:268",
+            "contracts/contracts/l1/rollup/Rollup.sol:345"
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "document": "spec/M2/facts/morph_rollup.extracted.json",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166",
+          "stack": [
+            "contracts/contracts/l1/rollup/Rollup.sol:411",
+            "contracts/contracts/l1/rollup/Rollup.sol:345"
+          ]
+        },
+        {
+          "action": "commitState",
+          "document": "spec/M2/facts/morph_rollup.extracted.json",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166",
+          "stack": [
+            "contracts/contracts/l1/rollup/Rollup.sol:285",
+            "contracts/contracts/l1/rollup/Rollup.sol:345"
+          ]
+        },
+        {
+          "document": "spec/M2/facts/morph_header.extracted.json",
+          "function": "enc_sol",
+          "src": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166",
+          "stack": [
+            "contracts/contracts/l1/rollup/Rollup.sol:345",
+            "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166"
+          ]
+        }
+      ],
+      "subform": "width"
     }
   ],
   "links": [],

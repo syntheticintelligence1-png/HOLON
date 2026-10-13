@@ -237,6 +237,16 @@ def ledger_assumptions(cone_entries: list[str], orc: "Oracles | None", machine) 
     return sorted(x for x in cone_entries if x not in gone)
 
 
+def _transitions(fp: Path) -> bool:
+    """An extracted transitions document (holon-facts/0.3, I19/I20), whose model is holon.machine's, not a Machine."""
+    try:
+        d = json.loads(Path(fp).read_text())
+    except (OSError, ValueError):
+        return False
+    return (isinstance(d, dict) and d.get("facts_version") == "holon-facts/0.3"
+            and (d.get("extraction") or {}).get("kind") == "transitions")
+
+
 def ledger_problems(milestone: str, root: Path, laws: list[dict], records: dict) -> list[str]:
     """G9 for M2+ milestones (F-M2-12): every record carries ledger_assumptions, equal to the recomputation from its
     cone, its facts' ledger bundle and the milestone's sidecar; a record whose cone meets ledger stand-ins never
@@ -253,17 +263,20 @@ def ledger_problems(milestone: str, root: Path, laws: list[dict], records: dict)
             bad.append(f"{law['law_id']}: an M2+ record lists no ledger_assumptions")
             continue
         fp = Path(root) / law["facts"]
-        if fp not in machines:
-            orc = Oracles.for_milestone(milestone, fp, root)
-            machines[fp] = (orc, Machine(F.load(fp), fp, oracles=orc, m2plus=True))
-        orc, m = machines[fp]
         try:
             b, _ = R.resolve_bundle(rec["facts_sha256"], law["facts"], root)
         except R.LedgerError as e:
             bad.append(f"{law['law_id']}: {e}")
             continue
         meets = sorted(e["id"] for e in b["entries"] if R._meets(e, set(rec.get("cone") or [])))
-        want = ledger_assumptions(meets, orc, m)
+        if _transitions(fp):   # an extracted model (I20): no oracle parameter replaces a ledger entry
+            want = meets
+        else:
+            if fp not in machines:
+                orc = Oracles.for_milestone(milestone, fp, root)
+                machines[fp] = (orc, Machine(F.load(fp), fp, oracles=orc, m2plus=True))
+            orc, m = machines[fp]
+            want = ledger_assumptions(meets, orc, m)
         if rec["ledger_assumptions"] != want:
             what = "lists no ledger assumption" if not rec["ledger_assumptions"] else f"lists {rec['ledger_assumptions']}"
             bad.append(f"{law['law_id']}: {what}, but its cone meets the ledger stand-ins and abstractions {want}")

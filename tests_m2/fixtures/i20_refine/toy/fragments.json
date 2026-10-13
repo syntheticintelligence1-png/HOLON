@@ -1,0 +1,47 @@
+{
+ "corpus": {
+  "doc": "Planted seed traces of the toy (callers 0x..1001 and 0x..1002 are allowed by the gate, 0x..1003 is not; 0x7fa9..1496 is forge's default test contract, the harness that deploys the Ledger and so its owner).",
+  "traces": [
+   [
+    {"fn": "deposit", "args": {"amount": 5}, "caller": "0x0000000000000000000000000000000000001001", "value": 2},
+    {"fn": "deposit", "args": {"amount": 7}, "caller": "0x0000000000000000000000000000000000001002", "value": 3},
+    {"fn": "withdraw", "args": {"id": 1}, "caller": "0x0000000000000000000000000000000000001002"},
+    {"fn": "withdraw", "args": {"id": 1}, "caller": "0x0000000000000000000000000000000000001001"},
+    {"fn": "setPaused", "args": {"on": true}, "caller": "0x0000000000000000000000000000000000001001"},
+    {"fn": "setPaused", "args": {"on": true}, "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"},
+    {"fn": "deposit", "args": {"amount": 1}, "caller": "0x0000000000000000000000000000000000001001", "value": 2},
+    {"fn": "withdraw", "args": {"id": 2}, "caller": "0x0000000000000000000000000000000000001002"},
+    {"fn": "setPaused", "args": {"on": false}, "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"},
+    {"fn": "withdraw", "args": {"id": 2}, "caller": "0x0000000000000000000000000000000000001002"}
+   ],
+   [
+    {"fn": "deposit", "args": {"amount": 0}, "caller": "0x0000000000000000000000000000000000001001", "value": 2},
+    {"fn": "deposit", "args": {"amount": 3}, "caller": "0x0000000000000000000000000000000000001003", "value": 2},
+    {"fn": "deposit", "args": {"amount": 3}, "caller": "0x0000000000000000000000000000000000001001", "value": 1},
+    {"fn": "deposit", "args": {"amount": 18446744073709551615}, "caller": "0x0000000000000000000000000000000000001001", "value": 2},
+    {"fn": "deposit", "args": {"amount": 1}, "caller": "0x0000000000000000000000000000000000001001", "value": 2}
+   ]
+  ]
+ },
+ "doc": "Binding of the I20-B toy (tests_m2/test_i20_refine_unit.py): the generic step harness on the planted Ledger. init = [fee, allowed callers...] (holonDeploy of HolonToyStep.t.sol).",
+ "harness": {
+  "contract": "HolonToyStepTest",
+  "files": [
+   "replay/M2/solidity/HolonStepBase.sol",
+   "tests_m2/fixtures/i20_refine/toy/HolonToyStep.t.sol"
+  ],
+  "last_contract": "HolonToyLastTest"
+ },
+ "init": [2, 4097, 4098],
+ "source": "tests_m2/fixtures/i20_refine/toy",
+ "source_doc": "the extraction's source tree: holon.machine.load_extracted compiles the document's units there",
+ "project": {
+  "dir": "tests_m2/fixtures/i20_refine/toy/src",
+  "kind": "sources",
+  "unit_prefix": ""
+ },
+ "target": {
+  "contract": "Ledger",
+  "source": "src/Ledger.sol"
+ }
+}

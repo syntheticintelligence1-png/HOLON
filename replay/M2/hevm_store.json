@@ -1,0 +1,28 @@
+{
+ "doc": "Binding of the optional hevm equivalence (holon/hevm_equiv.py; I20, BUILD_PLAN 'hevm equivalence between the bytecode of BatchHeaderCodecV0/V1.store* and Yul generated from the model layout, for the top codec edges'). Side A is the real store functions, called as the header build block of Rollup._commitBatchWithBatchData calls them (Rollup.sol:342-355 at the pinned commit), each field from its own calldata word, compiled with the pinned solc and morph's Foundry profile. Side B is Yul generated from the facts' encoder ops (holon.layout) for the same field words. A call argument is a model field (its calldata word, in the facts' field order) or the constant the build block passes.",
+ "drop": ["mock", "test"],
+ "facts": "facts/morph_header.json",
+ "foundry_dir": "contracts",
+ "encoder": "enc_sol",
+ "versions": ["0", "1", "2"],
+ "imports": [
+  ["BatchHeaderCodecV0", "contracts/libraries/codec/BatchHeaderCodecV0.sol"],
+  ["BatchHeaderCodecV1", "contracts/libraries/codec/BatchHeaderCodecV1.sol"]
+ ],
+ "length": {"0": "BatchHeaderCodecV0.BATCH_HEADER_LENGTH", "1": "BatchHeaderCodecV1.BATCH_HEADER_LENGTH",
+            "2": "BatchHeaderCodecV1.BATCH_HEADER_LENGTH"},
+ "calls": [
+  ["BatchHeaderCodecV0.storeVersion", {"field": "version"}],
+  ["BatchHeaderCodecV0.storeBatchIndex", {"field": "batchIndex"}],
+  ["BatchHeaderCodecV0.storeL1MessagePopped", {"field": "l1MessagePopped"}],
+  ["BatchHeaderCodecV0.storeTotalL1MessagePopped", {"field": "totalL1MessagePopped"}],
+  ["BatchHeaderCodecV0.storeDataHash", {"field": "dataHash"}],
+  ["BatchHeaderCodecV0.storeBlobVersionedHash", {"field": "blobVersionedHash"}],
+  ["BatchHeaderCodecV0.storePrevStateHash", {"field": "prevStateHash"}],
+  ["BatchHeaderCodecV0.storePostStateHash", {"field": "postStateHash"}],
+  ["BatchHeaderCodecV0.storeWithdrawRootHash", {"field": "withdrawRootHash"}],
+  ["BatchHeaderCodecV0.storeSequencerSetVerifyHash", {"const": "bytes32(0)"}],
+  ["BatchHeaderCodecV0.storeParentBatchHash", {"field": "parentBatchHash"}],
+  ["BatchHeaderCodecV1.storeLastBlockNumber", {"field": "lastBlockNumber"}, {"version_ge": 1}]
+ ]
+}

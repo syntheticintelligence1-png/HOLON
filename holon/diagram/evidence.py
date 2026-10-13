@@ -30,6 +30,17 @@ endpoints.
   E5  a comparison or +/- node whose operands carry the same refined sort under the frozen assignment.
   E6  shared name tokens of two distinct parallel edges, with the sidecar's tokenizer and stopwords.
 
+Adopted transitions documents (I20). The extracted holon-facts/0.3 transitions documents a milestone adopts for
+derivation (spec/<M>/lib/derive_extracted.json "documents", holon.sorts.reextract; the sidecar and every document it
+lists are inputs) are never fact documents (holon.diagram.fact_documents skips *.extracted.json), but laws are derived
+over them (rule SORT-width), so the set covers them: one model each, keyed by the file name without ".json", with
+"diagram": null and anchors read from the document itself (transitions_anchors): every action is the edge
+TRANS.<action> (actions, trans), and every storage family (a name two contracts declare is "<declared_in>.<name>")
+is a carrier whose writers are the actions with a write to it and whose readers are the actions with a
+["storage", family] term; the other anchors are empty. E1-E6 are defined over the diagrams of facts 0.1 and 0.2
+(holon.diagram.build has no 0.3 adapter), so such a model contributes no atoms: a law over it that names an edge has
+no evidence (levels []), and its triage is the computed default.
+
 Pure Python, standard library and holon imports only; the document is a deterministic function of its inputs
 (sorted keys, ids derived from content, no timestamps). Unresolved pairs are results, not errors; an input that is
 missing, unreadable, stale or holds a construct the pass cannot map is an EvidenceError and nothing is written.
@@ -65,7 +76,7 @@ PATH_BINDERS = ("Trace", "State", "Act", "Reach")   # L3: the law ranges over th
 OVERRIDE_TRIAGES = ("finding", "intent_question")
 RECORD_FIELDS = ("evidence_levels", "evidence_triage", "evidence_override")
 IR01, IR02, IR03 = "holon-ir/0.1", "holon-ir/0.2", "holon-ir/0.3"
-FACTS01, FACTS02 = "holon-facts/0.1", "holon-facts/0.2"
+FACTS01, FACTS02, FACTS03 = "holon-facts/0.1", "holon-facts/0.2", "holon-facts/0.3"
 _NUMERIC = re.compile(r"^(\d+)(?:\.\.(\d+))?$")
 _CAMEL = re.compile(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
 _MACH = re.compile(r"^Mach\([1-9][0-9]*\)$")
@@ -650,6 +661,68 @@ def _model(rel: str, facts: dict, sha: str, dg: dict, amodel: dict, sites: list,
     return an, atoms, unresolved
 
 
+def _storage_terms(t, acc: set) -> None:
+    if isinstance(t, list):
+        if len(t) == 2 and t[0] == "storage" and isinstance(t[1], str):
+            acc.add(t[1])
+        for x in t:
+            _storage_terms(x, acc)
+    elif isinstance(t, dict):
+        for x in t.values():
+            _storage_terms(x, acc)
+
+
+def _writes(t, acc: set) -> None:
+    """The families of every write record ({"family", "path", "value", ..}) at any depth (loop bodies included)."""
+    if isinstance(t, dict):
+        if isinstance(t.get("family"), str) and "path" in t and "value" in t:
+            acc.add(t["family"])
+        for x in t.values():
+            _writes(x, acc)
+    elif isinstance(t, list):
+        for x in t:
+            _writes(x, acc)
+
+
+def transitions_anchors(doc: dict) -> dict:
+    """The anchors of an adopted transitions document (module docstring, "Adopted transitions documents")."""
+    acts = [a for a in doc.get("actions") or [] if isinstance(a, dict) and isinstance(a.get("name"), str)]
+    actions = {a["name"]: f"TRANS.{a['name']}" for a in sorted(acts, key=lambda a: a["name"])}
+    entries = [s for s in (doc.get("storage") or []) + (doc.get("inherited_storage") or []) if isinstance(s, dict)]
+    names = [s.get("name") for s in entries]
+    fams = sorted({f"{s['declared_in']}.{s['name']}" if names.count(s.get("name")) > 1 and s.get("declared_in")
+                   else s["name"] for s in entries if isinstance(s.get("name"), str)})
+    writes, reads = {}, {}
+    for a in acts:
+        w, r = set(), set()
+        _writes(a, w)
+        _storage_terms(a, r)
+        writes[a["name"]], reads[a["name"]] = w, r
+    carriers = {f: {"writers": sorted(actions[n] for n in actions if f in writes[n]),
+                    "readers": sorted(actions[n] for n in actions if f in reads[n])} for f in fams}
+    return {"codec": {}, "domains": {}, "actions": actions, "reasons": {}, "permissionless": [], "observers": {},
+            "migrations": {}, "consumers": {}, "carriers": carriers, "trans": sorted(actions.values()), "sites": {}}
+
+
+def adopted_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, bytes, dict]]:
+    """(path, bytes, document) of every transitions document spec/<gm>/lib/derive_extracted.json adopts (I20)."""
+    side = root / "spec" / gm / "lib" / "derive_extracted.json"
+    if not side.exists():
+        return []
+    sc = inp.read_json(side)
+    out = []
+    for rel in sorted(sc.get("documents") or [] if isinstance(sc, dict) else []):
+        raw = inp.read_bytes(root / rel)
+        try:
+            d = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError) as e:
+            raise EvidenceError(f"{rel}: not JSON ({e})") from e
+        if isinstance(d, dict) and d.get("facts_version") == FACTS03 and (d.get("extraction") or {}).get("kind") \
+                == "transitions":
+            out.append((rel, raw, d))
+    return out
+
+
 def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, assignment: dict | None = None,
           milestone: str | None = None) -> dict:
     """The evidence document of the given fact documents (paths inside root); see the module docstring. diagrams:
@@ -696,6 +769,16 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
                         "diagram": drel, "anchors": an}
         atoms += a
         unresolved += u
+    for rel, raw, d in adopted_documents(gm, root, inp):   # I20: no diagram, anchors only, no atoms
+        key = Path(rel).name[:-len(".json")]
+        if key in models:
+            raise EvidenceError(f"two documents share the model name {key}")
+        try:
+            an = transitions_anchors(d)
+        except (KeyError, TypeError) as e:
+            raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
+        models[key] = {"facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest(), "facts_version": FACTS03,
+                       "diagram": None, "anchors": an}
     doc = {"document": "evidence", "evidence_version": EVIDENCE_VERSION, "milestone": milestone,
            "inputs": inp.listing(), "levels": dict(STRENGTH), "sorts_sha256": assignment.get("sorts_sha256"),
            "models": models, "atoms": _unique(atoms), "unresolved": _unique(unresolved)}

@@ -30,12 +30,15 @@ from pathlib import Path
 
 from ..sorts import check as _check
 from ..sorts import sites as _sites
+from ..sorts import width as _width
 
 ROOT = Path(__file__).resolve().parents[2]
 RULE_CATALOG_VERSION = "holon-rules/1.0"
 DERIVE_VERSION = "holon-derive/0.1"
 IR_VERSION = "holon-ir/0.3"
-CATALOG = {"SORT": {"site": _sites}}
+# SORT-width (I20) derives nothing unless the milestone adopts extracted documents (holon.sorts.reextract), so the
+# catalog entry leaves every earlier derivation byte-identical
+CATALOG = {"SORT": {"site": _sites, "width": _width}}
 
 
 class Refused(ValueError):
@@ -184,6 +187,17 @@ def compute(milestone: str, root: Path, facts: list[str] | None = None, assignme
     if dup:
         raise DeriveError(f"two basis elements map to one law id: {dup}")
     by_rel = {d.rel: d for d in docs}
+    for law, _ in pairs:   # a law over a document outside the milestone's fact documents (an adopted extraction, I20)
+        if law["facts"] not in by_rel:
+            by_rel[law["facts"]] = Document(root / law["facts"], inputs, milestone, root)
+    from ..sorts import reextract
+    sc = reextract.sidecar_path(milestone, root)
+    if sc.is_file():   # an adoption of extracted documents (I20): the sidecar, its documents and the window views
+        inputs.read(sc)
+        for rel in (reextract.sidecar(milestone, root) or {}).get("documents") or []:
+            inputs.read(root / rel)
+        for p in sorted(root.glob("spec/*/lib/window_*.json")):
+            inputs.read(p)
     laws, entries = {}, []
     for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
         d = by_rel[law["facts"]]

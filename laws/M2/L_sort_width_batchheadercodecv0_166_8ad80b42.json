@@ -1,0 +1,45 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sort_width_batchheadercodecv0_166_8ad80b42",
+  "milestone": "M2",
+  "notes": "SORT-width law (holon.sorts.width): every store at contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166 of Header.totalL1MessagePopped (a 256-bit value into 64 bits) while action a runs from a reachable state s stores a value that fits 64 bits; entry points: commitBatch, commitBatchWithProof, commitState. Provenance: DERIVATION.json.",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/1.0",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          },
+          "width_site": "width:contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:166:Header.totalL1MessagePopped"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "width"
+}

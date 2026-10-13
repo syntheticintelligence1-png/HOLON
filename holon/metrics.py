@@ -50,8 +50,16 @@ def refinement(milestone: str, root: Path) -> dict:
         rf = (_load(root / "replay" / "M1" / "report.json").get("refinement") or {})
         compared, dis = rf.get("steps", 0), rf.get("n_disagreements", 0)
     else:
-        recs = [r for r in (_load(f) for f in sorted((root / REF_DIR).glob("*.json"))) if r.get("milestone") == milestone]
+        allrecs = [_load(f) for f in sorted((root / REF_DIR).glob("*.json"))]
+        recs = [r for r in allrecs if r.get("milestone") == milestone]
         compared, dis = sum(r["compared"] for r in recs), sum(r["disagreements"] for r in recs)
+        # the extracted model's step refinement (I20, holon.replay_fragments): its compared steps and its distinct
+        # disagreements (one per (action, input)), counted for the milestone of its transitions document
+        for r in allrecs:
+            fp = str(r.get("facts") or "").split("/")
+            if r.get("kind") == "extracted" and len(fp) > 2 and fp[0] == "spec" and fp[1] == milestone:
+                compared += int(r.get("steps") or 0)
+                dis += len(r.get("disagreements") or [])
     p = root / DISAGREEMENTS
     entries = _load(p)["disagreements"] if p.exists() else []
     unexplained = sum(1 for e in entries if e.get("milestone") == milestone and classify(e, root) == "unexplained")

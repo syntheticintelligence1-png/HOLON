@@ -234,7 +234,20 @@ class TestEvidenceFile(_Shared):
         self.assertEqual(d["milestone"], "M2")
         self.assertEqual(d["levels"], STRENGTH)
         self.assertEqual(r.text, json.dumps(d, indent=2, sort_keys=True, ensure_ascii=False) + "\n", "render(doc)")
-        self.assertEqual(sorted(d["models"]), sorted(DOCS))
+        # amended (I20, spec/M2/amendments.jsonl): besides the fact documents, one model per transitions document the
+        # milestone adopts for derivation (spec/M2/lib/derive_extracted.json), with no diagram (anchors only)
+        side = ROOT / "spec" / "M2" / "lib" / "derive_extracted.json"
+        adopted = {}
+        for rel in (load_json(side).get("documents") or []) if side.exists() else []:
+            x = load_json(ROOT / rel)
+            if x.get("facts_version") == "holon-facts/0.3" and (x.get("extraction") or {}).get("kind") == "transitions":
+                adopted[rel.rsplit("/", 1)[-1][:-len(".json")]] = rel
+        self.assertEqual(sorted(d["models"]), sorted([*DOCS, *adopted]))
+        for m, rel in adopted.items():
+            with self.subTest(model=m):
+                self.assertEqual((d["models"][m]["facts"], d["models"][m]["diagram"],
+                                  d["models"][m]["facts_version"]), (rel, None, "holon-facts/0.3"))
+                self.assertEqual([a for a in d["atoms"] if a["model"] == m], [])
         for m, rel in DOCS.items():
             with self.subTest(model=m):
                 mo = d["models"][m]
@@ -252,9 +265,11 @@ class TestEvidenceFile(_Shared):
         for rel in want:
             with self.subTest(input=rel):
                 self.assertEqual(got.get(rel), hashlib.sha256((ROOT / rel).read_bytes()).hexdigest())
+        # amended (I20, spec/M2/amendments.jsonl): the adoption sidecar and the extracted documents it lists
         allowed = re.compile(r"^(facts/[^/]+\.json|spec/M1/facts/[^/]+\.json|gen/M2/diagram/[^/]+\.json|"
                              r"gen/M2/sorts/assignment\.json|spec/(M[0-9]+/)?lib/[^/]+\.lib\.json|"
-                             r"spec/M2/lib/evidence_lexical\.json)$")
+                             r"spec/M2/lib/evidence_lexical\.json|spec/M2/lib/derive_extracted\.json|"
+                             r"spec/M2/facts/[^/]+\.extracted\.json)$")
         self.assertEqual([p for p in paths if not allowed.match(p)], [], "an input outside the frozen set")
 
     def test_evidence_and_sorts_hashes(self):

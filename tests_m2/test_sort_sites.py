@@ -293,7 +293,8 @@ class TestDeriveContract(_Shared):
 
     def test_one_law_per_site(self):
         sites = [s for s in assignment()["sites"] if s["realized_in"] == "Nat"]
-        laws = self.r.law_docs()
+        # amended (I20, spec/M2/amendments.jsonl): the SORT-site laws (laws/M2 also holds I20's SORT-width laws)
+        laws = {k: v for k, v in self.r.law_docs().items() if v.get("subform") == "site"}
         self.assertEqual(sorted(laws), sorted(H.law_id(s["id"]) for s in sites))
         self.assertEqual(len(laws), len(sites), "one law per site, no two sites share an id")
         rules = holon_module("holon.rules")
@@ -313,6 +314,8 @@ class TestDeriveContract(_Shared):
         for lid, law in laws.items():
             with self.subTest(law=lid):
                 self.assertEqual(validate(law, IR03), [])
+                if law.get("subform") != "site":   # amended (I20): a SORT-width law has no I13 site
+                    continue
                 e = self.derivation_entry(lid)
                 site = next(s for s in A["sites"] if s["id"] == e["basis"]["site_id"])
                 self.assertEqual(law["ir_version"], "holon-ir/0.3")
@@ -377,7 +380,8 @@ class TestDeriveContract(_Shared):
             self.assertEqual(i["sha256"], file_sha(ROOT / i["path"]), i["path"])
         self.assertEqual([e["law_id"] for e in dv["laws"]], sorted(e["law_id"] for e in dv["laws"]))
         models = {m: load_json(ROOT / mo["facts"]) for m, mo in A["models"].items()}
-        for e in dv["laws"]:
+        # amended (I20, spec/M2/amendments.jsonl): the SORT-site entries (DERIVATION also lists SORT-width laws)
+        for e in [x for x in dv["laws"] if x.get("subform") == "site"]:
             with self.subTest(law=e["law_id"]):
                 site = next(s for s in A["sites"] if s["id"] == e["basis"]["site_id"])
                 f = models[site["model"]]
@@ -431,7 +435,8 @@ class TestDeriveContract(_Shared):
             self.assertEqual({h["kind"] for h in new[LAW_363]["hits"]}, {"occurrence"})
             self.assertNotEqual(new[LAW_363]["statement_hash"], base[LAW_363]["statement_hash"])
             for lid, e in base.items():
-                if all(h["kind"] != "realization_check" for h in e["hits"]):
+                # amended (I20): a SORT-width law has no hits, so it must keep its hash too
+                if all(h["kind"] != "realization_check" for h in e.get("hits") or []):
                     self.assertEqual(new[lid]["statement_hash"], e["statement_hash"], lid)
         finally:
             shutil.rmtree(repo.parent, ignore_errors=True)
@@ -577,6 +582,8 @@ def derivation_view(dv: dict, back: bool = False) -> dict:
     """DERIVATION laws keyed by (span, expression as written), each with what derive decided for it."""
     out = {}
     for e in dv["laws"]:
+        if e.get("subform", "site") != "site":   # amended (I20, spec/M2/amendments.jsonl): SORT-site entries only
+            continue
         b = unrename(e["basis"]) if back else e["basis"]
         out[(b["span"], json.dumps(b["expr"], sort_keys=True))] = {
             k: (unrename(e[k]) if back else e[k]) for k in ("entry_points", "hits", "sort", "obligation", "realized_in")}
@@ -660,7 +667,7 @@ class TestDeriveHonesty(unittest.TestCase):
         """rename: the derivation keyed by span and expression is the baseline's under the renaming, and so are the
         obstructions (their registers and constrained inputs renamed back)."""
         base, rn = self.ran("baseline"), self.ran("rename")
-        self.assertTrue(any("zz_" in json.dumps(e["basis"]["expr"]) for e in rn["derivation"]["laws"]),
+        self.assertTrue(any("zz_" in json.dumps(e["basis"].get("expr")) for e in rn["derivation"]["laws"]),
                         "the renaming reached a site expression")
         self.assertEqual(derivation_view(rn["derivation"], back=True), derivation_view(base["derivation"]))
         strip_id = lambda o: {k: v for k, v in o.items() if k != "id"}  # noqa: E731
@@ -706,7 +713,9 @@ class TestPredictedDerivation(_Shared):
         are commitBatch, commitBatchWithProof and commitState, each hit at its realization check (the facts' require
         !inch || t <= W + cstart, reason panic:0x11, span :363): guards[23], guards[27] and guards[22]."""
         laws = self.r.law_docs()
-        self.assertEqual([l for l, d in laws.items() if d["statement"]["claim"]["eq"][0]["site"] == SITE_363], [LAW_363])
+        # amended (I20, spec/M2/amendments.jsonl): .get, since a SORT-width law's term is "width_site", not "site"
+        self.assertEqual([l for l, d in laws.items() if d["statement"]["claim"]["eq"][0].get("site") == SITE_363],
+                         [LAW_363])
         e = self.derivation_entry(LAW_363)
         self.assertEqual(e["entry_points"], list(COMMITS))
         self.assertEqual([(h["action"], h["at"], h["kind"]) for h in e["hits"]],

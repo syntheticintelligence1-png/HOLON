@@ -164,6 +164,8 @@ class TestRecords(unittest.TestCase):
                 self.assertEqual(validate(r, V2), [])
                 self.assertEqual(r["statement_hash"], reg["statements"][lid])
                 self.assertIn(r["status"], ("PROVED", "REFUTED", "UNKNOWN"))
+                if dv[lid].get("subform") != "site":   # amended (I20, spec/M2/amendments.jsonl): a SORT-width law
+                    continue                          # has no site and no per-entry witnesses (I20's contract)
                 self.assertEqual(r["site"], dv[lid]["basis"]["site_id"])
                 if r["status"] == "PROVED":
                     self.assertEqual(r["witnesses"], {})
@@ -217,6 +219,8 @@ class TestRecords(unittest.TestCase):
         recs = records("M2")
         self.assertTrue(recs, "results/M2 holds no law record")
         for lid, r in recs.items():
+            if law(lid).get("subform") != "site":   # amended (I20): a SORT-width record is over the extracted model
+                continue
             self.assertEqual(r["artifacts"]["model"], "gen/M2/model/morph_rollup.bend", lid)
 
     def test_ledger_assumptions_survive(self):
@@ -224,6 +228,8 @@ class TestRecords(unittest.TestCase):
         recs = records("M2")
         self.assertTrue(recs, "results/M2 holds no law record")
         for lid, r in recs.items():
+            if law(lid)["facts"] != ROLLUP_REL:   # amended (I20): the records over the rollup facts (a SORT-width
+                continue                          # record is over the extracted document, with its own bundle)
             with self.subTest(law=lid):
                 got = set(r.get("model_assumptions") or []) | set(r.get("ledger_assumptions") or [])
                 self.assertLessEqual({"abs-nat-tokens", "scope-rollup-coverage-debt"}, got)
