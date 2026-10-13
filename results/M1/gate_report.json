@@ -140,6 +140,142 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {
+        "n": 0
+      },
+      "id": "CANARY_flip_const_0_L_disch_delay_nofree",
+      "kind": "flip_const",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_flip_const_0_L_disch_delay_nofree",
+        "maps_to": "O33 (F7 reconciled)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [],
+          "binders": [
+            {
+              "name": "n",
+              "q": "forall",
+              "type": "Nat"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "from": {
+                        "s0": {}
+                      },
+                      "run": {
+                        "trace": [
+                          {
+                            "act": "sendMessage",
+                            "args": {
+                              "who": {
+                                "nat": 5
+                              }
+                            }
+                          },
+                          {
+                            "act": "commitBatch",
+                            "args": {
+                              "blobs": {
+                                "nats": [
+                                  7
+                                ]
+                              },
+                              "lbn": {
+                                "nat": 1
+                              },
+                              "n": {
+                                "nat": 1
+                              },
+                              "parent": {
+                                "nat": 0
+                              },
+                              "post": {
+                                "nat": 101
+                              },
+                              "prev": {
+                                "nat": 100
+                              },
+                              "ver": {
+                                "nat": 1
+                              },
+                              "who": {
+                                "nat": 2
+                              }
+                            }
+                          },
+                          {
+                            "act": "wait",
+                            "args": {
+                              "dt": {
+                                "nat": 21
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "step": {
+                      "act": "commitBatch",
+                      "args": {
+                        "blobs": {
+                          "nats": [
+                            8
+                          ]
+                        },
+                        "lbn": {
+                          "nat": 2
+                        },
+                        "n": {
+                          "var": "n"
+                        },
+                        "parent": {
+                          "nat": 1
+                        },
+                        "post": {
+                          "nat": 102
+                        },
+                        "prev": {
+                          "nat": 101
+                        },
+                        "ver": {
+                          "nat": 1
+                        },
+                        "who": {
+                          "nat": 2
+                        }
+                      }
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "profile_point"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_disch_delay_nofree"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
         "st": [
           {
             "op": "sendMessage",
@@ -365,6 +501,298 @@
       "negated": false,
       "rejected": true,
       "source_law": "L_disch_delay_pay"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "run": []
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 11,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_0_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_0_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "t"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "t"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "t"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "t"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            27
+          ],
+          "lbn": 2,
+          "n": 0,
+          "op": "commitBatchWithProof",
+          "parent": 1,
+          "post": 123,
+          "prev": 110,
+          "proof": 1,
+          "ver": 1,
+          "who": 5
+        },
+        "s": {
+          "run": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 11,
+              "op": "wait"
+            }
+          ]
+        }
+      },
+      "id": "CANARY_negated_1_L_disch_stale",
+      "kind": "negated",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_1_L_disch_stale",
+        "maps_to": "O31 (F4)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "obsv": "kappa",
+                  "of": {
+                    "var": "s"
+                  }
+                },
+                {
+                  "bool": true
+                }
+              ]
+            },
+            {
+              "eq": [
+                {
+                  "args": [
+                    {
+                      "var": "a"
+                    }
+                  ],
+                  "fn": "perm"
+                },
+                {
+                  "bool": true
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "obsv": "kappa",
+                "of": {
+                  "from": {
+                    "var": "s"
+                  },
+                  "step": {
+                    "var": "a"
+                  }
+                }
+              },
+              {
+                "bool": true
+              }
+            ]
+          }
+        },
+        "subform": "blocking"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_disch_stale"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
@@ -598,6 +1026,300 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {
+        "s1": {
+          "run": []
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 1,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_1_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_1_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "lfi"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "lfi"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "lfi"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "lfi"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "a": {
+          "blobs": [
+            27
+          ],
+          "lbn": 2,
+          "n": 0,
+          "op": "commitBatchWithProof",
+          "parent": 1,
+          "post": 123,
+          "prev": 110,
+          "proof": 1,
+          "ver": 1,
+          "who": 5
+        },
+        "s": {
+          "run": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            },
+            {
+              "dt": 11,
+              "op": "wait"
+            }
+          ]
+        }
+      },
+      "id": "CANARY_negated_2_L_disch_stale_commit",
+      "kind": "negated",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_2_L_disch_stale_commit",
+        "maps_to": "O31 (F4)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "DISCH",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "obsv": "kappa",
+                  "of": {
+                    "var": "s"
+                  }
+                },
+                {
+                  "bool": true
+                }
+              ]
+            },
+            {
+              "eq": [
+                {
+                  "args": [
+                    {
+                      "var": "a"
+                    }
+                  ],
+                  "fn": "is_commitBatchWithProof"
+                },
+                {
+                  "bool": true
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "s",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "a",
+              "q": "forall",
+              "type": "Act"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "args": [
+                  {
+                    "from": {
+                      "var": "s"
+                    },
+                    "step": {
+                      "var": "a"
+                    }
+                  }
+                ],
+                "fn": "last_ok"
+              },
+              {
+                "bool": false
+              }
+            ]
+          }
+        },
+        "subform": "blocking"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_disch_stale_commit"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
         "st": [
           {
             "blobs": [
@@ -824,6 +1546,265 @@
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {
+        "s1": {
+          "run": []
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": true,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "op": "setPause",
+            "status": true,
+            "who": 1
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_2_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_2_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "inch"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "inch"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "inch"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "inch"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "run": []
+        },
+        "s2": {
+          "run": []
+        },
+        "tr": []
+      },
+      "id": "CANARY_negated_3_L_undo_BD",
+      "kind": "negated",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_3_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "s_bd"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "s_bd"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_bd"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_bd"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
         "st": [
           {
             "blobs": [
@@ -1046,6 +2027,334 @@
       "negated": false,
       "rejected": true,
       "source_law": "L_disch_delay_prove"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "run": [
+            {
+              "blobs": [
+                17
+              ],
+              "lbn": 1,
+              "n": 0,
+              "op": "commitBatch",
+              "parent": 0,
+              "post": 110,
+              "prev": 100,
+              "ver": 1,
+              "who": 2
+            },
+            {
+              "idx": 1,
+              "op": "challengeState",
+              "value": 1,
+              "who": 4
+            }
+          ]
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 2,
+            "chals": [
+              4
+            ],
+            "chs": [
+              {
+                "$": "HCh",
+                "c": 0,
+                "d": 0,
+                "f": false,
+                "s": 0,
+                "w": false
+              },
+              {
+                "$": "HCh",
+                "c": 4,
+                "d": 1,
+                "f": false,
+                "s": 10,
+                "w": false
+              }
+            ],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": true,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              },
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              },
+              {
+                "$": "HEntry",
+                "bdf": 50,
+                "bdn": 1,
+                "bdo": 10,
+                "bds": 2,
+                "bvh": 17,
+                "csr": 110,
+                "hb": 17,
+                "lbn": 1,
+                "n": 0,
+                "post": 110,
+                "prev": 100,
+                "tag": 1,
+                "tot": 0,
+                "ver": 1
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 1,
+            "post": 122,
+            "prev": 110,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_3_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_3_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "bc"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "bc"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "bc"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "bc"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "run": []
+        },
+        "s2": {
+          "run": []
+        },
+        "tr": []
+      },
+      "id": "CANARY_negated_4_L_undo_CSR",
+      "kind": "negated",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_negated_4_L_undo_CSR",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "s_csr"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "s_csr"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_csr"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "s_csr"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": true,
+      "rejected": true,
+      "source_law": "L_undo_CSR"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
@@ -1280,6 +2589,171 @@
       "negated": false,
       "rejected": true,
       "source_law": "L_disch_delay_wait"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "run": []
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 1,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_4_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_4_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "rri"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "rri"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "rri"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "rri"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
@@ -1543,540 +3017,6 @@
             "inch": false,
             "lfi": 0,
             "log": [],
-            "paused": false,
-            "qlen": 0,
-            "qpend": 0,
-            "rri": 0,
-            "s_bd": [],
-            "s_bvh": [
-              1
-            ],
-            "s_csr": [],
-            "s_tag": [],
-            "t": 10,
-            "win": [
-              {
-                "$": "HEntry",
-                "bdf": 10,
-                "bdn": 0,
-                "bdo": 10,
-                "bds": 0,
-                "bvh": 1,
-                "csr": 100,
-                "hb": 1,
-                "lbn": 0,
-                "n": 0,
-                "post": 100,
-                "prev": 0,
-                "tag": 1,
-                "tot": 0,
-                "ver": 0
-              }
-            ]
-          }
-        },
-        "tr": [
-          {
-            "blobs": [
-              17
-            ],
-            "lbn": 1,
-            "n": 0,
-            "op": "commitBatch",
-            "parent": 0,
-            "post": 110,
-            "prev": 100,
-            "ver": 1,
-            "who": 2
-          }
-        ]
-      },
-      "id": "CANARY_erase_live_0_L_undo_BD",
-      "kind": "erase_live",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_0_L_undo_BD",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "s_bvh"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "s_bvh"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_bvh"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_bvh"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_undo_BD"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": [
-            {
-              "blobs": [
-                17
-              ],
-              "lbn": 1,
-              "n": 0,
-              "op": "commitBatch",
-              "parent": 0,
-              "post": 110,
-              "prev": 100,
-              "ver": 1,
-              "who": 2
-            },
-            {
-              "count": 1,
-              "idx": 1,
-              "op": "revertBatch",
-              "who": 1
-            }
-          ]
-        },
-        "s2": {
-          "state": {
-            "$": "HSt",
-            "D": 20,
-            "F": 40,
-            "W": 10,
-            "active": [
-              2,
-              3
-            ],
-            "bc": 0,
-            "chals": [
-              4
-            ],
-            "chs": [],
-            "enq": [],
-            "fsr": [
-              100
-            ],
-            "inch": false,
-            "lfi": 0,
-            "log": [
-              {
-                "$": "O_Ok"
-              },
-              {
-                "$": "O_Ok"
-              }
-            ],
-            "paused": false,
-            "qlen": 0,
-            "qpend": 0,
-            "rri": 0,
-            "s_bd": [
-              {
-                "$": "HBD",
-                "f": 50,
-                "n": 1,
-                "o": 10,
-                "s": 2
-              }
-            ],
-            "s_bvh": [
-              17
-            ],
-            "s_csr": [
-              110
-            ],
-            "s_tag": [],
-            "t": 10,
-            "win": [
-              {
-                "$": "HEntry",
-                "bdf": 10,
-                "bdn": 0,
-                "bdo": 10,
-                "bds": 0,
-                "bvh": 1,
-                "csr": 100,
-                "hb": 1,
-                "lbn": 0,
-                "n": 0,
-                "post": 100,
-                "prev": 0,
-                "tag": 1,
-                "tot": 0,
-                "ver": 0
-              }
-            ]
-          }
-        },
-        "tr": [
-          {
-            "blobs": [],
-            "lbn": 1,
-            "n": 0,
-            "op": "commitState",
-            "parent": 0,
-            "post": 112,
-            "prev": 100,
-            "ver": 1,
-            "who": 2
-          }
-        ]
-      },
-      "id": "CANARY_erase_live_1_L_undo_BD",
-      "kind": "erase_live",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_1_L_undo_BD",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "s_tag"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "s_tag"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_tag"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_tag"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_undo_BD"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": []
-        },
-        "s2": {
-          "state": {
-            "$": "HSt",
-            "D": 20,
-            "F": 40,
-            "W": 10,
-            "active": [
-              2,
-              3
-            ],
-            "bc": 0,
-            "chals": [
-              4
-            ],
-            "chs": [],
-            "enq": [],
-            "fsr": [
-              100
-            ],
-            "inch": false,
-            "lfi": 0,
-            "log": [],
-            "paused": false,
-            "qlen": 0,
-            "qpend": 0,
-            "rri": 0,
-            "s_bd": [],
-            "s_bvh": [],
-            "s_csr": [],
-            "s_tag": [],
-            "t": 11,
-            "win": [
-              {
-                "$": "HEntry",
-                "bdf": 10,
-                "bdn": 0,
-                "bdo": 10,
-                "bds": 0,
-                "bvh": 1,
-                "csr": 100,
-                "hb": 1,
-                "lbn": 0,
-                "n": 0,
-                "post": 100,
-                "prev": 0,
-                "tag": 1,
-                "tot": 0,
-                "ver": 0
-              }
-            ]
-          }
-        },
-        "tr": [
-          {
-            "blobs": [
-              17
-            ],
-            "lbn": 1,
-            "n": 0,
-            "op": "commitBatch",
-            "parent": 0,
-            "post": 110,
-            "prev": 100,
-            "ver": 1,
-            "who": 2
-          }
-        ]
-      },
-      "id": "CANARY_erase_live_2_L_undo_BD",
-      "kind": "erase_live",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_2_L_undo_BD",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "t"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "t"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "t"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "t"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_undo_BD"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": []
-        },
-        "s2": {
-          "state": {
-            "$": "HSt",
-            "D": 20,
-            "F": 40,
-            "W": 10,
-            "active": [
-              2,
-              3
-            ],
-            "bc": 0,
-            "chals": [
-              4
-            ],
-            "chs": [],
-            "enq": [],
-            "fsr": [
-              100
-            ],
-            "inch": false,
-            "lfi": 0,
-            "log": [],
             "paused": true,
             "qlen": 0,
             "qpend": 0,
@@ -2117,339 +3057,6 @@
             "op": "commitBatch",
             "parent": 0,
             "post": 110,
-            "prev": 100,
-            "ver": 1,
-            "who": 2
-          }
-        ]
-      },
-      "id": "CANARY_erase_live_3_L_undo_BD",
-      "kind": "erase_live",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_3_L_undo_BD",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "paused"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "paused"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "paused"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "paused"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_undo_BD"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": []
-        },
-        "s2": {
-          "state": {
-            "$": "HSt",
-            "D": 20,
-            "F": 40,
-            "W": 10,
-            "active": [
-              2,
-              3
-            ],
-            "bc": 0,
-            "chals": [
-              4
-            ],
-            "chs": [],
-            "enq": [],
-            "fsr": [
-              100
-            ],
-            "inch": true,
-            "lfi": 0,
-            "log": [],
-            "paused": false,
-            "qlen": 0,
-            "qpend": 0,
-            "rri": 0,
-            "s_bd": [],
-            "s_bvh": [],
-            "s_csr": [],
-            "s_tag": [],
-            "t": 10,
-            "win": [
-              {
-                "$": "HEntry",
-                "bdf": 10,
-                "bdn": 0,
-                "bdo": 10,
-                "bds": 0,
-                "bvh": 1,
-                "csr": 100,
-                "hb": 1,
-                "lbn": 0,
-                "n": 0,
-                "post": 100,
-                "prev": 0,
-                "tag": 1,
-                "tot": 0,
-                "ver": 0
-              }
-            ]
-          }
-        },
-        "tr": [
-          {
-            "op": "setPause",
-            "status": true,
-            "who": 1
-          }
-        ]
-      },
-      "id": "CANARY_erase_live_4_L_undo_BD",
-      "kind": "erase_live",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_4_L_undo_BD",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "inch"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "inch"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "inch"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "inch"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_undo_BD"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": [
-            {
-              "op": "sendMessage",
-              "who": 5
-            }
-          ]
-        },
-        "s2": {
-          "state": {
-            "$": "HSt",
-            "D": 20,
-            "F": 40,
-            "W": 10,
-            "active": [
-              2,
-              3
-            ],
-            "bc": 0,
-            "chals": [
-              4
-            ],
-            "chs": [],
-            "enq": [
-              10
-            ],
-            "fsr": [
-              100
-            ],
-            "inch": false,
-            "lfi": 0,
-            "log": [
-              {
-                "$": "O_Ok"
-              }
-            ],
-            "paused": false,
-            "qlen": 0,
-            "qpend": 0,
-            "rri": 0,
-            "s_bd": [],
-            "s_bvh": [],
-            "s_csr": [],
-            "s_tag": [],
-            "t": 10,
-            "win": [
-              {
-                "$": "HEntry",
-                "bdf": 10,
-                "bdn": 0,
-                "bdo": 10,
-                "bds": 0,
-                "bvh": 1,
-                "csr": 100,
-                "hb": 1,
-                "lbn": 0,
-                "n": 0,
-                "post": 100,
-                "prev": 0,
-                "tag": 1,
-                "tot": 0,
-                "ver": 0
-              }
-            ]
-          }
-        },
-        "tr": [
-          {
-            "blobs": [
-              17
-            ],
-            "lbn": 1,
-            "n": 1,
-            "op": "commitBatch",
-            "parent": 0,
-            "post": 111,
             "prev": 100,
             "ver": 1,
             "who": 2
@@ -2479,7 +3086,7 @@
                     "var": "s1"
                   },
                   "proj": [
-                    "qlen"
+                    "paused"
                   ]
                 },
                 {
@@ -2487,7 +3094,7 @@
                     "var": "s2"
                   },
                   "proj": [
-                    "qlen"
+                    "paused"
                   ]
                 }
               ]
@@ -2522,7 +3129,7 @@
                   }
                 },
                 "proj": [
-                  "qlen"
+                  "paused"
                 ]
               },
               {
@@ -2535,7 +3142,7 @@
                   }
                 },
                 "proj": [
-                  "qlen"
+                  "paused"
                 ]
               }
             ]
@@ -2546,275 +3153,6 @@
       "negated": false,
       "rejected": true,
       "source_law": "L_undo_BD"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": []
-        },
-        "s2": {
-          "run": []
-        },
-        "tr": []
-      },
-      "id": "CANARY_negated_1_L_undo_BD",
-      "kind": "negated",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_1_L_undo_BD",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "s_bd"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "s_bd"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_bd"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_bd"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": true,
-      "rejected": true,
-      "source_law": "L_undo_BD"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": []
-        },
-        "s2": {
-          "state": {
-            "$": "HSt",
-            "D": 20,
-            "F": 40,
-            "W": 10,
-            "active": [
-              2,
-              3
-            ],
-            "bc": 0,
-            "chals": [
-              4
-            ],
-            "chs": [],
-            "enq": [],
-            "fsr": [
-              100
-            ],
-            "inch": false,
-            "lfi": 0,
-            "log": [],
-            "paused": false,
-            "qlen": 0,
-            "qpend": 0,
-            "rri": 0,
-            "s_bd": [],
-            "s_bvh": [
-              1
-            ],
-            "s_csr": [],
-            "s_tag": [],
-            "t": 10,
-            "win": [
-              {
-                "$": "HEntry",
-                "bdf": 10,
-                "bdn": 0,
-                "bdo": 10,
-                "bds": 0,
-                "bvh": 1,
-                "csr": 100,
-                "hb": 1,
-                "lbn": 0,
-                "n": 0,
-                "post": 100,
-                "prev": 0,
-                "tag": 1,
-                "tot": 0,
-                "ver": 0
-              }
-            ]
-          }
-        },
-        "tr": [
-          {
-            "blobs": [
-              17
-            ],
-            "lbn": 1,
-            "n": 0,
-            "op": "commitBatch",
-            "parent": 0,
-            "post": 110,
-            "prev": 100,
-            "ver": 1,
-            "who": 2
-          }
-        ]
-      },
-      "id": "CANARY_erase_live_6_L_undo_CSR",
-      "kind": "erase_live",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_6_L_undo_CSR",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "s_bvh"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "s_bvh"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_bvh"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "s_bvh"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_undo_CSR"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
@@ -2833,12 +3171,6 @@
               "prev": 100,
               "ver": 1,
               "who": 2
-            },
-            {
-              "count": 1,
-              "idx": 1,
-              "op": "revertBatch",
-              "who": 1
             }
           ]
         },
@@ -2847,7 +3179,7 @@
             "$": "HSt",
             "D": 20,
             "F": 40,
-            "W": 10,
+            "W": 11,
             "active": [
               2,
               3
@@ -2866,30 +3198,15 @@
             "log": [
               {
                 "$": "O_Ok"
-              },
-              {
-                "$": "O_Ok"
               }
             ],
             "paused": false,
             "qlen": 0,
             "qpend": 0,
             "rri": 0,
-            "s_bd": [
-              {
-                "$": "HBD",
-                "f": 50,
-                "n": 1,
-                "o": 10,
-                "s": 2
-              }
-            ],
-            "s_bvh": [
-              17
-            ],
-            "s_csr": [
-              110
-            ],
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
             "s_tag": [],
             "t": 10,
             "win": [
@@ -2909,25 +3226,50 @@
                 "tag": 1,
                 "tot": 0,
                 "ver": 0
+              },
+              {
+                "$": "HEntry",
+                "bdf": 50,
+                "bdn": 1,
+                "bdo": 10,
+                "bds": 2,
+                "bvh": 17,
+                "csr": 110,
+                "hb": 17,
+                "lbn": 1,
+                "n": 0,
+                "post": 110,
+                "prev": 100,
+                "tag": 1,
+                "tot": 0,
+                "ver": 1
               }
             ]
           }
         },
         "tr": [
           {
-            "blobs": [],
-            "lbn": 1,
+            "blobs": [
+              27
+            ],
+            "lbn": 2,
             "n": 0,
-            "op": "commitState",
-            "parent": 0,
-            "post": 112,
-            "prev": 100,
+            "op": "commitBatch",
+            "parent": 1,
+            "post": 121,
+            "prev": 110,
             "ver": 1,
             "who": 2
+          },
+          {
+            "idx": 2,
+            "op": "challengeState",
+            "value": 1,
+            "who": 4
           }
         ]
       },
-      "id": "CANARY_erase_live_7_L_undo_CSR",
+      "id": "CANARY_erase_live_6_L_undo_BD",
       "kind": "erase_live",
       "law": {
         "evidence": [
@@ -2936,7 +3278,7 @@
         "facts": "spec/M1/facts/morph_rollup.json",
         "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_7_L_undo_CSR",
+        "law_id": "CANARY_erase_live_6_L_undo_BD",
         "maps_to": "D5 (whitepaper \u00a711.6)",
         "milestone": "M1",
         "predicted": "PROVED",
@@ -2950,7 +3292,7 @@
                     "var": "s1"
                   },
                   "proj": [
-                    "s_tag"
+                    "W"
                   ]
                 },
                 {
@@ -2958,7 +3300,7 @@
                     "var": "s2"
                   },
                   "proj": [
-                    "s_tag"
+                    "W"
                   ]
                 }
               ]
@@ -2993,7 +3335,7 @@
                   }
                 },
                 "proj": [
-                  "s_tag"
+                  "W"
                 ]
               },
               {
@@ -3006,7 +3348,7 @@
                   }
                 },
                 "proj": [
-                  "s_tag"
+                  "W"
                 ]
               }
             ]
@@ -3016,7 +3358,7 @@
       },
       "negated": false,
       "rejected": true,
-      "source_law": "L_undo_CSR"
+      "source_law": "L_undo_BD"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
@@ -3027,7 +3369,7 @@
         "s2": {
           "state": {
             "$": "HSt",
-            "D": 20,
+            "D": 21,
             "F": 40,
             "W": 10,
             "active": [
@@ -3054,171 +3396,6 @@
             "s_bvh": [],
             "s_csr": [],
             "s_tag": [],
-            "t": 11,
-            "win": [
-              {
-                "$": "HEntry",
-                "bdf": 10,
-                "bdn": 0,
-                "bdo": 10,
-                "bds": 0,
-                "bvh": 1,
-                "csr": 100,
-                "hb": 1,
-                "lbn": 0,
-                "n": 0,
-                "post": 100,
-                "prev": 0,
-                "tag": 1,
-                "tot": 0,
-                "ver": 0
-              }
-            ]
-          }
-        },
-        "tr": [
-          {
-            "blobs": [
-              17
-            ],
-            "lbn": 1,
-            "n": 0,
-            "op": "commitBatch",
-            "parent": 0,
-            "post": 110,
-            "prev": 100,
-            "ver": 1,
-            "who": 2
-          }
-        ]
-      },
-      "id": "CANARY_erase_live_8_L_undo_CSR",
-      "kind": "erase_live",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_8_L_undo_CSR",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "t"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "t"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "t"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "t"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_undo_CSR"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": []
-        },
-        "s2": {
-          "state": {
-            "$": "HSt",
-            "D": 20,
-            "F": 40,
-            "W": 10,
-            "active": [
-              2,
-              3
-            ],
-            "bc": 0,
-            "chals": [
-              4
-            ],
-            "chs": [],
-            "enq": [],
-            "fsr": [
-              100
-            ],
-            "inch": false,
-            "lfi": 0,
-            "log": [],
-            "paused": true,
-            "qlen": 0,
-            "qpend": 0,
-            "rri": 0,
-            "s_bd": [],
-            "s_bvh": [],
-            "s_csr": [],
-            "s_tag": [],
             "t": 10,
             "win": [
               {
@@ -3243,21 +3420,26 @@
         },
         "tr": [
           {
+            "dt": 21,
+            "op": "wait"
+          },
+          {
             "blobs": [
               17
             ],
             "lbn": 1,
             "n": 0,
-            "op": "commitBatch",
+            "op": "commitBatchWithProof",
             "parent": 0,
-            "post": 110,
+            "post": 111,
             "prev": 100,
+            "proof": 1,
             "ver": 1,
-            "who": 2
+            "who": 5
           }
         ]
       },
-      "id": "CANARY_erase_live_9_L_undo_CSR",
+      "id": "CANARY_erase_live_7_L_undo_BD",
       "kind": "erase_live",
       "law": {
         "evidence": [
@@ -3266,7 +3448,7 @@
         "facts": "spec/M1/facts/morph_rollup.json",
         "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_9_L_undo_CSR",
+        "law_id": "CANARY_erase_live_7_L_undo_BD",
         "maps_to": "D5 (whitepaper \u00a711.6)",
         "milestone": "M1",
         "predicted": "PROVED",
@@ -3280,7 +3462,7 @@
                     "var": "s1"
                   },
                   "proj": [
-                    "paused"
+                    "D"
                   ]
                 },
                 {
@@ -3288,7 +3470,7 @@
                     "var": "s2"
                   },
                   "proj": [
-                    "paused"
+                    "D"
                   ]
                 }
               ]
@@ -3323,7 +3505,7 @@
                   }
                 },
                 "proj": [
-                  "paused"
+                  "D"
                 ]
               },
               {
@@ -3336,7 +3518,7 @@
                   }
                 },
                 "proj": [
-                  "paused"
+                  "D"
                 ]
               }
             ]
@@ -3346,164 +3528,7 @@
       },
       "negated": false,
       "rejected": true,
-      "source_law": "L_undo_CSR"
-    },
-    {
-      "checker_first_line": "SOME PROOFS FAIL",
-      "counterexample": {
-        "s1": {
-          "run": []
-        },
-        "s2": {
-          "state": {
-            "$": "HSt",
-            "D": 20,
-            "F": 40,
-            "W": 10,
-            "active": [
-              2,
-              3
-            ],
-            "bc": 0,
-            "chals": [
-              4
-            ],
-            "chs": [],
-            "enq": [],
-            "fsr": [
-              100
-            ],
-            "inch": true,
-            "lfi": 0,
-            "log": [],
-            "paused": false,
-            "qlen": 0,
-            "qpend": 0,
-            "rri": 0,
-            "s_bd": [],
-            "s_bvh": [],
-            "s_csr": [],
-            "s_tag": [],
-            "t": 10,
-            "win": [
-              {
-                "$": "HEntry",
-                "bdf": 10,
-                "bdn": 0,
-                "bdo": 10,
-                "bds": 0,
-                "bvh": 1,
-                "csr": 100,
-                "hb": 1,
-                "lbn": 0,
-                "n": 0,
-                "post": 100,
-                "prev": 0,
-                "tag": 1,
-                "tot": 0,
-                "ver": 0
-              }
-            ]
-          }
-        },
-        "tr": [
-          {
-            "op": "setPause",
-            "status": true,
-            "who": 1
-          }
-        ]
-      },
-      "id": "CANARY_erase_live_10_L_undo_CSR",
-      "kind": "erase_live",
-      "law": {
-        "evidence": [
-          "E2"
-        ],
-        "facts": "spec/M1/facts/morph_rollup.json",
-        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-        "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_10_L_undo_CSR",
-        "maps_to": "D5 (whitepaper \u00a711.6)",
-        "milestone": "M1",
-        "predicted": "PROVED",
-        "rule": "UNDO",
-        "statement": {
-          "assume": [
-            {
-              "eq": [
-                {
-                  "of": {
-                    "var": "s1"
-                  },
-                  "proj": [
-                    "inch"
-                  ]
-                },
-                {
-                  "of": {
-                    "var": "s2"
-                  },
-                  "proj": [
-                    "inch"
-                  ]
-                }
-              ]
-            }
-          ],
-          "binders": [
-            {
-              "name": "tr",
-              "q": "forall",
-              "type": "Trace"
-            },
-            {
-              "name": "s1",
-              "q": "forall",
-              "type": "State"
-            },
-            {
-              "name": "s2",
-              "q": "forall",
-              "type": "State"
-            }
-          ],
-          "claim": {
-            "eq": [
-              {
-                "of": {
-                  "from": {
-                    "var": "s1"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "inch"
-                ]
-              },
-              {
-                "of": {
-                  "from": {
-                    "var": "s2"
-                  },
-                  "run": {
-                    "var": "tr"
-                  }
-                },
-                "proj": [
-                  "inch"
-                ]
-              }
-            ]
-          }
-        },
-        "subform": "dead_residue"
-      },
-      "negated": false,
-      "rejected": true,
-      "source_law": "L_undo_CSR"
+      "source_law": "L_undo_BD"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
@@ -3590,7 +3615,7 @@
           }
         ]
       },
-      "id": "CANARY_erase_live_11_L_undo_CSR",
+      "id": "CANARY_erase_live_8_L_undo_BD",
       "kind": "erase_live",
       "law": {
         "evidence": [
@@ -3599,7 +3624,7 @@
         "facts": "spec/M1/facts/morph_rollup.json",
         "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_erase_live_11_L_undo_CSR",
+        "law_id": "CANARY_erase_live_8_L_undo_BD",
         "maps_to": "D5 (whitepaper \u00a711.6)",
         "milestone": "M1",
         "predicted": "PROVED",
@@ -3679,21 +3704,99 @@
       },
       "negated": false,
       "rejected": true,
-      "source_law": "L_undo_CSR"
+      "source_law": "L_undo_BD"
     },
     {
       "checker_first_line": "SOME PROOFS FAIL",
       "counterexample": {
         "s1": {
-          "run": []
+          "run": [
+            {
+              "op": "sendMessage",
+              "who": 5
+            }
+          ]
         },
         "s2": {
-          "run": []
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [
+              10
+            ],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 1,
+            "qpend": 1,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
         },
-        "tr": []
+        "tr": [
+          {
+            "dt": 21,
+            "op": "wait"
+          },
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 112,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
       },
-      "id": "CANARY_negated_2_L_undo_CSR",
-      "kind": "negated",
+      "id": "CANARY_erase_live_9_L_undo_BD",
+      "kind": "erase_live",
       "law": {
         "evidence": [
           "E2"
@@ -3701,7 +3804,7 @@
         "facts": "spec/M1/facts/morph_rollup.json",
         "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
         "ir_version": "holon-ir/0.2",
-        "law_id": "CANARY_negated_2_L_undo_CSR",
+        "law_id": "CANARY_erase_live_9_L_undo_BD",
         "maps_to": "D5 (whitepaper \u00a711.6)",
         "milestone": "M1",
         "predicted": "PROVED",
@@ -3715,7 +3818,7 @@
                     "var": "s1"
                   },
                   "proj": [
-                    "s_csr"
+                    "qpend"
                   ]
                 },
                 {
@@ -3723,7 +3826,7 @@
                     "var": "s2"
                   },
                   "proj": [
-                    "s_csr"
+                    "qpend"
                   ]
                 }
               ]
@@ -3758,7 +3861,7 @@
                   }
                 },
                 "proj": [
-                  "s_csr"
+                  "qpend"
                 ]
               },
               {
@@ -3771,7 +3874,7 @@
                   }
                 },
                 "proj": [
-                  "s_csr"
+                  "qpend"
                 ]
               }
             ]
@@ -3779,9 +3882,349 @@
         },
         "subform": "dead_residue"
       },
-      "negated": true,
+      "negated": false,
       "rejected": true,
-      "source_law": "L_undo_CSR"
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "run": [
+            {
+              "op": "sendMessage",
+              "who": 5
+            }
+          ]
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [
+              2,
+              3
+            ],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [
+              {
+                "$": "O_Ok"
+              }
+            ],
+            "paused": false,
+            "qlen": 1,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "dt": 21,
+            "op": "wait"
+          },
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 112,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_10_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_10_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "enq"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "enq"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "enq"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "enq"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
+    },
+    {
+      "checker_first_line": "SOME PROOFS FAIL",
+      "counterexample": {
+        "s1": {
+          "run": []
+        },
+        "s2": {
+          "state": {
+            "$": "HSt",
+            "D": 20,
+            "F": 40,
+            "W": 10,
+            "active": [],
+            "bc": 0,
+            "chals": [
+              4
+            ],
+            "chs": [],
+            "enq": [],
+            "fsr": [
+              100
+            ],
+            "inch": false,
+            "lfi": 0,
+            "log": [],
+            "paused": false,
+            "qlen": 0,
+            "qpend": 0,
+            "rri": 0,
+            "s_bd": [],
+            "s_bvh": [],
+            "s_csr": [],
+            "s_tag": [],
+            "t": 10,
+            "win": [
+              {
+                "$": "HEntry",
+                "bdf": 10,
+                "bdn": 0,
+                "bdo": 10,
+                "bds": 0,
+                "bvh": 1,
+                "csr": 100,
+                "hb": 1,
+                "lbn": 0,
+                "n": 0,
+                "post": 100,
+                "prev": 0,
+                "tag": 1,
+                "tot": 0,
+                "ver": 0
+              }
+            ]
+          }
+        },
+        "tr": [
+          {
+            "blobs": [
+              17
+            ],
+            "lbn": 1,
+            "n": 0,
+            "op": "commitBatch",
+            "parent": 0,
+            "post": 110,
+            "prev": 100,
+            "ver": 1,
+            "who": 2
+          }
+        ]
+      },
+      "id": "CANARY_erase_live_11_L_undo_BD",
+      "kind": "erase_live",
+      "law": {
+        "evidence": [
+          "E2"
+        ],
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+        "ir_version": "holon-ir/0.2",
+        "law_id": "CANARY_erase_live_11_L_undo_BD",
+        "maps_to": "D5 (whitepaper \u00a711.6)",
+        "milestone": "M1",
+        "predicted": "PROVED",
+        "rule": "UNDO",
+        "statement": {
+          "assume": [
+            {
+              "eq": [
+                {
+                  "of": {
+                    "var": "s1"
+                  },
+                  "proj": [
+                    "active"
+                  ]
+                },
+                {
+                  "of": {
+                    "var": "s2"
+                  },
+                  "proj": [
+                    "active"
+                  ]
+                }
+              ]
+            }
+          ],
+          "binders": [
+            {
+              "name": "tr",
+              "q": "forall",
+              "type": "Trace"
+            },
+            {
+              "name": "s1",
+              "q": "forall",
+              "type": "State"
+            },
+            {
+              "name": "s2",
+              "q": "forall",
+              "type": "State"
+            }
+          ],
+          "claim": {
+            "eq": [
+              {
+                "of": {
+                  "from": {
+                    "var": "s1"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "active"
+                ]
+              },
+              {
+                "of": {
+                  "from": {
+                    "var": "s2"
+                  },
+                  "run": {
+                    "var": "tr"
+                  }
+                },
+                "proj": [
+                  "active"
+                ]
+              }
+            ]
+          }
+        },
+        "subform": "dead_residue"
+      },
+      "negated": false,
+      "rejected": true,
+      "source_law": "L_undo_BD"
     }
   ],
   "checks": {
@@ -3790,7 +4233,7 @@
       "passed": true
     },
     "G11": {
-      "detail": "every law has a record and a non-vacuous LAWS.bend",
+      "detail": "every law has a record and a non-vacuous LAWS.bend, which its checked PROOF.bend imports",
       "passed": true
     },
     "G11V": {
@@ -3798,7 +4241,7 @@
       "passed": true
     },
     "G2": {
-      "detail": "all statement and facts hashes match the registry; 16 laws bound to their emitted statement and counter-law and to the kernel form of every definition they reach; laws/STATEMENT_DIFF.jsonl accepted (registry, bindings and the statement-change log are agent-writable: self-certified until the human's freeze, Q1)",
+      "detail": "all statement and facts hashes match the registry (holon-ir/0.2); laws/STATEMENT_DIFF.jsonl: 2 committed versions, 20669 committed bytes; committed lines verified against the commit that appended them, new lines checked against the working tree; statement-change tie: 0 statement-hash changes since the log was introduced (d3f5d64); 0 post-I10 binding change lines of M1, each covered by an accepted statement-diff entry; 16 laws bound to their emitted statement and counter-law and to the kernel form of every definition they reach; laws/STATEMENT_DIFF.jsonl accepted (registry, bindings and the statement-change log are agent-writable: self-certified until the human's freeze, Q1)",
       "passed": true
     },
     "G3": {
@@ -3806,11 +4249,11 @@
       "passed": true
     },
     "G4": {
-      "detail": "21 canaries of kinds ['erase_live', 'negated', 'pin_const'], all rejected",
+      "detail": "24 canaries of kinds ['erase_live', 'flip_const', 'negated', 'pin_const'], all rejected",
       "passed": true
     },
     "G5": {
-      "detail": "16 proofs re-checked from scratch, slowest 0.544 s (budget 120 s per file)",
+      "detail": "16 proofs re-checked from scratch, slowest 0.457 s (budget 120 s per file)",
       "passed": true
     },
     "G6": {
@@ -3830,9 +4273,9 @@
       "passed": true
     },
     "GEVID": {
-      "detail": "report-only: 16 laws against gen/M2/evidence.json (evidence_sha256 1d30875df09d3a0473fe8912d78e7f716a56f55ca958510081cabdc391c28418); 2 whose metadata evidence is not computed (L_nat_eta2, L_tag_BVH); 0 divergences from the v1 triage; 0 overrides; 0 uncovered",
+      "detail": "report-only: 16 laws against gen/M2/evidence.json (evidence_sha256 76c917153041ea5405751361d7a6b923602905091f5bb1b5d7f66b28ed44f05d); 2 whose metadata evidence is not computed (L_nat_eta2, L_tag_BVH); 0 divergences from the v1 triage; 0 overrides; 0 uncovered",
       "divergences": [],
-      "evidence_sha256": "1d30875df09d3a0473fe8912d78e7f716a56f55ca958510081cabdc391c28418",
+      "evidence_sha256": "76c917153041ea5405751361d7a6b923602905091f5bb1b5d7f66b28ed44f05d",
       "laws": {
         "L_disch_delay_nofree": {
           "computed": [
@@ -4148,10 +4591,13 @@
       "uncovered": []
     },
     "GREF": {
-      "detail": "0 disagreement entries, each classified by its links to its label and none unexplained; every disagreement id of the 6 refinement records under results/M2/refinement/ has an entry (fix-commit existence is left to `holon audit`)",
+      "detail": "0 disagreement entries, each classified by its links to its label and none unexplained; every disagreement id of the 7 refinement records under results/M2/refinement/ has an entry (fix-commit existence is left to `holon audit`)",
       "passed": true
     }
   },
   "milestone": "M1",
+  "not_applicable": {
+    "G8": "coverage accounts for the statements of extracted documents (M2+); this milestone's facts are hand-written and it has no extraction sidecar"
+  },
   "passed": true
 }
