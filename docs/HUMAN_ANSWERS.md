@@ -14,6 +14,30 @@ Answers to `docs/BUILD_PLAN.md` §6, "Questions for the human". The human gave t
 | **Q20** corpus size | **N = 20** defects across at least 3 systems. | Unblocks I48. |
 | **Q1** freezing | **Yes**, to be done by the human. AGENTS.md rule 1 reserves `tools/freeze.py write` for the human, and `tools/freeze.py` is itself frozen, so no agent can extend `FROZEN_ROOTS` either. The steps are below. | Until it is done, every protection resting on an agent-writable file stays self-certified. |
 
+## Answers delegated to the lead (2026-10-13)
+
+The human delegated five open questions to the lead agent ("answer the questions urself accordingly … we dont cut corners"). They also set standing guidance:
+
+- **HOLON's end goal is complex software in general.** Rollups are the starting target, not the goal.
+- **Measure for the strongest signal of a breakthrough.**
+- **Cut no corners.**
+
+These answers are the lead's, made under that delegation, not the human's own. The lead builds the system these answers govern, so each answer takes the stricter option. Where an answer defines a measure of HOLON's own work (Q11), the concrete definition is preregistered and adversarially reviewed before the work it measures.
+
+| Q | Answer (lead, delegated) | Effect |
+|---|---|---|
+| **Q11** L6 and L9 definitions | **Target-agnostic and measured against ground truth, never against HOLON's own outputs alone.** I54 preregisters the exact definitions and thresholds, and an adversarial reviewer checks them, before any of I55–I57 runs.<br><br>**L6 ("can" versus "will").** Each REFUTED finding gets a bounded game over the extracted principal classes, with ordinal payoffs from the extracted value flows (transfers, rewards, slashing, fees). The game classifies the finding as *rational* (some permitted actor has a strategy with non-negative payoff that triggers it), *irrational*, or UNKNOWN. Reported:<br>- the decided fraction;<br>- accuracy against corpus ground truth (I48), wherever exploitation, or its absence, is documented;<br>- a negative control: findings known to be unexploitable must not come out *rational*.<br><br>**L9 (environment).** Environment axioms are replaced by time-indexed modules: L1 fork choice and reorg depth, the DA availability window, and the data fetchers. Reported:<br>- environment-premise coverage: the share of laws whose environment premises are modelled rather than assumed;<br>- module accuracy against recorded history on held-out time slices, for example blob retrievability against I59's snapshot;<br>- sensitivity: the number of law statuses that change when an axiom becomes a module, each change replayed. | Unblocks I54 (M5). |
+| **Q18** deployment history | **Both, cross-checked.**<br><br>**Code-derived history is the model.** It comes from reinitializers and storage-layout diffs across git tags, built as a generic extractor for any upgradeable-proxy codebase.<br><br>**The on-chain timeline is an independent check.** It uses the proxy `Upgraded` and admin events, and the implementation bytecode at each upgrade, matched to tags by metadata-stripped bytecode hash.<br>- An unmatched implementation, or a mismatched order, is recorded as a finding or as coverage debt, never smoothed over.<br>- In-flight states at each cutover come from real chain history where it is reachable. Logs and transactions need no token; historical *state* needs an archive key in `ETH_RPC_URL`, which is optional. | Unblocks I28. The upgrade timeline stops being an assumption. |
+| **Q4** schemas | **Yes.** `result_record_v2` and `law_ir_0_3` are adopted into the frozen `schemas/` at I33's adoption step, after I41 has added `prover`, so the frozen version is complete. That includes the `filter_bin` values with `intended_bounded`, `kernels[]`, `scope{kind,H}`, `refinement_refs`, `coverage` and the INTENT rule. v1 `triage` stays untouched. The agent prepares the files and the exact steps. Running `tools/freeze.py write` stays the human's (AGENTS.md rule 1). | I33 proceeds. The v2 formats are self-certified until the human freezes them. |
+| **Q12** legacy registry | **Fetch the real code. A stand-in is a last resort.** The pre-cutover staking and registry contract is found from on-chain history.<br>- Its bytecode is fetched, along with its verified source from the explorer where one exists.<br>- When the source compiles to the deployed bytecode (metadata stripped), it is extracted with the I17/I19 frontends.<br>- Otherwise it gets a bytecode-level model, labelled.<br><br>A stand-in is used only if the code cannot be recovered, and it is labelled. The acquisition component is generic: historical code for any target. | Unblocks I36. O13 and O14 rest on real code. |
+| **Q8** G7 promotion | **Every PROVED law.** A hand-picked subset would be a selection bias.<br>- A law that Lean cannot check within budget stays single-kernel (I1), with the reason recorded: timeout, recursion depth, or an unsupported form.<br>- Cross-kernel coverage is reported as a metric.<br>- A cross-kernel disagreement is a blocking finding.<br><br>Large byte layouts may use generated per-cell lemmas. The 131,072-byte blob laws are the known risk. | Unblocks I43. |
+
+**How the end goal applies later.**
+
+- **I47 (target-agnostic factory).** Its tests require that nothing in `holon/` names a target, as I6 and I22 already require.
+- **I48 (corpus).** The corpus is chosen to test generality beyond rollups wherever the frontends reach.
+- **New frontends.** A new language frontend is a candidate iteration once M3's rules are stable.
+
 ## Q1: the steps for the human
 
 1. In `tools/freeze.py`, extend `FROZEN_ROOTS` with:

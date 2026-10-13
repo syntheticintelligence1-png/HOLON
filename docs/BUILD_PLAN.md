@@ -1549,15 +1549,15 @@ The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
    - (a) `L_tag_BVH` wording: the agent appended "either direction" after the search found v1→v2, and §11.8 says v2→v1. Please adjudicate. Also: should M1 be re-baselined on §11.8's 10 rows rather than the agent's 14-entry expansion?
    - (b) Does `go test` satisfy M1's "replays as a Foundry test" for the Go-only `L_own_txspayload`?
 3. **Signing.** A gpg key under a frozen `keys/`. Without one, weakening is rejected. Re-extraction and strengthening do not need it.
-4. **Schemas.** Should `result_record_v2` and `law_ir_0_3` be adopted into the frozen `schemas/`? That includes `filter_bin` values such as `intended_bounded`, `kernels[]`, `scope{kind,H}`, `refinement_refs`, `coverage` and the INTENT rule. *Needed before:* I33's adoption step.
+4. **Schemas.** *Answered 2026-10-13 (delegated to the lead): yes, at I33's adoption step after I41; the human runs the freeze; see docs/HUMAN_ANSWERS.md.*  Should `result_record_v2` and `law_ir_0_3` be adopted into the frozen `schemas/`? That includes `filter_bin` values such as `intended_bounded`, `kernels[]`, `scope{kind,H}`, `refinement_refs`, `coverage` and the INTENT rule. *Needed before:* I33's adoption step.
 5. **M2 historical window.** *Answered 2026-10-12: an unconditional yes for every source and the full window; see docs/HUMAN_ANSWERS.md.*  Choose one: a snapshot from `tools/fetch_historical.py`, BigQuery credentials, or allow-listing one RPC host and one blob archive. Also: which block window, and is calldata-only acceptable?
 6. **Mutation-adequacy threshold.** *Answered: 0.80.*  Confirm or replace the proposed 0.80 of non-equivalent mutants in scope, sign off the operator catalog, and adjudicate equivalent mutants from the diffs before any run. *Needed before:* I22's prereg commit.
 7. **Held-out target.** *Answered: ScrollChain, sealed in spec/heldout/target.json.*  Choose and seal it (for example Scroll's ScrollChain at a pinned commit, or a bridge). Is a public, clonable repo acceptable? *Needed before:* I49.
-8. **G7 promotion.** All PROVED laws, or a promoted subset? *Needed before:* I43.
+8. **G7 promotion.** *Answered 2026-10-13 (delegated to the lead): every PROVED law; see docs/HUMAN_ANSWERS.md.*  All PROVED laws, or a promoted subset? *Needed before:* I43.
 9. **Auditor family.** *Answered: the default stands (same-family, labelled).*  Is another model family available for audits and the blind rerun? If not, may same-family rounds count toward convergence? *Needed before:* I5.
 10. **Observation boundary for Thm 6.9.** Do public view getters count as observations? `L_undo_CSR`'s status depends on the answer; both boundaries can be run and reported.
-11. **L6 and L9 definitions.** *Needed before:* I54.
-12. **Legacy registry.** Is a labelled stand-in acceptable for O13 and O14, or should historical bytecode be fetched?
+11. **L6 and L9 definitions.** *Answered 2026-10-13 (delegated to the lead): target-agnostic, ground-truth-measured, preregistered in I54; see docs/HUMAN_ANSWERS.md.*  *Needed before:* I54.
+12. **Legacy registry.** *Answered 2026-10-13 (delegated to the lead): fetch the real code; a labelled stand-in only as a last resort; see docs/HUMAN_ANSWERS.md.*  Is a labelled stand-in acceptable for O13 and O14, or should historical bytecode be fetched?
 13. **Whitepaper inconsistencies.** Should I record these as errata, and treat `whitepaper.md` as frozen preregistration?
     - O18 cites "A15", which is not defined.
     - F12.5 and F11's "L1 counts discarded" have no O-id.
@@ -1576,7 +1576,7 @@ The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
     - Will you file the bend2/BendTT mismatch reproducer (`replay/M1/kernel_mismatch/`) upstream?
     - Do you want CI and branch protection?
 17. **Budget.** The plan implies about 23 sessions for M2, 23 for M3, 7 for M4 and 5 for M5.
-18. **Deployment history.** The on-chain upgrade timeline needs RPC. Is code-derived history (reinitializers plus storage-layout diffs across git tags) acceptable for M3's migrations? *Needed before:* I28.
+18. **Deployment history.** *Answered 2026-10-13 (delegated to the lead): both, code-derived as the model and the on-chain timeline as an independent check; see docs/HUMAN_ANSWERS.md.*  The on-chain upgrade timeline needs RPC. Is code-derived history (reinitializers plus storage-layout diffs across git tags) acceptable for M3's migrations? *Needed before:* I28.
 19. **M3 hand-written facts.** For components the extractors cannot reach, may a hand-written fact be used under a per-item waiver, flagged in coverage? Without waivers, those components stay coverage debt.
 20. **Corpus size.** *Answered: N = 20.*  Confirm N = 20 defects across at least 3 systems, or set another N. *Needed before:* I48.
 
