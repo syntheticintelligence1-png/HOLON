@@ -1578,7 +1578,7 @@ The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
     - Do you want CI and branch protection?
 17. **Budget.** The plan implies about 23 sessions for M2, 23 for M3, 7 for M4 and 5 for M5.
 18. **Deployment history.** *Answered 2026-10-13 (delegated to the lead): both, code-derived as the model and the on-chain timeline as an independent check; see docs/HUMAN_ANSWERS.md.*  The on-chain upgrade timeline needs RPC. Is code-derived history (reinitializers plus storage-layout diffs across git tags) acceptable for M3's migrations? *Needed before:* I28.
-19. **M3 hand-written facts.** For components the extractors cannot reach, may a hand-written fact be used under a per-item waiver, flagged in coverage? Without waivers, those components stay coverage debt.
+19. **M3 hand-written facts.** *Answered 2026-10-13 (delegated to the lead): extracted facts for every M3 law; a per-item waiver only where no extractor reaches, never where an extracted document exists; see docs/HUMAN_ANSWERS.md.*  For components the extractors cannot reach, may a hand-written fact be used under a per-item waiver, flagged in coverage? Without waivers, those components stay coverage debt.
 20. **Corpus size.** *Answered: N = 20.*  Confirm N = 20 defects across at least 3 systems, or set another N. *Needed before:* I48.
 
 ---
