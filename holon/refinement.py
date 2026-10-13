@@ -26,7 +26,8 @@ lists every entry whose computed class is unexplained or differs from its label,
 a refinement record lists without an entry. The gate check GREF passes iff that list is empty; it reads no
 git (whether a fix commit exists is left to `holon audit`). A step refinement record (holon.replay_fragments,
 I20: "disagreements" is a list of {id, class, links}) is checked the same way: every id has an entry, every
-listed class is what the entry's links establish, and its "unexplained" count adds up.
+listed class is what the entry's links establish, and its "unexplained" count adds up. GREF reads the historical
+records of I23 (results/M2/refinement/historical/*.json, holon historical codec and trans) too (record_files).
 """
 from __future__ import annotations
 
@@ -152,28 +153,36 @@ def check_disagreements(root: Path | str = ROOT) -> list[str]:
         elif got != e.get("class"):
             out.append(f"{e['id']}: labelled {e.get('class')!r} but its links establish {got!r}")
     entries = {e["id"]: e for e in doc["disagreements"] if isinstance(e, dict) and isinstance(e.get("id"), str)}
-    for f in sorted((root / REF_DIR).glob("*.json")):
+    for f in record_files(root):
+        name = f.relative_to(root / REF_DIR).as_posix()
         rec = _load(f)
         if not isinstance(rec, dict):
-            out.append(f"{f.name}: not a refinement record")
+            out.append(f"{name}: not a refinement record")
             continue
         if isinstance(rec.get("disagreements"), list):   # the extracted model's step refinement (I20)
-            out += _check_step_record(f.name, rec, entries, root)
+            out += _check_step_record(name, rec, entries, root)
             continue
         dids = rec.get("disagreement_ids")
         if not isinstance(dids, list):
-            out.append(f"{f.name}: no disagreement_ids list")
+            out.append(f"{name}: no disagreement_ids list")
             continue
         for did in dids:
             if did not in ids:
-                out.append(f"{did}: listed by {f.name} but has no entry in {DISAGREEMENTS.as_posix()}")
+                out.append(f"{did}: listed by {name} but has no entry in {DISAGREEMENTS.as_posix()}")
         n = rec.get("disagreements")
         # an id is a function of (edge, input): a corpus input listed twice disagrees twice under one id
         if not isinstance(n, int) or isinstance(n, bool) or (n > 0) != bool(dids) or len(set(dids)) > n:
-            out.append(f"{f.name}: counts {n!r} disagreements but lists {len(set(dids))} distinct ids")
+            out.append(f"{name}: counts {n!r} disagreements but lists {len(set(dids))} distinct ids")
         if isinstance(rec.get("compared"), int) and rec.get("agree", 0) + (rec.get("disagreements") or 0) != rec["compared"]:
-            out.append(f"{f.name}: agree + disagreements != compared")
+            out.append(f"{name}: agree + disagreements != compared")
     return out
+
+
+def record_files(root: Path | str = ROOT) -> list[Path]:
+    """Every refinement record GREF reads: results/M2/refinement/*.json (I16 per-edge records, I20's step record) and
+    results/M2/refinement/historical/*.json (I23: the historical records of the codec and trans windows)."""
+    root = Path(root)
+    return sorted((root / REF_DIR).glob("*.json")) + sorted((root / REF_DIR / "historical").glob("*.json"))
 
 
 def _check_step_record(name: str, rec: dict, entries: dict, root: Path) -> list[str]:

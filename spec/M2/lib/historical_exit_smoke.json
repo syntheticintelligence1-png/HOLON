@@ -1,0 +1,7 @@
+{
+  "doc": "Target library of holon historical smoke (I23): the names the generic smoke code must not hold. The synthetic fixture file of the instrument (spec/M2/lib/historical_exit.json synthetic_smoke.path, node/derivation/testdata/rollup_calldata_fixtures.json at 3e44e795) writes its expected values under the node's names; aliases maps such a name to the member of the decoded commit input struct (IRollup.sol BatchDataInput, and the legacy BatchData of the checkout's history) that holds the same value, where the two names differ. The I23 contract states the one alias: 'withdrawRoot is batchDataInput.withdrawalRoot'.",
+  "aliases": {
+    "withdrawRoot": "withdrawalRoot"
+  },
+  "source": "tests_m2/test_historical_exit.py docstring, historical smoke: \"(withdrawRoot is batchDataInput.withdrawalRoot)\"; IRollup.sol at 3e44e795: struct BatchDataInput { ...; bytes32 withdrawalRoot; }"
+}

@@ -4,8 +4,10 @@
 
 writes <root>/results/<M>/metrics.json, a deterministic function of the committed records
 (results/<M>/L*.json: L_* and L3_* etc.), the canaries of results/<M>/gate_report.json, the trace corpus of
-replay/<M>/report.json, the per-edge refinement records results/M2/refinement/*.json, the entries of
-spec/M2/disagreements.json and the files holon.refinement.classify reads; and
+replay/<M>/report.json, the per-edge refinement records results/M2/refinement/*.json, the historical refinement
+records results/M2/refinement/historical/*.json (I23: refinement.historical, included in refinement's compared and
+disagreements, with the instrument's windows), the entries of spec/M2/disagreements.json and the files
+holon.refinement.classify reads; and
 <root>/results/<M>/metrics_timing.json, the only place timings go (G1 excludes it). Its
 from_scratch_gate_s is the wall time the last full `holon gate` run recorded there.
 
@@ -63,7 +65,36 @@ def refinement(milestone: str, root: Path) -> dict:
     p = root / DISAGREEMENTS
     entries = _load(p)["disagreements"] if p.exists() else []
     unexplained = sum(1 for e in entries if e.get("milestone") == milestone and classify(e, root) == "unexplained")
-    return {"compared": compared, "disagreements": dis, "unexplained": unexplained}
+    out = {"compared": compared, "disagreements": dis, "unexplained": unexplained}
+    hist = historical(milestone, root, entries)
+    if hist is not None:
+        out["compared"] += hist["compared"]
+        out["disagreements"] += hist["disagreements"]
+        out["historical"] = hist
+    return out
+
+
+def historical(milestone: str, root: Path, entries: list) -> dict | None:
+    """refinement.historical (I23): the sums over the historical refinement records of the milestone
+    (results/M2/refinement/historical/*.json, written by holon historical codec and trans), the entries of
+    spec/M2/disagreements.json they list that classify unexplained, and the instrument's windows. None when the
+    milestone has no historical record."""
+    from .refinement import REF_DIR, classify
+    recs = [_load(f) for f in sorted((Path(root) / REF_DIR / "historical").glob("*.json"))]
+    recs = [r for r in recs if r.get("milestone") == milestone and r.get("kind") == "historical"]
+    if not recs:
+        return None
+    by_id = {e.get("id"): e for e in entries if isinstance(e, dict)}
+    ids = sorted({d for r in recs for d in r.get("disagreement_ids") or []})
+    inst = Path(root) / "spec" / milestone / "lib" / "historical_exit.json"
+    wins = {}
+    if inst.is_file():
+        w = _load(inst).get("windows") or {}
+        wins = {k: [w[k]["from_block"], w[k]["to_block"]] for k in sorted(w)}
+    return {"compared": sum(int(r["compared"]) for r in recs),
+            "disagreements": sum(int(r["disagreements"]) for r in recs),
+            "unexplained": sum(1 for d in ids if d not in by_id or classify(by_id[d], root) == "unexplained"),
+            "windows": wins}
 
 
 def cross_kernel(recs: dict[str, dict]) -> dict:
