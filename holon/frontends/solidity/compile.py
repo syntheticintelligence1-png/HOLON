@@ -4,7 +4,9 @@ The pinned solc (config/holon.json replay.solc, its sha256 replay.solc_sha256) c
 `--standard-json`: base path the source tree, include path <replay.sol_deps>/node_modules when that directory exists,
 settings the sidecar's compiler.settings plus outputSelection {"*": {"": ["ast"]}} (the AST only: no IR, no bytecode,
 no optimizer influence). What the walker reads is solc's compact JSON AST of every unit (inline assembly carries the
-compiler's Yul AST and its resolved external references) and the bytes of every unit (spans and hashes).
+compiler's Yul AST and its resolved external references) and the bytes of every unit (spans and hashes). A transitions
+sidecar (I19) also selects every contract's "storageLayout" (outputSelection {"*": {"*": ["storageLayout"], "": ["ast"]}}):
+the compiler's own slots, offsets and type sizes, read by holon.frontends.solidity.storage.
 
 Refusals (Refused, exit 2): solc missing, its sha256 not the pin, its --version not the sidecar's compiler.version, a
 source tree that is not a git checkout whose HEAD is the sidecar's target.commit, or whose files solc read carry
@@ -31,6 +33,7 @@ class Compiled:
     asts: dict = field(default_factory=dict)       # unit -> compact JSON AST
     units: dict = field(default_factory=dict)      # unit -> bytes
     file_ids: dict = field(default_factory=dict)   # solc source id -> unit
+    layouts: dict = field(default_factory=dict)    # (unit, contract name) -> solc storageLayout (transitions only)
 
 
 def load_config(root: Path) -> dict:
@@ -104,13 +107,18 @@ def check_clean(source: Path, commit: str | None, units: list[str]) -> None:
         raise Refused(f"source tree {source}: files solc read carry uncommitted changes:\n{p.stdout.strip()[:1000]}")
 
 
-def compile_sources(cfg: dict, side: dict, source: Path) -> Compiled:
-    """Run the pinned solc on the sidecar's units (rule W1)."""
+AST_ONLY = {"*": {"": ["ast"]}}
+WITH_STORAGE_LAYOUT = {"*": {"*": ["storageLayout"], "": ["ast"]}}
+
+
+def compile_sources(cfg: dict, side: dict, source: Path, storage_layout: bool = False) -> Compiled:
+    """Run the pinned solc on the sidecar's units (rule W1); storage_layout also selects every contract's
+    storageLayout (I19 transitions sidecars)."""
     comp = side.get("compiler") or {}
     solc, sha, version = check_solc(cfg, comp.get("version"))
     check_checkout(source, side["target"]["commit"])
     settings = dict(comp.get("settings") or {})
-    settings["outputSelection"] = {"*": {"": ["ast"]}}
+    settings["outputSelection"] = json.loads(json.dumps(WITH_STORAGE_LAYOUT if storage_layout else AST_ONLY))
     sources = {}
     for u in side["sources"]:
         p = source / u
@@ -149,5 +157,10 @@ def compile_sources(cfg: dict, side: dict, source: Path) -> Compiled:
             res.units[unit] = (include / unit).read_bytes()
         else:
             raise ExtractionError(f"solc read unit {unit}, which is neither in the source tree nor on the include path")
+    if storage_layout:
+        for unit in sorted(out.get("contracts", {})):
+            for name, c in sorted(out["contracts"][unit].items()):
+                if isinstance(c.get("storageLayout"), dict):
+                    res.layouts[(unit, name)] = c["storageLayout"]
     check_clean(source, side["target"]["commit"], from_tree)
     return res

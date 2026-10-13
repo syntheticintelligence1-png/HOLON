@@ -1,10 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "holon-facts/0.3",
-  "description": "holon-facts/0.3: the shared envelope of every extracted fact document (holon extract <frontend>, *.extracted.json) and the closed shape of the Solidity frontend's documents (contract: the docstring of tests_m2/test_extract_solidity_layout.py). The top level is a oneOf of one branch per frontend, told apart by extraction.frontend: \"solidity\" (I17, closed) and \"go\" (I18: envelope keys plus an open \"go\" object, closed by spec/schemas/facts_0_3_go.schema.json). A later frontend adds its branch. Every branch requires facts_version, target {repo, commit, scope} and extraction {method \"extracted\", frontend, frontend_version, inputs}; assumptions are objects with at least id and text. Only the mini-schema keywords are used (type, required, properties, additionalProperties, enum, const, pattern, items, oneOf, allOf, $ref).",
+  "description": "holon-facts/0.3: the shared envelope of every extracted fact document (holon extract <frontend>, *.extracted.json) and the closed shapes of the Solidity frontend's documents (contracts: the docstrings of tests_m2/test_extract_solidity_layout.py and tests_m2/test_extract_transitions.py). The top level is a oneOf of one branch per document kind, told apart by extraction.frontend and, for Solidity, extraction.kind: \"solidity\" (I17 layout documents, closed; no kind), \"solidity_transitions\" (I19 transitions documents, closed; kind \"transitions\") and \"go\" (I18: envelope keys plus an open \"go\" object, closed by spec/schemas/facts_0_3_go.schema.json). A later frontend adds its branch. Every branch requires facts_version, target {repo, commit, scope} and extraction {method \"extracted\", frontend, frontend_version, inputs}; assumptions are objects with at least id and text. Only the mini-schema keywords are used (type, required, properties, additionalProperties, enum, const, pattern, items, oneOf, allOf, $ref).",
   "oneOf": [
     {
       "$ref": "#/$defs/solidity"
+    },
+    {
+      "$ref": "#/$defs/solidity_transitions"
     },
     {
       "$ref": "#/$defs/go"
@@ -685,6 +688,466 @@
           }
         }
       }
+    },
+    "sol_transitions_extraction": {
+      "type": "object",
+      "required": [
+        "method",
+        "frontend",
+        "kind",
+        "frontend_version",
+        "sidecar",
+        "toolchain",
+        "settings",
+        "inputs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "const": "extracted"
+        },
+        "frontend": {
+          "const": "solidity"
+        },
+        "frontend_version": {
+          "type": "string",
+          "pattern": "^holon-frontend-solidity/[0-9]+\\.[0-9]+$"
+        },
+        "sidecar": {
+          "type": "object",
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "toolchain": {
+          "type": "object",
+          "required": [
+            "solc"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "solc": {
+              "type": "object",
+              "required": [
+                "version",
+                "sha256"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "version": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/sha256"
+                }
+              }
+            }
+          }
+        },
+        "settings": {
+          "type": "object"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "unit",
+              "sha256"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "unit": {
+                "type": "string"
+              },
+              "sha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          }
+        },
+        "kind": {
+          "const": "transitions"
+        }
+      }
+    },
+    "tr_term": {
+      "type": [
+        "integer",
+        "array"
+      ],
+      "minItems": 1,
+      "description": "A term of the transitions document (holon.frontends.solidity.transitions): an integer constant, or an array whose first element is its tag."
+    },
+    "tr_member": {
+      "type": "object",
+      "required": [
+        "name",
+        "type",
+        "width"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "width": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      }
+    },
+    "tr_family": {
+      "type": "object",
+      "required": [
+        "name",
+        "slot",
+        "offset",
+        "kind",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "slot": {
+          "type": "integer"
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "scalar",
+            "mapping",
+            "array"
+          ]
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_member"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "mapping"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "key"
+            ]
+          }
+        }
+      ],
+      "description": "A storage family: slot and offset from the compiler's storage layout."
+    },
+    "tr_guard": {
+      "type": "object",
+      "required": [
+        "src",
+        "kind",
+        "reason",
+        "expr"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "kind": {
+          "enum": [
+            "modifier",
+            "require",
+            "revert"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expr": {
+          "$ref": "#/$defs/tr_term"
+        }
+      }
+    },
+    "tr_action": {
+      "type": "object",
+      "required": [
+        "name",
+        "selector",
+        "src",
+        "modifiers",
+        "principal",
+        "guards",
+        "effects",
+        "cost",
+        "edges"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "selector": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{8}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "src": {
+          "$ref": "#/$defs/span"
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "principal": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "modifier",
+                "predicate"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "modifier": {
+                  "type": "string"
+                },
+                "predicate": {
+                  "$ref": "#/$defs/tr_term"
+                }
+              }
+            }
+          ]
+        },
+        "guards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_guard"
+          }
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "family",
+              "src"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "family": {
+                "type": "string"
+              },
+              "src": {
+                "$ref": "#/$defs/span"
+              }
+            }
+          }
+        },
+        "cost": {
+          "type": "object",
+          "required": [
+            "terms"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "terms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "loop",
+                  "iters"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "loop": {
+                    "$ref": "#/$defs/span"
+                  },
+                  "iters": {
+                    "$ref": "#/$defs/tr_term"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "fn",
+              "src"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "HASH",
+                  "COMMIT"
+                ]
+              },
+              "fn": {
+                "type": "string"
+              },
+              "src": {
+                "$ref": "#/$defs/span"
+              }
+            }
+          }
+        }
+      }
+    },
+    "tr_assumption": {
+      "type": "object",
+      "required": [
+        "id",
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^A-(env|implicit|loop|reentrancy|span)$"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "solidity_transitions": {
+      "type": "object",
+      "required": [
+        "facts_version",
+        "target",
+        "extraction",
+        "contract",
+        "constants",
+        "storage",
+        "actions",
+        "assumptions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "facts_version": {
+          "const": "holon-facts/0.3"
+        },
+        "target": {
+          "type": "object",
+          "required": [
+            "repo",
+            "commit",
+            "scope"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "commit": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scope": {
+              "type": "string"
+            }
+          }
+        },
+        "extraction": {
+          "$ref": "#/$defs/sol_transitions_extraction"
+        },
+        "contract": {
+          "type": "string"
+        },
+        "constants": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^(0x[0-9a-f]*|-?[0-9]+)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "storage": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_family"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_action"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_assumption"
+          }
+        }
+      },
+      "description": "A Solidity transitions document (I19, holon.frontends.solidity.transitions): the contract's constants, storage families and actions (guards, effects, cost terms, principal, edges)."
     },
     "go": {
       "type": "object",

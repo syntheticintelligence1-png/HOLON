@@ -14,6 +14,12 @@ Modules: compile (toolchain checks and the solc run, W1), ast (index, spans, ter
 statements and Yul, W2-W10), layout_extract (edges, naming, projection, merging, debt and the document). The contract
 is the docstring of tests_m2/test_extract_solidity_layout.py. The frontend reads the sidecar, config/holon.json, the
 compiler's output and the source tree; never a fact document, a law or a result, and no analysis tool.
+
+A sidecar with "transitions" ({"contract", "commit_interfaces"}, I19) yields a transitions document instead of a
+layout document: storage (the compiler's storageLayout, holon.frontends.solidity.storage) and every external or public
+function's guards, effects, cost terms, principal predicate and hash/commit edges (holon.frontends.solidity
+.transitions; contract: the docstring of tests_m2/test_extract_transitions.py). coverage_document gives the statement
+coverage of such a sidecar's contract (holon.coverage, gate check G8).
 """
 from __future__ import annotations
 
@@ -44,7 +50,16 @@ def _check_sidecar(side: dict, path) -> None:
             or not isinstance(comp.get("settings", {}), dict):
         bad.append("compiler is not {version, settings}")
     edges = side.get("edges")
-    if not isinstance(edges, dict) or not edges:
+    if "transitions" in side:
+        tr = side["transitions"]
+        if edges is not None:
+            bad.append("a sidecar has either edges (a layout document) or transitions (a transitions document)")
+        if not isinstance(tr, dict) or sorted(tr) != ["commit_interfaces", "contract"] \
+                or not isinstance(tr.get("contract"), str) or not tr["contract"] \
+                or not isinstance(tr.get("commit_interfaces"), list) \
+                or not all(isinstance(x, str) and x for x in tr["commit_interfaces"]):
+            bad.append("transitions is not {contract, commit_interfaces: [interface name, ...]}")
+    elif not isinstance(edges, dict) or not edges:
         bad.append("edges is not a non-empty object")
     else:
         for name, e in sorted(edges.items()):
@@ -85,11 +100,34 @@ def extract_document(side: dict, sidecar_path: Path, root: Path, source=None) ->
         if not source:
             raise Refused(f"no source tree: config/holon.json extract.sources has no {side['target']['repo']!r} "
                           "(pass --source)")
-    compiled = comp.compile_sources(cfg, side, Path(os.path.abspath(source)))
+    transitions = "transitions" in side
+    compiled = comp.compile_sources(cfg, side, Path(os.path.abspath(source)), storage_layout=transitions)
     sha = hashlib.sha256(Path(sidecar_path).read_bytes()).hexdigest()
-    doc = build(compiled, side, _relative(Path(sidecar_path), root), sha)
+    if transitions:
+        from .transitions import build as build_transitions
+        doc = build_transitions(compiled, side, _relative(Path(sidecar_path), root), sha)
+    else:
+        doc = build(compiled, side, _relative(Path(sidecar_path), root), sha)
     _validate(doc, root)
     return doc
+
+
+def coverage_document(side: dict, sidecar_path: Path, root: Path, source=None) -> dict | None:
+    """The coverage of a transitions sidecar's contract (holon.frontends.solidity.transitions.coverage_document);
+    None for a layout sidecar (its debt is in its own document: walk.debt)."""
+    from . import compile as comp
+    _check_sidecar(side, sidecar_path)
+    if "transitions" not in side:
+        return None
+    root = Path(root)
+    cfg = comp.load_config(root)
+    if source is None:
+        source = ((cfg.get("extract") or {}).get("sources") or {}).get(side["target"]["repo"])
+        if not source:
+            raise Refused(f"no source tree: config/holon.json extract.sources has no {side['target']['repo']!r}")
+    compiled = comp.compile_sources(cfg, side, Path(os.path.abspath(source)), storage_layout=True)
+    from .transitions import coverage_document as cov
+    return cov(compiled, side)
 
 
 def _validate(doc: dict, root: Path) -> None:
