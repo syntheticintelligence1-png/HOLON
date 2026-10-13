@@ -336,6 +336,7 @@ The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
 | I58 | (I49 part) | M5 report | M5 | I55–I57 | — | **M5 exit** |
 | I59 | (I23 part) | **= I23a: on-chain history fetch and first replay on real inputs.** Pulled forward by human answer Q5 and run in the background after I18; numbered I59 only because prereg keys must be plain numbers | M2 | I16, I17 | — | M2 exit (a), data half |
 | I60 | I22 replacement | **A1 mutation adequacy, replacement catalog.** I22's catalog was rejected before any run by the delegated independent sign-off (docs/iterations/I22.md): scope tied to the outcome, K2 not localized, the error clause too broad. Preregistered under a new key, as the plan's I22 rule requires | M2 | I20, I18, I21 | — | **M2 exit (b)** |
+| I61 | I60 replacement | **A1 mutation adequacy, second replacement catalog.** I60's catalog was not signed off (docs/iterations/I60.md): its enc_sol replay harness does not overlap the refuter's candidates. Preregistered under a new key, as I60's contract requires | M2 | I20, I18, I21 | — | **M2 exit (b)** |
 
 **Order in practice (2026-10-12).** Done: I1–I18, with I16 built early because it needs only I11. I59 (= I23a, data fetch only) runs in the background. Next is I19, then strictly I20, I21, I22, I23 and onward. Any other out-of-order step is announced, with its reason, before it starts.
 
