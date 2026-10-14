@@ -1,0 +1,3040 @@
+{
+  "document": "disch_conjuncts",
+  "inputs": [
+    {
+      "path": "audit/rounds/M2/round2/a4.json",
+      "sha256": "6c0dad33925dd592ed05842ee59ba93b13c67b1fa4174caf4c4778961dd18c13"
+    },
+    {
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    }
+  ],
+  "milestone": "M3",
+  "models": {
+    "morph_rollup.extracted": {
+      "basis": [
+        {
+          "blocked": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "storage",
+                  "_initializing"
+                ]
+              ],
+              [
+                "<",
+                [
+                  "storage",
+                  "_initialized"
+                ],
+                2
+              ]
+            ]
+          ],
+          "check": "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+          "check_expr": [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              2
+            ]
+          ],
+          "checks": [
+            "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+              ],
+              "closure": [
+                "commitBatchWithProof",
+                "finalizeBatch",
+                "initialize3"
+              ],
+              "named": {},
+              "status": "blocked",
+              "unsafe": {}
+            }
+          },
+          "excluded": {
+            "initialize2": "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+          },
+          "tag": "initializable_120_b8d46c45",
+          "time": "0"
+        },
+        {
+          "blocked": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "storage",
+                  "_initializing"
+                ]
+              ],
+              [
+                "<",
+                [
+                  "storage",
+                  "_initialized"
+                ],
+                3
+              ]
+            ]
+          ],
+          "check": "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+          "check_expr": [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              3
+            ]
+          ],
+          "checks": [
+            "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+              ],
+              "closure": [
+                "commitBatchWithProof",
+                "finalizeBatch",
+                "initialize2"
+              ],
+              "named": {},
+              "status": "self",
+              "unsafe": {
+                "initialize2": [
+                  "_initialized",
+                  "_initializing"
+                ]
+              }
+            }
+          },
+          "excluded": {
+            "initialize3": "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+          },
+          "tag": "initializable_120_b95c70f1",
+          "time": "0"
+        },
+        {
+          "blocked": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "storage",
+                  "_initializing"
+                ]
+              ],
+              [
+                "<",
+                [
+                  "storage",
+                  "_initialized"
+                ],
+                4
+              ]
+            ]
+          ],
+          "check": "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+          "check_expr": [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              4
+            ]
+          ],
+          "checks": [
+            "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+          ],
+          "classes": {
+            "caller_rollup_210": {
+              "checks": [
+                "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+              ],
+              "closure": [
+                "commitBatchWithProof",
+                "finalizeBatch",
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {},
+              "status": "self",
+              "unsafe": {
+                "initialize2": [
+                  "_initialized",
+                  "_initializing"
+                ],
+                "initialize3": [
+                  "_initialized",
+                  "_initializing"
+                ]
+              }
+            }
+          },
+          "excluded": {
+            "initialize4": "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+          },
+          "tag": "initializable_120_d9a34b48",
+          "time": "0"
+        },
+        {
+          "blocked": [
+            "storage",
+            "_paused"
+          ],
+          "check": "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "check_expr": [
+            "!",
+            [
+              "storage",
+              "_paused"
+            ]
+          ],
+          "checks": [
+            "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+                "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+              ],
+              "closure": [
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyOwner": [
+                  "setPause"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            },
+            "onlyActiveSubmitter": {
+              "checks": [
+                "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+                "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+                "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+              ],
+              "closure": [
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyOwner": [
+                  "setPause"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            },
+            "onlyChallenger": {
+              "checks": [
+                "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+              ],
+              "closure": [
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyOwner": [
+                  "setPause"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            }
+          },
+          "excluded": {
+            "challengeState": "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "commitBatch": "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "commitBatchWithProof": "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "commitState": "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "finalizeBatch": "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+            "proveState": "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+          },
+          "tag": "pausableupgradeable_77_ed0ce816",
+          "time": "0"
+        },
+        {
+          "blocked": [
+            "!",
+            [
+              "==",
+              [
+                "storage",
+                "revertReqIndex"
+              ],
+              0
+            ]
+          ],
+          "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "check_expr": [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ],
+          "checks": [
+            "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+            "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+                "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+              ],
+              "closure": [
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyOwner": [
+                  "revertBatch"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            },
+            "caller_rollup_210": {
+              "checks": [
+                "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0"
+              ],
+              "closure": [
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyOwner": [
+                  "revertBatch"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            },
+            "onlyActiveSubmitter": {
+              "checks": [
+                "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+                "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+                "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+              ],
+              "closure": [
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyOwner": [
+                  "revertBatch"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            },
+            "onlyChallenger": {
+              "checks": [
+                "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+              ],
+              "closure": [
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyOwner": [
+                  "revertBatch"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            }
+          },
+          "excluded": {
+            "challengeState": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "commitBatch": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "commitBatchWithProof": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "commitState": "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "finalizeBatch": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+            "initialize4": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+            "proveState": "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+          },
+          "tag": "rollup_132_d953872f",
+          "time": "0"
+        },
+        {
+          "blocked": [
+            "storage",
+            "inChallenge"
+          ],
+          "check": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+          "check_expr": [
+            "!",
+            [
+              "storage",
+              "inChallenge"
+            ]
+          ],
+          "checks": [
+            "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+            "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+          ],
+          "classes": {
+            "caller_rollup_210": {
+              "checks": [
+                "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+              ],
+              "closure": [
+                "commitBatchWithProof",
+                "finalizeBatch",
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyActiveSubmitter": [
+                  "proveState"
+                ],
+                "onlyOwner": [
+                  "revertBatch",
+                  "setPause"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            },
+            "onlyChallenger": {
+              "checks": [
+                "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0"
+              ],
+              "closure": [
+                "commitBatchWithProof",
+                "finalizeBatch",
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyActiveSubmitter": [
+                  "proveState"
+                ],
+                "onlyOwner": [
+                  "revertBatch",
+                  "setPause"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            }
+          },
+          "excluded": {
+            "challengeState": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+            "initialize4": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+          },
+          "tag": "rollup_213_f2e7faf8",
+          "time": "0"
+        },
+        {
+          "blocked": [
+            "!",
+            [
+              "==",
+              [
+                "map",
+                [
+                  "storage",
+                  "finalizedStateRoots"
+                ],
+                0
+              ],
+              0
+            ]
+          ],
+          "check": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0",
+          "check_expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "finalizedStateRoots"
+              ],
+              0
+            ],
+            0
+          ],
+          "checks": [
+            "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0"
+          ],
+          "classes": {
+            "onlyOwner": {
+              "checks": [
+                "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0"
+              ],
+              "closure": [
+                "addChallenger",
+                "claimProveRemaining",
+                "commitBatchWithProof",
+                "finalizeBatch",
+                "initialize2",
+                "initialize3",
+                "removeChallenger",
+                "renounceOwnership",
+                "revertBatch",
+                "setPause",
+                "transferOwnership",
+                "updateFinalizePeriodSeconds",
+                "updateProofWindow",
+                "updateRewardPercentage",
+                "updateRollupDelayPeriod",
+                "updateVerifier"
+              ],
+              "named": {},
+              "status": "self",
+              "unsafe": {
+                "finalizeBatch": [
+                  "finalizedStateRoots"
+                ]
+              }
+            }
+          },
+          "excluded": {
+            "importGenesisBatch": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0"
+          },
+          "tag": "rollup_228_79cc3e9a",
+          "time": "0"
+        },
+        {
+          "blocked": [
+            "&&",
+            [
+              "storage",
+              "inChallenge"
+            ],
+            [
+              "!",
+              [
+                "fits",
+                256,
+                [
+                  "-",
+                  [
+                    "+",
+                    [
+                      "storage",
+                      "proofWindow"
+                    ],
+                    [
+                      "member",
+                      [
+                        "map",
+                        [
+                          "storage",
+                          "challenges"
+                        ],
+                        [
+                          "storage",
+                          "batchChallenged"
+                        ]
+                      ],
+                      "startTime"
+                    ]
+                  ],
+                  [
+                    "env",
+                    "block.timestamp"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "fits",
+              256,
+              [
+                "+",
+                [
+                  "storage",
+                  "proofWindow"
+                ],
+                [
+                  "member",
+                  [
+                    "map",
+                    [
+                      "storage",
+                      "challenges"
+                    ],
+                    [
+                      "storage",
+                      "batchChallenged"
+                    ]
+                  ],
+                  "startTime"
+                ]
+              ]
+            ]
+          ],
+          "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "check_expr": [
+            "||",
+            [
+              "!",
+              [
+                "storage",
+                "inChallenge"
+              ]
+            ],
+            [
+              "fits",
+              256,
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "storage",
+                    "proofWindow"
+                  ],
+                  [
+                    "member",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "challenges"
+                      ],
+                      [
+                        "storage",
+                        "batchChallenged"
+                      ]
+                    ],
+                    "startTime"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ]
+          ],
+          "checks": [
+            "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+            "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+              ],
+              "closure": [
+                "finalizeBatch",
+                "initialize2",
+                "initialize3"
+              ],
+              "named": {
+                "onlyActiveSubmitter": [
+                  "proveState"
+                ],
+                "onlyOwner": [
+                  "revertBatch",
+                  "setPause",
+                  "updateProofWindow"
+                ]
+              },
+              "status": "blocked",
+              "unsafe": {}
+            },
+            "onlyActiveSubmitter": {
+              "checks": [
+                "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+                "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+              ],
+              "closure": [
+                "finalizeBatch",
+                "initialize2",
+                "initialize3",
+                "proveState"
+              ],
+              "named": {},
+              "status": "self",
+              "unsafe": {
+                "proveState": [
+                  "inChallenge"
+                ]
+              }
+            }
+          },
+          "excluded": {
+            "challengeState": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+            "commitBatch": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+            "commitBatchWithProof": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+            "commitState": "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+            "initialize4": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+          },
+          "tag": "rollup_363_e11d8bb2",
+          "time": "+"
+        }
+      ],
+      "checks": [
+        {
+          "action": "addChallenger",
+          "class": "onlyOwner",
+          "id": "addChallenger#contracts/contracts/l1/rollup/Rollup.sol:527-531#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:527-531"
+        },
+        {
+          "action": "addChallenger",
+          "class": "onlyOwner",
+          "id": "addChallenger#contracts/contracts/l1/rollup/Rollup.sol:527-531#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:527-531"
+        },
+        {
+          "action": "addChallenger",
+          "class": "onlyOwner",
+          "id": "addChallenger#contracts/contracts/l1/rollup/Rollup.sol:527#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:527"
+        },
+        {
+          "action": "addChallenger",
+          "class": "onlyOwner",
+          "id": "addChallenger#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "addChallenger",
+          "class": "onlyOwner",
+          "id": "addChallenger#contracts/contracts/l1/rollup/Rollup.sol:528#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:528"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:471-496#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:471-496"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:472#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:472"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:126#0",
+          "kind": "permission",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:126"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "kind": "state",
+          "span": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:475"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:476#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:476"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:477#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:477"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:478#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:478"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:479#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:479"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:481#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:481"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "external": [
+            "ISubmitter.challengeDeposit"
+          ],
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:483#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:483"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "external": [
+            "ISubmitter.challengeDeposit"
+          ],
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:483#1",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:483"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#0",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:489"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:491#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:491"
+        },
+        {
+          "action": "challengeState",
+          "class": "onlyChallenger",
+          "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#1",
+          "kind": "loop",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:489"
+        },
+        {
+          "action": "claimProveRemaining",
+          "class": "onlyOwner",
+          "id": "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:564-569#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:564-569"
+        },
+        {
+          "action": "claimProveRemaining",
+          "class": "onlyOwner",
+          "id": "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:564-569#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:564-569"
+        },
+        {
+          "action": "claimProveRemaining",
+          "class": "onlyOwner",
+          "id": "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:564#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:564"
+        },
+        {
+          "action": "claimProveRemaining",
+          "class": "onlyOwner",
+          "id": "claimProveRemaining#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "claimProveRemaining",
+          "class": "onlyOwner",
+          "external": [
+            "address.call"
+          ],
+          "id": "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:817#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:817"
+        },
+        {
+          "action": "claimReward",
+          "class": "caller_rollup_674",
+          "id": "claimReward#contracts/contracts/l1/rollup/Rollup.sol:672-678#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:672-678"
+        },
+        {
+          "action": "claimReward",
+          "class": "caller_rollup_674",
+          "id": "claimReward#contracts/contracts/l1/rollup/Rollup.sol:672-678#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:672-678"
+        },
+        {
+          "action": "claimReward",
+          "class": "caller_rollup_674",
+          "id": "claimReward#contracts/contracts/l1/rollup/Rollup.sol:672#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:672"
+        },
+        {
+          "action": "claimReward",
+          "class": "caller_rollup_674",
+          "id": "claimReward#contracts/contracts/l1/rollup/Rollup.sol:674#0",
+          "kind": "permission",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:674"
+        },
+        {
+          "action": "claimReward",
+          "class": "caller_rollup_674",
+          "external": [
+            "address.call"
+          ],
+          "id": "claimReward#contracts/contracts/l1/rollup/Rollup.sol:817#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:817"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:255-269#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:255-269"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "ISubmitter.isActive"
+          ],
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+          "kind": "permission",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "kind": "state",
+          "span": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:260#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:260"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:261#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:261"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:263#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:263"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:263#1",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:263"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:265#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:265"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:265#1",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:265"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:267#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:267"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:913#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:913"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:915#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:293#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:294#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:295#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:311#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:311#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:312#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:313"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:314#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:319#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:319"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:320#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:320"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getCrossDomainMessage"
+          ],
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:937"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:354"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:368"
+        },
+        {
+          "action": "commitBatch",
+          "class": "onlyActiveSubmitter",
+          "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:368"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:382-425#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:382-425"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:382-425#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:382-425"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "kind": "state",
+          "span": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:389#0",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:389"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:393"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393-394#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:393-394"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:398#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:398"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:398#1",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:398"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:400"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:403#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:403"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:406#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:406"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:409#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:409"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:913#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:913"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:915#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:915"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:293#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:293#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:294#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:295#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:311#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:311#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:312#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:313"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:314#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:319#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:319"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:320#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:320"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "external": [
+            "IL1MessageQueue.getCrossDomainMessage"
+          ],
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:937"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:354"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:368"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:368"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#2",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#2",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#2",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#2",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#2",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:417#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:417"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "external": [
+            "IL1MessageQueue.getCrossDomainMessage"
+          ],
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:418#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:418"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:758#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:758"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "class": "anyone",
+          "external": [
+            "IRollupVerifier.verifyAggregateProof"
+          ],
+          "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:273-286#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:273-286"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:273-286#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:273-286"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "ISubmitter.isActive"
+          ],
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+          "kind": "permission",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "kind": "state",
+          "span": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:276#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:276"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:278#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:278"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:279"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:281#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:281"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:281#1",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:281"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:283#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:283"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:283#1",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:283"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:293#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:293#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:293"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:294#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:295#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:311#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:311"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:312#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:312"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:313"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:314#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:314"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:319#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:319"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:320#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:320"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IL1MessageQueue.getCrossDomainMessage"
+          ],
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:937"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:354"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:368"
+        },
+        {
+          "action": "commitState",
+          "class": "onlyActiveSubmitter",
+          "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+          "kind": "panic",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:368"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:625-668#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:625-668"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:625-668#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:625-668"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "kind": "state",
+          "span": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:629"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:630#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:630"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:631#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:631"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:632#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:632"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:633#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:633"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:636#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:636"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:635-638#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:635-638"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:640#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:640"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:643#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:643"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "external": [
+            "IL1MessageQueue.popCrossDomainMessage"
+          ],
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:749#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:749"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:657#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:657"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:658#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:658"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:659#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:659"
+        },
+        {
+          "action": "finalizeBatch",
+          "class": "anyone",
+          "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:660#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:660"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:226-252#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:226-252"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:226-252#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:226-252"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:228"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:233#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:233"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:235#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:235"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:237#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:237"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:238#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:238"
+        },
+        {
+          "action": "importGenesisBatch",
+          "class": "onlyOwner",
+          "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:239#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:239"
+        },
+        {
+          "action": "initialize2",
+          "class": "anyone",
+          "id": "initialize2#contracts/contracts/l1/rollup/Rollup.sol:188-195#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:188-195"
+        },
+        {
+          "action": "initialize2",
+          "class": "anyone",
+          "id": "initialize2#contracts/contracts/l1/rollup/Rollup.sol:188-195#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:188-195"
+        },
+        {
+          "action": "initialize2",
+          "class": "anyone",
+          "id": "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+          "kind": "state",
+          "span": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120"
+        },
+        {
+          "action": "initialize2",
+          "class": "anyone",
+          "id": "initialize2#contracts/contracts/l1/rollup/Rollup.sol:189#0",
+          "kind": "never",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:189"
+        },
+        {
+          "action": "initialize2",
+          "class": "anyone",
+          "id": "initialize2#contracts/contracts/l1/rollup/Rollup.sol:190#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:190"
+        },
+        {
+          "action": "initialize3",
+          "class": "anyone",
+          "id": "initialize3#contracts/contracts/l1/rollup/Rollup.sol:199-203#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:199-203"
+        },
+        {
+          "action": "initialize3",
+          "class": "anyone",
+          "id": "initialize3#contracts/contracts/l1/rollup/Rollup.sol:199-203#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:199-203"
+        },
+        {
+          "action": "initialize3",
+          "class": "anyone",
+          "id": "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+          "kind": "state",
+          "span": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120"
+        },
+        {
+          "action": "initialize3",
+          "class": "anyone",
+          "id": "initialize3#contracts/contracts/l1/rollup/Rollup.sol:200#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:200"
+        },
+        {
+          "action": "initialize4",
+          "class": "caller_rollup_210",
+          "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:209-219#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:209-219"
+        },
+        {
+          "action": "initialize4",
+          "class": "caller_rollup_210",
+          "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:209-219#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:209-219"
+        },
+        {
+          "action": "initialize4",
+          "class": "caller_rollup_210",
+          "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:209#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:209"
+        },
+        {
+          "action": "initialize4",
+          "class": "caller_rollup_210",
+          "id": "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+          "kind": "state",
+          "span": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120"
+        },
+        {
+          "action": "initialize4",
+          "class": "caller_rollup_210",
+          "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:210#0",
+          "kind": "permission",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:210"
+        },
+        {
+          "action": "initialize4",
+          "class": "caller_rollup_210",
+          "external": [
+            "code"
+          ],
+          "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:211#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:211"
+        },
+        {
+          "action": "initialize4",
+          "class": "caller_rollup_210",
+          "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:212#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:212"
+        },
+        {
+          "action": "initialize4",
+          "class": "caller_rollup_210",
+          "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:213"
+        },
+        {
+          "action": "initialize4",
+          "class": "caller_rollup_210",
+          "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:214"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:595-622#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:595-622"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:595-622#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:595-622"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "kind": "state",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:132"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "kind": "state",
+          "span": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "ISubmitter.isActive"
+          ],
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+          "kind": "permission",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:120"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:603"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:606#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:606"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:613#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:613"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "ISubmitter.slash"
+          ],
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:806#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:806"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "ISubmitter.slash"
+          ],
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:807#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:807"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "ISubmitter.slash"
+          ],
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:807#1",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:807"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:758#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:758"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "external": [
+            "IRollupVerifier.verifyAggregateProof"
+          ],
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+          "kind": "external",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:793#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:793"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:794#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:794"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:794#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:794"
+        },
+        {
+          "action": "proveState",
+          "class": "onlyActiveSubmitter",
+          "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:795#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:795"
+        },
+        {
+          "action": "removeChallenger",
+          "class": "onlyOwner",
+          "id": "removeChallenger#contracts/contracts/l1/rollup/Rollup.sol:535-539#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:535-539"
+        },
+        {
+          "action": "removeChallenger",
+          "class": "onlyOwner",
+          "id": "removeChallenger#contracts/contracts/l1/rollup/Rollup.sol:535-539#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:535-539"
+        },
+        {
+          "action": "removeChallenger",
+          "class": "onlyOwner",
+          "id": "removeChallenger#contracts/contracts/l1/rollup/Rollup.sol:535#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:535"
+        },
+        {
+          "action": "removeChallenger",
+          "class": "onlyOwner",
+          "id": "removeChallenger#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "removeChallenger",
+          "class": "onlyOwner",
+          "id": "removeChallenger#contracts/contracts/l1/rollup/Rollup.sol:536#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:536"
+        },
+        {
+          "action": "renounceOwnership",
+          "class": "onlyOwner",
+          "id": "renounceOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:66-68#0",
+          "kind": "input",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:66-68"
+        },
+        {
+          "action": "renounceOwnership",
+          "class": "onlyOwner",
+          "id": "renounceOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:430-468#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:430-468"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:430-468#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:430-468"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:431#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:431"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:825"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:826"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+          "kind": "input",
+          "span": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:844"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:436#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:436"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:439#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:439"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:439#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:439"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:441#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:441"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:443#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:443"
+        },
+        {
+          "action": "revertBatch",
+          "class": "onlyOwner",
+          "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:450#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:450"
+        },
+        {
+          "action": "setPause",
+          "class": "onlyOwner",
+          "id": "setPause#contracts/contracts/l1/rollup/Rollup.sol:573-588#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:573-588"
+        },
+        {
+          "action": "setPause",
+          "class": "onlyOwner",
+          "id": "setPause#contracts/contracts/l1/rollup/Rollup.sol:573-588#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:573-588"
+        },
+        {
+          "action": "setPause",
+          "class": "onlyOwner",
+          "id": "setPause#contracts/contracts/l1/rollup/Rollup.sol:573#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:573"
+        },
+        {
+          "action": "setPause",
+          "class": "onlyOwner",
+          "id": "setPause#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "setPause",
+          "class": "onlyOwner",
+          "id": "setPause#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "kind": "input",
+          "span": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+        },
+        {
+          "action": "setPause",
+          "class": "onlyOwner",
+          "id": "setPause#contracts/contracts/l1/rollup/Rollup.sol:578-579#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:578-579"
+        },
+        {
+          "action": "setPause",
+          "class": "onlyOwner",
+          "id": "setPause#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84#0",
+          "kind": "input",
+          "span": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84"
+        },
+        {
+          "action": "transferOwnership",
+          "class": "onlyOwner",
+          "id": "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77#0",
+          "kind": "input",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77"
+        },
+        {
+          "action": "transferOwnership",
+          "class": "onlyOwner",
+          "id": "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77#1",
+          "kind": "input",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77"
+        },
+        {
+          "action": "transferOwnership",
+          "class": "onlyOwner",
+          "id": "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74#0",
+          "kind": "input",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74"
+        },
+        {
+          "action": "transferOwnership",
+          "class": "onlyOwner",
+          "id": "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "transferOwnership",
+          "class": "onlyOwner",
+          "id": "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:75#0",
+          "kind": "input",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:75"
+        },
+        {
+          "action": "updateFinalizePeriodSeconds",
+          "class": "onlyOwner",
+          "id": "updateFinalizePeriodSeconds#contracts/contracts/l1/rollup/Rollup.sol:509-514#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:509-514"
+        },
+        {
+          "action": "updateFinalizePeriodSeconds",
+          "class": "onlyOwner",
+          "id": "updateFinalizePeriodSeconds#contracts/contracts/l1/rollup/Rollup.sol:509-514#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:509-514"
+        },
+        {
+          "action": "updateFinalizePeriodSeconds",
+          "class": "onlyOwner",
+          "id": "updateFinalizePeriodSeconds#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "updateFinalizePeriodSeconds",
+          "class": "onlyOwner",
+          "id": "updateFinalizePeriodSeconds#contracts/contracts/l1/rollup/Rollup.sol:510#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:510"
+        },
+        {
+          "action": "updateProofWindow",
+          "class": "onlyOwner",
+          "id": "updateProofWindow#contracts/contracts/l1/rollup/Rollup.sol:500-505#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:500-505"
+        },
+        {
+          "action": "updateProofWindow",
+          "class": "onlyOwner",
+          "id": "updateProofWindow#contracts/contracts/l1/rollup/Rollup.sol:500-505#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:500-505"
+        },
+        {
+          "action": "updateProofWindow",
+          "class": "onlyOwner",
+          "id": "updateProofWindow#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "updateProofWindow",
+          "class": "onlyOwner",
+          "id": "updateProofWindow#contracts/contracts/l1/rollup/Rollup.sol:501#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:501"
+        },
+        {
+          "action": "updateRewardPercentage",
+          "class": "onlyOwner",
+          "id": "updateRewardPercentage#contracts/contracts/l1/rollup/Rollup.sol:552-560#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:552-560"
+        },
+        {
+          "action": "updateRewardPercentage",
+          "class": "onlyOwner",
+          "id": "updateRewardPercentage#contracts/contracts/l1/rollup/Rollup.sol:552-560#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:552-560"
+        },
+        {
+          "action": "updateRewardPercentage",
+          "class": "onlyOwner",
+          "id": "updateRewardPercentage#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "updateRewardPercentage",
+          "class": "onlyOwner",
+          "id": "updateRewardPercentage#contracts/contracts/l1/rollup/Rollup.sol:553-556#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:553-556"
+        },
+        {
+          "action": "updateRollupDelayPeriod",
+          "class": "onlyOwner",
+          "id": "updateRollupDelayPeriod#contracts/contracts/l1/rollup/Rollup.sol:518-523#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:518-523"
+        },
+        {
+          "action": "updateRollupDelayPeriod",
+          "class": "onlyOwner",
+          "id": "updateRollupDelayPeriod#contracts/contracts/l1/rollup/Rollup.sol:518-523#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:518-523"
+        },
+        {
+          "action": "updateRollupDelayPeriod",
+          "class": "onlyOwner",
+          "id": "updateRollupDelayPeriod#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "updateRollupDelayPeriod",
+          "class": "onlyOwner",
+          "id": "updateRollupDelayPeriod#contracts/contracts/l1/rollup/Rollup.sol:519#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:519"
+        },
+        {
+          "action": "updateVerifier",
+          "class": "onlyOwner",
+          "id": "updateVerifier#contracts/contracts/l1/rollup/Rollup.sol:543-548#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:543-548"
+        },
+        {
+          "action": "updateVerifier",
+          "class": "onlyOwner",
+          "id": "updateVerifier#contracts/contracts/l1/rollup/Rollup.sol:543-548#1",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:543-548"
+        },
+        {
+          "action": "updateVerifier",
+          "class": "onlyOwner",
+          "id": "updateVerifier#contracts/contracts/l1/rollup/Rollup.sol:543#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:543"
+        },
+        {
+          "action": "updateVerifier",
+          "class": "onlyOwner",
+          "id": "updateVerifier#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+          "kind": "permission",
+          "span": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+        },
+        {
+          "action": "updateVerifier",
+          "class": "onlyOwner",
+          "id": "updateVerifier#contracts/contracts/l1/rollup/Rollup.sol:544#0",
+          "kind": "input",
+          "span": "contracts/contracts/l1/rollup/Rollup.sol:544"
+        }
+      ],
+      "external": {
+        "IL1MessageQueue": {
+          "actions": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState",
+            "finalizeBatch"
+          ],
+          "checks": [
+            "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:263#0",
+            "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:263#1",
+            "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:265#0",
+            "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:265#1",
+            "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393#0",
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393-394#0",
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:398#0",
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:398#1",
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0",
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:418#0",
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+            "commitState#contracts/contracts/l1/rollup/Rollup.sol:281#0",
+            "commitState#contracts/contracts/l1/rollup/Rollup.sol:281#1",
+            "commitState#contracts/contracts/l1/rollup/Rollup.sol:283#0",
+            "commitState#contracts/contracts/l1/rollup/Rollup.sol:283#1",
+            "commitState#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+            "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:749#0"
+          ],
+          "classes": [
+            "anyone",
+            "onlyActiveSubmitter"
+          ],
+          "functions": [
+            "IL1MessageQueue.getCrossDomainMessage",
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+            "IL1MessageQueue.popCrossDomainMessage"
+          ],
+          "hypothesis": null
+        },
+        "IRollupVerifier": {
+          "actions": [
+            "commitBatchWithProof",
+            "proveState"
+          ],
+          "checks": [
+            "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+            "proveState#contracts/contracts/l1/rollup/Rollup.sol:779-784#0"
+          ],
+          "classes": [
+            "anyone",
+            "onlyActiveSubmitter"
+          ],
+          "functions": [
+            "IRollupVerifier.verifyAggregateProof"
+          ],
+          "hypothesis": {
+            "finding": null,
+            "name": "HypV-proof1",
+            "result": null,
+            "verdict": "untestable"
+          }
+        },
+        "ISubmitter": {
+          "actions": [
+            "challengeState",
+            "commitBatch",
+            "commitState",
+            "proveState"
+          ],
+          "checks": [
+            "challengeState#contracts/contracts/l1/rollup/Rollup.sol:483#0",
+            "challengeState#contracts/contracts/l1/rollup/Rollup.sol:483#1",
+            "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+            "commitState#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+            "proveState#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+            "proveState#contracts/contracts/l1/rollup/Rollup.sol:806#0",
+            "proveState#contracts/contracts/l1/rollup/Rollup.sol:807#0",
+            "proveState#contracts/contracts/l1/rollup/Rollup.sol:807#1"
+          ],
+          "classes": [
+            "onlyActiveSubmitter",
+            "onlyChallenger"
+          ],
+          "functions": [
+            "ISubmitter.challengeDeposit",
+            "ISubmitter.isActive",
+            "ISubmitter.slash"
+          ],
+          "hypothesis": {
+            "finding": "F-M2-40",
+            "name": "Hyp-ISubmitter",
+            "result": "fail",
+            "verdict": "tested"
+          }
+        },
+        "address": {
+          "actions": [
+            "claimProveRemaining",
+            "claimReward"
+          ],
+          "checks": [
+            "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:817#0",
+            "claimReward#contracts/contracts/l1/rollup/Rollup.sol:817#0"
+          ],
+          "classes": [
+            "caller_rollup_674",
+            "onlyOwner"
+          ],
+          "functions": [
+            "address.call"
+          ],
+          "hypothesis": null
+        },
+        "code": {
+          "actions": [
+            "initialize4"
+          ],
+          "checks": [
+            "initialize4#contracts/contracts/l1/rollup/Rollup.sol:211#0"
+          ],
+          "classes": [
+            "caller_rollup_210"
+          ],
+          "functions": [
+            "code"
+          ],
+          "hypothesis": null
+        }
+      },
+      "kinds": {
+        "external": 31,
+        "input": 210,
+        "loop": 1,
+        "never": 1,
+        "panic": 11,
+        "permission": 19,
+        "state": 22
+      }
+    }
+  },
+  "sidecar": {
+    "path": "spec/M3/lib/disch.json",
+    "sha256": "40f62c33d825f583653a857e7ca22a583d4af54f4d55fb75545b11e5971a73b4"
+  }
+}

@@ -1,0 +1,518 @@
+{
+  "document": "disch_closure",
+  "inputs": [
+    {
+      "path": "audit/rounds/M2/round2/a4.json",
+      "sha256": "6c0dad33925dd592ed05842ee59ba93b13c67b1fa4174caf4c4778961dd18c13"
+    },
+    {
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    }
+  ],
+  "milestone": "M3",
+  "models": {
+    "morph_rollup.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "commitBatchWithProof",
+            "finalizeBatch",
+            "initialize",
+            "initialize2",
+            "initialize3"
+          ],
+          "external": [],
+          "predicate": null
+        },
+        "caller_rollup_210": {
+          "actions": [
+            "initialize4"
+          ],
+          "external": [
+            "sload"
+          ],
+          "predicate": [
+            "==",
+            [
+              "caller"
+            ],
+            [
+              "sload",
+              81955473079516046949633743016697847541294818689821282749996681496272635257091
+            ]
+          ]
+        },
+        "caller_rollup_674": {
+          "actions": [
+            "claimReward"
+          ],
+          "external": [],
+          "predicate": [
+            "!=",
+            [
+              "map",
+              [
+                "storage",
+                "batchChallengeReward"
+              ],
+              [
+                "caller"
+              ]
+            ],
+            0
+          ]
+        },
+        "onlyActiveSubmitter": {
+          "actions": [
+            "commitBatch",
+            "commitState",
+            "proveState"
+          ],
+          "external": [
+            "ISubmitter.isActive"
+          ],
+          "predicate": [
+            "call",
+            "ISubmitter.isActive",
+            [
+              "caller"
+            ]
+          ]
+        },
+        "onlyChallenger": {
+          "actions": [
+            "challengeState"
+          ],
+          "external": [],
+          "predicate": [
+            "map",
+            [
+              "storage",
+              "isChallenger"
+            ],
+            [
+              "caller"
+            ]
+          ]
+        },
+        "onlyOwner": {
+          "actions": [
+            "addChallenger",
+            "claimProveRemaining",
+            "importGenesisBatch",
+            "removeChallenger",
+            "renounceOwnership",
+            "revertBatch",
+            "setPause",
+            "transferOwnership",
+            "updateFinalizePeriodSeconds",
+            "updateProofWindow",
+            "updateRewardPercentage",
+            "updateRollupDelayPeriod",
+            "updateVerifier"
+          ],
+          "external": [],
+          "predicate": [
+            "==",
+            [
+              "storage",
+              "_owner"
+            ],
+            [
+              "caller"
+            ]
+          ]
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "commitBatchWithProof",
+            "finalizeBatch",
+            "initialize2",
+            "initialize3"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "_initialized",
+            "_initializing",
+            "batchBlobVersionedHashes",
+            "batchDataStore.blockNumber",
+            "batchDataStore.finalizeTimestamp",
+            "batchDataStore.originTimestamp",
+            "batchDataStore.submitter",
+            "call:IL1MessageQueue.popCrossDomainMessage",
+            "challenges.batchIndex",
+            "challenges.challengeDeposit",
+            "challenges.challengeSuccess",
+            "challenges.challenger",
+            "challenges.finished",
+            "challenges.startTime",
+            "committedBatches",
+            "committedStateRoots",
+            "finalizedStateRoots",
+            "lastCommittedBatchIndex",
+            "lastFinalizedBatchIndex",
+            "rollupDelayPeriod",
+            "withdrawalRoots"
+          ]
+        },
+        "caller_rollup_210": {
+          "actions": [
+            "commitBatchWithProof",
+            "finalizeBatch",
+            "initialize2",
+            "initialize3",
+            "initialize4"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "_initialized",
+            "_initializing",
+            "batchBlobVersionedHashes",
+            "batchDataStore.blockNumber",
+            "batchDataStore.finalizeTimestamp",
+            "batchDataStore.originTimestamp",
+            "batchDataStore.submitter",
+            "call:IL1MessageQueue.popCrossDomainMessage",
+            "challenges.batchIndex",
+            "challenges.challengeDeposit",
+            "challenges.challengeSuccess",
+            "challenges.challenger",
+            "challenges.finished",
+            "challenges.startTime",
+            "committedBatches",
+            "committedStateRoots",
+            "finalizedStateRoots",
+            "lastCommittedBatchIndex",
+            "lastFinalizedBatchIndex",
+            "legacyCutoverBatchIndex",
+            "rollupDelayPeriod",
+            "submitterContract",
+            "withdrawalRoots"
+          ]
+        },
+        "caller_rollup_674": {
+          "actions": [
+            "claimReward",
+            "commitBatchWithProof",
+            "finalizeBatch",
+            "initialize2",
+            "initialize3"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "_initialized",
+            "_initializing",
+            "batchBlobVersionedHashes",
+            "batchChallengeReward",
+            "batchDataStore.blockNumber",
+            "batchDataStore.finalizeTimestamp",
+            "batchDataStore.originTimestamp",
+            "batchDataStore.submitter",
+            "call:IL1MessageQueue.popCrossDomainMessage",
+            "call:address.call",
+            "challenges.batchIndex",
+            "challenges.challengeDeposit",
+            "challenges.challengeSuccess",
+            "challenges.challenger",
+            "challenges.finished",
+            "challenges.startTime",
+            "committedBatches",
+            "committedStateRoots",
+            "finalizedStateRoots",
+            "lastCommittedBatchIndex",
+            "lastFinalizedBatchIndex",
+            "rollupDelayPeriod",
+            "withdrawalRoots"
+          ]
+        },
+        "onlyActiveSubmitter": {
+          "actions": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState",
+            "finalizeBatch",
+            "initialize2",
+            "initialize3"
+          ],
+          "excluded": {
+            "proveState": "proveState#contracts/contracts/l1/rollup/Rollup.sol:606#0"
+          },
+          "rounds": 2,
+          "write_closure": [
+            "_initialized",
+            "_initializing",
+            "batchBlobVersionedHashes",
+            "batchDataStore.blockNumber",
+            "batchDataStore.finalizeTimestamp",
+            "batchDataStore.originTimestamp",
+            "batchDataStore.submitter",
+            "call:IL1MessageQueue.popCrossDomainMessage",
+            "challenges.batchIndex",
+            "challenges.challengeDeposit",
+            "challenges.challengeSuccess",
+            "challenges.challenger",
+            "challenges.finished",
+            "challenges.startTime",
+            "committedBatches",
+            "committedStateRoots",
+            "finalizedStateRoots",
+            "lastCommittedBatchIndex",
+            "lastFinalizedBatchIndex",
+            "rollupDelayPeriod",
+            "withdrawalRoots"
+          ]
+        },
+        "onlyChallenger": {
+          "actions": [
+            "challengeState",
+            "commitBatchWithProof",
+            "finalizeBatch",
+            "initialize2",
+            "initialize3"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "_initialized",
+            "_initializing",
+            "batchBlobVersionedHashes",
+            "batchChallenged",
+            "batchDataStore.blockNumber",
+            "batchDataStore.finalizeTimestamp",
+            "batchDataStore.originTimestamp",
+            "batchDataStore.submitter",
+            "call:IL1MessageQueue.popCrossDomainMessage",
+            "challenges.batchIndex",
+            "challenges.challengeDeposit",
+            "challenges.challengeSuccess",
+            "challenges.challenger",
+            "challenges.finished",
+            "challenges.startTime",
+            "committedBatches",
+            "committedStateRoots",
+            "finalizedStateRoots",
+            "inChallenge",
+            "lastCommittedBatchIndex",
+            "lastFinalizedBatchIndex",
+            "rollupDelayPeriod",
+            "withdrawalRoots"
+          ]
+        },
+        "onlyOwner": {
+          "actions": [
+            "addChallenger",
+            "claimProveRemaining",
+            "commitBatchWithProof",
+            "finalizeBatch",
+            "importGenesisBatch",
+            "initialize2",
+            "initialize3",
+            "removeChallenger",
+            "renounceOwnership",
+            "revertBatch",
+            "setPause",
+            "transferOwnership",
+            "updateFinalizePeriodSeconds",
+            "updateProofWindow",
+            "updateRewardPercentage",
+            "updateRollupDelayPeriod",
+            "updateVerifier"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "_initialized",
+            "_initializing",
+            "_owner",
+            "_paused",
+            "batchBlobVersionedHashes",
+            "batchChallengeReward",
+            "batchDataStore.blockNumber",
+            "batchDataStore.finalizeTimestamp",
+            "batchDataStore.originTimestamp",
+            "batchDataStore.submitter",
+            "call:IL1MessageQueue.popCrossDomainMessage",
+            "call:address.call",
+            "challenges.batchIndex",
+            "challenges.challengeDeposit",
+            "challenges.challengeSuccess",
+            "challenges.challenger",
+            "challenges.finished",
+            "challenges.startTime",
+            "committedBatches",
+            "committedStateRoots",
+            "finalizationPeriodSeconds",
+            "finalizedStateRoots",
+            "inChallenge",
+            "isChallenger",
+            "lastCommittedBatchIndex",
+            "lastFinalizedBatchIndex",
+            "proofRewardPercent",
+            "proofWindow",
+            "proveRemaining",
+            "revertReqIndex",
+            "rollupDelayPeriod",
+            "verifier",
+            "withdrawalRoots"
+          ]
+        }
+      },
+      "dead": {
+        "initialize": "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:86-89#0"
+      },
+      "permission": {
+        "addChallenger": "addChallenger#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "challengeState": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:126#0",
+        "claimProveRemaining": "claimProveRemaining#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "claimReward": "claimReward#contracts/contracts/l1/rollup/Rollup.sol:674#0",
+        "commitBatch": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+        "commitBatchWithProof": null,
+        "commitState": "commitState#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+        "finalizeBatch": null,
+        "importGenesisBatch": "importGenesisBatch#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "initialize": null,
+        "initialize2": null,
+        "initialize3": null,
+        "initialize4": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:210#0",
+        "proveState": "proveState#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+        "removeChallenger": "removeChallenger#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "renounceOwnership": "renounceOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "revertBatch": "revertBatch#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "setPause": "setPause#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "transferOwnership": "transferOwnership#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateFinalizePeriodSeconds": "updateFinalizePeriodSeconds#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateProofWindow": "updateProofWindow#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateRewardPercentage": "updateRewardPercentage#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateRollupDelayPeriod": "updateRollupDelayPeriod#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+        "updateVerifier": "updateVerifier#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0"
+      },
+      "r0": {
+        "__maxNumTxInChunk": [
+          0
+        ],
+        "_initialized": [
+          1
+        ],
+        "_initializing": [
+          0
+        ],
+        "_owner": [
+          "T"
+        ],
+        "_paused": [
+          0
+        ],
+        "batchBlobVersionedHashes": [
+          0,
+          463520946527561903920979615716011323696915893422270006750744924475581808660
+        ],
+        "batchChallengeReward": [
+          0
+        ],
+        "batchChallenged": [
+          0
+        ],
+        "batchDataStore.blockNumber": [
+          0
+        ],
+        "batchDataStore.finalizeTimestamp": [
+          0,
+          1700000010
+        ],
+        "batchDataStore.originTimestamp": [
+          0,
+          1700000010
+        ],
+        "batchDataStore.submitter": [
+          0
+        ],
+        "challenges.batchIndex": [
+          0
+        ],
+        "challenges.challengeDeposit": [
+          0
+        ],
+        "challenges.challengeSuccess": [
+          0
+        ],
+        "challenges.challenger": [
+          0
+        ],
+        "challenges.finished": [
+          0
+        ],
+        "challenges.startTime": [
+          0
+        ],
+        "committedBatches": [
+          0,
+          49378197412850287564765311833464212548830103414361668470078570316707767840934
+        ],
+        "committedStateRoots": [
+          0,
+          100
+        ],
+        "finalizationPeriodSeconds": [
+          40
+        ],
+        "finalizedStateRoots": [
+          0,
+          100
+        ],
+        "inChallenge": [
+          0
+        ],
+        "isChallenger": [
+          0,
+          1
+        ],
+        "lastCommittedBatchIndex": [
+          0
+        ],
+        "lastFinalizedBatchIndex": [
+          0
+        ],
+        "legacyCutoverBatchIndex": [
+          0
+        ],
+        "messageQueue": [
+          "T"
+        ],
+        "proofRewardPercent": [
+          70
+        ],
+        "proofWindow": [
+          10
+        ],
+        "proveRemaining": [
+          0
+        ],
+        "revertReqIndex": [
+          0
+        ],
+        "rollupDelayPeriod": [
+          20
+        ],
+        "submitterContract": [
+          "T"
+        ],
+        "verifier": [
+          "T"
+        ],
+        "withdrawalRoots": [
+          0
+        ]
+      }
+    }
+  },
+  "sidecar": {
+    "path": "spec/M3/lib/disch.json",
+    "sha256": "40f62c33d825f583653a857e7ca22a583d4af54f4d55fb75545b11e5971a73b4"
+  }
+}
