@@ -16,9 +16,14 @@ A frozen statement may change only through an entry that this module accepts:
                    "derivation" (rule, subform, basis), which is also the old law's in HEAD's DERIVATION.json. A
                    facts file written by hand never qualifies. `python -m holon.statement_diff reextract
                    --milestone M [--append]` builds the entries a re-derivation needs (reextraction_entries).
-  binding_change   an emitted def changed under a fixed statement: a generated, kernel-checked equivalence law
-                   between the old and the new def, or a signature. No equivalence generator exists yet, so an
-                   unsigned binding_change is rejected.
+  binding_change   an emitted def changed under a fixed statement: a generated, kernel-checked equivalence, or a
+                   signature. Unsigned (F31, _binding_change): the entry names milestone, bound_commit (the commit
+                   whose spec/bindings/<m>.json and model gave the law its old binding) and defs (exactly the
+                   changed definitions); the check reads the old model from git at bound_commit, verifies both
+                   models against the two bindings entry by entry, and runs holon.gen.equivalence.prove: every root
+                   the statement names must be unchanged or proven extensionally equal old vs new, by bend and
+                   BendTT. A proof carried by the entry is never read. `python -m holon.statement_diff rebind
+                   --milestone M [--append]` builds the entries (binding_change_entries).
   strengthening    a kernel-checked S' => S (holon.gen.implication generates the obligation and its proof;
                    Bend, and BendTT when available, must accept it).
   weakening        a gpg signature verifiable against a public key in keys/ (Q3) and an auditor review. A
@@ -94,8 +99,11 @@ CATALOG_KEY = "rule_catalog_version"   # the one IR key a catalog_rederivation m
 _CORE = tuple(dict.fromkeys(ir.HASHED_KEYS + ir.HASHED_KEYS_03 + ("facts",)))
 
 
-def _res(ok: bool, reason: str, implication: dict | None = None) -> dict:
-    return {"ok": ok, "reason": reason, "implication": implication}
+def _res(ok: bool, reason: str, implication: dict | None = None, equivalence: dict | None = None) -> dict:
+    out = {"ok": ok, "reason": reason, "implication": implication}
+    if equivalence is not None:
+        out["equivalence"] = equivalence
+    return out
 
 
 def _is_law(x) -> bool:
@@ -173,12 +181,12 @@ def check_entry(entry: dict, root: Path | None = None) -> dict:
     if kind == "binding_change":
         if core(old) != core(new):
             return _res(False, "a binding_change keeps the statement fixed, and this entry changes it")
-        ok, why = verify_signature(entry, root)
-        if ok:
-            return _res(True, f"binding_change: {why}")
-        return _res(False, "a binding_change needs a generated, kernel-checked equivalence law between the old and "
-                           "the new def (no equivalence generator exists yet; a supplied proof does not count) or a "
-                           f"signature: {why}")
+        if entry.get("signature"):
+            ok, why = verify_signature(entry, root)
+            if ok:
+                return _res(True, f"binding_change: {why}")
+            return _res(False, f"binding_change: {why}")
+        return _binding_change(entry, old, new, root)
     if kind == "cross_milestone" and old.get("milestone") == new.get("milestone"):
         return _res(False, "a cross_milestone entry links laws of two milestones (a change within one is a strengthening)")
     # strengthening, cross_milestone: a checked new => old
@@ -512,6 +520,152 @@ def catalog_rederivation_entries(milestone: str, root: Path) -> tuple[list[dict]
     return out, notes
 
 
+# ---------------------------------------------------------------- binding changes (F31)
+BINDING_KEYS = ("statement_hash", "statement_sha256", "counter_sha256", "model")   # fixed by a binding_change
+
+
+def model_at(root: Path, commit: str, rel: str) -> bytes | None:
+    """A file's bytes at a commit (read-only git), following symbolic links inside the tree (a typed model's
+    records name it by a link, docs/HUMAN_ANSWERS.md Q25)."""
+    root = Path(root).resolve()
+    for _ in range(8):
+        ls = _git(root, "ls-tree", commit, "--", rel)
+        line = ls.stdout.decode().strip() if ls.returncode == 0 else ""
+        if not line:
+            return None
+        mode = line.split()[0]
+        b = blob_at(root, commit, rel)
+        if b is None or mode != "120000":
+            return b
+        rel = (Path(rel).parent / b.decode().strip()).as_posix()
+    return None
+
+
+def _binding_at(root: Path, commit: str, milestone: str, lid: str) -> dict | None:
+    from .bindings import BINDINGS_DIR
+    doc = _json_or_none(blob_at(root, commit, (BINDINGS_DIR / f"{milestone}.json").as_posix()))
+    x = (doc or {}).get("laws", {}).get(lid) if isinstance(doc, dict) else None
+    return x if isinstance(x, dict) else None
+
+
+def _binding_change(entry: dict, old: dict, new: dict, root: Path) -> dict:
+    """An unsigned binding_change is accepted only with a generated, kernel-checked equivalence (holon.gen.equivalence),
+    re-derived here from the entry and never taken from it:
+      * the entry names the law, its milestone and bound_commit, a commit in HEAD's history whose
+        spec/bindings/<m>.json holds the law's binding being replaced (the old one), and whose model file is that
+        binding's model: its kernel entries hash to the binding's cone, entry by entry;
+      * the law's binding on the tree (holon.bindings.bind_law) differs from the old one only in its cone: the statement
+        hash, the emitted statement and counter-law and the model path are the same (anything else is not a
+        binding change), and the entry's "defs" are exactly the definitions whose kernel form changed or that entered
+        or left the cone;
+      * holon.gen.equivalence.prove on the old model text (from git at bound_commit), the new one (the tree) and the
+        emitted statement gives PROVED: every root the statement names is unchanged or proven extensionally equal,
+        by bend and by BendTT (--verdict) when it is available.
+    A proof carried by the entry (any key) is never read."""
+    from . import bindings as B
+    from .gen import equivalence as EQ
+    m, lid, bc = entry.get("milestone"), new["law_id"], entry.get("bound_commit")
+    if not isinstance(m, str) or not isinstance(bc, str) or not isinstance(entry.get("defs"), list):
+        return _res(False, "an unsigned binding_change carries milestone, bound_commit and defs (the equivalence is "
+                           "generated and checked here; a supplied proof does not count)")
+    if not in_git(root):
+        return _res(False, "a binding_change is checked against the bound kernel forms at bound_commit, which needs the "
+                           "git history (a copied tree cannot check it)")
+    if _git(root, "merge-base", "--is-ancestor", bc, "HEAD").returncode != 0:
+        return _res(False, f"bound_commit {bc[:12]} is not a commit in HEAD's history")
+    cur = root / "laws" / m / f"{lid}.json"
+    law = _json_or_none(cur.read_bytes()) if cur.is_file() else None
+    if not _is_law(law) or core(law) != core(new):
+        return _res(False, f"the entry's statement is not {lid}'s statement on the tree")
+    ob = _binding_at(root, bc, m, lid)
+    if ob is None:
+        return _res(False, f"spec/bindings/{m}.json at {bc[:12]} binds no {lid}")
+    try:
+        nb = B.bind_law(law, m, root)
+    except Exception as e:  # noqa: BLE001  (a law that cannot be bound now has no binding change to check)
+        return _res(False, f"{lid} cannot be bound on the tree: {type(e).__name__}: {e}")
+    diff = [k for k in BINDING_KEYS if ob.get(k) != nb.get(k)]
+    if diff:
+        return _res(False, f"the binding of {lid} changes {diff}, not only its cone: not a binding change")
+    changed = B.changed_defs(ob, nb)
+    if not changed:
+        return _res(False, f"the binding of {lid} at {bc[:12]} is the binding on the tree: nothing changed")
+    if sorted(entry["defs"]) != changed:
+        return _res(False, f"the entry's defs are not the changed definitions of {lid}'s binding ({len(changed)}: "
+                           f"{', '.join(changed[:6])}{' ...' if len(changed) > 6 else ''})")
+    old_bytes = model_at(root, bc, ob["model"])
+    if old_bytes is None:
+        return _res(False, f"{ob['model']} does not exist at {bc[:12]}")
+    old_text, new_text = old_bytes.decode("utf-8"), (root / nb["model"]).read_text()
+    try:
+        eo = EQ.kernel_entries_of(old_text, None, f"{ob['model']} at {bc[:12]}")
+        en = EQ.kernel_entries_of(new_text, None, nb["model"])
+    except Exception as e:  # noqa: BLE001
+        return _res(False, f"a model does not translate to BendTT: {e}")
+    for tag, bnd, es in (("old", ob, eo), ("new", nb, en)):
+        bad = sorted(d for d, h in bnd["cone"].items() if d not in es or hashlib.sha256(es[d].encode()).hexdigest() != h)
+        if bad:
+            return _res(False, f"the {tag} model's kernel forms are not the {tag} binding's ({', '.join(bad[:5])}): "
+                               f"{ob['model']} at {bc[:12]} is not the bound model" if tag == "old" else
+                               f"the {tag} model's kernel forms are not the {tag} binding's ({', '.join(bad[:5])})")
+    eqv = EQ.prove(old_text, new_text, B.statement_text(law, m, root), eo=eo, en=en)
+    eqv["bound_commit"] = bc
+    eqv["models"] = {"old": _sha(old_bytes), "new": _sha(new_text.encode("utf-8")), "path": nb["model"]}
+    if eqv["status"] == "PROVED":
+        return _res(True, f"binding_change: every root of {lid}'s statement is unchanged or proven extensionally equal "
+                          f"old vs new ({eqv['reason']}), checked by {' and '.join(eqv['kernels']) or 'no kernel'}",
+                    equivalence=eqv)
+    return _res(False, f"binding_change without a checked equivalence ({eqv['status']}): {eqv['reason']}",
+                equivalence=eqv)
+
+
+def binding_change_entries(milestone: str, root: Path) -> tuple[list[dict], list[str]]:
+    """(entries, notes): one binding_change entry for every law of laws/<M> whose binding on the tree
+    (holon.bindings.bind_law) differs from spec/bindings/<M>.json only in its cone. Its bound_commit is the commit that
+    gave the law its current binding (the oldest commit, in HEAD's history of spec/bindings/<M>.json, from which the
+    law's binding has been the same), where the model and the binding were written together. Nothing is checked or
+    appended here (append checks each entry). Laws whose binding changed otherwise are named in notes."""
+    from . import bindings as B
+    root = Path(root)
+    p = B.path(milestone, root)
+    if not p.is_file() or not in_git(root):
+        return [], [f"{p} or the git history is missing"]
+    cur = json.loads(p.read_text()).get("laws", {})
+    rel = p.relative_to(root).as_posix()
+    hist = _git(root, "log", "--topo-order", "--format=%H", "HEAD", "--", rel).stdout.decode().split()
+    out, notes = [], []
+    for law in ir.load_laws_any(milestone, root):
+        lid = law["law_id"]
+        if lid not in cur:
+            continue
+        try:
+            nb = B.bind_law(law, milestone, root)
+        except Exception as e:  # noqa: BLE001
+            notes.append(f"{lid}: cannot be bound on the tree: {type(e).__name__}: {e}")
+            continue
+        ob = cur[lid]
+        changed = B.changed_defs(ob, nb)
+        if not changed:
+            continue
+        if any(ob.get(k) != nb.get(k) for k in BINDING_KEYS):
+            notes.append(f"{lid}: its binding changes beyond the cone: not a binding change")
+            continue
+        bc = None
+        for c in hist:   # newest first: keep going back while the law's binding is the current one
+            x = _binding_at(root, c, milestone, lid)
+            if ir.canonical_json(x) != ir.canonical_json(ob):
+                break
+            bc = c
+        if bc is None:
+            notes.append(f"{lid}: no commit holds its current binding (commit spec/bindings/{milestone}.json first)")
+            continue
+        out.append({"kind": "binding_change", "law_id": lid, "milestone": milestone, "old": law, "new": law,
+                    "bound_commit": bc, "defs": changed,
+                    "reason": f"{lid}: {len(changed)} definitions of its cone changed under the fixed statement "
+                              f"(model {nb['model']}); bound at {bc[:12]}"})
+    return out, notes
+
+
 # ---------------------------------------------------------------- the log
 def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
@@ -585,6 +739,13 @@ def acceptance(entry: dict, result: dict, root: Path) -> dict:
         acc["implication"] = {"law_id": imp.get("law_id"), "generator": imp.get("generator"),
                               "kernels": imp.get("kernels"), "laws_sha256": _sha(imp.get("laws")),
                               "proof_sha256": _sha(imp.get("proof"))}
+    eqv = result.get("equivalence") or {}
+    if entry.get("kind") == "binding_change" and eqv.get("status") == "PROVED":   # F31
+        acc["equivalence"] = {"generator": eqv.get("generator"), "bound_commit": eqv.get("bound_commit"),
+                              "models": eqv.get("models"), "kernels": eqv.get("kernels"),
+                              "pair_sha256": eqv.get("pair_sha256"), "laws_sha256": _sha(eqv.get("laws")),
+                              "proof_sha256": _sha(eqv.get("proof")),
+                              "roots": {i["root"]: i.get("class") for i in eqv.get("roots") or []}}
     if entry.get("signature"):
         acc["signature"] = "verified against keys/"
     return acc
@@ -666,8 +827,12 @@ def _verify_committed(e, acc, commit: str, root: Path) -> str | None:
         return f"its acceptance record is for kind {acc.get('kind')!r}"
     if e.get("kind") in ("strengthening", "cross_milestone") and not isinstance(acc.get("implication"), dict):
         return "its acceptance record names no checked implication"
-    if e.get("kind") in ("weakening", "binding_change") and acc.get("signature") != "verified against keys/":
+    if e.get("kind") == "weakening" and acc.get("signature") != "verified against keys/":
         return "its acceptance record names no verified signature"
+    if e.get("kind") == "binding_change" and acc.get("signature") != "verified against keys/":
+        why = _verify_equivalence(e, acc.get("equivalence"), commit, root)   # F31
+        if why:
+            return why
     if e.get("kind") == "reextraction" and e.get("facts") not in acc["facts"]:
         return "its acceptance record does not name the extracted document the entry comes from"
     if e.get("kind") == "catalog_rederivation" and acc.get("catalogs") != [e.get("old_catalog"), e.get("new_catalog")]:
@@ -677,6 +842,26 @@ def _verify_committed(e, acc, commit: str, root: Path) -> str | None:
         if b is None or _sha(b) != sha:
             return (f"its acceptance names {rel} at sha256 {str(sha)[:12]}.., but at {commit[:7]} that file "
                     f"{'does not exist' if b is None else 'hashes to ' + _sha(b)[:12] + '..'}")
+    return None
+
+
+def _verify_equivalence(e: dict, eqv, commit: str, root: Path) -> str | None:
+    """A committed unsigned binding_change (F31) is not re-proved: its acceptance record must name a generated
+    equivalence checked by bend (and BendTT when it ran), for the entry's bound commit, and the two models it was proved
+    on must be the model at the bound commit and the model at the commit that appended the line."""
+    if not isinstance(eqv, dict) or "bend" not in (eqv.get("kernels") or []):
+        return "its acceptance record names no verified signature and no kernel-checked equivalence"
+    if eqv.get("generator") != "holon.gen.equivalence" or eqv.get("bound_commit") != e.get("bound_commit"):
+        return "its acceptance record names another generator or bound commit than the entry"
+    models = eqv.get("models") or {}
+    m, lid = e.get("milestone"), e.get("law_id")
+    ob = _binding_at(root, str(e.get("bound_commit")), str(m), str(lid)) if m and lid else None
+    old = model_at(root, str(e.get("bound_commit")), ob["model"]) if ob else None
+    new = model_at(root, commit, str(models.get("path"))) if models.get("path") else None
+    if old is None or _sha(old) != models.get("old"):
+        return "the old model its equivalence was proved on is not the model at its bound commit"
+    if new is None or _sha(new) != models.get("new"):
+        return f"the new model its equivalence was proved on is not {models.get('path')} at {commit[:7]}"
     return None
 
 
@@ -876,13 +1061,29 @@ def main(argv: list[str] | None = None) -> int:
     ones of) the reextraction / catalog_rederivation entries the milestone needs."""
     import argparse
     ap = argparse.ArgumentParser(prog="python -m holon.statement_diff")
-    ap.add_argument("command", choices=("append", "check", "reextract", "recatalog"))
+    ap.add_argument("command", choices=("append", "check", "reextract", "recatalog", "rebind"))
     ap.add_argument("entry", nargs="?")
     ap.add_argument("--root", default=str(ir.ROOT))
     ap.add_argument("--milestone", default="M2", help="reextract, recatalog: the milestone whose laws are re-derived")
-    ap.add_argument("--append", action="store_true", help="reextract, recatalog: append every accepted entry to the log")
+    ap.add_argument("--append", action="store_true", help="reextract, recatalog, rebind: append every accepted entry")
+    ap.add_argument("--report", help="rebind: write every entry's equivalence result (JSON) to this file")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve()
+    if a.command == "rebind":   # F31: the binding_change entries of laws whose cone changed under a fixed statement
+        es, notes = binding_change_entries(a.milestone, root)
+        bad, report = 0, {}
+        for e in es:
+            r = append(e, root) if a.append else check_entry(e, root)
+            report[e["law_id"]] = {"ok": r["ok"], "reason": r["reason"], "equivalence": r.get("equivalence")}
+            print(f"{e['law_id']}: {'accepted' if r['ok'] else 'REJECTED'}{' and appended' if r['ok'] and a.append else ''}"
+                  f": {r['reason']}")
+            bad += not r["ok"]
+        for n in notes:
+            print(f"no binding_change entry: {n}")
+        if a.report:
+            Path(a.report).write_text(json.dumps(report, indent=1, sort_keys=True) + "\n")
+        print(f"{len(es)} binding_change entries, {bad} rejected; {len(notes)} laws need another kind")
+        return 0 if not bad else 1
     if a.command == "recatalog":   # F30: the catalog_rederivation entries of the milestone's uncovered registry changes
         es, notes = catalog_rederivation_entries(a.milestone, root)
         bad = 0
