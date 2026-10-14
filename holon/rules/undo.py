@@ -57,6 +57,7 @@ UNDO_VERSION = "holon-undo/0.1"
 TEMPLATE_VERSION = 1
 NOT_STATE = ("view", "pure")
 ROOT = Path(__file__).resolve().parents[2]
+LAW_PREFIX = "L_" + RULE.lower() + "_"
 
 
 class UndoError(ValueError):
@@ -343,11 +344,11 @@ def analyse(d: dict, model: str) -> dict:
 
 # ------------------------------------------------------------------------------------------------ L1, L2
 def pair_law_id(contract: str, a: str, undo: str) -> str:
-    return f"L_undo_pair_{contract}_{a}_{undo}"
+    return f"{LAW_PREFIX}pair_{contract}_{a}_{undo}"
 
 
 def residue_law_id(contract: str, undo: str, family: str) -> str:
-    return f"L_undo_res_{contract}_{undo}_{family}"
+    return f"{LAW_PREFIX}res_{contract}_{undo}_{family}"
 
 
 def undo_id(model: str, subform: str, basis: dict) -> str:
@@ -357,8 +358,8 @@ def undo_id(model: str, subform: str, basis: dict) -> str:
 
 
 def ghost_x(law_id: str) -> str:
-    """The suffix of a law's generated definitions undo_<x> and uhit_<x>: the law id without "L_undo_"."""
-    return law_id[len("L_undo_"):]
+    """The suffix of a law's generated definitions undo_<x> and uhit_<x>: the law id without its rule prefix (L1, L2)."""
+    return law_id[len(LAW_PREFIX):]
 
 
 def elements(an: dict) -> list:
@@ -645,7 +646,7 @@ def warnings(milestone: str, root: Path, results: Path | None = None) -> list:
 def backtest(milestone: str, root: Path, sc: Sidecar) -> dict:
     """results/M3/undo/backtest.json: each M1 UNDO law of the sidecar's frozen map against the law L1 or L2 would
     give its analogue (names mapped); analogue null when laws/<M> holds no such law (a back-test miss, an open rule
-    gap). Reads laws/M1/L_undo_* and results/M1/L_undo_* only for the M1 side."""
+    gap). Reads the M1 laws and records the map names, and only them, for the M1 side."""
     root = Path(root)
     bt = sc.backtest or {}
     names = bt.get("names") or {}
