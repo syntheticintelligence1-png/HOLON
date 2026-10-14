@@ -1,0 +1,463 @@
+{
+  "canaries": [
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_whisker_direction_mismatch",
+      "doc": "swapping post-whisker observers l1 != l2 without an equality hypothesis between l1 and l2 must fail both Bend kernels",
+      "group": "theory_core_i",
+      "status": "REFUTED"
+    },
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_domain_local_without_premise",
+      "doc": "claiming full-carrier equality @a:A -> {p(a) == q(a)} from a domain-restricted hypothesis @x:X -> {p(r(x)) == q(r(x))} must fail both Bend kernels",
+      "group": "theory_core_i",
+      "status": "REFUTED"
+    },
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_basis_missing_generator",
+      "doc": "attempting to reduce a non-tree walk l(e(r(x))) == obs(x) from the tree law l(t(r(x))) == obs(x) without the cycle-basis generator t == e must fail both Bend kernels",
+      "group": "theory_core_i",
+      "status": "REFUTED"
+    },
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_header_v0_unpinned",
+      "doc": "dropping the sequencerSetVerifyHash == 0 domain pin (pin_h) on dec_go(enc_sol(h)) == dec_go(enc_go_v0(h)) while rewriting with L_par_hdr_v0 must fail both Bend kernels",
+      "group": "header",
+      "status": "REFUTED"
+    },
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_header_v1_missing_par",
+      "doc": "attempting to prove the v1 cycle reduction dec_go(enc_sol(PAR1.pin_h(h))) == dec_go(enc_go_v1(PAR1.pin_h(h))) using only the v0 generator L_par_hdr_v0 without L_par_hdr_v1 must fail both Bend kernels",
+      "group": "header",
+      "status": "REFUTED"
+    },
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_hl_drop_cycle_gen",
+      "doc": "dropping the non-tree round-trip generator RT_BHH_V2 when reducing BatchHeaderBytes_BlobHashesHash to the spanning-tree edge BatchHeaderBytes_BlobCommitHash must fail both Bend kernels",
+      "group": "header_length",
+      "status": "REFUTED"
+    },
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_congruence_unpinned_v0",
+      "doc": "attempting to derive L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0 without the pin_k/pin_h domain premise must fail both Bend kernels",
+      "group": "congruence",
+      "status": "REFUTED"
+    }
+  ],
+  "congruence_line_comparison": {
+    "baseline_def_lines": 136,
+    "baseline_nonblank_lines": 238,
+    "baseline_total_lines": 340,
+    "congruence_def_lines": 100,
+    "congruence_laws_file_lines": 177,
+    "congruence_nonblank_lines": 180,
+    "congruence_proof_lines": 215,
+    "law_count": 34,
+    "m0_count": 2,
+    "m3_count": 32
+  },
+  "groups": {
+    "congruence": {
+      "bend_check_ok": true,
+      "bend_verdict_ok": true,
+      "law_count": 34,
+      "laws": [
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_rt_go_v0",
+          "milestone": "M0",
+          "source_law_id": "L_rt_go_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_rt_go_v1",
+          "milestone": "M0",
+          "source_law_id": "L_rt_go_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_batchindex_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_batchindex_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_batchindex_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobcommithash_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobcommithash_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobcommithash_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobhasheshash_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobversionedhash_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobversionedhash_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_datahash_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_datahash_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_datahash_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_l1messagepopped_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_l1messagepopped_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_l1messagepopped_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_lastblocknumber_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_lastblocknumber_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_parentbatchhash_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_parentbatchhash_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_parentbatchhash_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_poststateroot_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_poststateroot_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_poststateroot_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_prevstateroot_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_prevstateroot_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_prevstateroot_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_totall1messagepopped_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_totall1messagepopped_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_totall1messagepopped_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_withdrawalroot_v0",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_withdrawalroot_v1",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_withdrawalroot_v2",
+          "milestone": "M3",
+          "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
+          "status": "PROVED"
+        }
+      ],
+      "laws_only_verdict_ok": false,
+      "laws_path": "gen/M3/basis/congruence/LAWS.bend",
+      "proof_path": "gen/M3/basis/congruence/PROOF.bend"
+    },
+    "header": {
+      "bend_check_ok": true,
+      "bend_verdict_ok": true,
+      "law_count": 3,
+      "laws": [
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "basis_sufficient_header_v0",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "basis_sufficient_header_v1",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_cycle_basis_2",
+          "law_id": "basis_sufficient_header",
+          "status": "PROVED"
+        }
+      ],
+      "laws_only_verdict_ok": false,
+      "laws_path": "gen/M3/basis/header/LAWS.bend",
+      "proof_path": "gen/M3/basis/header/PROOF.bend"
+    },
+    "header_length": {
+      "bend_check_ok": true,
+      "bend_verdict_ok": true,
+      "law_count": 5,
+      "laws": [
+        {
+          "core_lemma": "core_tree_unique_2",
+          "law_id": "basis_hl_gen_blob_hashes_hash",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_tree_unique_2",
+          "law_id": "basis_hl_gen_blob_versioned_hash",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "basis_hl_gen_batch_header_v1_bytes",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_whisker_post",
+          "law_id": "basis_hl_gen_load_sol",
+          "status": "PROVED"
+        },
+        {
+          "core_lemma": "core_cycle_basis_2",
+          "law_id": "basis_sufficient_header_length",
+          "status": "PROVED"
+        }
+      ],
+      "laws_only_verdict_ok": false,
+      "laws_path": "gen/M3/basis/header_length/LAWS.bend",
+      "proof_path": "gen/M3/basis/header_length/PROOF.bend"
+    },
+    "theory_core_i": {
+      "bend_check_ok": true,
+      "bend_verdict_ok": true,
+      "law_count": 12,
+      "laws": [
+        {
+          "law_id": "core_whisker_pre",
+          "proof_class": "core_whisker",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_whisker_post",
+          "proof_class": "core_whisker",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_whisker_both",
+          "proof_class": "core_whisker",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_walk_2",
+          "proof_class": "core_paste",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_walk_3",
+          "proof_class": "core_paste",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_square_paste_h",
+          "proof_class": "core_paste",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_square_paste_v",
+          "proof_class": "core_paste",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_domain_local_pre",
+          "proof_class": "core_domain_local",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_domain_local_post",
+          "proof_class": "core_domain_local",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_domain_local_paste",
+          "proof_class": "core_domain_local",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_tree_unique_2",
+          "proof_class": "core_basis",
+          "status": "PROVED"
+        },
+        {
+          "law_id": "core_cycle_basis_2",
+          "proof_class": "core_basis",
+          "status": "PROVED"
+        }
+      ],
+      "laws_only_verdict_ok": false,
+      "laws_path": "gen/M3/core/LAWS.bend",
+      "proof_path": "gen/M3/core/PROOF.bend"
+    }
+  },
+  "iteration": "I42",
+  "milestone": "M3",
+  "schema": "holon-theory-core-i/1.0",
+  "summary": {
+    "canaries_refuted": 7,
+    "congruence_laws": 34,
+    "header_basis_laws": 3,
+    "header_length_basis_laws": 5,
+    "theory_core_i_laws": 12,
+    "total_proved_laws": 54
+  }
+}

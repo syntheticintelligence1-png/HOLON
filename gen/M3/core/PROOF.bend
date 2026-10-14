@@ -348,3 +348,51 @@ def Laws.core_one_le_sub_of_not_le(a, b, e):
       Laws.core_le_zero(p)
     case 1n+p 1n+q:
       Laws.core_one_le_sub_of_not_le(p, q, e)
+
+# class core_whisker
+def Laws.core_whisker_pre(X, A, B, r, p, q, e):
+  x => e(r(x))
+
+# class core_whisker
+def Laws.core_whisker_post(A, B, Y, p, q, l, e):
+  a => (%e(a) : {l(p(a))  == l(_) : Y}; {==})
+
+# class core_whisker
+def Laws.core_whisker_both(X, A, B, Y, r, p, q, l, e):
+  x => (%e(r(x)) : {l(p(r(x)))  == l(_) : Y}; {==})
+
+# class core_paste
+def Laws.core_walk_2(A, B, C, f1, f2, g1, g2, e1, e2):
+  +a => (%e2(a) : {g1(f1(a))  == _ : C}; (%e1(a) : {g1(f1(a))  == g1(_) : C}; {==}))
+
+# class core_paste
+def Laws.core_walk_3(A, B, C, D, f1, f2, g1, g2, h1, h2, e1, e2, e3):
+  +a => (%e3(a) : {h1(g1(f1(a)))  == _ : D}; (%e2(a) : {h1(g1(f1(a)))  == h1(_) : D}; (%e1(a) : {h1(g1(f1(a)))  == h1(g1(_)) : D}; {==})))
+
+# class core_paste
+def Laws.core_square_paste_h(A, B, C, f1, f2, g1, g2, e1, e2):
+  +a => (%e1(a) : {g1(f1(a))  == g2(_) : C}; e2(f1(a)))
+
+# class core_paste
+def Laws.core_square_paste_v(A, B, p, q, s, e1, e2):
+  +a => (%e2(a) : {p(a)  == _ : B}; e1(a))
+
+# class core_domain_local
+def Laws.core_domain_local_pre(Z, X, A, B, u, r, p, q, e):
+  z => e(u(z))
+
+# class core_domain_local
+def Laws.core_domain_local_post(X, A, B, Y, r, p, q, l, e):
+  x => (%e(x) : {l(p(r(x)))  == l(_) : Y}; {==})
+
+# class core_domain_local
+def Laws.core_domain_local_paste(X, A, B, r, p, q, s, e1, e2):
+  +x => (%e2(x) : {p(r(x))  == _ : B}; e1(x))
+
+# class core_basis
+def Laws.core_tree_unique_2(A, B, C, f, g1, g2, t, e1, e2):
+  +a => (%{(%e2(a) : {_ == g2(f(a))  : C}; {==}) : {t(a) == g2(f(a))  : C}} : {g1(f(a))  == _ : C}; e1(a))
+
+# class core_basis
+def Laws.core_cycle_basis_2(X, A, B, Y, r, t, e, l, obs, cyc, tree_law):
+  +x => (%cyc(r(x)) : {l(_) == obs(x)  : Y}; tree_law(x))
