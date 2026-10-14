@@ -1,0 +1,3132 @@
+{
+ "assumptions": [
+  {
+   "id": "go-append-growth",
+   "text": "The capacity append chooses when it grows is not modelled: a grown append's backing is fresh and its capacity is [\"unknown\", \"growth\"]."
+  },
+  {
+   "id": "go-errors-nonnil",
+   "text": "errors.New and fmt.Errorf return non-nil errors, and so does a package variable of an error type that the package initializer assigns from one of them."
+  },
+  {
+   "id": "go-nil-deref-not-modelled",
+   "text": "Nil pointer dereferences are not partiality sites."
+  },
+  {
+   "id": "go-opaque-calls",
+   "text": "Calls outside the analyzed packages that are not primitives are opaque: their results are call terms, and what they do to memory they can reach is unknown."
+  },
+  {
+   "id": "go-prim:fx/codec.toArray",
+   "text": "a 2-byte to_array primitive"
+  }
+ ],
+ "extraction": {
+  "config": {
+   "path": "tests_m3/fixtures/par_linked/go_frontend.json",
+   "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "frontend": "go",
+  "frontend_version": "holon-go/0.1",
+  "inputs": [
+   {
+    "path": "codec/codec.go",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  ],
+  "method": "extracted",
+  "tool": {
+   "go": "go1.24.7",
+   "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+   "x_tools": "v0.36.0"
+  }
+ },
+ "facts_version": "holon-facts/0.3",
+ "go": {
+  "calls": {
+   "edges": [],
+   "flows": []
+  },
+  "codecs": {
+   "absences": [],
+   "decoders": [
+    {
+     "function": "(fx/codec.HdrBytes).A",
+     "param": "b",
+     "reads": [
+      {
+       "offset": 1,
+       "via": "to_array",
+       "width": 2
+      }
+     ]
+    },
+    {
+     "function": "(fx/codec.HdrBytes).B",
+     "param": "b",
+     "reads": [
+      {
+       "offset": 3,
+       "via": "to_array",
+       "width": 2
+      }
+     ]
+    },
+    {
+     "function": "(fx/codec.HdrBytes).D",
+     "param": "b",
+     "reads": [
+      {
+       "offset": 7,
+       "via": "to_array",
+       "width": 2
+      }
+     ]
+    },
+    {
+     "function": "(fx/codec.HdrBytes).Root",
+     "param": "b",
+     "reads": [
+      {
+       "offset": 5,
+       "via": "to_array",
+       "width": 2
+      }
+     ]
+    },
+    {
+     "function": "(fx/codec.HdrBytes).RootNew",
+     "param": "b",
+     "reads": [
+      {
+       "offset": 5,
+       "via": "to_array",
+       "width": 2
+      }
+     ]
+    },
+    {
+     "function": "(fx/codec.HdrBytes).Version",
+     "param": "b",
+     "reads": [
+      {
+       "offset": 0,
+       "via": "index",
+       "width": 1
+      }
+     ]
+    }
+   ],
+   "encoders": [
+    {
+     "cells": [
+      [
+       "const",
+       0
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "A"
+       ],
+       0
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "A"
+       ],
+       1
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "B"
+       ],
+       0
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "B"
+       ],
+       1
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "C"
+       ],
+       0
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "C"
+       ],
+       1
+      ]
+     ],
+     "conds": [
+      [
+       [
+        "<=",
+        [
+         "len",
+         [
+          "field",
+          [
+           "param",
+           "b"
+          ],
+          "Enc"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ]
+     ],
+     "exact": true,
+     "function": "(fx/codec.RecV0).Bytes",
+     "length": 7,
+     "result": 0
+    },
+    {
+     "cells": [
+      [
+       "const",
+       1
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "field",
+         [
+          "param",
+          "b"
+         ],
+         "RecV0"
+        ],
+        "A"
+       ],
+       0
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "field",
+         [
+          "param",
+          "b"
+         ],
+         "RecV0"
+        ],
+        "A"
+       ],
+       1
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "field",
+         [
+          "param",
+          "b"
+         ],
+         "RecV0"
+        ],
+        "B"
+       ],
+       0
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "field",
+         [
+          "param",
+          "b"
+         ],
+         "RecV0"
+        ],
+        "B"
+       ],
+       1
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "field",
+         [
+          "param",
+          "b"
+         ],
+         "RecV0"
+        ],
+        "C"
+       ],
+       0
+      ],
+      [
+       "const",
+       0
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "D"
+       ],
+       0
+      ],
+      [
+       "byte",
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "D"
+       ],
+       1
+      ]
+     ],
+     "conds": [
+      [
+       [
+        "<=",
+        [
+         "len",
+         [
+          "field",
+          [
+           "param",
+           "b"
+          ],
+          "Enc"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ]
+     ],
+     "exact": true,
+     "function": "(fx/codec.RecV1).Bytes",
+     "length": 9,
+     "result": 0
+    }
+   ],
+   "matches": [
+    {
+     "encoders": [
+      "(fx/codec.RecV0).Bytes"
+     ],
+     "index": 0,
+     "length": 7,
+     "predicate": "(fx/codec.HdrBytes).validate",
+     "value": 0
+    },
+    {
+     "encoders": [
+      "(fx/codec.RecV1).Bytes"
+     ],
+     "index": 0,
+     "length": 9,
+     "predicate": "(fx/codec.HdrBytes).validate",
+     "value": 1
+    },
+    {
+     "encoders": [],
+     "index": 0,
+     "length": 9,
+     "predicate": "(fx/codec.HdrBytes).validate",
+     "value": 2
+    }
+   ],
+   "patches": [
+    {
+     "encoder": "(fx/codec.RecV1).Bytes",
+     "function": "(*fx/codec.Cache).makeV2",
+     "guards": [
+      [
+       "true",
+       [
+        "call",
+        "dynamic:(*fx/codec.Cache).isV2",
+        []
+       ]
+      ]
+     ],
+     "returned": true,
+     "site": "codec/codec.go:82:12",
+     "writes": [
+      {
+       "index": 0,
+       "site": "codec/codec.go:83:5",
+       "value": 2
+      }
+     ]
+    }
+   ],
+   "predicates": [
+    {
+     "accepts": [
+      {
+       "length": 7,
+       "value": 0
+      },
+      {
+       "length": 9,
+       "value": 1
+      },
+      {
+       "length": 9,
+       "value": 2
+      }
+     ],
+     "function": "(fx/codec.HdrBytes).validate",
+     "param": "b",
+     "tag_index": 0
+    }
+   ]
+  },
+  "coverage": {
+   "debt": [],
+   "functions": 10,
+   "with_paths": 9
+  },
+  "functions": {
+   "(*fx/codec.Cache).makeV2": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "c",
+      "type": "*fx/codec.Cache"
+     },
+     {
+      "name": "r",
+      "type": "fx/codec.RecV1"
+     }
+    ],
+    "paths": null,
+    "paths_reason": "not_codec",
+    "results": [
+     "fx/codec.HdrBytes"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:80"
+   },
+   "(fx/codec.HdrBytes).A": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "b",
+      "type": "fx/codec.HdrBytes"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         7
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         7
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           1
+          ],
+          [
+           "const",
+           3
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           1
+          ],
+          [
+           "const",
+           3
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           1
+          ],
+          [
+           "const",
+           3
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "uint16",
+     "error"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:61"
+   },
+   "(fx/codec.HdrBytes).B": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "b",
+      "type": "fx/codec.HdrBytes"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         7
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         7
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           3
+          ],
+          [
+           "const",
+           5
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           3
+          ],
+          [
+           "const",
+           5
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         10
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         10
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           3
+          ],
+          [
+           "const",
+           5
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "uint16",
+     "error"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:63"
+   },
+   "(fx/codec.HdrBytes).D": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "b",
+      "type": "fx/codec.HdrBytes"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           7
+          ],
+          [
+           "const",
+           9
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           7
+          ],
+          [
+           "const",
+           9
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "uint16",
+     "error"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:67"
+   },
+   "(fx/codec.HdrBytes).Root": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "b",
+      "type": "fx/codec.HdrBytes"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         7
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         7
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           5
+          ],
+          [
+           "const",
+           7
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           5
+          ],
+          [
+           "const",
+           7
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           5
+          ],
+          [
+           "const",
+           7
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "uint16",
+     "error"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:65"
+   },
+   "(fx/codec.HdrBytes).RootNew": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "b",
+      "type": "fx/codec.HdrBytes"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         11
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         11
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "call",
+        "fx/codec.toArray",
+        [
+         [
+          "slice",
+          [
+           "param",
+           "b"
+          ],
+          [
+           "const",
+           5
+          ],
+          [
+           "const",
+           7
+          ],
+          null
+         ]
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "uint16",
+     "error"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:65"
+   },
+   "(fx/codec.HdrBytes).Version": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "b",
+      "type": "fx/codec.HdrBytes"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "const",
+        0
+       ],
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "index",
+        [
+         "param",
+         "b"
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "uint8",
+     "error"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:55"
+   },
+   "(fx/codec.HdrBytes).validate": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "b",
+      "type": "fx/codec.HdrBytes"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         7
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         7
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         1
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nonnil",
+      "returns": [
+       [
+        "global",
+        "fx/codec.ErrBadHeader"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "!=",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "index",
+         [
+          "param",
+          "b"
+         ],
+         [
+          "const",
+          0
+         ]
+        ],
+        [
+         "const",
+         2
+        ]
+       ],
+       [
+        "==",
+        [
+         "len",
+         [
+          "param",
+          "b"
+         ]
+        ],
+        [
+         "const",
+         9
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": "nil",
+      "returns": [
+       [
+        "nil"
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "error"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:40"
+   },
+   "(fx/codec.RecV0).Bytes": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "b",
+      "type": "fx/codec.RecV0"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        ">",
+        [
+         "len",
+         [
+          "field",
+          [
+           "param",
+           "b"
+          ],
+          "Enc"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": null,
+      "returns": [
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "Enc"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "<=",
+        [
+         "len",
+         [
+          "field",
+          [
+           "param",
+           "b"
+          ],
+          "Enc"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": null,
+      "returns": [
+       [
+        "slice",
+        [
+         "alloc",
+         "codec/codec.go:20:10",
+         [
+          "const",
+          7
+         ]
+        ],
+        null,
+        null,
+        null
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "fx/codec.HdrBytes"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:18"
+   },
+   "(fx/codec.RecV1).Bytes": {
+    "loop_free": true,
+    "package": "fx/codec",
+    "params": [
+     {
+      "name": "b",
+      "type": "fx/codec.RecV1"
+     }
+    ],
+    "paths": [
+     {
+      "cond": [
+       [
+        ">",
+        [
+         "len",
+         [
+          "field",
+          [
+           "param",
+           "b"
+          ],
+          "Enc"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": null,
+      "returns": [
+       [
+        "field",
+        [
+         "param",
+         "b"
+        ],
+        "Enc"
+       ]
+      ],
+      "site": null
+     },
+     {
+      "cond": [
+       [
+        "<=",
+        [
+         "len",
+         [
+          "field",
+          [
+           "param",
+           "b"
+          ],
+          "Enc"
+         ]
+        ],
+        [
+         "const",
+         0
+        ]
+       ]
+      ],
+      "end": "return",
+      "error": null,
+      "returns": [
+       [
+        "slice",
+        [
+         "alloc",
+         "codec/codec.go:30:10",
+         [
+          "const",
+          9
+         ]
+        ],
+        null,
+        null,
+        null
+       ]
+      ],
+      "site": null
+     }
+    ],
+    "paths_reason": null,
+    "results": [
+     "fx/codec.HdrBytes"
+    ],
+    "sites": [],
+    "span": "codec/codec.go:28"
+   }
+  },
+  "globals": [],
+  "loops": [],
+  "packages": [
+   {
+    "dir": "codec",
+    "files": [
+     "codec/codec.go"
+    ],
+    "path": "fx/codec"
+   }
+  ],
+  "slices": {
+   "lost_writes": [],
+   "results": [],
+   "stores": [],
+   "writes": []
+  }
+ },
+ "target": {
+  "commit": "0000000000000000000000000000000000000000",
+  "repo": "holon/fixture-par-linked",
+  "scope": "go packages: fx/codec"
+ }
+}

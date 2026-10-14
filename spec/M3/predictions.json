@@ -689,6 +689,348 @@
           "chain_revert"
         ]
       }
+    },
+    "I25": {
+      "title": "PAR-lossy and injective pushing over the frozen evidence set: the Def 4.4 fragment, the evidenced lossy elements, Lemma 6.12 push verdicts with Bend collision certificates, inj_push as a core law, evidenced-pair coverage and the evidence review",
+      "plan": "docs/BUILD_PLAN.md#i25",
+      "prompt": "prompts/I25_par_lossy.md",
+      "predictions": [
+        {
+          "id": "I25-P1",
+          "claim": "Def 4.4 over the Morph component header_length (the 20 edges of gen/M3/diagram/header_length.json; rule L1: the layout algebra for codecs, Cor 6.16 for HASH) gives exactly 22 entries: CODEC.enc_sol at version 0 lossy with dropped [lastBlockNumber]; enc_sol at 1 and 2, BatchHeaderV0_Bytes at 0, BatchHeaderV1_Bytes at 1 and BatchCache_createBatchHeaderWithSequencerSetHash at 2 invertible (dropped []); the 14 BatchHeaderBytes getters lossy (each reads one slot of the header bytes); load_sol unmodelled; HASH.keccak256 cf.",
+          "check": "tests_m3/test_par_lossy.py::TestMorph::test_fragment",
+          "expected": {
+            "entries": 22,
+            "lossy_encoders": [
+              [
+                "CODEC.enc_sol",
+                0,
+                [
+                  "lastBlockNumber"
+                ]
+              ]
+            ],
+            "lossy_decoders": 14,
+            "unmodelled": [
+              "CODEC.load_sol"
+            ],
+            "cf": [
+              "HASH.keccak256"
+            ]
+          }
+        },
+        {
+          "id": "I25-P2",
+          "claim": "Over the frozen evidence set's 161 header_length atoms (E1 102, E2 55, E6 4), rules L2-L3 give exactly 79 evidenced lossy elements: 70 round_trip (one per E1 inverse atom, each covered by its I24 round-trip law), 3 observed (BatchHeaderV0_Bytes/enc_sol at 0 with 10 common-decoder atoms, BatchHeaderV1_Bytes/enc_sol at 1 and the patch/enc_sol at 2 with 11 each), 6 constant_read (BatchHeaderBytes_Version on the three Go encoders: 0x00, 0x01, 0x02; BatchHeaderBytes_SequencerSetVerifyHash on enc_sol at 0, 1 and 2: 32 zero bytes), no partial_read and no other; 3 E2 atoms excluded for no common version (the patch with BlobVersionedHash, BatchHeaderV0_Bytes and BatchHeaderV1_Bytes with BlobHashesHash); weak: 4 E6 atoms, 2 with a PAR-weak law. Every law id named is a committed M3 law.",
+          "check": "tests_m3/test_par_lossy.py::TestMorph::test_elements",
+          "expected": {
+            "elements": 79,
+            "round_trip": 70,
+            "observed": 3,
+            "constant_read": 6,
+            "partial_read": 0,
+            "other": 0,
+            "excluded": 3,
+            "weak": {
+              "atoms": 4,
+              "with_law": 2
+            }
+          }
+        },
+        {
+          "id": "I25-P3",
+          "claim": "Rule L4 (Lemma 6.12 by position) over the 6 cross-component laws: no family decoder is blind (each accepts the images' length, 249 at version 0 and 257 at 1 and 2, under the version's tag); the 3 pinned laws are pushed (each observed pair's basis law: the group's decoders read every position where the two images can differ once the Go SequencerSetVerifyHash is pinned to the Solidity constant 0), and the 3 full laws are not pushed, each failing first at position 185 with kind unobserved_field (the Go encoder's SequencerSetVerifyHash byte 0 against the Solidity constant 0; families of 10, 11 and 11 decoders leave positions 0 and 185..216 unread, position 0 being the version byte both sides fix). Each observed pair is covered by exactly its pinned law. Prop 6.11: the full laws claim what no observation relates.",
+          "check": "tests_m3/test_par_lossy.py::TestMorph::test_push_verdicts",
+          "expected": {
+            "pushed": [
+              "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+              "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+              "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+            ],
+            "not_pushed": [
+              "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
+              "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
+              "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+            ],
+            "collision": {
+              "position": 185,
+              "kind": "unobserved_field"
+            },
+            "blind": []
+          }
+        },
+        {
+          "id": "I25-P4",
+          "claim": "Rule L5 writes three collision certificates, gen/M3/par_lossy/collisions/<law>/ for the 3 full cross-component laws, all of kind cross (the ones fill under each law's premises: the law's premises hold, the images differ at 185, every observation agrees), stating obs_<d> for the 10, 11 and 11 decoders of the family and differ; none is uncertified; bend accepts each (ALL PROOFS CHECK, every law present, no escape hatch).",
+          "check": "tests_m3/test_par_lossy.py::TestMorph::test_collision_certificates_check",
+          "expected": {
+            "certificates": [
+              "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
+              "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
+              "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+            ],
+            "observation_laws": [
+              11,
+              10,
+              11
+            ],
+            "kind": "cross",
+            "uncertified": []
+          }
+        },
+        {
+          "id": "I25-P5",
+          "claim": "inj_push is PROVED: gen/M3/par_lossy/core/LAWS.bend holds exactly the three statements frozen in spec/M3/lib/par_lossy.json (core_inj_push: Lemma 6.12 under the pointwise CF premise @x -> h(f x) == h(g x) -> f x == g x, never global injectivity; core_inj_pull: the premise-free direction; core_cf_succ: an inhabitant of the CF premise, L21), in that order; its generated PROOF.bend has no escape hatch and both kernels accept it (bend and bend --verdict: ALL PROOFS CHECK); the generated proof of core_inj_push does not check against the canary without cf.",
+          "check": "tests_m3/test_par_lossy.py::TestCore::test_inj_push_is_proved and tests_m3/test_par_lossy.py::TestCore::test_canary_is_rejected",
+          "expected": {
+            "laws": [
+              "core_inj_push",
+              "core_inj_pull",
+              "core_cf_succ"
+            ],
+            "kernels": [
+              "bend",
+              "bend --verdict"
+            ]
+          }
+        },
+        {
+          "id": "I25-P6",
+          "claim": "Evidenced-pair coverage (rule L8) of header_length is 73 of 79, rate 73/79 = 0.9240506329113924: round_trip 70/70, observed 3/3, constant_read 0/6; the uncovered elements are exactly the six constant reads, reason no_rule. results/M3/metrics.json gains evidenced_pair_coverage equal to the sidecar's metric: those counts, 6 uncovered, excluded no_common_version 3, weak 4/2, 1 HASH candidate, models [header_length], the Prop 6.11 sentence (completeness relative to the frozen evidence set), the evidence set's evidence_sha256 at build time and uncovered_disagreements 0.",
+          "check": "tests_m3/test_par_lossy.py::TestMorph::test_coverage and tests_m3/test_par_lossy.py::TestMetric::test_metrics_json_reports_the_coverage",
+          "expected": {
+            "elements": 79,
+            "covered": 73,
+            "rate": 0.9240506329113924,
+            "uncovered_disagreements": 0
+          }
+        },
+        {
+          "id": "I25-P7",
+          "claim": "Rule L6 lists exactly one HASH candidate: HASH.keccak256 with the pair (CODEC.enc_sol, CODEC.load_sol), sinks contracts/contracts/l1/rollup/Rollup.sol:357 and :849, unevidenced (no atom relates them: the comparison keccak256(header) == committedBatches[i] is a guard of the transitions document, which has no M3 diagram, I24 G1); it is not counted in coverage.",
+          "check": "tests_m3/test_par_lossy.py::TestMorph::test_hash_candidates",
+          "expected": {
+            "hash_candidates": 1,
+            "evidenced": false
+          }
+        },
+        {
+          "id": "I25-P8",
+          "claim": "spec/M3/evidence_review.jsonl exists and is empty (0 bytes): rule L9 over the I16, I20 and I23 refinement records (15 at the prereg: 7 under results/M2/refinement/, 8 under historical/) finds no uncovered disagreement because they list none (every disagreement_ids is [], extracted.json's disagreements is [], results/M2/metrics.json refinement.unexplained 0).",
+          "check": "tests_m3/test_par_lossy.py::TestReview::test_morph_review_is_empty",
+          "expected": {
+            "entries": 0,
+            "records": 15
+          }
+        },
+        {
+          "id": "I25-P9",
+          "claim": "A lossy fixture with an injective post-map gives a pushed law PROVED: on T251 (tests_m3/fixtures/par_lossy/, I24's linked fixture with the Go constant at position 6 set to 0), derived under holon-rules/1.1 and run, the observed pairs at versions 0 and 1 are pushed by their pinned laws and holon run decides both PROVED, L_par_cc_RecV1_Bytes_enc_x_v1_pinned for the first time (I24's par_linked refutes it). The pair at version 2 is not pushed: getter HdrBytes_B rejects the 9-byte version-2 images, so it is blind, positions 3..4 are unobserved and both version-2 laws first fail at position 3 (unobserved_field, RecV0.B byte 0 against b byte 0); holon run still decides L_par_cc_Cache_makeV2_enc_x_v2_pinned PROVED (not pushed and PROVED: it holds beyond the evidence). The full laws at versions 0 and 1 fail at position 5 (unobserved field C byte 0); all three full laws are REFUTED. Coverage 22 of 33 (observed 2 of 3); 4 collision certificates check: cross for the full laws at 0 and 1, same_side (side p) for the two version-2 laws.",
+          "check": "tests_m3/test_par_lossy.py::TestFixtures::test_injective_fixture",
+          "expected": {
+            "covered": 22,
+            "elements": 33,
+            "observed_covered": 2,
+            "pushed_proved": [
+              "L_par_cc_RecV0_Bytes_enc_x_v0_pinned",
+              "L_par_cc_RecV1_Bytes_enc_x_v1_pinned"
+            ],
+            "not_pushed_proved": [
+              "L_par_cc_Cache_makeV2_enc_x_v2_pinned"
+            ],
+            "not_pushed_refuted": [
+              "L_par_cc_Cache_makeV2_enc_x_v2",
+              "L_par_cc_RecV0_Bytes_enc_x_v0",
+              "L_par_cc_RecV1_Bytes_enc_x_v1"
+            ],
+            "blind": {
+              "CODEC.Cache_makeV2@2": [
+                "CODEC.HdrBytes_B"
+              ]
+            },
+            "certificates": {
+              "cross": 2,
+              "same_side": 2
+            }
+          }
+        },
+        {
+          "id": "I25-P10",
+          "claim": "A non-injective fixture yields no basis law and coverage below 100%: on T252 (I24's par_linked) the observed pairs at versions 1 and 2 get no basis law and are uncovered, reason non_injective: at version 1 the pinned law fails the push at position 6 (constants_differ 255 vs 0) and the full law at 5; at version 2 getter HdrBytes_B is blind (it rejects the 9-byte images) and both laws fail at position 3 (unobserved_field). The pair at version 0 is pushed by its pinned law. Coverage 21 of 33 (observed 1 of 3), below 1; 5 collision certificates check (same_side for the two version-2 laws, cross for the other three). The kernel statuses are I24's (LINKED_STATUS, not counted here): every pushed law's record is PROVED and every other REFUTED.",
+          "check": "tests_m3/test_par_lossy.py::TestFixtures::test_non_injective_fixture",
+          "expected": {
+            "covered": 21,
+            "elements": 33,
+            "observed_covered": 1,
+            "certificates": 5,
+            "certificate_kinds": {
+              "cross": 3,
+              "same_side": 2
+            },
+            "blind": {
+              "CODEC.Cache_makeV2@2": [
+                "CODEC.HdrBytes_B"
+              ]
+            }
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I25-R1",
+          "claim": "I25 derives no law and adds no catalog version (gap L-G1): laws/M3 holds no L_par_lossy file, no catalog producer is named lossy, catalog_version('M3')'s PAR producers are holon-rules/1.1's, and no commit that writes an I25 outcome path changes laws/; I24's tests (tests_m3/test_derive_par.py, test_par_outcomes.py) stay green.",
+          "check": "tests_m3/test_par_lossy.py::TestPreregInstruments::test_i25_adds_no_law_and_no_catalog and tests_m3/test_par_lossy.py::TestGateAndRegressions::test_i25_outcome_commits_touch_no_frozen_or_earlier_output"
+        },
+        {
+          "id": "I25-R2",
+          "claim": "The evidence set stays frozen: gen/M3/evidence.json's header_length atoms are exactly rule X7's 161 (E1 70 inverse + 32 common_decoder, E2 55, E6 4), and no I25 commit changes gen/M3/codec/, gen/M3/diagram/ or gen/M3/evidence.json.",
+          "check": "tests_m3/test_par_lossy.py::TestPreregInstruments::test_the_frozen_evidence_set_is_rule_x7s and tests_m3/test_par_lossy.py::TestGateAndRegressions::test_i25_outcome_commits_touch_no_frozen_or_earlier_output"
+        },
+        {
+          "id": "I25-R3",
+          "claim": "Construction (BUILD_PLAN's D7 prediction, decided by today's extraction, not counted): D7's 32-bit tree-index truncation is a pushing candidate outside today's extraction: its sites (contracts/contracts/libraries/common/Verify.sol:9, :14-15; contracts/contracts/l1/L1CrossDomainMessenger.sol:138, :155) are in no adopted M3 document (the Solidity extraction sidecars name Rollup.sol only); spec/M3/lib/par_lossy.json defers it to I36 (a push through the leaf hash by core_inj_push under CF(keccak256, S)); no I25 output names it.",
+          "check": "tests_m3/test_par_lossy.py::TestPreregInstruments::test_d7_is_outside_todays_extraction"
+        },
+        {
+          "id": "I25-R4",
+          "claim": "Gates M0, M1 and M2 pass; holon gate --milestone M3 --checks G2,G3,G5,G9,G11,GEVID passes; results/M2/metrics.json carries no evidenced_pair_coverage; holon metrics --milestone M3 reproduces results/M3/metrics.json; I25's outcome commits change no M0-M2 output and no replay/.",
+          "check": "gate and tests_m3/test_par_lossy.py::TestGateAndRegressions::test_partial_gate_m3_passes and tests_m3/test_par_lossy.py::TestMetric::test_metrics_regenerate_and_m2_is_untouched and tests_m3/test_par_lossy.py::TestGateAndRegressions::test_i25_outcome_commits_touch_no_frozen_or_earlier_output"
+        },
+        {
+          "id": "I25-R5",
+          "claim": "Construction, not counted (the statuses are I24's): on Morph rule L4's static verdicts pair with the committed M3 records as pushed PROVED (3 pinned laws) and not pushed REFUTED (3 full laws). Rule L4 does not require this pairing in general (a pushed law REFUTED would be an obstruction on an evidenced pair; a law that is not pushed may be PROVED, as T251's version-2 pinned law is): a divergence is reported, never resolved by changing a verdict.",
+          "check": "tests_m3/test_par_lossy.py::TestMorph::test_static_verdicts_agree_with_the_kernel"
+        },
+        {
+          "id": "I25-R6",
+          "claim": "Construction, not counted: the sidecar is tests_m3/_i25.py's computation over unchanged inputs; the core statements are well-typed open laws at the prereg; the Morph and fixture documents are exactly rules L1-L8 (instrument); holon lossy --check reproduces the committed files and two runs are byte-identical; a stale evidence set is refused (exit 2, nothing written); no hand document is read (Q19); the new code names no target or fixture identifier; planted refinement records open exactly the reviews rule L9 gives.",
+          "check": "tests_m3/test_par_lossy.py::TestPreregInstruments::test_sidecar_is_the_computation and tests_m3/test_par_lossy.py::TestPreregInstruments::test_core_statements_are_well_typed_open_laws and tests_m3/test_par_lossy.py::TestMorph::test_document_is_the_instrument and tests_m3/test_par_lossy.py::TestMorph::test_cli_check_and_determinism and tests_m3/test_par_lossy.py::TestMorph::test_stale_inputs_are_refused and tests_m3/test_par_lossy.py::TestMorph::test_no_hand_document_is_read and tests_m3/test_par_lossy.py::TestMorph::test_generic_code and tests_m3/test_par_lossy.py::TestReview::test_planted_disagreements_open_reviews and tests_m3/test_par_lossy.py::TestFixtures::test_fixture_documents_are_the_instruments"
+        },
+        {
+          "id": "I25-R7",
+          "claim": "Construction, not counted (gap L-G7): the 15 refinement records rule L9 reads (holon.refinement.record_files) name only facts/morph_header.json (12, the hand-written M0 model) or the transitions document spec/M2/facts/morph_rollup.extracted.json (3), never a linked codec document, so no disagreement in them can resolve to an M3 component edge: a future one opens a review with reason unresolved_edge.",
+          "check": "tests_m3/test_par_lossy.py::TestPreregInstruments::test_no_replay_record_is_over_a_component_edge"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/par_lossy/",
+        "spec/M3/evidence_review.jsonl"
+      ],
+      "tests": [
+        "tests_m3/test_par_lossy.py"
+      ],
+      "thresholds": {
+        "lossy_version": "holon-lossy/0.1",
+        "sidecar": "spec/M3/lib/par_lossy.json",
+        "evidence_set": "gen/M3/evidence.json (frozen by I24; component atoms recomputed by rule X7)",
+        "element_kinds": [
+          "round_trip",
+          "observed",
+          "constant_read",
+          "partial_read",
+          "other"
+        ],
+        "coverage_reasons": [
+          "no_law",
+          "non_injective",
+          "no_rule"
+        ],
+        "collision_kinds": [
+          "length",
+          "constants_differ",
+          "unobserved_field",
+          "unknown_cell"
+        ],
+        "push_rule": "a push law is pushed iff the two layouts at v have one length and every position outside the union of the read ranges of the family's decoders that are not blind (a decoder is blind when it rejects the images' length under the version's tag) holds one constant in both, after the version premise and the pins",
+        "coverage_definition": "direct: an element is covered by a law whose basis is that element (round trip: its round_trip basis element gave a law or duplicate; observed: one push law is pushed); constant, partial and other reads are never covered (no_rule); E6 atoms counted under weak only; E2 atoms without a common version excluded",
+        "morph": {
+          "fragment_entries": 22,
+          "elements": 79,
+          "covered": 73,
+          "rate": 0.9240506329113924,
+          "by_kind": {
+            "round_trip": [
+              70,
+              70
+            ],
+            "observed": [
+              3,
+              3
+            ],
+            "constant_read": [
+              6,
+              0
+            ],
+            "partial_read": [
+              0,
+              0
+            ],
+            "other": [
+              0,
+              0
+            ]
+          },
+          "excluded_no_common_version": 3,
+          "weak": {
+            "atoms": 4,
+            "with_law": 2
+          },
+          "pushed": [
+            "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+            "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+            "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+          ],
+          "not_pushed": [
+            "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
+            "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
+            "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+          ],
+          "first_collision_position": 185,
+          "collision_certificates": 3,
+          "hash_candidates": 1
+        },
+        "fixtures": {
+          "T251": {
+            "elements": 33,
+            "covered": 22,
+            "observed_covered": 2,
+            "collision_certificates": 4,
+            "blind": [
+              "CODEC.HdrBytes_B"
+            ]
+          },
+          "T252": {
+            "elements": 33,
+            "covered": 21,
+            "observed_covered": 1,
+            "collision_certificates": 5,
+            "blind": [
+              "CODEC.HdrBytes_B"
+            ]
+          }
+        },
+        "fixture_catalog": "holon-rules/1.1",
+        "core_laws": [
+          "core_inj_push",
+          "core_inj_pull",
+          "core_cf_succ"
+        ],
+        "core_kernels": [
+          "bend",
+          "bend --verdict"
+        ],
+        "review": {
+          "records_at_prereg": 15,
+          "expected_entries": 0,
+          "records_over_component_edges": 0
+        },
+        "catalog": "unchanged: PAR-lossy derives no law (gap L-G1)",
+        "d7": "outside today's extraction; instance I36",
+        "certificate_kinds": [
+          "cross",
+          "same_side"
+        ]
+      }
     }
   }
 }
