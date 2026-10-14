@@ -4,10 +4,13 @@ tests_m2/test_sort_sites.py.
 
   python -m holon derive --milestone M [--root DIR] [--out DIR] [--obstructions PATH] [--facts PATH ...]
                          [--assignment PATH] [--against DIR --diff PATH]
+                         [--catalog VERSION] [--codec PATH ...]   (I24: rule PAR; tests_m3/test_derive_par.py)
+                         [--sidecar PATH]                         (I30: typed SORT; tests_m3/test_sort_types.py)
 
 CATALOG maps rule -> subform -> producer (a module with produce(ctx) -> [(law, DERIVATION entry)]). derive() runs
 every producer over the milestone's fact documents (holon.diagram.fact_documents, or --facts) and the frozen sort
-assignment, and writes, deterministically:
+assignment, and writes, deterministically (CATALOGS holds the later catalog versions; compute_catalog derives with
+them):
 
   <laws dir>/<law_id>.json   one holon-ir/0.3 law per basis element (a stale L*.json there is removed)
   <laws dir>/DERIVATION.json the provenance of every law (inputs, basis, hits, entry points, statement hash)
@@ -31,6 +34,8 @@ from pathlib import Path
 from ..sorts import check as _check
 from ..sorts import sites as _sites
 from ..sorts import width as _width
+from ..sorts.typed_sidecar import typed as _typed
+from . import sort as _sort
 
 ROOT = Path(__file__).resolve().parents[2]
 RULE_CATALOG_VERSION = "holon-rules/1.0"
@@ -39,19 +44,26 @@ IR_VERSION = "holon-ir/0.3"
 # SORT-width (I20) derives nothing unless the milestone adopts extracted documents (holon.sorts.reextract), so the
 # catalog entry leaves every earlier derivation byte-identical
 CATALOG = {"SORT": {"site": _sites, "width": _width}}
-# I24: catalog versions. holon-rules/1.0 is M2's (SORT/site and width) and every test milestone's by default;
-# holon-rules/1.1 is M3's: rule PAR, one producer per sub-form (holon.rules.par), run in par.SUBFORMS order
+# Catalog versions (I24, I30):
+#   holon-rules/1.0  M2's catalog (I15's SORT/site, I20's SORT/width), and every test milestone's below T30.
+#   holon-rules/1.1  I24's: rule PAR, one producer per sub-form (holon.rules.par), run in par.SUBFORMS order; M3's
+#                    catalog before I30, and a test milestone's through derive's --catalog.
+#   holon-rules/1.2  I30's: the rules of holon-rules/1.1 unchanged (the same producer objects), plus SORT's typed
+#                    subforms realize, as_member and reinterpret (holon.rules.sort; whitepaper §7.8); M3 and later, and
+#                    test milestones T<n> with n >= 30. M2 keeps I15's SORT/site and I20's SORT/width.
 from . import par as _par  # noqa: E402
 PAR_CATALOG_VERSION = "holon-rules/1.1"
+TYPED_CATALOG_VERSION = "holon-rules/1.2"
 CATALOGS = {RULE_CATALOG_VERSION: CATALOG, PAR_CATALOG_VERSION: {"PAR": dict(_par.PRODUCERS)}}
+CATALOGS[TYPED_CATALOG_VERSION] = {**{r: subs for r, subs in CATALOGS[PAR_CATALOG_VERSION].items()},
+                                   "SORT": dict(_sort.PRODUCERS)}
 
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.1 from M3 on; holon-rules/1.0 for M0-M2 and
-    for every test milestone (T<k>), whose catalog `--catalog` may replace."""
-    import re
-    m = re.fullmatch(r"M(\d+)", milestone or "")
-    return PAR_CATALOG_VERSION if m and int(m.group(1)) >= 3 else RULE_CATALOG_VERSION
+    """The rule-catalog version a milestone derives with: holon-rules/1.2 for the typed milestones (M3 and later, T<n>
+    with n >= 30; holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A test
+    milestone's catalog may be replaced with `--catalog`."""
+    return TYPED_CATALOG_VERSION if _typed(milestone) else RULE_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -172,8 +184,138 @@ def _stale(assignment: dict, docs: list[Document]) -> list[str]:
     return bad
 
 
-def compute(milestone: str, root: Path, facts: list[str] | None = None, assignment: str | None = None) -> dict:
-    """Everything derive writes, as documents (nothing is written here)."""
+class TypedDocument:
+    """A transitions document of a typed milestone (I30): its relative path, sha256, the document and its basis."""
+
+    def __init__(self, path: Path, inputs: Inputs, assignment: dict, seeds: dict):
+        self.path = path
+        self.rel = inputs.rel(path)
+        data = inputs.read(path)
+        self.sha256 = sha256_bytes(data)
+        self.facts = json.loads(data.decode("utf-8"))
+        self.model = path.stem
+        self.assignment = assignment
+        self.seeds = seeds
+        self._basis = None
+
+    @property
+    def basis(self):
+        if self._basis is None:
+            self._basis = _sort.DocBasis(self.rel, self.facts, self.model, self.assignment, self.seeds)
+        return self._basis
+
+
+def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = None, assignment: str | None = None,
+                sidecar: str | None = None) -> dict:
+    """derive's typed part (I30), for a typed milestone (M3+, T30+): the sidecar's transitions documents (or --facts),
+    the frozen assignment gen/<M>/sorts/assignment.json (read, never written: Thm 6.18) and every producer of catalog
+    `cv` that takes the typed context (every rule but PAR, whose engine is _par_part). No hand-written fact document, no
+    I13 output and no target library is read (Q19). Returns the laws, their DERIVATION entries, the inputs read, the
+    assignment, the documents' sha256 and the obstructions document."""
+    from ..gen import refs as R
+    from ..sorts import extracted as X
+    from ..sorts.typed_sidecar import SidecarError, load
+    inputs = Inputs(root)
+    try:
+        sc = load(milestone, root, sidecar)
+    except SidecarError as e:
+        raise ValueError(str(e)) from e
+    inputs.read(sc.path)
+    seeds = inputs.json(sc.seeds)
+    if facts:
+        paths = [_typed_fact_path(f, root) for f in facts]
+    else:
+        paths = sc.documents
+    stems = [p.stem for p in paths]
+    if len(set(stems)) != len(stems):
+        raise ValueError(f"two documents name the same model: {sorted(stems)}")
+    ap = Path(assignment) if assignment else root / "gen" / milestone / "sorts" / "assignment.json"
+    if not ap.is_absolute():
+        ap = Path.cwd() / ap
+    A = inputs.json(ap)
+    docs = [TypedDocument(p, inputs, A, seeds) for p in sorted(paths, key=lambda p: p.stem)]
+    bad = _stale(A, docs)
+    if bad:
+        raise Refused(f"the assignment {inputs.rel(ap)} is stale: it does not list " + "; ".join(bad))
+    for d in docs:
+        if not _transitions(d.facts):
+            raise ValueError(f"{d.rel}: a typed milestone derives over holon-facts/0.3 transitions documents")
+        if d.model not in (A.get("models") or {}):
+            raise Refused(f"the assignment {inputs.rel(ap)} has no model {d.model}")
+    catalog = CATALOGS[cv]
+    ctx = Context(milestone, root, [], A, set())
+    ctx.rule_catalog_version = cv
+    ctx.typed_documents = docs
+    ctx.sidecar = sc
+    pairs = []
+    try:
+        for rule in _typed_rules(catalog):
+            for sub in sorted(catalog[rule]):
+                pairs += catalog[rule][sub].produce(ctx)
+    except _sort.SortRuleError as e:
+        raise DeriveError(str(e)) from e
+    ids = [law["law_id"] for law, _ in pairs]
+    dup = sorted({i for i in ids if ids.count(i) > 1})
+    if dup:
+        raise DeriveError(f"two basis elements map to one law id: {dup}")
+    by_rel = {d.rel: d for d in docs}
+    laws, entries = {}, []
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        d = by_rel[law["facts"]]
+        entry = dict(entry, statement_hash=R.law_hash(law, d.facts, root=root))
+        laws[law["law_id"]] = law
+        entries.append(entry)
+    obstructions = []
+    for d in docs:
+        obstructions += X.obstructions(d.model, d.facts, A)
+    # the obstructions document lists what the typed part read (the sidecar, its seeds, the assignment, the documents)
+    obs = {"document": "obstructions", "derive_version": DERIVE_VERSION, "milestone": milestone,
+           "inputs": inputs.listing(), "sorts_sha256": A.get("sorts_sha256"),
+           "obstructions": sorted(obstructions, key=lambda o: o["id"])}
+    return {"laws": laws, "entries": entries, "inputs": inputs, "assignment": A,
+            "shas": {d.rel: d.sha256 for d in docs}, "obstructions": obs}
+
+
+def _typed_rules(catalog: dict) -> list[str]:
+    """The rules of a catalog after holon-rules/1.0 whose producers take the typed context (produce(ctx), I30): every
+    rule but PAR, whose sub-forms run per document in rule P11's order (holon.rules.par.derive_document)."""
+    return sorted(r for r in catalog if r != "PAR")
+
+
+def _transitions(doc) -> bool:
+    return isinstance(doc, dict) and doc.get("facts_version") == "holon-facts/0.3" and \
+        (doc.get("extraction") or {}).get("kind") == "transitions"
+
+
+def _typed_fact_path(f: str, root: Path) -> Path:
+    """A --facts document of the typed part: relative to --root when it exists there, else to the working directory;
+    inside --root."""
+    p = Path(f)
+    p = (p if p.is_absolute() else (root / p if (root / p).exists() else Path.cwd() / p)).resolve()
+    try:
+        p.relative_to(root)
+    except ValueError:
+        raise ValueError(f"--facts {f}: not inside the root {root} (inputs are read from --root only)") from None
+    return p
+
+
+def _is_transitions_file(f: str, root: Path) -> bool:
+    try:
+        return _transitions(json.loads(_typed_fact_path(f, root).read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        return False
+
+
+def compute(milestone: str, root: Path, facts: list[str] | None = None, assignment: str | None = None,
+            sidecar: str | None = None, catalog: str | None = None, codecs: list[str] | None = None) -> dict:
+    """Everything derive writes, as documents (nothing is written here), with the milestone's catalog or `catalog`:
+    holon-rules/1.0 here (I15's SORT/site, I20's SORT/width); a later catalog in compute_catalog (I24's PAR, I30's
+    typed SORT, or both)."""
+    cv = catalog or catalog_version(milestone)
+    if cv not in CATALOGS:
+        raise ValueError(f"unknown catalog {cv!r} (known: {sorted(CATALOGS)})")
+    if CATALOGS[cv] is not CATALOG:
+        return compute_catalog(milestone, root, cv, facts, codecs, assignment, sidecar)
     from ..gen import refs as R
     inputs = Inputs(root)
     paths = _documents(milestone, root, facts)
@@ -379,14 +521,13 @@ def _earlier_laws(milestone: str, root: Path, inputs: Inputs) -> list[tuple[str,
     return out
 
 
-def compute_par(milestone: str, root: Path, cv: str, facts: list[str] | None = None,
-                codecs: list[str] | None = None, assignment: str | None = None) -> dict:
-    """Everything derive writes for a catalog with rule PAR (rules P0-P12, X8), as documents (nothing is written)."""
+def _par_part(milestone: str, root: Path, cv: str, inputs: Inputs, facts: list[str] | None = None,
+              codecs: list[str] | None = None, assignment: str | None = None) -> dict:
+    """derive's PAR part (I24: rules P0-P12, X8) over the --facts and --codec documents, or, with neither, a target
+    milestone's committed linked codec layer. Returns the laws, their DERIVATION entries, the PAR keys of DERIVATION
+    (links, evidence_sha256, cycle_rank, par_basis, uncovered), the --facts assignment and the documents' sha256."""
     from ..gen import refs as R
     cat = CATALOGS[cv]
-    if "SORT" in cat:
-        raise DeriveError(f"catalog {cv} holds SORT and PAR: this derive runs PAR only (SORT enters M3 with I30)")
-    inputs = Inputs(root)
     given = bool(facts) or bool(codecs)
     A = None
     if given:
@@ -449,20 +590,84 @@ def compute_par(milestone: str, root: Path, cv: str, facts: list[str] | None = N
     links.sort(key=lambda x: (x["old_milestone"], x["old"], x["new"]))
     entries.sort(key=lambda e: e["law_id"])
     basis.sort(key=_par.basis_sort_key)
-    sorts_sha = A.get("sorts_sha256") if A is not None else None
+    return {"laws": laws, "entries": entries, "links": links, "assignment": A,
+            "shas": {d.rel: d.sha256 for d, _ in documents},
+            "keys": {"evidence_sha256": ev["evidence_sha256"], "cycle_rank": dict(sorted(cycle_rank.items())),
+                     "par_basis": basis, "uncovered": unc}}
+
+
+def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None = None,
+                    codecs: list[str] | None = None, assignment: str | None = None, sidecar: str | None = None) -> dict:
+    """Everything derive writes for a catalog after holon-rules/1.0, as documents (nothing is written): rule PAR (I24)
+    and the rules that take the typed context (I30's SORT realize, as_member and reinterpret), each over its own
+    documents, in one DERIVATION and one REGISTRY.
+
+    Documents. With neither --facts nor --codec, PAR takes a target milestone's committed linked codec layer (a test
+    milestone's PAR needs given documents, so with typed rules beside it PAR derives nothing there, and alone it is
+    refused) and the typed rules take the typed sidecar's transitions documents. Otherwise each takes only the given
+    documents that are its own: PAR the --codec documents and the --facts documents that are not holon-facts/0.3
+    transitions documents; the typed rules the --facts transitions documents. A catalog without PAR gives every --facts
+    document to its typed rules, one without typed rules every --facts document to PAR.
+
+    DERIVATION: the I15 keys over both parts ("inputs" every file either part read, "laws" every entry sorted by law_id,
+    "sorts_sha256" the typed part's assignment, else the PAR --facts assignment's, else null, "links" rule P11's),
+    plus PAR's "evidence_sha256", "cycle_rank", "par_basis" and "uncovered" when PAR derived. REGISTRY as I15's, with
+    "evidence_sha256" the evidence set PAR built (without PAR: gen/<M>/evidence.json's when it exists). The obstructions
+    document is the typed part's (none without it: a catalog without SORT writes no obstructions file)."""
+    cat = CATALOGS[cv]
+    has_par, typed_rules = "PAR" in cat, _typed_rules(cat)
+    given = bool(facts) or bool(codecs)
+    pfacts, tfacts = [], []
+    for f in facts or []:
+        if typed_rules and (not has_par or _is_transitions_file(f, root)):
+            tfacts.append(f)
+        else:
+            pfacts.append(f)
+    inputs = Inputs(root)
+    par = typed = None
+    if has_par and (pfacts or codecs or (not given and (target_milestone(milestone) or not typed_rules))):
+        par = _par_part(milestone, root, cv, inputs, pfacts, codecs, assignment)
+    if typed_rules and (tfacts or not given):
+        typed = _typed_part(milestone, root, cv, tfacts, assignment, sidecar)
+        inputs.files.update(typed["inputs"].files)
+    laws, entries, shas = {}, [], {}
+    for part in (par, typed):
+        if part is None:
+            continue
+        for lid, law in part["laws"].items():
+            if lid in laws:
+                raise DeriveError(f"two basis elements map to one law id: {lid}")
+            laws[lid] = law
+        entries += part["entries"]
+        shas.update(part["shas"])
+    entries.sort(key=lambda e: e["law_id"])
+    if typed is not None:
+        sorts_sha = typed["assignment"].get("sorts_sha256")
+    elif par is not None and par["assignment"] is not None:
+        sorts_sha = par["assignment"].get("sorts_sha256")
+    else:
+        sorts_sha = None
+    # links (rule P11, F-M2-23): PAR's; the typed rules derive from coercion sites, so they give none
     derivation = {"document": "derivation", "derive_version": DERIVE_VERSION, "milestone": milestone,
                   "rule_catalog_version": cv, "sorts_sha256": sorts_sha, "inputs": inputs.listing(), "laws": entries,
-                  "links": links, "evidence_sha256": ev["evidence_sha256"], "cycle_rank": dict(sorted(cycle_rank.items())),
-                  "par_basis": basis, "uncovered": unc}
+                  "links": par["links"] if par is not None else []}
+    if par is not None:
+        derivation.update(par["keys"])
     dtext = dumps(derivation)
     named = sorted({law["facts"] for law in laws.values()})
-    shas = {d.rel: d.sha256 for d, _ in documents}
     registry = {"milestone": milestone, "ir_version": IR_VERSION, "rule_catalog_version": cv,
                 "facts": named[0] if named else None, "facts_sha256": shas[named[0]] if named else None,
-                "facts_files": {r: shas[r] for r in named}, "statements": {e["law_id"]: e["statement_hash"] for e in entries},
-                "sorts_sha256": sorts_sha, "derivation_sha256": sha256_bytes(dtext.encode("utf-8")),
-                "evidence_sha256": ev["evidence_sha256"]}
-    return {"laws": laws, "derivation": derivation, "derivation_text": dtext, "registry": registry, "obstructions": None}
+                "facts_files": {r: shas[r] for r in named},
+                "statements": {e["law_id"]: e["statement_hash"] for e in entries},
+                "sorts_sha256": sorts_sha, "derivation_sha256": sha256_bytes(dtext.encode("utf-8"))}
+    if par is not None:
+        registry["evidence_sha256"] = par["keys"]["evidence_sha256"]
+    else:
+        ev = root / "gen" / milestone / "evidence.json"
+        if ev.exists():   # the milestone's evidence set: its identity is copied, never recomputed here
+            registry["evidence_sha256"] = json.loads(ev.read_text(encoding="utf-8")).get("evidence_sha256")
+    return {"laws": laws, "derivation": derivation, "derivation_text": dtext, "registry": registry,
+            "obstructions": typed["obstructions"] if typed is not None else None}
 
 
 def diff(base: dict, new: dict) -> dict:
@@ -488,7 +693,8 @@ def diff(base: dict, new: dict) -> dict:
 
 def derive(milestone: str, root: str | None = None, out: str | None = None, obstructions: str | None = None,
            facts: list[str] | None = None, assignment: str | None = None, against: str | None = None,
-           diff_path: str | None = None, log=print, catalog: str | None = None, codecs: list[str] | None = None) -> int:
+           diff_path: str | None = None, log=print, catalog: str | None = None, codecs: list[str] | None = None,
+           sidecar: str | None = None) -> int:
     root_p = Path(root).resolve() if root else ROOT
     cv = catalog or catalog_version(milestone)
     if cv not in CATALOGS:
@@ -503,10 +709,7 @@ def derive(milestone: str, root: str | None = None, out: str | None = None, obst
               file=sys.stderr)
         return 1
     try:
-        if "PAR" in CATALOGS[cv]:
-            res = compute_par(milestone, root_p, cv, facts, codecs, assignment)
-        else:
-            res = compute(milestone, root_p, facts, assignment)
+        res = compute(milestone, root_p, facts, assignment, sidecar, catalog=cv, codecs=codecs)
         base = None
         if against:
             ap = Path(against)
@@ -532,7 +735,7 @@ def derive(milestone: str, root: str | None = None, out: str | None = None, obst
         (laws_dir / f"{lid}.json").write_text(dumps(law), encoding="utf-8")
     (laws_dir / "DERIVATION.json").write_text(res["derivation_text"], encoding="utf-8")
     (laws_dir / "REGISTRY.json").write_text(dumps(res["registry"]), encoding="utf-8")
-    if res["obstructions"] is not None:   # a catalog without SORT writes no obstructions file (I24)
+    if res["obstructions"] is not None:   # no obstructions file without a SORT derivation (I24), else the typed part's
         obs_p.parent.mkdir(parents=True, exist_ok=True)
         obs_p.write_text(dumps(res["obstructions"]), encoding="utf-8")
     if against and diff_path:
@@ -559,8 +762,10 @@ def main(argv=None) -> int:
     ap.add_argument("--diff", help="where to write the derive diff (with --against)")
     ap.add_argument("--catalog", help="a rule-catalog version of CATALOGS replacing a test milestone's catalog (I24)")
     ap.add_argument("--codec", action="append", help="a linked codec document to derive from (test milestones; I24)")
+    ap.add_argument("--sidecar", help="the typed-sorts sidecar of an M3+ or T30+ milestone (default "
+                                      "spec/<M>/lib/sort_types.json)")
     a = ap.parse_args(argv)
     if bool(a.against) != bool(a.diff):
         ap.error("--against and --diff go together")
     return derive(a.milestone, a.root, a.out, a.obstructions, a.facts, a.assignment, a.against, a.diff,
-                  catalog=a.catalog, codecs=a.codec)
+                  catalog=a.catalog, codecs=a.codec, sidecar=a.sidecar)

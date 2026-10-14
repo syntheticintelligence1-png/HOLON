@@ -43,12 +43,59 @@
                                                         (the linked codec documents gen/<M>/codec/<role>.json; I24)
   python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
                                                         (the back-test across documents, results/M3/backtest.json; I24)
+  python -m holon types|termsize|model|run|replay --milestone M3 ...   (typed milestones, M3+ and T30+: I30's
+                                                        holon.sorts; `run --laws` naming only laws outside I30's typed
+                                                        SORT subforms, I24's PAR laws on M3, runs holon.pipeline)
 """
 from __future__ import annotations
 
 import argparse
 import json
 import sys
+
+
+def _typed_milestone(argv: list) -> bool:
+    """Does the command name a milestone typed by I30's rules: M3 and later, or a test milestone T<n> with n >= 30 that
+    names its typed-sorts sidecar (--sidecar), as I30's contract has every typed test milestone do? A test milestone
+    without one is not I30's (I41's T41 and the T46/T47 canary fixtures are state-machine milestones), so the
+    milestone's runners keep it (merge of I24, I41 and I30)."""
+    from .sorts.typed_sidecar import typed
+    for i, x in enumerate(argv):
+        m = argv[i + 1] if x == "--milestone" and i + 1 < len(argv) else \
+            x.split("=", 1)[1] if x.startswith("--milestone=") else None
+        if m is not None:
+            return typed(m) and (m.startswith("M") or any(a == "--sidecar" or a.startswith("--sidecar=")
+                                                           for a in argv))
+    return False
+
+
+def _arg(argv: list, name: str) -> str | None:
+    for i, x in enumerate(argv):
+        if x == name and i + 1 < len(argv):
+            return argv[i + 1]
+        if x.startswith(name + "="):
+            return x.split("=", 1)[1]
+    return None
+
+
+def _untyped_laws(argv: list) -> bool:
+    """`holon run --milestone M --laws ID,..` on a typed milestone naming only laws that are not I30's (no SORT
+    realize, as_member or reinterpret entry in laws/<M>/DERIVATION.json; on M3, I24's PAR laws): the milestone runner
+    (holon.pipeline, as at I24) decides them. Every other run or replay of a typed milestone is I30's (holon.sorts.run3),
+    which decides the I30 laws only."""
+    from pathlib import Path
+    m, laws = _arg(argv, "--milestone"), _arg(argv, "--laws")
+    ids = [x.strip() for x in (laws or "").split(",") if x.strip()]
+    if argv[:1] != ["run"] or not m or not ids:
+        return False
+    try:
+        dv = json.loads((Path(__file__).resolve().parents[1] / "laws" / m / "DERIVATION.json").read_text())
+    except (OSError, ValueError):
+        return False
+    entries = {e.get("law_id"): e for e in dv.get("laws") or [] if isinstance(e, dict)}
+    typed_subforms = ("as_member", "realize", "reinterpret")
+    return all(i in entries and not (entries[i].get("rule") == "SORT" and entries[i].get("subform") in typed_subforms)
+               for i in ids)
 
 
 def main(argv=None) -> int:
@@ -101,6 +148,18 @@ def main(argv=None) -> int:
     if argv[:1] == ["backtest"]:  # likewise for holon.backtest (the back-test across documents, I24)
         from . import backtest
         return backtest.main(argv[1:])
+    if argv[:1] == ["types"]:  # likewise for holon.sorts.types3 (I30: nominal types and the ghost-taint check)
+        from .sorts import types3
+        return types3.main(argv[1:])
+    if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
+        from .sorts import termsize
+        return termsize.main(argv[1:])
+    if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
+        from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
+        return model3.main(argv[1:])
+    if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv) and not _untyped_laws(argv):
+        from .sorts import run3     # the I30 laws of a typed milestone (I30): run, replay
+        return run3.main(argv)
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
