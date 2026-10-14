@@ -553,7 +553,7 @@ def g11v(gate) -> tuple[bool, str]:
     machines: dict = {}
     dual = bend.verdict_enabled(gate.cfg)
     bad, n_inh, n_cw = [], 0, 0
-    for law in ir.load_laws_any(gate.m, gate.root):
+    for law in gate.laws():   # every law of the milestone (holon.gate.Gate.laws; gate3 narrows it, F30)
         lid = law["law_id"]
         rec = gate.records().get(lid)
         if rec is None:

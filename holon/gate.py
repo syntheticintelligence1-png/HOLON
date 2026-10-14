@@ -486,6 +486,11 @@ class Gate:
         self.check_outputs: list[str] = []
 
     # ------------------------------------------------------------ helpers
+    def laws(self) -> list[dict]:
+        """The milestone's laws. holon.sorts.gate3 narrows this, with records(), to the laws outside I30's subforms when
+        it runs this gate's per-law checks over them (G11V reads it through holon.inhabit.g11v; F30)."""
+        return ir.load_laws_any(self.m, self.root)
+
     def records(self) -> dict[str, dict]:
         out = {}
         for law in ir.load_laws_any(self.m, self.root):

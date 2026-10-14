@@ -14,8 +14,8 @@ Reported:
                 sidecar at that commit). A law added in A..B is not a change (see additions); a law deleted in A..B
                 is reported with new = null; a version that does not parse hashes as "invalid:<sha256 of its
                 bytes>". covered_by: the laws/STATEMENT_DIFF.jsonl lines at B whose entry carries exactly the two
-                statements (holon.statement_diff.covers); [] when no entry covers the change (since the M2/1 audit,
-                F-M2-34).
+                statements (holon.statement_diff.covers; a catalog_rederivation line also carries the two hashes
+                reported here, F30); [] when no entry covers the change (since the M2/1 audit, F-M2-34).
   additions     every law file added in A..B: {"milestone", "law_id", "commit"} (the law set grows; no hash change)
   transitions   per law, what its result record says at A and at B, where it differs: status, the kernels and
                 their results ("name:result"), independence_class and premises (whitepaper §9.5 A3: law sets,
@@ -168,7 +168,7 @@ def hash_changes(hist: History, frm: str) -> list[dict]:
             data = hist.blob(c, path)
             h = law_hash(hist, c, path, data) if data is not None else None
             if prev is not None and h != prev:
-                ch = {"law_id": lid, "old": prev_ir, "new": _ir(data)}
+                ch = {"law_id": lid, "old": prev_ir, "new": _ir(data), "old_hash": prev, "new_hash": h}
                 cov = [n for n, e in entries if ch["old"] is not None and covers(e, ch)]
                 out.append({"milestone": m, "law_id": lid, "old": prev, "new": h, "commit": c[:SHORT], "covered_by": cov})
             prev, prev_ir = h, _ir(data)
