@@ -215,10 +215,19 @@ def _width(law: dict) -> bool:
 
 
 def _typed(law: dict) -> bool:
-    """An I30 typed-SORT law (holon.rules.sort's subforms realize, as_member, reinterpret): holon.sorts.run3 decides it
-    over the typed model of its transitions document, and holon.sorts.proofs3 emits its law file (F30)."""
+    """An I30 typed-SORT law: a holon-ir/0.3 law of holon.rules.sort's subforms (realize, as_member, reinterpret) whose
+    claim is a coerce term. holon.sorts.run3 decides it over the typed model of its transitions document, and
+    holon.sorts.proofs3 emits its law file (F30). A hand-written holon-ir/0.2 law naming the same subform (M1's
+    L_sort_remaining) is not one."""
     from .rules.sort import RULE, SUBFORMS
-    return law.get("rule") == RULE and law.get("subform") in SUBFORMS
+    if law.get("ir_version") != "holon-ir/0.3" or law.get("rule") != RULE or law.get("subform") not in SUBFORMS:
+        return False
+
+    def coerce(t) -> bool:
+        if isinstance(t, dict):
+            return "coerce" in t or any(coerce(v) for v in t.values())
+        return isinstance(t, list) and any(coerce(v) for v in t)
+    return coerce((law.get("statement") or {}).get("claim"))
 
 
 def _typed_model(law: dict, m: str, root: Path, importable: bool = False) -> Path:
