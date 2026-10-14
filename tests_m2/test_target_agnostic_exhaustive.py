@@ -47,6 +47,11 @@ ALLOWLIST: dict[str, list[str]] = {
     # components; spec/M3/lib/par_basis.json, laws/M3/DERIVATION.json cycle_rank): graph theory, not a Morph field
     "holon/rules/__init__.py": ["kappa"],
     "holon/rules/par.py": ["kappa"],
+    # I30's preregistered contract (tests_m3/test_sort_types.py, coherence C1 and E5) names an obstruction's antecedent
+    # 'kappa', I15's R11 obstruction format key (whitepaper notation), not a Morph field
+    "holon/sorts/extracted.py": ["kappa"],
+    # the --morph checkout flag of I30's replay command (holon replay --milestone M3), as for holon/__main__.py
+    "holon/sorts/run3.py": ["morph"],
 }
 TARGET_NAMES = {"Rollup", "Morph", "morph", "batchdata"}
 
