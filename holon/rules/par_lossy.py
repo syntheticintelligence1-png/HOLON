@@ -667,18 +667,21 @@ def _call_parts(t: str) -> tuple[str, str] | None:
 
 def proof_pointwise_premise(law: dict) -> tuple[list[str], list[str]] | None:
     """Class pointwise_premise (Lemma 6.12, the pushing direction under CF): the claim @x:X -> C, a binder
-    cf: @x:X -> H -> C and a binder e: @x:X -> H; the proof applies cf at x to e at x."""
+    cf: @x:X -> H -> C and a binder e: @x:X -> H; the proof applies cf at x to e at x. It uses x twice, so the
+    lambda binds +x when X is a Data type (Bend's reusable binder); over an affine X (X : Type) it binds x as the
+    claim does, and Bend decides."""
     claim = _pi(law["claim"])
     if claim is None or len(claim[2]) != 1:
         return None
     x, X, (concl,) = claim
+    kind = next((t for _, n, t in law["binders"] if n == X), None)
     pis = [(n, p) for _, n, t in law["binders"] for p in [_pi(t)] if p is not None and p[0] == x and p[1] == X]
     for cf, (_, _, cps) in pis:
         if len(cps) != 2 or cps[1] != concl:
             continue
         for e, (_, _, eps) in pis:
             if e != cf and eps == [cps[0]]:
-                return [], [f"{x} => {cf}({x}, {e}({x}))"]
+                return [], [f"{'+' if kind == 'Data' else ''}{x} => {cf}({x}, {e}({x}))"]
     return None
 
 
