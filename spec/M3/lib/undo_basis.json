@@ -1,0 +1,1300 @@
+{
+  "backtest": {
+    "gaps": [
+      "L_undo_cancel"
+    ],
+    "rows": [
+      {
+        "analogue": "L_undo_res_Rollup_revertBatch_batchDataStore",
+        "analogue_status": "REFUTED",
+        "m1_law": "L_undo_BD",
+        "m1_status": "PROVED",
+        "same_status": false
+      },
+      {
+        "analogue": "L_undo_pair_Rollup_commitBatch_revertBatch",
+        "analogue_status": "REFUTED",
+        "m1_law": "L_undo_BVH",
+        "m1_status": "REFUTED",
+        "same_status": true
+      },
+      {
+        "analogue": "L_undo_res_Rollup_revertBatch_committedStateRoots",
+        "analogue_status": "PROVED",
+        "m1_law": "L_undo_CSR",
+        "m1_status": "PROVED",
+        "same_status": true
+      },
+      {
+        "analogue": null,
+        "analogue_status": null,
+        "m1_law": "L_undo_cancel",
+        "m1_status": "REFUTED",
+        "same_status": false
+      }
+    ]
+  },
+  "doc": "I27 prereg sidecar (BUILD_PLAN I27 'Preregister': the detected pairs, the residues at LCI+1, their static classification, the laws and their outcomes, computed in the prereg from the committed extracted documents). Computed at the prereg by tests_m3/test_undo.py::undo_basis_doc (rules U1-U6 and D1-D3 of that file's docstring, written out a second time, independently of holon/) from the inputs listed with their sha256: the UNDO sidecar (spec/M3/lib/undo.json), the model sidecar it names (spec/M3/lib/sort_types.json, I30's: the documents), the adopted extracted rollup document (spec/M2/facts/morph_rollup.extracted.json, I19/A19, Q19), the planted mutant and its extraction sidecar (tests_m3/fixtures/undo/mutant/), and results/M1/L_undo_*.json (the back-test's M1 statuses). How each value was computed: (1) pins (U2): every top-level conjunct of every guard reach that fixes a whole register to a literal; (2) restores (U3): for every ordered pair of distinct state-changing actions, every final write of a whose register a pins (literal, zero) or advances by a literal under its own guard's equality with the cursor (cursor), undone by an unconditional write of the other action (the literal, or the cursor moved back by the same literal); (3) pairs (U4): the restoring pairs with at least one of the three criteria of whitepaper section 5.2 (guard, cursor, inverse event); the others are listed as rejected; (4) residues (U5): a's final writes neither restored nor identity copies; (5) residue bases (U6): one per (undo action, family), with the cursors the undo restores and the mapping families it zeroes unconditionally; (6) static classes (D1-D3): every read of the residue family in every action, views included, excluded when its key is at or below a cursor (D1), dominated by a guard requiring a zeroed family nonzero at the same key (D2) or masked inside a conjunction by such a conjunct (D3); live otherwise; (7) laws (L1, L2): one pair law per pair and one residue law per residue basis, predicted PROVED iff statically dead (the plan's exit: static and kernel classifications agree); (8) backtest: the frozen map of spec/M3/lib/undo.json applied to the M1 UNDO laws; (9) sensitivity: the same rules over the Rollup mutant without Rollup.sol:447. The build never reads this file; the tests compare holon's outputs with it, and recompute it to check it was not edited.",
+  "documents": {
+    "spec/M2/facts/morph_rollup.extracted.json": {
+      "contract": "Rollup",
+      "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+      "laws": {
+        "L_undo_pair_Rollup_addChallenger_removeChallenger": {
+          "basis": {
+            "a": "addChallenger",
+            "contract": "Rollup",
+            "criteria": [
+              "guard"
+            ],
+            "kind": "undo_pair",
+            "model": "morph_rollup.extracted",
+            "residues": [],
+            "restores": [
+              {
+                "a_write": "writes[0]",
+                "family": "isChallenger",
+                "how": "zero",
+                "pin": "guards[1]",
+                "undo_write": "writes[0]"
+              }
+            ],
+            "undo": "removeChallenger"
+          },
+          "predicted": "PROVED",
+          "static_class": "dead",
+          "subform": "pair",
+          "undo_id": "morph_rollup.extracted:pair:addChallenger:removeChallenger"
+        },
+        "L_undo_pair_Rollup_commitBatchWithProof_revertBatch": {
+          "basis": {
+            "a": "commitBatchWithProof",
+            "contract": "Rollup",
+            "criteria": [
+              "cursor",
+              "event",
+              "guard"
+            ],
+            "kind": "undo_pair",
+            "model": "morph_rollup.extracted",
+            "residues": [
+              "batchBlobVersionedHashes",
+              "batchDataStore",
+              "committedStateRoots"
+            ],
+            "restores": [
+              {
+                "a_write": "writes[0]",
+                "family": "committedBatches",
+                "how": "zero",
+                "pin": "guards[14]",
+                "undo_write": "writes[1]"
+              },
+              {
+                "a_write": "writes[4]",
+                "family": "lastCommittedBatchIndex",
+                "how": "cursor",
+                "pin": null,
+                "undo_write": "writes[0]"
+              }
+            ],
+            "undo": "revertBatch"
+          },
+          "predicted": "REFUTED",
+          "static_class": "live",
+          "subform": "pair",
+          "undo_id": "morph_rollup.extracted:pair:commitBatchWithProof:revertBatch"
+        },
+        "L_undo_pair_Rollup_commitBatch_revertBatch": {
+          "basis": {
+            "a": "commitBatch",
+            "contract": "Rollup",
+            "criteria": [
+              "cursor",
+              "event",
+              "guard"
+            ],
+            "kind": "undo_pair",
+            "model": "morph_rollup.extracted",
+            "residues": [
+              "batchBlobVersionedHashes",
+              "batchDataStore",
+              "committedStateRoots"
+            ],
+            "restores": [
+              {
+                "a_write": "writes[0]",
+                "family": "committedBatches",
+                "how": "zero",
+                "pin": "guards[14]",
+                "undo_write": "writes[1]"
+              },
+              {
+                "a_write": "writes[4]",
+                "family": "lastCommittedBatchIndex",
+                "how": "cursor",
+                "pin": null,
+                "undo_write": "writes[0]"
+              }
+            ],
+            "undo": "revertBatch"
+          },
+          "predicted": "REFUTED",
+          "static_class": "live",
+          "subform": "pair",
+          "undo_id": "morph_rollup.extracted:pair:commitBatch:revertBatch"
+        },
+        "L_undo_pair_Rollup_commitState_revertBatch": {
+          "basis": {
+            "a": "commitState",
+            "contract": "Rollup",
+            "criteria": [
+              "cursor",
+              "event",
+              "guard"
+            ],
+            "kind": "undo_pair",
+            "model": "morph_rollup.extracted",
+            "residues": [
+              "batchDataStore",
+              "committedStateRoots"
+            ],
+            "restores": [
+              {
+                "a_write": "writes[0]",
+                "family": "committedBatches",
+                "how": "zero",
+                "pin": "guards[13]",
+                "undo_write": "writes[1]"
+              },
+              {
+                "a_write": "writes[4]",
+                "family": "lastCommittedBatchIndex",
+                "how": "cursor",
+                "pin": null,
+                "undo_write": "writes[0]"
+              }
+            ],
+            "undo": "revertBatch"
+          },
+          "predicted": "REFUTED",
+          "static_class": "live",
+          "subform": "pair",
+          "undo_id": "morph_rollup.extracted:pair:commitState:revertBatch"
+        },
+        "L_undo_pair_Rollup_removeChallenger_addChallenger": {
+          "basis": {
+            "a": "removeChallenger",
+            "contract": "Rollup",
+            "criteria": [
+              "guard"
+            ],
+            "kind": "undo_pair",
+            "model": "morph_rollup.extracted",
+            "residues": [],
+            "restores": [
+              {
+                "a_write": "writes[0]",
+                "family": "isChallenger",
+                "how": "literal",
+                "pin": "guards[1]",
+                "undo_write": "writes[0]"
+              }
+            ],
+            "undo": "addChallenger"
+          },
+          "predicted": "PROVED",
+          "static_class": "dead",
+          "subform": "pair",
+          "undo_id": "morph_rollup.extracted:pair:removeChallenger:addChallenger"
+        },
+        "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": {
+          "basis": {
+            "contract": "Rollup",
+            "cursors": [
+              "lastCommittedBatchIndex"
+            ],
+            "family": "batchBlobVersionedHashes",
+            "kind": "undo_residue",
+            "model": "morph_rollup.extracted",
+            "pairs": [
+              "commitBatch",
+              "commitBatchWithProof"
+            ],
+            "undo": "revertBatch",
+            "zero": [
+              "challenges",
+              "committedBatches"
+            ]
+          },
+          "predicted": "REFUTED",
+          "static_class": "live",
+          "subform": "residue",
+          "undo_id": "morph_rollup.extracted:residue:revertBatch:batchBlobVersionedHashes"
+        },
+        "L_undo_res_Rollup_revertBatch_batchDataStore": {
+          "basis": {
+            "contract": "Rollup",
+            "cursors": [
+              "lastCommittedBatchIndex"
+            ],
+            "family": "batchDataStore",
+            "kind": "undo_residue",
+            "model": "morph_rollup.extracted",
+            "pairs": [
+              "commitBatch",
+              "commitBatchWithProof",
+              "commitState"
+            ],
+            "undo": "revertBatch",
+            "zero": [
+              "challenges",
+              "committedBatches"
+            ]
+          },
+          "predicted": "REFUTED",
+          "static_class": "live",
+          "subform": "residue",
+          "undo_id": "morph_rollup.extracted:residue:revertBatch:batchDataStore"
+        },
+        "L_undo_res_Rollup_revertBatch_committedStateRoots": {
+          "basis": {
+            "contract": "Rollup",
+            "cursors": [
+              "lastCommittedBatchIndex"
+            ],
+            "family": "committedStateRoots",
+            "kind": "undo_residue",
+            "model": "morph_rollup.extracted",
+            "pairs": [
+              "commitBatch",
+              "commitBatchWithProof",
+              "commitState"
+            ],
+            "undo": "revertBatch",
+            "zero": [
+              "challenges",
+              "committedBatches"
+            ]
+          },
+          "predicted": "PROVED",
+          "static_class": "dead",
+          "subform": "residue",
+          "undo_id": "morph_rollup.extracted:residue:revertBatch:committedStateRoots"
+        }
+      },
+      "model": "morph_rollup.extracted",
+      "pairs": [
+        {
+          "a": "addChallenger",
+          "class": "dead",
+          "criteria": [
+            "guard"
+          ],
+          "residues": [],
+          "restores": [
+            {
+              "a_write": "writes[0]",
+              "family": "isChallenger",
+              "how": "zero",
+              "pin": "guards[1]",
+              "undo_write": "writes[0]"
+            }
+          ],
+          "undo": "removeChallenger"
+        },
+        {
+          "a": "commitBatch",
+          "class": "live",
+          "criteria": [
+            "cursor",
+            "event",
+            "guard"
+          ],
+          "residues": [
+            "batchBlobVersionedHashes",
+            "batchDataStore",
+            "committedStateRoots"
+          ],
+          "restores": [
+            {
+              "a_write": "writes[0]",
+              "family": "committedBatches",
+              "how": "zero",
+              "pin": "guards[14]",
+              "undo_write": "writes[1]"
+            },
+            {
+              "a_write": "writes[4]",
+              "family": "lastCommittedBatchIndex",
+              "how": "cursor",
+              "pin": null,
+              "undo_write": "writes[0]"
+            }
+          ],
+          "undo": "revertBatch"
+        },
+        {
+          "a": "commitBatchWithProof",
+          "class": "live",
+          "criteria": [
+            "cursor",
+            "event",
+            "guard"
+          ],
+          "residues": [
+            "batchBlobVersionedHashes",
+            "batchDataStore",
+            "committedStateRoots"
+          ],
+          "restores": [
+            {
+              "a_write": "writes[0]",
+              "family": "committedBatches",
+              "how": "zero",
+              "pin": "guards[14]",
+              "undo_write": "writes[1]"
+            },
+            {
+              "a_write": "writes[4]",
+              "family": "lastCommittedBatchIndex",
+              "how": "cursor",
+              "pin": null,
+              "undo_write": "writes[0]"
+            }
+          ],
+          "undo": "revertBatch"
+        },
+        {
+          "a": "commitState",
+          "class": "live",
+          "criteria": [
+            "cursor",
+            "event",
+            "guard"
+          ],
+          "residues": [
+            "batchDataStore",
+            "committedStateRoots"
+          ],
+          "restores": [
+            {
+              "a_write": "writes[0]",
+              "family": "committedBatches",
+              "how": "zero",
+              "pin": "guards[13]",
+              "undo_write": "writes[1]"
+            },
+            {
+              "a_write": "writes[4]",
+              "family": "lastCommittedBatchIndex",
+              "how": "cursor",
+              "pin": null,
+              "undo_write": "writes[0]"
+            }
+          ],
+          "undo": "revertBatch"
+        },
+        {
+          "a": "removeChallenger",
+          "class": "dead",
+          "criteria": [
+            "guard"
+          ],
+          "residues": [],
+          "restores": [
+            {
+              "a_write": "writes[0]",
+              "family": "isChallenger",
+              "how": "literal",
+              "pin": "guards[1]",
+              "undo_write": "writes[0]"
+            }
+          ],
+          "undo": "addChallenger"
+        }
+      ],
+      "rejected": [
+        {
+          "a": "challengeState",
+          "reason": "no_criterion",
+          "restores": [
+            {
+              "a_write": "writes[3]",
+              "family": "inChallenge",
+              "how": "zero",
+              "pin": "guards[3]",
+              "undo_write": "writes[1]"
+            }
+          ],
+          "undo": "proveState"
+        },
+        {
+          "a": "commitBatch",
+          "reason": "no_criterion",
+          "restores": [
+            {
+              "a_write": "writes[2]",
+              "family": "batchBlobVersionedHashes",
+              "how": "zero",
+              "pin": "guards[7]",
+              "undo_write": "writes[5]"
+            }
+          ],
+          "undo": "finalizeBatch"
+        }
+      ],
+      "residues": [
+        {
+          "class": "live",
+          "cursors": [
+            "lastCommittedBatchIndex"
+          ],
+          "excluded": [],
+          "family": "batchBlobVersionedHashes",
+          "live_readers": [
+            {
+              "action": "commitBatch",
+              "at": "guards[7].reaches[0]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "guards[8].reaches[0]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "guards[9].reaches[0]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "guards[10].reaches[0]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "guards[19].reaches[0]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "checks[3]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "writes[0]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "writes[2]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "events[0]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "mstores[2]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "mstores[13]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "loops[0]"
+            },
+            {
+              "action": "commitState",
+              "at": "guards[8].reaches[0]"
+            },
+            {
+              "action": "commitState",
+              "at": "writes[0]"
+            },
+            {
+              "action": "commitState",
+              "at": "writes[2]"
+            },
+            {
+              "action": "commitState",
+              "at": "events[0]"
+            },
+            {
+              "action": "commitState",
+              "at": "mstores[12]"
+            }
+          ],
+          "pairs": [
+            "commitBatch",
+            "commitBatchWithProof"
+          ],
+          "undo": "revertBatch",
+          "zero": [
+            "challenges",
+            "committedBatches"
+          ]
+        },
+        {
+          "class": "live",
+          "cursors": [
+            "lastCommittedBatchIndex"
+          ],
+          "excluded": [
+            {
+              "action": "batchExist",
+              "at": "returns",
+              "rules": [
+                "D3"
+              ]
+            },
+            {
+              "action": "challengeState",
+              "at": "guards[6].reaches[0]",
+              "rules": [
+                "D3"
+              ]
+            },
+            {
+              "action": "challengeState",
+              "at": "guards[8].reaches[0]",
+              "rules": [
+                "D2"
+              ]
+            },
+            {
+              "action": "challengeState",
+              "at": "panics[1]",
+              "rules": [
+                "D1"
+              ]
+            },
+            {
+              "action": "challengeState",
+              "at": "writes[2]",
+              "rules": [
+                "D1"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "guards[2].reaches[0]",
+              "rules": [
+                "D1"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "guards[3].reaches[0]",
+              "rules": [
+                "D1"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "checks[2]",
+              "rules": [
+                "D1"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "panics[0]",
+              "rules": [
+                "D1"
+              ]
+            },
+            {
+              "action": "finalizeBatch",
+              "at": "guards[7].reaches[0]",
+              "rules": [
+                "D3"
+              ]
+            },
+            {
+              "action": "finalizeBatch",
+              "at": "guards[10].reaches[0]",
+              "rules": [
+                "D2"
+              ]
+            },
+            {
+              "action": "proveState",
+              "at": "panics[2]",
+              "rules": [
+                "D2"
+              ]
+            },
+            {
+              "action": "proveState",
+              "at": "panics[3]",
+              "rules": [
+                "D2"
+              ]
+            },
+            {
+              "action": "proveState",
+              "at": "calls[1]",
+              "rules": [
+                "D2"
+              ]
+            },
+            {
+              "action": "proveState",
+              "at": "writes[4]",
+              "rules": [
+                "D2"
+              ]
+            }
+          ],
+          "family": "batchDataStore",
+          "live_readers": [
+            {
+              "action": "batchInsideChallengeWindow",
+              "at": "returns"
+            }
+          ],
+          "pairs": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ],
+          "undo": "revertBatch",
+          "zero": [
+            "challenges",
+            "committedBatches"
+          ]
+        },
+        {
+          "class": "dead",
+          "cursors": [
+            "lastCommittedBatchIndex"
+          ],
+          "excluded": [
+            {
+              "action": "commitBatch",
+              "at": "guards[17].reaches[0]",
+              "rules": [
+                "D1"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "guards[17].reaches[0]",
+              "rules": [
+                "D1"
+              ]
+            },
+            {
+              "action": "commitState",
+              "at": "guards[16].reaches[0]",
+              "rules": [
+                "D1"
+              ]
+            },
+            {
+              "action": "initialize2",
+              "at": "writes[2]",
+              "rules": [
+                "D1"
+              ]
+            }
+          ],
+          "family": "committedStateRoots",
+          "live_readers": [],
+          "pairs": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ],
+          "undo": "revertBatch",
+          "zero": [
+            "challenges",
+            "committedBatches"
+          ]
+        }
+      ]
+    }
+  },
+  "inputs": [
+    {
+      "path": "results/M1/L_undo_BD.json",
+      "sha256": "f2a7a3fea1304aeccffc33279dee4835cb88a2c14074bfb61df83291f43dccba"
+    },
+    {
+      "path": "results/M1/L_undo_BVH.json",
+      "sha256": "18706a0180406196b60c9f04d41cab7d4234826b54ca92f9a387dcaba98d0e44"
+    },
+    {
+      "path": "results/M1/L_undo_CSR.json",
+      "sha256": "dcc6566ef07b003fde2b8cd41de3bd086fef080afd64b3bd888d092c89fdb0fb"
+    },
+    {
+      "path": "results/M1/L_undo_cancel.json",
+      "sha256": "c04e5f4e86bf7ab6471c6f13962eb2fad484961f807a978031ed9919ab242419"
+    },
+    {
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    },
+    {
+      "path": "spec/M3/lib/sort_types.json",
+      "sha256": "9318a9aa27a5e6a8571099f09bd81ab545f87bbd724e1755422df6f771c52150"
+    },
+    {
+      "path": "spec/M3/lib/undo.json",
+      "sha256": "10fe2cef27768ea38e7dffebdf2f019568e809c739dc03cff554040c1ed501c1"
+    },
+    {
+      "path": "tests_m3/fixtures/undo/mutant/extract_rollup_mutant.json",
+      "sha256": "cfa4b814f31fdebc66db04f9f2cae0c708370209c7d11334d00b898847bb2a76"
+    },
+    {
+      "path": "tests_m3/fixtures/undo/mutant/rollup_mutant.extracted.json",
+      "sha256": "2b7b43b330b86a0b8c68ad8c89871ca587348b11ac4bb06994c0ab252a311c14"
+    }
+  ],
+  "sensitivity": {
+    "document": "tests_m3/fixtures/undo/mutant/rollup_mutant.extracted.json",
+    "facts_sha256": "2b7b43b330b86a0b8c68ad8c89871ca587348b11ac4bb06994c0ab252a311c14",
+    "laws": {
+      "L_undo_pair_Rollup_addChallenger_removeChallenger": {
+        "static_class": "dead",
+        "subform": "pair"
+      },
+      "L_undo_pair_Rollup_commitBatchWithProof_revertBatch": {
+        "static_class": "live",
+        "subform": "pair"
+      },
+      "L_undo_pair_Rollup_commitBatch_revertBatch": {
+        "static_class": "live",
+        "subform": "pair"
+      },
+      "L_undo_pair_Rollup_commitState_revertBatch": {
+        "static_class": "live",
+        "subform": "pair"
+      },
+      "L_undo_pair_Rollup_removeChallenger_addChallenger": {
+        "static_class": "dead",
+        "subform": "pair"
+      },
+      "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": {
+        "static_class": "live",
+        "subform": "residue"
+      },
+      "L_undo_res_Rollup_revertBatch_batchDataStore": {
+        "static_class": "live",
+        "subform": "residue"
+      },
+      "L_undo_res_Rollup_revertBatch_committedBatches": {
+        "static_class": "live",
+        "subform": "residue"
+      },
+      "L_undo_res_Rollup_revertBatch_committedStateRoots": {
+        "static_class": "dead",
+        "subform": "residue"
+      }
+    },
+    "mutation": {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "line": 447,
+      "text": "committedBatches[_batchIndex] = bytes32(0);"
+    },
+    "pairs": [
+      {
+        "a": "addChallenger",
+        "class": "dead",
+        "criteria": [
+          "guard"
+        ],
+        "residues": [],
+        "restores": [
+          {
+            "a_write": "writes[0]",
+            "family": "isChallenger",
+            "how": "zero",
+            "pin": "guards[1]",
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "removeChallenger"
+      },
+      {
+        "a": "commitBatch",
+        "class": "live",
+        "criteria": [
+          "cursor",
+          "event"
+        ],
+        "residues": [
+          "batchBlobVersionedHashes",
+          "batchDataStore",
+          "committedBatches",
+          "committedStateRoots"
+        ],
+        "restores": [
+          {
+            "a_write": "writes[4]",
+            "family": "lastCommittedBatchIndex",
+            "how": "cursor",
+            "pin": null,
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "revertBatch"
+      },
+      {
+        "a": "commitBatchWithProof",
+        "class": "live",
+        "criteria": [
+          "cursor",
+          "event"
+        ],
+        "residues": [
+          "batchBlobVersionedHashes",
+          "batchDataStore",
+          "committedBatches",
+          "committedStateRoots"
+        ],
+        "restores": [
+          {
+            "a_write": "writes[4]",
+            "family": "lastCommittedBatchIndex",
+            "how": "cursor",
+            "pin": null,
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "revertBatch"
+      },
+      {
+        "a": "commitState",
+        "class": "live",
+        "criteria": [
+          "cursor",
+          "event"
+        ],
+        "residues": [
+          "batchDataStore",
+          "committedBatches",
+          "committedStateRoots"
+        ],
+        "restores": [
+          {
+            "a_write": "writes[4]",
+            "family": "lastCommittedBatchIndex",
+            "how": "cursor",
+            "pin": null,
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "revertBatch"
+      },
+      {
+        "a": "removeChallenger",
+        "class": "dead",
+        "criteria": [
+          "guard"
+        ],
+        "residues": [],
+        "restores": [
+          {
+            "a_write": "writes[0]",
+            "family": "isChallenger",
+            "how": "literal",
+            "pin": "guards[1]",
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "addChallenger"
+      }
+    ],
+    "rejected": [
+      {
+        "a": "challengeState",
+        "reason": "no_criterion",
+        "restores": [
+          {
+            "a_write": "writes[3]",
+            "family": "inChallenge",
+            "how": "zero",
+            "pin": "guards[3]",
+            "undo_write": "writes[1]"
+          }
+        ],
+        "undo": "proveState"
+      },
+      {
+        "a": "commitBatch",
+        "reason": "no_criterion",
+        "restores": [
+          {
+            "a_write": "writes[2]",
+            "family": "batchBlobVersionedHashes",
+            "how": "zero",
+            "pin": "guards[7]",
+            "undo_write": "writes[5]"
+          }
+        ],
+        "undo": "finalizeBatch"
+      }
+    ],
+    "residues": [
+      {
+        "class": "live",
+        "cursors": [
+          "lastCommittedBatchIndex"
+        ],
+        "excluded": [],
+        "family": "batchBlobVersionedHashes",
+        "live_readers": [
+          {
+            "action": "commitBatch",
+            "at": "guards[7].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[8].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[9].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[10].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[19].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "checks[3]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "writes[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "writes[2]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "events[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "mstores[2]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "mstores[13]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "loops[0]"
+          },
+          {
+            "action": "commitState",
+            "at": "guards[8].reaches[0]"
+          },
+          {
+            "action": "commitState",
+            "at": "writes[0]"
+          },
+          {
+            "action": "commitState",
+            "at": "writes[2]"
+          },
+          {
+            "action": "commitState",
+            "at": "events[0]"
+          },
+          {
+            "action": "commitState",
+            "at": "mstores[12]"
+          }
+        ],
+        "pairs": [
+          "commitBatch",
+          "commitBatchWithProof"
+        ],
+        "undo": "revertBatch",
+        "zero": [
+          "challenges"
+        ]
+      },
+      {
+        "class": "live",
+        "cursors": [
+          "lastCommittedBatchIndex"
+        ],
+        "excluded": [
+          {
+            "action": "challengeState",
+            "at": "panics[1]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "challengeState",
+            "at": "writes[2]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[2].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[3].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "checks[2]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "panics[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "proveState",
+            "at": "panics[2]",
+            "rules": [
+              "D2"
+            ]
+          },
+          {
+            "action": "proveState",
+            "at": "panics[3]",
+            "rules": [
+              "D2"
+            ]
+          },
+          {
+            "action": "proveState",
+            "at": "calls[1]",
+            "rules": [
+              "D2"
+            ]
+          },
+          {
+            "action": "proveState",
+            "at": "writes[4]",
+            "rules": [
+              "D2"
+            ]
+          }
+        ],
+        "family": "batchDataStore",
+        "live_readers": [
+          {
+            "action": "batchExist",
+            "at": "returns"
+          },
+          {
+            "action": "batchInsideChallengeWindow",
+            "at": "returns"
+          },
+          {
+            "action": "challengeState",
+            "at": "guards[6].reaches[0]"
+          },
+          {
+            "action": "challengeState",
+            "at": "guards[8].reaches[0]"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "guards[7].reaches[0]"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "guards[10].reaches[0]"
+          }
+        ],
+        "pairs": [
+          "commitBatch",
+          "commitBatchWithProof",
+          "commitState"
+        ],
+        "undo": "revertBatch",
+        "zero": [
+          "challenges"
+        ]
+      },
+      {
+        "class": "live",
+        "cursors": [
+          "lastCommittedBatchIndex"
+        ],
+        "excluded": [
+          {
+            "action": "commitBatch",
+            "at": "guards[16].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[16].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitState",
+            "at": "guards[15].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          }
+        ],
+        "family": "committedBatches",
+        "live_readers": [
+          {
+            "action": "batchExist",
+            "at": "returns"
+          },
+          {
+            "action": "challengeState",
+            "at": "guards[5].reaches[0]"
+          },
+          {
+            "action": "challengeState",
+            "at": "guards[6].reaches[0]"
+          },
+          {
+            "action": "commitBatch",
+            "at": "guards[14].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[14].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[19].reaches[0]"
+          },
+          {
+            "action": "commitState",
+            "at": "guards[13].reaches[0]"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "guards[6].reaches[0]"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "guards[7].reaches[0]"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "events[0]"
+          },
+          {
+            "action": "proveCommittedBatchState",
+            "at": "guards[4].reaches[0]"
+          },
+          {
+            "action": "proveState",
+            "at": "guards[7].reaches[0]"
+          },
+          {
+            "action": "revertBatch",
+            "at": "guards[6].reaches[0]"
+          },
+          {
+            "action": "revertBatch",
+            "at": "guards[7].reaches[0]"
+          }
+        ],
+        "pairs": [
+          "commitBatch",
+          "commitBatchWithProof",
+          "commitState"
+        ],
+        "undo": "revertBatch",
+        "zero": [
+          "challenges"
+        ]
+      },
+      {
+        "class": "dead",
+        "cursors": [
+          "lastCommittedBatchIndex"
+        ],
+        "excluded": [
+          {
+            "action": "commitBatch",
+            "at": "guards[17].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[17].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitState",
+            "at": "guards[16].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "initialize2",
+            "at": "writes[2]",
+            "rules": [
+              "D1"
+            ]
+          }
+        ],
+        "family": "committedStateRoots",
+        "live_readers": [],
+        "pairs": [
+          "commitBatch",
+          "commitBatchWithProof",
+          "commitState"
+        ],
+        "undo": "revertBatch",
+        "zero": [
+          "challenges"
+        ]
+      }
+    ]
+  },
+  "totals": {
+    "laws": {
+      "pair": 5,
+      "residue": 3
+    },
+    "pairs": 5,
+    "predicted": {
+      "PROVED": 3,
+      "REFUTED": 5
+    },
+    "rejected": 2,
+    "residues": 3
+  },
+  "undo_basis_version": "holon-i27-undo-basis/0.1"
+}

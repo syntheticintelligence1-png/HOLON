@@ -1,0 +1,1369 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyUndo.sol:18-30",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            100
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyUndo.sol:18-30",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyUndo",
+      "edges": [],
+      "effects": [
+        {
+          "family": "entries",
+          "src": "src/ToyUndo.sol:24"
+        },
+        {
+          "family": "roots",
+          "src": "src/ToyUndo.sol:25"
+        },
+        {
+          "family": "stamps",
+          "src": "src/ToyUndo.sol:26"
+        },
+        {
+          "family": "pins",
+          "src": "src/ToyUndo.sol:27"
+        },
+        {
+          "family": "last",
+          "src": "src/ToyUndo.sol:28"
+        }
+      ],
+      "events": [
+        {
+          "anonymous": false,
+          "args": [
+            [
+              "+",
+              [
+                "storage",
+                "last"
+              ],
+              1
+            ],
+            [
+              "param",
+              "entry"
+            ]
+          ],
+          "cond": 1,
+          "event": "ToyUndo.Committed",
+          "indexed": [
+            true,
+            true
+          ],
+          "seq": 12,
+          "signature": "Committed(uint256,bytes32)",
+          "src": "src/ToyUndo.sol:29",
+          "stack": [],
+          "topic0": "0x68e0867601a98978930107aee7f425665e61edd70ca594c68ca5da9e81f84c29",
+          "topics": [
+            [
+              "+",
+              [
+                "storage",
+                "last"
+              ],
+              1
+            ],
+            [
+              "param",
+              "entry"
+            ]
+          ]
+        }
+      ],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "7a65726f20656e747279"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "!=",
+            [
+              "param",
+              "entry"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "7a65726f20656e747279"
+                ]
+              ],
+              "expr": [
+                "!=",
+                [
+                  "param",
+                  "entry"
+                ],
+                0
+              ],
+              "seq": 2,
+              "stack": []
+            }
+          ],
+          "reason": "zero entry",
+          "src": "src/ToyUndo.sol:19"
+        },
+        {
+          "args": [
+            [
+              "str",
+              "616c726561647920636f6d6d6974746564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "entries"
+              ],
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "616c726561647920636f6d6d6974746564"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "entries"
+                  ],
+                  [
+                    "+",
+                    [
+                      "storage",
+                      "last"
+                    ],
+                    1
+                  ]
+                ],
+                0
+              ],
+              "seq": 4,
+              "stack": []
+            }
+          ],
+          "reason": "already committed",
+          "src": "src/ToyUndo.sol:21"
+        },
+        {
+          "args": [
+            [
+              "str",
+              "70696e6e6564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "pins"
+              ],
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "70696e6e6564"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "pins"
+                  ],
+                  [
+                    "+",
+                    [
+                      "storage",
+                      "last"
+                    ],
+                    1
+                  ]
+                ],
+                0
+              ],
+              "seq": 5,
+              "stack": []
+            }
+          ],
+          "reason": "pinned",
+          "src": "src/ToyUndo.sol:22"
+        },
+        {
+          "args": [
+            [
+              "str",
+              "6e6f20706172656e7420726f6f74"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "||",
+            [
+              "==",
+              [
+                "storage",
+                "last"
+              ],
+              0
+            ],
+            [
+              "!=",
+              [
+                "map",
+                [
+                  "storage",
+                  "roots"
+                ],
+                [
+                  "storage",
+                  "last"
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f20706172656e7420726f6f74"
+                ]
+              ],
+              "expr": [
+                "||",
+                [
+                  "==",
+                  [
+                    "storage",
+                    "last"
+                  ],
+                  0
+                ],
+                [
+                  "!=",
+                  [
+                    "map",
+                    [
+                      "storage",
+                      "roots"
+                    ],
+                    [
+                      "storage",
+                      "last"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              "seq": 6,
+              "stack": []
+            }
+          ],
+          "reason": "no parent root",
+          "src": "src/ToyUndo.sol:23"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "commit",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "guard",
+          "src/ToyUndo.sol:19",
+          0
+        ],
+        [
+          "panic",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyUndo.sol:21",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyUndo.sol:22",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyUndo.sol:23",
+          0
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "storage",
+              "last"
+            ],
+            1
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "last"
+              ],
+              1
+            ]
+          ],
+          "op": "+",
+          "seq": 3,
+          "src": "src/ToyUndo.sol:20",
+          "stack": []
+        }
+      ],
+      "params": [
+        {
+          "location": "default",
+          "name": "entry",
+          "type": "bytes32",
+          "width": 256
+        },
+        {
+          "location": "default",
+          "name": "root",
+          "type": "bytes32",
+          "width": 256
+        },
+        {
+          "location": "default",
+          "name": "pin",
+          "type": "bytes32",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "entries": [
+          "store",
+          [
+            "storage",
+            "entries"
+          ],
+          [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ]
+          ],
+          [
+            "param",
+            "entry"
+          ]
+        ],
+        "last": [
+          "+",
+          [
+            "storage",
+            "last"
+          ],
+          1
+        ],
+        "pins": [
+          "store",
+          [
+            "storage",
+            "pins"
+          ],
+          [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ]
+          ],
+          [
+            "param",
+            "pin"
+          ]
+        ],
+        "roots": [
+          "store",
+          [
+            "storage",
+            "roots"
+          ],
+          [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ]
+          ],
+          [
+            "param",
+            "root"
+          ]
+        ],
+        "stamps": [
+          "store",
+          [
+            "storage",
+            "stamps"
+          ],
+          [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ]
+          ],
+          [
+            "env",
+            "block.timestamp"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xe4e5b258",
+      "src": "src/ToyUndo.sol:18-30",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "entries",
+          "path": [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ]
+          ],
+          "seq": 7,
+          "src": "src/ToyUndo.sol:24",
+          "stack": [],
+          "value": [
+            "param",
+            "entry"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "roots",
+          "path": [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ]
+          ],
+          "seq": 8,
+          "src": "src/ToyUndo.sol:25",
+          "stack": [],
+          "value": [
+            "param",
+            "root"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "stamps",
+          "path": [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ]
+          ],
+          "seq": 9,
+          "src": "src/ToyUndo.sol:26",
+          "stack": [],
+          "value": [
+            "env",
+            "block.timestamp"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "pins",
+          "path": [
+            [
+              "map",
+              [
+                "+",
+                [
+                  "storage",
+                  "last"
+                ],
+                1
+              ]
+            ]
+          ],
+          "seq": 10,
+          "src": "src/ToyUndo.sol:27",
+          "stack": [],
+          "value": [
+            "param",
+            "pin"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "last",
+          "path": [],
+          "seq": 11,
+          "src": "src/ToyUndo.sol:28",
+          "stack": [],
+          "value": [
+            "+",
+            [
+              "storage",
+              "last"
+            ],
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyUndo.sol:32-40",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyUndo",
+      "edges": [],
+      "effects": [
+        {
+          "family": "entries",
+          "src": "src/ToyUndo.sol:36"
+        },
+        {
+          "family": "pins",
+          "src": "src/ToyUndo.sol:37"
+        },
+        {
+          "family": "last",
+          "src": "src/ToyUndo.sol:38"
+        }
+      ],
+      "events": [
+        {
+          "anonymous": false,
+          "args": [
+            [
+              "storage",
+              "last"
+            ],
+            [
+              "map",
+              [
+                "storage",
+                "entries"
+              ],
+              [
+                "storage",
+                "last"
+              ]
+            ]
+          ],
+          "cond": 1,
+          "event": "ToyUndo.Reverted",
+          "indexed": [
+            true,
+            true
+          ],
+          "seq": 6,
+          "signature": "Reverted(uint256,bytes32)",
+          "src": "src/ToyUndo.sol:39",
+          "stack": [],
+          "topic0": "0x9731a8078229a92abc3dd4a6ea9dee0b0482e2246a487f481eb3d7c918b051cc",
+          "topics": [
+            [
+              "storage",
+              "last"
+            ],
+            [
+              "map",
+              [
+                "storage",
+                "entries"
+              ],
+              [
+                "storage",
+                "last"
+              ]
+            ]
+          ]
+        }
+      ],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "6e6f7420636f6d6d6974746564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "!=",
+            [
+              "map",
+              [
+                "storage",
+                "entries"
+              ],
+              [
+                "storage",
+                "last"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f7420636f6d6d6974746564"
+                ]
+              ],
+              "expr": [
+                "!=",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "entries"
+                  ],
+                  [
+                    "storage",
+                    "last"
+                  ]
+                ],
+                0
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "not committed",
+          "src": "src/ToyUndo.sol:35"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "revertLast",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyUndo.sol:35",
+          0
+        ],
+        [
+          "panic",
+          0
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "storage",
+              "last"
+            ],
+            1
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "-",
+              [
+                "storage",
+                "last"
+              ],
+              1
+            ]
+          ],
+          "op": "-",
+          "seq": 4,
+          "src": "src/ToyUndo.sol:38",
+          "stack": []
+        }
+      ],
+      "params": [],
+      "payable": false,
+      "post": {
+        "entries": [
+          "store",
+          [
+            "storage",
+            "entries"
+          ],
+          [
+            [
+              "map",
+              [
+                "storage",
+                "last"
+              ]
+            ]
+          ],
+          0
+        ],
+        "last": [
+          "-",
+          [
+            "storage",
+            "last"
+          ],
+          1
+        ],
+        "pins": [
+          "store",
+          [
+            "storage",
+            "pins"
+          ],
+          [
+            [
+              "map",
+              [
+                "storage",
+                "last"
+              ]
+            ]
+          ],
+          0
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x647f2519",
+      "src": "src/ToyUndo.sol:32-40",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "entries",
+          "path": [
+            [
+              "map",
+              [
+                "storage",
+                "last"
+              ]
+            ]
+          ],
+          "seq": 2,
+          "src": "src/ToyUndo.sol:36",
+          "stack": [],
+          "value": 0
+        },
+        {
+          "cond": 1,
+          "family": "pins",
+          "path": [
+            [
+              "map",
+              [
+                "storage",
+                "last"
+              ]
+            ]
+          ],
+          "seq": 3,
+          "src": "src/ToyUndo.sol:37",
+          "stack": [],
+          "value": 0
+        },
+        {
+          "cond": 1,
+          "family": "last",
+          "path": [],
+          "seq": 5,
+          "src": "src/ToyUndo.sol:38",
+          "stack": [],
+          "value": [
+            "-",
+            [
+              "storage",
+              "last"
+            ],
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyUndo.sol:47-49",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyUndo.sol:47-49",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyUndo",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "stampOf",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "i",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "&&",
+        [
+          "!=",
+          [
+            "map",
+            [
+              "storage",
+              "entries"
+            ],
+            [
+              "param",
+              "i"
+            ]
+          ],
+          0
+        ],
+        [
+          ">",
+          [
+            "map",
+            [
+              "storage",
+              "stamps"
+            ],
+            [
+              "param",
+              "i"
+            ]
+          ],
+          0
+        ]
+      ],
+      "selector": "0x527cbaf7",
+      "src": "src/ToyUndo.sol:47-49",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyUndo.sol:42-45",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyUndo.sol:42-45",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyUndo",
+      "edges": [],
+      "effects": [],
+      "events": [
+        {
+          "anonymous": false,
+          "args": [
+            [
+              "param",
+              "i"
+            ],
+            [
+              "map",
+              [
+                "storage",
+                "stamps"
+              ],
+              [
+                "param",
+                "i"
+              ]
+            ]
+          ],
+          "cond": 1,
+          "event": "ToyUndo.Touched",
+          "indexed": [
+            true,
+            false
+          ],
+          "seq": 3,
+          "signature": "Touched(uint256,uint256)",
+          "src": "src/ToyUndo.sol:44",
+          "stack": [],
+          "topic0": "0x16a82067e7d45c20c384f8414c495fe49f48023b971e8bc2b7af2e1ffb53ae90",
+          "topics": [
+            [
+              "param",
+              "i"
+            ]
+          ]
+        }
+      ],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "6e6f7420636f6d6d6974746564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "!=",
+            [
+              "map",
+              [
+                "storage",
+                "entries"
+              ],
+              [
+                "param",
+                "i"
+              ]
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6e6f7420636f6d6d6974746564"
+                ]
+              ],
+              "expr": [
+                "!=",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "entries"
+                  ],
+                  [
+                    "param",
+                    "i"
+                  ]
+                ],
+                0
+              ],
+              "seq": 2,
+              "stack": []
+            }
+          ],
+          "reason": "not committed",
+          "src": "src/ToyUndo.sol:43"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "touch",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "guard",
+          "src/ToyUndo.sol:43",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "i",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": "0xedaa0c1d",
+      "src": "src/ToyUndo.sol:42-45",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+    }
+  ],
+  "constants": {},
+  "contract": "ToyUndo",
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.3",
+    "inputs": [
+      {
+        "sha256": "9c38f07181ae56f3f18987f9fd885579cef4f0e46f0aa1c53ffb11cebd3c7ba0",
+        "unit": "src/ToyUndo.sol"
+      }
+    ],
+    "kind": "transitions",
+    "method": "extracted",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "storageLayout"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "tests_m3/fixtures/undo/extract_toyundo.json",
+      "sha256": "a3d941e574c82f32201cb0771a50fe6285694f03541feafafc399614132c2879"
+    },
+    "toolchain": {
+      "solc": {
+        "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+        "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "last",
+      "offset": 0,
+      "slot": 0,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "entries",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "roots",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "stamps",
+      "offset": 0,
+      "slot": 3,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "key": "uint256",
+      "kind": "mapping",
+      "name": "pins",
+      "offset": 0,
+      "slot": 4,
+      "value": "bytes32",
+      "width": 256
+    }
+  ],
+  "target": {
+    "commit": null,
+    "repo": "holon/toy-undo",
+    "scope": "planted UNDO fixture (I27)"
+  }
+}

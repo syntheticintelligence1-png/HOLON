@@ -1,0 +1,24 @@
+{
+ "doc": "I27 prereg instrument: the binding of the planted ToyUndo (baseline, test milestone T271) in the format of replay/M2/fragments.json: the generic step harness deploys the toy (no constructor argument, init []); its storage after the deployment (all zero) is the initial state of the toy model's Reach, and every toy witness replays here. project kind sources: the scratch project's src/ is tests_m3/fixtures/undo/src.",
+ "facts": "tests_m3/fixtures/undo/toyundo.extracted.json",
+ "harness": {
+  "contract": "HolonToyUndoStepTest",
+  "files": [
+   "replay/M2/solidity/HolonStepBase.sol",
+   "tests_m3/fixtures/undo/HolonToyUndoStep.t.sol"
+  ],
+  "last_contract": "HolonToyUndoLastTest"
+ },
+ "init": [],
+ "project": {
+  "dir": "tests_m3/fixtures/undo/src",
+  "kind": "sources",
+  "unit_prefix": ""
+ },
+ "source": "tests_m3/fixtures/undo",
+ "source_doc": "the extraction's source tree: holon.machine.load_extracted compiles the document's units there",
+ "target": {
+  "contract": "ToyUndo",
+  "source": "src/ToyUndo.sol"
+ }
+}

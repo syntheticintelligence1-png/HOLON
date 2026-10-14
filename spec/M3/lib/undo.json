@@ -1,0 +1,32 @@
+{
+  "undo_version": "holon-undo/0.1",
+  "doc": "I27 prereg instrument (the contract is the docstring of tests_m3/test_undo.py). Frozen at the I27 prereg; the build reads it and never edits it. sort_types: the I30 sidecar whose documents, binding and seeds the M3 machinery builds the extracted model from (Reach's initial state is the binding's deployment; witnesses replay on its step harness); UNDO reads the transitions documents it names and nothing else as law input (docs/HUMAN_ANSWERS.md Q19: the adopted extracted rollup document, never spec/M1/facts). observation: what one step shows (whitepaper Thm 6.9: outputs, success or revert): status, return or revert data, the target's logs and the target's external calls; compiler-generated getters are not actions of the document and are not observed. premise: nz, no hash value a law's steps compute is the zero word (a local premise like CF(h, S), Cor 6.16). search: the refutation budget (I30's argument and environment variants; prefixes up to prefix_depth, at most max_prefixes; continuations of at most continuation_depth steps; at most max_candidates candidates per law). basis: the prereg's computation of every pair, residue, classification, law and predicted outcome (tests_m3/test_undo.py::undo_basis_doc); the build never reads it. backtest: the frozen map from the M1 UNDO laws (spec/M1/facts/morph_rollup.json's names, read from their statements: a dead_residue law's projection, an undo_pair law's two actions) to the extracted document's names; the back-test alone reads laws/M1 and results/M1.",
+  "sort_types": "spec/M3/lib/sort_types.json",
+  "observation": ["status", "ret", "logs", "calls"],
+  "premise": "nz",
+  "search": {
+    "prefix_depth": 3,
+    "max_prefixes": 3000,
+    "continuation_depth": 2,
+    "max_candidates": 200000
+  },
+  "basis": "spec/M3/lib/undo_basis.json",
+  "backtest": {
+    "against": "M1",
+    "laws": {
+      "L_undo_BD": {"subform": "residue", "undo": "revertBatch", "family": "s_bd"},
+      "L_undo_BVH": {"subform": "pair", "a": "commitBatch", "undo": "revertBatch"},
+      "L_undo_CSR": {"subform": "residue", "undo": "revertBatch", "family": "s_csr"},
+      "L_undo_cancel": {"subform": "pair", "a": "challengeState", "undo": "setPause"}
+    },
+    "names": {
+      "challengeState": "challengeState",
+      "commitBatch": "commitBatch",
+      "revertBatch": "revertBatch",
+      "s_bd": "batchDataStore",
+      "s_bvh": "batchBlobVersionedHashes",
+      "s_csr": "committedStateRoots",
+      "setPause": "setPause"
+    }
+  }
+}

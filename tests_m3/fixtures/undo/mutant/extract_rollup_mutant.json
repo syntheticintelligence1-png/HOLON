@@ -1,0 +1,29 @@
+{
+ "compiler": {
+  "settings": {
+   "evmVersion": "cancun",
+   "optimizer": {
+    "enabled": false
+   }
+  },
+  "version": "0.8.24"
+ },
+ "doc": "I27 prereg instrument (tests_m3/test_undo.py, Sensitivity): spec/M2/lib/extract_rollup.json with target.commit null, for a planted source tree: a copy of the pinned morph checkout (config replay.morph, 3e44e795586af3e11285b603ab642c67823add51) in which the one line `committedBatches[_batchIndex] = bytes32(0);` of contracts/contracts/l1/rollup/Rollup.sol (line 447, revertBatch's delete of the register commit allocates) is removed and nothing else changes. holon's Solidity frontend extracts it to tests_m3/fixtures/undo/mutant/rollup_mutant.extracted.json, byte for byte.",
+ "frontend": "solidity",
+ "output": "tests_m3/fixtures/undo/mutant/rollup_mutant.extracted.json",
+ "sidecar_version": 1,
+ "sources": [
+  "contracts/contracts/l1/rollup/Rollup.sol"
+ ],
+ "target": {
+  "commit": null,
+  "repo": "morph-l2/morph",
+  "scope": "rollup contract (planted mutant: Rollup.sol:447 removed): storage families, transitions of every external/public function, cost terms, principal predicates, hash/commit edges, coverage"
+ },
+ "transitions": {
+  "commit_interfaces": [
+   "IRollupVerifier"
+  ],
+  "contract": "Rollup"
+ }
+}

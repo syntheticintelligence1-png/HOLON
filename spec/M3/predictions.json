@@ -386,6 +386,159 @@
           "storage_slots": 8894
         }
       }
+    },
+    "I27": {
+      "title": "UNDO rule and static deadness, decided on the extracted real code",
+      "plan": "docs/BUILD_PLAN.md#i27",
+      "prompt": "prompts/I27_undo.md",
+      "predictions": [
+        {
+          "id": "I27-P1",
+          "claim": "Undo pairs (rules U2-U4 over spec/M2/facts/morph_rollup.extracted.json): holon undo finds exactly 5. (commitBatch, revertBatch), (commitState, revertBatch) and (commitBatchWithProof, revertBatch), criteria [cursor, event, guard], each restoring committedBatches (how zero, pinned by the guard Rollup.sol:311 'batch already committed': guards[14] of commitBatch and commitBatchWithProof, guards[13] of commitState; undone by revertBatch's loop write writes[1] at :447) and lastCommittedBatchIndex (how cursor: the commits' :373 write of the parent header's index + 1 under :312's equality with the cursor, undone by revertBatch's :443 write of the header index - 1); (addChallenger, removeChallenger) (zero) and (removeChallenger, addChallenger) (literal 1), criterion [guard], restoring isChallenger. Exactly 2 rejected (a restore, no criterion): (challengeState, proveState) [inChallenge] and (commitBatch, finalizeBatch) [batchBlobVersionedHashes]. (challengeState, setPause), the pair of M1's L_undo_cancel, is not a candidate. Pairs, restores and rejected entries equal spec/M3/lib/undo_basis.json.",
+          "check": "tests_m3/test_undo.py::TestAnalysis::test_undo_pairs_on_the_extracted_rollup"
+        },
+        {
+          "id": "I27-P2",
+          "claim": "Residues (U5, U6): Res(commitBatch, revertBatch) = {batchBlobVersionedHashes, batchDataStore, committedStateRoots}, the registers at the commit's index lastCommittedBatchIndex + 1 that revertBatch leaves (the plan's {CSR, BD, BVH}; the plan's fourth, the tag, is I30's generated ghost companion and not a register of the document: gap G2); Res(commitState, revertBatch) = {batchDataStore, committedStateRoots} (commitState's write of batchBlobVersionedHashes at Rollup.sol:359 is the identity copy); Res(commitBatchWithProof, revertBatch) = {batchBlobVersionedHashes, batchDataStore, committedStateRoots}; the two challenger pairs leave none. Exactly 3 residue bases, each (revertBatch, family) with cursors [lastCommittedBatchIndex] and zero families [challenges, committedBatches]. Each of these residues is a final whole write of the commit at the key of the committedBatches register it allocates, the key its guard :311 pins (parent index + 1, the parent index equated with the cursor by :312).",
+          "check": "tests_m3/test_undo.py::TestAnalysis::test_residues_and_residue_bases"
+        },
+        {
+          "id": "I27-P3",
+          "claim": "Static classification (D1-D3): committedStateRoots is dead, its 4 readers all excluded by D1 (the :314 'incorrect previous state root' guard of commitBatch, commitState and commitBatchWithProof, dominated by :312's equality of its key with the cursor, and initialize2's :193 write condition at key lastCommittedBatchIndex); batchBlobVersionedHashes is live, 17 live readers, the first commitBatch's guard :261 'commitBatch requires no stored blob hash'; batchDataStore is live through exactly one reader, the return of the declared view batchInsideChallengeWindow (Rollup.sol:709-711), its 15 other readers excluded (6 by D1, 6 by D2, 3 by D3: batchExist's return and the batchExist guards of challengeState :478 and finalizeBatch :630, masked by committedBatches[i] != 0, which revertBatch clears). The three commit pairs are live, the two challenger pairs dead. The plan predicted BD dead; on the extracted code a declared view returns it, and Thm 6.9 observes outputs (gap G4).",
+          "check": "tests_m3/test_undo.py::TestAnalysis::test_static_classification"
+        },
+        {
+          "id": "I27-P4",
+          "claim": "Laws (L1, L2; catalog holon-rules/1.3): holon derive --milestone M3 emits exactly 8 UNDO laws, all over the extracted rollup document and none over a hand document: L_undo_pair_Rollup_addChallenger_removeChallenger, L_undo_pair_Rollup_commitBatch_revertBatch, L_undo_pair_Rollup_commitBatchWithProof_revertBatch, L_undo_pair_Rollup_commitState_revertBatch, L_undo_pair_Rollup_removeChallenger_addChallenger, L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes, L_undo_res_Rollup_revertBatch_batchDataStore and L_undo_res_Rollup_revertBatch_committedStateRoots, with the bases, undo ids, binders (s, x, y, t or s, k, v, t, then I30's hash binders), claim and DERIVATION entries the contract states and refs undo:<id> equal to the sha256 of their template and basis.",
+          "check": "tests_m3/test_undo.py::TestDerivation::test_the_undo_laws"
+        },
+        {
+          "id": "I27-P5",
+          "claim": "Residue laws, decided on the extracted model (I30's typed model with Reach): L_undo_res_Rollup_revertBatch_committedStateRoots is PROVED (a checked index-relative noninterference proof with the set_d/nth_d map lemmas, and a reachable inhabitant of its premises); L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes is REFUTED by a witness realized by (commitBatch or commitBatchWithProof, revertBatch) whose divergent continuation step is a call of commitBatch, commitState or commitBatchWithProof; L_undo_res_Rollup_revertBatch_batchDataStore is REFUTED by a witness whose divergent step is a call of batchInsideChallengeWindow returning true (0x..01) with the pair and false (0x..00) without it.",
+          "check": "tests_m3/test_undo.py::TestOutcomes::test_residue_law_outcomes"
+        },
+        {
+          "id": "I27-P6",
+          "claim": "Pair laws: L_undo_pair_Rollup_commitBatch_revertBatch (App. F's undo_bvh, the analogue of L_undo_BVH), L_undo_pair_Rollup_commitState_revertBatch and L_undo_pair_Rollup_commitBatchWithProof_revertBatch are REFUTED, each witness's x and y calls of its pair and its divergent step a call of an action that reads one of the pair's live residues (commitBatch, commitState or commitBatchWithProof for batchBlobVersionedHashes; batchInsideChallengeWindow for batchDataStore, the only way commitState's pair can diverge); L_undo_pair_Rollup_addChallenger_removeChallenger and L_undo_pair_Rollup_removeChallenger_addChallenger are PROVED (no residue: the restore proof), with reachable inhabitants. Totals over the 8 UNDO laws: 3 PROVED, 5 REFUTED, 0 UNKNOWN.",
+          "check": "tests_m3/test_undo.py::TestOutcomes::test_pair_law_outcomes and tests_m3/test_undo.py::TestOutcomes::test_every_undo_law_has_a_valid_record"
+        },
+        {
+          "id": "I27-P7",
+          "claim": "Each of the 5 REFUTED UNDO witnesses replays on the real Rollup at the pinned commit: replay/M3/undo/report.json says passed, with model == real at every step of both runs (with the pair and without it) and calls_agree, and the independent raw-call replay through the harness copies taken at this prereg gives the same real observations, the continuation diverging at diverges_at.",
+          "check": "tests_m3/test_undo.py::TestOutcomes::test_refuted_witnesses_replay_on_the_real_contract"
+        },
+        {
+          "id": "I27-P8",
+          "claim": "Exit: static and kernel classifications agree on all 8 UNDO laws (results/M3/undo/classification.json: 5 live and REFUTED, 3 dead and PROVED, disagreements [], no law blocked from window or shadow generation); holon gate --milestone M3 --checks G1, run on a copy, writes a report whose warnings list holds no GUNDO entry.",
+          "check": "tests_m3/test_undo.py::TestOutcomes::test_static_and_kernel_classifications_agree"
+        },
+        {
+          "id": "I27-P9",
+          "claim": "Back-test against M1 (results/M3/undo/backtest.json, by the frozen map of spec/M3/lib/undo.json): L_undo_BD's analogue L_undo_res_Rollup_revertBatch_batchDataStore is REFUTED where M1 recorded PROVED (the extracted document's view batchInsideChallengeWindow reads the residue; the hand document has no such action); L_undo_cancel has no analogue, a back-test miss and an open rule gap (gap G5: setPause's writes of inChallenge and challenges are conditional, its guards read only _owner and _paused); gaps == [L_undo_cancel]; every row carries a reason.",
+          "check": "tests_m3/test_undo.py::TestBacktest::test_backtest_table"
+        },
+        {
+          "id": "I27-P10",
+          "claim": "Sensitivity on the planted toy (T271 the baseline, T272 the same source without the one line `delete pins[i];`), derived under holon-rules/1.3 and run on the M3 machinery: T271 gives exactly L_undo_pair_ToyUndo_commit_revertLast, L_undo_res_ToyUndo_revertLast_roots and L_undo_res_ToyUndo_revertLast_stamps, all PROVED (roots dead by D1, stamps by D2 and D3) and inhabited; T272 gives the same pair law id REFUTED, a new L_undo_res_ToyUndo_revertLast_pins REFUTED (live: commit's guard 'pinned' reads pins at last + 1), roots and stamps PROVED; both T272 REFUTED witnesses (x a commit, y a revertLast) replay on the real drop toy, independently of holon: the run with the pair and the run without it first differ at a commit step of t, which reverts 'pinned' with the pair and succeeds without it.",
+          "check": "tests_m3/test_undo.py::TestSensitivity::test_dropping_the_residue_clearing_delete_flips_the_law"
+        },
+        {
+          "id": "I27-P11",
+          "claim": "Real-code static sensitivity: on tests_m3/fixtures/undo/mutant/rollup_mutant.extracted.json (holon's frontend on the pinned checkout without Rollup.sol:447, revertBatch's `committedBatches[_batchIndex] = bytes32(0);`), holon undo finds the same 5 pairs, but the three commit pairs restore only lastCommittedBatchIndex, with criteria [cursor, event] (the guard criterion no longer fires), and leave a fourth residue, committedBatches, statically live with 14 live readers (among them commitBatch's guard :311 'batch already committed'); batchDataStore's live readers grow from 1 to 6; committedStateRoots stays dead; exactly as undo_basis.json 'sensitivity' lists.",
+          "check": "tests_m3/test_undo.py::TestSensitivity::test_dropping_revertbatchs_delete_adds_a_live_residue"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I27-R1",
+          "claim": "Gates M0, M1 and M2 pass; M0-M2 laws, records and statement hashes are unchanged. results/M1/L_undo_* keep L_undo_CSR and L_undo_BD PROVED and L_undo_BVH and L_undo_cancel REFUTED with their statement hashes, and I20's differential (results/M2/differential.json, over m1_view) still records the four unchanged: I27 does not re-decide the M1 laws.",
+          "check": "gate and tests_m3/test_undo.py::TestRegressions::test_m1_undo_records_unchanged"
+        },
+        {
+          "id": "I27-R2",
+          "claim": "The plan's regression, for the two analogues that keep their outcome: L_undo_CSR's analogue L_undo_res_Rollup_revertBatch_committedStateRoots is PROVED and L_undo_BVH's analogue L_undo_pair_Rollup_commitBatch_revertBatch is REFUTED, as in M1 (L_undo_BD's is predicted to differ: I27-P9).",
+          "check": "tests_m3/test_undo.py::TestBacktest::test_matched_m1_outcomes_are_identical"
+        },
+        {
+          "id": "I27-R3",
+          "claim": "The M3 laws that exist before I27's first outcome commit (I24's PAR, I30's SORT) keep their statuses, and their law files change only in rule_catalog_version (holon-rules/1.3).",
+          "check": "tests_m3/test_undo.py::TestRegressions::test_pre_i27_m3_records_keep_their_status"
+        },
+        {
+          "id": "I27-R4",
+          "claim": "Construction checks, not counted: spec/M3/lib/undo_basis.json is undo_basis_doc's computation over unchanged inputs (sha256); the toy variants are one delete apart and, with the Rollup mutant, re-extract byte for byte with holon's frontend; the toys behave as designed on the real toy; the raw-call instrument runs on the real Rollup as the I20 binding deploys it (batchInsideChallengeWindow(1) returns false); holon-rules/1.3 holds UNDO's two producers and every earlier M3 catalog's producers (the same objects) and M3 derives with it (or a later superset); holon/rules/undo.py and holon/analysis/deadness.py name no target, and no file under holon/ names an I27 law id, undo id, undo: ref or the mutant's line; gen/M3/undo/morph_rollup.extracted.json is deterministic and reads no hand document.",
+          "check": "tests_m3/test_undo.py::TestInstrument::test_the_basis_sidecar_is_the_computation and tests_m3/test_undo.py::TestInstrument::test_the_toy_fixtures_are_one_delete_apart and tests_m3/test_undo.py::TestInstrument::test_the_planted_documents_reproduce_with_holons_frontend and tests_m3/test_undo.py::TestInstrument::test_the_toy_variants_behave_as_designed_on_the_real_toy and tests_m3/test_undo.py::TestRegistry::test_catalogs and tests_m3/test_undo.py::TestRegistry::test_new_code_names_no_target and tests_m3/test_undo.py::TestAnalysis::test_the_analysis_document and tests_m3/test_undo.py::TestInstrument::test_the_rollup_instrument_runs_on_the_real_contract"
+        },
+        {
+          "id": "I27-R5",
+          "claim": "Construction checks, not counted: holon derive --milestone M3 reproduces laws/M3 byte for byte and reads no hand-written fact document; every UNDO law has a record valid under v1 and v2 with its registry hash, the undo field, one nz premise per hash binder and a witness exactly when REFUTED; Bend, run by the test on a copy of gen/M3, accepts every UNDO law's proof (and nonvac proof) or counter-law, each importing its one-law LAWS.bend that names undo_<x> (uhit_<x>), with no escape hatch; the exit's 'or the gate warns': a copy whose CSR residue record is made UNKNOWN gets a classification listing exactly that law as a disagreement (blocks shadow and window) and exactly one GUNDO warning from holon gate --milestone M3 --checks G1.",
+          "check": "tests_m3/test_undo.py::TestDerivation::test_derive_reproduces_the_committed_m3_laws and tests_m3/test_undo.py::TestOutcomes::test_every_undo_law_has_a_valid_record and tests_m3/test_undo.py::TestOutcomes::test_undo_proofs_check_independently and tests_m3/test_undo.py::TestOutcomes::test_a_disagreement_warns_and_blocks"
+        }
+      ],
+      "outcome_paths": [
+        "laws/M3/L_undo_",
+        "results/M3/L_undo_",
+        "gen/M3/laws/L_undo_",
+        "gen/M3/proofs/L_undo_",
+        "gen/M3/L_undo_",
+        "gen/M3/undo/",
+        "results/M3/undo/",
+        "replay/M3/undo/"
+      ],
+      "tests": [
+        "tests_m3/test_undo.py"
+      ],
+      "thresholds": {
+        "rule_catalog_version": "holon-rules/1.3",
+        "undo_subforms": [
+          "pair",
+          "residue"
+        ],
+        "undo_sidecar": "spec/M3/lib/undo.json",
+        "undo_basis": "spec/M3/lib/undo_basis.json",
+        "documents": [
+          "spec/M2/facts/morph_rollup.extracted.json"
+        ],
+        "observation": [
+          "status",
+          "ret",
+          "logs",
+          "calls"
+        ],
+        "premise": "nz",
+        "static_rules": [
+          "D1",
+          "D2",
+          "D3"
+        ],
+        "pairs": 5,
+        "rejected": 2,
+        "residue_bases": 3,
+        "laws": {
+          "pair": 5,
+          "residue": 3,
+          "total": 8
+        },
+        "statuses": {
+          "PROVED": 3,
+          "REFUTED": 5,
+          "UNKNOWN": 0
+        },
+        "search": {
+          "prefix_depth": 3,
+          "max_prefixes": 3000,
+          "continuation_depth": 2,
+          "max_candidates": 200000
+        },
+        "toy_milestones": {
+          "T271": "tests_m3/fixtures/undo/undo_toy.json",
+          "T272": "tests_m3/fixtures/undo/drop/undo_toy.json"
+        },
+        "mutant": {
+          "document": "tests_m3/fixtures/undo/mutant/rollup_mutant.extracted.json",
+          "removed": "contracts/contracts/l1/rollup/Rollup.sol:447"
+        }
+      }
     }
   }
 }

@@ -1,0 +1,18 @@
+{
+  "sort_types_version": "holon-sort-types/0.1",
+  "doc": "I27 prereg instrument: the I30-format sidecar (spec/M3/lib/sort_types.json's format; tests_m3/test_sort_types.py, clauses E1 and N9) of the toy test milestone T271, the planted ToyUndo baseline. It names the document the M3 machinery (I30's typed model generator, Reach, refuter and replay) builds the toy's model from; T271 >= 30, so I30's rules for test milestones apply. seeds: the M3 EVM-semantics seeds, unchanged. binding: the toy's step harness binding, whose deployment (all-zero storage) is Reach's initial state and where every toy witness replays. search: I30's M3 budget.",
+  "documents": [
+    "tests_m3/fixtures/undo/toyundo.extracted.json"
+  ],
+  "sources": {
+    "tests_m3/fixtures/undo/toyundo.extracted.json": "tests_m3/fixtures/undo"
+  },
+  "seeds": "spec/M3/lib/sort_seeds.json",
+  "binding": "tests_m3/fixtures/undo/fragments_toy.json",
+  "search": {
+    "prefix_depth": 3,
+    "max_prefixes": 3000,
+    "neighbourhood_insertion_length_max": 2,
+    "neighbourhood_prefixes_per_entry_point_max": 20000
+  }
+}
