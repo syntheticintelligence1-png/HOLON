@@ -63,9 +63,17 @@ class Gate3:
         self.na: dict = {}
         self.gen = self.root / "gen" / milestone
         self.results = self.root / "results" / milestone
-        dv = json.loads((self.root / "laws" / milestone / "DERIVATION.json").read_text())
-        self.entries = {e["law_id"]: e for e in dv["laws"] if e.get("rule") == "SORT" and e.get("subform") in SUBFORMS}
-        self.registry = json.loads((self.root / "laws" / milestone / "REGISTRY.json").read_text())
+        # a milestone the gate cannot check (no registry, no derivation) fails every check with the reason, as
+        # holon.gate.Gate does (audit F-M2-10), never with a traceback (F30)
+        self.setup_error, self.entries, self.registry = None, {}, {}
+        try:
+            from .. import ir
+            self.registry = ir.load_registry(milestone, self.root)
+            dv = json.loads((self.root / "laws" / milestone / "DERIVATION.json").read_text())
+            self.entries = {e["law_id"]: e for e in dv["laws"]
+                            if e.get("rule") == "SORT" and e.get("subform") in SUBFORMS}
+        except (OSError, ValueError, KeyError, TypeError) as e:
+            self.setup_error = f"milestone {milestone} cannot be checked: {type(e).__name__}: {e}"
 
     def holon(self, args: list, cwd: Path, timeout: int = 7200):
         env = dict(os.environ)
@@ -346,6 +354,10 @@ class Gate3:
             order = ["G2", "G1", "G3", "G5", "G11", "G11V", "G6", "G9", "G7", "G4"]
             if only:
                 order = [x for x in order if x in only]
+            if self.setup_error is not None:   # F-M2-10, as holon.gate.Gate: every check fails with the reason
+                for k in order + [x for x in ("G8", "GEVID") if not only or x in only]:
+                    self.checks[k] = _res(False, self.setup_error)
+                order, ok = [], False
             for k in order:
                 if not ok:
                     self.checks[k] = _res(False, getattr(g, "genv_skip", "skipped: GENV failed"))
@@ -354,9 +366,10 @@ class Gate3:
                     getattr(self, k.lower())()
                 except Exception as e:  # noqa: BLE001  (a crash is a failed check)
                     self.checks[k] = _res(False, f"error: {type(e).__name__}: {e}")
-            self.whole_milestone(g, ok, only, ("G2", "G8"))
-            self.other_laws(g, ok, only)
-            self.whole_milestone(g, ok, only, ("G3",))   # after G5: G3 reads the checker's output G5 recorded
+            if self.setup_error is None:
+                self.whole_milestone(g, ok, only, ("G2", "G8"))
+                self.other_laws(g, ok, only)
+                self.whole_milestone(g, ok, only, ("G3",))   # after G5: G3 reads the checker's output G5 recorded
         finally:
             if old is None:
                 os.environ.pop("HOLON_BUILD_DIR", None)
@@ -367,11 +380,14 @@ class Gate3:
             if k in self.checks or (k == "GEVID" and (self.gen / "evidence.json").is_file()):
                 continue
             self.na.setdefault(k, {"GREF": "the disagreements of the typed model's refinement are filed in "
-                                           "results/M3/sorts/disagreements.json (R5), not spec/M2/disagreements.json",
+                                           f"results/{self.m}/sorts/disagreements.json (R5), not "
+                                           "spec/M2/disagreements.json",
                                    "GEVID": f"no evidence set gen/{self.m}/evidence.json exists"}[k])
         rep = {"milestone": self.m, "passed": all(c["passed"] for c in self.checks.values()),
                "bend_version": g.bend_version, "checks": self.checks, "canaries": self.canaries,
                "not_applicable": self.na}
+        if self.setup_error is not None:
+            rep["setup_error"] = self.setup_error
         if only:
             rep["partial"] = True
         return rep
