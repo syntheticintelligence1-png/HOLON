@@ -197,6 +197,13 @@ class Model:
             d = self.tsync()
             if d:
                 request["tsync"] = d
+            ans = self.ev.req(request)
+            # (A30 review) the evaluator echoes "native" when its own native lookup answered; without the echo every
+            # lookup of the hash tables could have answered zero (a hooked module without the native branch)
+            if self.hashes and ans.get("native") is not True:
+                from .evaluate3 import EvalError
+                raise EvalError("the evaluator did not answer a native request natively (no \"native\" echo)")
+            return ans
         return self.ev.req(request)
 
     def tables(self) -> list:

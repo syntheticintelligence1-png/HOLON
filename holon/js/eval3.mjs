@@ -9,12 +9,14 @@
 //
 // A request may carry "native": <caller id> (look the hash tables up in the evaluator's maps of that caller, which
 // "tsync" keeps equal to the caller's tables; the model's table arguments are then unused) and "tsync": {table:
-// {"add", "del"}}.
+// {"add", "del"}}. The answer to a native request carries "native": true when this driver's native lookup answered it
+// (the model has an h_get to hook); the caller refuses a native answer without it.
 //
 // Values (JSON): {"$w": "0x.."} a word W{l0..l7}; {"$b": "0x.."} a byte string (List<U32>); [..] a list; {"$r": name,
 // "f": {field: value}} a record; true/false a Bool; a number a U32. Outputs: words as "0x..", byte lists as
 // {"$b": "0x.."} when every element is a byte, records as {"$r", "f"}, lists as arrays.
-import { readFileSync, renameSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { pathToFileURL } from "node:url";
 
@@ -25,9 +27,10 @@ globalThis.__holonHook = HOOK;
 // observe the hash-table and call lookups (the functions keep their compiled bodies)
 function hook(name, body) {
   const re = new RegExp("function \\$" + name + "\\$\\(");
-  if (!re.test(text)) return;
+  if (!re.test(text)) return false;
   text = text.replace(re, "function $" + name + "$__holon(");
   text += "\n" + body + "\n";
+  return true;
 }
 const listHex = `function __holonHex(xs) { let s = ""; for (let c = xs; c.$ === "Con"; c = c.tail) { const b = c.head;
   s += (b < 16 ? "0" : "") + (b >>> 0).toString(16); } return "0x" + s; }
@@ -37,19 +40,23 @@ text += "\n" + listHex + "\n";
 // native tables (A30, holon.sorts.search3's refuter): the hash tables as JavaScript maps that the caller keeps equal to
 // the tables it would pass (a lookup of a key outside them answers 0, as the model's h_get does), so an evaluation
 // neither scans nor receives the whole table; a request without "native" runs the compiled h_get on the tables it passes
-hook("h_get", "function $h_get$(xs, k) { const h = globalThis.__holonHook; const x = __holonHex(k); h.cur.add(x); " +
+const NATIVE_HOOK = hook("h_get", "function $h_get$(xs, k) { const h = globalThis.__holonHook; const x = __holonHex(k); h.cur.add(x); " +
   "if (h.native) { const v = (h.cur === h.sh ? h.tabs.sh : h.tabs.kh).get(x); return v === undefined ? " +
   "{$: 'W', l0: 0, l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 0, l7: 0} : v; } return $h_get$__holon(xs, k); }");
 hook("hs_get", "function $hs_get$(xs, k) { const h = globalThis.__holonHook; h.sh.add(__holonHex(k)); h.cur = h.sh; " +
   "try { return $hs_get$__holon(xs, k); } finally { h.cur = h.kh; } }");
 hook("c_find", "function $c_find$(xs, to, bt, d) { const k = (bt ? __holonWord(to) : '-') + ' ' + __holonHex(d); " +
   "globalThis.__holonHook.calls.set(k, 1); return $c_find$__holon(xs, to, bt, d); }");
-// write a per-process file and publish it by an atomic rename: concurrent evaluators share this path, and a reader
-// must never import a partly written module
-const tmp = path.replace(/\.mjs$/, "") + ".hooked.mjs";
-const mine = tmp + "." + process.pid + ".part";
-writeFileSync(mine, text);
-renameSync(mine, tmp);
+// the hooked module is named by the sha256 of its own text (A30 review): the compiled module's directory is shared by
+// every version of this driver (the cache is keyed by the model text only), so a fixed name could import another
+// driver's hooks (one without the native lookup, whose every native h_get would answer zero). It is written to a
+// per-process file and published by an atomic rename: a reader must never import a partly written module.
+const tmp = path.replace(/\.mjs$/, "") + ".hooked." + createHash("sha256").update(text).digest("hex") + ".mjs";
+if (!existsSync(tmp)) {
+  const mine = tmp + "." + process.pid + ".part";
+  writeFileSync(mine, text);
+  renameSync(mine, tmp);
+}
 const M = (await import(pathToFileURL(tmp).href)).default;
 
 const NIL = { $: "Nil" };
@@ -188,6 +195,9 @@ for await (const line of rl) {
               const [to, d] = k.split(" ");
               return [to === "-" ? null : to, d];
             }) };
+    // a native request is answered by this driver's native lookup only: the echo tells the caller so (it refuses an
+    // answer without it)
+    if (HOOK.native && NATIVE_HOOK) ans.native = true;
   } catch (e) {
     ans = { error: String((e && e.stack) || e).slice(0, 2000) };
   }
