@@ -1,0 +1,523 @@
+{
+  "doc": "I26 prereg instrument: the FACT basis, the predicted outcomes and the measures F(m, c) on the adopted extracted rollup document, computed at the I26 prereg by tests_m3/_i26.py::fact_basis_doc (rules F1-F9 of the docstring of tests_m3/test_fact.py, written out independently of holon/) over the inputs listed with their sha256 (spec/M2/facts/morph_rollup.extracted.json and spec/M3/lib/fact.json). Frozen; the build reads it and never edits it. The computation, in words. F1: committedBatches is the only commitment family (its 4 commitment writes are keccak256 of a header region: commitBatch, commitBatchWithProof, commitState and importGenesisBatch writes[0]; 7 guard reaches authenticate it, committedBatches[k] == keccak256(header), in commitBatch guards[16], commitBatchWithProof guards[16], commitState guards[15], finalizeBatch guards[6], proveCommittedBatchState guards[4], proveState guards[7] and revertBatch guards[6]). F3: commitBatch, commitBatchWithProof and commitState read blobhash (importGenesisBatch does not): 3 kernel basis elements. F5: one attribution consumer, batchDataStore.submitter, the argument of proveState calls[1] ISubmitter.slash (Rollup.sol:806), after guards[7] (Rollup.sol:603, seq 13 < 20) authenticates committedBatches at the same key. F6: two pins of batchBlobVersionedHashes at the commitment key: commitState writes[2] (Rollup.sol:359, the copy itself) and commitBatchWithProof writes[2] (a ? whose branch under batchBlobVersionedHashes[k] != 0 is the copy); its writers: commitBatch writes[2] fresh, commitBatchWithProof writes[2] branch, commitState writes[2] copy, finalizeBatch writes[5] clear, importGenesisBatch writes[2] fresh. F7: both pin actions record batchDataStore[k].submitter: commitState the caller, commitBatchWithProof the literal 0. So 5 FACT laws, 3 kernel and 2 attribution. F8: ZERO_VERSIONED_HASH (Hyp-Z0-kzg's constant) occurs as a literal in commitBatch's and commitBatchWithProof's records, so their kernel laws carry hyp:Hyp-Z0-kzg; commitState's does not. F9, F(Z, derivation) = 1 bit: the blob-reading cell of commitBatch's committed header is the word at offset 57, version == 2 ? keccak256(blob hashes) : (blobhash(0) == 0 ? ZERO_VERSIONED_HASH : blobhash(0)); its guards admit versions 0..2 (invalid version, the ABI range), at most one blob below version 2 (Rollup.sol:915) and at least one at version 2 (:913). Over the representative domain (the admissible constants, ZERO_VERSIONED_HASH, and two fresh admissible hashes; lists of length 0..3), the fiber of a committed value holds one list except at versions 0 and 1, where the value ZERO_VERSIONED_HASH comes from [] and from [ZERO_VERSIONED_HASH]: max fiber 2, F = log2(2) = 1 bit (the hash at version 2 is injective under CF). commitBatchWithProof: the same 1 bit in its fresh branch (stored word 0); its stored branch admits only [] (Rollup.sol:406); its header-hash check guards[19] relates blobs to the free _batchHeader and is not evaluated (listed). commitState: Rollup.sol:276 admits only [], F = 0 bits. Predicted outcomes: the two attribution laws REFUTED (O25 at commitState; address(0) recorded at commitBatchWithProof), the commitBatch and commitBatchWithProof kernel laws REFUTED, the commitState kernel law PROVED: 1 PROVED, 4 REFUTED, 0 UNKNOWN.",
+  "documents": {
+    "spec/M2/facts/morph_rollup.extracted.json": {
+      "attribution": [
+        {
+          "action": "commitBatchWithProof",
+          "commitment": "committedBatches",
+          "consumer": {
+            "action": "proveState",
+            "at": "calls[1]",
+            "family": "batchDataStore",
+            "fn": "ISubmitter.slash",
+            "member": "submitter"
+          },
+          "content": "batchBlobVersionedHashes",
+          "pin": "writes[2]",
+          "recorded": 0
+        },
+        {
+          "action": "commitState",
+          "commitment": "committedBatches",
+          "consumer": {
+            "action": "proveState",
+            "at": "calls[1]",
+            "family": "batchDataStore",
+            "fn": "ISubmitter.slash",
+            "member": "submitter"
+          },
+          "content": "batchBlobVersionedHashes",
+          "pin": "writes[2]",
+          "recorded": [
+            "caller"
+          ]
+        }
+      ],
+      "attribution_consumers": [
+        {
+          "action": "proveState",
+          "at": "calls[1]",
+          "commitment": "committedBatches",
+          "family": "batchDataStore",
+          "fn": "ISubmitter.slash",
+          "member": "submitter"
+        }
+      ],
+      "commitments": [
+        {
+          "authenticated_by": [
+            {
+              "action": "commitBatch",
+              "at": "guards[16]"
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "guards[16]"
+            },
+            {
+              "action": "commitState",
+              "at": "guards[15]"
+            },
+            {
+              "action": "finalizeBatch",
+              "at": "guards[6]"
+            },
+            {
+              "action": "proveCommittedBatchState",
+              "at": "guards[4]"
+            },
+            {
+              "action": "proveState",
+              "at": "guards[7]"
+            },
+            {
+              "action": "revertBatch",
+              "at": "guards[6]"
+            }
+          ],
+          "family": "committedBatches",
+          "sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "key": [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                1
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "writes[0]",
+              "key": [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                1
+              ]
+            },
+            {
+              "action": "commitState",
+              "at": "writes[0]",
+              "key": [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "parentBatchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                1
+              ]
+            },
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]",
+              "key": [
+                ">>",
+                [
+                  "word",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            }
+          ]
+        }
+      ],
+      "contract": "Rollup",
+      "kernel": [
+        {
+          "action": "commitBatch",
+          "at": "writes[0]",
+          "commitment": "committedBatches",
+          "consumer": "blobhash"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "writes[0]",
+          "commitment": "committedBatches",
+          "consumer": "blobhash"
+        },
+        {
+          "action": "commitState",
+          "at": "writes[0]",
+          "commitment": "committedBatches",
+          "consumer": "blobhash"
+        }
+      ],
+      "laws": {
+        "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter": {
+          "basis": {
+            "action": "commitBatchWithProof",
+            "commitment": "committedBatches",
+            "consumer": {
+              "action": "proveState",
+              "at": "calls[1]",
+              "family": "batchDataStore",
+              "fn": "ISubmitter.slash",
+              "member": "submitter"
+            },
+            "content": "batchBlobVersionedHashes",
+            "contract": "Rollup",
+            "kind": "fact_attribution",
+            "model": "morph_rollup.extracted",
+            "pin": "writes[2]",
+            "recorded": 0
+          },
+          "fact_id": "morph_rollup.extracted:attribution:commitBatchWithProof:batchBlobVersionedHashes:batchDataStore.submitter",
+          "measure": null,
+          "predicted": "REFUTED",
+          "premises_fixed": [
+            "blobs_wf"
+          ],
+          "subform": "attribution"
+        },
+        "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter": {
+          "basis": {
+            "action": "commitState",
+            "commitment": "committedBatches",
+            "consumer": {
+              "action": "proveState",
+              "at": "calls[1]",
+              "family": "batchDataStore",
+              "fn": "ISubmitter.slash",
+              "member": "submitter"
+            },
+            "content": "batchBlobVersionedHashes",
+            "contract": "Rollup",
+            "kind": "fact_attribution",
+            "model": "morph_rollup.extracted",
+            "pin": "writes[2]",
+            "recorded": [
+              "caller"
+            ]
+          },
+          "fact_id": "morph_rollup.extracted:attribution:commitState:batchBlobVersionedHashes:batchDataStore.submitter",
+          "measure": null,
+          "predicted": "REFUTED",
+          "premises_fixed": [
+            "blobs_wf"
+          ],
+          "subform": "attribution"
+        },
+        "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash": {
+          "basis": {
+            "action": "commitBatchWithProof",
+            "at": "writes[0]",
+            "commitment": "committedBatches",
+            "consumer": "blobhash",
+            "contract": "Rollup",
+            "kind": "fact_kernel",
+            "model": "morph_rollup.extracted"
+          },
+          "fact_id": "morph_rollup.extracted:kernel:commitBatchWithProof:committedBatches:blobhash",
+          "measure": {
+            "bits": 1.0,
+            "domain": {
+              "alphabet": [
+                "0x0100000000000000000000000000000000000000000000000000000000000001",
+                "0x0100000000000000000000000000000000000000000000000000000000000002",
+                "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+              ],
+              "atoms": {
+                "[\"map\",[\"storage\",\"batchBlobVersionedHashes\"],[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1]]": [
+                  0,
+                  1
+                ],
+                "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  255,
+                  256,
+                  257
+                ]
+              },
+              "max_length": 3
+            },
+            "max_fiber": 2,
+            "max_fibers": [
+              {
+                "context": [
+                  [
+                    "[\"map\",[\"storage\",\"batchBlobVersionedHashes\"],[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1]]",
+                    0
+                  ],
+                  [
+                    "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]",
+                    0
+                  ]
+                ],
+                "lists": [
+                  [],
+                  [
+                    "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+                  ]
+                ]
+              },
+              {
+                "context": [
+                  [
+                    "[\"map\",[\"storage\",\"batchBlobVersionedHashes\"],[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1]]",
+                    0
+                  ],
+                  [
+                    "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]",
+                    1
+                  ]
+                ],
+                "lists": [
+                  [],
+                  [
+                    "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+                  ]
+                ]
+              }
+            ],
+            "unevaluated": [
+              "guards[19].reaches[0]"
+            ]
+          },
+          "predicted": "REFUTED",
+          "premises_fixed": [
+            "blobs_wf",
+            "hyp:Hyp-Z0-kzg"
+          ],
+          "subform": "kernel"
+        },
+        "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash": {
+          "basis": {
+            "action": "commitBatch",
+            "at": "writes[0]",
+            "commitment": "committedBatches",
+            "consumer": "blobhash",
+            "contract": "Rollup",
+            "kind": "fact_kernel",
+            "model": "morph_rollup.extracted"
+          },
+          "fact_id": "morph_rollup.extracted:kernel:commitBatch:committedBatches:blobhash",
+          "measure": {
+            "bits": 1.0,
+            "domain": {
+              "alphabet": [
+                "0x0100000000000000000000000000000000000000000000000000000000000001",
+                "0x0100000000000000000000000000000000000000000000000000000000000002",
+                "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+              ],
+              "atoms": {
+                "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  255,
+                  256,
+                  257
+                ]
+              },
+              "max_length": 3
+            },
+            "max_fiber": 2,
+            "max_fibers": [
+              {
+                "context": [
+                  [
+                    "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]",
+                    0
+                  ]
+                ],
+                "lists": [
+                  [],
+                  [
+                    "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+                  ]
+                ]
+              },
+              {
+                "context": [
+                  [
+                    "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]",
+                    1
+                  ]
+                ],
+                "lists": [
+                  [],
+                  [
+                    "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+                  ]
+                ]
+              }
+            ],
+            "unevaluated": []
+          },
+          "predicted": "REFUTED",
+          "premises_fixed": [
+            "blobs_wf",
+            "hyp:Hyp-Z0-kzg"
+          ],
+          "subform": "kernel"
+        },
+        "L_fact_kernel_Rollup_commitState_committedBatches_blobhash": {
+          "basis": {
+            "action": "commitState",
+            "at": "writes[0]",
+            "commitment": "committedBatches",
+            "consumer": "blobhash",
+            "contract": "Rollup",
+            "kind": "fact_kernel",
+            "model": "morph_rollup.extracted"
+          },
+          "fact_id": "morph_rollup.extracted:kernel:commitState:committedBatches:blobhash",
+          "measure": {
+            "bits": 0.0,
+            "domain": {
+              "alphabet": [
+                "0x0100000000000000000000000000000000000000000000000000000000000001",
+                "0x0100000000000000000000000000000000000000000000000000000000000002",
+                "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+              ],
+              "atoms": {},
+              "max_length": 3
+            },
+            "max_fiber": 1,
+            "max_fibers": [
+              {
+                "context": [],
+                "lists": [
+                  []
+                ]
+              }
+            ],
+            "unevaluated": []
+          },
+          "predicted": "PROVED",
+          "premises_fixed": [
+            "blobs_wf"
+          ],
+          "subform": "kernel"
+        }
+      },
+      "model": "morph_rollup.extracted",
+      "pins": [
+        {
+          "action": "commitBatchWithProof",
+          "at": "writes[2]",
+          "commitment": "committedBatches",
+          "family": "batchBlobVersionedHashes",
+          "how": "branch"
+        },
+        {
+          "action": "commitState",
+          "at": "writes[2]",
+          "commitment": "committedBatches",
+          "family": "batchBlobVersionedHashes",
+          "how": "copy"
+        }
+      ],
+      "writers": {
+        "batchBlobVersionedHashes": [
+          {
+            "action": "commitBatch",
+            "at": "writes[2]",
+            "kind": "fresh"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "writes[2]",
+            "kind": "branch"
+          },
+          {
+            "action": "commitState",
+            "at": "writes[2]",
+            "kind": "copy"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "writes[5]",
+            "kind": "clear"
+          },
+          {
+            "action": "importGenesisBatch",
+            "at": "writes[2]",
+            "kind": "fresh"
+          }
+        ]
+      }
+    }
+  },
+  "fact_basis_version": "holon-fact-basis/0.1",
+  "inputs": [
+    {
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    },
+    {
+      "path": "spec/M3/lib/fact.json",
+      "sha256": "651e15ed10a826aef6d8c11a1f00545436fd359283f05de2c0a7473f1e999557"
+    }
+  ],
+  "iteration": "I26",
+  "totals": {
+    "attribution": 2,
+    "attribution_consumers": 1,
+    "commitments": 1,
+    "kernel": 3,
+    "laws": {
+      "attribution": 2,
+      "kernel": 3
+    },
+    "pins": 2,
+    "predicted": {
+      "PROVED": 1,
+      "REFUTED": 4,
+      "UNKNOWN": 0
+    },
+    "sites": 4
+  }
+}

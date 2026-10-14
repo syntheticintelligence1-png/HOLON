@@ -1031,6 +1031,159 @@
           "same_side"
         ]
       }
+    },
+    "I26": {
+      "title": "FACT rule, attribution (O25) and F(m, c), decided on the extracted real code",
+      "plan": "docs/BUILD_PLAN.md#i26",
+      "prompt": "prompts/I26_fact.md",
+      "predictions": [
+        {
+          "id": "I26-P1",
+          "claim": "Basis (rules F1-F7 over spec/M2/facts/morph_rollup.extracted.json; holon fact writes gen/M3/fact/morph_rollup.extracted.json): exactly one commitment, committedBatches, with 4 commitment sites (writes[0] of commitBatch, commitBatchWithProof, commitState and importGenesisBatch, each keccak256 of a header region) and 7 authenticating guard reaches committedBatches[k] == keccak256(header) (commitBatch guards[16], commitBatchWithProof guards[16], commitState guards[15], finalizeBatch guards[6], proveCommittedBatchState guards[4], proveState guards[7], revertBatch guards[6]); the delivered-data consumer blobhash for commitBatch, commitBatchWithProof and commitState (importGenesisBatch reads no blob hash): 3 kernel basis elements; exactly one attribution consumer, batchDataStore.submitter, the argument of proveState calls[1] ISubmitter.slash (Rollup.sol:806) after guards[7] (Rollup.sol:603) authenticates the batch; exactly two pins of batchBlobVersionedHashes at the commitment key (commitState writes[2] Rollup.sol:359, the copy; commitBatchWithProof writes[2], the branch under a nonzero stored word), its writers commitBatch fresh, commitBatchWithProof branch, commitState copy, finalizeBatch clear, importGenesisBatch fresh; two attribution basis elements, recording the caller (commitState) and the literal 0 (commitBatchWithProof). 5 FACT basis elements, exactly as spec/M3/lib/fact_basis.json lists them.",
+          "check": "tests_m3/test_fact.py::TestAnalysis::test_commitments_consumers_pins_and_basis"
+        },
+        {
+          "id": "I26-P2",
+          "claim": "Laws (F4, F7, F8; catalog holon-rules/1.5): holon derive --milestone M3 emits exactly 5 FACT laws, all over the extracted rollup document and none over a hand document: L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash, L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash, L_fact_kernel_Rollup_commitState_committedBatches_blobhash (binders s1: Reach, x1: Act, s2: Reach, x2: Act, then I30's hash binders) and L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter, L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter (binders p: Trace, y: Act, then the hash binders); claim fact_ok[<fact id>](binders) == true; premises blobs_wf, cf:<h> and nz:<h> per hash binder, and hyp:Hyp-Z0-kzg exactly on the commitBatch and commitBatchWithProof kernel laws (their records hold the literal ZERO_VERSIONED_HASH); DERIVATION entries and refs fact:<id> as the contract states.",
+          "check": "tests_m3/test_fact.py::TestDerivation::test_the_fact_laws"
+        },
+        {
+          "id": "I26-P3",
+          "claim": "Measure (F9, Def 6.13): F(Z, derivation) = 1 bit. The measure of L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash is 1 bit: max fiber 2, the committed blob word ZERO_VERSIONED_HASH coming from the delivered lists [] and [ZERO_VERSIONED_HASH] at versions 0 and 1 (Rollup.sol:915 allows at most one blob below version 2), every other fiber holding one list (version 2: keccak256 of the list, injective under CF); L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash: 1 bit (its fresh branch, stored word 0; its header-hash check guards[19].reaches[0] unevaluated); L_fact_kernel_Rollup_commitState_committedBatches_blobhash: 0 bits (Rollup.sol:276 admits only []); the attribution laws have no measure. Exactly fact_basis.json's computation.",
+          "check": "tests_m3/test_fact.py::TestAnalysis::test_the_measure"
+        },
+        {
+          "id": "I26-P4",
+          "claim": "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash is REFUTED: two commitBatchWithProof calls of its fresh branch with identical calldata at version 0 or 1 and the blob-hash lists [] and [ZERO_VERSIONED_HASH], both succeeding (after the rollup delay, with a proof the binding's verifier stand-in accepts) with equal committedBatches[k]; L_fact_kernel_Rollup_commitState_committedBatches_blobhash is PROVED by the guard route of holon.gen.mproofs.product (Rollup.sol:276 'commitState must not carry blob' fixes both delivered lists to []), with a checked reachable inhabitant (G11V), its record naming the route \"guard\", and law_terms within the term budget 1000 (spec/M3/lib/term_size.json measure (1), recomputed from its law and proof files, whose imports the measure counts).",
+          "check": "tests_m3/test_fact.py::TestOutcomes::test_the_proof_backed_kernel_law_is_refuted_and_the_recommit_kernel_law_is_proved"
+        },
+        {
+          "id": "I26-P5",
+          "claim": "O25/N3: L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter (whose bond is at risk on a recommit, against who chose the content under the BVH pin) is REFUTED by the chain: prefix exactly [commitBatch of batch k by S1, revertBatch by the owner covering k] (S1 one of the binding's two active submitters, 0x...1002 or 0x...1003), y = commitState of k by the other active submitter S2 with no blob (the pinned content; chooser S1), bonded batchDataStore[k].submitter = S2; consumer continuation t = [challengeState of k by the binding's challenger 0x...1004, proveState of k at or after the challenge's startTime + proofWindow], whose real ISubmitter.slash call passes S2, not S1. The witness replays on the real Rollup (replay/M3/fact/report.json passed). The record lists Hyp-ISubmitter with roles interpretation and witness (result fail, F-M2-40), unconditional false, impact_conditional_on [Hyp-ISubmitter].",
+          "check": "tests_m3/test_fact.py::TestOutcomes::test_the_o25_attribution_law_is_refuted_by_the_chain"
+        },
+        {
+          "id": "I26-P6",
+          "claim": "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter is REFUTED (O20's implicit address(0) role, under the pin): prefix exactly [commitBatch of k by S1, revertBatch by the owner], y = commitBatchWithProof of k taking the stored branch (no blob), bonded 0 (address(0) recorded), chooser S1; t = [] (no consumer continuation within continuation_depth 2: the proof-backed batch's finalizeTimestamp is the step's time, so challengeState of k reverts outside the window); the replay passes with the real batchDataStore[k].submitter 0. The record lists Hyp-ISubmitter (interpretation, witness; fail) and HypV-proof1 (witness; untestable); unconditional false.",
+          "check": "tests_m3/test_fact.py::TestOutcomes::test_the_proof_backed_recommit_attribution_is_refuted"
+        },
+        {
+          "id": "I26-P7",
+          "claim": "Exit (witnesses replay): every REFUTED FACT witness (4: two kernel, two attribution) replays on the real Rollup at the pinned commit: replay/M3/fact/report.json passed, model == real at every step, calls_agree; the independent raw-call replay through the harness copies taken at this prereg gives the report's real observations; kernel: both x succeed and the real committedBatches[k] after them are equal; attribution: the real batchDataStore[k].submitter after y equals the bonded value and differs from the chooser.",
+          "check": "tests_m3/test_fact.py::TestOutcomes::test_refuted_witnesses_replay_on_the_real_contract"
+        },
+        {
+          "id": "I26-P8",
+          "claim": "Thm 6.8 (F = 0 iff the factorization holds): results/M3/fact/classification.json lists the 5 FACT laws; the kernel laws' bits [1, 1, 0] (L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash, L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash, L_fact_kernel_Rollup_commitState_committedBatches_blobhash) agree with their statuses [REFUTED, REFUTED, PROVED]; disagreements []. Totals over the 5 FACT laws: 1 PROVED, 4 REFUTED, 0 UNKNOWN.",
+          "check": "tests_m3/test_fact.py::TestOutcomes::test_measure_and_status_agree"
+        },
+        {
+          "id": "I26-P9",
+          "claim": "Hypotheses (rule H1; a law resting on a failed or untestable premise or witness hypothesis is never presented as unconditional): every FACT record's hypotheses are H1 applied to its premises, status and witness. L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash lists Hyp-ISubmitter (witness: its commits ask the stand-in isActive; fail, F-M2-40), Hyp-Z0-kzg (premise; pass) and HypZ (interpretation; fail, F-M2-41): unconditional false, impact_conditional_on [HypZ]; L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash lists HypV-proof1 (witness: the verifier stand-in accepts its proof; untestable), Hyp-Z0-kzg (premise; pass) and HypZ (interpretation; fail): unconditional false, impact_conditional_on [HypZ]; L_fact_kernel_Rollup_commitState_committedBatches_blobhash lists HypZ only (interpretation): unconditional true, impact_conditional_on [HypZ].",
+          "check": "tests_m3/test_fact.py::TestOutcomes::test_hypotheses_in_records"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I26-R1",
+          "claim": "Gates M0, M1 and M2 pass; M0-M2 laws, records and statement hashes are unchanged. results/M1/L_fact_Z.json stays REFUTED with statement hash sha256:5b3e051df5bfc68545307bd43c5c2ac7ec9bf9be54c6c9851f7757b25b5a512e and its witness (commitBatch version 1, no blob vs the zero-blob token 1, after the empty trace); I20's differential row L_fact_Z stays REFUTED on M1 and on the window view with no delta. No commit that writes an I26 outcome path touches spec/M1/, spec/M2/facts/, spec/M2/lib/ or an M0-M2 output.",
+          "check": "gate and tests_m3/test_fact.py::TestRegressions::test_m1_fact_record_and_differential_unchanged and tests_m3/test_fact.py::TestRegressions::test_outcome_commits_touch_no_earlier_milestone"
+        },
+        {
+          "id": "I26-R2",
+          "claim": "The plan's regression: the parametric L_fact_Z analogue L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash (premises blobs_wf, cf:<h>, hyp:Hyp-Z0-kzg, nz:<h>) is REFUTED, as L_fact_Z is: one shared empty prefix, x1 and x2 commitBatch calls with identical calldata at version 0 or 1 by one active submitter at one block.timestamp, blob-hash lists [] and [ZERO_VERSIONED_HASH], equal committedBatches[k]; and its implication to L_fact_Z checks (results/M3/fact/backtest.json, rules FB1-FB4): the moved witness (blob tokens [] and [1]) refutes L_fact_Z on gen/M1/model/morph_rollup.bend by a Bend-checked counter-law (witness transfer), and CF(agg, S) over S = {[], [1]} is checked by computation (agg 1000 and 1002 differ); acceptance witness, implication accepted, no gap, complete.",
+          "check": "tests_m3/test_fact.py::TestOutcomes::test_the_l_fact_z_analogue_is_refuted and tests_m3/test_fact.py::TestBacktest::test_backtest_row_and_bridges"
+        },
+        {
+          "id": "I26-R3",
+          "claim": "The M3 laws that exist before I26's first outcome commit (I24's PAR, I30's SORT, I27's UNDO and I31's DISCH; I25 derives none) keep their statuses, and their law files change only in rule_catalog_version (holon-rules/1.5).",
+          "check": "tests_m3/test_fact.py::TestRegressions::test_pre_i26_m3_records_keep_their_status"
+        },
+        {
+          "id": "I26-R4",
+          "claim": "Construction checks, not counted: spec/M3/lib/fact_basis.json is fact_basis_doc's computation over unchanged inputs; spec/M3/lib/fact.json transcribes I21's verdicts, the document's constant, the binding's encodings and the M1 agg; the harness copies are the binding's; the hand-built O25 chain and Z pair behave on the real Rollup as the instrument expects (run at this prereg); holon fact's document is deterministic and reads no hand document; holon-rules/1.5 holds FACT's producers and every earlier M3 catalog's (the same objects); holon/rules/fact.py and holon/measures_fact.py name no target and no file under holon/ names an I26 law or fact id; derive reproduces laws/M3 byte for byte; every FACT record is valid under v1 and v2; Bend accepts every FACT proof, nonvac proof and counter-law, with no escape hatch, and no real definition names a chooser companion; S1-S3 (renaming, no pin, zero sentinel) give the instrument's analysis; holon gate --milestone M3 --checks G1,G6,G11V passes on a copy.",
+          "check": "tests_m3/test_fact.py::TestInstrument::test_the_basis_sidecar_is_the_computation and tests_m3/test_fact.py::TestInstrument::test_the_fact_sidecar_transcribes_its_sources and tests_m3/test_fact.py::TestInstrument::test_the_harness_copies_are_the_binding_harness and tests_m3/test_fact.py::TestInstrument::test_the_chain_instrument_runs_on_the_real_contract and tests_m3/test_fact.py::TestAnalysis::test_the_analysis_document and tests_m3/test_fact.py::TestRegistry::test_catalogs and tests_m3/test_fact.py::TestRegistry::test_new_code_names_no_target and tests_m3/test_fact.py::TestDerivation::test_derive_reproduces_the_committed_m3_laws and tests_m3/test_fact.py::TestOutcomes::test_every_fact_law_has_a_valid_record and tests_m3/test_fact.py::TestOutcomes::test_fact_proofs_check_independently and tests_m3/test_fact.py::TestSensitivity::test_renaming_the_document_renames_the_basis and tests_m3/test_fact.py::TestSensitivity::test_without_the_pins_there_is_no_attribution_law and tests_m3/test_fact.py::TestSensitivity::test_a_zero_sentinel_has_no_freedom and tests_m3/test_fact.py::TestGate::test_partial_gate_on_a_copy"
+        }
+      ],
+      "outcome_paths": [
+        "laws/M3/L_fact_",
+        "results/M3/L_fact_",
+        "gen/M3/laws/L_fact_",
+        "gen/M3/proofs/L_fact_",
+        "gen/M3/L_fact_",
+        "gen/M3/fact/",
+        "results/M3/fact/",
+        "replay/M3/fact/"
+      ],
+      "tests": [
+        "tests_m3/test_fact.py"
+      ],
+      "thresholds": {
+        "rule_catalog_version": "holon-rules/1.5",
+        "fact_subforms": [
+          "kernel",
+          "attribution"
+        ],
+        "fact_sidecar": "spec/M3/lib/fact.json",
+        "fact_basis": "spec/M3/lib/fact_basis.json",
+        "model_sidecar": "spec/M3/lib/sort_types.json",
+        "documents": [
+          "spec/M2/facts/morph_rollup.extracted.json"
+        ],
+        "binding": "replay/M2/fragments.json",
+        "hypothesis_verdicts": "audit/rounds/M2/round2/a4.json",
+        "commitments": 1,
+        "commitment_sites": 4,
+        "kernel_basis": 3,
+        "attribution_consumers": 1,
+        "pins": 2,
+        "laws": {
+          "kernel": 3,
+          "attribution": 2,
+          "total": 5
+        },
+        "statuses": {
+          "PROVED": 1,
+          "REFUTED": 4,
+          "UNKNOWN": 0
+        },
+        "measure_bits": {
+          "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash": 1.0,
+          "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash": 1.0,
+          "L_fact_kernel_Rollup_commitState_committedBatches_blobhash": 0.0
+        },
+        "measure_domain": {
+          "fresh": 2,
+          "max_length": 3
+        },
+        "proof_routes": {
+          "kernel": [
+            "guard",
+            "injective"
+          ],
+          "attribution": [
+            "provenance"
+          ]
+        },
+        "term_budget": 1000,
+        "term_size_sidecar": "spec/M3/lib/term_size.json",
+        "search": {
+          "prefix_depth": 3,
+          "max_prefixes": 3000,
+          "continuation_depth": 2,
+          "max_candidates": 200000
+        },
+        "witnesses_replayed": 4,
+        "backtest_against": "M1",
+        "backtest_acceptance": [
+          "witness"
+        ],
+        "gate_checks": [
+          "G1",
+          "G6",
+          "G11V"
+        ]
+      }
     }
   }
 }

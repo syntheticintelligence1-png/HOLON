@@ -1,0 +1,94 @@
+{
+  "fact_version": "holon-fact/0.1",
+  "iteration": "I26",
+  "doc": "I26 prereg instrument (the contract is the docstring of tests_m3/test_fact.py; BUILD_PLAN I26; whitepaper §5.5, Thm 6.8, Def 6.13, §8.4 FACT row, §8.5, §11.4 N3, App. D, App. E FACT row, App. F fact_z). Frozen at the I26 prereg; the build reads it and never edits it. sort_types: I30's model sidecar, whose documents, binding (the deployment that is Reach's initial state and the real side of every replay) and typed model the FACT section builds on. documents: the transitions documents FACT reads for M3, the extracted rollup document I20 adopted (docs/HUMAN_ANSWERS.md Q19: extracted facts are the input of every M3 law; no hand-written fact document and nothing computed from one is read). hypotheses: the hypotheses of spec/M2/lib/oracles.json that a FACT law can rest on, each with the roles rule H1 assigns from it (premise: a document constant the hypothesis identifies; functions: the external functions whose answers in a witness come from the binding's stand-in for the component; interpretation: the consumers whose meaning the hypothesis fixes) and its verdict, copied from the audit round M2/2 (audit/rounds/M2/round2/a4.json hypotheses.<id>.result and .finding, I21): Hyp-Z0-kzg passes (the computed KZG versioned hash of the all-zero blob equals ZERO_VERSIONED_HASH, Rollup.sol:25, and the Go EmptyVersionedHash); HypZ fails (F-M2-41: the zstd codec encodes the empty payload as nothing and decoding zeros fails; target finding T2: ParseBatch rejects the 8 mainnet commits that carry the zero blob, batches 1, 23, 25-28, 271, 310); Hyp-ISubmitter fails (F-M2-40: updateChallengeDeposit changes the deposit; a staked, unslashed submitter can be inactive); HypV-proof1 is untestable (no prover). search: the refutation budget (I30's stages and values, I27's continuation depth and candidate cap) and the time candidates (I31's rule). measure: the representative domain of rule F9. term_size: I30's measure (1), law_terms, and its budget, applied to product programs (BUILD_PLAN I26 risks). backtest: the frozen map of the back-test against M1 (rules FB1-FB4): the M1 FACT law, the analogue rule F4 gives for it, and the move of a kernel witness to the M1 model's inputs, which transcribes the binding's encodings (replay/M1/solidity/HolonTraceReplay.t.sol: who2addr(w) = 0x1000 + w for w >= 2 and the deploying test contract for w = 1, the Rollup's owner; a time is EPOCH + t, EPOCH 1700000000, the M1 initial clock t = 10; blobEnc(1) = ZERO_VERSIONED_HASH and blobEnc(v) = (1 << 248) | v; a header's parent is named by its index) and the M1 stand-in agg of keccak256 over the blob versioned hashes (spec/M2/lib/oracles.json agg: AGG_BASE + b_enc, AGG_BASE 1000; gen/M1/model/morph_rollup.bend d_blob_hash at version 2).",
+  "sort_types": "spec/M3/lib/sort_types.json",
+  "documents": [
+    "spec/M2/facts/morph_rollup.extracted.json"
+  ],
+  "binding": "replay/M2/fragments.json",
+  "verdicts": "audit/rounds/M2/round2/a4.json",
+  "hypotheses": {
+    "Hyp-ISubmitter": {
+      "role": "witness",
+      "functions": ["ISubmitter.challengeDeposit", "ISubmitter.isActive", "ISubmitter.slash"],
+      "interpretation": ["ISubmitter.slash"],
+      "meaning": "isActive(a) holds exactly for the staked, unslashed submitters; challengeDeposit() = DEP; a lost challenge slashes, and so deactivates, the batch's submitter: what makes the slash call's argument the party whose bond is at risk",
+      "result": "fail",
+      "finding": "F-M2-40"
+    },
+    "Hyp-Z0-kzg": {
+      "role": "premise",
+      "constant": "ZERO_VERSIONED_HASH",
+      "value": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014",
+      "functions": [],
+      "interpretation": [],
+      "meaning": "the document constant ZERO_VERSIONED_HASH is the KZG versioned hash of the all-zero blob, 0x01 || sha256(0xc0 || 0^47)[1:] (the value recorded here, computed by holon/oracles/zero_blob.py, results/M2/hypotheses.json): a blob-hash list [ZERO_VERSIONED_HASH] delivers the zero blob",
+      "result": "pass",
+      "finding": null
+    },
+    "HypV-proof1": {
+      "role": "witness",
+      "functions": ["IRollupVerifier.verifyAggregateProof"],
+      "interpretation": [],
+      "meaning": "the binding's verifier stand-in accepts a proof iff its first byte is 0x01: a rule of the stand-in, not a property of the real verifier",
+      "result": "untestable",
+      "finding": null
+    },
+    "HypZ": {
+      "role": "interpretation",
+      "functions": [],
+      "interpretation": ["blobhash"],
+      "meaning": "Dec(Enc x ++ 0^k) = x: what derivation makes of the delivered blobs, so that a difference of delivered blob lists is a difference of derived batches",
+      "result": "fail",
+      "finding": "F-M2-41"
+    }
+  },
+  "search": {
+    "prefix_depth": 3,
+    "max_prefixes": 3000,
+    "continuation_depth": 2,
+    "max_candidates": 200000,
+    "time_candidates": "E - 1, E and E + 1 for every term E an atom of a check of the candidate step compares with block.timestamp, evaluated on the candidate state, and the trace's own times (never 0, never decreasing)"
+  },
+  "measure": {
+    "fresh": [
+      "0x0100000000000000000000000000000000000000000000000000000000000001",
+      "0x0100000000000000000000000000000000000000000000000000000000000002"
+    ],
+    "max_length": 3
+  },
+  "term_size": "spec/M3/lib/term_size.json",
+  "backtest": {
+    "against": "M1",
+    "rows": [
+      {
+        "old": "L_fact_Z",
+        "new": "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash",
+        "names": {"blobs_of": "blobhash", "is_commitBatch": "commitBatch", "new_hdr": "committedBatches"}
+      }
+    ],
+    "move": {
+      "model": "gen/M1/model/morph_rollup.bend",
+      "principals": {
+        "0x0000000000000000000000000000000000001002": 2,
+        "0x0000000000000000000000000000000000001003": 3,
+        "0x0000000000000000000000000000000000001004": 4,
+        "0x0000000000000000000000000000000000001005": 5
+      },
+      "owner_token": 1,
+      "clock_offset": 1700000000,
+      "m1_clock0": 10,
+      "blob_tokens": {
+        "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014": 1
+      },
+      "blob_rule": "a blob versioned hash (1 << 248) | v that is not in blob_tokens moves to the token v (blobEnc's inverse)",
+      "act": "M.A_<action>{who, ver, parent, n, lbn, prev, post, blobs}: who the caller's token, ver the input's version, parent the parent header's index (bytes 1..8), n numL1Messages, lbn lastBlockNumber, prev and post the state roots as numbers, blobs the step's blob tokens; withdrawalRoot and the parent header's other bytes are not M1 inputs",
+      "wait": "a step whose block.timestamp minus clock_offset exceeds the M1 clock is preceded by M.A_wait{dt} of the difference, which joins the shared prefix p"
+    },
+    "cf_bridge": {
+      "fn": "agg",
+      "definition": "gen/M1/model/morph_rollup.bend d_blob_hash(2n, xs) = 1000 + b_enc(xs), b_enc(Nil) = 0, b_enc(Con{h, t}) = 1 + b_pair(h, b_enc(t)), b_pair(a, b) = (a + b)(a + b + 1)/2 + b"
+    }
+  }
+}
