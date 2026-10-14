@@ -1,0 +1,91 @@
+{
+  "canary_acceptance": {
+    "accepted": 0,
+    "total": 0
+  },
+  "cross_kernel_agreement": {
+    "checked_records": 77,
+    "independent_rate": null,
+    "kernels": {
+      "bendtt": {
+        "agree": 77,
+        "ran": 77,
+        "rate": 1.0,
+        "role": "second"
+      }
+    }
+  },
+  "evidenced_pair_coverage": {
+    "by_kind": {
+      "constant_read": {
+        "covered": 0,
+        "elements": 6
+      },
+      "observed": {
+        "covered": 3,
+        "elements": 3
+      },
+      "other": {
+        "covered": 0,
+        "elements": 0
+      },
+      "partial_read": {
+        "covered": 0,
+        "elements": 0
+      },
+      "round_trip": {
+        "covered": 70,
+        "elements": 70
+      }
+    },
+    "covered": 73,
+    "elements": 79,
+    "evidence": {
+      "evidence_sha256": "468447af52cbc51819618da6648a9e781498d8623c124a0e4225adec17b1b2bd",
+      "path": "gen/M3/evidence.json"
+    },
+    "excluded": {
+      "no_common_version": 3
+    },
+    "hash_candidates": 1,
+    "models": [
+      "header_length"
+    ],
+    "rate": 0.9240506329113924,
+    "relative_to": "the frozen evidence set gen/M3/evidence.json: the lossy fragment has no topological basis (whitepaper Prop 6.11), so completeness is relative to the evidenced pairs; an unevidenced pair is not counted",
+    "uncovered": 6,
+    "uncovered_disagreements": 0,
+    "weak": {
+      "atoms": 4,
+      "with_law": 2
+    }
+  },
+  "laws": {
+    "PROVED": 73,
+    "REFUTED": 4,
+    "UNKNOWN": 5,
+    "total": 82
+  },
+  "metrics_version": "holon-metrics/0.1",
+  "milestone": "M3",
+  "not_applicable": {
+    "certificate_coverage": "2 records carry a coverage entry (gen/<M>/coverage.json); the share of covered code elements is not computed yet",
+    "mutation_adequacy": "A1 mutation adequacy on real code is BUILD_PLAN I22 (blocked by Q6); the M0/M1 mutations edit the facts, not the code (BUILD_PLAN V14)",
+    "precision": "needs adjudicated findings split into true defects, intended asymmetries and model defects (BUILD_PLAN I51, I53); the records' filter_bin is provisional (I4)",
+    "prediction_accuracy": "no preregistered \u00a711.8 prediction file for this milestone",
+    "recall_per_rule": "needs a corpus of historical defects, each labelled with its minimal rule and analysed at its pre-fix commit (\u00a713 corpus; BUILD_PLAN I48, I51); this milestone has none",
+    "unknown_calibration": "the UNKNOWN rate's calibration is measured on unsolved controls (BUILD_PLAN I48, I53); this milestone has none"
+  },
+  "refinement": {
+    "compared": 0,
+    "disagreements": 0,
+    "unexplained": 0
+  },
+  "refinement_disagreement_rate": null,
+  "unknown_rate": 0.06097560975609756,
+  "witness_replay_rate": {
+    "rate": 0.0,
+    "refuted": 4,
+    "replayed": 0
+  }
+}
