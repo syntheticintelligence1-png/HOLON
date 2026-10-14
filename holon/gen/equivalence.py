@@ -1115,6 +1115,14 @@ def _write(d: Path, files: dict):
         (d / name).write_text(text)
 
 
+def _progress(msg: str) -> None:
+    """A progress line on stderr when HOLON_EQV_PROGRESS is set (long runs; nothing else reads it)."""
+    import os
+    import sys
+    if os.environ.get("HOLON_EQV_PROGRESS"):
+        print(f"[equivalence] {msg}", file=sys.stderr, flush=True)
+
+
 def _owner(loc: str, trying: dict):
     """The lemma a failing definition belongs to: q_<f> itself or one of its helpers and lemmas q_<f>__<x>."""
     best = None
@@ -1281,6 +1289,7 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
             return bool(cands[f])
         for _ in range(MAX_ROUNDS):
             frontier = [f for f in changed if f not in proven and f not in failed and all(g in proven for g in deps[f])]
+            _progress(f"round: {len(proven)} proven, {len(failed)} failed, frontier {len(frontier)}")
             if not frontier:
                 break
             for f in frontier:
