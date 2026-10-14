@@ -21,7 +21,7 @@ HASHED_KEYS_03 = ("ir_version", "law_id", "rule", "rule_catalog_version", "state
 # (the 0.3 schema's law_id pattern ^L[0-9]?_). Every glob over laws/<m>/ or results/<m>/ uses this one.
 LAW_GLOB = "L*.json"
 # binder types every IR version may use; 0.3 adds Fn<A,B>, Bytes(n), List<Nat> and record refs (a facts type)
-BASE_TYPES = ("State", "Trace", "Act", "Nat", "Bool", "Reach", "List<Nat>")
+BASE_TYPES = ("State", "Trace", "Act", "Nat", "Bool", "Reach", "List<Nat>", "Word", "Env")
 
 
 class IRError(ValueError):
@@ -233,6 +233,10 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I30): a SORT coercion term, every hit of coercion ID while action A runs from state S is Some
     if "coerce" in t and "on" in t and "from" in t:
         return f"coerce_ok[{t['coerce']}]({render_term(t['on'])}, {render_term(t['from'])})"
+    # holon-ir/0.3 (I31): a DISCH term, disch_ok[ID](A, S, T, E) (holon.rules.disch)
+    if "disch" in t and "on" in t and "from" in t:
+        return (f"disch_ok[{t['disch']}]({render_term(t['on'])}, {render_term(t['from'])}, "
+                f"{render_term(t.get('at'))}, {render_term(t.get('env'))})")
     # holon-ir/0.3 (I24): a facts expression in a state, with an action's inputs ({"expr": E, "from": S, ..})
     if "expr" in t and "from" in t:
         from .diagram.access import render as render_expr

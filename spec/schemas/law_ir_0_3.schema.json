@@ -377,6 +377,9 @@
     },
     {
      "$ref": "#/$defs/t_coerce"
+    },
+    {
+     "$ref": "#/$defs/t_disch"
     }
    ]
   },
@@ -871,6 +874,36 @@
      "$ref": "#/$defs/term"
     },
     "from": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_disch": {
+   "type": "object",
+   "required": [
+    "disch",
+    "on",
+    "from",
+    "at",
+    "env"
+   ],
+   "additionalProperties": false,
+   "description": "a DISCH term (I31, holon.rules.disch): the id <model>:<blocking|revert|external|external_none>:<tag>:<class|all>, the action, the reachable state, the time the blocked condition holds at and the step's environment; disch_ok[ID](A, S, T, E) is the sub-form's claim over the typed model",
+   "properties": {
+    "disch": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:(blocking|revert|external|external_none):[a-z0-9_]+_[0-9a-f]{8}:[A-Za-z0-9_]+$"
+    },
+    "on": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
+    },
+    "at": {
+     "$ref": "#/$defs/term"
+    },
+    "env": {
      "$ref": "#/$defs/term"
     }
    }

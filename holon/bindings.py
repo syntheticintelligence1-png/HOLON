@@ -230,6 +230,23 @@ def _typed(law: dict) -> bool:
     return coerce((law.get("statement") or {}).get("claim"))
 
 
+def _disch(law: dict) -> bool:
+    """An I31 DISCH law (holon.rules.disch): a holon-ir/0.3 law whose claim is a disch term. holon.disch.run decides
+    it over the typed model of its document and the DISCH section, and writes its law file with
+    holon.disch.proofs.laws_text."""
+    if law.get("ir_version") != "holon-ir/0.3" or law.get("rule") != "DISCH":
+        return False
+    c = (law.get("statement") or {}).get("claim") or {}
+    return any(isinstance(x, dict) and "disch" in x for x in c.get("eq") or [])
+
+
+def _disch_section(law: dict, m: str, root: Path) -> Path:
+    """The DISCH section a DISCH law's file imports (gen/<m>/disch/models/<importable section name>)."""
+    from .disch.section import section_file
+    from .sorts.model3 import model_name as typed_name
+    return Path(root) / "gen" / m / "disch" / "models" / section_file(typed_name(law["facts"]))
+
+
 def _typed_model(law: dict, m: str, root: Path, importable: bool = False) -> Path:
     """The typed model of a typed-SORT law, as its records name it (gen/<m>/sorts/models/<model>.bend, a link: docs/
     HUMAN_ANSWERS.md Q25) or, with importable, the file behind that link which its law file imports."""
@@ -243,7 +260,7 @@ def model_path(law: dict, m: str, root: Path) -> Path:
     if _width(law):   # the extracted model (holon model's gen/<m>/extracted/model.bend)
         from .sorts.width import model_path as width_model
         return width_model(m, root)
-    if _typed(law):   # F30: the typed model gen/<m>/sorts/models/<model>.bend (I30), never gen/<m>/model/
+    if _typed(law) or _disch(law):   # F30: the typed model gen/<m>/sorts/models/<model>.bend (I30; I31's DISCH laws)
         return _typed_model(law, m, root)
     from .codecrun import codec_kind
     if codec_kind(law, root) == "linked":   # I24: the component model gen/<m>/model/<role>.bend (rule X9)
@@ -258,6 +275,20 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
+    if _disch(law):   # I31: as holon.disch.run writes it (holon.disch.proofs.laws_text); an external law (an
+        from .disch import proofs as DP   # existential law, never REFUTED) has no counter-law
+        from .disch.section import tables
+        from .gen.mlaws import law_name
+        from .sorts.proofs3 import rel_import
+        if counter and law.get("subform") == "external":
+            return None
+        laws_dir = Path(root) / "gen" / m / "laws" / law["law_id"]
+        hashes = [b["name"] for b in law["statement"].get("binders", []) if str(b.get("type", "")).startswith("Fn<")]
+        kind = "counter" if counter else ("exists" if law.get("subform") == "external" else "forall")
+        return DP.laws_text(law["law_id"], statement_hash(law, m, root),
+                            rel_import(laws_dir, _typed_model(law, m, root, importable=True)),
+                            rel_import(laws_dir, _disch_section(law, m, root)), tables(hashes),
+                            law_name(law["law_id"], counter), kind)
     if _typed(law):   # F30: emitted as holon.sorts.run3 writes it (holon.sorts.proofs3.law_file), one law-parameter
         from .sorts import proofs3 as P3   # table per hash function the IR's Fn binders name, importing the typed model
         laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]
@@ -324,6 +355,10 @@ def statement_text(law: dict, m: str, root: Path) -> str:
         from .sorts.width import roots_text
         return roots_text(law, root)
     t = _emit(law, m, root, counter=False)
+    if t is not None and _disch(law):   # I31: the statement reaches the model through the DISCH section's terms
+        sp = _disch_section(law, m, root)
+        if sp.is_file():
+            t = t + "\n" + sp.read_text()
     return t if t is not None else records.ir_roots_text(law)
 
 

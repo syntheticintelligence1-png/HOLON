@@ -1143,6 +1143,25 @@ class Gate:
                     ir.negation_law(law)
                 except ir.IRError:
                     continue   # its negation is no IR statement: the ∃-law stays UNKNOWN with that reason (I7)
+                if law.get("rule") == "DISCH" and law.get("subform") == "external":
+                    # I31 (test_disch D10, BUILD_PLAN §2.12): DISCH emits the forall-negation of each external law as
+                    # its own frozen law, external_none, over the same (B, Y) pair: L_disch_noext_<tag>_<Y>, whose
+                    # claim is the disch term of the same ID with subform external_none
+                    neg = laws.get(lid.replace("L_disch_ext_", "L_disch_noext_", 1))
+                    want_id = None
+                    try:
+                        did = law["statement"]["claim"]["eq"][0]["disch"]
+                        m_, _sf, tag_, cls_ = did.split(":")
+                        want_id = f"{m_}:external_none:{tag_}:{cls_}"
+                    except (KeyError, IndexError, TypeError, ValueError):
+                        pass
+                    nc = ((neg or {}).get("statement") or {}).get("claim") or {}
+                    ok_neg = (neg is not None and neg.get("subform") == "external_none" and want_id is not None
+                              and (nc.get("eq") or [{}])[0].get("disch") == want_id
+                              and all(b.get("q") == "forall" for b in neg["statement"].get("binders", [])))
+                    if not ok_neg:
+                        bad.append(f"{lid}: a DISCH external law without its external_none law in laws/{self.m}")
+                    continue
                 if law.get("negation") not in laws:
                     bad.append(f"{lid}: an existential law without its frozen negation in laws/{self.m} (the rule that "
                                "emits an ∃-law also emits ∀¬ as its own frozen law: holon.ir.negation_law)")
