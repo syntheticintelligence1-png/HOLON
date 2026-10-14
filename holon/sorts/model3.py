@@ -29,6 +29,12 @@ the deployment (R0) by RStep over any action with its arguments and environment,
 chit_<x>. --untyped writes the same machine without the sort section (no nominal type, typed operation, coercion,
 companion or ghost store) plus I15's site instrumentation of the term-size ratio site (holon termsize's baseline).
 
+The kernel's evaluation shape (A30, model_version 0.2). The BendTT kernel normalizes every reusable binder's argument
+of a closed term by walking it whole, so the machine binds an action's context affinely and opens it once per leaf
+block with each field at its exact quantity (holon.sorts.affine3), and the prelude recurses on lists affinely and
+builds bytes bit by bit (holon.sorts.prelude3); the bytes of a literal word are written as a literal (fold_bytes). The
+values are the I30 model's: only how the kernel reaches them changed.
+
 Nothing here names a target: every name comes from the document, its compiler information and the assignment.
 """
 from __future__ import annotations
@@ -43,11 +49,12 @@ from .. import extracted_eval as EV
 from ..machine import Check, Event, ExtractedModel, Loop, ModelError, MStore, Write, canonical
 from ..machine_bend import bname, comment
 from . import grammar as G
+from .affine3 import affine
 from .prelude3 import FUEL, PRELUDE, SENTINEL
 
 GHOST_MARKER = "# ---- ghost: SORT coercions (holon.rules.sort)"
 SITE_MARKER = "# ---- ghost: SORT-site instrumentation (holon.sorts.sites)"
-MODEL3_VERSION = "holon-model-m3/0.1"
+MODEL3_VERSION = "holon-model-m3/0.2"
 FUEL_CODE = 4294967295       # a step whose loop ran out of fuel (more than FUEL - 1 iterations): not a check
 MASK = (1 << 256) - 1
 PANIC_SEL = bytes.fromhex("4e487b71")
@@ -1211,7 +1218,7 @@ def lg_rev(xs: List<&2, HLog>, +acc: List<&2, HLog>) -> List<&2, HLog>:
     case Con{h, t}:
       lg_rev(t, Con{h, acc})
 
-def hs_get(+xs: List<&2, HKB>, +k: List<&2, U32>) -> W:
+def hs_get(xs: List<&2, HKB>, +k: List<&2, U32>) -> W:
   h_get(xs, k)
 
 def kt_id(+xs: List<&2, HKB>) -> List<&2, HKB>:
@@ -2003,12 +2010,15 @@ class Ghost:
                 cases.append(f"    case {x}{{}} {y}{{}}:\n      {'True' if x == y else 'False'}{{}}\n")
         out.append("def tg_eq(a: Tag, b: Tag) -> Bool:\n  match a b:\n" + "".join(cases))
         out.append("type GKT is Data:\n  GKT{k: W, t: Tag}\n")
-        out.append("def gk_get(+xs: List<&2, GKT>, +k: W) -> Tag:\n  match xs:\n    case Nil{}:\n      TG_bot{}\n"
-                   "    case Con{+h, +t}:\n      match h:\n        case GKT{+hk, +ht}:\n"
+        # (A30) the companion map is recursed on affinely, as the prelude's slot map (holon.sorts.prelude3)
+        out.append("def gk_get(xs: List<&2, GKT>, +k: W) -> Tag:\n  match xs:\n    case Nil{}:\n      TG_bot{}\n"
+                   "    case Con{h, t}:\n      match h:\n        case GKT{hk, ht}:\n"
                    "          ite(Tag, w_eq(hk, k), ht, gk_get(t, k))\n")
-        out.append("def gk_set(+xs: List<&2, GKT>, +k: W, +v: Tag) -> List<&2, GKT>:\n  match xs:\n    case Nil{}:\n"
-                   "      [GKT{k, v}]\n    case Con{+h, +t}:\n      match h:\n        case GKT{+hk, +ht}:\n"
-                   "          ite(List<&2, GKT>, w_eq(hk, k), Con{GKT{k, v}, t}, Con{GKT{hk, ht}, gk_set(t, k, v)})\n")
+        out.append("def gk_put(xs: List<&2, GKT>, +k: W, +v: Tag, done: Bool) -> List<&2, GKT>:\n  match xs:\n"
+                   "    case Nil{}:\n      ite(List<&2, GKT>, done, Nil{}, [GKT{k, v}])\n    case Con{h, t}:\n"
+                   "      match h:\n        case GKT{+hk, ht}:\n          +eq = w_eq(hk, k)\n"
+                   "          Con{GKT{hk, ite(Tag, eq, v, ht)}, gk_put(t, k, v, Bool.or(done, eq))}\n")
+        out.append("def gk_set(xs: List<&2, GKT>, +k: W, +v: Tag) -> List<&2, GKT>:\n  gk_put(xs, k, v, False{})\n")
         fs = [("st", "HSt")] + [(self.comp(f), self.comp_type(f)[0]) for f in self.regs]
         out.append("# the augmented state: the real store and the generated companion of every union register (G1)\n"
                    + _record("GSt", fs))
@@ -2314,7 +2324,34 @@ def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init
             parts.append(SITE_MARKER + "\n")
             parts += site_section(mm, acts, site_rows)
     text = "\n".join(p.rstrip("\n") + "\n" for p in parts if p)
-    return text, mm
+    # (A30) every action context binder affine, every context read through an opened record (holon.sorts.affine3), and
+    # the bytes of a literal word written as their literal
+    return affine(fold_bytes(text)), mm
+
+
+_LIT_WORD_BYTES = re.compile(r"b_of_w\(W\{(\d+), (\d+), (\d+), (\d+), (\d+), (\d+), (\d+), (\d+)\}\)")
+
+
+def fold_bytes(text: str) -> str:
+    """(A30) b_of_w of a literal word -> its 32 bytes as a literal list, b_of_w(w_u(e)) -> b_of_u(e) (28 zero bytes,
+    then the four of e): the same values, without building and splitting words the generator already knows."""
+    def lit(m):
+        v = sum(int(x) << (32 * i) for i, x in enumerate(m.groups()))
+        return blit(v.to_bytes(32, "big"))
+    text = _LIT_WORD_BYTES.sub(lit, text)
+    out, i, key = [], 0, "b_of_w(w_u("
+    while True:
+        j = text.find(key, i)
+        if j < 0:
+            out.append(text[i:])
+            break
+        k, depth = j + len(key), 2
+        while depth:
+            depth += {"(": 1, ")": -1}.get(text[k], 0)
+            k += 1
+        out.append(text[i:j] + "b_of_u(" + text[j + len(key):k - 2] + ")")
+        i = k
+    return "".join(out)
 
 
 # ================================================================================================ generate, CLI

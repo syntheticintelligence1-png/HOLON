@@ -1198,6 +1198,25 @@ class Checkpoint:
         self.path(entry).unlink(missing_ok=True)
 
 
+def trace_states(model_factory, steps: list, kh: dict, sh: dict) -> list:
+    """The decoded state (gh_step's value, the evaluator's JSON) after each prefix step of a witness, computed on a
+    fresh model with exactly the witness's hash tables: the literal states of its counter-law (holon.sorts.proofs3).
+    A step that would look up a key outside the tables is an error (the tables are settle's fixpoint)."""
+    steps = [Step(st.action, st.args, json.loads(json.dumps(st.env))) for st in steps]
+    m = model_factory(empty=True)
+    m.kh, m.sh = dict(kh), dict(sh)
+    m.kh_sent = m.sh_sent = -1
+    g = m.s0()
+    out = []
+    for st in steps[:-1]:
+        n = (len(m.kh), len(m.sh))
+        _code, g, _c = m.run_step(g, st, save=True)
+        if (len(m.kh), len(m.sh)) != n:
+            raise RuntimeError(f"{st.action}: a hash key outside the witness's tables")
+        out.append(m.ev.req({"show": g})["out"])
+    return out
+
+
 def settle(model_factory, steps: list, fns: list) -> tuple[dict, dict, list]:
     """The witness's hash tables: the real hash of exactly the keys its trace (and the given predicates on its last
     step) looks up, from empty tables (a fixpoint on a fresh model). The last step's keys are kept (its evaluation is

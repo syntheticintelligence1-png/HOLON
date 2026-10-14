@@ -358,12 +358,13 @@ class Decider:
         kh, sh, vals = S3.settle(model_f, steps, [f"coerce_{x}"])
         m = model_f(empty=True)
         acts = [m.act(st) for st in steps]
+        states = S3.trace_states(model_f, steps, kh, sh)
         lp = self.paths(law["law_id"])["laws"]
         where.mkdir(parents=True, exist_ok=True)
         p = where / "PROOF.bend"
         p.write_text(P3.counter_proof(law, P3.rel_import(where, self.ctx.import_path(doc_rel)),
                                       P3.rel_import(where, lp), hashes, acts, {"keccak256": kh, "sha256": sh},
-                                      P3.Lit(ev.recs), note), encoding="utf-8")
+                                      P3.Lit(ev.recs), note, states), encoding="utf-8")
         checker, verdict = check_file(p)
         return p, checker, verdict, {"keccak256": kh, "sha256": sh}
 
@@ -522,12 +523,14 @@ class Decider:
         kh, shs, _vals = S3.settle(model_f, steps, [f"chit_{x}"])
         m = model_f(empty=True)
         acts = [m.act(st) for st in steps]
+        states = S3.trace_states(model_f, steps, kh, shs)
         d.mkdir(parents=True, exist_ok=True)
         lp = d / "LAWS.bend"
         lp.write_text(P3.inhabitant_law(law, sh, P3.rel_import(d, ctx.import_path(doc_rel)), hashes), encoding="utf-8")
         p = d / "PROOF.bend"
         p.write_text(P3.inhabitant_proof(law, P3.rel_import(d, ctx.import_path(doc_rel)), P3.rel_import(d, lp), hashes,
-                                         acts, {"keccak256": kh, "sha256": shs}, P3.Lit(ev.recs)), encoding="utf-8")
+                                         acts, {"keccak256": kh, "sha256": shs}, P3.Lit(ev.recs), states),
+                     encoding="utf-8")
         checker, verdict = check_file(p)
         doc = ctx.models[doc_rel][4]
         w = {"steps": [step_json(doc, st, fns) for st in steps],
