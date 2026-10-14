@@ -29,6 +29,7 @@
   python -m holon link --milestone M2 [--root DIR] [--out PATH] [--check]       (gen/M2/link.json; I19)
   python -m holon historical fetch [--milestone M2] [--from N] [--to M] [--index PATH] [--snapshot DIR]
   python -m holon historical replay [--milestone M2] [--index PATH] [--out PATH]   (on-chain history, I59)
+  python -m holon historical fetch-state|codec|trans|laws|smoke|exit [--milestone M2] ...   (M2 exit evaluation, I23)
   python -m holon model --facts <transitions document> --out DIR   (the extracted model: model.bend, layout.json,
                                                                     window_check.json; holon.machine, I20)
   python -m holon differential --milestone M2 [--root DIR]  (the M1 laws on the extracted model through the window

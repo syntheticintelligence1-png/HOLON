@@ -904,13 +904,13 @@ class Gate:
         """GREF (I16): every refinement disagreement is explained by its links, never by its label
         (holon.refinement.check_disagreements), and every disagreement a refinement record counts has an
         entry. Reads no repository history and runs no tool; fix-commit existence is left to `holon audit`."""
-        from .refinement import DISAGREEMENTS, REF_DIR, check_disagreements
+        from .refinement import DISAGREEMENTS, check_disagreements, record_files
         problems = check_disagreements(self.root)
         if problems:
             self.checks["GREF"] = _res(False, "; ".join(problems))
             return
         n = len(_load(self.root / DISAGREEMENTS)["disagreements"])
-        recs = sorted((self.root / REF_DIR).glob("*.json"))
+        recs = record_files(self.root)
         self.checks["GREF"] = _res(True, f"{n} disagreement entries, each classified by its links to its label and "
                                          f"none unexplained; every disagreement id of the {len(recs)} refinement "
                                          "records under results/M2/refinement/ has an entry (fix-commit existence is "
