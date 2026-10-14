@@ -29,7 +29,15 @@ accept a proof of it. The proof is checked only inside a fresh directory that ho
 the regenerated core library and its regenerated law file, at the layout path: no kernel reads the tree's own law,
 model or core files.
 
-`holon run` (holon.mpipeline.run_m1) decides the same way, after its generators and its refuter, every law they left
+Typed milestones (A30 review). On M3 and later, an I30 law (SORT realize, as_member, reinterpret) is regenerated as
+holon.sorts.run3 writes it: the typed model of holon.sorts.model3 (gen/<M>/sorts/models/<importable model>.bend) and
+the law file of holon.sorts.proofs3 (the counter-law of a REFUTED record, else the statement). Both bend2 and BendTT
+must accept a proof whatever the configuration (refused when BendTT is unavailable). An I24 codec law
+(holon.codecrun) takes no agent proof: it gets no law file here (and G1 leaves its files out), nor in holon run. A law
+whose record holds a counter-law bend2 accepted (one BendTT did not) is refused as not_unknown: a proof as well would
+be a kernel disagreement (Q8).
+
+`holon run` (holon.mpipeline.run_m1; holon.sorts.run3 for the I30 laws) decides the same way, after its generators and its refuter, every law they left
 UNKNOWN that has a submission in <root>/proofs/inbox (decide_in_run): the run's own outcome stands in for the committed
 record, the files it has just generated are the regeneration (so G1 within the run finds nothing changed), and the
 kernels see a fresh directory of exactly those files. The CLI writes nothing under the repository.
@@ -75,13 +83,40 @@ def configured_budget(root: Path | str = ROOT) -> float:
     return float(bend.config(Path(root))["bend"].get("budget_s_per_file", 120))
 
 
+TYPED_SUBFORMS = ("as_member", "realize", "reinterpret")   # I30's SORT subforms (holon.sorts.run3.SUBFORMS)
+
+
+def typed_laws(milestone: str | None, root: Path | str = ROOT) -> dict[str, dict]:
+    """The DERIVATION.json entries of the I30 laws of a typed milestone (holon.sorts.typed_sidecar.typed: SORT
+    realize, as_member and reinterpret, which holon.sorts.run3 decides on the typed model); {} for any other."""
+    from .sorts.typed_sidecar import typed
+    if not milestone or not typed(milestone):
+        return {}
+    try:
+        dv = json.loads((Path(root) / "laws" / milestone / "DERIVATION.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return {e["law_id"]: e for e in dv.get("laws") or [] if isinstance(e, dict) and e.get("law_id")
+            and e.get("rule") == "SORT" and e.get("subform") in TYPED_SUBFORMS}
+
+
+def typed_milestone(milestone: str | None, root: Path | str = ROOT) -> bool:
+    """A milestone typed by I30's rules: M3 and later, or a test milestone T<n> (n >= 30) whose derivation holds I30
+    laws (a test milestone without them, I41's T41 among them, is a state-machine milestone)."""
+    from .sorts.typed_sidecar import typed
+    if not milestone or not typed(milestone):
+        return False
+    return milestone.startswith("M") or bool(typed_laws(milestone, root))
+
+
 def required_kernels(milestone: str, root: Path | str = ROOT) -> list[str]:
     """The kernels that must accept an agent proof of a law of `milestone`: bend2 always; bendtt when BendTT's
-    --verdict is enabled (holon.bend.verdict_enabled); lean4 when the milestone is in I9's Lean-covered set
-    (holon.lean.applicable: holon-ir/0.1, i.e. M0)."""
+    --verdict is enabled (holon.bend.verdict_enabled), and on a typed milestone always (A30: I30's records are decided
+    by both kernels, so an agent proof is too; without BendTT it is refused); lean4 when the milestone is in I9's
+    Lean-covered set (holon.lean.applicable: holon-ir/0.1, i.e. M0)."""
     from . import lean
     out = ["bend2"]
-    if bend.verdict_enabled(bend.config(Path(root))):
+    if typed_milestone(milestone, root) or bend.verdict_enabled(bend.config(Path(root))):
         out.append("bendtt")
     if lean.applicable(milestone, root):
         out.append("lean4")
@@ -258,6 +293,7 @@ class Regeneration:
         self.law_paths: dict[str, str] = {}         # law id -> the repo-relative path of its law file (layout)
         self.proof_paths: dict[str, str] = {}       # law id -> the repo-relative path of its proof (layout)
         self.generated: list[str] = []              # the model and core paths, sorted
+        self.unregenerated: set[str] = set()        # law ids whose files the intake does not regenerate (codec laws)
         if ir.ir_version_of(m, self.root) == "holon-ir/0.1":
             self._regen_01()
         else:
@@ -303,15 +339,27 @@ class Regeneration:
     def _regen_machine(self) -> None:
         """State-machine milestones (holon/mpipeline.py run_m1): per law, in the run's order, the model of its facts
         (run_model), its statement and, for a decided law, the law file the run writes; then the core library."""
+        from . import codecrun as CR
         from . import mpipeline as MP
         from .gen import mlaws
         from .gen import oracles as O
         from .gen import refs as R
         laws = sorted(self.tree.laws(self.m).values(), key=lambda l: (not l.get("negation_of"), l["law_id"]))
         machines: dict[Path, tuple] = {}
+        typed = typed_laws(self.m, self.root)
         for law in laws:
             lid = law["law_id"]
             up = self._layout(lid)
+            if lid in typed:
+                self._regen_typed(law, typed[lid])
+                continue
+            if CR.codec_kind(law, self.root) is not None:
+                # I24's codec laws (holon.codecrun): holon run takes no agent proof for them (no law file to check one
+                # against), and the intake does not regenerate their models and law files, so G1 leaves them out
+                self.no_statement[lid] = ("holon run decides this codec law with holon.codecrun, which takes no agent "
+                                          "proof: the intake regenerates no law file for it")
+                self.unregenerated.add(lid)
+                continue
             if width_law(self.m, law):
                 self.no_statement[lid] = ("holon run decides this SORT-width law without Bend (holon.sorts.width: "
                                           "the extracted model has no reachability predicate) and writes no law file "
@@ -354,6 +402,41 @@ class Regeneration:
             for n in ("LAWS.bend", "PROOF.bend"):
                 self.files[f"gen/{self.m}/core/{n}"] = (out / "core" / n).read_bytes()
 
+    def _regen_typed(self, law: dict, entry: dict) -> None:
+        """An I30 law of a typed milestone, as holon.sorts.run3 writes it: the typed model of its document
+        (holon.sorts.model3.generate, gen/<M>/sorts/models/<importable model>.bend, the file Bend imports) and its law
+        file (holon.sorts.proofs3.law_file: the counter-law of a REFUTED record, else the statement, which run3 writes
+        for every law it decides, an UNKNOWN one included). A test milestone names its sidecar on holon run's command
+        line only (--sidecar), which the intake does not have: its I30 laws get no law file (refused by the kernels,
+        with the reason)."""
+        from .sorts import proofs3 as P3
+        from .sorts.evaluate3 import hashes_of
+        from .sorts.model3 import generate, importable, init_of, model_name
+        lid, doc_rel = law["law_id"], entry["facts"]
+        if not self.m.startswith("M"):
+            self.no_statement[lid] = (f"holon run decides this I30 law of test milestone {self.m} from the typed-sorts "
+                                      "sidecar its command line names (--sidecar); the intake has none, so it "
+                                      "regenerates no typed model and no law file for it")
+            return
+        if not hasattr(self, "_typed"):
+            self._typed: dict[str, tuple] = {}
+        if doc_rel not in self._typed:
+            init = init_of(self.m, self.root, None, doc_rel)
+            text, _mm = generate(self.m, self.root, doc_rel, typed=True, sidecar=None, init=init)
+            model_rel = f"gen/{self.m}/sorts/models/{importable(model_name(doc_rel))}"
+            self.files[model_rel] = text.encode("utf-8")
+            self._typed[doc_rel] = (model_rel, hashes_of(text))
+        model_rel, hashes = self._typed[doc_rel]
+        self.models[lid] = model_rel
+        law_rel = self.law_paths[lid]
+        imp = P3.rel_import(self.root / law_rel.rsplit("/", 1)[0], self.root / model_rel)
+        sh = ir.load_registry(self.m, self.root)["statements"].get(lid)
+        statement = P3.law_file(law, sh, imp, hashes, False)
+        self.statements[lid] = statement
+        rec = self.tree.record(self.m, lid) or {}
+        self.files[law_rel] = (P3.law_file(law, sh, imp, hashes, True) if rec.get("status") == "REFUTED"
+                               else statement).encode("utf-8")
+
     def differs(self, lid: str) -> tuple[list[str], list[str]]:
         """(law files, model and core files) of the tree that differ from the regeneration, repo-relative and sorted.
         A law file differs when it is present but different, or missing although its record names one (a decided
@@ -364,6 +447,8 @@ class Regeneration:
             return p.read_bytes() if p.is_file() else None
         law_d = []
         for other, rel in sorted(self.law_paths.items()):
+            if other in self.unregenerated:
+                continue
             got = have(rel)
             if rel in self.files:
                 want = self.files[rel]
@@ -426,6 +511,9 @@ def check_kernels(files: dict[str, bytes], no_statement: str | None, proof_rel: 
     lean4 (the Lean text holon.lean's emitters produce for the PROVED verdict of lean_law = (law, facts, facts_sha256)).
     The first kernel that does not accept refuses the proof (kernel_rejected); the later ones do not run."""
     k = {n: ("not_run" if n in required else "not_applicable") for n in KERNELS}
+    if "bendtt" in required and not bend.verdict_available():
+        return KernelOutcome(k, None, None, "kernel_rejected", "BendTT (--verdict) is required and unavailable here "
+                                                               "(holon.bend.verdict_available): no kernel ran")
     tmp = Path(tempfile.mkdtemp(prefix="holon-intake-kernel-"))
     try:
         for rel, b in sorted(files.items()):
@@ -486,6 +574,16 @@ def _lean4(lean_law: tuple | None, tmp: Path, cfg: dict) -> tuple[str, str]:
 
 
 # ------------------------------------------------------------------ one decision
+def accepted_counter_laws(rec: dict | None) -> list[str]:
+    """The witness entries of a record whose counter-law bend2 accepted (checker marker ALL PROOFS CHECK), sorted:
+    on an UNKNOWN record, counter-laws BendTT (or the record's other checks) did not accept."""
+    ws = (rec or {}).get("witnesses") or {}
+    if not isinstance(ws, dict):
+        return []
+    return sorted(e for e, w in ws.items() if isinstance(w, dict)
+                  and ((w.get("checker") or {}).get("marker") == "ALL PROOFS CHECK"))
+
+
 def _blank(sub: Submission, m: str | None, root: Path) -> dict:
     req = required_kernels(m, root) if m else _kernels_without_milestone(root)
     return {"law_id": sub.law_id, "milestone": m, "submission": _rel(sub.path, root), "prover": sub.prover,
@@ -518,6 +616,11 @@ def decide(sub: Submission, m: str | None, rec: dict | None, look, budget_s: flo
         return _refuse(d, "not_unknown", f"its generators decided it: {rec.get('status')} (prover "
                                          f"{rec.get('prover', 'generator')}); only a law they left UNKNOWN takes an "
                                          "agent proof")
+    cl = accepted_counter_laws(rec)
+    if cl:
+        return _refuse(d, "not_unknown", f"bend2 accepted a counter-law of this law (witness entries {cl}), which "
+                                         "another kernel did not: an accepted proof as well would be a kernel "
+                                         "disagreement, which Q8 makes blocking, so no agent proof is taken for it")
     text = sub.text
     hatches = bend.escape_hatches(text)
     if hatches:
@@ -655,17 +758,18 @@ class RunLook:
 
 def decide_in_run(milestone: str, law_id: str, statement_hash: str, files: dict[str, bytes], law_rel: str,
                   proof_rel: str, no_statement: str | None, cfg: dict, root: Path = ROOT,
-                  inbox: Path | None = None) -> tuple[dict, bytes | None] | None:
+                  inbox: Path | None = None, witnesses: dict | None = None) -> tuple[dict, bytes | None] | None:
     """holon run's decision on the submission for a law its generators and refuter left UNKNOWN, or None when the inbox
     holds none. statement_hash is the run's; files are the run's model of the law, its core library and the law's
-    statement, at repo-relative gen/<M>/ paths (law_rel, proof_rel: the layout paths). The configured budget applies.
-    Returns (decision, the proof's bytes)."""
+    statement, at repo-relative gen/<M>/ paths (law_rel, proof_rel: the layout paths); witnesses are the run's
+    witness entries of the law (a bend2-accepted counter-law among them refuses the submission). The configured budget
+    applies. Returns (decision, the proof's bytes)."""
     root = Path(root)
     p = Path(inbox or root / INBOX) / law_id
     if not os.path.lexists(p):
         return None
     sub = read_submission(p)
-    rec = {"status": "UNKNOWN", "statement_hash": statement_hash, "prover": "generator"}
+    rec = {"status": "UNKNOWN", "statement_hash": statement_hash, "prover": "generator", "witnesses": witnesses or {}}
     d = decide(sub, milestone, rec, RunLook(law_rel, proof_rel, files, no_statement), configured_budget(root), cfg, root)
     return d, sub.proof
 
