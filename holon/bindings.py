@@ -33,14 +33,17 @@ Files:
                                     G1); "dependents" is the same index by bare name, which merges
                                     same-named definitions of different models
   spec/bindings/<m>.json            law -> {statement_hash, model, statement_sha256, counter_sha256,
-                                    cone: {def: sha256}}
+                                    cone: {def: sha256}}; an I30 typed-SORT law is bound to the typed model
+                                    gen/<m>/sorts/models/<model>.bend as its records name it, and to its law file
+                                    and counter-law as holon.sorts.proofs3 emits them (F30)
   spec/bindings/changes.jsonl       append-only log of every write: creations and accepted changes
 `python -m holon bind` writes a missing bindings file (logging the creation). On an existing one it adds the
 bindings of new laws and drops those of laws no longer in laws/<m>, but it changes the binding of an existing law
 only through the statement lifecycle (I10; audit F-M2-09): every changed law needs an accepted entry of
 laws/STATEMENT_DIFF.jsonl (holon.statement_diff.scan) for exactly that law and its current statement, either a
-statement change (strengthening, weakening, reextraction) when its statement hash changed, or a binding_change
-naming every definition whose kernel form changed under the fixed statement. --accept-change "<reason>" is the
+statement change (strengthening, weakening, reextraction) when its statement hash changed, a catalog_rederivation
+(F30) when the statement hash is all that changed in the binding, or a binding_change naming every definition whose
+kernel form changed under the fixed statement. --accept-change "<reason>" is the
 human-readable reason, logged with the covering entry line numbers; it is no longer sufficient on its own. Gate G2
 re-derives the bindings from the committed models and checks that every change line logged after the log was
 introduced (holon.statement_diff.cutoff_commit) maps to such accepted entries (check_change_log). Off git that
@@ -211,11 +214,28 @@ def _width(law: dict) -> bool:
     return width_law(law) is not None
 
 
+def _typed(law: dict) -> bool:
+    """An I30 typed-SORT law (holon.rules.sort's subforms realize, as_member, reinterpret): holon.sorts.run3 decides it
+    over the typed model of its transitions document, and holon.sorts.proofs3 emits its law file (F30)."""
+    from .rules.sort import RULE, SUBFORMS
+    return law.get("rule") == RULE and law.get("subform") in SUBFORMS
+
+
+def _typed_model(law: dict, m: str, root: Path, importable: bool = False) -> Path:
+    """The typed model of a typed-SORT law, as its records name it (gen/<m>/sorts/models/<model>.bend, a link: docs/
+    HUMAN_ANSWERS.md Q25) or, with importable, the file behind that link which its law file imports."""
+    from .sorts.model3 import importable as plain, model_name as typed_name
+    name = typed_name(law["facts"])
+    return Path(root) / "gen" / m / "sorts" / "models" / (plain(name) if importable else f"{name}.bend")
+
+
 def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
     if _width(law):   # the extracted model (holon model's gen/<m>/extracted/model.bend)
         from .sorts.width import model_path as width_model
         return width_model(m, root)
+    if _typed(law):   # F30: the typed model gen/<m>/sorts/models/<model>.bend (I30), never gen/<m>/model/
+        return _typed_model(law, m, root)
     from .codecrun import codec_kind
     if codec_kind(law, root) == "linked":   # I24: the component model gen/<m>/model/<role>.bend (rule X9)
         return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['role']}.bend"
@@ -229,6 +249,12 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
+    if _typed(law):   # F30: emitted as holon.sorts.run3 writes it (holon.sorts.proofs3.law_file), one law-parameter
+        from .sorts import proofs3 as P3   # table per hash function the IR's Fn binders name, importing the typed model
+        laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]
+        hashes = [b["name"] for b in law["statement"].get("binders", []) if str(b.get("type", "")).startswith("Fn<")]
+        return P3.law_file(law, statement_hash(law, m, root),
+                           P3.rel_import(laws_dir, _typed_model(law, m, root, importable=True)), hashes, counter=counter)
     fp = root / law_facts(law, m, root)
     from .codecrun import codec_kind
     kind = codec_kind(law, root)
@@ -444,18 +470,29 @@ def _accepted_entries(root: Path) -> dict[int, dict]:
     return {x["line"]: x["entry"] for x in s["entries"] if x.get("ok")}
 
 
-def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: list[str]) -> bool:
+def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: list[str],
+                 hash_only: bool = True) -> bool:
     """Does an accepted STATEMENT_DIFF entry cover rebinding law lid? law: its current IR, which the entry's new
-    statement must be (None: not compared, for a logged line whose law may have changed again since)."""
+    statement must be (None: not compared, for a logged line whose law may have changed again since). defs: the
+    definitions whose kernel form changed or that entered or left the cone. hash_only: nothing in the binding changed
+    but the statement hash (F30: a catalog_rederivation changes no claim, so it covers a rebinding only when no
+    definition, emitted statement, counter-law or model changed; anything more needs its own entry)."""
     from .statement_diff import core
     if not isinstance(e, dict) or (e.get("law_id") or (e.get("new") or {}).get("law_id")) != lid:
         return False
     if not isinstance(e.get("new"), dict) or (law is not None and core(e["new"]) != core(law)):
         return False
     if stmt_changed:
+        if e.get("kind") == "catalog_rederivation":
+            return hash_only and not defs
         return e.get("kind") in ("strengthening", "weakening", "reextraction")
     return (e.get("kind") == "binding_change" and isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"])
             and set(defs) <= set(e.get("defs") or []))
+
+
+def hash_only_change(x: dict, y: dict) -> bool:
+    """Do two bindings of a law differ in nothing but the statement hash?"""
+    return {k: v for k, v in x.items() if k != "statement_hash"} == {k: v for k, v in y.items() if k != "statement_hash"}
 
 
 def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_defs: dict):
@@ -465,10 +502,13 @@ def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_de
     covered, missing = {}, []
     for lid in changed:
         sc = a[lid].get("statement_hash") != b[lid].get("statement_hash")
-        n = next((n for n, e in sorted(entries.items()) if entry_covers(e, lid, current.get(lid), sc, law_defs[lid])), None)
+        ho = hash_only_change(a[lid], b[lid])
+        n = next((n for n, e in sorted(entries.items()) if entry_covers(e, lid, current.get(lid), sc, law_defs[lid], ho)),
+                 None)
         if n is None:
             missing.append((lid, "no accepted laws/STATEMENT_DIFF.jsonl entry covers it ("
-                                 + ("its statement hash changed: a strengthening, weakening or reextraction" if sc else
+                                 + ("its statement hash changed: a strengthening, weakening or reextraction, or a "
+                                    "catalog_rederivation when nothing else in its binding changed" if sc else
                                     f"its statement is fixed: a binding_change naming {law_defs[lid]}") + ")"))
         else:
             covered[lid] = n
@@ -511,8 +551,8 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
         defs = ln.get("law_defs") if isinstance(ln.get("law_defs"), dict) else {}
         for lid in ln.get("laws") or []:
             e = entries.get(cov.get(lid)) if isinstance(cov.get(lid), int) else None
-            ok = e is not None and (entry_covers(e, lid, None, True, []) or
-                                    entry_covers(e, lid, None, False, defs.get(lid, ln.get("defs") or [])))
+            ld = defs.get(lid, ln.get("defs") or [])   # a catalog_rederivation covers a line only when it logs no def
+            ok = e is not None and (entry_covers(e, lid, None, True, ld) or entry_covers(e, lid, None, False, ld))
             if not ok:
                 problems.append(f"{CHANGES}: post-I10 line {i} rebinds {lid} without an accepted "
                                 "laws/STATEMENT_DIFF.jsonl entry covering it")
