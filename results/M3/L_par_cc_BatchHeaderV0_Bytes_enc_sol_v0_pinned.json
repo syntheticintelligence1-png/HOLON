@@ -1,0 +1,160 @@
+{
+  "artifacts": {
+    "law_name": "l_par_cc_batchheaderv0_bytes_enc_sol_v0_pinned",
+    "laws": "gen/M3/laws/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned/LAWS.bend",
+    "model": "gen/M3/model/header_length.bend",
+    "proof": "gen/M3/proofs/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "open_refl",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 2.242
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 4.348
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 2.242
+  },
+  "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+  "cone": [
+    "BatchHeaderV0_Bytes",
+    "R_BatchHeaderV0",
+    "R_Header",
+    "enc_sol",
+    "enc_sol_at",
+    "enc_sol_tag"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": [
+    "E1"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "filter_bin": null,
+  "generator_sha256": "9168ee8a3c6af3c5112a1e1d0f26cedca6874764a721502d48836b787b37e253",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+  "ledger_assumptions": [
+    "A-codec-domain",
+    "A-dirty",
+    "A-env",
+    "A-implicit",
+    "A-width-Header",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492",
+  "non_vacuity": {
+    "bound": "the premise classes at zeros (pins and correspondences applied)",
+    "degenerate": null,
+    "law": "gen/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned/nonvac/LAWS.bend",
+    "parent_statement_hash": "sha256:7e44f793b8212eb21ea6752365955e9190eac038648efe70e16d42e57e7d2ebc",
+    "reachable": null,
+    "status": "inhabited",
+    "witness": {
+      "h": {
+        "BatchIndex": "0x0000000000000000",
+        "BlobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "DataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "L1MessagePopped": "0x0000000000000000",
+        "ParentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PostStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PrevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "SequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "TotalL1MessagePopped": "0x0000000000000000",
+        "WithdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "k": {
+        "batchIndex": "0x0000000000000000",
+        "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "l1MessagePopped": "0x0000000000000000",
+        "lastBlockNumber": "0x0000000000000000",
+        "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "totalL1MessagePopped": "0x0000000000000000",
+        "version": "0x00",
+        "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  },
+  "premises": [
+    "k.version == 0x00",
+    "h.BatchIndex == k.batchIndex",
+    "h.BlobVersionedHash == k.blobVersionedHash",
+    "h.DataHash == k.dataHash",
+    "h.L1MessagePopped == k.l1MessagePopped",
+    "h.ParentBatchHash == k.parentBatchHash",
+    "h.PostStateRoot == k.postStateHash",
+    "h.PrevStateRoot == k.prevStateHash",
+    "h.TotalL1MessagePopped == k.totalL1MessagePopped",
+    "h.WithdrawalRoot == k.withdrawRootHash",
+    "h.SequencerSetVerifyHash == 0x00*32"
+  ],
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "codec laws are not replayed in I24",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 h: BatchHeaderV0, \u2200 k: Header. k.version == 0x00 \u2227 h.BatchIndex == k.batchIndex \u2227 h.BlobVersionedHash == k.blobVersionedHash \u2227 h.DataHash == k.dataHash \u2227 h.L1MessagePopped == k.l1MessagePopped \u2227 h.ParentBatchHash == k.parentBatchHash \u2227 h.PostStateRoot == k.postStateHash \u2227 h.PrevStateRoot == k.prevStateHash \u2227 h.TotalL1MessagePopped == k.totalL1MessagePopped \u2227 h.WithdrawalRoot == k.withdrawRootHash \u2227 h.SequencerSetVerifyHash == 0x00*32 \u21d2 BatchHeaderV0_Bytes(h) == enc_sol(k)",
+  "statement_hash": "sha256:7e44f793b8212eb21ea6752365955e9190eac038648efe70e16d42e57e7d2ebc",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "PROVED",
+  "subform": "cross_component_codec",
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}

@@ -1,0 +1,177 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_par_cc_batchheaderv0_bytes_enc_sol_v0",
+    "laws": "gen/M3/laws/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0/LAWS.bend",
+    "model": "gen/M3/model/header_length.bend",
+    "proof": "gen/M3/proofs/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : [0, h_BatchIndex_0, h_BatchIndex_1, h_BatchIndex_2, h_BatchIndex_3, h_BatchIndex_4, h_BatchIndex_5, h_BatchIndex_6, h_BatchIndex_7, h_L1MessagePopped_0, h_L1MessagePopped_1, h_L1MessagePopped_2, h_L1MessagePopped_3, h_L1MessagePopped_4, h_L1MessagePopped_5, h_L1MessagePopped_6, h_L1MessagePopped_7, h_TotalL1MessagePopped_0, h_TotalL1MessagePopped_1, h_TotalL1MessagePopped_2, h_TotalL1MessagePopped_3, h_TotalL1MessagePopped_4, h_TotalL1MessagePopped_5, h_TotalL1MessagePopped_6, h_TotalL1MessagePopped_7, h_DataHash_0, h_DataHash_1, h_DataHash_2, h_DataHash_3, h_DataHash_4, h_DataHash_5, h_DataHash_6, h_DataHash_7, h_DataHash_8, h_DataHash_9, h_DataHash_10, h_DataHash_11, h_DataHash_12, h_DataHash_13, h_DataHash_14, h_DataHash_15, h_DataHash_16, h_DataHash_17, h_DataHash_18, h_DataHash_19, h_DataHash_20, h_DataHash_21, h_DataHash_22, h_DataHash_23, h_DataHash_24, h_DataHash_25, h_DataHash_26, h_DataHash_27, h_DataHash_28, h_DataHash_29, h_DataHash_30, h_DataHash_31, h_BlobVersionedHash_0, h_BlobVersionedHash_1, h_BlobVersionedHash_2, h_BlobVersionedHash_3, h_BlobVersionedHash_4, h_BlobVersionedHash_5, h_BlobVersionedHash_6, h_BlobVersionedHash_7, h_BlobVersionedHash_8, h_BlobVersionedHash_9, h_BlobVersionedHash_10, h_BlobVersionedHash_11, h_BlobVersionedHash_12, h_BlobVersionedHash_13, h_BlobVersionedHash_14, h_BlobVersionedHash_15, h_BlobVersionedHash_16, h_BlobVersionedHash_17, h_BlobVersionedHash_18, h_BlobVersionedHash_19, h_BlobVersioned [truncated]",
+      "exit_code": 1,
+      "generator": "open_refl",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "seconds": 2.446
+    },
+    {
+      "bound": "record fills (ones, counting, 0xff, zeros, one field 0xff, 8 random with seed 20261013), the premises applied, kept when the named encoders' ok atoms over record fields hold (32 candidates); hit: ones",
+      "engine": "compiled-model fills",
+      "hit": true,
+      "kind": "refute",
+      "tried": 32
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 2.667
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 4.352
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 2.667
+  },
+  "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+  "cone": [
+    "BatchHeaderV0_Bytes",
+    "R_BatchHeaderV0",
+    "R_Header",
+    "enc_sol",
+    "enc_sol_at",
+    "enc_sol_tag"
+  ],
+  "coverage": null,
+  "difference": {
+    "lhs": "0x000101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101",
+    "rhs": "0x000101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000101010101010101010101010101010101010101010101010101010101010101"
+  },
+  "evidence_levels": [
+    "E1"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "filter_bin": "pending",
+  "generator_sha256": "9168ee8a3c6af3c5112a1e1d0f26cedca6874764a721502d48836b787b37e253",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
+  "ledger_assumptions": [
+    "A-codec-domain",
+    "A-dirty",
+    "A-env",
+    "A-implicit",
+    "A-width-Header",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492",
+  "non_vacuity": {
+    "bound": "the accepted counter-law inhabits the premises",
+    "degenerate": null,
+    "law": "gen/M3/laws/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0/LAWS.bend",
+    "parent_statement_hash": "sha256:0b8327329be394dda1946c3abe9b5970b124bf3c352d53f81609a9dda0599a55",
+    "reachable": null,
+    "status": "counter_witness",
+    "witness": null
+  },
+  "premises": [
+    "k.version == 0x00",
+    "h.BatchIndex == k.batchIndex",
+    "h.BlobVersionedHash == k.blobVersionedHash",
+    "h.DataHash == k.dataHash",
+    "h.L1MessagePopped == k.l1MessagePopped",
+    "h.ParentBatchHash == k.parentBatchHash",
+    "h.PostStateRoot == k.postStateHash",
+    "h.PrevStateRoot == k.prevStateHash",
+    "h.TotalL1MessagePopped == k.totalL1MessagePopped",
+    "h.WithdrawalRoot == k.withdrawRootHash"
+  ],
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 h: BatchHeaderV0, \u2200 k: Header. k.version == 0x00 \u2227 h.BatchIndex == k.batchIndex \u2227 h.BlobVersionedHash == k.blobVersionedHash \u2227 h.DataHash == k.dataHash \u2227 h.L1MessagePopped == k.l1MessagePopped \u2227 h.ParentBatchHash == k.parentBatchHash \u2227 h.PostStateRoot == k.postStateHash \u2227 h.PrevStateRoot == k.prevStateHash \u2227 h.TotalL1MessagePopped == k.totalL1MessagePopped \u2227 h.WithdrawalRoot == k.withdrawRootHash \u21d2 BatchHeaderV0_Bytes(h) == enc_sol(k)",
+  "statement_hash": "sha256:0b8327329be394dda1946c3abe9b5970b124bf3c352d53f81609a9dda0599a55",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "REFUTED",
+  "subform": "cross_component_codec",
+  "triage": "finding",
+  "witness": {
+    "h": {
+      "BatchIndex": "0x0101010101010101",
+      "BlobVersionedHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "DataHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "L1MessagePopped": "0x0101010101010101",
+      "ParentBatchHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "PostStateRoot": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "PrevStateRoot": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "SequencerSetVerifyHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "TotalL1MessagePopped": "0x0101010101010101",
+      "WithdrawalRoot": "0x0101010101010101010101010101010101010101010101010101010101010101"
+    },
+    "k": {
+      "batchIndex": "0x0101010101010101",
+      "blobVersionedHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "dataHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "l1MessagePopped": "0x0101010101010101",
+      "lastBlockNumber": "0x0101010101010101",
+      "parentBatchHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "postStateHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "prevStateHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "totalL1MessagePopped": "0x0101010101010101",
+      "version": "0x00",
+      "withdrawRootHash": "0x0101010101010101010101010101010101010101010101010101010101010101"
+    }
+  },
+  "witness_provenance": {}
+}

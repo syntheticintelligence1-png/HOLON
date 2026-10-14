@@ -1,0 +1,112 @@
+{
+  "artifacts": {
+    "law_name": null,
+    "laws": null,
+    "model": "gen/M3/model/header_length.bend",
+    "proof": null
+  },
+  "attempts": [
+    {
+      "error": "does not apply: a law over unbounded byte strings has no proof route here (gap G6)",
+      "generator": "open_refl",
+      "kind": "proof"
+    },
+    {
+      "bound": "probes (length, tag byte) from the integer constants [0, 1, 2, 249, 257] of the ok conditions of ['BatchHeaderBytes_BlobCommitHash', 'BatchHeaderBytes_BlobVersionedHash']: lengths [1, 2, 3, 248, 249, 250, 256, 257, 258] x tag bytes [1] (the tag premise: tag byte 1, length >= 1), 9 probes, filler bytes ((i * 37) mod 255) + 1; no probe distinguishes the two sides, and a law over unbounded byte strings has no proof route here (gap G6)",
+      "engine": "compiled-model probes",
+      "hit": false,
+      "kind": "refute",
+      "tried": 9
+    }
+  ],
+  "bound": "probes (length, tag byte) from the integer constants [0, 1, 2, 249, 257] of the ok conditions of ['BatchHeaderBytes_BlobCommitHash', 'BatchHeaderBytes_BlobVersionedHash']: lengths [1, 2, 3, 248, 249, 250, 256, 257, 258] x tag bytes [1] (the tag premise: tag byte 1, length >= 1), 9 probes, filler bytes ((i * 37) mod 255) + 1; no probe distinguishes the two sides, and a law over unbounded byte strings has no proof route here (gap G6)",
+  "checker": {
+    "exit_code": null,
+    "marker": "not_run"
+  },
+  "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+  "cone": [
+    "BatchHeaderBytes_BlobCommitHash",
+    "BatchHeaderBytes_BlobCommitHash_ok",
+    "BatchHeaderBytes_BlobVersionedHash",
+    "BatchHeaderBytes_BlobVersionedHash_ok",
+    "BatchHeaderBytes_Version",
+    "BatchHeaderBytes_Version_ok",
+    "byte_at",
+    "sel_bytes",
+    "slice"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": [
+    "E6"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "filter_bin": null,
+  "generator_sha256": "9168ee8a3c6af3c5112a1e1d0f26cedca6874764a721502d48836b787b37e253",
+  "independence_class": "none",
+  "kernel": {
+    "name": "bend",
+    "verdict": "not_run",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "not_run",
+      "role": "primary",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1",
+  "ledger_assumptions": [
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492",
+  "non_vacuity": {
+    "bound": "not attempted: the law is not PROVED",
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:ae48c0b263a6113030b07478a4a2919689e921405c276573eaafd0f1afe2eca7",
+    "reachable": null,
+    "status": "unknown",
+    "witness": null
+  },
+  "premises": [
+    "BatchHeaderBytes_Version(b) == Some(0x01)"
+  ],
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "codec laws are not replayed in I24",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 b: Bytes. BatchHeaderBytes_Version(b) == Some(0x01) \u21d2 BatchHeaderBytes_BlobCommitHash(b) == BatchHeaderBytes_BlobVersionedHash(b)",
+  "statement_hash": "sha256:ae48c0b263a6113030b07478a4a2919689e921405c276573eaafd0f1afe2eca7",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "UNKNOWN",
+  "subform": "weak",
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}
