@@ -107,6 +107,8 @@ class Ctx:
         self.derivation = {e["law_id"]: e for e in dv["laws"]}
         self.registry = json.loads((self.laws_dir / "REGISTRY.json").read_text())
         self.models: dict = {}
+        self.generated: dict = {}           # doc -> (init, machine, document, model path) this context generated
+        self.shared: dict = {}              # the same, handed down by a parent context (holon run --jobs)
 
     def model_path(self, doc_rel: str) -> Path:
         """The typed model as `holon model` names it (gen/<M>/sorts/models/<model>.bend, a link)."""
@@ -121,15 +123,19 @@ class Ctx:
         not the generated text."""
         if doc_rel in self.models:
             return self.models[doc_rel]
-        from ..machine import load_extracted
-        init = init_of(self.m, self.root, self.sidecar_arg, doc_rel)
-        text, mm = generate(self.m, self.root, doc_rel, typed=True, sidecar=self.sidecar_arg, init=init)
-        mp = write_model_file(self.model_path(doc_rel).parent, model_name(doc_rel), text)
-        ip = mp.parent / f"{model_name(doc_rel)}.init.json"
-        if not ip.is_file() or ip.read_text(encoding="utf-8") != dumps(init):
-            ip.write_text(dumps(init), encoding="utf-8")
-        src = self.sc.source(doc_rel)
-        doc = load_extracted(self.root / doc_rel, self.root, source=(self.root / src) if src else None)
+        if doc_rel in self.shared:          # a law context of --jobs: the parent's model, an evaluator of its own
+            init, mm, doc, mp = self.shared[doc_rel]
+        else:
+            from ..machine import load_extracted
+            init = init_of(self.m, self.root, self.sidecar_arg, doc_rel)
+            text, mm = generate(self.m, self.root, doc_rel, typed=True, sidecar=self.sidecar_arg, init=init)
+            mp = write_model_file(self.model_path(doc_rel).parent, model_name(doc_rel), text)
+            ip = mp.parent / f"{model_name(doc_rel)}.init.json"
+            if not ip.is_file() or ip.read_text(encoding="utf-8") != dumps(init):
+                ip.write_text(dumps(init), encoding="utf-8")
+            src = self.sc.source(doc_rel)
+            doc = load_extracted(self.root / doc_rel, self.root, source=(self.root / src) if src else None)
+            self.generated[doc_rel] = (init, mm, doc, mp)
         ev = E3.Evaluator.build(mp, doc)
         hp = self.root / "results" / self.m / "sorts" / "refinement" / "hints.json"
         hints = S3.Hints(json.loads(hp.read_text()) if hp.is_file() else None)
@@ -393,14 +399,19 @@ class Decider:
                       "hashes": {h: [["0x" + k[2:], "0x%064x" % v] for k, v in sorted(tables[h].items())]
                                  for h in hashes}}
                 ok = checker["marker"] == "ALL PROOFS CHECK" and verdict == "checked"
+                # a counter-law that a kernel rejects is not kept: the entry stays UNKNOWN with its witness and the
+                # checkers' answers (bend2's marker, BendTT's verdict)
                 witnesses[entry] = {"status": "REFUTED" if ok else "UNKNOWN", "witness": wj,
-                                    "laws": rel(lp, ctx.root), "proof": rel(p, ctx.root), "checker": checker,
+                                    "laws": rel(lp, ctx.root) if ok else None, "proof": rel(p, ctx.root) if ok else None,
+                                    "checker": checker,
                                     "verdict": verdict, "stage": w["stage"] if w["stage"] in ("S2", "S3") else None,
                                     "search_stage": w["stage"], "bound": w["bound"],
                                     "replay": {"status": "not_run", "detail": "", "panic_site": None},
                                     "_steps": steps}
                 if ok and primary is None:
                     primary = entry
+                if not ok:
+                    shutil.rmtree(pdir / f"entry_{entry}", ignore_errors=True)
             if primary is not None:
                 status = "REFUTED"
                 w = witnesses[primary]
@@ -661,10 +672,15 @@ def run_main(a) -> int:
             else:
                 c = Ctx(a.milestone, root, a.sidecar, gen, out,
                         log=lambda m, lid=lid: print(f"[{lid}] {m}", flush=True))
+                c.shared = dict(ctx.generated)
                 with lock:
                     contexts.append(c)
             try:
                 rec, rep = _decide_law(c, lid, None)
+            except BaseException as ex:
+                import traceback
+                print(f"[{lid}] failed: {type(ex).__name__}: {ex}\n{traceback.format_exc()}", flush=True)
+                raise
             finally:
                 if c is not ctx:
                     c.close()

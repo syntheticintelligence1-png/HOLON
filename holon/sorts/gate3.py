@@ -203,6 +203,9 @@ class Gate3:
             prob = law_import_problem(proof, laws)
             if prob:
                 bad.append(f"{lid} {label}: {prob}")
+        if n == 0:
+            self.na["G5"] = "no I30 law of this milestone is decided: no proof file to re-check"
+            return
         self.checks["G5"] = _res(not bad and n > 0, f"{n} proof files re-checked by Bend (slowest {round(slow, 1)} s)"
                                  if not bad else "; ".join(bad[:8]))
 
@@ -213,6 +216,9 @@ class Gate3:
             r = bend.check_verdict(proof)
             if not r.ok:
                 bad.append(f"{lid} {label}: BendTT {r.first_line}")
+        if n == 0:
+            self.na["G7"] = "no I30 law of this milestone is decided: no proof file to re-check"
+            return
         self.checks["G7"] = _res(not bad and n > 0, f"{n} proof files re-checked by BendTT (--verdict)" if not bad
                                  else "; ".join(bad[:8]))
 
@@ -314,6 +320,9 @@ class Gate3:
                                   "detail": res.first_line})
             done.add(r["subform"])
         bad = [c for c in self.canaries if c["accepted"]]
+        if not self.canaries and not any(r and r.get("status") == "REFUTED" for r in self.records().values()):
+            self.na["G4"] = "no I30 law of this milestone is REFUTED: no checked counter-law to mutate"
+            return
         self.checks["G4"] = _res(bool(self.canaries) and not bad, f"{len(self.canaries)} canaries rejected (subforms "
                                  f"{sorted(done)})" if self.canaries and not bad else
                                  f"canaries accepted: {[c['law']['law_id'] for c in bad]}" if bad else "no canary")

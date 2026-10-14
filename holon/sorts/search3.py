@@ -290,8 +290,21 @@ class Model:
         return out
 
     def fingerprint(self, g: str) -> str:
+        """A state's identity: its storage and ghost store, each a set of keyed entries (a slot written 0 is a slot
+        never written)."""
+        def canon(x):
+            if isinstance(x, dict):
+                return {k: canon(v) for k, v in x.items()}
+            if isinstance(x, list):
+                ys = [canon(v) for v in x]
+                if ys and all(isinstance(y, dict) and set((y.get("f") or {})) == {"k", "v"} for y in ys):
+                    ys = [y for y in ys if not (isinstance(y["f"]["v"], str) and y["f"]["v"].startswith("0x")
+                                               and int(y["f"]["v"], 16) == 0)]
+                    ys = sorted(ys, key=lambda y: json.dumps(y, sort_keys=True))
+                return ys
+            return x
         r = self.ev.req({"show": g})
-        return hashlib.sha256(json.dumps(r["out"], sort_keys=True).encode()).hexdigest()
+        return hashlib.sha256(json.dumps(canon(r["out"]), sort_keys=True).encode()).hexdigest()
 
     def drop(self, names: list) -> None:
         if names:
@@ -563,9 +576,13 @@ class Synth:
                 if accept is None and best[0] >= done:
                     return st, code
                 continue
-            # 2. the leaves' value sets: the first move that improves
+            # 2. the leaves' value sets: the first move that improves (at a step that already succeeds and is not yet
+            # accepted, only the focus leaves: the others change what succeeds, not what is accepted)
             improved = False
+            plateau = bool(fset) and accept is not None and code == 0
             for leaf, ty in order:
+                if plateau and leaf not in fset:
+                    continue
                 d = directed_of(dvals, leaf, ty)
                 cands = []
                 for v in self.value_set(leaf, ty, st, state, prev_ts):
@@ -595,6 +612,8 @@ class Synth:
                 continue
             # 3. two coordinates: a move that made an earlier check fail (the latest failing first), then another
             # leaf at that check's directed values or a small value
+            if plateau:
+                seconds = [t for t in seconds if t[2] in fset]
             seconds.sort(key=lambda t: self.score(t[1], target), reverse=True)
             for cand, c2, leaf in seconds:
                 if evals >= self.max_evals:
@@ -785,6 +804,7 @@ class Refuter:
         self.log = log or (lambda s: None)
         self.ts0 = int(self.m.init.get("timestamp") or 1) or 1
         self.cache: dict = {}
+        self.fp: dict = {}                  # state handle -> fingerprint (successors computes it)
 
     def pools(self, g: str, trace: list) -> tuple[dict, dict]:
         """(state, pools) of a reachable state (cached: a state handle is never reused for another state)."""
@@ -817,9 +837,44 @@ class Refuter:
             return not self.m.pred(f"coerce_{x}", g, st)
         return acc, None, acc
 
+    def focus_of(self, law: dict, entry: str) -> list:
+        """The input leaves a coercion's outcome reads (its member function, its read, and the terms of the hit
+        writes of the entry point), from the law's derivation entry and the document: the leaves a search of a step
+        that already succeeds varies first."""
+        terms = [(law.get("coercion") or {}).get("member_fn"), (law.get("basis") or {}).get("read")]
+        act = next((x for x in self.doc.get("actions") or [] if x.get("name") == entry), None) or {}
+        for h in law.get("hits") or []:
+            m = re.fullmatch(r"(\w+)\[(\d+)\]", str(h.get("at") or ""))
+            if h.get("action") == entry and m and m.group(1) in act and int(m.group(2)) < len(act[m.group(1)]):
+                terms.append(act[m.group(1)][int(m.group(2))])
+        out: list = []
+
+        def walk(t):
+            if isinstance(t, list) and t:
+                if t[0] == "param" and len(t) == 2 and isinstance(t[1], str):
+                    leaf = ("param", t[1])
+                elif t[0] == "member" and len(t) == 3 and isinstance(t[2], str) and isinstance(t[1], list) \
+                        and t[1][:1] == ["param"] and len(t[1]) == 2:
+                    leaf = ("param", t[1][1], t[2])
+                elif t[0] == "blobhash":
+                    leaf = ("env", "blobhash")
+                else:
+                    leaf = None
+                if leaf is not None and leaf not in out:
+                    out.append(leaf)
+                for y in t[1:]:
+                    walk(y)
+            elif isinstance(t, dict):
+                for y in t.values():
+                    walk(y)
+        for t in terms:
+            walk(t)
+        return out
+
     def entry_at(self, law: dict, entry: str, g: str, trace: list):
         _acc, target, accept = self.accept_for(law, entry, g)
-        st, code = self.synth(g, entry, trace, target=target, accept=accept)
+        focus = self.focus_of(law, entry) if target is None else None
+        st, code = self.synth(g, entry, trace, target=target, accept=accept, focus=focus)
         return st
 
     def successors(self, g: str, trace: list, entry: str, limit: int, variants: int = 3) -> list:
@@ -856,6 +911,7 @@ class Refuter:
                     self.m.drop([g2])
                     continue
                 seen.add(h)
+                self.fp[g2] = h
                 kept.append((trace + [c], g2))
             out += kept
         return out
@@ -873,17 +929,24 @@ class Refuter:
         # breadth first: the prefixes of depth d are tried in their parents' order, each parent's successors
         # generated when its turn comes (a parent whose turn never comes is never expanded)
         level = [([], g0)]
+        # a state reached again (its storage, ghost store and clock) is the state already tried: the budget counts
+        # states, as I15's stages do
+        seen = {(self.m.fingerprint(g0), self.ts0)}
         for d in range(1, depth + 1):
             nxt = []
             for trace, g in level:
                 if tried >= maxp:
                     break
                 for t2, g2 in self.successors(g, trace, entry, maxp - tried):
+                    key = (self.fp.get(g2) or self.m.fingerprint(g2), int(t2[-1].env.get("block.timestamp") or 0))
+                    if key in seen:
+                        continue
+                    seen.add(key)
                     tried += 1
                     st = self.entry_at(law, entry, g2, t2)
                     if st is not None:
                         self.log(f"  {entry}: witness at depth {d} after {tried} prefixes")
-                        return t2 + [st], "S2", f"S1+S2: {tried} prefixes (depth <= {depth})"
+                        return t2 + [st], "S2", f"S1+S2: {tried} distinct states (depth <= {depth})"
                     nxt.append((t2, g2))
                     if tried >= maxp:
                         break
@@ -892,7 +955,7 @@ class Refuter:
             level = nxt
             if tried >= maxp or not level:
                 break
-        bound = f"S1+S2: {tried} prefixes of at most {depth} successful steps (max {maxp}), no witness"
+        bound = f"S1+S2: {tried} distinct states of at most {depth} successful steps (max {maxp}), no witness"
         # S3: the other entry points' witnesses, steps inserted, the last step replaced by this entry point's
         ins = int(self.budget.get("neighbourhood_insertion_length_max", 2))
         maxn = int(self.budget.get("neighbourhood_prefixes_per_entry_point_max", 1000))
