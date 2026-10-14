@@ -1,0 +1,1141 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyLock.sol:19-23",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyLock",
+      "edges": [],
+      "effects": [
+        {
+          "family": "stage",
+          "src": "src/ToyLock.sol:21"
+        },
+        {
+          "family": "start",
+          "src": "src/ToyLock.sol:22"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "61726d6564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "storage",
+              "stage"
+            ],
+            0
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "61726d6564"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "storage",
+                  "stage"
+                ],
+                0
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "armed",
+          "src": "src/ToyLock.sol:20"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "arm",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyLock.sol:20",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "stage": 1,
+        "start": [
+          "env",
+          "block.timestamp"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x370419e5",
+      "src": "src/ToyLock.sol:19-23",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "stage",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyLock.sol:21",
+          "stack": [],
+          "value": 1
+        },
+        {
+          "cond": 1,
+          "family": "start",
+          "path": [],
+          "seq": 3,
+          "src": "src/ToyLock.sol:22",
+          "stack": [],
+          "value": [
+            "env",
+            "block.timestamp"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyLock.sol:50-54",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyLock",
+      "edges": [],
+      "effects": [
+        {
+          "family": "prt",
+          "src": "src/ToyLock.sol:53"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "66697265"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "storage",
+              "stage"
+            ],
+            6
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "66697265"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "storage",
+                  "stage"
+                ],
+                6
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "fire",
+          "src": "src/ToyLock.sol:51"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "fire",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyLock.sol:51",
+          0
+        ],
+        [
+          "panic",
+          0
+        ],
+        [
+          "panic",
+          1
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "storage",
+              "W"
+            ],
+            [
+              "storage",
+              "start"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "W"
+              ],
+              [
+                "storage",
+                "start"
+              ]
+            ]
+          ],
+          "op": "+",
+          "seq": 2,
+          "src": "src/ToyLock.sol:53",
+          "stack": []
+        },
+        {
+          "args": [
+            [
+              "+",
+              [
+                "storage",
+                "W"
+              ],
+              [
+                "storage",
+                "start"
+              ]
+            ],
+            [
+              "env",
+              "block.timestamp"
+            ]
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "-",
+              [
+                "+",
+                [
+                  "storage",
+                  "W"
+                ],
+                [
+                  "storage",
+                  "start"
+                ]
+              ],
+              [
+                "env",
+                "block.timestamp"
+              ]
+            ]
+          ],
+          "op": "-",
+          "seq": 3,
+          "src": "src/ToyLock.sol:53",
+          "stack": []
+        }
+      ],
+      "params": [],
+      "payable": false,
+      "post": {
+        "prt": [
+          "-",
+          [
+            "+",
+            [
+              "storage",
+              "W"
+            ],
+            [
+              "storage",
+              "start"
+            ]
+          ],
+          [
+            "env",
+            "block.timestamp"
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x457094cc",
+      "src": "src/ToyLock.sol:50-54",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "prt",
+          "path": [],
+          "seq": 4,
+          "src": "src/ToyLock.sol:53",
+          "stack": [],
+          "value": [
+            "-",
+            [
+              "+",
+              [
+                "storage",
+                "W"
+              ],
+              [
+                "storage",
+                "start"
+              ]
+            ],
+            [
+              "env",
+              "block.timestamp"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyLock.sol:25-28",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyLock",
+      "edges": [],
+      "effects": [
+        {
+          "family": "stage",
+          "src": "src/ToyLock.sol:27"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "7331"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "storage",
+              "stage"
+            ],
+            1
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "7331"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "storage",
+                  "stage"
+                ],
+                1
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "s1",
+          "src": "src/ToyLock.sol:26"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "s1",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyLock.sol:26",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "stage": 2
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x6cc014de",
+      "src": "src/ToyLock.sol:25-28",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "stage",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyLock.sol:27",
+          "stack": [],
+          "value": 2
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyLock.sol:30-33",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyLock",
+      "edges": [],
+      "effects": [
+        {
+          "family": "stage",
+          "src": "src/ToyLock.sol:32"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "7332"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "storage",
+              "stage"
+            ],
+            2
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "7332"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "storage",
+                  "stage"
+                ],
+                2
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "s2",
+          "src": "src/ToyLock.sol:31"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "s2",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyLock.sol:31",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "stage": 3
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xa314150f",
+      "src": "src/ToyLock.sol:30-33",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "stage",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyLock.sol:32",
+          "stack": [],
+          "value": 3
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyLock.sol:35-38",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyLock",
+      "edges": [],
+      "effects": [
+        {
+          "family": "stage",
+          "src": "src/ToyLock.sol:37"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "7333"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "storage",
+              "stage"
+            ],
+            3
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "7333"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "storage",
+                  "stage"
+                ],
+                3
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "s3",
+          "src": "src/ToyLock.sol:36"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "s3",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyLock.sol:36",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "stage": 4
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xa5d666a9",
+      "src": "src/ToyLock.sol:35-38",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "stage",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyLock.sol:37",
+          "stack": [],
+          "value": 4
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyLock.sol:40-43",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyLock",
+      "edges": [],
+      "effects": [
+        {
+          "family": "stage",
+          "src": "src/ToyLock.sol:42"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "7334"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "storage",
+              "stage"
+            ],
+            4
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "7334"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "storage",
+                  "stage"
+                ],
+                4
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "s4",
+          "src": "src/ToyLock.sol:41"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "s4",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyLock.sol:41",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "stage": 5
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xc8af3aa6",
+      "src": "src/ToyLock.sol:40-43",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "stage",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyLock.sol:42",
+          "stack": [],
+          "value": 5
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyLock.sol:45-48",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyLock",
+      "edges": [],
+      "effects": [
+        {
+          "family": "stage",
+          "src": "src/ToyLock.sol:47"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "7335"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "storage",
+              "stage"
+            ],
+            5
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "7335"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "storage",
+                  "stage"
+                ],
+                5
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "s5",
+          "src": "src/ToyLock.sol:46"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "s5",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyLock.sol:46",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "stage": 6
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x8d26739f",
+      "src": "src/ToyLock.sol:45-48",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "stage",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyLock.sol:47",
+          "stack": [],
+          "value": 6
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyLock.sol:15-17",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyLock.sol:15-17",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyLock",
+      "edges": [],
+      "effects": [
+        {
+          "family": "W",
+          "src": "src/ToyLock.sol:16"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "setW",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "w",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "W": [
+          "param",
+          "w"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xe9338a00",
+      "src": "src/ToyLock.sol:15-17",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "W",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyLock.sol:16",
+          "stack": [],
+          "value": [
+            "param",
+            "w"
+          ]
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+    }
+  ],
+  "constants": {},
+  "contract": "ToyLock",
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.3",
+    "inputs": [
+      {
+        "sha256": "dc83fecfcb56904f5f22f15a406c09cb8b09e2e9a2ad8cb1a45ca98a5b3b4882",
+        "unit": "src/ToyLock.sol"
+      }
+    ],
+    "kind": "transitions",
+    "method": "extracted",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "storageLayout"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "tests_m3/fixtures/refute/a/extract_toylock.json",
+      "sha256": "a7ace2126f09fc7c5c1cada2f39a62f3b088801188a83ae8bc95e5963bea8c57"
+    },
+    "toolchain": {
+      "solc": {
+        "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+        "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "W",
+      "offset": 0,
+      "slot": 0,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "start",
+      "offset": 0,
+      "slot": 1,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "stage",
+      "offset": 0,
+      "slot": 2,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "prt",
+      "offset": 0,
+      "slot": 3,
+      "value": "uint256",
+      "width": 256
+    }
+  ],
+  "target": {
+    "commit": null,
+    "repo": "holon/toy-lock",
+    "scope": "planted deep-chain refutation fixture (I40), variant a"
+  }
+}

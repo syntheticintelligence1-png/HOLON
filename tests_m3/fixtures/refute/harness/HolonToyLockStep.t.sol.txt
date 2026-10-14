@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: MIT
+// I40 prereg instrument (tests_m3/_i40.py::toy_run): the generic I20 step harness (HolonStepBase, the byte copy beside
+// this file) on the planted ToyLock (tests_m3/fixtures/refute/<variant>/src/ToyLock.sol). The toy has no binding:
+// holonDeploy creates it with no constructor argument, so the initial state is the zero storage, as the toy's model
+// sidecar says ("binding": null). Every witness step is a call step (kind 2). Copied into a scratch Foundry project.
+pragma solidity =0.8.24;
+
+import {HolonStepBase} from "./HolonStepBase.sol";
+import {ToyLock} from "../src/ToyLock.sol";
+
+contract HolonToyLockStepTest is HolonStepBase {
+    function holonDeploy(uint256, uint256[] memory) internal override returns (address) {
+        return address(new ToyLock());
+    }
+}

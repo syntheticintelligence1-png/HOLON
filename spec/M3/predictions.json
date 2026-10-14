@@ -1184,6 +1184,218 @@
           "G11V"
         ]
       }
+    },
+    "I40": {
+      "title": "Refutation engines, Appendix D encodings, BMC over the extracted TRANS edges, concretization, emitted tests and the final finding filter",
+      "plan": "docs/BUILD_PLAN.md#i40",
+      "prompt": "prompts/I40_refute.md",
+      "predictions": [
+        {
+          "id": "I40-P1",
+          "claim": "SMT re-finds every existing REFUTED witness class: the 26 classes of spec/M3/lib/refute.json (one per REFUTED record of results/{M0,M1,M2,M2/extracted_m1,M3} at the prereg, one per checked entry point of a per-entry record: C01 M0/L_dom_hdr domain, C02 L_par_hdr_ssvh codec (bytes 185-216), C03 L_par_hdr_v2 codec (byte 0), C04-C11 the eight M1 trace classes, C12-C14 the :363 site law at commitBatch, commitBatchWithProof, commitState, C15 the :636 site law at finalizeBatch, C16-C22 the seven view records of results/M2/extracted_m1, C23-C25 the three M3 cross-component codec laws (bytes 185-216), C26 the M3 domain law). For each, the template query over the law's own model (the witness's keys and action skeleton fixed, everything else free; the differing positions required for a codec class; the version byte and the two verdicts for a domain class) is sat within the rlimit of 200000000, and the first candidate's counter-law gen/M3/refute/refind/<id>/PROOF.bend (importing the record's model and LAWS.bend, defining Laws.<law_name>) is accepted by Bend and BendTT with the class's signature.",
+          "check": "tests_m3/test_refute.py::TestRefind::test_smt_refinds_every_existing_refuted_witness_class"
+        },
+        {
+          "id": "I40-P2",
+          "claim": "On the 88 codec laws (M0's 8 over facts/morph_header.json and the 80 M3 PAR laws over gen/M3/codec/header_length.json) the solver's verdict on each negation is the one its status implies: sat with an accepted candidate on exactly the 7 REFUTED laws (M0 L_dom_hdr, L_par_hdr_ssvh, L_par_hdr_v2; M3 L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2, L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0, L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1, L_par_dom_BatchHeaderBytes_validate_ok_load_sol), unsat on the 78 PROVED laws and on the 3 PAR-weak UNKNOWN laws (byte strings up to 512 bytes); no query ends unknown.",
+          "check": "tests_m3/test_refute.py::TestCodecAgreement::test_the_solver_agrees_with_every_codec_status"
+        },
+        {
+          "id": "I40-P3",
+          "claim": "Every solver, fuzzer and BMC candidate either passes its counter-law on the law's compiled model (Bend and BendTT accept it) or is discarded with the checker's output, and none is dropped silently; on the 26 class templates no candidate is discarded (each first candidate passes): the Appendix D encodings (E1-E7 with ground NZ) agree with the compiled models on every shape that has a refutation.",
+          "check": "tests_m3/test_refute.py::TestRefind::test_no_candidate_is_discarded_on_the_templates and tests_m3/test_refute.py::TestEngines::test_every_candidate_is_accounted_for"
+        },
+        {
+          "id": "I40-P4",
+          "claim": "I15's two UNKNOWN site laws stay UNKNOWN. L_sort_site_def_lci_356891e4 ((lfi + len(win)) - 1 needs lfi + len(win) >= 1; the hand model's window always holds the entry at LFI) and L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17 (btot - bn; a committed header's total is its parent's plus its own count): SMT unrolled to 8 steps of their instrumented model (gen/M2/model/morph_rollup.bend) from s0 is unsat with no candidate (bound {steps: 8}, budget rlimit 200000000 per query), fuzz (seed 20261014, 4096 candidates) finds no candidate; their records do not change beyond generator_sha256 and timing.",
+          "check": "tests_m3/test_refute.py::TestUnknowns::test_the_i15_site_laws_stay_unknown"
+        },
+        {
+          "id": "I40-P5",
+          "claim": "I20's two UNKNOWN width laws stay UNKNOWN. L_sort_width_batchheadercodecv0_144_1abeb29c (batchIndex at BatchHeaderCodecV0.sol:144) and L_sort_width_batchheadercodecv0_166_8ad80b42 (totalL1MessagePopped at :166): BMC over the TRANS edges of spec/M2/facts/morph_rollup.extracted.json from the binding's deployment shows no path to a stored value >= 2^64 within H = 8 (no_path, largest_k 8, budget rlimit 200000000 per query): within 8 steps the stored batchIndex is at most 8 and totalL1MessagePopped stays 0 under the deployment's empty queue; their records do not change.",
+          "check": "tests_m3/test_refute.py::TestUnknowns::test_the_i20_width_laws_stay_unknown"
+        },
+        {
+          "id": "I40-P6",
+          "claim": "I24's three UNKNOWN PAR-weak laws stay UNKNOWN (L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2, ..._BlobVersionedHash_v0, ..._BlobVersionedHash_v1): SMT on each negation is unsat (BlobCommitHash dispatches by version to exactly BlobHashesHash at >= 2 and BlobVersionedHash below, common/batch/batch_header.go:138-148, so under the tag premise both sides are one function), fuzz accepts none, and no I40 engine proves a byte-string law (I24 gap G6 stays).",
+          "check": "tests_m3/test_refute.py::TestUnknowns::test_the_par_weak_laws_stay_unknown"
+        },
+        {
+          "id": "I40-P7",
+          "claim": "Every record's bin is recomputed (final filter F1-F4 over concretization K1-K4): of the 24 REFUTED records at the prereg (13 finding, 11 pending before), 16 are finding (M0 L_par_hdr_ssvh, L_par_hdr_v2 and the three M3 L_par_cc laws by commit class; M1 L_sort_remaining, L_sym_omega, L_tag_BVH, L_undo_BVH, L_undo_cancel, M2 L_sort_site_rollup_363_1fc7f88a and _636_e68daf06, and the view's L_sort_remaining, L_sym_omega, L_undo_BVH, L_undo_cancel directly), 4 known_limitation with BMC no_path within H = 8 (M0 L_dom_hdr and M3 L_par_dom_BatchHeaderBytes_validate_ok_load_sol: target dom_v0_long, no successful public step loads a version-0 header longer than 249 bytes, every load being authenticated against committedBatches; M1 and view L_nat_eta2: target eta2_state, committedStateRoots[0] is never zero while batch 1 is unfinalized), 1 model_defect (the view's L_disch_delay_nofree: its emitted test fails, the last commitBatch(n=1) that the view accepts reverting on the real Rollup), 3 pending (M1 and view L_fact_Z: the go_consumer side does not observe the obstruction, ParseBatch rejecting both sidecars; M1 L_own_txspayload: go_only, a node-level public path needs I39).",
+          "check": "tests_m3/test_refute.py::TestConcretization::test_every_refuted_record_gets_its_predicted_bin",
+          "expected": {
+            "M0/L_dom_hdr": "known_limitation",
+            "M0/L_par_hdr_ssvh": "finding",
+            "M0/L_par_hdr_v2": "finding",
+            "M1/L_fact_Z": "pending",
+            "M1/L_nat_eta2": "known_limitation",
+            "M1/L_own_txspayload": "pending",
+            "M1/L_sort_remaining": "finding",
+            "M1/L_sym_omega": "finding",
+            "M1/L_tag_BVH": "finding",
+            "M1/L_undo_BVH": "finding",
+            "M1/L_undo_cancel": "finding",
+            "M2/L_sort_site_rollup_363_1fc7f88a": "finding",
+            "M2/L_sort_site_rollup_636_e68daf06": "finding",
+            "M2/extracted_m1/L_disch_delay_nofree": "model_defect",
+            "M2/extracted_m1/L_fact_Z": "pending",
+            "M2/extracted_m1/L_nat_eta2": "known_limitation",
+            "M2/extracted_m1/L_sort_remaining": "finding",
+            "M2/extracted_m1/L_sym_omega": "finding",
+            "M2/extracted_m1/L_undo_BVH": "finding",
+            "M2/extracted_m1/L_undo_cancel": "finding",
+            "M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": "finding",
+            "M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0": "finding",
+            "M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": "finding",
+            "M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol": "known_limitation"
+          }
+        },
+        {
+          "id": "I40-P8",
+          "claim": "Deep reaches: of the 120 guard reaches I20's step refinement left unfalsified (results/M2/refinement/extracted.json), BMC over the extracted TRANS edges from R0 falsifies these 8 with shortest paths that replay on the real Rollup (every step but the last ok, the last reverting with the reach's reason, external-call answers agreeing): the six 'pending revert request' reaches Rollup.sol:132#0 of challengeState, commitBatch, commitBatchWithProof, commitState, finalizeBatch and proveState, each in 4 steps (a commit, a challenge, a proveState after the proof window whose timeout branch sets revertReqIndex, then the action), and the reinitializer reaches Initializable.sol:120#0 of initialize2 and initialize3, each in 2 steps; and shows no path within H = 8 to 22: initialize's four Initializable.sol:133 and initialize2's Rollup.sol:189 constant-condition reaches, initialize's Rollup.sol:169 and :171, initialize4's Initializable.sol:120 and Rollup.sol:211-214, and importGenesisBatch's ten reaches after :228 (Rollup.sol:825, :826, :844, :233, :235, :237, :238, :239, BatchHeaderCodecV0.sol:32, BatchHeaderCodecV1.sol:35).",
+          "check": "tests_m3/test_refute.py::TestReaches::test_bmc_falsifies_the_revert_request_and_reinitializer_reaches and tests_m3/test_refute.py::TestReaches::test_bmc_shows_the_closed_reaches_unreachable_within_h"
+        },
+        {
+          "id": "I40-P9",
+          "claim": "Sensitivity on the planted fixture (tests_m3/fixtures/refute/, test milestones T401 and T402): the realize law L_sort_realize_toylock_53_941d10c2 of variant a (W + start - block.timestamp at src/ToyLock.sol:53, whose only counterexample is the seven-step chain arm, s1, s2, s3, s4, s5, fire with fire after arm) is UNKNOWN with no witness under the current refuter (I30's S1-S3 with the rollup's budget: at most 4-step traces, S3 needs another entry point) and is REFUTED by BMC (H = 8) with exactly that 7-step witness, its counter-law accepted by Bend and BendTT, its emitted test and holon's replay passing, and the independent replay on the real toy giving six ok steps and Panic 0x11; variant b (require(W + start >= block.timestamp) on line 52) is not REFUTED and BMC returns no_path with largest_k 8.",
+          "check": "tests_m3/test_refute.py::TestFixture::test_bmc_finds_the_seven_step_chain_the_current_refuter_misses and tests_m3/test_refute.py::TestFixture::test_the_guarded_variant_has_no_path"
+        },
+        {
+          "id": "I40-P10",
+          "claim": "I21's open findings, split: T2's EVM half (a public commit at version 0 or 1 carrying no blob, which stores ZERO_VERSIONED_HASH) has a 1-step path from R0 that replays on the real Rollup (one ok step after which batchBlobVersionedHashes[1] is ZERO_VERSIONED_HASH, external calls agreeing); T1's EVM half (a successful public step loading a 281-byte version-0 header) and F-M2-42 (a version-2 commit whose blob-hash vector holds a zero before a non-zero entry, excluded by E3's dense prefix) have no path within H = 8 (no_path, largest_k 8); T1's and T2's Go halves are out_of_scope (T1's node-side reachability, the derivation stopping at the 2954 281-byte-parent commits, needs I39's Go derivation and product machine, which does not exist; T2's ParseBatch is I38/I39), and F-M2-38, F-M2-39, F-M2-40, F-M2-41 are out_of_scope with the sidecar's reasons.",
+          "check": "tests_m3/test_refute.py::TestI21::test_i21_findings_split"
+        },
+        {
+          "id": "I40-P11",
+          "claim": "The emitted tests (holon/gen/foundry.py, holon/gen/gotest.py) replace the hand op tables: for each of the 16 public_schedule and library_api sides of the 13 records with I4 replay entries (M0 3, M1 8, M2 2), the emitted test's side has the hand harness's status and obstruction_observed.",
+          "check": "tests_m3/test_refute.py::TestConcretization::test_emitted_tests_reproduce_the_hand_harness_sides"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I40-R1",
+          "claim": "Gates M0, M1 and M2 pass (G6 recomputing every REFUTED record's bin with the final rule); every M0-M2 record keeps its status, statement hash and witness; no PROVED record changes status.",
+          "check": "gate and tests_m3/test_refute.py::TestGate::test_gates_m0_m2_pass_with_the_final_filter and tests_m3/test_refute.py::TestRecordsAndShared::test_m0_m2_statuses_and_witnesses_unchanged and tests_m3/test_refute.py::TestCodecAgreement::test_no_proved_record_changes_status"
+        },
+        {
+          "id": "I40-R2",
+          "claim": "Every M0-M2 record file at the prereg differs at HEAD only in filter_bin, concretization, generator_sha256 and keys named seconds; no commit that writes an I40 outcome path changes laws/M0-M2, gen/M0-M2, replay/M0-M2, spec/M1/, spec/M2/facts/, spec/M2/lib/, gen/M3/sorts/, a frozen root or an I40 instrument (spec/M3/lib/refute.json, spec/M3/lib/sort_types.json, spec/M3/predictions.json, prompts/I40_refute.md, tests_m3/test_refute.py, tests_m3/_i40.py, tests_m3/fixtures/refute/), and every result record file of results/{M0,M1,M2,M2/extracted_m1,M3} such a commit changes differs from its parent's version only in those fields, none added or deleted (checked from git).",
+          "check": "tests_m3/test_refute.py::TestRecordsAndShared::test_earlier_records_change_only_in_the_filter_fields and tests_m3/test_refute.py::TestRecordsAndShared::test_outcome_commits_touch_no_earlier_milestone"
+        },
+        {
+          "id": "I40-R3",
+          "claim": "holon.filter.bin_of stays I4's provisional rule (tests_m2/_i4.py::expected_bin); holon.filter.final_bin agrees with tests_m3/_i40.py::expected_final_bin on every small input; the only amendments are the two expected I4 lines (tests_m2/test_filter.py::TestBins::test_records_follow_the_rule and ::test_bins_of_recorded_replays).",
+          "check": "tests_m3/test_refute.py::TestFilterRule::test_final_bin_agrees_with_the_rule_on_all_small_inputs and audit prereg"
+        },
+        {
+          "id": "I40-R4",
+          "claim": "Construction checks, not counted: the sidecar's computed fields are sidecar_doc on the prereg tree; the solver pin is the installed z3 4.16.0; the toys re-extract byte for byte; the hand-built toy chains and rollup paths behave on the real code as the instruments expect (run at the prereg); every query is ground and states its instances; layout queries exist; BMC's queries state E5's time and E7's cost instances; config/holon.json pins the solver; filter.json lists every recomputed bin; every BMC path obeys the sidecar's environment (principals, time, blob hashes, value, H); the encoder's instance counts; every REFUTED record at HEAD has a concretization and the final bin; the manifest; every reach has a verdict; records valid under v1 and v2 with the schema's known_limitation; emitted tests regenerate byte for byte; holon refute --check reproduces every output; no target identifier in the engines; the full M3 gate passes (it fails at the prereg: its G6 finds no target commit in the linked codec document and its G4 no canary over the linked model; I30's gate wiring and I40's G6 make it pass).",
+          "check": "tests_m3/test_refute.py::TestInstruments::test_sidecar_computed_fields_are_the_computation_at_the_prereg and tests_m3/test_refute.py::TestInstruments::test_sidecar_counts and tests_m3/test_refute.py::TestInstruments::test_solver_pin_is_the_installed_z3 and tests_m3/test_refute.py::TestInstruments::test_toy_fixtures_reextract_byte_for_byte and tests_m3/test_refute.py::TestInstruments::test_toy_chain_instrument_on_the_real_toy and tests_m3/test_refute.py::TestInstruments::test_hand_built_rollup_paths_on_the_real_rollup and tests_m3/test_refute.py::TestEngines::test_queries_are_ground_and_say_their_instances and tests_m3/test_refute.py::TestEngines::test_bmc_queries_encode_time_and_cost and tests_m3/test_refute.py::TestEngines::test_config_pins_the_solver and tests_m3/test_refute.py::TestEngines::test_layout_queries_exist_for_the_extracted_header_functions and tests_m3/test_refute.py::TestEngines::test_encodings_on_a_synthetic_query and tests_m3/test_refute.py::TestFilterRule::test_the_predicted_bins_follow_from_the_rule and tests_m3/test_refute.py::TestConcretization::test_every_refuted_record_at_head_has_a_recomputed_bin and tests_m3/test_refute.py::TestConcretization::test_the_filter_document_lists_every_recomputed_bin and tests_m3/test_refute.py::TestConcretization::test_emitted_tests_and_manifest and tests_m3/test_refute.py::TestReaches::test_every_unfalsified_reach_has_a_verdict and tests_m3/test_refute.py::TestRecordsAndShared::test_records_are_valid_and_the_schema_knows_the_final_bins and tests_m3/test_refute.py::TestDeterminism::test_emitted_tests_regenerate_byte_identically and tests_m3/test_refute.py::TestDeterminism::test_refute_check_reproduces_every_committed_output and tests_m3/test_refute.py::TestGenericCode::test_no_target_identifier_in_the_engines and tests_m3/test_refute.py::TestGate::test_gate_m3_passes_with_the_final_filter"
+        },
+        {
+          "id": "I40-R5",
+          "claim": "I20's view record results/M2/extracted_m1/L_tag_BVH.json stays UNKNOWN and not run (lead decision A3: a law reading a hand-written ghost is not run on the view; I30's as_member law is its analogue): its one I40 attempt is engine none.",
+          "check": "tests_m3/test_refute.py::TestUnknowns::test_the_ghost_reading_view_record_is_not_run"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/refute/",
+        "results/M3/refute/",
+        "replay/M3/refute/",
+        "gen/M3/tests/",
+        "docs/iterations/I40.md"
+      ],
+      "tests": [
+        "tests_m3/test_refute.py"
+      ],
+      "thresholds": {
+        "sidecar": "spec/M3/lib/refute.json",
+        "model_sidecar": "spec/M3/lib/sort_types.json",
+        "documents": [
+          "spec/M2/facts/morph_rollup.extracted.json"
+        ],
+        "binding": "replay/M2/fragments.json",
+        "solver": {
+          "name": "z3",
+          "version": "4.16.0",
+          "requirement": "z3-solver==4.16.0.0",
+          "random_seed": 0,
+          "logic": "QF_AUFBV",
+          "rlimit_per_query": 200000000
+        },
+        "encodings": [
+          "E1",
+          "NZ",
+          "E2",
+          "E3",
+          "E4",
+          "E5",
+          "E6",
+          "E7"
+        ],
+        "H": 8,
+        "hand_trace_bound": 8,
+        "byte_length_max": 512,
+        "blob_count_max": 6,
+        "gas_limit": 30000000,
+        "hypz_K": 31,
+        "fuzz": {
+          "seed": 20261014,
+          "candidates_per_law": 4096
+        },
+        "classes": {
+          "total": 26,
+          "codec": 5,
+          "domain": 2,
+          "trace": 19
+        },
+        "codec_laws": {
+          "total": 88,
+          "PROVED": 78,
+          "REFUTED": 7,
+          "UNKNOWN": 3
+        },
+        "unknowns": 8,
+        "refuted_records": 24,
+        "kinds": {
+          "direct": 14,
+          "commit_class": 5,
+          "bmc": 4,
+          "go_only": 1
+        },
+        "bins_before": {
+          "finding": 13,
+          "pending": 11
+        },
+        "bins_after": {
+          "finding": 16,
+          "known_limitation": 4,
+          "model_defect": 1,
+          "pending": 3
+        },
+        "reaches": {
+          "unfalsified": 120,
+          "path": 8,
+          "no_path": 22
+        },
+        "fixture": {
+          "law": "L_sort_realize_toylock_53_941d10c2",
+          "chain_length": 7,
+          "current_refuter_max_length": 6,
+          "milestones": [
+            "T401",
+            "T402"
+          ]
+        },
+        "replaced_sides": 16,
+        "final_filter": [
+          "model_defect",
+          "known_limitation",
+          "finding",
+          "pending"
+        ]
+      }
     }
   }
 }
