@@ -473,6 +473,10 @@ def main_gate(args) -> int:
     root = Path(args.root or ROOT).resolve()
     report_path = Path(args.report) if args.report else root / "results" / args.milestone / "gate_report.json"
     only = [c.strip() for c in args.checks.split(",") if c.strip()] if getattr(args, "checks", None) else None
+    if only and not args.report:   # as holon.gate.main_gate (F30): only a full run writes results/<m>/gate_report.json
+        print("--checks writes a partial report: give --report (results/<m>/gate_report.json is only ever written by "
+              "a full run)", file=sys.stderr)
+        return 2
     rep = Gate3(args.milestone, root).run(only)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(rep, indent=2, sort_keys=True) + "\n")
@@ -480,5 +484,5 @@ def main_gate(args) -> int:
         print(f"{k:5s} {'PASS' if c['passed'] else 'FAIL'}  {c['detail']}")
     for k, why in (rep.get("not_applicable") or {}).items():
         print(f"{k:5s} N/A   {why}")
-    print("GATE", "PASSED" if rep["passed"] else "FAILED")
+    print("GATE", ("PASSED" if rep["passed"] else "FAILED") + (" (partial)" if rep.get("partial") else ""))
     return 0 if rep["passed"] else 1
