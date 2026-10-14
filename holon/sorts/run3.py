@@ -398,6 +398,7 @@ class Decider:
                     ref.ckpt = S3.Checkpoint(resume, ctx.ckpt_every)
                 steps, stage, bound = ref.refute(law, entry, {k: v for k, v in found.items()})
                 if resume is not None:
+                    resume.mkdir(parents=True, exist_ok=True)
                     tmp = done.with_suffix(".tmp")
                     tmp.write_text(json.dumps({"steps": None if steps is None else
                                                [[st.action, st.args, st.env] for st in steps],
