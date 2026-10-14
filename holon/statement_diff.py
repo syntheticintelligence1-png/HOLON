@@ -26,6 +26,21 @@ A frozen statement may change only through an entry that this module accepts:
   cross_milestone  a later milestone's analogue S_new of an earlier law S_old: a checked S_new => S_old, or a
                    signed weakening. Pairs come from DERIVATION.json back-test links, never from ids
                    (check_cross_milestone).
+  catalog_rederivation
+                   (F30) the milestone moved to a later rule catalog and its laws were derived again under it. A
+                   holon-ir/0.3 statement hash covers rule_catalog_version, so every law's hash changes although no
+                   claim does. Accepted unsigned only when all of these hold mechanically (_catalog_rederivation):
+                   old and new are 0.3 IR of one law of the entry's milestone; old names old_catalog and new names
+                   new_catalog, two different versions of holon.rules.CATALOGS; the two law files are identical with
+                   rule_catalog_version masked (claim, binders, premises, scope, facts, facts_sha256, notes, rule,
+                   subform: every key); the law's (rule, subform) producer is the same object in both catalogs; and
+                   holon derive on the tree under each catalog gives exactly old (with old_hash) and exactly new (with
+                   new_hash) from DERIVATION entries that are equal apart from the statement hash, with the entry's
+                   (rule, subform, basis). So old_hash and new_hash differ only by the catalog version, never by a
+                   ref. The statement-change tie (covers) also requires the entry's two hashes to be the registry
+                   change's. It never covers a claim change, a binding change or a deletion. `python -m
+                   holon.statement_diff recatalog --milestone M [--append]` builds the entries the milestone's
+                   uncovered registry changes need (catalog_rederivation_entries).
 
 API:
   check_entry(entry, root) -> {"ok", "reason", "implication"}      implication: holon.gen.implication.prove
@@ -34,6 +49,7 @@ API:
   check_cross_milestone(derivation, laws, entries, root, accepted=None) -> [problem]
   registry_changes(milestone, root) -> {"git", "changes", "note"}  statement-hash changes the log must cover
   tie_problems(milestone, root, scanned) -> ([problem], note)      G2: every change covered by an accepted entry
+  catalog_rederivation_entries(milestone, root) -> (entries, notes) the catalog_rederivation entries still needed
 
 Each line is checked once, against the tree it was appended to (audit F-M2-22). `python -m holon.statement_diff
 append ENTRY.json` runs check_entry on the working tree and, only when it accepts, appends the entry with an
@@ -68,10 +84,12 @@ from pathlib import Path
 
 from . import ir
 
-KINDS = ("reextraction", "binding_change", "strengthening", "weakening", "cross_milestone")
+KINDS = ("reextraction", "binding_change", "strengthening", "weakening", "cross_milestone", "catalog_rederivation")
 KEY_SUFFIXES = (".asc", ".gpg", ".pub", ".key")
 LOG = Path("laws") / "STATEMENT_DIFF.jsonl"
-STATEMENT_KINDS = ("reextraction", "binding_change", "strengthening", "weakening")   # kinds that change one law
+STATEMENT_KINDS = ("reextraction", "binding_change", "strengthening", "weakening",
+                   "catalog_rederivation")   # kinds that change one law
+CATALOG_KEY = "rule_catalog_version"   # the one IR key a catalog_rederivation may change
 # what identifies a statement (the hashed keys of every IR version, and the facts file it is about)
 _CORE = tuple(dict.fromkeys(ir.HASHED_KEYS + ir.HASHED_KEYS_03 + ("facts",)))
 
@@ -137,10 +155,12 @@ def check_entry(entry: dict, root: Path | None = None) -> dict:
     old, new = entry.get("old"), entry.get("new")
     if not (_is_law(old) and _is_law(new)):
         return _res(False, "an entry carries the old and the new statement as law IR")
-    if kind in ("reextraction", "binding_change", "strengthening"):
+    if kind in ("reextraction", "binding_change", "strengthening", "catalog_rederivation"):
         lid = entry.get("law_id", old["law_id"])
         if not old["law_id"] == new["law_id"] == lid:
             return _res(False, f"a {kind} changes one law: old, new and law_id must name the same law")
+    if kind == "catalog_rederivation":
+        return _catalog_rederivation(entry, old, new, root)
     if kind == "weakening":
         ok, why = verify_signature(entry, root)
         if not ok:
@@ -348,6 +368,150 @@ def reextraction_entries(milestone: str, root: Path) -> list[dict]:
     return out
 
 
+# ---------------------------------------------------------------- catalog re-derivations (F30)
+_CATALOG_DERIVED: dict = {}   # (root, milestone, catalog) -> (inputs listing, holon.rules.compute(..))
+
+
+def masked(law: dict) -> bytes:
+    """A law file without the one key a catalog re-derivation may change, as canonical JSON."""
+    return ir.canonical_json({k: v for k, v in law.items() if k != CATALOG_KEY})
+
+
+def _inputs_fresh(listing: list, root: Path) -> bool:
+    for x in listing:
+        p = x.get("path", "")
+        if p.startswith("<outside>/"):
+            return False
+        q = root / p
+        if not q.is_file() or hashlib.sha256(q.read_bytes()).hexdigest() != x.get("sha256"):
+            return False
+    return True
+
+
+def derived_under(milestone: str, root: Path, catalog: str) -> dict:
+    """holon.rules.compute(milestone, root, catalog=catalog), reused within a process while every file it read is
+    unchanged."""
+    from . import rules
+    root = Path(root)
+    key = (str(root.resolve()), milestone, catalog)
+    hit = _CATALOG_DERIVED.get(key)
+    if hit is not None and _inputs_fresh(hit[0], root):
+        return hit[1]
+    der = rules.compute(milestone, root, catalog=catalog)
+    _CATALOG_DERIVED[key] = (der["derivation"].get("inputs") or [{"path": "<outside>/"}], der)
+    return der
+
+
+def _derivation_entry(der: dict, lid: str) -> dict | None:
+    return next((e for e in der["derivation"]["laws"] if e.get("law_id") == lid), None)
+
+
+def _catalog_rederivation(entry: dict, old: dict, new: dict, root: Path) -> dict:
+    """A catalog_rederivation (see the module docstring) is accepted only when the two law files differ in
+    rule_catalog_version alone, the law's producer is shared by the two catalogs, and holon derive under each
+    catalog reproduces each side with its hash from the same basis element."""
+    from . import rules
+    for k in ("milestone", "old_catalog", "new_catalog", "old_hash", "new_hash", "derivation"):
+        if k not in entry:
+            return _res(False, f"a catalog_rederivation entry carries {k!r}")
+    m, oc, nc = entry["milestone"], entry["old_catalog"], entry["new_catalog"]
+    lid = new["law_id"]
+    if not (old.get("ir_version") == new.get("ir_version") == "holon-ir/0.3"):
+        return _res(False, "only a holon-ir/0.3 statement hash covers the rule catalog version: old and new must be 0.3")
+    if old.get("milestone") != m or new.get("milestone") != m:
+        return _res(False, f"old and new must be laws of the entry's milestone {m!r}")
+    if old.get(CATALOG_KEY) != oc or new.get(CATALOG_KEY) != nc:
+        return _res(False, f"old must name {oc!r} and new {nc!r} as their {CATALOG_KEY} (they name "
+                           f"{old.get(CATALOG_KEY)!r} and {new.get(CATALOG_KEY)!r})")
+    if oc == nc:
+        return _res(False, "old and new name the same rule catalog: nothing was re-derived under another catalog")
+    if masked(old) != masked(new):
+        diff = sorted(k for k in (set(old) | set(new)) - {CATALOG_KEY}
+                      if ir.canonical_json(old.get(k)) != ir.canonical_json(new.get(k)))
+        return _res(False, f"the law files differ in {diff}, not only in {CATALOG_KEY}: a claim, binder, premise or "
+                           "metadata change is never a catalog re-derivation")
+    if oc not in rules.CATALOGS or nc not in rules.CATALOGS:
+        return _res(False, f"unknown rule catalog: {[c for c in (oc, nc) if c not in rules.CATALOGS]} (known: "
+                           f"{sorted(rules.CATALOGS)})")
+    rule, sub = new.get("rule"), new.get("subform")
+    p_old = (rules.CATALOGS[oc].get(rule) or {}).get(sub)
+    p_new = (rules.CATALOGS[nc].get(rule) or {}).get(sub)
+    if p_old is None or p_new is None:
+        return _res(False, f"{rule}/{sub} is not in both catalogs ({oc}: {p_old is not None}, {nc}: {p_new is not None})")
+    if p_old is not p_new:
+        return _res(False, f"{rule}/{sub} has another producer in {nc} than in {oc}: a rule change is not a catalog "
+                           "re-derivation")
+    sides = {}
+    for tag, cv, law, h in (("old", oc, old, entry["old_hash"]), ("new", nc, new, entry["new_hash"])):
+        try:
+            der = derived_under(m, root, cv)
+        except Exception as e:  # noqa: BLE001  (a derive that fails reproduces nothing)
+            return _res(False, f"holon derive --milestone {m} under {cv} fails on the tree: {type(e).__name__}: {e}")
+        got, de = der["laws"].get(lid), _derivation_entry(der, lid)
+        if got is None or de is None or ir.canonical_json(got) != ir.canonical_json(law):
+            return _res(False, f"holon derive --milestone {m} under {cv} does not reproduce the {tag} law file of {lid}")
+        if de.get("statement_hash") != h:
+            return _res(False, f"holon derive under {cv} gives {lid} the hash {de.get('statement_hash')}, the entry's "
+                               f"{tag}_hash is {h}")
+        sides[tag] = de
+    a, b = ({k: v for k, v in sides[t].items() if k != "statement_hash"} for t in ("old", "new"))
+    if ir.canonical_json(a) != ir.canonical_json(b):
+        diff = sorted(k for k in set(a) | set(b) if a.get(k) != b.get(k))
+        return _res(False, f"the two catalogs derive {lid} from DERIVATION entries that differ in {diff}")
+    same = {k: b.get(k) for k in ("rule", "subform", "basis")}
+    if ir.canonical_json(same) != ir.canonical_json(entry["derivation"]):
+        return _res(False, "holon derive derives the law from another (rule, subform, basis element) than the entry's")
+    return _res(True, f"catalog_rederivation {oc} -> {nc}: the law files are identical with {CATALOG_KEY} masked; "
+                      f"{rule}/{sub} is the same producer in both catalogs; holon derive under each catalog reproduces "
+                      f"old ({entry['old_hash'][:19]}..) and new ({entry['new_hash'][:19]}..) from "
+                      f"{json.dumps(same['basis'], sort_keys=True)[:120]}")
+
+
+def catalog_rederivation_entries(milestone: str, root: Path) -> tuple[list[dict], list[str]]:
+    """(entries, notes): one catalog_rederivation entry for every statement-hash change of laws/<M>/REGISTRY.json
+    (registry_changes: every commit since the log was introduced, and the working tree) that no accepted entry covers
+    yet and whose old and new law files differ only in rule_catalog_version, carrying the two statements and hashes as
+    the registry history holds them and the law's (rule, subform, basis) from holon derive under the new catalog. Every
+    other uncovered change is named in notes (it needs another kind). Nothing is appended here (append checks each
+    entry). Without git history there is no registry history to read: ([], [why])."""
+    root = Path(root)
+    rc = registry_changes(milestone, root)
+    if not rc["git"]:
+        return [], [rc["note"]]
+    ok = [x["entry"] for x in scan(root / LOG, root)["entries"] if x.get("ok")]
+    out, notes, seen = [], [], set()
+    for ch in rc["changes"]:
+        lid, old, new = ch["law_id"], ch.get("old"), ch.get("new")
+        if any(covers(e, ch) for e in ok):
+            continue
+        if not (_is_law(old) and _is_law(new)):
+            notes.append(f"{lid} ({ch['at']}): {'deleted' if new is None else 'no law IR on one side'}: not a catalog "
+                         "re-derivation")
+            continue
+        if masked(old) != masked(new) or old.get(CATALOG_KEY) == new.get(CATALOG_KEY):
+            notes.append(f"{lid} ({ch['at']}): the law files differ beyond {CATALOG_KEY}: not a catalog re-derivation")
+            continue
+        key = (lid, ch["old_hash"], ch["new_hash"])
+        if key in seen:
+            continue
+        seen.add(key)
+        nc = new[CATALOG_KEY]
+        try:
+            de = _derivation_entry(derived_under(milestone, root, nc), lid) or {}
+        except Exception as e:  # noqa: BLE001
+            notes.append(f"{lid} ({ch['at']}): holon derive under {nc} fails: {type(e).__name__}: {e}")
+            continue
+        out.append({"kind": "catalog_rederivation", "law_id": lid, "milestone": milestone,
+                    "old_catalog": old[CATALOG_KEY], "new_catalog": nc,
+                    "old_hash": ch["old_hash"], "new_hash": ch["new_hash"],
+                    "derivation": {k: de.get(k) for k in ("rule", "subform", "basis")},
+                    "old": old, "new": new,
+                    "reason": f"{lid} derived again under {nc} (was {old[CATALOG_KEY]}) when {milestone} moved to that "
+                              f"catalog (registry change at {ch['at']}); the claim is unchanged: the statement hash "
+                              "covers the catalog version"})
+    return out, notes
+
+
 # ---------------------------------------------------------------- the log
 def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
@@ -414,6 +578,8 @@ def acceptance(entry: dict, result: dict, root: Path) -> dict:
     if entry.get("kind") == "reextraction" and isinstance(entry.get("facts"), str) and (root / entry["facts"]).is_file():
         facts[entry["facts"]] = _sha((root / entry["facts"]).read_bytes())   # the extracted document (I20)
     acc = {"kind": entry.get("kind"), "facts": dict(sorted(facts.items()))}
+    if entry.get("kind") == "catalog_rederivation":   # F30: the two catalogs holon derive reproduced each side under
+        acc["catalogs"] = [entry.get("old_catalog"), entry.get("new_catalog")]
     imp = result.get("implication") or {}
     if imp.get("status") == "PROVED":
         acc["implication"] = {"law_id": imp.get("law_id"), "generator": imp.get("generator"),
@@ -504,6 +670,8 @@ def _verify_committed(e, acc, commit: str, root: Path) -> str | None:
         return "its acceptance record names no verified signature"
     if e.get("kind") == "reextraction" and e.get("facts") not in acc["facts"]:
         return "its acceptance record does not name the extracted document the entry comes from"
+    if e.get("kind") == "catalog_rederivation" and acc.get("catalogs") != [e.get("old_catalog"), e.get("new_catalog")]:
+        return "its acceptance record does not name the two catalogs the entry re-derives under"
     for rel, sha in sorted(acc["facts"].items()):
         b = blob_at(root, commit, rel)
         if b is None or _sha(b) != sha:
@@ -604,7 +772,9 @@ def registry_changes(milestone: str, root: Path) -> dict:
 
 
 def covers(e: dict, ch: dict) -> bool:
-    """Does an entry carry exactly the two statements of a registry change?"""
+    """Does an entry carry exactly the two statements of a registry change? A catalog_rederivation must also carry the
+    change's two statement hashes (old_hash, new_hash) exactly: a change that does not name them is not covered by
+    one (F30)."""
     if not isinstance(e, dict) or e.get("kind") not in STATEMENT_KINDS or not _is_law(e.get("old")):
         return False
     if (e.get("law_id") or e["old"].get("law_id")) != ch["law_id"] or not _is_law(ch.get("old")):
@@ -613,6 +783,10 @@ def covers(e: dict, ch: dict) -> bool:
         return False
     if ch.get("new") is None:   # a deletion drops a claim: only a signed weakening covers it
         return e.get("kind") == "weakening"
+    if e.get("kind") == "catalog_rederivation":
+        for k in ("old_hash", "new_hash"):
+            if not isinstance(ch.get(k), str) or e.get(k) != ch[k]:
+                return False
     return _is_law(e.get("new")) and _is_law(ch["new"]) and core(e["new"]) == core(ch["new"])
 
 
@@ -698,16 +872,29 @@ def check_cross_milestone(derivation: dict, laws: dict, entries: list, root: Pat
 def main(argv: list[str] | None = None) -> int:
     """python -m holon.statement_diff append ENTRY.json [--root DIR]: check the entry against the working tree and
     append it, with its acceptance record, only if accepted. python -m holon.statement_diff check [--root DIR]:
-    print the verdict of every line."""
+    print the verdict of every line. reextract / recatalog --milestone M [--append]: build (and append the accepted
+    ones of) the reextraction / catalog_rederivation entries the milestone needs."""
     import argparse
     ap = argparse.ArgumentParser(prog="python -m holon.statement_diff")
-    ap.add_argument("command", choices=("append", "check", "reextract"))
+    ap.add_argument("command", choices=("append", "check", "reextract", "recatalog"))
     ap.add_argument("entry", nargs="?")
     ap.add_argument("--root", default=str(ir.ROOT))
-    ap.add_argument("--milestone", default="M2", help="reextract: the milestone whose laws are re-derived")
-    ap.add_argument("--append", action="store_true", help="reextract: append every accepted entry to the log")
+    ap.add_argument("--milestone", default="M2", help="reextract, recatalog: the milestone whose laws are re-derived")
+    ap.add_argument("--append", action="store_true", help="reextract, recatalog: append every accepted entry to the log")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve()
+    if a.command == "recatalog":   # F30: the catalog_rederivation entries of the milestone's uncovered registry changes
+        es, notes = catalog_rederivation_entries(a.milestone, root)
+        bad = 0
+        for e in es:
+            r = append(e, root) if a.append else check_entry(e, root)
+            print(f"{e['law_id']}: {'accepted' if r['ok'] else 'REJECTED'}{' and appended' if r['ok'] and a.append else ''}"
+                  f": {r['reason']}")
+            bad += not r["ok"]
+        for n in notes:
+            print(f"not a catalog re-derivation, no entry: {n}")
+        print(f"{len(es)} catalog_rederivation entries, {bad} rejected; {len(notes)} uncovered changes of another kind")
+        return 0 if not bad else 1
     if a.command == "reextract":
         es = reextraction_entries(a.milestone, root)
         bad = 0
