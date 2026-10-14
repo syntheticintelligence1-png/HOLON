@@ -140,7 +140,8 @@ class Gate3:
                         bad.append(f"{args[0]}: {name} differs")
                 notes.append(args[0])
             # the I30 records and generated Bend files, decided again from scratch
-            p = self.holon(["run", "--milestone", self.m, "--out", tmp / "results", "--gen-dir", tmp / "gen"], repo)
+            p = self.holon(["run", "--milestone", self.m, "--out", tmp / "results", "--gen-dir", tmp / "gen",
+                            "--jobs", "3"], repo)
             if p.returncode != 0:
                 bad.append(f"holon run failed: {(p.stdout + p.stderr)[-600:]}")
             else:

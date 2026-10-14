@@ -592,58 +592,111 @@ def replay_entry(model_f, real: Real, steps_json: list, law_e: dict, entry: str)
 
 
 # ------------------------------------------------------------------------------------------------ the CLI
+def _decide_law(ctx: Ctx, lid: str, real) -> tuple[dict, dict | None]:
+    """(the record, its replay report entry or None) of one law; the law's own refuter, model and replay."""
+    e = ctx.derivation[lid]
+    own = None
+    if ctx.sc.binding and real is None:
+        real = own = Real(ctx, json.loads((ctx.root / e["facts"]).read_text()))
+    try:
+        return _decide_with(ctx, lid, e, real)
+    finally:
+        if own is not None:
+            own.close()
+
+
+def _decide_with(ctx: Ctx, lid: str, e: dict, real) -> tuple[dict, dict | None]:
+    rec = Decider(ctx).decide(lid, real, {})
+    entry_rep = None
+    if rec["status"] == "REFUTED" and real is not None:
+        model_f = ctx.models[e["facts"]][2]
+        entries = {}
+        for entry, w in sorted(rec["witnesses"].items()):
+            if w.get("status") != "REFUTED":
+                continue
+            x = replay_entry(model_f, real, w["witness"]["steps"], e, entry)
+            entries[entry] = x
+            w["replay"] = {"status": x["status"], "detail": " / ".join(x["real"]), "panic_site": x.get("panic_site")}
+        entry_rep = {"entries": entries}
+        st = "passed" if entries and all(x["status"] == "passed" for x in entries.values()) else "failed"
+        rec["replay"] = {"status": st, "detail": "; ".join(f"{k}: {' / '.join(v['real'])}"
+                                                          for k, v in sorted(entries.items()))}
+    elif rec["status"] == "REFUTED":
+        rec["replay"] = {"status": "not_applicable", "detail": "no binding: the milestone has no real side"}
+        for w in rec["witnesses"].values():
+            if w.get("status") == "REFUTED":
+                w["replay"] = {"status": "not_applicable", "detail": "no binding", "panic_site": None}
+    else:
+        rec["replay"] = {"status": "not_applicable", "detail": f"{rec['status']}: no witness to replay"}
+    return rec, entry_rep
+
+
 def run_main(a) -> int:
+    """Every I30 law of the milestone (or --laws), each decided on its own (its refuter, model and witnesses are its
+    own, so --jobs N decides N laws at a time with the same records), then the records and the replay report written
+    in law order."""
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
     root = ROOT
-    ctx = Ctx(a.milestone, root, a.sidecar, Path(a.gen_dir).resolve() if a.gen_dir else None,
-              Path(a.out).resolve() if a.out else None)
+    gen = Path(a.gen_dir).resolve() if a.gen_dir else None
+    out = Path(a.out).resolve() if a.out else None
+    ctx = Ctx(a.milestone, root, a.sidecar, gen, out)
     ids = sorted(l for l, e in ctx.derivation.items() if e.get("rule") == "SORT" and e.get("subform") in SUBFORMS)
     if a.laws:
         want = {x.strip() for x in a.laws.split(",") if x.strip()}
         ids = [l for l in ids if l in want]
     ctx.out.mkdir(parents=True, exist_ok=True)
-    real = None
     report = {"document": "sorts_replay", "milestone": ctx.m, "binding": ctx.sc.binding, "laws": {}}
-    found: dict = {}
-    dec = Decider(ctx)
+    jobs = max(1, int(getattr(a, "jobs", 1) or 1))
+    lock = threading.Lock()
+    results: dict = {}
+    contexts: list = []
     try:
-        for lid in ids:
-            e = ctx.derivation[lid]
-            if ctx.sc.binding and real is None:
-                real = Real(ctx, json.loads((ctx.root / e["facts"]).read_text()))
-            rec = dec.decide(lid, real, found.setdefault(lid, {}))
-            if rec["status"] == "REFUTED" and real is not None:
-                model_f = ctx.models[e["facts"]][2]
-                entries = {}
-                for entry, w in sorted(rec["witnesses"].items()):
-                    if w.get("status") != "REFUTED":
-                        continue
-                    x = replay_entry(model_f, real, w["witness"]["steps"], e, entry)
-                    entries[entry] = x
-                    w["replay"] = {"status": x["status"], "detail": " / ".join(x["real"]),
-                                   "panic_site": x.get("panic_site")}
-                report["laws"][lid] = {"entries": entries}
-                rp = rec["witnesses"].get(sorted(entries)[0]) if entries else None
-                st = "passed" if entries and all(x["status"] == "passed" for x in entries.values()) else "failed"
-                rec["replay"] = {"status": st, "detail": "; ".join(f"{k}: {' / '.join(v['real'])}"
-                                                                  for k, v in sorted(entries.items()))}
-            elif rec["status"] == "REFUTED":
-                rec["replay"] = {"status": "not_applicable", "detail": "no binding: the milestone has no real side"}
-                for w in rec["witnesses"].values():
-                    if w.get("status") == "REFUTED":
-                        w["replay"] = {"status": "not_applicable", "detail": "no binding", "panic_site": None}
+        for lid in ids:                     # the models are written once, before any law runs
+            ctx.model(ctx.derivation[lid]["facts"])
+
+        def one(lid: str):
+            if jobs == 1:
+                c = ctx
             else:
-                rec["replay"] = {"status": "not_applicable", "detail": f"{rec['status']}: no witness to replay"}
+                c = Ctx(a.milestone, root, a.sidecar, gen, out,
+                        log=lambda m, lid=lid: print(f"[{lid}] {m}", flush=True))
+                with lock:
+                    contexts.append(c)
+            try:
+                rec, rep = _decide_law(c, lid, None)
+            finally:
+                if c is not ctx:
+                    c.close()
+            c.log(f"{lid}: {rec['status']}")
+            return lid, rec, rep
+        if jobs == 1:
+            reals: dict = {}
+            for lid in ids:
+                e = ctx.derivation[lid]
+                if ctx.sc.binding and "r" not in reals:
+                    reals["r"] = Real(ctx, json.loads((ctx.root / e["facts"]).read_text()))
+                rec, rep = _decide_law(ctx, lid, reals.get("r"))
+                ctx.log(f"{lid}: {rec['status']}")
+                results[lid] = (rec, rep)
+            for r in reals.values():
+                r.close()
+        else:
+            with ThreadPoolExecutor(max_workers=jobs) as ex:
+                for lid, rec, rep in ex.map(one, ids):
+                    results[lid] = (rec, rep)
+        for lid in ids:
+            rec, rep = results[lid]
             (ctx.out / f"{lid}.json").write_text(dumps(rec), encoding="utf-8")
-            ctx.log(f"{lid}: {rec['status']}")
-        if real is not None and report["laws"]:
+            if rep is not None:
+                report["laws"][lid] = rep
+        if report["laws"]:
             rp = ctx.root / "replay" / ctx.m / "sorts" / "report.json"
             if ctx.out.resolve() == (ctx.root / "results" / ctx.m).resolve():
                 rp.parent.mkdir(parents=True, exist_ok=True)
                 rp.write_text(dumps(report), encoding="utf-8")
     finally:
         ctx.close()
-        if real is not None:
-            real.close()
     return 0
 
 
@@ -703,6 +756,7 @@ def main(argv: list) -> int:
     ap.add_argument("--work")
     ap.add_argument("--write-pins", action="store_true")
     ap.add_argument("--corpus", type=int, default=300)
+    ap.add_argument("--jobs", type=int, default=1, help="laws decided at a time (the records do not depend on it)")
     a = ap.parse_args(rest)
     if cmd == "replay":
         return replay_main(a)
