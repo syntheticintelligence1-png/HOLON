@@ -1,0 +1,144 @@
+{
+  "artifacts": {
+    "law_name": "l_par_rt_enc_sol_batchheaderbytes_batchindex_v1",
+    "laws": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1/LAWS.bend",
+    "model": "gen/M3/model/header_length.bend",
+    "proof": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "open_refl",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.715
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.12
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.715
+  },
+  "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+  "cone": [
+    "BatchHeaderBytes_BatchIndex",
+    "BatchHeaderBytes_BatchIndex_ok",
+    "R_Header",
+    "byte_at",
+    "enc_sol",
+    "enc_sol_at",
+    "enc_sol_tag",
+    "get_Header__batchIndex",
+    "sel_bytes",
+    "slice"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": [
+    "E1",
+    "E2"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "filter_bin": null,
+  "generator_sha256": "9828e7f5d9dfde224f67fe05449246ae4e3cd5833a1a398910e1b7c84dfb54dc",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+  "ledger_assumptions": [
+    "A-codec-domain",
+    "A-dirty",
+    "A-env",
+    "A-implicit",
+    "A-width-Header",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492",
+  "non_vacuity": {
+    "bound": "the premise classes at zeros (pins and correspondences applied)",
+    "degenerate": null,
+    "law": "gen/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1/nonvac/LAWS.bend",
+    "parent_statement_hash": "sha256:d69242e57b6455544941b95129afad2df04ec11bd753c3c5cdc83cb10f2ba870",
+    "reachable": null,
+    "status": "inhabited",
+    "witness": {
+      "h": {
+        "batchIndex": "0x0000000000000000",
+        "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "l1MessagePopped": "0x0000000000000000",
+        "lastBlockNumber": "0x0000000000000000",
+        "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "totalL1MessagePopped": "0x0000000000000000",
+        "version": "0x01",
+        "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  },
+  "premises": [
+    "h.version == 0x01"
+  ],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "codec laws are not replayed in I24",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 h: Header. h.version == 0x01 \u21d2 BatchHeaderBytes_BatchIndex(enc_sol(h)) == Some(h.batchIndex)",
+  "statement_hash": "sha256:d69242e57b6455544941b95129afad2df04ec11bd753c3c5cdc83cb10f2ba870",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "PROVED",
+  "subform": "round_trip",
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}

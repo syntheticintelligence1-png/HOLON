@@ -48,6 +48,7 @@ function evalTerm(t, env) {
   if ("field" in t) return fn("get_" + t.field)(evalTerm(t.of, env));
   if ("call" in t) return fn(t.call)(...t.args.map((a) => evalTerm(a, env)));
   if ("some" in t) return { $: "Some", value: evalTerm(t.some, env) };
+  if ("bool" in t) return t.bool; // holon-ir/0.3 codec terms (I24): a Bool literal, a JS boolean like compiled Bool
   throw new Error("unknown term " + JSON.stringify(t));
 }
 

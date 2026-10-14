@@ -70,6 +70,8 @@ def check_binder_types(law: dict, facts: dict | None) -> None:
     IRError (the schema can only check its shape)."""
     import re
     types = set((facts or {}).get("types", {}))
+    if (facts or {}).get("linked_version") == "holon-linked/0.1":   # a linked codec document (I24): its carriers
+        types = set(facts.get("carriers", {}))
     for b in law.get("statement", {}).get("binders", []):
         t = str(b.get("type", ""))
         if t in BASE_TYPES or t.startswith("Fn<") or re.fullmatch(r"Bytes\([0-9]+\)", t):
@@ -228,6 +230,15 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I15): a SORT-site term, every hit of the site has minuend >= subtrahend (holon.sorts.sites)
     if "site" in t and "on" in t and "from" in t:
         return f"site_ok[{t['site']}]({render_term(t['on'])}, {render_term(t['from'])})"
+    # holon-ir/0.3 (I24): a facts expression in a state, with an action's inputs ({"expr": E, "from": S, ..})
+    if "expr" in t and "from" in t:
+        from .diagram.access import render as render_expr
+        at = render_term(t["from"])
+        if "action" in t:
+            at += f", {t['action']} inputs of {render_term(t['on'])}"
+        if t.get("bind"):
+            at += ", " + ", ".join(f"{k} := {render_term(v)}" for k, v in sorted(t["bind"].items()))
+        return f"⟦{render_expr(t['expr'])}⟧({at})"
     # holon-ir/0.3 (I20): a SORT-width term, every store at the site fits the field's width (holon.sorts.width)
     if "width_site" in t and "on" in t and "from" in t:
         return f"width_ok[{t['width_site']}]({render_term(t['on'])}, {render_term(t['from'])})"

@@ -216,6 +216,9 @@ def model_path(law: dict, m: str, root: Path) -> Path:
     if _width(law):   # the extracted model (holon model's gen/<m>/extracted/model.bend)
         from .sorts.width import model_path as width_model
         return width_model(m, root)
+    from .codecrun import codec_kind
+    if codec_kind(law, root) == "linked":   # I24: the component model gen/<m>/model/<role>.bend (rule X9)
+        return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['role']}.bend"
     return root / "gen" / m / "model" / f"{model_name(law_facts(law, m, root))}.bend"
 
 
@@ -227,6 +230,19 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
     fp = root / law_facts(law, m, root)
+    from .codecrun import codec_kind
+    kind = codec_kind(law, root)
+    if kind is not None:   # I24: a codec law, emitted as holon.codecrun emits it
+        from .gen import codec01 as C1
+        from .gen import linked as GL
+        imp = f"{layout(m, root, law['law_id'])[2]}model/{model_path(law, m, root).name}"
+        note = statement_hash(law, m, root)
+        try:
+            if kind == "linked":
+                return GL.emit(law, F.load(fp), imp, counter=counter, note=note).text
+            return C1.emit(C1.to01(law), F.load(fp), imp, counter=counter, header_note=note).text
+        except (GL.Unsupported, C1.Unsupported):
+            return None
     imp = f"{layout(m, root, law['law_id'])[2]}model/{model_name(fp)}.bend"   # as the pipelines import it (I10)
     if law["ir_version"] == "holon-ir/0.1":
         from .gen import laws as LG

@@ -696,13 +696,18 @@ class TestGenericCode(unittest.TestCase):
         files = sorted((ROOT / "holon" / "rules").glob("*.py")) + [ROOT / "holon" / "sorts" / "sites.py",
                                                                     ROOT / "holon" / "sorts" / "check.py"]
         compound, quoted = H.compound_target_names(), H.quoted_target_names()
+        # I24 amendment (spec/M2/amendments.jsonl): rule PAR's contract vocabulary (tests_m3/test_derive_par.py: the
+        # cycle_rank key "kappa", the totality law-id tag "tot", the E4 atom key "stored", the record field
+        # "version") coincides with Morph names; it is exempt in the PAR rule files only
+        par_words = {"kappa", "tot", "stored", "version"}
         for f in files:
             with self.subTest(file=str(f.relative_to(ROOT))):
                 self.assertTrue(f.exists(), f"{f.relative_to(ROOT)} is missing")
                 text = f.read_text(encoding="utf-8")
                 self.assertEqual(sorted(n for n in compound
                                         if re.search(rf"(?<![A-Za-z0-9_]){re.escape(n)}(?![A-Za-z0-9_])", text)), [])
-                self.assertEqual(sorted(n for n in quoted if re.search(rf"[\"']{re.escape(n)}[\"']", text)), [])
+                q = quoted - par_words if f.parent.name == "rules" and f.name in ("par.py", "__init__.py") else quoted
+                self.assertEqual(sorted(n for n in q if re.search(rf"[\"']{re.escape(n)}[\"']", text)), [])
                 self.assertNotRegex(text, r"(?i)panic", "R8 reads the realization reasons from the sidecar only")
 
 

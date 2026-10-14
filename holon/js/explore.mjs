@@ -120,6 +120,9 @@ function prefixes() {
 
 // ---------------------------------------------------------------- IR evaluation
 const FN = (name) => { const f = M[name]; if (typeof f !== "function") throw new Error("no model fn " + name); return f; };
+// I24: the expr terms of the statement and their helpers (req.exprs: [{term, fn, binds}], req.module then being the
+// model with the helpers appended, holon.mpipeline.CompiledMachine.expr_module)
+const EXPRS = new Map((req.exprs || []).map((x) => [key(x.term), x]));
 // holon-ir/0.3 builtins (holon.gen.mlaws.BUILTINS): eq_nat is Nat.is_eq, the others are model functions
 const BUILTIN = { eq_nat: (x, y) => x === y, eq_bool: (x, y) => FN("eq_bool")(x, y), eq_nats: (x, y) => FN("eq_list_nat")(x, y) };
 const LAMS = { id: (x) => x, zero: (x) => 0n, succ: (x) => x + 1n };
@@ -213,6 +216,14 @@ function evalT(t, env) {
     return { ty: "?", v: f.v(x) };
   }
   if ("plus" in t) return { ty: "Nat", v: evalT(t.plus[0], env).v + evalT(t.plus[1], env).v };
+  if ("expr" in t && "from" in t) {   // an expr term (I24): its statement helper, compiled with the model (req.exprs)
+    const spec = EXPRS.get(key(t));
+    if (!spec) throw new Error("no compiled helper for the expr term " + JSON.stringify(t));
+    const args = [evalT(t.from, env).v];
+    if ("on" in t) args.push(evalT(t.on, env).v);
+    for (const n of spec.binds) args.push(evalT(t.bind[n], env).v);
+    return { ty: "?", v: FN(spec.fn)(...args) };
+  }
   if ("site" in t && "on" in t && "from" in t) {   // a SORT-site term (I15): site_<x> of the instrumented model
     const g = (req.sites || {})[t.site];
     if (!g) throw new Error(`no ghost predicate for the site ${t.site} (req.sites)`);
@@ -309,7 +320,7 @@ function candidatesAll(b, env) {
     }
     return out;
   }
-  if (b.type === "Act") return policy(baseState(env)).map((a) => ({ ty: "Act", v: mkAct(a), raw: a }));
+  if (b.type === "Act") return actVariants(policy(baseState(env))).map((a) => ({ ty: "Act", v: mkAct(a), raw: a }));
   if (b.type === "Nat") {
     const xs = new Set(); for (let i = 0; i <= B.natMax; i++) xs.add(i);
     for (const p of assume) { // premise-directed: var == term
@@ -337,6 +348,27 @@ function candidatesAll(b, env) {
   }
   if (b.type === "Trace") return suffixes(baseState(env)).map((tr) => ({ ty: "Trace", v: toList(tr.map(mkAct)), raw: tr }));
   return [];
+}
+
+// I24 (req.parAct: the actions a PAR law's expr terms name): the policy's actions of those actions plus, for each, the
+// boundary variants of every Nat input (v - 1 when v >= 1, v + 1, 0; I15's S1) and the empty list for every List<Nat>
+// input (§8.7: sort boundary values); without req.parAct, the policy's actions unchanged
+function actVariants(acts) {
+  if (!req.parAct) return acts;
+  const want = new Set(req.parAct);
+  const out = [], seen = new Set();
+  const add = (a) => { const k = key(a); if (!seen.has(k)) { seen.add(k); out.push(a); } };
+  for (const a of acts) if (want.has(a.op)) add(a);
+  for (const a of acts) {
+    if (!want.has(a.op)) continue;
+    for (const [n, ty] of ACTIONS[a.op].inputs) {
+      if (ty === "Nat") {
+        const v = Number(a[n]);
+        for (const x of [...(v >= 1 ? [v - 1] : []), v + 1, 0]) add({ ...a, [n]: x });
+      } else if (ty === "List<Nat>") add({ ...a, [n]: [] });
+    }
+  }
+  return out;
 }
 
 // a prefix's trace, kept (as a host list) only when the model threads oracle tables (I12)
@@ -672,6 +704,8 @@ if (req.evaluate) {
   if (paramsIn(env).length) {
     out.tables = finalTables(env);
     out.sides = claims.map((c) => (c.eq ? withTables(env, () => c.eq.map((s) => val(evalT(s, env)))) : null));
+  } else if (EXPRS.size) {   // expr terms (I24): their sides, evaluated through the compiled helpers
+    out.sides = claims.map((c) => (c.eq ? c.eq.map((s) => val(evalT(s, env))) : null));
   }
   process.stdout.write(JSON.stringify(out));
   process.exit(0);

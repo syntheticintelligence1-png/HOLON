@@ -60,11 +60,44 @@ def main(argv=None) -> int:
     return run(a.milestone, a.out, a.root)
 
 
+def linked_diagrams(milestone: str, root: Path) -> dict[str, str]:
+    """From M3 on (I24, rule X6): {model: diagram text} of every linked codec document gen/<M>/codec/<role>.json."""
+    import hashlib
+    import json
+
+    from . import linked as L
+    out = {}
+    for p in L.committed_codecs(milestone, root):
+        raw = p.read_bytes()
+        try:
+            doc = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError) as e:
+            raise DiagramError(f"{p}: not JSON ({e})") from e
+        if not L.is_linked(doc):
+            raise DiagramError(f"{p}: not a linked codec document ({L.LINKED_VERSION})")
+        rel = p.resolve().relative_to(Path(root).resolve()).as_posix()
+        try:
+            dg = L.diagram(doc, rel, hashlib.sha256(raw).hexdigest())
+        except (L.LinkedError, KeyError, TypeError) as e:
+            raise DiagramError(f"{rel}: {e}") from e
+        dg["provenance"] = {}
+        dg["inputs"] = []
+        out[doc["component"]] = dumps(dg)
+    if not out:
+        raise DiagramError(f"no linked codec documents under gen/{milestone}/codec (run `holon codecs --milestone "
+                           f"{milestone}`)")
+    return out
+
+
 def run(milestone: str, out: str | None, root: str | None) -> int:
     root_p = Path(root).resolve() if root else ROOT
     try:
-        docs = fact_documents(milestone, root_p)
-        texts = {p.stem: dumps(build(p, root_p).to_json()) for p in docs}
+        from .linked import linked_milestone
+        if linked_milestone(milestone):   # M3 on: the component diagrams of the linked codec layer (I24)
+            texts = linked_diagrams(milestone, root_p)
+        else:
+            docs = fact_documents(milestone, root_p)
+            texts = {p.stem: dumps(build(p, root_p).to_json()) for p in docs}
     except DiagramError as e:
         print(f"holon diagram: {e}", file=sys.stderr)
         return 1

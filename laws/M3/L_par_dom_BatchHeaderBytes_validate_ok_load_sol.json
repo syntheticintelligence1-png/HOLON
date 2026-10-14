@@ -1,0 +1,44 @@
+{
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol",
+  "milestone": "M3",
+  "notes": "PAR domain coherence (holon.rules.par): BatchHeaderBytes_validate and ok_load_sol are domains of the interface carrier Bytes (R^ext)",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.1",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "b",
+        "q": "forall",
+        "type": "Bytes"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "var": "b"
+            }
+          ],
+          "call": "BatchHeaderBytes_validate"
+        },
+        {
+          "args": [
+            {
+              "var": "b"
+            }
+          ],
+          "call": "ok_load_sol"
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "domain_coherence"
+}

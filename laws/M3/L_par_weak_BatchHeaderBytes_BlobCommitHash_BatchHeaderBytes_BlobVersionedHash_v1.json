@@ -1,0 +1,62 @@
+{
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1",
+  "milestone": "M3",
+  "notes": "PAR weak (holon.rules.par): BatchHeaderBytes_BlobCommitHash and BatchHeaderBytes_BlobVersionedHash share only name tokens ['batch', 'blob', 'bytes', 'common', 'hash', 'header', 'l2', 'morph'] (E6 atom header_length:E6:CODEC.BatchHeaderBytes_BlobCommitHash:CODEC.BatchHeaderBytes_BlobVersionedHash:daeab334); at version 1",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.1",
+  "statement": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "args": [
+              {
+                "var": "b"
+              }
+            ],
+            "call": "BatchHeaderBytes_Version"
+          },
+          {
+            "some": {
+              "bytes": "0x01"
+            }
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "b",
+        "q": "forall",
+        "type": "Bytes"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "var": "b"
+            }
+          ],
+          "call": "BatchHeaderBytes_BlobCommitHash"
+        },
+        {
+          "args": [
+            {
+              "var": "b"
+            }
+          ],
+          "call": "BatchHeaderBytes_BlobVersionedHash"
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "weak"
+}

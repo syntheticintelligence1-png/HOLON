@@ -1,0 +1,669 @@
+{
+  "carriers": [
+    {
+      "base_type": "BatchHeaderV0",
+      "cls": "rep",
+      "id": "BatchHeaderV0",
+      "interface": false,
+      "product": [
+        "BatchIndex",
+        "L1MessagePopped",
+        "TotalL1MessagePopped",
+        "DataHash",
+        "BlobVersionedHash",
+        "PrevStateRoot",
+        "PostStateRoot",
+        "WithdrawalRoot",
+        "SequencerSetVerifyHash",
+        "ParentBatchHash"
+      ],
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "BatchHeaderV1",
+      "cls": "rep",
+      "id": "BatchHeaderV1",
+      "interface": false,
+      "product": [
+        "BatchHeaderV0.BatchIndex",
+        "BatchHeaderV0.L1MessagePopped",
+        "BatchHeaderV0.TotalL1MessagePopped",
+        "BatchHeaderV0.DataHash",
+        "BatchHeaderV0.BlobVersionedHash",
+        "BatchHeaderV0.PrevStateRoot",
+        "BatchHeaderV0.PostStateRoot",
+        "BatchHeaderV0.WithdrawalRoot",
+        "BatchHeaderV0.SequencerSetVerifyHash",
+        "BatchHeaderV0.ParentBatchHash",
+        "LastBlockNumber"
+      ],
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes",
+      "cls": "rep",
+      "domains": [
+        "BatchHeaderBytes_validate",
+        "ok_load_sol"
+      ],
+      "id": "Bytes",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@0+1",
+      "cls": "rep",
+      "id": "Bytes@0+1",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@1+8",
+      "cls": "rep",
+      "id": "Bytes@1+8",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@121+32",
+      "cls": "rep",
+      "id": "Bytes@121+32",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@153+32",
+      "cls": "rep",
+      "id": "Bytes@153+32",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@17+8",
+      "cls": "rep",
+      "id": "Bytes@17+8",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@185+32",
+      "cls": "rep",
+      "id": "Bytes@185+32",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@217+32",
+      "cls": "rep",
+      "id": "Bytes@217+32",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@249+8",
+      "cls": "rep",
+      "id": "Bytes@249+8",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@25+32",
+      "cls": "rep",
+      "id": "Bytes@25+32",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@57+32",
+      "cls": "rep",
+      "id": "Bytes@57+32",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@89+32",
+      "cls": "rep",
+      "id": "Bytes@89+32",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Bytes@9+8",
+      "cls": "rep",
+      "id": "Bytes@9+8",
+      "interface": false,
+      "reach": "image",
+      "slot_of": "Bytes",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Header",
+      "cls": "rep",
+      "id": "Header",
+      "interface": false,
+      "product": [
+        "version",
+        "batchIndex",
+        "l1MessagePopped",
+        "totalL1MessagePopped",
+        "dataHash",
+        "blobVersionedHash",
+        "prevStateHash",
+        "postStateHash",
+        "withdrawRootHash",
+        "parentBatchHash",
+        "lastBlockNumber"
+      ],
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "keccak256",
+      "cls": "digest",
+      "id": "keccak256",
+      "interface": false,
+      "reach": "image",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "encoder",
+      "id": "CODEC.BatchCache_createBatchHeaderWithSequencerSetHash",
+      "kind": "CODEC",
+      "model_fn": "BatchCache_createBatchHeaderWithSequencerSetHash",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*morph-l2/common/batch.BatchCache).createBatchHeaderWithSequencerSetHash"
+        }
+      ],
+      "src": "BatchHeaderV1",
+      "tgt": "Bytes",
+      "version": "2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_BatchIndex",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_BatchIndex",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@1+8",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_BlobCommitHash",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_BlobCommitHash",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).BlobCommitHash"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@57+32",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_BlobHashesHash",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_BlobHashesHash",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).BlobHashesHash"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@57+32",
+      "version": "2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_BlobVersionedHash",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_BlobVersionedHash",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).BlobVersionedHash"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@57+32",
+      "version": "0..1"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_DataHash",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_DataHash",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).DataHash"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@25+32",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_L1MessagePopped",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_L1MessagePopped",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).L1MessagePopped"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@9+8",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_LastBlockNumber",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_LastBlockNumber",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@249+8",
+      "version": "1..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_ParentBatchHash",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_ParentBatchHash",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).ParentBatchHash"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@217+32",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_PostStateRoot",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_PostStateRoot",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).PostStateRoot"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@121+32",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_PrevStateRoot",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_PrevStateRoot",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).PrevStateRoot"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@89+32",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_SequencerSetVerifyHash",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_SequencerSetVerifyHash",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).SequencerSetVerifyHash"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@185+32",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_TotalL1MessagePopped",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_TotalL1MessagePopped",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@17+8",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_Version",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_Version",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).Version"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@0+1",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "decoder",
+      "id": "CODEC.BatchHeaderBytes_WithdrawalRoot",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderBytes_WithdrawalRoot",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderBytes).WithdrawalRoot"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes@153+32",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "encoder",
+      "id": "CODEC.BatchHeaderV0_Bytes",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderV0_Bytes",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderV0).Bytes"
+        }
+      ],
+      "src": "BatchHeaderV0",
+      "tgt": "Bytes",
+      "version": "0"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_batch.go.extracted.json",
+      "env": false,
+      "fn_kind": "encoder",
+      "id": "CODEC.BatchHeaderV1_Bytes",
+      "kind": "CODEC",
+      "model_fn": "BatchHeaderV1_Bytes",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(morph-l2/common/batch.BatchHeaderV1).Bytes"
+        }
+      ],
+      "src": "BatchHeaderV1",
+      "tgt": "Bytes",
+      "version": "1"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_header.extracted.json",
+      "env": false,
+      "fn_kind": "encoder",
+      "id": "CODEC.enc_sol",
+      "kind": "CODEC",
+      "model_fn": "enc_sol",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "Rollup._commitBatchWithBatchData"
+        }
+      ],
+      "src": "Header",
+      "tgt": "Bytes",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_header.extracted.json",
+      "domain": "ok_load_sol",
+      "env": false,
+      "fn_kind": "loader",
+      "id": "CODEC.load_sol",
+      "kind": "CODEC",
+      "model_fn": "load_sol",
+      "partial": true,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "Rollup._loadBatchHeader"
+        }
+      ],
+      "src": "Bytes",
+      "tgt": "Bytes",
+      "version": "0..2"
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M2/facts/morph_header.extracted.json",
+      "env": false,
+      "id": "HASH.keccak256",
+      "kind": "HASH",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [],
+      "src": "Bytes",
+      "tgt": "keccak256",
+      "version": null
+    }
+  ],
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "facts_version": "holon-linked/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "linked_carrier": "Bytes",
+  "mapped_sections": {
+    "carriers": "records, the linked byte carrier and decoder slots (rule X6)",
+    "functions": "CODEC edges (predicates: domains of the linked carrier) and HASH edges of the selected sinks (rule X6)"
+  },
+  "model": "header_length",
+  "principal_classes": [],
+  "provenance": {},
+  "tag_index": 0
+}

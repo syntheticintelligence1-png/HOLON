@@ -41,6 +41,19 @@ refs is the transitive closure of what the statement names, over the facts def g
                      version, the basis element and the hit points), so G2 needs no derive output; the term also
                      takes the step closure of A, as a step term does
 
+  expr               a facts expression term {"expr": E, "from": S [, "action": A, "on": T] [, "bind": ..]} (I24,
+                     holon-facts/0.2): the closure of the defs, builtins, params and oracle parameters E names, `sig`
+                     and, with an action, `acts`; S, T and the bound terms as any term
+
+Codec terms (I24; _CodecClosure): a law over a holon-facts/0.1 document or a linked codec document (holon.diagram.linked)
+uses the codec terms {"call", "args"}, {"field", "of"}, {"bytes"}, {"some"}, {"var"}, {"bool"}. Its refs are
+  fn:NAME            over 0.1: the facts entry of function NAME without its human text (meaning, notes, source,
+                     preconditions, and the code of every op, getter and rule), transitively a decoder's guard and the
+                     record types it maps; over a linked document: the function's entry without document and source (a
+                     domain predicate ok_<L> is the loader L's entry)
+  type:NAME          (0.1) a record type of a binder, a field term or a function, human text removed
+  carrier:NAME       (linked) a record carrier of a binder, without its document
+
 The oracle sidecar of a law, when the caller passes none (oracles=None), is the one its model takes in its
 milestone (holon.gen.oracles.Oracles.for_milestone over <root>/<law facts>; audit M2/1 F-M2-11), so
 law_hash(law, facts) is the hash `holon run` and G2 compute; M0 and M1 never take one.
@@ -53,6 +66,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from .. import ir
@@ -332,6 +346,15 @@ class _Closure:
             self.term(t["on"])
             self.term(t["from"])
             return
+        if "expr" in t and "from" in t:   # a facts expression in a state (I24, holon-facts/0.2): what E names,
+            self.expr(t["expr"])            # the state signature and, with an action, the action signature
+            self.sig()
+            if isinstance(t.get("action"), str):
+                self.acts_sig()
+            self.term(t.get("from"))
+            self.term(t.get("on"))
+            self.term(list((t.get("bind") or {}).values()))
+            return
         if isinstance(t.get("width_site"), str) and "on" in t and "from" in t:   # a SORT-width term (I20)
             self.width(t["width_site"])
             self.term(t["on"])
@@ -402,11 +425,104 @@ class _Closure:
             self.put("fn:" + n, None)   # a name nothing defines: hashed as absent, so defining it changes the hash
 
 
+CODEC01_TEXT = ("meaning", "notes", "source", "preconditions")
+LINKED_PROVENANCE = ("document", "source")
+
+
+def _strip01(x):
+    """A holon-facts/0.1 entry without its human text: meaning, notes, source, preconditions, and the code of every
+    op, getter and rule (doc and src as everywhere)."""
+    if isinstance(x, dict):
+        return {k: _strip01(v) for k, v in x.items()
+                if not (k in CODEC01_TEXT or k == "code" or k in ("doc", "src") or k.endswith("_doc"))}
+    if isinstance(x, list):
+        return [_strip01(v) for v in x]
+    return x
+
+
+class _CodecClosure:
+    """Statement refs of codec terms (I24): over a holon-facts/0.1 document, each function a term names by the content
+    of its facts entry (human text removed), transitively (a decoder's guard predicate, the record types it maps),
+    and the record types of the statement's binders and field terms; over a linked codec document
+    (holon.diagram.linked), each function it names (a domain predicate ok_<L>: the loader L) by its entry without
+    document and source, and the record carriers of its binders. Editing a function a law names restales the law;
+    editing another function, or only text or provenance, does not."""
+
+    def __init__(self, facts: dict):
+        self.f, self.out = facts or {}, {}
+        self.linked = self.f.get("linked_version") == "holon-linked/0.1"
+
+    def put(self, key: str, obj) -> bool:
+        if key in self.out:
+            return False
+        self.out[key] = _h(obj)
+        return True
+
+    def record(self, name: str) -> None:
+        if self.linked:
+            c = (self.f.get("carriers") or {}).get(name)
+            if c is not None and c.get("kind") == "record":
+                self.put("carrier:" + name, {k: v for k, v in c.items() if k != "document"})
+            return
+        t = (self.f.get("types") or {}).get(name)
+        if t is not None and t.get("kind") == "record":
+            self.put("type:" + name, _strip01(t))
+
+    def fn(self, name: str) -> None:
+        if self.linked:
+            fs = self.f.get("functions") or {}
+            key = name
+            if name not in fs and name.startswith("ok_") and (fs.get(name[3:]) or {}).get("kind") == "loader":
+                key = name[3:]
+            e = fs.get(key)
+            self.put("fn:" + name, None if e is None else {k: v for k, v in e.items() if k not in LINKED_PROVENANCE})
+            return
+        e = (self.f.get("functions") or {}).get(name)
+        if not self.put("fn:" + name, None if e is None else _strip01(e)) or e is None:
+            return
+        if isinstance(e.get("guard"), str):
+            self.fn(e["guard"])
+        for side in ("from", "to"):
+            t = e.get(side)
+            if isinstance(t, str):
+                m = re.fullmatch(r"Maybe<(.+)>", t)
+                self.record(m.group(1) if m else t)
+
+    def term(self, t, types: dict) -> None:
+        if isinstance(t, list):
+            for x in t:
+                self.term(x, types)
+            return
+        if not isinstance(t, dict):
+            return
+        if isinstance(t.get("call"), str):
+            self.fn(t["call"])
+        if isinstance(t.get("field"), str) and isinstance(t.get("of"), dict) and isinstance(t["of"].get("var"), str):
+            self.record(types.get(t["of"]["var"], ""))
+        for v in t.values():
+            self.term(v, types)
+
+
+def codec_document(facts: dict) -> bool:
+    """A holon-facts/0.1 document or a linked codec document: its laws use the codec terms (I24)."""
+    return isinstance(facts, dict) and (facts.get("facts_version") == "holon-facts/0.1"
+                                        or facts.get("linked_version") == "holon-linked/0.1")
+
+
 def refs(law: dict, facts: dict, oracles=None, lib=None, root: Path | str | None = None) -> dict:
     """{ref: content hash or template} for everything the statement depends on (see the module docstring).
     `oracles` is the parsed sidecar (holon.gen.oracles.Oracles or its JSON document) that hyp premises and oracle
     parameters refer to; `lib` the target-library documents (default: those of the law's facts file under root,
     holon.gen.targetlib.lib_files)."""
+    if codec_document(facts):   # codec terms over a 0.1 document or a linked codec document (I24)
+        st = law["statement"]
+        types = {b["name"]: str(b.get("type", "")) for b in st.get("binders", [])}
+        cc = _CodecClosure(facts)
+        for t in types.values():
+            cc.record(t)
+        cc.term(st.get("assume", []), types)
+        cc.term(st.get("claim", {}), types)
+        return dict(sorted(cc.out.items()))
     orc = _oracles(oracles) if oracles is not None else milestone_oracles(law, root)
     docs = lib if lib is not None else lib_docs_for(law, root)
     c = _Closure(law, facts or {}, orc, docs, root)

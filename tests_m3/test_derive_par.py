@@ -979,7 +979,7 @@ class TestGenericCode(unittest.TestCase):
     def test_renaming_the_linked_fixture_renames_its_derivation(self):
         """Renaming the linked fixture's Solidity functions, record fields and Go methods renames its laws and changes
         nothing else."""
-        ren = {"enc_x": "zq_enc", "load_x": "zq_load", "RootNew": "ZqNew", "Root": "ZqOld", "makeV2": "zqPatch"}
+        ren = {"enc_x": "zq_enc", "load_x": "zq_load", "RootNew": "ZqOldNew", "Root": "ZqOld", "makeV2": "zqPatch"}
         repo = copy_repo()
         try:
             fx = repo / "tests_m3" / "fixtures" / "par_linked"

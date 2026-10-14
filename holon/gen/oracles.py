@@ -269,8 +269,9 @@ def ledger_problems(milestone: str, root: Path, laws: list[dict], records: dict)
             bad.append(f"{law['law_id']}: {e}")
             continue
         meets = sorted(e["id"] for e in b["entries"] if R._meets(e, set(rec.get("cone") or [])))
-        if _transitions(fp):   # an extracted model (I20): no oracle parameter replaces a ledger entry
-            want = meets
+        from ..codecrun import codec_kind
+        if _transitions(fp) or codec_kind(law, root):   # an extracted model (I20), a codec model (I24): no oracle
+            want = meets                                 # parameter replaces a ledger entry
         else:
             if fp not in machines:
                 orc = Oracles.for_milestone(milestone, fp, root)

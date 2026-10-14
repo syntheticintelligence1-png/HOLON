@@ -487,6 +487,12 @@ def expected_texts(law: dict, m: str, root: Path, rec: dict) -> tuple[str, str, 
     """The inhabitant files G11V expects, regenerated from the frozen IR and the recorded witness."""
     root = Path(root)
     model = Path(rec["artifacts"]["model"]).stem
+    from .codecrun import codec_kind
+    kind = codec_kind(law, root)
+    if kind is not None:   # I24: a codec law's inhabitant (holon.codecrun.inhabitant)
+        from .codecrun import inhabitant
+        return inhabitant(law, kind, F.load(root / law["facts"]), model, rec["non_vacuity"]["witness"],
+                          rec["statement_hash"])
     if law["ir_version"] == "holon-ir/0.1":
         fpath = root / ir.load_registry(m, root).get("facts", "facts/morph_header.json")
         return texts_01(law, F.load(fpath), model, rec["non_vacuity"]["witness"])

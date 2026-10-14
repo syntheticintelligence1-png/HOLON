@@ -108,7 +108,8 @@ class TestByteIdentity(unittest.TestCase):
             keep = [ln for ln in b.decode().splitlines(keepends=True)
                     if not ln.strip() or json.loads(ln).get("milestone") in ("M0", "M1")]
             return "".join(keep).encode()
-        self.assertEqual(tree_sha(ROOT, ["spec/bindings"], norm=m0_m1_lines, skip={"spec/bindings/M2.json"}),
+        self.assertEqual(tree_sha(ROOT, ["spec/bindings"], norm=m0_m1_lines,
+                                  skip={"spec/bindings/M2.json", "spec/bindings/M3.json"}),   # I24: M3's, new by design
                          BINDINGS_PIN)
 
     def test_records_unchanged_modulo_seconds_and_generator_hash(self):
