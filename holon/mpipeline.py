@@ -25,6 +25,14 @@ instances, then the empty table, and a counter-law supplies the table its witnes
 the statement queries, carrying the law's hypothesis premises as `exs hN` lines; model_assumptions is
 exactly the set of hypothesis premises (§8.5); and the run writes <out>/splits.json (holon-splits/0.1:
 hypothesis splits are law pairs, found from statements).
+
+Untrusted prover intake (I41; holon.intake): after the generators and the refuter, a law they leave UNKNOWN that has a
+submission in <root>/proofs/inbox/<law_id>/ is decided by the intake's checks, with the run's own outcome standing in for
+the committed record. Accepted: the record is PROVED with prover "agent:<session>", its proof a byte-identical copy of
+the inbox file at the layout path and its law file the generators' statement; the generators' attempts are kept and
+the intake's attempt is last; checker, kernels, independence_class and non_vacuity are those of any PROVED record, and
+bound is null. Refused: the record stays as the generators left it, with one more attempt that carries the reason.
+Every other record has prover "generator". The exit status does not depend on the inbox.
 """
 from __future__ import annotations
 
@@ -35,7 +43,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from . import bend, bindings, inhabit, ir, records
+from . import bend, bindings, inhabit, intake, ir, records
 from . import facts as F
 from .gen import mlaws, mproofs
 from .gen import oracles as O
@@ -265,6 +273,12 @@ def site_law(law: dict) -> str | None:
     if not (isinstance(eq, list) and len(eq) == 2 and isinstance(eq[0], dict) and isinstance(eq[0].get("site"), str)):
         return None
     return eq[0]["site"]
+
+
+def decided_without_bend(milestone: str, law: dict) -> bool:
+    """A SORT-width law of an M2+ milestone (I20): `holon run` decides it with holon.sorts.width over the extracted
+    model, never by the machine, and writes no Bend file for it."""
+    return m2plus(milestone) and law.get("rule") == "SORT" and law.get("subform") == "width"
 
 
 def ghost_fns(site_id: str, m: Machine) -> dict:
@@ -625,7 +639,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         if only is not None and lid not in only:
             continue
         sid = site_law(law) if m2plus(milestone) else None   # a SORT-site law (I15)
-        if m2plus(milestone) and law.get("rule") == "SORT" and law.get("subform") == "width":
+        if decided_without_bend(milestone, law):
             # a SORT-width law over an extracted document (I20): decided by holon.sorts.width, never by the machine
             from .sorts import width as WD
             fp = fpath_of(law)
@@ -633,6 +647,13 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             rec.update(scope_fields(law, rec))   # a 0.3 record's scope is its statement's (F-M2-01)
             rec.update(WD.v2_fields(law, rec, milestone, ROOT, cfg))   # the v2 fields over the extracted model
             rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
+            if rec["status"] == "UNKNOWN":   # I41: a submission is decided; there is no law file to check it against
+                ld, pd, _ = layout(milestone, gen, lid)
+                got = intake_decision(milestone, lid, rec["statement_hash"], gen, ld, pd, None, None, cfg,
+                                      "holon run decides this SORT-width law without Bend (holon.sorts.width: the "
+                                      "extracted model has no reachability predicate) and writes no law file for it")
+                if got is not None:
+                    rec["attempts"] = list(rec["attempts"]) + [intake.attempt(got[0])]
             (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
             summary[lid] = rec["status"]
             oracles_of[lid] = None
@@ -778,6 +799,20 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         except O.OracleError as e:
             attempts.append({"kind": "ir", "error": f"rejected by the oracle sidecar rules: {e}"})
             bound = "not searched: the statement's oracle premises do not resolve against the sidecar"
+        agent = None   # I41: the intake's decision on an agent submission for a law left UNKNOWN
+        if status == "UNKNOWN":
+            why = None if em is not None else ("holon run writes no law file for it: "
+                                               + next((a["error"] for a in reversed(attempts) if a.get("error")),
+                                                      "the statement was not emitted"))
+            agent = intake_decision(milestone, lid, shash, gen, ld, pd, model_src, em, cfg, why)
+            if agent is not None and agent[0]["verdict"] == "accepted":
+                for x in {ld, pd} - {d}:   # what the generators left (a SORT-site law's counter-law file)
+                    shutil.rmtree(x, ignore_errors=True)
+                for x in (ld, pd):
+                    x.mkdir(parents=True, exist_ok=True)
+                (ld / "LAWS.bend").write_text(em.text)          # the generators' statement
+                (pd / "PROOF.bend").write_bytes(agent[1])        # the inbox file, byte for byte
+                status, r = "PROVED", agent[0]["_bend2"]
         if sid is not None:
             rec["site"] = sid
             rec.setdefault("witnesses", {})
@@ -798,18 +833,26 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             rec["scope"] = "unbounded"
             rec["artifacts"].update({"laws": relpath(ld / "LAWS.bend"), "proof": relpath(pd / "PROOF.bend"), "law_name": em.name})
             rec["checker"] = {"exit_code": r.code, "marker": r.marker, "seconds": r.seconds}
-            if verdict:
+            if agent is not None:   # accepted by the intake: its kernels checked the proof (bendtt when enabled)
+                rec["bound"] = None
+                if agent[0]["kernels"]["bendtt"] != "not_applicable":
+                    rec["kernel"]["verdict"] = agent[0]["kernels"]["bendtt"]
+            elif verdict:
                 v = bend.check_verdict(pd / "PROOF.bend", cfg)
                 rec["kernel"]["verdict"] = "checked" if v.ok else "failed"
                 attempts.append({"kind": "verdict", "kernel": "BendTT (Lean-proven)", "exit_code": v.code,
                                  "marker": v.marker, "seconds": v.seconds})
         if law.get("ir_version") == "holon-ir/0.3":   # the statement's scope, separate from its status (F-M2-01)
             rec.update(scope_fields(law, rec))
+        if agent is not None:   # the intake's attempt comes after every attempt of the generators
+            attempts.append(intake.attempt(agent[0]))
         rec["status"] = status
         rec["attempts"] = attempts
         kbound["laws"][lid] = {"model": model_src.stem, "cone": law_cone(law, cm.facts, stmt_text, model_src, cfg)}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT,
-                                     ledger_required=not test_milestone(milestone)))
+                                     ledger_required=not test_milestone(milestone),
+                                     prover=agent[0]["prover"] if status == "PROVED" and agent is not None
+                                     else "generator"))
         if law.get("ir_version") == "holon-ir/0.3":
             rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
         if law.get("negation_of"):
@@ -971,6 +1014,30 @@ def refute_site(law: dict, em, cm: CompiledMachine, imp: str, d: Path, ld: Path,
         return "UNKNOWN", None, None, {e: site_entry_record(None, bounds.get(e, "not searched"), None) for e in entries}, \
             bound + f"; the primary counter-law copy was rejected: {why}"
     return "REFUTED", rr, em2, wits, bound
+
+
+# ---------------------------------------------------------------- I41: the untrusted prover intake
+def intake_decision(milestone: str, lid: str, shash: str, gen: Path, ld: Path, pd: Path, model_src: Path | None, em,
+                    cfg: dict, no_statement: str | None):
+    """holon.intake.decide_in_run for a law this run left UNKNOWN: (decision, proof bytes), or None without a
+    submission in <ROOT>/proofs/inbox. The kernels see the run's own files at their gen/<M>/ paths: the law's model,
+    the core library (when the run emitted one) and the statement em (none when no_statement says why)."""
+    if not os.path.lexists(ROOT / intake.INBOX / lid):
+        return None
+    base = Path("gen") / milestone
+
+    def rel(p: Path) -> str:
+        return (base / Path(p).relative_to(gen)).as_posix()
+    files: dict[str, bytes] = {}
+    if model_src is not None:
+        files[rel(model_src)] = Path(model_src).read_bytes()
+    for n in ("LAWS.bend", "PROOF.bend"):
+        if (gen / "core" / n).is_file():
+            files[rel(gen / "core" / n)] = (gen / "core" / n).read_bytes()
+    law_rel, proof_rel = rel(ld / "LAWS.bend"), rel(pd / "PROOF.bend")
+    if em is not None and no_statement is None:
+        files[law_rel] = em.text.encode()
+    return intake.decide_in_run(milestone, lid, shash, files, law_rel, proof_rel, no_statement, cfg, ROOT)
 
 
 def param_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dict, attempts: list):
