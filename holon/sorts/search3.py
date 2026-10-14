@@ -1200,20 +1200,30 @@ class Checkpoint:
 
 def settle(model_factory, steps: list, fns: list) -> tuple[dict, dict, list]:
     """The witness's hash tables: the real hash of exactly the keys its trace (and the given predicates on its last
-    step) looks up, from empty tables (a fixpoint on a fresh model)."""
+    step) looks up, from empty tables (a fixpoint on a fresh model). The last step's keys are kept (its evaluation is
+    not a candidate's: run_step(save=False) and pred would forget them), and the fixpoint runs on copies of the steps,
+    so a call it looks up on the way (with a table not yet complete) never adds an answer to the witness."""
+    steps = [Step(st.action, st.args, json.loads(json.dumps(st.env))) for st in steps]
     m = model_factory(empty=True)
     g = m.s0()
     codes = []
     for st in steps[:-1]:
         code, g, _c = m.run_step(g, st, save=True)
         codes.append(code)
-    code, _g2, _c = m.run_step(g, steps[-1], save=False)
+    code, _g2, _c = m._run_step(g, steps[-1], False)
     codes.append(code)
-    vals = [m.pred(fn, g, steps[-1]) for fn in fns]
-    # one more pass with the final tables: nothing new may appear
-    g = m.s0()
-    for st in steps[:-1]:
-        _code, g, _c = m.run_step(g, st, save=True)
-    for fn in fns:
-        m.pred(fn, g, steps[-1])
-    return dict(m.kh), dict(m.sh), codes + vals
+    vals = [m._pred(fn, g, steps[-1]) for fn in fns]
+    # more passes with the final tables, until nothing new appears
+    for _ in range(5):
+        n = (len(m.kh), len(m.sh))
+        g = m.s0()
+        codes = []
+        for st in steps[:-1]:
+            code, g, _c = m.run_step(g, st, save=True)
+            codes.append(code)
+        code, _g2, _c = m._run_step(g, steps[-1], False)
+        codes.append(code)
+        vals = [m._pred(fn, g, steps[-1]) for fn in fns]
+        if (len(m.kh), len(m.sh)) == n:
+            return dict(m.kh), dict(m.sh), codes + vals
+    raise RuntimeError("the witness's hash tables did not settle")
