@@ -118,12 +118,21 @@ class Evaluator:
         if mjs.is_file():
             return mjs
         d.mkdir(parents=True, exist_ok=True)
-        src = d / "model.bend"
-        src.write_text(self.text, encoding="utf-8")
-        from .. import bend
-        r = bend.run([src.name, "-o", mjs.name], cwd=d)
-        if r.code != 0 or not mjs.is_file():
-            raise EvalError(f"bend failed to compile {self.model_path}: {r.out[-2000:]}")
+        # compile in a private directory and publish model.mjs by an atomic rename: a concurrent run must never see a
+        # partly written module (two `holon run` processes started together crashed on a half-written model.mjs)
+        import shutil
+        import tempfile
+        tmp = Path(tempfile.mkdtemp(prefix="build-", dir=d))
+        try:
+            src = tmp / "model.bend"
+            src.write_text(self.text, encoding="utf-8")
+            from .. import bend
+            r = bend.run([src.name, "-o", mjs.name], cwd=tmp)
+            if r.code != 0 or not (tmp / mjs.name).is_file():
+                raise EvalError(f"bend failed to compile {self.model_path}: {r.out[-2000:]}")
+            os.replace(tmp / mjs.name, mjs)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
         return mjs
 
     def start(self) -> None:

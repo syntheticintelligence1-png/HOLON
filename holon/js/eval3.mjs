@@ -14,7 +14,7 @@
 // Values (JSON): {"$w": "0x.."} a word W{l0..l7}; {"$b": "0x.."} a byte string (List<U32>); [..] a list; {"$r": name,
 // "f": {field: value}} a record; true/false a Bool; a number a U32. Outputs: words as "0x..", byte lists as
 // {"$b": "0x.."} when every element is a byte, records as {"$r", "f"}, lists as arrays.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, renameSync, writeFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { pathToFileURL } from "node:url";
 
@@ -44,8 +44,12 @@ hook("hs_get", "function $hs_get$(xs, k) { const h = globalThis.__holonHook; h.s
   "try { return $hs_get$__holon(xs, k); } finally { h.cur = h.kh; } }");
 hook("c_find", "function $c_find$(xs, to, bt, d) { const k = (bt ? __holonWord(to) : '-') + ' ' + __holonHex(d); " +
   "globalThis.__holonHook.calls.set(k, 1); return $c_find$__holon(xs, to, bt, d); }");
+// write a per-process file and publish it by an atomic rename: concurrent evaluators share this path, and a reader
+// must never import a partly written module
 const tmp = path.replace(/\.mjs$/, "") + ".hooked.mjs";
-writeFileSync(tmp, text);
+const mine = tmp + "." + process.pid + ".part";
+writeFileSync(mine, text);
+renameSync(mine, tmp);
 const M = (await import(pathToFileURL(tmp).href)).default;
 
 const NIL = { $: "Nil" };
