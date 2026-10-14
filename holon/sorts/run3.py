@@ -685,6 +685,7 @@ def run_main(a) -> int:
                 if c is not ctx:
                     c.close()
             c.log(f"{lid}: {rec['status']}")
+            (ctx.out / f"{lid}.json").write_text(dumps(rec), encoding="utf-8")     # kept if a later law fails
             return lid, rec, rep
         if jobs == 1:
             reals: dict = {}
@@ -694,6 +695,7 @@ def run_main(a) -> int:
                     reals["r"] = Real(ctx, json.loads((ctx.root / e["facts"]).read_text()))
                 rec, rep = _decide_law(ctx, lid, reals.get("r"))
                 ctx.log(f"{lid}: {rec['status']}")
+                (ctx.out / f"{lid}.json").write_text(dumps(rec), encoding="utf-8")
                 results[lid] = (rec, rep)
             for r in reals.values():
                 r.close()

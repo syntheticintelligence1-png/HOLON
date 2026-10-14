@@ -513,7 +513,8 @@ class Synth:
         return (0, code)
 
     def synth(self, g: str, a: str, prev: Step | None, ts0: int, target=None, accept=None,
-              start: Step | None = None, focus: list | None = None) -> tuple[Step | None, int]:
+              start: Step | None = None, focus: list | None = None,
+              freeze: set | None = None) -> tuple[Step | None, int]:
         """A step of action a from state g that succeeds (or, with target, fails exactly at check index target; with
         accept(step, code), any step it accepts)."""
         st = start or self.base(a, prev, ts0)
@@ -526,7 +527,7 @@ class Synth:
             return st, code
         if accept is None and best[0] >= (3 if target is not None else 2):
             return st, code
-        leaves = self.leaves(a)
+        leaves = [lt for lt in self.leaves(a) if lt[0] not in (freeze or set())]
         tried = set()
         fset = set(focus or [])
         done = (3 if target is not None else 2)
@@ -613,7 +614,7 @@ class Synth:
             # 3. two coordinates: a move that made an earlier check fail (the latest failing first), then another
             # leaf at that check's directed values or a small value
             if plateau:
-                seconds = [t for t in seconds if t[2] in fset]
+                break
             seconds.sort(key=lambda t: self.score(t[1], target), reverse=True)
             for cand, c2, leaf in seconds:
                 if evals >= self.max_evals:
@@ -805,6 +806,7 @@ class Refuter:
         self.ts0 = int(self.m.init.get("timestamp") or 1) or 1
         self.cache: dict = {}
         self.fp: dict = {}                  # state handle -> fingerprint (successors computes it)
+        self.entry_evals = 200              # an entry step's synthesis (a successor's has synth_evals)
 
     def pools(self, g: str, trace: list) -> tuple[dict, dict]:
         """(state, pools) of a reachable state (cached: a state handle is never reused for another state)."""
@@ -874,11 +876,14 @@ class Refuter:
     def entry_at(self, law: dict, entry: str, g: str, trace: list):
         _acc, target, accept = self.accept_for(law, entry, g)
         focus = self.focus_of(law, entry) if target is None else None
-        st, code = self.synth(g, entry, trace, target=target, accept=accept, focus=focus)
+        st, code = self.synth(g, entry, trace, target=target, accept=accept, focus=focus, evals=self.entry_evals)
         return st
 
-    def successors(self, g: str, trace: list, entry: str, limit: int, variants: int = 3) -> list:
-        """Successful steps from state g, a few per action (distinct post-states), the most relevant actions first."""
+    def successors(self, g: str, trace: list, entry: str, limit: int, variants: int = 3,
+                   focus: list | None = None) -> list:
+        """Successful steps from state g, a few per action (distinct post-states), the most relevant actions first.
+        Variants of the focus leaves (the leaves the law's coercion reads) come first; one that fails is repaired by
+        a short synthesis that holds that leaf."""
         out = []
         for a in relevance(self.doc, entry):
             if len(out) >= limit:
@@ -891,6 +896,19 @@ class Refuter:
             cands = [st]
             state, pools = self.pools(g, trace)
             sy = Synth(self.m, pools, 0)
+            prev = trace[-1] if trace else None
+            for leaf, ty in sy.leaves(a):
+                if leaf not in (focus or []):
+                    continue
+                for v in sy.value_set(leaf, ty, st, state, int(st.env["block.timestamp"]))[:4]:
+                    c = sy.assign(st, leaf, ty, v)
+                    if c is None:
+                        continue
+                    c2, _n, _c = self.m.run_step(g, c, save=False)
+                    if c2 != 0:
+                        c, c2 = Synth(self.m, pools, 60).synth(g, a, prev, self.ts0, start=c, freeze={leaf})
+                    if c is not None and c2 == 0:
+                        cands.append(c)
             for leaf, ty in sy.leaves(a):
                 if leaf[0] == "env" and leaf[1] in ("msg.value",):
                     continue
@@ -922,6 +940,7 @@ class Refuter:
         maxp = int(self.budget.get("max_prefixes", 1000))
         g0 = self.m.s0()
         tried = 1
+        focus = self.focus_of(law, entry)
         st = self.entry_at(law, entry, g0, [])
         if st is not None:
             self.log(f"  {entry}: witness at depth 0")
@@ -937,7 +956,7 @@ class Refuter:
             for trace, g in level:
                 if tried >= maxp:
                     break
-                for t2, g2 in self.successors(g, trace, entry, maxp - tried):
+                for t2, g2 in self.successors(g, trace, entry, maxp - tried, focus=focus):
                     key = (self.fp.get(g2) or self.m.fingerprint(g2), int(t2[-1].env.get("block.timestamp") or 0))
                     if key in seen:
                         continue
@@ -978,7 +997,7 @@ class Refuter:
             for _k in range(ins):
                 new = []
                 for trace, gg in frontier:
-                    for t2, g2 in self.successors(gg, trace, entry, maxn - n3):
+                    for t2, g2 in self.successors(gg, trace, entry, maxn - n3, focus=focus):
                         new.append((t2, g2))
                 cands += new
                 frontier = new
