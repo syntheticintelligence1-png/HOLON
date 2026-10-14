@@ -101,8 +101,9 @@ class TestMetricsFiles(unittest.TestCase):
         recs = [load_json(f) for f in sorted(H.REF_DIR.glob("*.json"))]
         m1 = load_json(ROOT / "replay" / "M1" / "report.json")["refinement"]
         want = {
-            "M0": {"compared": sum(r["compared"] for r in recs if r["milestone"] == "M0"),
-                   "disagreements": sum(r["disagreements"] for r in recs if r["milestone"] == "M0")},
+            # amended (I20, spec/M2/amendments.jsonl): I20's step refinement record (kind extracted) has no milestone key
+            "M0": {"compared": sum(r["compared"] for r in recs if r.get("milestone") == "M0"),
+                   "disagreements": sum(r["disagreements"] for r in recs if r.get("milestone") == "M0")},
             "M1": {"compared": m1["steps"], "disagreements": m1["n_disagreements"]},
         }
         for m in MILESTONES:
