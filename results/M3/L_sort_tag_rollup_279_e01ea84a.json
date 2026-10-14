@@ -1,9 +1,9 @@
 {
   "artifacts": {
-    "law_name": "l_sort_tag_rollup_279_e01ea84a",
+    "law_name": "cl_l_sort_tag_rollup_279_e01ea84a",
     "laws": "gen/M3/laws/L_sort_tag_rollup_279_e01ea84a/LAWS.bend",
     "model": "gen/M3/sorts/models/morph_rollup.extracted.bend",
-    "proof": null
+    "proof": "gen/M3/proofs/L_sort_tag_rollup_279_e01ea84a/PROOF.bend"
   },
   "attempts": [
     {
@@ -12,18 +12,13 @@
       "found": true,
       "kind": "refute",
       "stage": "S2"
-    },
-    {
-      "error": "does not apply: no tag_exact generator over the M3 model (its mapping slots go through the law's hash parameter, which the statement leaves unconstrained)",
-      "generator": "tag_exact",
-      "kind": "proof",
-      "marker": null
     }
   ],
-  "bound": "S1+S2: 47 distinct states (depth <= 3)",
+  "bound": null,
   "checker": {
-    "exit_code": null,
-    "marker": "not_run"
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 3.702
   },
   "coercion": {
     "from": "Dig[Agg] + Dig[VH]",
@@ -56,7 +51,7 @@
     ],
     "to": null
   },
-  "compiled_sha256": "9acd5507a6617a8cc9fedecd626cdb093aa51240dfe3277e0e647b2a8b4e4b23",
+  "compiled_sha256": "6a7465d1789b7b7f05e666de05ebe772ad0b7559d95d13e31b140cbd284d1bb1",
   "cone": [
     "AR_addChallenger",
     "AR_batchChallengedSuccess",
@@ -155,9 +150,12 @@
     "b2u",
     "b_at",
     "b_drop",
+    "b_dropn",
     "b_eq",
     "b_len",
+    "b_of_u",
     "b_of_w",
+    "b_rev",
     "b_take",
     "b_word",
     "b_zeros",
@@ -390,244 +388,32 @@
     "gh_set_st",
     "gh_step",
     "gk_get",
+    "gk_put",
     "gk_set",
     "gt_Dur_Dur",
     "gt_Time_Time",
-    "gx_addChallenger_ar",
-    "gx_addChallenger_cd",
-    "gx_addChallenger_en",
-    "gx_addChallenger_kh",
-    "gx_addChallenger_lg",
-    "gx_addChallenger_ov",
-    "gx_addChallenger_st",
-    "gx_addChallenger_tw",
-    "gx_batchChallengedSuccess_cd",
-    "gx_batchChallengedSuccess_en",
-    "gx_batchChallengedSuccess_ov",
-    "gx_batchExist_cd",
-    "gx_batchExist_en",
-    "gx_batchExist_ov",
-    "gx_batchInChallenge_cd",
-    "gx_batchInChallenge_en",
-    "gx_batchInChallenge_ov",
-    "gx_batchInsideChallengeWindow_cd",
-    "gx_batchInsideChallengeWindow_en",
-    "gx_batchInsideChallengeWindow_ov",
-    "gx_challengeState_ar",
-    "gx_challengeState_c1_1",
     "gx_challengeState_cd",
-    "gx_challengeState_en",
-    "gx_challengeState_it1",
-    "gx_challengeState_kh",
     "gx_challengeState_ld1",
-    "gx_challengeState_lg",
-    "gx_challengeState_ov",
-    "gx_challengeState_st",
-    "gx_challengeState_tw",
-    "gx_claimProveRemaining_ar",
-    "gx_claimProveRemaining_cd",
-    "gx_claimProveRemaining_en",
-    "gx_claimProveRemaining_lg",
-    "gx_claimProveRemaining_ov",
-    "gx_claimProveRemaining_st",
-    "gx_claimProveRemaining_tw",
-    "gx_claimReward_ar",
-    "gx_claimReward_cd",
-    "gx_claimReward_en",
-    "gx_claimReward_kh",
-    "gx_claimReward_lg",
-    "gx_claimReward_ov",
-    "gx_claimReward_st",
-    "gx_claimReward_tw",
-    "gx_commitBatchWithProof_ar",
     "gx_commitBatchWithProof_cd",
-    "gx_commitBatchWithProof_cn4",
-    "gx_commitBatchWithProof_en",
-    "gx_commitBatchWithProof_it4",
-    "gx_commitBatchWithProof_it5",
-    "gx_commitBatchWithProof_kh",
     "gx_commitBatchWithProof_ld4",
     "gx_commitBatchWithProof_ld5",
-    "gx_commitBatchWithProof_lg",
-    "gx_commitBatchWithProof_ov",
-    "gx_commitBatchWithProof_st",
-    "gx_commitBatchWithProof_tw",
-    "gx_commitBatch_ar",
     "gx_commitBatch_cd",
-    "gx_commitBatch_cn2",
-    "gx_commitBatch_en",
-    "gx_commitBatch_it2",
-    "gx_commitBatch_it3",
-    "gx_commitBatch_kh",
     "gx_commitBatch_ld2",
     "gx_commitBatch_ld3",
-    "gx_commitBatch_lg",
-    "gx_commitBatch_ov",
-    "gx_commitBatch_st",
-    "gx_commitBatch_tw",
-    "gx_commitState_ar",
     "gx_commitState_cd",
-    "gx_commitState_en",
-    "gx_commitState_it6",
-    "gx_commitState_kh",
     "gx_commitState_ld6",
-    "gx_commitState_lg",
-    "gx_commitState_ov",
-    "gx_commitState_st",
-    "gx_commitState_tw",
-    "gx_finalizeBatch_ar",
     "gx_finalizeBatch_cd",
-    "gx_finalizeBatch_en",
-    "gx_finalizeBatch_it7",
-    "gx_finalizeBatch_kh",
     "gx_finalizeBatch_ld7",
-    "gx_finalizeBatch_lg",
-    "gx_finalizeBatch_ov",
-    "gx_finalizeBatch_st",
-    "gx_finalizeBatch_tw",
-    "gx_importGenesisBatch_ar",
-    "gx_importGenesisBatch_cd",
-    "gx_importGenesisBatch_en",
-    "gx_importGenesisBatch_kh",
-    "gx_importGenesisBatch_lg",
-    "gx_importGenesisBatch_ov",
-    "gx_importGenesisBatch_st",
-    "gx_importGenesisBatch_tw",
-    "gx_initialize2_ar",
-    "gx_initialize2_cd",
-    "gx_initialize2_en",
-    "gx_initialize2_kh",
-    "gx_initialize2_lg",
-    "gx_initialize2_ov",
-    "gx_initialize2_st",
-    "gx_initialize2_tw",
-    "gx_initialize3_ar",
-    "gx_initialize3_cd",
-    "gx_initialize3_en",
-    "gx_initialize3_lg",
-    "gx_initialize3_ov",
-    "gx_initialize3_st",
-    "gx_initialize3_tw",
-    "gx_initialize4_ar",
-    "gx_initialize4_cd",
-    "gx_initialize4_en",
-    "gx_initialize4_lg",
-    "gx_initialize4_ov",
-    "gx_initialize4_st",
-    "gx_initialize4_tw",
-    "gx_initialize_ar",
-    "gx_initialize_cd",
-    "gx_initialize_en",
-    "gx_initialize_lg",
-    "gx_initialize_ov",
-    "gx_initialize_st",
-    "gx_initialize_tw",
-    "gx_isBatchFinalized_cd",
-    "gx_isBatchFinalized_en",
-    "gx_isBatchFinalized_ov",
-    "gx_owner_cd",
-    "gx_owner_en",
-    "gx_owner_ov",
-    "gx_paused_cd",
-    "gx_paused_en",
-    "gx_paused_ov",
-    "gx_proveCommittedBatchState_ar",
-    "gx_proveCommittedBatchState_cd",
-    "gx_proveCommittedBatchState_en",
-    "gx_proveCommittedBatchState_kh",
-    "gx_proveCommittedBatchState_ov",
-    "gx_proveCommittedBatchState_st",
-    "gx_proveState_ar",
-    "gx_proveState_cd",
-    "gx_proveState_en",
-    "gx_proveState_kh",
-    "gx_proveState_lg",
-    "gx_proveState_ov",
-    "gx_proveState_st",
-    "gx_proveState_tw",
-    "gx_receive_cd",
-    "gx_receive_ov",
-    "gx_removeChallenger_ar",
-    "gx_removeChallenger_cd",
-    "gx_removeChallenger_en",
-    "gx_removeChallenger_kh",
-    "gx_removeChallenger_lg",
-    "gx_removeChallenger_ov",
-    "gx_removeChallenger_st",
-    "gx_removeChallenger_tw",
-    "gx_renounceOwnership_cd",
-    "gx_renounceOwnership_en",
-    "gx_renounceOwnership_lg",
-    "gx_renounceOwnership_ov",
-    "gx_renounceOwnership_st",
-    "gx_renounceOwnership_tw",
-    "gx_revertBatch_ar",
-    "gx_revertBatch_c8_0",
-    "gx_revertBatch_c8_3",
-    "gx_revertBatch_c8_4",
-    "gx_revertBatch_c8_5",
-    "gx_revertBatch_c8_6",
-    "gx_revertBatch_c8_7",
     "gx_revertBatch_cd",
-    "gx_revertBatch_en",
-    "gx_revertBatch_it8",
-    "gx_revertBatch_kh",
     "gx_revertBatch_ld8",
-    "gx_revertBatch_lg",
-    "gx_revertBatch_ov",
-    "gx_revertBatch_st",
-    "gx_revertBatch_tw",
-    "gx_setPause_ar",
-    "gx_setPause_cd",
-    "gx_setPause_en",
-    "gx_setPause_kh",
-    "gx_setPause_lg",
-    "gx_setPause_ov",
-    "gx_setPause_st",
-    "gx_setPause_tw",
-    "gx_transferOwnership_ar",
-    "gx_transferOwnership_cd",
-    "gx_transferOwnership_en",
-    "gx_transferOwnership_lg",
-    "gx_transferOwnership_ov",
-    "gx_transferOwnership_st",
-    "gx_transferOwnership_tw",
-    "gx_updateFinalizePeriodSeconds_ar",
-    "gx_updateFinalizePeriodSeconds_cd",
-    "gx_updateFinalizePeriodSeconds_en",
-    "gx_updateFinalizePeriodSeconds_lg",
-    "gx_updateFinalizePeriodSeconds_ov",
-    "gx_updateFinalizePeriodSeconds_st",
-    "gx_updateFinalizePeriodSeconds_tw",
-    "gx_updateProofWindow_ar",
-    "gx_updateProofWindow_cd",
-    "gx_updateProofWindow_en",
-    "gx_updateProofWindow_lg",
-    "gx_updateProofWindow_ov",
-    "gx_updateProofWindow_st",
-    "gx_updateProofWindow_tw",
-    "gx_updateRewardPercentage_ar",
-    "gx_updateRewardPercentage_cd",
-    "gx_updateRewardPercentage_en",
-    "gx_updateRewardPercentage_lg",
-    "gx_updateRewardPercentage_ov",
-    "gx_updateRewardPercentage_st",
-    "gx_updateRewardPercentage_tw",
-    "gx_updateRollupDelayPeriod_ar",
-    "gx_updateRollupDelayPeriod_cd",
-    "gx_updateRollupDelayPeriod_en",
-    "gx_updateRollupDelayPeriod_lg",
-    "gx_updateRollupDelayPeriod_ov",
-    "gx_updateRollupDelayPeriod_st",
-    "gx_updateRollupDelayPeriod_tw",
-    "gx_updateVerifier_ar",
-    "gx_updateVerifier_cd",
-    "gx_updateVerifier_en",
-    "gx_updateVerifier_lg",
-    "gx_updateVerifier_ov",
-    "gx_updateVerifier_st",
-    "gx_updateVerifier_tw",
+    "h_cons",
+    "h_end1",
+    "h_ends",
+    "h_filt",
     "h_get",
+    "h_one",
+    "h_revs",
+    "h_step",
     "is_some_T_Dig_Agg",
     "is_some_T_Dig_VH",
     "is_some_T_Dur",
@@ -963,6 +749,7 @@
     "k_updateVerifier_7",
     "kb_get",
     "kw_get",
+    "kw_put",
     "kw_set",
     "l_add",
     "l_at",
@@ -1079,6 +866,7 @@
     "lz_commitState_6",
     "lz_finalizeBatch_7",
     "lz_revertBatch_8",
+    "m_ov",
     "m_over",
     "m_put",
     "m_slice",
@@ -1787,10 +1575,18 @@
     "sz_updateRewardPercentage",
     "sz_updateRollupDelayPeriod",
     "sz_updateVerifier",
+    "u8",
+    "u_add",
+    "u_addc",
     "u_b4",
+    "u_b4n",
+    "u_b4z",
     "u_be4",
+    "u_be4w",
     "u_lt2",
     "u_nz",
+    "u_sub",
+    "u_subc",
     "w0",
     "w_add",
     "w_add_ok",
@@ -2035,23 +1831,35 @@
     "document": "spec/M2/facts/morph_rollup.extracted.json",
     "unaccounted": 0
   },
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
   "evidence_levels": [],
   "evidence_override": null,
-  "evidence_triage": "none",
+  "evidence_triage": "finding",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
-  "filter_bin": null,
-  "generator_sha256": "8369345d693f8c023e6926294de51cdfa6e084c7978c0a5786118bc6db95c9a0",
-  "independence_class": "none",
+  "filter_bin": "finding",
+  "generator_sha256": "e03b15ff7dd81224b67cd68b6663de03dc3d8284e10b0cf957918759bb4127fd",
+  "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
-    "verdict": "not_run",
+    "verdict": "checked",
     "version": "2.0.36"
   },
   "kernels": [
     {
       "name": "bend2",
-      "result": "not_run",
+      "result": "checked",
       "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
       "version": "2.0.36"
     }
   ],
@@ -2061,14 +1869,14 @@
     "A-env",
     "A-reach"
   ],
-  "model_sha256": "280889df4813146094451c406c1b2859265d21827cc51f0311c154832342b011",
+  "model_sha256": "7df5b8f6dc304e45093f3477217378871018257cfabff0da870d0757a09f1b77",
   "non_vacuity": {
-    "bound": "no proof",
+    "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
-    "law": null,
+    "law": "gen/M3/laws/L_sort_tag_rollup_279_e01ea84a/LAWS.bend",
     "parent_statement_hash": "sha256:81ae5a5d3e36b0196e4a48fa2a24715f8afad3e204a40e5abae374de8dc874d3",
     "reachable": null,
-    "status": "unknown",
+    "status": "counter_witness",
     "witness": null
   },
   "premises": [],
@@ -2076,42 +1884,205 @@
   "record_version": "holon-record/0.2",
   "refinement_refs": [],
   "replay": {
-    "detail": "UNKNOWN: no witness to replay",
-    "status": "not_applicable"
+    "detail": "commitState: ok / ok / ok",
+    "status": "passed"
   },
   "rule": "SORT",
   "scope": "unbounded",
   "scope_v2": {
     "at_state": null,
-    "horizon": "S1+S2: 47 distinct states (depth <= 3)",
-    "kind": "bounded"
+    "horizon": null,
+    "kind": "unbounded"
   },
   "site": "morph_rollup.extracted:as_member:contracts/contracts/l1/rollup/Rollup.sol:279:e01ea84a",
   "statement": "at the copy write, the union register's generated tag is the member the write assumes (Prop 6.19: ghost-tag exactness at a read site); coercion morph_rollup.extracted:as_member:contracts/contracts/l1/rollup/Rollup.sol:279:e01ea84a",
   "statement_hash": "sha256:81ae5a5d3e36b0196e4a48fa2a24715f8afad3e204a40e5abae374de8dc874d3",
-  "status": "UNKNOWN",
+  "status": "REFUTED",
   "subform": "as_member",
-  "triage": "none",
-  "witness_provenance": null,
+  "triage": "finding",
+  "witness": {
+    "hashes": {
+      "keccak256": [
+        [
+          "0x",
+          "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+        ],
+        [
+          "0x00000000000000000000",
+          "0x6bd2dd6bd408cbee33429358bf24fdc64612fbf8b1b4db604518f40ffd34b607"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a1",
+          "0x32ae1b88a7d4f92d7e214b63c8ea04cd13e2faaa60c50f499f2254336d98f882"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a4",
+          "0xaa34f26657d14f62cbada167a4e03191ddebf621343c05e9664820d2e1ca2430"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a5",
+          "0x5a58a35f79c96918ba4a26566c02f84b94e945aad283848d088844a1238e942d"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ab",
+          "0xc5d43c4a2513442e32494a8634f103d73dcf3a2851465bd0d02221eac0820c02"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "0x6d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a6"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a1",
+          "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a2",
+          "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a4",
+          "0x3ab5dcf47126747c0704cb686c5b362a3f19c34c1a7f9e61bd557bb2aac5bcac"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000ab",
+          "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000ad",
+          "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000a1",
+          "0x56cd10bd7c5a283404157adf2ba847ac6f7bfee0953fbdea6cae6f66ee17d9ce"
+        ],
+        [
+          "0x000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a6",
+          "0x155feb1d9f60dddf2649eb595267afbf88d96277c72ddd3b2acf722f18631915"
+        ],
+        [
+          "0x000000000000000001000000000000000000000000000000006bd2dd6bd408cbee33429358bf24fdc64612fbf8b1b4db604518f40ffd34b607010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a6",
+          "0xf36c36a7f9ddd1005e30694c975ee2dcd0649a7ba90d1d796b5b983c2634c15d"
+        ],
+        [
+          "0x020000000000000001000000000000000000000000000000006bd2dd6bd408cbee33429358bf24fdc64612fbf8b1b4db604518f40ffd34b607010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a60000000000000000",
+          "0x4fed6048935627b63a5ad6c5472fa236bd89c03ac342b1c92b77aacd7b853c8b"
+        ]
+      ]
+    },
+    "steps": [
+      {
+        "action": "commitBatch",
+        "args": {
+          "batchDataInput": {
+            "lastBlockNumber": 0,
+            "numL1Messages": 0,
+            "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "postStateRoot": 1,
+            "prevStateRoot": 100,
+            "version": 0,
+            "withdrawalRoot": 0
+          }
+        },
+        "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "env": {
+          "blobhash": [],
+          "block.timestamp": 1700000010,
+          "caller": "0x0000000000000000000000000000000000001002",
+          "calls": [
+            {
+              "data": "0x9f8a13d70000000000000000000000000000000000000000000000000000000000001002",
+              "fn": "ISubmitter.isActive",
+              "ok": true,
+              "ret": "0x0000000000000000000000000000000000000000000000000000000000000001",
+              "to": "0x5615deb798bb3e4dfa0139dfa1b3d433cc23b72f"
+            },
+            {
+              "data": "0xb59b1a78",
+              "fn": "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+              "ok": true,
+              "ret": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+              "to": "0xa0cb889707d426a7a386870a03bc70d1b0697598"
+            }
+          ],
+          "msg.value": 0
+        }
+      },
+      {
+        "action": "revertBatch",
+        "args": {
+          "_batchHeader": "0x000000000000000001000000000000000000000000000000006bd2dd6bd408cbee33429358bf24fdc64612fbf8b1b4db604518f40ffd34b607010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a6",
+          "_count": 1
+        },
+        "calldata": "0x10d445830000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000f9000000000000000001000000000000000000000000000000006bd2dd6bd408cbee33429358bf24fdc64612fbf8b1b4db604518f40ffd34b607010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a600000000000000",
+        "env": {
+          "blobhash": [],
+          "block.timestamp": 1700000010,
+          "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496",
+          "calls": [],
+          "msg.value": 0
+        }
+      },
+      {
+        "action": "commitState",
+        "args": {
+          "batchDataInput": {
+            "lastBlockNumber": 0,
+            "numL1Messages": 0,
+            "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "postStateRoot": 1,
+            "prevStateRoot": 100,
+            "version": 2,
+            "withdrawalRoot": 0
+          }
+        },
+        "calldata": "0x67caa37a0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "env": {
+          "blobhash": [],
+          "block.timestamp": 1700000010,
+          "caller": "0x0000000000000000000000000000000000001002",
+          "calls": [
+            {
+              "data": "0x9f8a13d70000000000000000000000000000000000000000000000000000000000001002",
+              "fn": "ISubmitter.isActive",
+              "ok": true,
+              "ret": "0x0000000000000000000000000000000000000000000000000000000000000001",
+              "to": "0x5615deb798bb3e4dfa0139dfa1b3d433cc23b72f"
+            },
+            {
+              "data": "0xb59b1a78",
+              "fn": "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+              "ok": true,
+              "ret": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+              "to": "0xa0cb889707d426a7a386870a03bc70d1b0697598"
+            }
+          ],
+          "msg.value": 0
+        }
+      }
+    ]
+  },
+  "witness_provenance": {
+    "solidity": "internal_harness"
+  },
   "witnesses": {
     "commitState": {
       "bound": "S1+S2: 47 distinct states (depth <= 3)",
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 46.943
+        "seconds": 3.542
       },
-      "laws": null,
-      "proof": null,
+      "laws": "gen/M3/laws/L_sort_tag_rollup_279_e01ea84a/LAWS.bend",
+      "proof": "gen/M3/proofs/L_sort_tag_rollup_279_e01ea84a/entry_commitState/PROOF.bend",
       "replay": {
-        "detail": "",
+        "detail": "ok / ok / ok",
         "panic_site": null,
-        "status": "not_run"
+        "status": "passed"
       },
       "search_stage": "S2",
       "stage": "S2",
-      "status": "UNKNOWN",
-      "verdict": "failed",
+      "status": "REFUTED",
+      "verdict": "checked",
       "witness": {
         "hashes": {
           "keccak256": [
