@@ -6,10 +6,17 @@ model and its ghost section" and "Proofs, refutation, non-vacuity").
                                                  its counter-law (exists ..: coerce_<x>(a, s, ..) != True); it imports
                                                  the typed model as M
   counter_proof(..)                              a counter-law proof: the concrete witness (its hash tables, the
-                                                 trace's state as run(prefix, gh_s0()), its Reach chain R0 then one
+                                                 literal state after each prefix step, its Reach chain R0 then one
                                                  RStep per step, and the entry step), every premise by computation
   inhabitant(..)                                 a non-vacuity proof of chit_<x> (G11V): the same shape, for the law
                                                  "exists a reachable state and step that reach a hit"
+
+The shape of a proof (A30). Every computation is a closed lemma of one step: r_k states that the literal state after
+step k is gh_step of the literal state before it, cz (ch) that the entry step's coerce_<x> is false (chit_<x> true) at
+the literal pre-entry state. The Reach chain and the counter-law only cite them: the refutation's binder (e => ..)
+rewrites with cz, and nothing runs the model under it, where the BendTT kernel reduces lazily and shares nothing. So
+each kernel conversion runs one step, and none re-runs a prefix (I30's form, run(prefix, gh_s0()) in every RStep and
+under the binder, ran out of the kernel's fuel on every rollup witness).
 
 Witness literals are data: a word is M.w_of_limbs([l0, .., l7]) and a byte string a list of byte literals, so that
 spec/M3/lib/term_size.json's measure counts each as one term. Nothing here names a target.
@@ -105,15 +112,38 @@ class Lit:
                 return f"M.{name}{{" + ", ".join(self.text(vals[f]) for f in order) + "}"
         raise ValueError(f"no Bend literal for {str(v)[:120]}")
 
+    def typed(self, v, ty: str) -> str:
+        """A decoded model value (the evaluator's output: words as 0x-strings, byte lists as {"$b"}, records as
+        {"$r"}) as a literal of Bend type ty."""
+        ty = ty.strip()
+        if ty == "W":
+            return self.word(v if isinstance(v, str) else v["$w"])
+        if ty == "Bool":
+            return "True{}" if v else "False{}"
+        if ty == "U32":
+            return str(int(v))
+        if ty == "Nat":
+            return f"{int(v)}n"
+        if ty.startswith("List<&2, ") and ty.endswith(">"):
+            el = ty[len("List<&2, "):-1].strip()
+            if el == "U32":
+                xs = list(bytes.fromhex(v["$b"][2:])) if isinstance(v, dict) else [int(x) for x in v]
+                return ("[" + ", ".join(str(x) for x in xs) + "]") if xs else "Nil{}"
+            return ("[" + ", ".join(self.typed(x, el) for x in v) + "]") if v else "Nil{}"
+        if isinstance(v, dict) and "$r" in v:
+            name = v["$r"]
+            fs = self.recs.get(name)
+            vals = v.get("f") or {}
+            if fs is None:
+                if vals:
+                    raise ValueError(f"no field types for {name}")
+                return f"M.{name}{{}}"
+            return f"M.{name}{{" + ", ".join(self.typed(vals[f], t) for f, t in fs) + "}"
+        raise ValueError(f"no Bend literal of {ty} for {str(v)[:120]}")
 
-def counter_proof(law: dict, model_import: str, laws_import: str, hashes: list[str], acts: list, tables: dict,
-                  lit: Lit, note: str) -> str:
-    """The counter-law proof of one witness: acts are the evaluator's HAct values, the entry step's last."""
-    lid = law["law_id"]
-    x = lid[len("L_sort_"):]
-    tb = tabs_binders(hashes)
-    lines = [PHEADER, "import Base", f"import {model_import} as M", f"import {laws_import} as Laws", ""]
-    lines.append(f"# class counter: {note}")
+
+def _table_defs(tb: list, tables: dict, lit: Lit) -> list[str]:
+    lines = []
     for n, h in tb:
         rows = []
         for k, val in sorted((tables.get(h) or {}).items()):
@@ -122,26 +152,59 @@ def counter_proof(law: dict, model_import: str, laws_import: str, hashes: list[s
                         + lit.word("0x%064x" % val) + "}")
         lines.append(f"def t_{n}() -> List<&2, M.HKB>:\n  " + (("[" + ", ".join(rows) + "]") if rows else "Nil{}"))
         lines.append("")
+    return lines
+
+
+def _trace_defs(tb: list, acts: list, states: list, lit: Lit) -> tuple[list[str], str, str]:
+    """The witness's actions, the literal state after each prefix step (states[k - 1] after k steps; the deployment is
+    M.gh_s0()), one lemma per prefix step (r_k: the state after step k is gh_step of the state before it, both
+    literals, so one kernel conversion computes one step), and the Reach chain they make. Returns (lines, the chain,
+    the pre-entry state term)."""
+    targs = "".join(f", t_{n}()" for n, _h in tb)
+    lines = []
     for i, a in enumerate(acts):
         lines.append(f"def w_a{i}() -> M.HAct:\n  {lit.text(a)}")
         lines.append("")
-    targs = "".join(f", t_{n}()" for n, _h in tb)
-    tlist = ", ".join(f"t_{n}()" for n, _h in tb)
-
-    def run_of(k: int) -> str:
-        pre = "[" + ", ".join(f"w_a{i}()" for i in range(k)) + "]" if k else "Nil{}"
-        return f"M.run({pre}, M.gh_s0(){targs})"
     n = len(acts) - 1
+    if len(states) != n:
+        raise ValueError(f"{n} prefix steps but {len(states)} states")
+
+    def st(k: int) -> str:
+        return "M.gh_s0()" if k == 0 else f"s_{k}()"
+    for k in range(1, n + 1):
+        lines.append(f"def s_{k}() -> M.GSt:\n  {lit.typed(states[k - 1], 'GSt')}")
+        lines.append("")
+    for k in range(n):
+        lines.append(f"def r_{k}() -> {{{st(k + 1)} == M.gh_step(w_a{k}(), {st(k)}{targs}) : M.GSt}}:\n  {{==}}")
+        lines.append("")
     chain = "M.R0{{==}}"
     for k in range(n):
-        chain = f"M.RStep{{w_a{k}(), {run_of(k)}, {chain}, {{==}}}}"
-    state = run_of(n)
-    last = f"w_a{n}()"
-    body = (f"({last}, e => (%e : M.is_true(M.eq_bool(_, M.coerce_{x}({last}, {state}{targs})))\n  Unit{{}}))")
-    inner = f"({state}, ({chain}, {body}))"
-    for _n, _h in reversed(tb):
-        pass
-    tup = inner
+        chain = f"M.RStep{{w_a{k}(), {st(k)}, {chain}, r_{k}()}}"
+    return lines, chain, st(n)
+
+
+def counter_proof(law: dict, model_import: str, laws_import: str, hashes: list[str], acts: list, tables: dict,
+                  lit: Lit, note: str, states: list) -> str:
+    """The counter-law proof of one witness: acts are the evaluator's HAct values, the entry step's last; states are the
+    decoded states after each prefix step. Every premise is a closed lemma that computes one step (A30): r_k for the
+    k-th step of the Reach chain, cz for the entry step's coercion. The counter-law only rewrites with them, so no
+    kernel conversion runs the model under the refutation's binder (where the kernel's reduction is lazy and shares
+    nothing)."""
+    lid = law["law_id"]
+    x = lid[len("L_sort_"):]
+    tb = tabs_binders(hashes)
+    targs = "".join(f", t_{n}()" for n, _h in tb)
+    lines = [PHEADER, "import Base", f"import {model_import} as M", f"import {laws_import} as Laws", ""]
+    lines.append(f"# class counter: {note}")
+    lines += _table_defs(tb, tables, lit)
+    body, chain, state = _trace_defs(tb, acts, states, lit)
+    lines += body
+    last = f"w_a{len(acts) - 1}()"
+    lines.append(f"def cz() -> {{M.coerce_{x}({last}, {state}{targs}) == False{{}} : Bool}}:\n  {{==}}")
+    lines.append("")
+    lines.append("def true_ne_false(p: {True{} == False{} : Bool}) -> Empty:\n  (%p : M.is_true(_)\n  Unit{})")
+    lines.append("")
+    tup = f"({state}, ({chain}, ({last}, e => true_ne_false((%e : {{_ == False{{}} : Bool}}\n  cz())))))"
     for nm, _h in reversed(tb):
         tup = f"(t_{nm}(), {tup})"
     lines.append(f"def Laws.{law_name(lid, True)}():\n  {tup}")
@@ -149,32 +212,21 @@ def counter_proof(law: dict, model_import: str, laws_import: str, hashes: list[s
 
 
 def inhabitant_proof(law: dict, model_import: str, laws_import: str, hashes: list[str], acts: list, tables: dict,
-                     lit: Lit) -> str:
+                     lit: Lit, states: list) -> str:
+    """The non-vacuity proof of a PROVED law (G11V): the same per-step lemmas, and a closed lemma ch for the entry
+    step's hit."""
     lid = law["law_id"]
     x = lid[len("L_sort_"):]
     tb = tabs_binders(hashes)
-    lines = [PHEADER, "import Base", f"import {model_import} as M", f"import {laws_import} as Laws", ""]
-    for nm, h in tb:
-        rows = []
-        for k, val in sorted((tables.get(h) or {}).items()):
-            b = bytes.fromhex(k[2:])
-            rows.append("M.HKB{" + (("[" + ", ".join(str(c) for c in b) + "]") if b else "Nil{}") + ", "
-                        + lit.word("0x%064x" % val) + "}")
-        lines.append(f"def t_{nm}() -> List<&2, M.HKB>:\n  " + (("[" + ", ".join(rows) + "]") if rows else "Nil{}"))
-        lines.append("")
-    for i, a in enumerate(acts):
-        lines.append(f"def w_a{i}() -> M.HAct:\n  {lit.text(a)}")
-        lines.append("")
     targs = "".join(f", t_{nm}()" for nm, _h in tb)
-
-    def run_of(k: int) -> str:
-        pre = "[" + ", ".join(f"w_a{i}()" for i in range(k)) + "]" if k else "Nil{}"
-        return f"M.run({pre}, M.gh_s0(){targs})"
-    n = len(acts) - 1
-    chain = "M.R0{{==}}"
-    for k in range(n):
-        chain = f"M.RStep{{w_a{k}(), {run_of(k)}, {chain}, {{==}}}}"
-    tup = f"({run_of(n)}, ({chain}, (w_a{n}(), {{==}})))"
+    lines = [PHEADER, "import Base", f"import {model_import} as M", f"import {laws_import} as Laws", ""]
+    lines += _table_defs(tb, tables, lit)
+    body, chain, state = _trace_defs(tb, acts, states, lit)
+    lines += body
+    last = f"w_a{len(acts) - 1}()"
+    lines.append(f"def ch() -> {{M.chit_{x}({last}, {state}{targs}) == True{{}} : Bool}}:\n  {{==}}")
+    lines.append("")
+    tup = f"({state}, ({chain}, ({last}, ch())))"
     for nm, _h in reversed(tb):
         tup = f"(t_{nm}(), {tup})"
     lines.append(f"def Laws.nv_{lid.lower()}():\n  {tup}")

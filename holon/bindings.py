@@ -354,18 +354,24 @@ def statement_hash(law: dict, m: str, root: Path) -> str:
     return R.law_hash(law, F.load(fp), oracles=Oracles.for_facts(fp) if m2plus(m) else None, root=root)
 
 
+def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
+    """One law's binding on the tree (derive's entry for it)."""
+    root = Path(root)
+    mp = model_path(law, m, root)
+    entries = kernel_entries(mp, cfg or bend.config(root))
+    c = kernel_cone(statement_text(law, m, root), entries)
+    return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
+            "statement_sha256": text_sha256(_emit(law, m, root, counter=False)),
+            "counter_sha256": counter_binding(law, m, root),
+            "cone": {d: hashlib.sha256(entries[d].encode()).hexdigest() for d in c}}
+
+
 def derive(m: str, root: Path | str = ROOT, cfg: dict | None = None) -> dict:
     root = Path(root)
     cfg = cfg or bend.config(root)
     out = {}
     for law in ir.load_laws_any(m, root):
-        mp = model_path(law, m, root)
-        entries = kernel_entries(mp, cfg)
-        c = kernel_cone(statement_text(law, m, root), entries)
-        out[law["law_id"]] = {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
-                              "statement_sha256": text_sha256(_emit(law, m, root, counter=False)),
-                              "counter_sha256": counter_binding(law, m, root),
-                              "cone": {d: hashlib.sha256(entries[d].encode()).hexdigest() for d in c}}
+        out[law["law_id"]] = bind_law(law, m, root, cfg)
     return {"milestone": m, "kernel": "bendtt", "laws": out}
 
 
