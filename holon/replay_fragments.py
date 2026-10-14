@@ -720,6 +720,12 @@ def panic_code(ret: str | None) -> int | None:
 def load_evaluator(spec: str | None, root: Path = ROOT):
     """(load, step): holon.machine.load_extracted and holon.extracted_eval.step by default; "module:function" or
     "path/to/file.py:function" names another step (its module's load_extracted, if any, loads the model)."""
+    if spec and spec.endswith(".bend"):   # a compiled M3 model as the step evaluator (holon.sorts.evaluate3, I30)
+        from .sorts import evaluate3
+        mp = Path(spec) if Path(spec).is_absolute() else Path(root) / spec
+        if not mp.is_file():
+            raise FragmentsError(f"the evaluator model {mp} does not exist")
+        return (lambda path, source=None: evaluate3.evaluator_for(mp, path, root, source)), evaluate3.step
     if spec:
         mod, _, fn = spec.rpartition(":") if spec.count(":") else (spec, "", "step")
         if mod.endswith(".py"):
@@ -1065,6 +1071,13 @@ def run(args) -> int:
              "toolchain": {k: tc[k] for k in PIN_KEYS}}
     if checkout_sha:
         extra["morph_commit"] = checkout_sha
+    if args.evaluator and args.evaluator.endswith(".bend"):   # the evaluator is a model file: name it and its hash
+        ep = Path(args.evaluator) if Path(args.evaluator).is_absolute() else root / args.evaluator
+        try:   # the path as given (holon model writes <model>.bend as a link to an importable file name)
+            extra["evaluator"] = Path(os.path.abspath(ep)).relative_to(root).as_posix()
+        except ValueError:
+            extra["evaluator"] = ep.name
+        extra["evaluator_sha256"] = hashlib.sha256(ep.read_bytes()).hexdigest()
     rec = build_record(runs, compared, entries, view, root, reason_of, located, extra)
     out = Path(args.out) if args.out else root / RECORD
     out = out if out.is_absolute() else root / out
@@ -1076,6 +1089,9 @@ def run(args) -> int:
     if ws is not None:              # the window declaration's corpus (holon model's window_check.json reads it)
         write_json(side / "window_states.json", ws)
         print(f"fragments: window corpus: {len(ws['states'])} distinct states of {ws['paired_states']} paired")
+    if getattr(args, "hints", None):
+        hp = Path(args.hints) if Path(args.hints).is_absolute() else root / args.hints
+        write_json(hp, call_hints(runs, _rel(doc_path, root)))
     details = Path(args.details) if args.details else work / "details.json"
     write_json(details, run_details(runs, compared, log, view))
     print(f"fragments: {rec['traces']} traces, {rec['steps']} steps compared, {rec['storage_slots']} slot comparisons, "
@@ -1339,6 +1355,21 @@ def window_states(model, binding: dict, root: Path, runs: list[TraceRun], slots:
     return doc
 
 
+def call_hints(runs: list[TraceRun], facts_rel: str) -> dict:
+    """Every distinct external call the real target made in the corpus run, with its answer and its step's block
+    timestamp, number and caller (holon.sorts.search3 reads it: candidate answers, never evidence)."""
+    seen = {}
+    for tr in runs:
+        for e in tr.execs:
+            for to, data, ok, ret in e.calls:
+                k = (to.lower(), data.lower(), bool(ok), ret.lower(), e.timestamp)
+                if k not in seen:
+                    seen[k] = {"to": to.lower(), "data": data.lower(), "ok": bool(ok), "ret": ret.lower(),
+                               "timestamp": e.timestamp, "number": e.number, "caller": (e.caller or "").lower()}
+    calls = [seen[k] for k in sorted(seen)]
+    return {"document": "call_hints", "facts": facts_rel, "calls": calls}
+
+
 def harness_notes(runs: list[TraceRun]) -> dict:
     """{note: number of steps} of the concrete harness's notes (X lines; e.g. a rebuilt header whose hash differs from
     the stored one), so that a translation the harness could not do faithfully is visible in the record."""
@@ -1386,6 +1417,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--disagreements", help="the disagreements file (default: spec/M2/disagreements.json)")
     ap.add_argument("--no-file", action="store_true", help="do not append disagreements (they stay unexplained)")
     ap.add_argument("--no-locate", action="store_true", help="do not locate the real Panic sites (debugger dumps)")
+    ap.add_argument("--hints", help="also write every external call the real target made, with its answer and its "
+                                    "step's environment (a refuter's candidate answers: hints, never evidence; I30)")
     args = ap.parse_args(argv)
     try:
         return run(args)

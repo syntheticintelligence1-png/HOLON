@@ -35,38 +35,67 @@ def main(argv=None) -> int:
     ap.add_argument("--root", help="repository root holding the inputs (default: this checkout)")
     ap.add_argument("--out", help="output directory (default: <root>/gen/<milestone>/sorts)")
     ap.add_argument("--facts", action="append", help="a fact document to read instead of the milestone's (repeatable)")
+    ap.add_argument("--sidecar", help="the typed-sorts sidecar (M3+ and T30+: default spec/<M>/lib/sort_types.json)")
     a = ap.parse_args(argv)
-    return run(a.milestone, a.root, a.out, a.facts)
+    return run(a.milestone, a.root, a.out, a.facts, a.sidecar)
 
 
-def run(milestone: str, root: str | None, out: str | None, facts: list[str] | None) -> int:
+def run_typed(milestone: str, root_p: Path, facts: list[str] | None, sidecar: str | None) -> dict:
+    """The pass of an M3+ or T30+ milestone (I30): the sidecar's documents (or --facts), its seeds; every one of
+    them, and the sidecar, is an input."""
+    from .assign import PassError, run_pass
+    from .typed_sidecar import SidecarError, load
+    try:
+        sc = load(milestone, root_p, sidecar)
+    except SidecarError as e:
+        raise PassError(str(e)) from e
+    if facts:
+        docs = []
+        for f in facts:
+            p = Path(f)
+            p = (p if p.is_absolute() else (root_p / p if (root_p / p).exists() else Path.cwd() / p)).resolve()
+            try:
+                p.relative_to(root_p)
+            except ValueError:
+                raise PassError(f"--facts {f}: not inside the root {root_p}") from None
+            docs.append(p)
+    else:
+        docs = sc.documents
+    return run_pass(docs, root_p, milestone, seeds_path=sc.seeds, sidecar_path=sc.path)
+
+
+def run(milestone: str, root: str | None, out: str | None, facts: list[str] | None, sidecar: str | None = None) -> int:
     from .assign import DOCUMENTS, PassError, dumps, run_pass
     from .constraints import ConstraintError
     from .flow import FlowError
     from .grammar import SortError
     from .solve import SolveError
+    from .typed_sidecar import typed
 
     root_p = Path(root).resolve() if root else ROOT
     try:
-        if facts:
-            docs = []
-            for f in facts:
-                p = Path(f)
-                p = (p if p.is_absolute() else Path.cwd() / p).resolve()
-                try:
-                    p.relative_to(root_p)
-                except ValueError:
-                    raise PassError(f"--facts {f}: not inside the root {root_p}") from None
-                docs.append(p)
-            ms = None
+        if typed(milestone):
+            texts = {name: dumps(doc) for name, doc in run_typed(milestone, root_p, facts, sidecar).items()}
         else:
-            from ..diagram import DiagramError, fact_documents
-            try:
-                docs = fact_documents(milestone, root_p)
-            except DiagramError as e:
-                raise PassError(str(e)) from e
-            ms = milestone
-        texts = {name: dumps(doc) for name, doc in run_pass(docs, root_p, ms).items()}
+            if facts:
+                docs = []
+                for f in facts:
+                    p = Path(f)
+                    p = (p if p.is_absolute() else Path.cwd() / p).resolve()
+                    try:
+                        p.relative_to(root_p)
+                    except ValueError:
+                        raise PassError(f"--facts {f}: not inside the root {root_p}") from None
+                    docs.append(p)
+                ms = None
+            else:
+                from ..diagram import DiagramError, fact_documents
+                try:
+                    docs = fact_documents(milestone, root_p)
+                except DiagramError as e:
+                    raise PassError(str(e)) from e
+                ms = milestone
+            texts = {name: dumps(doc) for name, doc in run_pass(docs, root_p, ms).items()}
     except (PassError, FlowError, ConstraintError, SortError, SolveError, OSError, json.JSONDecodeError) as e:
         print(f"holon sorts: {e}", file=sys.stderr)
         return 1

@@ -731,8 +731,8 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
     read (default: the committed one; from M3 on, null when the milestone has none: no sorts assignment covers an M3
     document until I30). components: linked codec documents (I24, rule X7), each (path, diagram JSON or None for the
     committed gen/<M>/diagram/<role>.json): one model per component, with its E1, E2 and E6 atoms. adopted: whether the
-    transitions documents the milestone adopts are covered (anchors only, I20). Independent of the order of
-    fact_paths."""
+    transitions documents the milestone adopts are covered (anchors only, I20; only when a milestone is given).
+    Independent of the order of fact_paths."""
     root = Path(root).resolve()
     inp = _Inputs(root)
     gm = gen_milestone(milestone)
@@ -806,7 +806,9 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
             raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
         models[key] = {"facts": rel, "facts_sha256": sha, "facts_version": L.LINKED_VERSION, "diagram": drel,
                        "anchors": L.anchors(cdg)}
-    for rel, raw, d in (adopted_documents(gm, root, inp) if adopted else []):   # I20: no diagram, anchors only
+    # I20: the milestone's adopted transitions documents, no diagram, anchors only; a build for no milestone (a
+    # fixture's own documents) adopts nothing, else gen_milestone's default M2 would add M2's adoption to it
+    for rel, raw, d in (adopted_documents(gm, root, inp) if adopted and milestone is not None else []):
         key = Path(rel).name[:-len(".json")]
         if key in models:
             raise EvidenceError(f"two documents share the model name {key}")

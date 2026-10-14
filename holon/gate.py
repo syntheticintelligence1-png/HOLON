@@ -1746,6 +1746,10 @@ class Gate:
 
 
 def main_gate(args) -> int:
+    from .sorts.typed_sidecar import typed
+    if typed(args.milestone) and str(args.milestone).startswith("M"):   # I30: the typed milestones' own gate
+        from .sorts import gate3
+        return gate3.main_gate(args)
     root = Path(args.root or ROOT).resolve()
     report_path = Path(args.report) if args.report else root / "results" / args.milestone / "gate_report.json"
     only = [c.strip() for c in args.checks.split(",") if c.strip()] if getattr(args, "checks", None) else None

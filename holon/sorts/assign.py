@@ -210,6 +210,24 @@ class Model:
         self.facts = inputs.read_json(path)
         self.version = self.facts.get("facts_version")
         self.prog = None
+        self.walk03 = None
+        if self.version == "holon-facts/0.3":
+            # a transitions document (I30: the holon-facts/0.3 adapter, holon.sorts.extracted; seeds 0.2)
+            from . import extracted as X
+            if (self.facts.get("extraction") or {}).get("kind") != "transitions":
+                raise PassError(f"{self.rel}: a holon-facts/0.3 document that is not a transitions document has no "
+                                "sorts adapter")
+            if seeds.get("seeds_version") != X.SEEDS_VERSION:
+                raise PassError(f"{self.rel}: a holon-facts/0.3 document needs {X.SEEDS_VERSION} seeds, not "
+                                f"{seeds.get('seeds_version')!r}")
+            try:
+                self.walk03 = X.walk(self.name, self.facts, seeds)
+            except X.ExtractedError as e:
+                raise PassError(f"{self.rel}: {e}") from e
+            self.prog = self.walk03.prog
+            self.keys = self.prog.keys
+            self.raw = X.build(self.name, self.walk03)
+            return
         if self.version == "holon-facts/0.2":
             lib = Library.for_facts(path, self.facts.get("params", {}), root=inputs.root)
             for p in lib_files(path, inputs.root):
@@ -245,7 +263,11 @@ class Model:
                 self.provenance[k] = labels[k]
         if self.prog:
             affine_ids = {c["vars"][2]: c["id"] for c in numbered if c["kind"] == "affine"}
-            self.sites = build_sites(self.name, self.facts, self.prog, self.system, active_ids, affine_ids)
+            if self.walk03 is not None:
+                from . import extracted as X
+                self.sites = X.build_sites(self.name, self.facts, self.walk03, self.system, active_ids, affine_ids)
+            else:
+                self.sites = build_sites(self.name, self.facts, self.prog, self.system, active_ids, affine_ids)
             writes = [(e[1], e[2], e[3]) for e in self.prog.events if e[0] == "write"]
             self.unions = U.union_entries(self.name, self.members, set(self.keys), self.active, writes,
                                           self.prog.writers)
@@ -271,13 +293,24 @@ class Model:
 
 
 # ------------------------------------------------------------------ the pass
-def run_pass(docs: list[Path], root: Path, milestone: str | None) -> dict[str, dict]:
+def run_pass(docs: list[Path], root: Path, milestone: str | None, seeds_path: Path | None = None,
+             sidecar_path: Path | None = None) -> dict[str, dict]:
+    """The pass over `docs`. seeds_path/sidecar_path: the typed-sorts sidecar of an M3+ or T30+ milestone and the
+    seeds file it names (holon-sort-seeds/0.2, I30); both are inputs. Without them, I13's frozen M2 seeds."""
     root = Path(root).resolve()
     inputs = Inputs(root)
-    seeds_path = root / SEEDS
-    seeds = inputs.read_json(seeds_path)
-    if seeds.get("seeds_version") != "holon-sort-seeds/0.1":
-        raise PassError(f"{SEEDS}: seeds_version {seeds.get('seeds_version')!r}")
+    if sidecar_path is not None:
+        inputs.read_json(Path(sidecar_path))
+    if seeds_path is None:
+        seeds_path = root / SEEDS
+        seeds = inputs.read_json(seeds_path)
+        if seeds.get("seeds_version") != "holon-sort-seeds/0.1":
+            raise PassError(f"{SEEDS}: seeds_version {seeds.get('seeds_version')!r}")
+    else:
+        seeds = inputs.read_json(Path(seeds_path))
+        if seeds.get("seeds_version") != "holon-sort-seeds/0.2":
+            raise PassError(f"{inputs.rel(Path(seeds_path))}: seeds_version {seeds.get('seeds_version')!r} (want "
+                            "holon-sort-seeds/0.2)")
     models = []
     stems = [p.stem for p in docs]
     dup = sorted({s for s in stems if stems.count(s) > 1})

@@ -1,0 +1,190 @@
+{
+  "document": "types",
+  "inputs": [
+    {
+      "path": "gen/M3/sorts/assignment.json",
+      "sha256": "1fa800ee65969c575b5310b3d9d14913b7f82f3b5e65d5ebc30afe3fb9ea818f"
+    },
+    {
+      "path": "replay/M2/fragments.json",
+      "sha256": "ec501c2be31737cb3ceffe910384e316b9ced7f1b2ccc58efb9c57b16fc10c9d"
+    },
+    {
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    },
+    {
+      "path": "spec/M3/lib/sort_seeds.json",
+      "sha256": "74701ad8e12a64e63396a88d755c091ddffa6342cf4c5292870115dcfde2b12a"
+    },
+    {
+      "path": "spec/M3/lib/sort_types.json",
+      "sha256": "9318a9aa27a5e6a8571099f09bd81ab545f87bbd724e1755422df6f771c52150"
+    }
+  ],
+  "milestone": "M3",
+  "models": {
+    "morph_rollup.extracted": {
+      "coercions": [
+        {
+          "from": "Dig[Agg] + Dig[VH]",
+          "kind": "as_member",
+          "name": "as_member_Dig_Agg_Dig_VH_Dig_Agg",
+          "to": "Dig[Agg]"
+        },
+        {
+          "from": "Dig[Agg] + Dig[VH]",
+          "kind": "as_member",
+          "name": "as_member_Dig_Agg_Dig_VH_Dig_VH",
+          "to": "Dig[VH]"
+        },
+        {
+          "from": "SDur",
+          "kind": "realize",
+          "name": "realize_T_SDur",
+          "to": "Dur"
+        }
+      ],
+      "external_guards": [
+        {
+          "action": "commitBatch",
+          "calls": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "guard": "guards[8]",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:265"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "calls": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "guard": "guards[2]",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:398"
+        },
+        {
+          "action": "commitState",
+          "calls": [
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          "guard": "guards[9]",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:283"
+        }
+      ],
+      "ghosts": {
+        "batchBlobVersionedHashes": "gc_batchBlobVersionedHashes"
+      },
+      "ops": [
+        {
+          "args": [
+            "Dur",
+            "Time"
+          ],
+          "name": "add_Dur_Time",
+          "op": "+",
+          "result": "Time"
+        },
+        {
+          "args": [
+            "Time",
+            "Dur"
+          ],
+          "name": "add_Time_Dur",
+          "op": "+",
+          "result": "Time"
+        },
+        {
+          "args": [
+            "Dig[Agg] + Dig[VH]",
+            "Dig[Agg] + Dig[VH]"
+          ],
+          "name": "eq_Dig_Agg_Dig_VH_Dig_Agg_Dig_VH",
+          "op": "==",
+          "result": "Bool"
+        },
+        {
+          "args": [
+            "Dig[VH]",
+            "Dig[VH]"
+          ],
+          "name": "eq_Dig_VH_Dig_VH",
+          "op": "==",
+          "result": "Bool"
+        },
+        {
+          "args": [
+            "Dur",
+            "Dur"
+          ],
+          "name": "gt_Dur_Dur",
+          "op": ">",
+          "result": "Bool"
+        },
+        {
+          "args": [
+            "Time",
+            "Time"
+          ],
+          "name": "gt_Time_Time",
+          "op": ">",
+          "result": "Bool"
+        },
+        {
+          "args": [
+            "Time",
+            "Time"
+          ],
+          "name": "le_Time_Time",
+          "op": "<=",
+          "result": "Bool"
+        },
+        {
+          "args": [
+            "Time",
+            "Time"
+          ],
+          "name": "lt_Time_Time",
+          "op": "<",
+          "result": "Bool"
+        },
+        {
+          "args": [
+            "Dig[Agg] + Dig[VH]",
+            "Dig[Agg] + Dig[VH]"
+          ],
+          "name": "ne_Dig_Agg_Dig_VH_Dig_Agg_Dig_VH",
+          "op": "!=",
+          "result": "Bool"
+        },
+        {
+          "args": [
+            "Dur",
+            "Dur"
+          ],
+          "name": "ne_Dur_Dur",
+          "op": "!=",
+          "result": "Bool"
+        },
+        {
+          "args": [
+            "Time",
+            "Time"
+          ],
+          "name": "sub_Time_Time",
+          "op": "-",
+          "result": "SDur"
+        }
+      ],
+      "types": {
+        "Dig[Agg]": "T_Dig_Agg",
+        "Dig[Agg] + Dig[VH]": "T_Dig_Agg_Dig_VH",
+        "Dig[VH]": "T_Dig_VH",
+        "Dur": "T_Dur",
+        "SDur": "T_SDur",
+        "Time": "T_Time"
+      }
+    }
+  },
+  "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",
+  "types_version": "holon-types/0.1"
+}

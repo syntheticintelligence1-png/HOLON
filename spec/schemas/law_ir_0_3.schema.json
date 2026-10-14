@@ -374,6 +374,9 @@
     },
     {
      "$ref": "#/$defs/t_expr"
+    },
+    {
+     "$ref": "#/$defs/t_coerce"
     }
    ]
   },
@@ -847,6 +850,28 @@
      "additionalProperties": {
       "$ref": "#/$defs/term"
      }
+    }
+   }
+  },
+  "t_coerce": {
+   "type": "object",
+   "required": [
+    "coerce",
+    "on",
+    "from"
+   ],
+   "additionalProperties": false,
+   "description": "a SORT coercion term (I30, holon.rules.sort): the coercion id <model>:<realize|as_member|reinterpret>:<span>:<x8>, the action, the state; every hit of the coercion while the action runs from the state is Some",
+   "properties": {
+    "coerce": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:(realize|as_member|reinterpret):[^ ]+:[0-9a-f]{8}$"
+    },
+    "on": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
     }
    }
   }
