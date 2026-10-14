@@ -35,7 +35,11 @@ Files:
   spec/bindings/<m>.json            law -> {statement_hash, model, statement_sha256, counter_sha256,
                                     cone: {def: sha256}}; an I30 typed-SORT law is bound to the typed model
                                     gen/<m>/sorts/models/<model>.bend as its records name it, and to its law file
-                                    and counter-law as holon.sorts.proofs3 emits them (F30)
+                                    and counter-law as holon.sorts.proofs3 emits them (F30); an UNDO law (I27) is
+                                    bound to its trace section gen/<m>/undo/models/<model>.bend (which imports the
+                                    typed model as M) and to its law file and counter-law as holon.undo.proofs emits
+                                    them; its kernel form is the typed model followed by the trace section unqualified,
+                                    and its roots are the M. and U. references of its statement
   spec/bindings/changes.jsonl       append-only log of every write: creations and accepted changes
 `python -m holon bind` writes a missing bindings file (logging the creation). On an existing one it adds the
 bindings of new laws and drops those of laws no longer in laws/<m>, but it changes the binding of an existing law
@@ -238,8 +242,56 @@ def _typed_model(law: dict, m: str, root: Path, importable: bool = False) -> Pat
     return Path(root) / "gen" / m / "sorts" / "models" / (plain(name) if importable else f"{name}.bend")
 
 
+def _undo(law: dict) -> bool:
+    """An UNDO law (I27): a holon-ir/0.3 law of holon.rules.undo whose claim is an undo term. holon.undo.run decides it
+    over the typed model of its document and the trace section, and holon.undo.proofs emits its law file."""
+    from .rules.undo import RULE
+
+    def term(t) -> bool:
+        if isinstance(t, dict):
+            return "undo" in t or any(term(v) for v in t.values())
+        return isinstance(t, list) and any(term(v) for v in t)
+    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == RULE and \
+        term((law.get("statement") or {}).get("claim"))
+
+
+def _trace_model(law: dict, m: str, root: Path, importable: bool = False) -> Path:
+    """The trace section of an UNDO law's document, as its records name it (gen/<m>/undo/models/<model>.bend, a link)
+    or, with importable, the file behind that link which its law file imports."""
+    from .sorts.model3 import importable as plain, model_name as typed_name
+    name = typed_name(law["facts"])
+    return Path(root) / "gen" / m / "undo" / "models" / (plain(name) if importable else f"{name}.bend")
+
+
+_IMPORT_LINE = re.compile(r"(?m)^import [^\n]*\n")
+_M_QUAL = re.compile(r"(?<![\w.])M\.")
+_U_QUAL = re.compile(r"(?<![\w.])U\.")
+_TOP = re.compile(r"^(?:def|type)\s+([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def _undo_kernel_text(law: dict, m: str, root: Path) -> str:
+    """The kernel form's source of an UNDO law: the typed model followed by its trace section unqualified (its imports
+    dropped, `M.` removed, and its re-exports of the model's own definitions, such as run, dropped: unqualified they
+    would redeclare them), one module BendTT translates whole."""
+    model = _typed_model(law, m, root, importable=True).read_text()
+    trace = _M_QUAL.sub("", _IMPORT_LINE.sub("", _trace_model(law, m, root, importable=True).read_text()))
+    own = set(records.model_defs(model))
+    keep, drop = [], False
+    for line in trace.splitlines():
+        top = _TOP.match(line)
+        if top:
+            drop = top.group(1) in own
+        elif line and not line[0].isspace() and not line.startswith("#"):
+            drop = False
+        if not drop:
+            keep.append(line)
+    return model.rstrip("\n") + "\n\n" + "\n".join(keep) + "\n"
+
+
 def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
+    if _undo(law):   # I27: the trace section gen/<m>/undo/models/<model>.bend
+        return _trace_model(law, m, root)
     if _width(law):   # the extracted model (holon model's gen/<m>/extracted/model.bend)
         from .sorts.width import model_path as width_model
         return width_model(m, root)
@@ -258,6 +310,16 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
+    if _undo(law):   # I27: emitted as holon.undo.run writes it (holon.undo.proofs.law_file)
+        import os
+        from .undo import proofs as UP
+        laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]
+        hashes = [b["name"] for b in law["statement"].get("binders", []) if str(b.get("type", "")).startswith("Fn<")]
+
+        def rel(p: Path) -> str:
+            return os.path.relpath(p, laws_dir).replace(os.sep, "/")
+        return UP.law_file(law, statement_hash(law, m, root), rel(_typed_model(law, m, root, importable=True)),
+                           rel(_trace_model(law, m, root, importable=True)), hashes, counter=counter)
     if _typed(law):   # F30: emitted as holon.sorts.run3 writes it (holon.sorts.proofs3.law_file), one law-parameter
         from .sorts import proofs3 as P3   # table per hash function the IR's Fn binders name, importing the typed model
         laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]
@@ -358,8 +420,14 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
-    entries = kernel_entries(mp, cfg or bend.config(root))
-    c = kernel_cone(statement_text(law, m, root), entries)
+    if _undo(law):   # I27: the typed model and the trace section as one module; U. roots are its trace definitions
+        cfg = cfg or bend.config(root)
+        entries = dict(_entries_cached(_undo_kernel_text(law, m, root), json.dumps(cfg, sort_keys=True) if cfg else "",
+                                       mp.relative_to(root).as_posix()))
+        c = kernel_cone(_U_QUAL.sub("M.", statement_text(law, m, root)), entries)
+    else:
+        entries = kernel_entries(mp, cfg or bend.config(root))
+        c = kernel_cone(statement_text(law, m, root), entries)
     return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
             "statement_sha256": text_sha256(_emit(law, m, root, counter=False)),
             "counter_sha256": counter_binding(law, m, root),

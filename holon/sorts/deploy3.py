@@ -207,6 +207,11 @@ def deployment(root: Path, binding_rel: str, doc_rel: str, source: str | None = 
     root = Path(root)
     binding = load_binding(root / binding_rel)
     doc = json.loads((root / doc_rel).read_text(encoding="utf-8"))
+    if source is None and (binding.get("project") or {}).get("kind") == "sources" and binding.get("source"):
+        # a planted fixture's binding names the extraction's source tree (as holon fragments reads it, I20): its
+        # preimages need the document's compiled units, which no configured checkout holds (I27: a toy with a
+        # deployment was the first typed milestone whose binding is not the Morph checkout's)
+        source = binding["source"]
     init = binding_init(binding, root)
     commit = (doc.get("target") or {}).get("commit")
     key = _key(root, binding_rel, binding, doc_rel, init, commit)
