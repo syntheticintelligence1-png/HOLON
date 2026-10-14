@@ -43,9 +43,10 @@ from . import section as SEC
 
 ROOT = Path(__file__).resolve().parents[2]
 SUBFORMS = ("blocking", "revert", "external", "external_none")
-# the last-step syntheses of one law: at most this many states where B holds are tried in S1+S2 and in S3 (each with
-# I30's synthesis of every action of the law's set); a deterministic bound, named in every UNKNOWN record
-LAST_STEP_STATES = 40
+# the last-step syntheses of one law: every state where B holds within the sidecar's budget is tried in S1+S2 and in
+# S3 (each with I30's synthesis of every action of the law's set); None: no cap beyond the preregistered budget (a cap
+# here would search fewer prefixes than the sidecar's budget names)
+LAST_STEP_STATES = None
 # with a binding, the candidates of one law re-evaluated with the deployment's external answers (one harness run each)
 MAX_VALIDATIONS = 12
 dumps = R3.dumps
@@ -143,7 +144,16 @@ class Doc:
         i = dict(self.init)
         if empty:
             i["preimages"] = []
-        return S3.Model(self.cev, i, self.hints, self.run.ctx.root / self.doc_rel, native=native)
+        mdl = S3.Model(self.cev, i, self.hints, self.run.ctx.root / self.doc_rel, native=native)
+        # every model of this document shares one evaluator process: each names its stored states with its own
+        # prefix, so that a witness's settling never overwrites a state the shared exploration holds
+        pfx = mdl.tid
+
+        def fresh(m=mdl, p=pfx) -> str:
+            m.n += 1
+            return f"{p}g{m.n}"
+        mdl.fresh = fresh
+        return mdl
 
     @property
     def ex(self) -> DS.Explorer:
@@ -315,6 +325,10 @@ class Run:
         kh, sh, _codes = S3.settle(d.factory, steps, [])
         x = SEC.law_key(law["law_id"])
         val = None
+        # an inhabitant (never replayed) keeps the hints' answers its evaluation looks up, which its literal states and
+        # its actions compute with: one copy of the steps carries them through every round, the states and the acts
+        # (the caller's steps, which the exploration may still hold, are never written)
+        own = [S3.Step(st.action, st.args, json.loads(json.dumps(st.env))) for st in steps] if fn == "prem" else None
         for _ in range(8):
             m = d.factory(empty=True, native=False)
             m.kh, m.sh = dict(kh), dict(sh)
@@ -322,18 +336,20 @@ class Run:
             g = m.s0()
             # copies: an evaluation answers a call the witness does not hold from the hints, and the witness keeps
             # exactly its own answers (the deployment's, with a binding), which the counter-law states
-            cs = [S3.Step(st.action, st.args, json.loads(json.dumps(st.env))) for st in steps]
+            cs = own if own is not None else [S3.Step(st.action, st.args, json.loads(json.dumps(st.env)))
+                                              for st in steps]
             for st in cs[:-1]:
                 _c, g, _calls = m.run_step(g, st, save=True)
             m._run_step(g, cs[-1], False)
-            last = steps[-1]
+            last = own[-1] if own is not None else steps[-1]
             val = d.judge.call(m, f"D_{fn}_{x}", lambda: [m.act(last), {"$ref": g}, W(t), m.act(last)["f"]["en"]])
             if (len(m.kh), len(m.sh)) == (len(kh), len(sh)):
                 break
             kh, sh = dict(m.kh), dict(m.sh)
-        states = S3.trace_states(d.factory, steps, kh, sh)
+        src = own if own is not None else steps
+        states = S3.trace_states(d.factory, src, kh, sh)
         m = d.factory(empty=True)
-        acts = [m.act(st) for st in steps]
+        acts = [m.act(st) for st in src]
         return {"keccak256": kh, "sha256": sh}, states, acts, val
 
     def emit(self, d: Doc, law: dict, steps: list, t: int, kind: str, where: Path, laws_path: Path, note: str):
