@@ -152,17 +152,21 @@ class Model:
         tab[k] = kec(b) if which == "kh" else int.from_bytes(hashlib.sha256(b).digest(), "big")
         return True
 
+    @staticmethod
+    def _sig(tab: dict) -> tuple:
+        return (len(tab), hash(frozenset(tab)))
+
     def tables(self) -> list:
         out = []
         if "keccak256" in self.hashes:
-            if self.kh_sent != len(self.kh):
+            if self.kh_sent != self._sig(self.kh):
                 self.ev.req({"fn": "kt_id", "args": [self.ev.table(self.kh)], "save": "KH", "quiet": True})
-                self.kh_sent = len(self.kh)
+                self.kh_sent = self._sig(self.kh)
             out.append({"$ref": "KH"})
         if "sha256" in self.hashes:
-            if self.sh_sent != len(self.sh):
+            if self.sh_sent != self._sig(self.sh):
                 self.ev.req({"fn": "kt_id", "args": [self.ev.table(self.sh)], "save": "SH", "quiet": True})
-                self.sh_sent = len(self.sh)
+                self.sh_sent = self._sig(self.sh)
             out.append({"$ref": "SH"})
         return out
 
@@ -193,9 +197,26 @@ class Model:
         env["msg.data.length"] = (len(self.calldata(st)) - 2) // 2
         return env
 
+    def forget(self, kh0: set, sh0: set) -> None:
+        """Drop the keys learned since (kh0, sh0): a candidate that is not kept leaves the tables as they were (a later
+        evaluation that needs a key learns it again)."""
+        for k in [k for k in self.kh if k not in kh0]:
+            del self.kh[k]
+        for k in [k for k in self.sh if k not in sh0]:
+            del self.sh[k]
+
     def run_step(self, g: str, st: Step, save: bool = True) -> tuple[int, str | None, list]:
         """(chk code, the next state's handle (None when not saved), the calls the step looks up) of one step from
         state g, with its hash keys and call answers settled (fixpoint)."""
+        if save:
+            return self._run_step(g, st, True)
+        kh0, sh0 = set(self.kh), set(self.sh)
+        try:
+            return self._run_step(g, st, False)
+        finally:
+            self.forget(kh0, sh0)
+
+    def _run_step(self, g: str, st: Step, save: bool) -> tuple[int, str | None, list]:
         for _ in range(40):
             tabs = self.tables()
             a = self.act(st)
@@ -246,6 +267,13 @@ class Model:
         return changed
 
     def pred(self, fn: str, g: str, st: Step) -> bool:
+        kh0, sh0 = set(self.kh), set(self.sh)
+        try:
+            return self._pred(fn, g, st)
+        finally:
+            self.forget(kh0, sh0)
+
+    def _pred(self, fn: str, g: str, st: Step) -> bool:
         for _ in range(40):
             tabs = self.tables()
             r = self.ev.req({"fn": fn, "args": [self.act(st), {"$ref": g}] + tabs})
@@ -487,47 +515,118 @@ class Synth:
             return st, code
         leaves = self.leaves(a)
         tried = set()
+        fset = set(focus or [])
+        done = (3 if target is not None else 2)
+
+        def directed_of(dv: dict, leaf, ty) -> list:
+            d = list(dv.get(self._dkey(leaf), []))
+            if leaf[0] == "env" and leaf[1] == "block.timestamp":
+                d = [x for x in d if x >= prev_ts and x > 0]
+            if ty in ("bytes", "string"):
+                d = ["0x%064x" % x if isinstance(x, int) else x for x in d]
+            return d
+
+        def ev_(cand):
+            nonlocal evals
+            k = cand.key()
+            if k in tried:
+                return None
+            tried.add(k)
+            c2, _n, _c = self.m.run_step(g, cand, save=False)
+            evals += 1
+            return c2
+
         while evals < self.max_evals:
-            improved = False
             dvals = self.directed(a, code, st, state)
-            fset = set(focus or [])
             order = sorted(leaves, key=lambda lt: (0 if self._dkey(lt[0]) in dvals else 1,
                                                    0 if lt[0] in fset else 1))
+            # 1. the directed values of every leaf (the failing check's comparisons): the best of them
+            top = None
+            seconds = []
             for leaf, ty in order:
-                directed = list(dvals.get(self._dkey(leaf), []))
-                if leaf[0] == "env" and leaf[1] == "block.timestamp":
-                    directed = [x for x in directed if x >= prev_ts and x > 0]
-                if ty in ("bytes", "string"):
-                    directed = ["0x%064x" % x if isinstance(x, int) else x for x in directed]
+                for v in directed_of(dvals, leaf, ty):
+                    cand = self.assign(st, leaf, ty, v)
+                    if cand is None or evals >= self.max_evals:
+                        continue
+                    c2 = ev_(cand)
+                    if c2 is None:
+                        continue
+                    if accept is not None and accept(cand, c2):
+                        return cand, c2
+                    s2 = self.score(c2, target)
+                    if s2 > best and (top is None or s2 > top[2]):
+                        top = (cand, c2, s2)
+                    elif s2 < best:
+                        seconds.append((cand, c2, leaf))
+            if top is not None:
+                st, code, best = top
+                if accept is None and best[0] >= done:
+                    return st, code
+                continue
+            # 2. the leaves' value sets: the first move that improves
+            improved = False
+            for leaf, ty in order:
+                d = directed_of(dvals, leaf, ty)
                 cands = []
-                for v in directed + self.value_set(leaf, ty, st, state, prev_ts):
-                    if v not in cands:
+                for v in self.value_set(leaf, ty, st, state, prev_ts):
+                    if v not in cands and v not in d:
                         cands.append(v)
-                cap = len(directed) + (96 if leaf in fset else 32)
-                for v in cands[:cap]:
+                for v in cands[:(96 if leaf in fset else 32)]:
                     cand = self.assign(st, leaf, ty, v)
                     if cand is None:
                         continue
-                    k = cand.key()
-                    if k in tried:
+                    if evals >= self.max_evals:
+                        break
+                    c2 = ev_(cand)
+                    if c2 is None:
                         continue
-                    tried.add(k)
-                    c2, _n, _c = self.m.run_step(g, cand, save=False)
-                    evals += 1
                     if accept is not None and accept(cand, c2):
                         return cand, c2
                     s2 = self.score(c2, target)
                     if s2 > best:
                         st, code, best, improved = cand, c2, s2, True
-                        if accept is None and best[0] >= (3 if target is not None else 2):
-                            return st, code
                         break
-                    if evals >= self.max_evals:
-                        break
+                    seconds.append((cand, c2, leaf))
                 if improved or evals >= self.max_evals:
+                    break
+            if improved:
+                if accept is None and best[0] >= done:
+                    return st, code
+                continue
+            # 3. two coordinates: a move that made an earlier check fail (the latest failing first), then another
+            # leaf at that check's directed values or a small value
+            seconds.sort(key=lambda t: self.score(t[1], target), reverse=True)
+            for cand, c2, leaf in seconds:
+                if evals >= self.max_evals:
+                    break
+                dv2 = self.directed(a, c2, cand, state)
+                for leaf2, ty2 in leaves:
+                    if leaf2 == leaf:
+                        continue
+                    vs = directed_of(dv2, leaf2, ty2)
+                    if leaf2[0] == "param" and not ty2.endswith("]") and ty2 not in ("bytes", "string", "bool"):
+                        vs += [x for x in (0, 1, 2) if x not in vs]
+                    for v in vs:
+                        c3c = self.assign(cand, leaf2, ty2, v)
+                        if c3c is None or evals >= self.max_evals:
+                            continue
+                        c3 = ev_(c3c)
+                        if c3 is None:
+                            continue
+                        if accept is not None and accept(c3c, c3):
+                            return c3c, c3
+                        s3 = self.score(c3, target)
+                        if s3 > best:
+                            st, code, best, improved = c3c, c3, s3, True
+                            break
+                    if improved:
+                        break
+                if improved:
                     break
             if not improved:
                 break
+            if accept is None and best[0] >= done:
+                return st, code
         return (st if accept is None and best[0] >= (3 if target is not None else 2) else None), code
 
     @staticmethod
@@ -676,7 +775,7 @@ def relevance(doc: dict, entry: str) -> list[str]:
 
 
 class Refuter:
-    def __init__(self, model: Model, doc: dict, sorts: dict, budget: dict, synth_evals: int = 160,
+    def __init__(self, model: Model, doc: dict, sorts: dict, budget: dict, synth_evals: int = 600,
                  log=None):
         self.m = model
         self.doc = doc
