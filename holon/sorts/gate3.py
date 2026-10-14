@@ -4,12 +4,13 @@ listed under not_applicable with a reason.
 
   GENV  the pinned checker (holon.gate.Gate.genv, unchanged)
   G2    the registry: `holon derive` reproduces laws/<M> byte for byte and every law's statement hash is the
-        registry's; each law file states its law's coerce term
+        registry's; each law file states its law's coerce term; joined with holon.gate's G2 over every law (F30)
   G1    regeneration: `holon sorts`, `holon types`, `holon derive`, `holon model` and `holon termsize` reproduce
         gen/<M>/sorts (with the typed and untyped models), laws/<M> and the term-size report byte for byte, and
         `holon run` reproduces every I30 record and generated Bend file
   G3    no `law` under gen/<M>/proofs, no escape hatch in any generated Bend file, every law file imports exactly the
-        typed model as M
+        typed model as M; joined with holon.gate's G3 over every law (F30)
+  G8    holon.gate's G8 (the milestone's coverage report), when it applies (F30)
   G5    every PROOF.bend of a decided law (primary and per entry point) re-checked by Bend, importing its law
   G11   every record's statement hash is the registry's and its artifacts exist
   G11V  every PROVED law carries a checked, reachable inhabitant of its at-site premise (gen/<M>/<id>/nonvac/)
@@ -19,8 +20,11 @@ listed under not_applicable with a reason.
   G4    canaries: per I30 subform among the laws, a counter-law whose witness is mutated (its entry step's clock or
         its first argument changed) must be rejected by Bend
 
-The milestone's other laws (on M3, I24's PAR laws, merged with I30) keep holon.gate.Gate's G5, G11 and G9 over their
-records, and the milestone's evidence set its GEVID (Gate3.other_laws); each joins I30's check of the same name.
+The milestone's other laws (on M3, I24's PAR laws, merged with I30) keep holon.gate.Gate's G5, G11, G11V and G9 over
+their records, and the milestone's evidence set its GEVID (Gate3.other_laws); each joins I30's check of the same name.
+holon.gate.Gate's G2 (registry, statement lifecycle, bindings), G8 (coverage) and G3 run over every law of the
+milestone, I30's included, and join I30's check of the same name (Gate3.whole_milestone, F30): a statement change on a
+typed milestone is gated as on any other.
 """
 from __future__ import annotations
 
@@ -59,9 +63,17 @@ class Gate3:
         self.na: dict = {}
         self.gen = self.root / "gen" / milestone
         self.results = self.root / "results" / milestone
-        dv = json.loads((self.root / "laws" / milestone / "DERIVATION.json").read_text())
-        self.entries = {e["law_id"]: e for e in dv["laws"] if e.get("rule") == "SORT" and e.get("subform") in SUBFORMS}
-        self.registry = json.loads((self.root / "laws" / milestone / "REGISTRY.json").read_text())
+        # a milestone the gate cannot check (no registry, no derivation) fails every check with the reason, as
+        # holon.gate.Gate does (audit F-M2-10), never with a traceback (F30)
+        self.setup_error, self.entries, self.registry = None, {}, {}
+        try:
+            from .. import ir
+            self.registry = ir.load_registry(milestone, self.root)
+            dv = json.loads((self.root / "laws" / milestone / "DERIVATION.json").read_text())
+            self.entries = {e["law_id"]: e for e in dv["laws"]
+                            if e.get("rule") == "SORT" and e.get("subform") in SUBFORMS}
+        except (OSError, ValueError, KeyError, TypeError) as e:
+            self.setup_error = f"milestone {milestone} cannot be checked: {type(e).__name__}: {e}"
 
     def holon(self, args: list, cwd: Path, timeout: int = 7200):
         env = dict(os.environ)
@@ -342,6 +354,10 @@ class Gate3:
             order = ["G2", "G1", "G3", "G5", "G11", "G11V", "G6", "G9", "G7", "G4"]
             if only:
                 order = [x for x in order if x in only]
+            if self.setup_error is not None:   # F-M2-10, as holon.gate.Gate: every check fails with the reason
+                for k in order + [x for x in ("G8", "GEVID") if not only or x in only]:
+                    self.checks[k] = _res(False, self.setup_error)
+                order, ok = [], False
             for k in order:
                 if not ok:
                     self.checks[k] = _res(False, getattr(g, "genv_skip", "skipped: GENV failed"))
@@ -350,33 +366,77 @@ class Gate3:
                     getattr(self, k.lower())()
                 except Exception as e:  # noqa: BLE001  (a crash is a failed check)
                     self.checks[k] = _res(False, f"error: {type(e).__name__}: {e}")
-            self.other_laws(g, ok, only)
+            if self.setup_error is None:
+                self.whole_milestone(g, ok, only, ("G2", "G8"))
+                self.other_laws(g, ok, only)
+                self.whole_milestone(g, ok, only, ("G3",))   # after G5: G3 reads the checker's output G5 recorded
         finally:
             if old is None:
                 os.environ.pop("HOLON_BUILD_DIR", None)
             else:
                 os.environ["HOLON_BUILD_DIR"] = old
             shutil.rmtree(build, ignore_errors=True)
-        for k in ("G8", "GREF", "GEVID"):
-            if k in self.checks:
+        for k in ("GREF", "GEVID"):
+            if k in self.checks or (k == "GEVID" and (self.gen / "evidence.json").is_file()):
                 continue
-            self.na.setdefault(k, {"G8": "covered by holon coverage --milestone M3 (gen/M3/coverage.json, a file "
-                                         "several M3 keys share), not an I30 check",
-                                   "GREF": "the disagreements of the typed model's refinement are filed in "
-                                           "results/M3/sorts/disagreements.json (R5), not spec/M2/disagreements.json",
-                                   "GEVID": "the evidence set covers M0-M2 facts; no M3 evidence set exists"}[k])
+            self.na.setdefault(k, {"GREF": "the disagreements of the typed model's refinement are filed in "
+                                           f"results/{self.m}/sorts/disagreements.json (R5), not "
+                                           "spec/M2/disagreements.json",
+                                   "GEVID": f"no evidence set gen/{self.m}/evidence.json exists"}[k])
         rep = {"milestone": self.m, "passed": all(c["passed"] for c in self.checks.values()),
                "bend_version": g.bend_version, "checks": self.checks, "canaries": self.canaries,
                "not_applicable": self.na}
+        if self.setup_error is not None:
+            rep["setup_error"] = self.setup_error
         if only:
             rep["partial"] = True
         return rep
 
 
+    # holon.gate.Gate's checks that hold for the milestone as a whole, over every law of it, I30's included (F30). I30's
+    # routing of typed milestones here had dropped them:
+    #   G2  the registry (holon.mpipeline.check_registry_multi), the statement lifecycle (every line of
+    #       laws/STATEMENT_DIFF.jsonl accepted, every statement-hash change and deletion of laws/<M>/REGISTRY.json tied
+    #       to an accepted entry, the frozen negations, the DERIVATION.json links, the binding change log) and the
+    #       bindings spec/bindings/<M>.json of every law (holon.bindings; a typed law bound to the typed model);
+    #   G8  the milestone's coverage report gen/<M>/coverage.json, when holon.gate says it applies;
+    #   G3  escape hatches and bare core imports in every generated file, the checker's output of every proof G5
+    #       re-checked, the IR premise and binder-type rules and the oracle rules over every law, no law under
+    #       proofs/, and the Lean files.
+    # Each result is joined with I30's check of the same name (I30's G2 and G3 stay as they were).
+    WHOLE = ("G2", "G8", "G3")
+
+    def whole_milestone(self, g, ok: bool, only: list | None, keys: tuple) -> None:
+        for k in keys:
+            if only and k not in only:
+                continue
+            if not ok:
+                self.checks.setdefault(k, _res(False, getattr(g, "genv_skip", "skipped: GENV failed")))
+                continue
+            if k == "G8":
+                why = g.g8_not_applicable()
+                if why is not None:
+                    self.na["G8"] = why
+                    continue
+            try:
+                if k == "G3" and not g.check_outputs:   # G5 did not run: get the checker's output without recording it
+                    g.recheck_outputs()
+                getattr(g, k.lower())()
+                r = g.checks[k]
+            except Exception as e:  # noqa: BLE001  (a crash is a failed check)
+                r = _res(False, f"error: {type(e).__name__}: {e}")
+            if k in self.checks:
+                a = self.checks[k]
+                self.checks[k] = _res(a["passed"] and r["passed"], f"I30 laws: {a['detail']}; holon.gate {k} over every "
+                                                                   f"law of {self.m}: {r['detail']}")
+            else:
+                self.checks[k] = _res(r["passed"], f"holon.gate {k} over every law of {self.m}: {r['detail']}")
+
     # The milestone's laws outside I30's subforms (on M3, I24's PAR laws) keep the checks holon.gate.Gate gave them
-    # before I30 routed typed milestones here (the merge of I24 and I30): G5, G11 and G9 over their records only, and
-    # GEVID over the milestone's evidence set when it has one. Each result is joined with I30's check of that name.
-    OTHER = ("G5", "G11", "G9", "GEVID")
+    # before I30 routed typed milestones here (the merge of I24 and I30): G5, G11, G11V (F30) and G9 over their records
+    # only, and GEVID over the milestone's evidence set when it has one. Each result is joined with I30's check of that
+    # name.
+    OTHER = ("G5", "G11", "G11V", "G9", "GEVID")
 
     def other_laws(self, g, ok: bool, only: list | None) -> None:
         from .. import ir
@@ -388,6 +448,7 @@ class Gate3:
         if not want:
             return
         g.records = lambda: {k: v for k, v in Gate.records(g).items() if k not in mine}
+        g.laws = lambda: [law for law in Gate.laws(g) if law["law_id"] not in mine]
         for k in want:
             if not ok:
                 self.checks.setdefault(k, _res(False, getattr(g, "genv_skip", "skipped: GENV failed")))
@@ -428,6 +489,10 @@ def main_gate(args) -> int:
     root = Path(args.root or ROOT).resolve()
     report_path = Path(args.report) if args.report else root / "results" / args.milestone / "gate_report.json"
     only = [c.strip() for c in args.checks.split(",") if c.strip()] if getattr(args, "checks", None) else None
+    if only and not args.report:   # as holon.gate.main_gate (F30): only a full run writes results/<m>/gate_report.json
+        print("--checks writes a partial report: give --report (results/<m>/gate_report.json is only ever written by "
+              "a full run)", file=sys.stderr)
+        return 2
     rep = Gate3(args.milestone, root).run(only)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(rep, indent=2, sort_keys=True) + "\n")
@@ -435,5 +500,5 @@ def main_gate(args) -> int:
         print(f"{k:5s} {'PASS' if c['passed'] else 'FAIL'}  {c['detail']}")
     for k, why in (rep.get("not_applicable") or {}).items():
         print(f"{k:5s} N/A   {why}")
-    print("GATE", "PASSED" if rep["passed"] else "FAILED")
+    print("GATE", ("PASSED" if rep["passed"] else "FAILED") + (" (partial)" if rep.get("partial") else ""))
     return 0 if rep["passed"] else 1

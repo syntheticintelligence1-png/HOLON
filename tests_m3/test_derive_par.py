@@ -862,12 +862,21 @@ class TestDeriveM3(_Morph):
 
     def test_no_link_and_no_log_line(self):
         """P11: no earlier law is about the linked codec document, so DERIVATION links is [] and I24 appends no line to
-        laws/STATEMENT_DIFF.jsonl (the back-test across documents is rules B1-B5)."""
+        laws/STATEMENT_DIFF.jsonl (the back-test across documents is rules B1-B5). F30 amendment (spec/M3/
+        amendments.jsonl): no line is a link line (a cross_milestone entry, or an entry pairing an M3 law with another
+        law: another id or another milestone), and no line states an M3 law under I24's catalog (I.CATALOG_VERSION),
+        as every line I24 could append does. A line whose new statement is an M3 law under a later catalog belongs to a
+        later key, and G2 checks it."""
         dv = self.r.doc("DERIVATION")
         self.assertEqual(dv["links"], [])
         log = ROOT / "laws" / "STATEMENT_DIFF.jsonl"
         lines = [json.loads(x) for x in log.read_text().splitlines() if x.strip()]
-        self.assertFalse([e for e in lines if (e.get("new") or {}).get("milestone") == "M3"])
+        m3 = [e for e in lines if (e.get("new") or {}).get("milestone") == "M3"]
+        self.assertFalse([e for e in m3 if e.get("kind") == "cross_milestone"
+                          or (e.get("old") or {}).get("law_id") != e["new"].get("law_id")
+                          or (e.get("old") or {}).get("milestone", "M3") != "M3"], "a link line names an M3 law")
+        self.assertFalse([e for e in m3 if e["new"].get("rule_catalog_version") == I.CATALOG_VERSION],
+                         "a line states an M3 law under I24's catalog")
 
     def test_stale_inputs_are_refused(self):
         """A tampered linked codec document, component diagram or evidence set: exit 2, nothing written."""
