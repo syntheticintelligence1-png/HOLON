@@ -154,6 +154,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["lossy"]:  # likewise for holon.rules.par_lossy (PAR-lossy and injective pushing, I25)
         from .rules import par_lossy
         return par_lossy.main(argv[1:])
+    if argv[:1] == ["undo"]:  # likewise for holon.rules.undo (I27: undo pairs, residues, static deadness)
+        from .rules import undo
+        return undo.main(argv[1:])
     if argv[:1] == ["types"]:  # likewise for holon.sorts.types3 (I30: nominal types and the ghost-taint check)
         from .sorts import types3
         return types3.main(argv[1:])
