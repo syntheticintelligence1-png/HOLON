@@ -58,10 +58,13 @@ def sha256_file(p: Path) -> str:
 
 
 def rel(p: Path, root: Path) -> str:
+    """The repo path of p as it is named (a link keeps its own name: the typed model is <model>.bend, a link to the
+    importable file)."""
+    p = Path(p)
     try:
-        return Path(p).resolve().relative_to(Path(root).resolve()).as_posix()
+        return (p.parent.resolve() / p.name).relative_to(Path(root).resolve()).as_posix()
     except ValueError:
-        return Path(p).as_posix()
+        return p.as_posix()
 
 
 def generator_sha256(root: Path) -> str:
@@ -107,8 +110,22 @@ class Ctx:
         self.derivation = {e["law_id"]: e for e in dv["laws"]}
         self.registry = json.loads((self.laws_dir / "REGISTRY.json").read_text())
         self.models: dict = {}
+        self.resume = False                 # holon run --resume: searches checkpointed under ~/.holon/cache/run3
+        self.ckpt_every = 300.0
         self.generated: dict = {}           # doc -> (init, machine, document, model path) this context generated
         self.shared: dict = {}              # the same, handed down by a parent context (holon run --jobs)
+
+    def resume_dir(self, lid: str, doc_rel: str, e: dict) -> Path:
+        """Where a law's searches keep their progress (holon run --resume): keyed by everything a search depends on
+        (the law, its derivation entry and statement, the typed model, its initial state, the hints, the budget and
+        the generator files), outside the repo."""
+        hp = self.root / "results" / self.m / "sorts" / "refinement" / "hints.json"
+        key = hashlib.sha256(json.dumps({
+            "law": lid, "entry": e, "statement": self.registry["statements"].get(lid),
+            "model": sha256_file(self.model_path(doc_rel)), "init": self.models[doc_rel][1],
+            "hints": sha256_file(hp) if hp.is_file() else None, "budget": self.sc.search,
+            "generator": generator_sha256(self.root)}, sort_keys=True, default=str).encode()).hexdigest()
+        return Path.home() / ".holon" / "cache" / "run3" / f"{lid}-{key[:16]}"
 
     def model_path(self, doc_rel: str) -> Path:
         """The typed model as `holon model` names it (gen/<M>/sorts/models/<model>.bend, a link)."""
@@ -359,16 +376,34 @@ class Decider:
         hashes = ev.hashes()
         lp = self.write_law(law_ir, doc_rel, False, hashes)
         law = dict(e)
-        model = model_f()
         sorts = json.loads((ctx.root / "gen" / ctx.m / "sorts" / "assignment.json").read_text())["models"][
             model_name(doc_rel)]["assignment"]
-        ref = S3.Refuter(model, json.loads((ctx.root / doc_rel).read_text()), sorts, ctx.sc.search,
-                         log=ctx.log)
+        doc_json = json.loads((ctx.root / doc_rel).read_text())
         attempts, witnesses = [], {}
         fns = fn_names(doc)
+        resume = ctx.resume_dir(lid, doc_rel, e) if ctx.resume else None
         for entry in sorted(e["entry_points"]):
             t0 = time.time()
-            steps, stage, bound = ref.refute(law, entry, {k: v for k, v in found.items()})
+            # each entry point is searched from the initial state with the initial hash tables (its own model), so
+            # its outcome does not depend on what an earlier entry point's search learned
+            ref = S3.Refuter(model_f(), doc_json, sorts, ctx.sc.search, log=ctx.log)
+            done = resume / f"{entry}.done.json" if resume is not None else None
+            if done is not None and done.is_file():
+                dj = json.loads(done.read_text(encoding="utf-8"))
+                steps = None if dj["steps"] is None else [S3.Step(*x) for x in dj["steps"]]
+                stage, bound = dj["stage"], dj["bound"]
+                ctx.log(f"{lid} {entry}: the search's outcome from {done}")
+            else:
+                if resume is not None:
+                    ref.ckpt = S3.Checkpoint(resume, ctx.ckpt_every)
+                steps, stage, bound = ref.refute(law, entry, {k: v for k, v in found.items()})
+                if resume is not None:
+                    tmp = done.with_suffix(".tmp")
+                    tmp.write_text(json.dumps({"steps": None if steps is None else
+                                               [[st.action, st.args, st.env] for st in steps],
+                                               "stage": stage, "bound": bound}), encoding="utf-8")
+                    os.replace(tmp, done)
+                    ref.ckpt.clear(entry)
             ctx.log(f"{lid} {entry}: {'witness (' + stage + ')' if steps else 'no witness'} in "
                     f"{round(time.time() - t0, 1)} s")
             attempts.append({"kind": "refute", "entry": entry, "stage": stage, "bound": bound,
@@ -428,6 +463,7 @@ class Decider:
             if att.get("marker") == "ALL PROOFS CHECK" and att.get("verdict") == "checked":
                 status = "PROVED"
                 primary_art = {"proof": att["proof"], "checker": att["checker"], "verdict": "checked"}
+                ref = S3.Refuter(model_f(), doc_json, sorts, ctx.sc.search, log=ctx.log)
                 nonvac = self.inhabit(law, doc_rel, ref, model_f, ev, hashes, fns)
         for k, w in witnesses.items():
             w.pop("_steps", None)
@@ -652,6 +688,8 @@ def run_main(a) -> int:
     gen = Path(a.gen_dir).resolve() if a.gen_dir else None
     out = Path(a.out).resolve() if a.out else None
     ctx = Ctx(a.milestone, root, a.sidecar, gen, out)
+    ctx.resume = bool(getattr(a, "resume", False))
+    ctx.ckpt_every = float(getattr(a, "checkpoint_seconds", 300) or 300)
     ids = sorted(l for l, e in ctx.derivation.items() if e.get("rule") == "SORT" and e.get("subform") in SUBFORMS)
     if a.laws:
         want = {x.strip() for x in a.laws.split(",") if x.strip()}
@@ -673,6 +711,7 @@ def run_main(a) -> int:
                 c = Ctx(a.milestone, root, a.sidecar, gen, out,
                         log=lambda m, lid=lid: print(f"[{lid}] {m}", flush=True))
                 c.shared = dict(ctx.generated)
+                c.resume, c.ckpt_every = ctx.resume, ctx.ckpt_every
                 with lock:
                     contexts.append(c)
             try:
@@ -775,6 +814,11 @@ def main(argv: list) -> int:
     ap.add_argument("--write-pins", action="store_true")
     ap.add_argument("--corpus", type=int, default=300)
     ap.add_argument("--jobs", type=int, default=1, help="laws decided at a time (the records do not depend on it)")
+    ap.add_argument("--resume", action="store_true",
+                    help="checkpoint each search under ~/.holon/cache/run3 and resume an interrupted one (the records "
+                         "are the uninterrupted run's)")
+    ap.add_argument("--checkpoint-seconds", type=float, default=300.0,
+                    help="with --resume: seconds between checkpoints (the records do not depend on it)")
     a = ap.parse_args(rest)
     if cmd == "replay":
         return replay_main(a)

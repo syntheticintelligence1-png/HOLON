@@ -26,7 +26,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -135,6 +137,7 @@ class Model:
         self.kh_sent = -1
         self.sh_sent = -1
         self.n = 0
+        self.last_learned: list = []
         self.hashes = ev.hashes()
         self.base_env = {"this": self.init.get("target") or "0x" + "00" * 19 + "ab",
                          "immutable": dict(self.init.get("immutables") or {}),
@@ -214,6 +217,8 @@ class Model:
         try:
             return self._run_step(g, st, False)
         finally:
+            # the preimages of the hashes this step computed (S1 offers them to the step's own bytes arguments)
+            self.last_learned = [k for k in self.kh if k not in kh0] + [k for k in self.sh if k not in sh0]
             self.forget(kh0, sh0)
 
     def _run_step(self, g: str, st: Step, save: bool) -> tuple[int, str | None, list]:
@@ -379,6 +384,9 @@ def _set(d: dict, path, v) -> dict:
     return d
 
 
+PLATEAU_REPAIRS = 8
+
+
 class Synth:
     """S1: a step of one action from a state, by coordinate moves over its input leaves."""
 
@@ -521,6 +529,10 @@ class Synth:
         state = self.m.state(g)
         prev_ts = int(st.env["block.timestamp"])
         code, _n, _c = self.m.run_step(g, st, save=False)
+        # the preimages of the hashes each evaluated candidate computed: a bytes argument's candidates (a header the
+        # step must be handed back, as the hash it stores)
+        learned = {st.key(): list(self.m.last_learned)}
+        computed: list = learned[st.key()]
         best = self.score(code, target)
         evals = 1
         if accept is not None and accept(st, code):
@@ -532,12 +544,13 @@ class Synth:
         fset = set(focus or [])
         done = (3 if target is not None else 2)
 
-        def directed_of(dv: dict, leaf, ty) -> list:
+        def directed_of(dv: dict, leaf, ty, comp: list | None = None) -> list:
             d = list(dv.get(self._dkey(leaf), []))
             if leaf[0] == "env" and leaf[1] == "block.timestamp":
                 d = [x for x in d if x >= prev_ts and x > 0]
             if ty in ("bytes", "string"):
                 d = ["0x%064x" % x if isinstance(x, int) else x for x in d]
+                d = [k for k in (computed if comp is None else comp) if len(k) <= 2 + 2 * 512 and k not in d] + d
             return d
 
         def ev_(cand):
@@ -547,10 +560,13 @@ class Synth:
                 return None
             tried.add(k)
             c2, _n, _c = self.m.run_step(g, cand, save=False)
+            # under the key before and after the evaluation (which records the call answers in the step's env)
+            learned[k] = learned[cand.key()] = list(self.m.last_learned)
             evals += 1
             return c2
 
         while evals < self.max_evals:
+            computed = learned.get(st.key(), [])
             dvals = self.directed(a, code, st, state)
             order = sorted(leaves, key=lambda lt: (0 if self._dkey(lt[0]) in dvals else 1,
                                                    0 if lt[0] in fset else 1))
@@ -613,9 +629,11 @@ class Synth:
                 continue
             # 3. two coordinates: a move that made an earlier check fail (the latest failing first), then another
             # leaf at that check's directed values or a small value
-            if plateau:
-                break
             seconds.sort(key=lambda t: self.score(t[1], target), reverse=True)
+            if plateau:
+                # a step that succeeds and is not accepted: only a focus leaf's move, repaired by one other leaf (the
+                # best PLATEAU_REPAIRS of them)
+                seconds = [t for t in seconds if t[2] in fset][:PLATEAU_REPAIRS]
             for cand, c2, leaf in seconds:
                 if evals >= self.max_evals:
                     break
@@ -623,7 +641,7 @@ class Synth:
                 for leaf2, ty2 in leaves:
                     if leaf2 == leaf:
                         continue
-                    vs = directed_of(dv2, leaf2, ty2)
+                    vs = directed_of(dv2, leaf2, ty2, learned.get(cand.key(), []))
                     if leaf2[0] == "param" and not ty2.endswith("]") and ty2 not in ("bytes", "string", "bool"):
                         vs += [x for x in (0, 1, 2) if x not in vs]
                     for v in vs:
@@ -807,6 +825,7 @@ class Refuter:
         self.cache: dict = {}
         self.fp: dict = {}                  # state handle -> fingerprint (successors computes it)
         self.entry_evals = synth_evals      # an entry step's synthesis (200 lost the :363 witness at commitBatch)
+        self.ckpt: Checkpoint | None = None  # holon run --resume
 
     def pools(self, g: str, trace: list) -> tuple[dict, dict]:
         """(state, pools) of a reachable state (cached: a state handle is never reused for another state)."""
@@ -934,82 +953,192 @@ class Refuter:
             out += kept
         return out
 
+    def _rebuild(self, traces: list) -> list:
+        """(trace, state) of each trace, its state rebuilt by replaying the trace from the initial state (a resumed
+        search; the hash tables already hold every key the traces look up)."""
+        g0 = self.m.s0()
+        memo: dict = {}
+        out = []
+        for tr in traces:
+            g = g0
+            for j, st in enumerate(tr):
+                k = tuple(x.key() for x in tr[:j + 1])
+                if k in memo:
+                    g = memo[k]
+                    continue
+                code, g, _c = self.m.run_step(g, st, save=True)
+                if code != 0:
+                    raise RuntimeError(f"a checkpointed trace does not replay ({st.action}: {code})")
+                memo[k] = g
+            out.append((tr, g))
+        return out
+
+    def _restore_tables(self, ck: dict) -> None:
+        self.m.kh, self.m.sh = {}, {}
+        for k in ck["kh"]:
+            self.m.add_key(k, "kh")
+        for k in ck["sh"]:
+            self.m.add_key(k, "sh")
+        self.m.kh_sent = self.m.sh_sent = -1
+
+    def _tables(self) -> dict:
+        return {"kh": sorted(self.m.kh), "sh": sorted(self.m.sh)}
+
+    def _tail(self, g: str, trace: list, tail: list) -> tuple[list | None, str | None]:
+        """The rest of a witness's prefix after inserted steps: each step again from the new state, at the same time or
+        later (the clock never decreases); (trace, state), or (None, None) when a step no longer succeeds."""
+        out = list(trace)
+        for st in tail:
+            env = json.loads(json.dumps(st.env))
+            env["calls"] = []
+            env.pop("_unanswered", None)
+            prev = int(out[-1].env.get("block.timestamp") or 0) if out else 0
+            env["block.timestamp"] = max(int(env.get("block.timestamp") or 0), prev)
+            st2 = Step(st.action, json.loads(json.dumps(st.args)), env)
+            code, g2, _c = self.m.run_step(g, st2, save=True)
+            if code != 0:
+                return None, None
+            out.append(st2)
+            g = g2
+        return out, g
+
     def refute(self, law: dict, entry: str, others: dict | None = None) -> tuple[list | None, str, str]:
-        """(witness steps, stage, bound) for one entry point."""
+        """(witness steps, stage, bound) for one entry point. With a checkpoint store (holon run --resume) the search
+        saves its progress now and then (the BFS level, the states tried, the counters and the hash tables) and a
+        later run resumes from it, ending where the uninterrupted search ends."""
         depth = int(self.budget.get("prefix_depth", 2))
         maxp = int(self.budget.get("max_prefixes", 1000))
-        g0 = self.m.s0()
-        tried = 1
-        focus = self.focus_of(law, entry)
-        st = self.entry_at(law, entry, g0, [])
-        if st is not None:
-            self.log(f"  {entry}: witness at depth 0")
-            return [st], "S1", f"S1+S2: 1 prefix (depth <= {depth})"
-        # breadth first: the prefixes of depth d are tried in their parents' order, each parent's successors
-        # generated when its turn comes (a parent whose turn never comes is never expanded)
-        level = [([], g0)]
-        # a state reached again (its storage, ghost store and clock) is the state already tried: the budget counts
-        # states, as I15's stages do
-        seen = {(self.m.fingerprint(g0), self.ts0)}
-        for d in range(1, depth + 1):
-            nxt = []
-            for trace, g in level:
-                if tried >= maxp:
-                    break
-                for t2, g2 in self.successors(g, trace, entry, maxp - tried, focus=focus):
-                    key = (self.fp.get(g2) or self.m.fingerprint(g2), int(t2[-1].env.get("block.timestamp") or 0))
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    tried += 1
-                    st = self.entry_at(law, entry, g2, t2)
-                    if st is not None:
-                        self.log(f"  {entry}: witness at depth {d} after {tried} prefixes")
-                        return t2 + [st], "S2", f"S1+S2: {tried} distinct states (depth <= {depth})"
-                    nxt.append((t2, g2))
-                    if tried >= maxp:
-                        break
-            self.log(f"  {entry}: depth {d}: {tried} prefixes tried "
-                     f"({', '.join(sorted({t[-1].action for t, _g in nxt}))[:200]})")
-            level = nxt
-            if tried >= maxp or not level:
-                break
-        bound = f"S1+S2: {tried} distinct states of at most {depth} successful steps (max {maxp}), no witness"
-        # S3: the other entry points' witnesses, steps inserted, the last step replaced by this entry point's
         ins = int(self.budget.get("neighbourhood_insertion_length_max", 2))
         maxn = int(self.budget.get("neighbourhood_prefixes_per_entry_point_max", 1000))
-        n3 = 0
-        for other, steps in sorted((others or {}).items()):
-            if other == entry or not steps:
+        ckpt = self.ckpt
+        ck = ckpt.load(entry) if ckpt is not None else None
+        g0 = self.m.s0()
+        focus = self.focus_of(law, entry)
+        if ck is None:
+            tried = 1
+            st = self.entry_at(law, entry, g0, [])
+            if st is not None:
+                self.log(f"  {entry}: witness at depth 0")
+                return [st], "S1", f"S1+S2: 1 prefix (depth <= {depth})"
+            # a state reached again (its storage, ghost store and clock) is the state already tried: the budget
+            # counts states, as I15's stages do
+            seen = {(self.m.fingerprint(g0), self.ts0)}
+            d0, i0, level, nxt0 = 1, 0, [([], g0)], []
+        else:
+            self._restore_tables(ck)
+            tried = int(ck["tried"])
+            seen = {tuple(x) for x in ck["seen"]}
+            self.log(f"  {entry}: resumed at {ck['stage']} ({tried} prefixes tried)")
+        if ck is None or ck["stage"] == "S2":
+            if ck is not None:
+                d0, i0 = int(ck["d"]), int(ck["i"])
+                lv = [_step_list(t) for t in ck["level"]]
+                level = [(t, None) for t in lv[:i0]] + self._rebuild(lv[i0:])
+                nxt0 = self._rebuild([_step_list(t) for t in ck["nxt"]])
+            # breadth first: the prefixes of depth d are tried in their parents' order, each parent's successors
+            # generated when its turn comes (a parent whose turn never comes is never expanded)
+            for d in range(d0, depth + 1):
+                nxt = nxt0 if d == d0 else []
+                for i, (trace, g) in enumerate(level):
+                    if d == d0 and i < i0:
+                        continue
+                    if tried >= maxp:
+                        break
+                    if ckpt is not None and ckpt.due():
+                        ckpt.save(entry, {"stage": "S2", "d": d, "i": i, "tried": tried,
+                                          "level": [_trace_json(t) for t, _g in level],
+                                          "nxt": [_trace_json(t) for t, _g in nxt],
+                                          "seen": sorted([list(x) for x in seen]), **self._tables()})
+                    for t2, g2 in self.successors(g, trace, entry, maxp - tried, focus=focus):
+                        key = (self.fp.get(g2) or self.m.fingerprint(g2), int(t2[-1].env.get("block.timestamp") or 0))
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        tried += 1
+                        st = self.entry_at(law, entry, g2, t2)
+                        if st is not None:
+                            self.log(f"  {entry}: witness at depth {d} after {tried} prefixes")
+                            return t2 + [st], "S2", f"S1+S2: {tried} distinct states (depth <= {depth})"
+                        nxt.append((t2, g2))
+                        if tried >= maxp:
+                            break
+                self.log(f"  {entry}: depth {d}: {tried} prefixes tried "
+                         f"({', '.join(sorted({t[-1].action for t, _g in nxt}))[:200]})")
+                level = nxt
+                if tried >= maxp or not level:
+                    break
+            bound = f"S1+S2: {tried} distinct states of at most {depth} successful steps (max {maxp}), no witness"
+            n3, oi0, p0, k0, i0, s3 = 0, 0, None, 0, 0, None
+        else:
+            bound = ck["bound"]
+            n3, oi0, p0, k0, i0 = int(ck["n3"]), int(ck["oi"]), int(ck["p"]), int(ck["k"]), int(ck["i"])
+            s3 = ck
+        # S3: the other entry points' witnesses (their prefixes: the last step dropped), one to `ins` successful steps
+        # inserted at every position (the end first), the rest of the prefix run again after them, then the entry
+        # point's step
+        olist = [(o, steps) for o, steps in sorted((others or {}).items()) if o != entry and steps]
+        names = ", ".join(o for o, _s in olist)
+        for oi, (other, steps) in enumerate(olist):
+            if oi < oi0:
                 continue
             base = steps[:-1]
-            g = self.m.s0()
+            hs = [g0]
             ok = True
-            hs = [g]
             for st in base:
-                code, g, _c = self.m.run_step(g, st, save=True)
+                code, g, _c = self.m.run_step(hs[-1], st, save=True)
                 hs.append(g)
                 ok &= code == 0
             if not ok:
                 continue
-            cands = [(base, g)]
-            frontier = [(base, g)]
-            for _k in range(ins):
-                new = []
-                for trace, gg in frontier:
-                    for t2, g2 in self.successors(gg, trace, entry, maxn - n3, focus=focus):
-                        new.append((t2, g2))
-                cands += new
-                frontier = new
-            for trace, gg in cands:
-                if n3 >= maxn:
-                    break
-                n3 += 1
-                st = self.entry_at(law, entry, gg, trace)
-                if st is not None:
-                    return trace + [st], "S3", bound + f"; S3: {n3} neighbourhood prefixes"
-        return None, "S3" if others else "S2", bound + (f"; S3: {n3} neighbourhood prefixes, no witness" if others
-                                                        else "")
+            for p in range(len(base), -1, -1):
+                if oi == oi0 and p0 is not None and p > p0:
+                    continue
+                resumed = s3 is not None and oi == oi0 and p == p0
+                if not resumed and p == len(base):
+                    # the prefix itself, its last step replaced by the entry point's
+                    if n3 >= maxn:
+                        break
+                    n3 += 1
+                    st = self.entry_at(law, entry, hs[-1], base)
+                    if st is not None:
+                        return base + [st], "S3", bound + f"; S3: {n3} neighbourhood prefixes ({names})"
+                level = [(base[:p], hs[p])]
+                kk0, ii0, nxt0 = 0, 0, []
+                if resumed:
+                    lv = [_step_list(t) for t in s3["level"]]
+                    kk0, ii0 = k0, i0
+                    level = [(t, None) for t in lv[:ii0]] + self._rebuild(lv[ii0:])
+                    nxt0 = self._rebuild([_step_list(t) for t in s3["nxt"]])
+                    s3 = None
+                for k in range(kk0, ins):
+                    nxt = nxt0 if k == kk0 else []
+                    for i, (trace, gg) in enumerate(level):
+                        if k == kk0 and i < ii0:
+                            continue
+                        if n3 >= maxn:
+                            break
+                        if ckpt is not None and ckpt.due():
+                            ckpt.save(entry, {"stage": "S3", "bound": bound, "tried": tried, "seen": [],
+                                              "n3": n3, "oi": oi, "p": p, "k": k, "i": i,
+                                              "level": [_trace_json(t) for t, _g in level],
+                                              "nxt": [_trace_json(t) for t, _g in nxt], **self._tables()})
+                        for t2, g2 in self.successors(gg, trace, entry, maxn - n3, focus=focus):
+                            nxt.append((t2, g2))
+                            full, g3 = self._tail(g2, t2, base[p:])
+                            if full is None:
+                                continue
+                            n3 += 1
+                            st = self.entry_at(law, entry, g3, full)
+                            if st is not None:
+                                return full + [st], "S3", bound + f"; S3: {n3} neighbourhood prefixes ({names})"
+                            if n3 >= maxn:
+                                break
+                    level = nxt
+                    ii0 = 0
+            p0 = None
+        return None, "S3" if olist else "S2", bound + (f"; S3: {n3} neighbourhood prefixes ({names}: one to {ins} "
+                                                       f"successful steps inserted at every position), no witness"
+                                                       if olist else "")
 
     def inhabit(self, law: dict) -> list | None:
         """A reachable trace whose last step reaches a hit (chit_<x>): the non-vacuity witness of a PROVED law."""
@@ -1029,6 +1158,44 @@ class Refuter:
                         nxt += self.successors(g, trace, entry, 40)
                 frontier = nxt
         return None
+
+
+def _trace_json(trace: list) -> list:
+    return [[st.action, st.args, st.env] for st in trace]
+
+
+def _step_list(t: list) -> list:
+    return [Step(a, args, env) for a, args, env in t]
+
+
+class Checkpoint:
+    """A search's progress on disk (holon run --resume: one file per entry point under a directory keyed by
+    everything the search depends on), written at most every `every` seconds and atomically."""
+
+    def __init__(self, d: Path, every: float = 300.0):
+        self.d = Path(d)
+        self.every = float(every)
+        self.t = time.time()
+
+    def path(self, entry: str) -> Path:
+        return self.d / f"{entry}.search.json"
+
+    def load(self, entry: str) -> dict | None:
+        p = self.path(entry)
+        return json.loads(p.read_text(encoding="utf-8")) if p.is_file() else None
+
+    def due(self) -> bool:
+        return time.time() - self.t >= self.every
+
+    def save(self, entry: str, data: dict) -> None:
+        self.d.mkdir(parents=True, exist_ok=True)
+        tmp = self.path(entry).with_suffix(".tmp")
+        tmp.write_text(json.dumps(data), encoding="utf-8")
+        os.replace(tmp, self.path(entry))
+        self.t = time.time()
+
+    def clear(self, entry: str) -> None:
+        self.path(entry).unlink(missing_ok=True)
 
 
 def settle(model_factory, steps: list, fns: list) -> tuple[dict, dict, list]:
