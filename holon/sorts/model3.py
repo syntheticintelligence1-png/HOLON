@@ -686,9 +686,9 @@ class Gen:
         plus a count, a time plus a duration), else the first its pair admits."""
         if not self.typed:
             return None
-        (ac, ak), (bc, bk) = a, b
+        (ac, ak), (bcode, bk) = a, b
         ta = self.typed_operand(ac, ak, None, "")
-        tb = self.typed_operand(bc, bk, None, "")
+        tb = self.typed_operand(bcode, bk, None, "")
         if ta is not None and tb is None and _is_lit(t[2]):
             tb = self.lit_operand(op, ta[1], t[2], first=False)
         elif tb is not None and ta is None and _is_lit(t[1]):
@@ -717,13 +717,13 @@ class Gen:
         return f"{self.T(c)}{{{wlit(lit)}}}", c
 
     def arith(self, op: str, t, sc):
-        (ac, ak), (bc, bk) = self.value(t[1], sc), self.value(t[2], sc)
-        tt = self.affine_operands(op, t, (ac, ak), (bc, bk))
+        (ac, ak), (bcode, bk) = self.value(t[1], sc), self.value(t[2], sc)
+        tt = self.affine_operands(op, t, (ac, ak), (bcode, bk))
         if tt is not None:
             return self.typed_affine(op, tt[0], tt[1], sc)
         ac2, ak2 = self.unsigned_kind(ac, ak)
-        bc2, bk2 = self.unsigned_kind(bc, bk)
-        a, b = self.to_w(ac2, ak2), self.to_w(bc2, bk2)
+        bcode2, bk2 = self.unsigned_kind(bcode, bk)
+        a, b = self.to_w(ac2, ak2), self.to_w(bcode2, bk2)
         return (f"w_add({a}, {b})" if op == "+" else f"w_sub({a}, {b})"), "w"
 
     def unsigned_kind(self, c: str, k: str):
@@ -756,16 +756,16 @@ class Gen:
         return c, s
 
     def typed_affine(self, op: str, a, b, sc):
-        (ac, asort), (bc, bsort) = a, b
+        (ac, asort), (bcode, bsort) = a, b
         ac, asort = self.erase(ac, asort)
-        bc, bsort = self.erase(bc, bsort)
+        bcode, bsort = self.erase(bcode, bsort)
         r = G.affine(op, asort, bsort)
         if r is None:
             raise GenError(f"{sc.action}: {asort} {op} {bsort} is ill-sorted (no typed operation)")
         name = f"{'add' if op == '+' else 'sub'}_{sname(asort)}_{sname(bsort)}"
         self.ops[name] = {"name": name, "op": op, "args": [asort, bsort], "result": r}
         self.T(asort), self.T(bsort), self.T(r)
-        return f"{name}({ac}, {bc})", "t:" + r
+        return f"{name}({ac}, {bcode})", "t:" + r
 
     def t_mul(self, t, sc):
         a, b = self.w(t[1], sc), self.w(t[2], sc)
@@ -829,9 +829,9 @@ class Gen:
         if not (isinstance(inner, list) and len(inner) == 3 and inner[0] in ("+", "-", "*")):
             raise GenError(f"{sc.action}: fits over {canonical(inner)[:80]}")
         op = inner[0]
-        (ac, ak), (bc, bk) = self.value(inner[1], sc), self.value(inner[2], sc)
+        (ac, ak), (bcode, bk) = self.value(inner[1], sc), self.value(inner[2], sc)
         if self.typed and op == "-" and n == 256:
-            tt = self.affine_operands("-", inner, (ac, ak), (bc, bk))
+            tt = self.affine_operands("-", inner, (ac, ak), (bcode, bk))
             if tt is not None:
                 dc, dk = self.typed_affine("-", tt[0], tt[1], sc)
                 ds = dk[2:]
@@ -841,7 +841,7 @@ class Gen:
                                                              "from": ds, "to": u}
                     return f"is_some_{tname(u)}(realize_{tname(ds)}({dc}))", "bool"
         a = self.to_w(*self.unsigned_kind(ac, ak))
-        b = self.to_w(*self.unsigned_kind(bc, bk))
+        b = self.to_w(*self.unsigned_kind(bcode, bk))
         if op == "+":
             ok, val = f"w_add_ok({a}, {b})", f"w_add({a}, {b})"
         elif op == "-":
@@ -854,19 +854,19 @@ class Gen:
 
     # comparisons and logic
     def compare(self, op: str, t, sc):
-        (ac, ak), (bc, bk) = self.value(t[1], sc), self.value(t[2], sc)
+        (ac, ak), (bcode, bk) = self.value(t[1], sc), self.value(t[2], sc)
         ta = self.typed_operand(ac, ak, t[1], bk)
-        tb = self.typed_operand(bc, bk, t[2], ak)
+        tb = self.typed_operand(bcode, bk, t[2], ak)
         if ta is not None and tb is not None:
-            (ac2, asort), (bc2, bsort) = self.erase(*ta), self.erase(*tb)
+            (ac2, asort), (bcode2, bsort) = self.erase(*ta), self.erase(*tb)
             if asort == bsort:
                 name = f"{_CMP_NAMES[op]}_{sname(asort)}_{sname(bsort)}"
                 self.ops[name] = {"name": name, "op": op, "args": [asort, bsort], "result": "Bool"}
                 self.T(asort)
-                return f"{name}({ac2}, {bc2})", "bool"
+                return f"{name}({ac2}, {bcode2})", "bool"
             raise GenError(f"{sc.action}: a comparison {asort} {op} {bsort} joins two base sorts")
         a = self.to_w(*self.unsigned_kind(ac, ak))
-        b = self.to_w(*self.unsigned_kind(bc, bk))
+        b = self.to_w(*self.unsigned_kind(bcode, bk))
         return _RAW_CMP[op](a, b), "bool"
 
     def t_eq(self, t, sc):
@@ -914,24 +914,24 @@ class Gen:
 
     def t_ite(self, t, sc):
         c = self.cond(t[1], sc)
-        (ac, ak), (bc, bk) = self.value(t[2], sc), self.value(t[3], sc)
+        (ac, ak), (bcode, bk) = self.value(t[2], sc), self.value(t[3], sc)
         ac, ak = self.unsigned_kind(ac, ak)
-        bc, bk = self.unsigned_kind(bc, bk)
+        bcode, bk = self.unsigned_kind(bcode, bk)
         if ak != bk:
             if ak.startswith("t:") and bk == "w" and isinstance(t[3], int):
-                bc, bk = f"{self.T(ak[2:])}{{{bc}}}", ak
+                bcode, bk = f"{self.T(ak[2:])}{{{bcode}}}", ak
             elif bk.startswith("t:") and ak == "w" and isinstance(t[2], int):
                 ac, ak = f"{self.T(bk[2:])}{{{ac}}}", bk
             elif {ak, bk} <= {"w", "bool"} or (ak.startswith("t:") or bk.startswith("t:")) and \
                     {ak[:2], bk[:2]} <= {"t:", "w", "bo"}:
-                ac, ak, bc, bk = self.to_w(ac, ak), "w", self.to_w(bc, bk), "w"
+                ac, ak, bcode, bk = self.to_w(ac, ak), "w", self.to_w(bcode, bk), "w"
             elif {ak, bk} <= {"w", "b"}:
-                ac, ak, bc, bk = self.to_bytes(ac, ak), "b", self.to_bytes(bc, bk), "b"
+                ac, ak, bcode, bk = self.to_bytes(ac, ak), "b", self.to_bytes(bcode, bk), "b"
             elif ak.startswith("v:") and bk.startswith("v:"):
                 pass
             else:
                 raise GenError(f"{sc.action}: a conditional over {ak} and {bk}")
-        return f"ite({self.bend_type(ak)}, {c}, {ac}, {bc})", ak
+        return f"ite({self.bend_type(ak)}, {c}, {ac}, {bcode})", ak
 
     # bytes, hashes, memory
     def t_len(self, t, sc):
@@ -2137,15 +2137,15 @@ class Ghost:
                 w = e["write"]
                 R = b["read"]
                 f = e["family"]
-                bc = _branch_cond(w["value"], R)
-                if bc is None:
+                bconds = _branch_cond(w["value"], R)
+                if bconds is None:
                     raise GenError(f"{e['law_id']}: the read is not a branch of the copy write")
                 if w.get("loop") is not None:
                     raise GenError(f"{e['law_id']}: a copy write inside a loop")
                 conds = [f"Bool.not(u_nz(gx_{ba}_cd(x)))"]
                 if w.get("cond", 1) not in (1, True):
                     conds.append(mm.cond(w["cond"], sc))
-                for ct, pol in bc:
+                for ct, pol in bconds:
                     cc = mm.cond(ct, sc)
                     conds.append(cc if pol else f"Bool.not({cc})")
                 hitc = conds[-1]
