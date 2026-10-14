@@ -708,6 +708,11 @@ class TestGenericCode(unittest.TestCase):
                                         if re.search(rf"(?<![A-Za-z0-9_]){re.escape(n)}(?![A-Za-z0-9_])", text)), [])
                 q = quoted - par_words if f.parent.name == "rules" and f.name in ("par.py", "__init__.py") else quoted
                 self.assertEqual(sorted(n for n in q if re.search(rf"[\"']{re.escape(n)}[\"']", text)), [])
+                # I30 (Z1) locates a sign site's realization check through holon.machine's check section of a
+                # holon-facts/0.3 document, whose key is "panics" (document structure, not a revert reason); those
+                # comparisons are exempt in holon/rules/sort.py only, any other "panic" still fails
+                if f.parent.name == "rules" and f.name == "sort.py":
+                    text = re.sub(r'(?<=\.section == )"panics"', "", text)
                 self.assertNotRegex(text, r"(?i)panic", "R8 reads the realization reasons from the sidecar only")
 
 
