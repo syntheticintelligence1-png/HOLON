@@ -749,7 +749,8 @@ def kw_get(xs: List<&2, KW>, +k: W) -> W:
         case KW{hk, hv}:
           ite(W, w_eq(hk, k), hv, kw_get(t, k))
 
-def kw_put(xs: List<&2, KW>, +k: W, +v: W, done: Bool) -> List<&2, KW>:
+# the first entry with key k takes v, every later one is kept (I30: stop at the first match); done: k was met
+def kw_put(xs: List<&2, KW>, +k: W, +v: W, +done: Bool) -> List<&2, KW>:
   match xs:
     case Nil{}:
       ite(List<&2, KW>, done, Nil{}, [KW{k, v}])
@@ -757,7 +758,7 @@ def kw_put(xs: List<&2, KW>, +k: W, +v: W, done: Bool) -> List<&2, KW>:
       match h:
         case KW{+hk, hv}:
           +eq = w_eq(hk, k)
-          Con{KW{hk, ite(W, eq, v, hv)}, kw_put(t, k, v, Bool.or(done, eq))}
+          Con{KW{hk, ite(W, Bool.and(eq, Bool.not(done)), v, hv)}, kw_put(t, k, v, Bool.or(done, eq))}
 
 def kw_set(xs: List<&2, KW>, +k: W, +v: W) -> List<&2, KW>:
   kw_put(xs, k, v, False{})
@@ -13918,7 +13919,7 @@ def gk_get(xs: List<&2, GKT>, +k: W) -> Tag:
         case GKT{hk, ht}:
           ite(Tag, w_eq(hk, k), ht, gk_get(t, k))
 
-def gk_put(xs: List<&2, GKT>, +k: W, +v: Tag, done: Bool) -> List<&2, GKT>:
+def gk_put(xs: List<&2, GKT>, +k: W, +v: Tag, +done: Bool) -> List<&2, GKT>:
   match xs:
     case Nil{}:
       ite(List<&2, GKT>, done, Nil{}, [GKT{k, v}])
@@ -13926,7 +13927,7 @@ def gk_put(xs: List<&2, GKT>, +k: W, +v: Tag, done: Bool) -> List<&2, GKT>:
       match h:
         case GKT{+hk, ht}:
           +eq = w_eq(hk, k)
-          Con{GKT{hk, ite(Tag, eq, v, ht)}, gk_put(t, k, v, Bool.or(done, eq))}
+          Con{GKT{hk, ite(Tag, Bool.and(eq, Bool.not(done)), v, ht)}, gk_put(t, k, v, Bool.or(done, eq))}
 
 def gk_set(xs: List<&2, GKT>, +k: W, +v: Tag) -> List<&2, GKT>:
   gk_put(xs, k, v, False{})
