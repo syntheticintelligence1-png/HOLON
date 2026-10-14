@@ -192,6 +192,8 @@ def main(argv=None) -> int:
     bd.add_argument("--milestone", default="M0")
     bd.add_argument("--root")
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
+    bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
+                                   "(or stays unbound)")
     orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
                                         "(the oracle sidecar's hypotheses, I12); both write results/M2/hypotheses.json")
     orc.add_argument("which", choices=["zero-blob", "check"])

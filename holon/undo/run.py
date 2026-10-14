@@ -212,8 +212,41 @@ class Decider:
         return [run3.step_json(tc.docm, st, fns) for st in steps]
 
     # ---------------------------------------------------------- search
-    def search(self, el: dict, tc: TraceCtx) -> tuple[dict | None, str]:
-        s = US.UndoSearch(tc.factory, tc.doc, self.ctx.sorts_of(tc.doc_rel), self.ctx.usc.search, log=self.ctx.log)
+    def search(self, el: dict, tc: TraceCtx, real=None) -> tuple[dict | None, str]:
+        """The model's search; with a real side, a witness counts only when, its external calls answered as the
+        deployment answers them (repair), the model still finds the law's function false at it (else the search goes
+        on). The accepted witness comes back repaired."""
+        accept, kept = None, {}
+        if real is not None:
+            def accept(w):
+                try:
+                    w2, _res = self.repair(real, tc, w)
+                except Exception as e:  # noqa: BLE001: a witness the real side cannot run is no witness
+                    self.ctx.log(f"  the real side cannot run the witness: {type(e).__name__}: {str(e)[:200]}")
+                    return False
+                if self.model_value(el, tc, w2) is not False:
+                    return False
+                kept["w"] = w2
+                return True
+        s = US.UndoSearch(tc.factory, tc.doc, self.ctx.sorts_of(tc.doc_rel), self.ctx.usc.search, log=self.ctx.log,
+                          accept=accept)
+        w, bound = self._search(s, el, tc)
+        return (kept.get("w", w) if w is not None else None), bound
+
+    def model_value(self, el: dict, tc: TraceCtx, w: dict):
+        """undo_<x> at the witness on the model (its prefix run from Reach's initial state with the steps' own
+        answers), or None when a prefix step does not succeed."""
+        m = tc.factory()
+        g = m.s0()
+        for st in w.get("prefix") or []:
+            code, g, _c = m.run_step(g, US.fresh_step(st), save=True)
+            if code != 0:
+                return None
+        x = U.ghost_x(el["law_id"])
+        r = US.Obs(m).settle({"fn": f"undo_{x}", "args": lambda: [{"$ref": g}] + list(self.args_of(el, w)(m, g))}, None)
+        return bool(r["out"])
+
+    def _search(self, s, el: dict, tc: TraceCtx) -> tuple[dict | None, str]:
         if el["subform"] == "pair":
             return s.pair(el)
         pls = {e["basis"]["a"]: e for e in tc.elements
@@ -301,15 +334,12 @@ class Decider:
         shutil.rmtree(self.paths(lid)["nonvac"].parent, ignore_errors=True)
         attempts = []
         t0 = time.time()
-        w, bound = self.search(el, tc)
+        w, bound = self.search(el, tc, real)
         attempts.append({"kind": "refute", "engine": "holon.undo.search", "budget": dict(ctx.usc.search),
                          "bound": bound, "found": w is not None})
         ctx.log(f"{lid}: {'witness' if w else 'no witness'} ({bound}) in {round(time.time() - t0, 1)} s")
         status, prim, wj, rep, diag = "UNKNOWN", None, None, None, None
         if w is not None:
-            res = None
-            if real is not None:
-                w, res = self.repair(real, tc, w)
             lp = self.write_law(law, tc, counter=True)
             p, checker, verdict, tables, val = self.emit_counter(el, law, tc, w)
             wj = self.witness_json(el, tc, w, tables)

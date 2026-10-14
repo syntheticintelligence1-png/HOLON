@@ -221,8 +221,13 @@ class Budget(Exception):
 
 
 class UndoSearch:
-    def __init__(self, model_f, doc: dict, sorts: dict, budget: dict, log=None):
+    """accept(w), when given, is asked about every witness the model gives (the caller's real-side check): a witness it
+    refuses is counted and the search goes on."""
+
+    def __init__(self, model_f, doc: dict, sorts: dict, budget: dict, log=None, accept=None):
         self.mf = model_f
+        self.accept = accept
+        self.refused = 0
         self.m = model_f()
         self.o = Obs(self.m)
         self.doc = doc
@@ -433,8 +438,18 @@ class UndoSearch:
                 return bend_view(oa) != bend_view(ob)
             t = self.continuations(s2, g, trace + [xs, ys], seeds, fams, keys, check)
             if t is not None:
-                return {"prefix": trace, "x": xs, "y": ys, "t": t}
+                w = {"prefix": trace, "x": xs, "y": ys, "t": t}
+                if self.accepted(w):
+                    return w
         return None
+
+    def accepted(self, w: dict) -> bool:
+        if self.accept is None or self.accept(w):
+            return True
+        self.refused += 1
+        self.log(f"  the witness ({w['x'].action}, {w['y'].action}, t {[s.action for s in w['t']]}) is refused by "
+                 f"the real-side check ({self.refused} refused)")
+        return False
 
     # ---------------------------------------------------------- the residue
     def residue(self, e: dict, pair_laws: dict) -> tuple[dict | None, str]:
@@ -455,7 +470,7 @@ class UndoSearch:
     def residue_witness(self, e, pl, a, trace, g, fams):
         for xs, ys, s2 in self.pairs_at(pl, trace, g):
             w = self.residue_at(e, a, trace, g, fams, xs, ys, s2)
-            if w is not None:
+            if w is not None and self.accepted(w):
                 return w
         return None
 
@@ -509,7 +524,7 @@ class UndoSearch:
                         self.log(f"  witness at prefix depth {d} after {tried} states, {self.cands} candidates "
                                  f"({round(time.time() - t0, 1)} s)")
                         return w, (f"{tried} prefix states (depth <= {depth}, max {maxp}), {self.cands} candidates "
-                                   f"(max {self.max_cands})")
+                                   f"(max {self.max_cands})" + self.refused_note())
                     if d == depth:
                         continue
                     for t2, g2 in self.ref.successors(g, trace, entry, maxp - tried):
@@ -528,6 +543,11 @@ class UndoSearch:
                 if not level:
                     break
         except Budget:
-            return None, (f"the candidate budget ({self.max_cands}) ran out after {tried} prefix states; no witness")
+            return None, (f"the candidate budget ({self.max_cands}) ran out after {tried} prefix states; no witness"
+                          + self.refused_note())
         return None, (f"{tried} prefix states of at most {depth} successful steps (max {maxp}), {self.cands} "
-                      f"candidates (max {self.max_cands}), continuations of at most {self.cont_depth} steps: no witness")
+                      f"candidates (max {self.max_cands}), continuations of at most {self.cont_depth} steps: no witness"
+                      + self.refused_note())
+
+    def refused_note(self) -> str:
+        return f"; {self.refused} model witnesses refused by the real-side check" if self.refused else ""

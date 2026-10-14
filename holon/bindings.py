@@ -41,7 +41,8 @@ Files:
                                     them; its kernel form is the typed model followed by the trace section unqualified,
                                     and its roots are the M. and U. references of its statement
   spec/bindings/changes.jsonl       append-only log of every write: creations and accepted changes
-`python -m holon bind` writes a missing bindings file (logging the creation). On an existing one it adds the
+`python -m holon bind` writes a missing bindings file (logging the creation); with --laws it (re)binds only the laws named
+and keeps every other law's binding as it is. On an existing one it adds the
 bindings of new laws and drops those of laws no longer in laws/<m>, but it changes the binding of an existing law
 only through the statement lifecycle (I10; audit F-M2-09): every changed law needs an accepted entry of
 laws/STATEMENT_DIFF.jsonl (holon.statement_diff.scan) for exactly that law and its current statement, either a
@@ -507,6 +508,14 @@ def main_bind(args) -> int:
         print(f"wrote {p.relative_to(root)}: {len(new['laws'])} laws bound (logged in {CHANGES})")
         return 0
     old = json.loads(p.read_text())
+    only = [x.strip() for x in (getattr(args, "laws", None) or "").split(",") if x.strip()]
+    if only:   # rebind only these laws: every other law keeps its current binding, or stays unbound
+        unknown = sorted(set(only) - set(new["laws"]))
+        if unknown:
+            print(f"--laws names laws that are not laws of {m}: {unknown}", file=sys.stderr)
+            return 1
+        keep = {lid: x for lid, x in old.get("laws", {}).items() if lid not in only}
+        new = {**new, "laws": dict(sorted({**keep, **{lid: new["laws"][lid] for lid in only}}.items()))}
     laws, defs, msgs = diff(old, new)
     if not laws:
         print(f"{p.relative_to(root)}: bindings unchanged")
