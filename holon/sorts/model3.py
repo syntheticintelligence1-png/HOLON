@@ -2014,10 +2014,11 @@ class Ghost:
         out.append("def gk_get(xs: List<&2, GKT>, +k: W) -> Tag:\n  match xs:\n    case Nil{}:\n      TG_bot{}\n"
                    "    case Con{h, t}:\n      match h:\n        case GKT{hk, ht}:\n"
                    "          ite(Tag, w_eq(hk, k), ht, gk_get(t, k))\n")
-        out.append("def gk_put(xs: List<&2, GKT>, +k: W, +v: Tag, done: Bool) -> List<&2, GKT>:\n  match xs:\n"
+        out.append("def gk_put(xs: List<&2, GKT>, +k: W, +v: Tag, +done: Bool) -> List<&2, GKT>:\n  match xs:\n"
                    "    case Nil{}:\n      ite(List<&2, GKT>, done, Nil{}, [GKT{k, v}])\n    case Con{h, t}:\n"
                    "      match h:\n        case GKT{+hk, ht}:\n          +eq = w_eq(hk, k)\n"
-                   "          Con{GKT{hk, ite(Tag, eq, v, ht)}, gk_put(t, k, v, Bool.or(done, eq))}\n")
+                   "          Con{GKT{hk, ite(Tag, Bool.and(eq, Bool.not(done)), v, ht)}, "
+                   "gk_put(t, k, v, Bool.or(done, eq))}\n")
         out.append("def gk_set(xs: List<&2, GKT>, +k: W, +v: Tag) -> List<&2, GKT>:\n  gk_put(xs, k, v, False{})\n")
         fs = [("st", "HSt")] + [(self.comp(f), self.comp_type(f)[0]) for f in self.regs]
         out.append("# the augmented state: the real store and the generated companion of every union register (G1)\n"

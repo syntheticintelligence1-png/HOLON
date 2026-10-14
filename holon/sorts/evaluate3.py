@@ -80,6 +80,13 @@ def records(text: str) -> dict:
     return out
 
 
+def hashes_of(text: str) -> list[str]:
+    """The hash tables a model text's steps take as parameters (its law's hash binders): keccak256, sha256."""
+    sig = re.search(r"(?m)^def run_\w+\(\+st: HSt, \+ar: \w+, \+en: HEnv(.*)\) -> HOut:", text)
+    hs = sig.group(1) if sig else ""
+    return [h for h, n in (("keccak256", "+kh"), ("sha256", "+sh")) if n in hs]
+
+
 @dataclass
 class Run:
     out: dict
@@ -281,9 +288,7 @@ class Evaluator:
 
     # ---------------------------------------------------------- runs
     def hashes(self) -> list[str]:
-        sig = re.search(r"(?m)^def run_\w+\(\+st: HSt, \+ar: \w+, \+en: HEnv(.*)\) -> HOut:", self.text)
-        hs = sig.group(1) if sig else ""
-        return [h for h, n in (("keccak256", "+kh"), ("sha256", "+sh")) if n in hs]
+        return hashes_of(self.text)
 
     def run(self, action: str, state: dict, args: dict, env: dict, kh: dict | None = None,
             sh: dict | None = None) -> Run:

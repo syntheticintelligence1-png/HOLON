@@ -20,7 +20,11 @@ keeps a reusable binder off every list it recurses on (a table, a slot map, the 
 walked once per element), binds a variable inside the match arm that uses it (bend2 makes a variable used in two arms
 reusable), and builds bytes and limbs bit by bit (u8, u_b4, u_be4w: a byte is 8 bits of a U32, not a 24-place shift).
 Word addition skips the U32 adder on a zero limb and adds a carry with U32.inc; lengths count with U32.inc; word
-equality stops at the first differing limb. Every definition computes the value the I30 prelude computed.
+equality stops at the first differing limb. Every definition computes the value the I30 prelude computed, on every
+input and not only on the states a run reaches: in particular kw_set (and model3's gk_set) gives the first entry whose
+key equals k the value v and keeps every other entry, a later entry with the same key included, as I30's kw_set, which
+stopped at the first match (the A30 kw_put carries `done` through the rest of the list instead of stopping, so that
+no list is bound twice); a key no entry holds is appended at the end. h_get and kw_get answer the first entry's value.
 """
 from __future__ import annotations
 
@@ -526,7 +530,8 @@ def kw_get(xs: List<&2, KW>, +k: W) -> W:
         case KW{hk, hv}:
           ite(W, w_eq(hk, k), hv, kw_get(t, k))
 
-def kw_put(xs: List<&2, KW>, +k: W, +v: W, done: Bool) -> List<&2, KW>:
+# the first entry with key k takes v, every later one is kept (I30: stop at the first match); done: k was met
+def kw_put(xs: List<&2, KW>, +k: W, +v: W, +done: Bool) -> List<&2, KW>:
   match xs:
     case Nil{}:
       ite(List<&2, KW>, done, Nil{}, [KW{k, v}])
@@ -534,7 +539,7 @@ def kw_put(xs: List<&2, KW>, +k: W, +v: W, done: Bool) -> List<&2, KW>:
       match h:
         case KW{+hk, hv}:
           +eq = w_eq(hk, k)
-          Con{KW{hk, ite(W, eq, v, hv)}, kw_put(t, k, v, Bool.or(done, eq))}
+          Con{KW{hk, ite(W, Bool.and(eq, Bool.not(done)), v, hv)}, kw_put(t, k, v, Bool.or(done, eq))}
 
 def kw_set(xs: List<&2, KW>, +k: W, +v: W) -> List<&2, KW>:
   kw_put(xs, k, v, False{})
