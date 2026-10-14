@@ -97,6 +97,7 @@ class Evaluator:
     env_keys: dict = field(default_factory=dict)
     proc: object = None
     checks: dict = field(default_factory=dict)
+    starts: int = 0                  # node processes started (a restart forgets the native tables: holon.sorts.search3)
 
     @classmethod
     def build(cls, model_path, doc) -> "Evaluator":
@@ -128,6 +129,7 @@ class Evaluator:
     def start(self) -> None:
         from .. import bend
         node = bend.config().get("node", "node")
+        self.starts += 1
         self.proc = subprocess.Popen([node, "--stack-size=65500", str(DRIVER), str(self.compiled())],
                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
                                      bufsize=1)

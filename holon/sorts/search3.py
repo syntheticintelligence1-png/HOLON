@@ -127,7 +127,9 @@ class Hints:
 class Model:
     """The compiled model of one document with its initial state, as a refuter drives it (stored state handles)."""
 
-    def __init__(self, ev, init: dict, hints: Hints, doc_path: Path):
+    _ids = 0
+
+    def __init__(self, ev, init: dict, hints: Hints, doc_path: Path, native: bool = True):
         self.ev = ev
         self.doc = ev.doc                 # holon.machine.ExtractedModel
         self.init = init or {}
@@ -139,6 +141,14 @@ class Model:
         self.n = 0
         self.last_learned: list = []
         self.hashes = ev.hashes()
+        # (A30) native tables: the evaluator looks the hash tables up in its own maps, kept equal to kh and sh by
+        # difference (holon/js/eval3.mjs), instead of receiving and scanning them as Bend lists; the lookups answer
+        # what the model's h_get answers on kh and sh
+        self.native = native
+        Model._ids += 1
+        self.tid = f"m{Model._ids}"       # this model's maps in the evaluator (models share a node process)
+        self.synced: dict = {"kh": {}, "sh": {}}
+        self.memo: dict = {}              # (action, args) -> (calldata, the args' encoding)
         self.base_env = {"this": self.init.get("target") or "0x" + "00" * 19 + "ab",
                          "immutable": dict(self.init.get("immutables") or {}),
                          "block.number": self.init.get("number") or 1, "block.chainid": self.init.get("chainid") or 1}
@@ -159,7 +169,39 @@ class Model:
     def _sig(tab: dict) -> tuple:
         return (len(tab), hash(frozenset(tab)))
 
+    def tsync(self) -> dict | None:
+        """The changes of kh and sh since the evaluator's native maps were last synced (None: none)."""
+        out = {}
+        for name, tab in (("kh", self.kh), ("sh", self.sh)):
+            have = self.synced[name]
+            if len(have) == len(tab) and all(k in have for k in tab):
+                continue
+            add = sorted(k for k in tab if k not in have)
+            dele = sorted(k for k in have if k not in tab)
+            out[name] = {"add": [[k, "0x%064x" % tab[k]] for k in add], "del": dele}
+            for k in add:
+                have[k] = tab[k]
+            for k in dele:
+                del have[k]
+        return out or None
+
+    def mreq(self, request: dict) -> dict:
+        """An evaluation of the model with the hash tables kh and sh as they stand."""
+        if self.native:
+            if self.ev.proc is None or self.ev.proc.poll() is not None:
+                self.ev.start()
+            if getattr(self, "_starts", None) != self.ev.starts:   # a new node process: its maps are empty
+                self.synced = {"kh": {}, "sh": {}}
+                self._starts = self.ev.starts
+            request = dict(request, native=self.tid)
+            d = self.tsync()
+            if d:
+                request["tsync"] = d
+        return self.ev.req(request)
+
     def tables(self) -> list:
+        if self.native:
+            return [[] for h in ("keccak256", "sha256") if h in self.hashes]   # unused: the native maps answer
         out = []
         if "keccak256" in self.hashes:
             if self.kh_sent != self._sig(self.kh):
@@ -183,16 +225,27 @@ class Model:
             self._s0 = "G0"
         return self._s0
 
+    def _enc(self, st: Step) -> tuple[str, dict]:
+        """(calldata, the model's argument record) of a step's action and arguments, memoized (A30: a candidate's
+        arguments are encoded once, not at every evaluation of its fixpoint)."""
+        key = (st.action, json.dumps(st.args, sort_keys=True, default=str))
+        hit = self.memo.get(key)
+        if hit is None:
+            if len(self.memo) >= 50000:
+                self.memo.clear()
+            a = self.doc.actions[st.action]
+            ps = self.doc.params(st.action) or []
+            vals = [EV.norm(st.args.get(p["name"]), p) for p in ps]
+            hit = ((a.get("selector") or "0x") + EV.abi_encode(vals, ps).hex(), self.ev.args_in(st.action, st.args))
+            self.memo[key] = hit
+        return hit
+
     def calldata(self, st: Step) -> str:
-        a = self.doc.actions[st.action]
-        ps = self.doc.params(st.action) or []
-        vals = [EV.norm(st.args.get(p["name"]), p) for p in ps]
-        return (a.get("selector") or "0x") + EV.abi_encode(vals, ps).hex()
+        return self._enc(st)[0]
 
     def act(self, st: Step) -> dict:
         env = self.full_env(st)
-        return {"$r": f"A_{bname(st.action)}", "f": {"ar": self.ev.args_in(st.action, st.args),
-                                                       "en": self.ev.env_in(env)}}
+        return {"$r": f"A_{bname(st.action)}", "f": {"ar": self._enc(st)[1], "en": self.ev.env_in(env)}}
 
     def full_env(self, st: Step) -> dict:
         env = dict(self.base_env)
@@ -225,7 +278,7 @@ class Model:
         for _ in range(40):
             tabs = self.tables()
             a = self.act(st)
-            r = self.ev.req({"fn": f"chk_{bname(st.action)}",
+            r = self.mreq({"fn": f"chk_{bname(st.action)}",
                              "args": [{"$call": "gh_get_st", "args": [{"$ref": g}]}, a["f"]["ar"], a["f"]["en"]] + tabs})
             new = self.learn(r)
             calls = r.get("calls") or []
@@ -236,7 +289,7 @@ class Model:
             name = None
             if save:
                 name = self.fresh()
-                r2 = self.ev.req({"fn": "gh_step", "args": [a, {"$ref": g}] + tabs, "save": name, "quiet": True})
+                r2 = self.mreq({"fn": "gh_step", "args": [a, {"$ref": g}] + tabs, "save": name, "quiet": True})
                 if self.learn(r2):
                     continue
             return code, name, calls
@@ -281,7 +334,7 @@ class Model:
     def _pred(self, fn: str, g: str, st: Step) -> bool:
         for _ in range(40):
             tabs = self.tables()
-            r = self.ev.req({"fn": fn, "args": [self.act(st), {"$ref": g}] + tabs})
+            r = self.mreq({"fn": fn, "args": [self.act(st), {"$ref": g}] + tabs})
             if self.learn(r) or self.answer_calls(st, r.get("calls") or []):
                 continue
             return bool(r["out"])
@@ -1203,7 +1256,7 @@ def trace_states(model_factory, steps: list, kh: dict, sh: dict) -> list:
     fresh model with exactly the witness's hash tables: the literal states of its counter-law (holon.sorts.proofs3).
     A step that would look up a key outside the tables is an error (the tables are settle's fixpoint)."""
     steps = [Step(st.action, st.args, json.loads(json.dumps(st.env))) for st in steps]
-    m = model_factory(empty=True)
+    m = model_factory(empty=True, native=False)
     m.kh, m.sh = dict(kh), dict(sh)
     m.kh_sent = m.sh_sent = -1
     g = m.s0()
@@ -1223,7 +1276,7 @@ def settle(model_factory, steps: list, fns: list) -> tuple[dict, dict, list]:
     not a candidate's: run_step(save=False) and pred would forget them), and the fixpoint runs on copies of the steps,
     so a call it looks up on the way (with a table not yet complete) never adds an answer to the witness."""
     steps = [Step(st.action, st.args, json.loads(json.dumps(st.env))) for st in steps]
-    m = model_factory(empty=True)
+    m = model_factory(empty=True, native=False)
     g = m.s0()
     codes = []
     for st in steps[:-1]:

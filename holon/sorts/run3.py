@@ -157,11 +157,11 @@ class Ctx:
         hp = self.root / "results" / self.m / "sorts" / "refinement" / "hints.json"
         hints = S3.Hints(json.loads(hp.read_text()) if hp.is_file() else None)
 
-        def factory(empty: bool = False):
+        def factory(empty: bool = False, native: bool = True):
             i = dict(init)
             if empty:
                 i["preimages"] = []
-            return S3.Model(ev, i, hints, self.root / doc_rel)
+            return S3.Model(ev, i, hints, self.root / doc_rel, native=native)
         self.models[doc_rel] = (ev, init, factory, mm, doc)
         return self.models[doc_rel]
 
