@@ -1,0 +1,691 @@
+{
+  "binding": "replay/M2/fragments.json",
+  "by_action": {
+    "addChallenger": {
+      "ok": 0,
+      "revert": 10
+    },
+    "batchChallengedSuccess": {
+      "ok": 0,
+      "revert": 4
+    },
+    "batchExist": {
+      "ok": 0,
+      "revert": 4
+    },
+    "batchInChallenge": {
+      "ok": 0,
+      "revert": 4
+    },
+    "batchInsideChallengeWindow": {
+      "ok": 0,
+      "revert": 4
+    },
+    "challengeState": {
+      "ok": 140,
+      "revert": 67
+    },
+    "claimProveRemaining": {
+      "ok": 0,
+      "revert": 8
+    },
+    "claimReward": {
+      "ok": 0,
+      "revert": 8
+    },
+    "commitBatch": {
+      "ok": 796,
+      "revert": 407
+    },
+    "commitBatchWithProof": {
+      "ok": 18,
+      "revert": 256
+    },
+    "commitState": {
+      "ok": 36,
+      "revert": 360
+    },
+    "finalizeBatch": {
+      "ok": 12,
+      "revert": 263
+    },
+    "importGenesisBatch": {
+      "ok": 0,
+      "revert": 8
+    },
+    "initialize": {
+      "ok": 0,
+      "revert": 12
+    },
+    "initialize2": {
+      "ok": 0,
+      "revert": 6
+    },
+    "initialize3": {
+      "ok": 0,
+      "revert": 6
+    },
+    "initialize4": {
+      "ok": 0,
+      "revert": 8
+    },
+    "isBatchFinalized": {
+      "ok": 0,
+      "revert": 4
+    },
+    "owner": {
+      "ok": 0,
+      "revert": 2
+    },
+    "paused": {
+      "ok": 0,
+      "revert": 2
+    },
+    "proveCommittedBatchState": {
+      "ok": 0,
+      "revert": 14
+    },
+    "proveState": {
+      "ok": 10,
+      "revert": 142
+    },
+    "removeChallenger": {
+      "ok": 0,
+      "revert": 10
+    },
+    "renounceOwnership": {
+      "ok": 0,
+      "revert": 4
+    },
+    "revertBatch": {
+      "ok": 73,
+      "revert": 40
+    },
+    "setPause": {
+      "ok": 199,
+      "revert": 24
+    },
+    "transferOwnership": {
+      "ok": 0,
+      "revert": 10
+    },
+    "updateFinalizePeriodSeconds": {
+      "ok": 0,
+      "revert": 8
+    },
+    "updateProofWindow": {
+      "ok": 0,
+      "revert": 8
+    },
+    "updateRewardPercentage": {
+      "ok": 0,
+      "revert": 8
+    },
+    "updateRollupDelayPeriod": {
+      "ok": 0,
+      "revert": 8
+    },
+    "updateVerifier": {
+      "ok": 0,
+      "revert": 10
+    }
+  },
+  "command": "HOLON_STEPS_IN=<chunk>.json HOLON_STEPS_OUT=<chunk>.out HOLON_LO=0 HOLON_HI=<n> forge test --match-contract '^HolonExtractedStepTest$' --match-test '^test_steps\\(\\)$' --offline --use <solc 0.8.24>  # per chunk of about 400 steps",
+  "corpus": {
+    "boundary": 245,
+    "inputs_sha256": "30a8a53d6925b6e3fbce7982e2d05f884a9716009374861e178a2784a3ecddf2",
+    "m1": 300,
+    "m1_seed": 20261011,
+    "suffix": 156,
+    "target": 352,
+    "witness": 4
+  },
+  "disagreements": [],
+  "evaluator": "gen/M3/sorts/models/morph_rollup.extracted.bend",
+  "evaluator_sha256": "280889df4813146094451c406c1b2859265d21827cc51f0311c154832342b011",
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "guard_coverage": {
+    "falsified": 209,
+    "reaches": 329,
+    "unfalsified": [
+      {
+        "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 304 step 6: model revert [\"error\", \"incorrect batch hash\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:477#0, real revert [\"error\", \"incorrect batch hash\"]; trace 305 step 7: model revert [\"error\", \"incorrect batch hash\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:477#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:478#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 306 step 3: model revert [\"error\", \"already in challenge\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0, real revert [\"error\", \"already in challenge\"]; trace 307 step 6: model revert [\"error\", \"already in challenge\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0, real revert [\"error\", \"already in challenge\"]"
+      },
+      {
+        "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:479#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 308 step 3: model revert [\"error\", \"already in challenge\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0, real revert [\"error\", \"already in challenge\"]; trace 309 step 6: model revert [\"error\", \"already in challenge\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0, real revert [\"error\", \"already in challenge\"]"
+      },
+      {
+        "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:483#0",
+        "reason": "stated bound: 70 base calls of the translation run, 0 candidates (single-atom mutations of callok ISubmitter.challengeDeposit, storage submitterContract); no atom the corpus changes; no successful corpus call of an action writing its storage atoms (initialize, initialize4)"
+      },
+      {
+        "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 310 step 11: model revert [\"error\", \"batch already finalized\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:476#0, real revert [\"error\", \"batch already finalized\"]; trace 311 step 6: model revert [\"error\", \"batch already finalized\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:476#0, real revert [\"error\", \"batch already finalized\"]"
+      },
+      {
+        "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:491#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 312 step 3: model revert [\"error\", \"already in challenge\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0, real revert [\"error\", \"already in challenge\"]; trace 313 step 6: model revert [\"error\", \"already in challenge\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0, real revert [\"error\", \"already in challenge\"]"
+      },
+      {
+        "id": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:489#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 314 step 4: model revert [\"error\", \"incorrect batch hash\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:477#0, real revert [\"error\", \"incorrect batch hash\"]; trace 315 step 7: model revert [\"error\", \"incorrect batch hash\"] at challengeState#contracts/contracts/l1/rollup/Rollup.sol:477#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:817#0",
+        "reason": "stated bound: 48 base calls of the translation run, 480 candidates (single-atom mutations of call address.call, param receiver, storage proveRemaining); an earlier reach fails first on 400 (reach 3); it holds on 80"
+      },
+      {
+        "id": "claimReward#contracts/contracts/l1/rollup/Rollup.sol:817#0",
+        "reason": "stated bound: 48 base calls of the translation run, 720 candidates (single-atom mutations of call address.call, caller, param receiver, storage batchChallengeReward); an earlier reach fails first on 720 (reach 3)"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 0 step 235: model ok, real ok; trace 0 step 236: model revert [\"error\", \"only active submitter allowed\"] at commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#1, real revert [\"error\", \"only active submitter allowed\"]"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 316 step 6: model revert [\"error\", \"commitBatch requires no stored blob hash\"] at commitBatch#contracts/contracts/l1/rollup/Rollup.sol:261#0, real revert [\"error\", \"commitBatch requires no stored blob hash\"]; trace 317 step 7: model revert [\"error\", \"commitBatch requires no stored blob hash\"] at commitBatch#contracts/contracts/l1/rollup/Rollup.sol:261#0, real revert [\"error\", \"commitBatch requires no stored blob hash\"]"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "reason": "stated bound: 879 base calls of the translation run, 905 candidates (single-atom mutations of param batchDataInput, param batchDataInput.parentBatchHeader); an earlier reach fails first on 48 (reach 5); it holds on 857; no successful corpus call of an action writing its storage atoms (no writer)"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:260#0",
+        "reason": "stated bound: 879 base calls of the translation run, 905 candidates (single-atom mutations of param batchDataInput, param batchDataInput.parentBatchHeader); an earlier reach fails first on 48 (reach 5), 82 (reach 7), 124 (reach 8), 96 (reach 9); it holds on 555; no successful corpus call of an action writing its storage atoms (no writer)"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:263#0",
+        "reason": "stated bound: 879 base calls of the translation run, 0 candidates (single-atom mutations of callok IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime, storage messageQueue); no atom the corpus changes; no successful corpus call of an action writing its storage atoms (initialize)"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:263#1",
+        "reason": "stated bound: 879 base calls of the translation run, 0 candidates (single-atom mutations of call IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime, storage rollupDelayPeriod); no atom the corpus changes; no successful corpus call of an action writing its storage atoms (initialize3, updateRollupDelayPeriod)"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:913#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 0 step 240: model ok, real ok; trace 0 step 252: model ok, real ok"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 318 step 4: model ok, real ok; trace 319 step 7: model ok, real ok"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 320 step 4: model ok, real ok; trace 321 step 7: model ok, real ok"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 322 step 4: model ok, real ok; trace 323 step 7: model ok, real ok"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 324 step 4: model ok, real ok; trace 325 step 7: model ok, real ok"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 326 step 4: model ok, real ok; trace 327 step 7: model ok, real ok"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:311#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 328 step 4: model ok, real ok; trace 329 step 7: model ok, real ok"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:311#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 330 step 4: model ok, real ok; trace 331 step 7: model ok, real ok"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+        "reason": "stated bound: 879 base calls of the translation run, 639 candidates (single-atom mutations of param batchDataInput, param batchDataInput.lastBlockNumber, param batchDataInput.version); an earlier reach fails first on 96 (reach 16), 144 (reach 19), 86 (reach 32); it holds on 222; 91 undecided by the term evaluator (0 of them run); no successful corpus call of an action writing its storage atoms (no writer)"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 334 step 3: model ok, real ok; trace 335 step 6: model revert [\"error\", \"commitBatch requires no stored blob hash\"] at commitBatch#contracts/contracts/l1/rollup/Rollup.sol:261#0, real revert [\"error\", \"commitBatch requires no stored blob hash\"]"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 336 step 3: model ok, real ok; trace 337 step 6: model revert [\"error\", \"commitBatch requires no stored blob hash\"] at commitBatch#contracts/contracts/l1/rollup/Rollup.sol:261#0, real revert [\"error\", \"commitBatch requires no stored blob hash\"]"
+      },
+      {
+        "id": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 338 step 3: model ok, real ok; trace 339 step 6: model revert [\"error\", \"commitBatch requires no stored blob hash\"] at commitBatch#contracts/contracts/l1/rollup/Rollup.sol:261#0, real revert [\"error\", \"commitBatch requires no stored blob hash\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 340 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 341 step 7: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:389#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 342 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 343 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393#0",
+        "reason": "stated bound: 131 base calls of the translation run, 0 candidates (single-atom mutations of callok IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime, storage messageQueue); no atom the corpus changes; no successful corpus call of an action writing its storage atoms (initialize)"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:393-394#0",
+        "reason": "stated bound: 131 base calls of the translation run, 0 candidates (single-atom mutations of call IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime, storage rollupDelayPeriod); no atom the corpus changes; no successful corpus call of an action writing its storage atoms (initialize3, updateRollupDelayPeriod)"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 344 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 345 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:403#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 346 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 347 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:913#0",
+        "reason": "4 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 5 step 75: model revert [\"error\", \"incorrect batch hash\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:418#0, real revert [\"error\", \"incorrect batch hash\"]; trace 9 step 7: model revert [\"error\", \"incorrect batch hash\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:418#0, real revert [\"error\", \"incorrect batch hash\"]; trace 348 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"] (and 1 more)"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:293#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 350 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 351 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 352 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 353 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 354 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 355 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 356 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 357 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 358 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 359 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 360 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 361 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:311#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 362 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 363 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:311#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 364 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 365 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 368 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 369 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 370 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 371 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 372 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 373 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:826#2",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 374 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 375 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#2",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 376 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 377 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 382 step 3: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]; trace 383 step 6: model revert [\"error\", \"invalid timing\"] at commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:400#0, real revert [\"error\", \"invalid timing\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 0 step 170: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 0 step 171: model revert [\"error\", \"only active submitter allowed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:120#1, real revert [\"error\", \"only active submitter allowed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 384 step 6: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]; trace 385 step 7: model revert [\"error\", \"only active submitter allowed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:120#1, real revert [\"error\", \"only active submitter allowed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "reason": "stated bound: 225 base calls of the translation run, 904 candidates (single-atom mutations of param batchDataInput, param batchDataInput.parentBatchHeader); an earlier reach fails first on 48 (reach 7); it holds on 856; no successful corpus call of an action writing its storage atoms (no writer)"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:278#0",
+        "reason": "stated bound: 225 base calls of the translation run, 904 candidates (single-atom mutations of param batchDataInput, param batchDataInput.parentBatchHeader); an earlier reach fails first on 48 (reach 7), 74 (reach 9), 140 (reach 10), 96 (reach 11); it holds on 546; no successful corpus call of an action writing its storage atoms (no writer)"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:281#0",
+        "reason": "stated bound: 225 base calls of the translation run, 0 candidates (single-atom mutations of callok IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime, storage messageQueue); no atom the corpus changes; no successful corpus call of an action writing its storage atoms (initialize)"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:281#1",
+        "reason": "stated bound: 225 base calls of the translation run, 0 candidates (single-atom mutations of call IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime, storage rollupDelayPeriod); no atom the corpus changes; no successful corpus call of an action writing its storage atoms (initialize3, updateRollupDelayPeriod)"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:825#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 386 step 4: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 387 step 7: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:826#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 388 step 4: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 389 step 7: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 390 step 4: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 391 step 7: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 392 step 4: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 393 step 7: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:844#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 394 step 4: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 395 step 7: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:311#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 396 step 4: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 397 step 7: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:312#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 398 step 4: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 399 step 7: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:354#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 402 step 4: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 403 step 7: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 404 step 3: model revert [\"error\", \"only active submitter allowed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:120#1, real revert [\"error\", \"only active submitter allowed\"]; trace 405 step 6: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:368#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 406 step 4: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]; trace 407 step 7: model revert [\"error\", \"batch already committed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:311#1, real revert [\"error\", \"batch already committed\"]"
+      },
+      {
+        "id": "commitState#contracts/contracts/l1/rollup/Rollup.sol:368#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 408 step 3: model revert [\"error\", \"only active submitter allowed\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:120#1, real revert [\"error\", \"only active submitter allowed\"]; trace 409 step 6: model revert [\"error\", \"no stored blob hash for this batch\"] at commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0, real revert [\"error\", \"no stored blob hash for this batch\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 410 step 6: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]; trace 411 step 7: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "reason": "stated bound: 115 base calls of the translation run, 1327 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 48 (reach 4); it holds on 1279; no successful corpus call of an action writing its storage atoms (no writer)"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:630#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 412 step 3: model revert [\"error\", \"batch in challenge\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:631#0, real revert [\"error\", \"batch in challenge\"]; trace 413 step 6: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:635-638#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 416 step 4: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]; trace 417 step 7: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:640#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 418 step 4: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]; trace 419 step 7: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:643#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 420 step 4: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]; trace 421 step 7: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:749#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 422 step 4: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]; trace 423 step 7: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:657#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 424 step 4: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]; trace 425 step 7: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:658#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 426 step 4: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]; trace 427 step 7: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:659#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 428 step 4: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]; trace 429 step 7: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:660#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 430 step 4: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]; trace 431 step 7: model revert [\"error\", \"incorrect batch hash\"] at finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:233#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:235#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:237#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:238#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:239#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1344 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 1120 (reach 2), 224 (reach 3)"
+      },
+      {
+        "id": "initialize#contracts/contracts/l1/rollup/Rollup.sol:169#0",
+        "reason": "stated bound: 48 base calls of the translation run, 912 candidates (single-atom mutations of param _messageQueue, param _verifier); 912 undecided by the term evaluator (0 of them run)"
+      },
+      {
+        "id": "initialize#contracts/contracts/l1/rollup/Rollup.sol:171#0",
+        "reason": "stated bound: 48 base calls of the translation run, 480 candidates (single-atom mutations of param _submitterContract); 480 undecided by the term evaluator (0 of them run)"
+      },
+      {
+        "id": "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133#0",
+        "reason": "its condition in the document is a non-zero constant: its negation is unsatisfiable, so no input reverts there (the reach cannot revert)"
+      },
+      {
+        "id": "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133#1",
+        "reason": "its condition in the document is a non-zero constant: its negation is unsatisfiable, so no input reverts there (the reach cannot revert)"
+      },
+      {
+        "id": "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133#2",
+        "reason": "its condition in the document is a non-zero constant: its negation is unsatisfiable, so no input reverts there (the reach cannot revert)"
+      },
+      {
+        "id": "initialize#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133#3",
+        "reason": "its condition in the document is a non-zero constant: its negation is unsatisfiable, so no input reverts there (the reach cannot revert)"
+      },
+      {
+        "id": "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "reason": "stated bound: 48 base calls of the translation run, 48 candidates (single-atom mutations of storage _initialized, storage _initializing); it holds on 48"
+      },
+      {
+        "id": "initialize2#contracts/contracts/l1/rollup/Rollup.sol:189#0",
+        "reason": "its condition in the document is a non-zero constant: its negation is unsatisfiable, so no input reverts there (the reach cannot revert)"
+      },
+      {
+        "id": "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "reason": "stated bound: 48 base calls of the translation run, 48 candidates (single-atom mutations of storage _initialized, storage _initializing); it holds on 48"
+      },
+      {
+        "id": "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "reason": "stated bound: 48 base calls of the translation run, 48 candidates (single-atom mutations of storage _initialized, storage _initializing); it holds on 48"
+      },
+      {
+        "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:211#0",
+        "reason": "stated bound: 48 base calls of the translation run, 480 candidates (single-atom mutations of param _newSubmitter); an earlier reach fails first on 480 (reach 4)"
+      },
+      {
+        "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:212#0",
+        "reason": "stated bound: 48 base calls of the translation run, 222 candidates (single-atom mutations of param _expectedLegacyCutoverBatchIndex, storage lastCommittedBatchIndex); an earlier reach fails first on 222 (reach 4)"
+      },
+      {
+        "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+        "reason": "stated bound: 48 base calls of the translation run, 48 candidates (single-atom mutations of storage inChallenge); an earlier reach fails first on 48 (reach 4)"
+      },
+      {
+        "id": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+        "reason": "stated bound: 48 base calls of the translation run, 48 candidates (single-atom mutations of storage revertReqIndex); an earlier reach fails first on 48 (reach 4)"
+      },
+      {
+        "id": "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1200 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 48 (reach 2); it holds on 1152"
+      },
+      {
+        "id": "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:758#0",
+        "reason": "stated bound: 48 base calls of the translation run, 96 candidates (single-atom mutations of param _batchProof); an earlier reach fails first on 96 (reach 7)"
+      },
+      {
+        "id": "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+        "reason": "stated bound: 48 base calls of the translation run, 1248 candidates (single-atom mutations of callok IRollupVerifier.verifyAggregateProof, immutable LAYER_2_CHAIN_ID, param _batchHeader, param _batchProof, storage verifier); an earlier reach fails first on 48 (reach 2), 96 (reach 4), 144 (reach 5), 96 (reach 6), 864 (reach 7)"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 432 step 6: model revert [\"error\", \"batch in challenge\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:606#0, real revert [\"error\", \"batch in challenge\"]; trace 433 step 7: model revert [\"error\", \"batch in challenge\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:606#0, real revert [\"error\", \"batch in challenge\"]"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 3 step 18: model revert [\"error\", \"batch in challenge\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:606#0, real revert [\"error\", \"batch in challenge\"]; trace 3 step 19: model revert [\"error\", \"only active submitter allowed\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:120#1, real revert [\"error\", \"only active submitter allowed\"]"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "reason": "stated bound: 96 base calls of the translation run, 1156 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 48 (reach 6); it holds on 1108; no successful corpus call of an action writing its storage atoms (no writer)"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:613#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 434 step 3: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]; trace 435 step 6: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:806#0",
+        "reason": "4 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 64 step 17: model ok, real ok; trace 64 step 18: model ok, real ok; trace 436 step 3: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"] (and 1 more)"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:807#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 438 step 3: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]; trace 439 step 6: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:807#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 440 step 3: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]; trace 441 step 6: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+        "reason": "3 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 64 step 19: model ok, real ok; trace 442 step 3: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]; trace 443 step 6: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:793#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 444 step 3: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]; trace 445 step 6: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:794#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 446 step 3: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]; trace 447 step 6: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:794#1",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 448 step 3: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]; trace 449 step 6: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "proveState#contracts/contracts/l1/rollup/Rollup.sol:795#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 450 step 3: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]; trace 451 step 6: model revert [\"error\", \"incorrect batch hash\"] at proveState#contracts/contracts/l1/rollup/Rollup.sol:603#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:826#0",
+        "reason": "stated bound: 69 base calls of the translation run, 817 candidates (single-atom mutations of param _batchHeader); an earlier reach fails first on 48 (reach 4); it holds on 769; no successful corpus call of an action writing its storage atoms (no writer)"
+      },
+      {
+        "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:441#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 452 step 4: model revert [\"error\", \"incorrect batch hash\"] at revertBatch#contracts/contracts/l1/rollup/Rollup.sol:436#0, real revert [\"error\", \"incorrect batch hash\"]; trace 453 step 7: model revert [\"error\", \"incorrect batch hash\"] at revertBatch#contracts/contracts/l1/rollup/Rollup.sol:436#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:443#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 454 step 4: model revert [\"error\", \"incorrect batch hash\"] at revertBatch#contracts/contracts/l1/rollup/Rollup.sol:436#0, real revert [\"error\", \"incorrect batch hash\"]; trace 455 step 7: model revert [\"error\", \"incorrect batch hash\"] at revertBatch#contracts/contracts/l1/rollup/Rollup.sol:436#0, real revert [\"error\", \"incorrect batch hash\"]"
+      },
+      {
+        "id": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:450#0",
+        "reason": "4 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 1 step 69: model ok, real ok; trace 1 step 70: model ok, real ok; trace 456 step 3: model ok, real ok (and 1 more)"
+      },
+      {
+        "id": "setPause#contracts/contracts/l1/rollup/Rollup.sol:578-579#0",
+        "reason": "2 corpus steps targeted it, none ending there on the model with the real contract reverting with the same revert key: trace 458 step 3: model ok, real ok; trace 459 step 6: model ok, real ok"
+      }
+    ]
+  },
+  "harness_notes": {},
+  "kind": "extracted",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "observables": [
+    "events",
+    "revert",
+    "status",
+    "storage"
+  ],
+  "panics": [
+    {
+      "code": "0x11",
+      "model_src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+      "real_site": "contracts/contracts/l1/rollup/Rollup.sol:363",
+      "site_agrees": true,
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+      "steps": 27
+    },
+    {
+      "code": "0x11",
+      "model_src": "contracts/contracts/l1/rollup/Rollup.sol:368",
+      "real_site": "contracts/contracts/l1/rollup/Rollup.sol:368",
+      "site_agrees": true,
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:368",
+      "steps": 2
+    },
+    {
+      "code": "0x11",
+      "model_src": "contracts/contracts/l1/rollup/Rollup.sol:439",
+      "real_site": "contracts/contracts/l1/rollup/Rollup.sol:439",
+      "site_agrees": true,
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:439",
+      "steps": 2
+    },
+    {
+      "code": "0x11",
+      "model_src": "contracts/contracts/l1/rollup/Rollup.sol:636",
+      "real_site": "contracts/contracts/l1/rollup/Rollup.sol:636",
+      "site_agrees": true,
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:636",
+      "steps": 6
+    }
+  ],
+  "steps": 3013,
+  "storage_layout": {
+    "document": 24,
+    "inherited": 7,
+    "slots": 166
+  },
+  "storage_slots": 8894,
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  },
+  "traces": 460,
+  "unexplained": 0
+}
