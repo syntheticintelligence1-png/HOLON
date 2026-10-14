@@ -700,13 +700,17 @@ class TestGenericCode(unittest.TestCase):
         # cycle_rank key "kappa", the totality law-id tag "tot", the E4 atom key "stored", the record field
         # "version") coincides with Morph names; it is exempt in the PAR rule files only
         par_words = {"kappa", "tot", "stored", "version"}
+        # I25 amendment (spec/M2/amendments.jsonl): the PAR-lossy document's key "version" (tests_m3/test_par_lossy.py
+        # rules L1, L2 and L8) is the same contract vocabulary; it alone is exempt, in holon/rules/par_lossy.py only
+        lossy_words = {"version"}
         for f in files:
             with self.subTest(file=str(f.relative_to(ROOT))):
                 self.assertTrue(f.exists(), f"{f.relative_to(ROOT)} is missing")
                 text = f.read_text(encoding="utf-8")
                 self.assertEqual(sorted(n for n in compound
                                         if re.search(rf"(?<![A-Za-z0-9_]){re.escape(n)}(?![A-Za-z0-9_])", text)), [])
-                q = quoted - par_words if f.parent.name == "rules" and f.name in ("par.py", "__init__.py") else quoted
+                q = quoted - par_words if f.parent.name == "rules" and f.name in ("par.py", "__init__.py") else \
+                    quoted - lossy_words if f.parent.name == "rules" and f.name == "par_lossy.py" else quoted
                 self.assertEqual(sorted(n for n in q if re.search(rf"[\"']{re.escape(n)}[\"']", text)), [])
                 # I30 (Z1) locates a sign site's realization check through holon.machine's check section of a
                 # holon-facts/0.3 document, whose key is "panics" (document structure, not a revert reason); those
