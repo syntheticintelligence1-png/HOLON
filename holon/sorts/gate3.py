@@ -14,7 +14,8 @@ listed under not_applicable with a reason.
   G5    every PROOF.bend of a decided law (primary and per entry point) re-checked by Bend, importing its law
   G11   every record's statement hash is the registry's and its artifacts exist
   G11V  every PROVED law carries a checked, reachable inhabitant of its at-site premise (gen/<M>/<id>/nonvac/)
-  G6    every REFUTED entry point is a passed entry of replay/<M>/sorts/report.json, with the record's trace
+  G6    every REFUTED entry point is a passed entry of replay/<M>/sorts/report.json, with the record's trace, and
+        no REFUTED record's own replay failed (a kernel-accepted counter-law the real contract disagrees with)
   G9    every record is valid under the v1 and v2 schemas
   G7    BendTT (--verdict) re-checks every decided law's proofs
   G4    canaries: per I30 subform among the laws, a counter-law whose witness is mutated (its entry step's clock or
@@ -277,6 +278,11 @@ class Gate3:
         for lid, r in self.records().items():
             if not r or r.get("status") != "REFUTED":
                 continue
+            # (A30 review) a REFUTED record stands on its kernels (AGENTS rule 6); a replay on the real contract that
+            # disagrees with its witness is a model/contract disagreement, flagged here, never absorbed into the status
+            if (r.get("replay") or {}).get("status") not in ("passed", "not_applicable"):
+                bad.append(f"{lid}: REFUTED, but its replay on the real contract is "
+                           f"{(r.get('replay') or {}).get('status')}: {(r.get('replay') or {}).get('detail', '')[:200]}")
             for e, w in sorted((r.get("witnesses") or {}).items()):
                 if w.get("status") != "REFUTED":
                     continue
