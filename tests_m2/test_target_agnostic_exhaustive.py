@@ -43,6 +43,10 @@ ALLOWLIST: dict[str, list[str]] = {
     # the M1 deadline class's emitted comment "kappa = b && w + start(chs[i]) < t" is part of gen/M1, pinned byte for
     # byte (tests_m2/test_target_agnostic.py GEN_PIN); M2+ use deadline_linear, which names no field
     "holon/gen/mproofs.py": ["chs", "kappa"],
+    # I24's preregistered contract fixes the cycle-rank key 'kappa' (|E| - |V| + kappa, the number of connected
+    # components; spec/M3/lib/par_basis.json, laws/M3/DERIVATION.json cycle_rank): graph theory, not a Morph field
+    "holon/rules/__init__.py": ["kappa"],
+    "holon/rules/par.py": ["kappa"],
 }
 TARGET_NAMES = {"Rollup", "Morph", "morph", "batchdata"}
 

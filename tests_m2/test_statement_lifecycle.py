@@ -195,6 +195,9 @@ class TestLifecycleInHistory(unittest.TestCase):
         self.assertEqual(p.returncode, 0, p.stdout[-1500:] + p.stderr[-1500:])
         p = holon(self.repo, "bind", "--milestone", "T3")
         self.assertEqual(p.returncode, 0, p.stdout[-1500:] + p.stderr[-1500:])
+        # the seed log is empty, as the class docstring states: since I20 the real laws/STATEMENT_DIFF.jsonl holds
+        # committed reextraction lines, which the copy would otherwise carry into this history
+        (self.repo / LOG).write_text("")
         git_init(self.repo)
 
     def tearDown(self):
