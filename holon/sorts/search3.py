@@ -806,7 +806,7 @@ class Refuter:
         self.ts0 = int(self.m.init.get("timestamp") or 1) or 1
         self.cache: dict = {}
         self.fp: dict = {}                  # state handle -> fingerprint (successors computes it)
-        self.entry_evals = 200              # an entry step's synthesis (a successor's has synth_evals)
+        self.entry_evals = synth_evals      # an entry step's synthesis (200 lost the :363 witness at commitBatch)
 
     def pools(self, g: str, trace: list) -> tuple[dict, dict]:
         """(state, pools) of a reachable state (cached: a state handle is never reused for another state)."""
