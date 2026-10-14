@@ -220,14 +220,24 @@ class Budget(Exception):
     pass
 
 
+class Disagree(Exception):
+    """The real side refused X_VARIANTS witnesses in a row because a step the model runs successfully (x or y, with
+    the model's external-call answers) does not succeed on the deployment: the model's answers for that action's
+    calls are not the deployment's, and the model's witnesses of the pair cannot be realized."""
+
+
 class UndoSearch:
-    """accept(w), when given, is asked about every witness the model gives (the caller's real-side check): a witness it
-    refuses is counted and the search goes on."""
+    """accept(w), when given, is asked about every witness the model gives (the caller's real-side check): it returns
+    None to accept, else the reason it refuses ("pair:<action>" when a pair step the model runs successfully does not
+    succeed on the deployment). A refused witness is counted and the search goes on, except after X_VARIANTS refusals
+    in a row for the same pair-step reason (Disagree: the model's call answers for that action are not the
+    deployment's), which ends the search without a witness."""
 
     def __init__(self, model_f, doc: dict, sorts: dict, budget: dict, log=None, accept=None):
         self.mf = model_f
         self.accept = accept
         self.refused = 0
+        self.streak: tuple = (None, 0)
         self.m = model_f()
         self.o = Obs(self.m)
         self.doc = doc
@@ -444,11 +454,16 @@ class UndoSearch:
         return None
 
     def accepted(self, w: dict) -> bool:
-        if self.accept is None or self.accept(w):
+        why = None if self.accept is None else self.accept(w)
+        if why is None:
             return True
         self.refused += 1
         self.log(f"  the witness ({w['x'].action}, {w['y'].action}, t {[s.action for s in w['t']]}) is refused by "
-                 f"the real-side check ({self.refused} refused)")
+                 f"the real-side check: {why} ({self.refused} refused)")
+        last, n = self.streak
+        self.streak = (why, n + 1 if why == last else 1)
+        if str(why).startswith("pair:") and self.streak[1] >= self.X_VARIANTS:
+            raise Disagree(why)
         return False
 
     # ---------------------------------------------------------- the residue
@@ -544,6 +559,12 @@ class UndoSearch:
                     break
         except Budget:
             return None, (f"the candidate budget ({self.max_cands}) ran out after {tried} prefix states; no witness"
+                          + self.refused_note())
+        except Disagree as e:
+            return None, (f"stopped after {tried} prefix states and {self.cands} candidates: {self.X_VARIANTS} model "
+                          f"witnesses in a row refused by the real side because a pair step ({str(e)[5:]}) that "
+                          "succeeds on the model with its external-call answers does not succeed on the deployment "
+                          "(the model's answers for its calls are not the deployment's); no witness"
                           + self.refused_note())
         return None, (f"{tried} prefix states of at most {depth} successful steps (max {maxp}), {self.cands} "
                       f"candidates (max {self.max_cands}), continuations of at most {self.cont_depth} steps: no witness"

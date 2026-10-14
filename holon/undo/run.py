@@ -213,21 +213,25 @@ class Decider:
 
     # ---------------------------------------------------------- search
     def search(self, el: dict, tc: TraceCtx, real=None) -> tuple[dict | None, str]:
-        """The model's search; with a real side, a witness counts only when, its external calls answered as the
-        deployment answers them (repair), the model still finds the law's function false at it (else the search goes
-        on). The accepted witness comes back repaired."""
+        """The model's search; with a real side, a witness counts only when its pair steps succeed on the deployment
+        and, its external calls answered as the deployment answers them (repair), the model still finds the law's
+        function false at it (else the search goes on; holon.undo.search.UndoSearch says when it stops). The accepted
+        witness comes back repaired."""
         accept, kept = None, {}
         if real is not None:
             def accept(w):
                 try:
-                    w2, _res = self.repair(real, tc, w)
+                    w2, res = self.repair(real, tc, w)
                 except Exception as e:  # noqa: BLE001: a witness the real side cannot run is no witness
-                    self.ctx.log(f"  the real side cannot run the witness: {type(e).__name__}: {str(e)[:200]}")
-                    return False
+                    return f"the real side cannot run it: {type(e).__name__}: {str(e)[:200]}"
+                pre = len(w.get("prefix") or [])
+                for i, st in ((pre, w["x"]), (pre + 1, w["y"])):
+                    if res[0][0][i]["status"] != "ok":
+                        return f"pair:{st.action}"
                 if self.model_value(el, tc, w2) is not False:
-                    return False
+                    return "with the deployment's call answers the model finds undo true"
                 kept["w"] = w2
-                return True
+                return None
         s = US.UndoSearch(tc.factory, tc.doc, self.ctx.sorts_of(tc.doc_rel), self.ctx.usc.search, log=self.ctx.log,
                           accept=accept)
         w, bound = self._search(s, el, tc)
