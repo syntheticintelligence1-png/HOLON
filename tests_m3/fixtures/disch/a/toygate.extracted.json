@@ -1,0 +1,878 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyGate.sol:31-33",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyGate",
+      "edges": [],
+      "effects": [
+        {
+          "family": "jammed",
+          "src": "src/ToyGate.sol:32"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "61646d696e"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "caller"
+            ],
+            173
+          ],
+          "kind": "modifier",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "61646d696e"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "caller"
+                ],
+                173
+              ],
+              "seq": 1,
+              "stack": [
+                "src/ToyGate.sol:31"
+              ]
+            }
+          ],
+          "reason": "admin",
+          "src": "src/ToyGate.sol:14"
+        }
+      ],
+      "loops": [],
+      "modifiers": [
+        "onlyAdmin"
+      ],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "clear",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyGate.sol:14",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "jammed": 0
+      },
+      "principal": {
+        "modifier": "onlyAdmin",
+        "predicate": [
+          "==",
+          [
+            "caller"
+          ],
+          173
+        ]
+      },
+      "returns": null,
+      "selector": "0x52efea6e",
+      "src": "src/ToyGate.sol:31-33",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "jammed",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyGate.sol:32",
+          "stack": [],
+          "value": 0
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyGate.sol:23-25",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyGate.sol:23-25",
+          "stack": []
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "param",
+              "k"
+            ],
+            1461501637330902918203684832716283019655932542976
+          ],
+          "kind": "abi",
+          "param": "k",
+          "seq": 2,
+          "src": "src/ToyGate.sol:23",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyGate",
+      "edges": [],
+      "effects": [
+        {
+          "family": "keeper",
+          "src": "src/ToyGate.sol:24"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "61646d696e"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "==",
+            [
+              "caller"
+            ],
+            173
+          ],
+          "kind": "modifier",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "61646d696e"
+                ]
+              ],
+              "expr": [
+                "==",
+                [
+                  "caller"
+                ],
+                173
+              ],
+              "seq": 3,
+              "stack": [
+                "src/ToyGate.sol:23"
+              ]
+            }
+          ],
+          "reason": "admin",
+          "src": "src/ToyGate.sol:14"
+        }
+      ],
+      "loops": [],
+      "modifiers": [
+        "onlyAdmin"
+      ],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "enroll",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "check",
+          2
+        ],
+        [
+          "guard",
+          "src/ToyGate.sol:14",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "k",
+          "type": "address",
+          "width": 160
+        }
+      ],
+      "payable": false,
+      "post": {
+        "keeper": [
+          "store",
+          [
+            "storage",
+            "keeper"
+          ],
+          [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          1
+        ]
+      },
+      "principal": {
+        "modifier": "onlyAdmin",
+        "predicate": [
+          "==",
+          [
+            "caller"
+          ],
+          173
+        ]
+      },
+      "returns": null,
+      "selector": "0xba83d1a0",
+      "src": "src/ToyGate.sol:23-25",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "keeper",
+          "path": [
+            [
+              "map",
+              [
+                "param",
+                "k"
+              ]
+            ]
+          ],
+          "seq": 4,
+          "src": "src/ToyGate.sol:24",
+          "stack": [],
+          "value": 1
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyGate.sol:27-29",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyGate",
+      "edges": [],
+      "effects": [
+        {
+          "family": "jammed",
+          "src": "src/ToyGate.sol:28"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "6b6565706572"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "map",
+            [
+              "storage",
+              "keeper"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "kind": "modifier",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6b6565706572"
+                ]
+              ],
+              "expr": [
+                "map",
+                [
+                  "storage",
+                  "keeper"
+                ],
+                [
+                  "caller"
+                ]
+              ],
+              "seq": 1,
+              "stack": [
+                "src/ToyGate.sol:27"
+              ]
+            }
+          ],
+          "reason": "keeper",
+          "src": "src/ToyGate.sol:19"
+        }
+      ],
+      "loops": [],
+      "modifiers": [
+        "onlyKeeper"
+      ],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "jam",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyGate.sol:19",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "jammed": 1
+      },
+      "principal": {
+        "modifier": "onlyKeeper",
+        "predicate": [
+          "map",
+          [
+            "storage",
+            "keeper"
+          ],
+          [
+            "caller"
+          ]
+        ]
+      },
+      "returns": null,
+      "selector": "0xd6a36910",
+      "src": "src/ToyGate.sol:27-29",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "jammed",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyGate.sol:28",
+          "stack": [],
+          "value": 1
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyGate.sol:40-42",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            36
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/ToyGate.sol:40-42",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyGate",
+      "edges": [],
+      "effects": [
+        {
+          "family": "last",
+          "src": "src/ToyGate.sol:41"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "note",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "x",
+          "type": "uint256",
+          "width": 256
+        }
+      ],
+      "payable": false,
+      "post": {
+        "last": [
+          "param",
+          "x"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x5284a245",
+      "src": "src/ToyGate.sol:40-42",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "last",
+          "path": [],
+          "seq": 2,
+          "src": "src/ToyGate.sol:41",
+          "stack": [],
+          "value": [
+            "param",
+            "x"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyGate.sol:35-38",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyGate",
+      "edges": [],
+      "effects": [
+        {
+          "family": "count",
+          "src": "src/ToyGate.sol:37"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "6a616d6d6564"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "!",
+            [
+              "storage",
+              "jammed"
+            ]
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "6a616d6d6564"
+                ]
+              ],
+              "expr": [
+                "!",
+                [
+                  "storage",
+                  "jammed"
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "jammed",
+          "src": "src/ToyGate.sol:36"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "step",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "src/ToyGate.sol:36",
+          0
+        ],
+        [
+          "panic",
+          0
+        ]
+      ],
+      "panics": [
+        {
+          "args": [
+            [
+              "storage",
+              "count"
+            ],
+            1
+          ],
+          "code": 17,
+          "expr": [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ]
+          ],
+          "op": "+",
+          "seq": 2,
+          "src": "src/ToyGate.sol:37",
+          "stack": []
+        }
+      ],
+      "params": [],
+      "payable": false,
+      "post": {
+        "count": [
+          "+",
+          [
+            "storage",
+            "count"
+          ],
+          1
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0xe25fe175",
+      "src": "src/ToyGate.sol:35-38",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "count",
+          "path": [],
+          "seq": 3,
+          "src": "src/ToyGate.sol:37",
+          "stack": [],
+          "value": [
+            "+",
+            [
+              "storage",
+              "count"
+            ],
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/ToyGate.sol:44-46",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "ToyGate",
+      "edges": [],
+      "effects": [
+        {
+          "family": "jammed",
+          "src": "src/ToyGate.sol:45"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "unjam",
+      "order": [
+        [
+          "check",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "jammed": 0
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x2b6c397b",
+      "src": "src/ToyGate.sol:44-46",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "jammed",
+          "path": [],
+          "seq": 1,
+          "src": "src/ToyGate.sol:45",
+          "stack": [],
+          "value": 0
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+    }
+  ],
+  "constants": {
+    "ADMIN": "0x00000000000000000000000000000000000000ad"
+  },
+  "contract": "ToyGate",
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.3",
+    "inputs": [
+      {
+        "sha256": "932b671243dff8df8486125ba7b16ec46c4e6b9442a61c4117987166405c8c54",
+        "unit": "src/ToyGate.sol"
+      }
+    ],
+    "kind": "transitions",
+    "method": "extracted",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "storageLayout"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "tests_m3/fixtures/disch/a/extract_toygate.json",
+      "sha256": "323454f37c34312fa1cfa65b93d176a46953865d1b8f137b979fed3ce2c7aa35"
+    },
+    "toolchain": {
+      "solc": {
+        "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+        "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "inherited_storage": [],
+  "storage": [
+    {
+      "key": "address",
+      "kind": "mapping",
+      "name": "keeper",
+      "offset": 0,
+      "slot": 0,
+      "value": "bool",
+      "width": 8
+    },
+    {
+      "kind": "scalar",
+      "name": "jammed",
+      "offset": 0,
+      "slot": 1,
+      "value": "bool",
+      "width": 8
+    },
+    {
+      "kind": "scalar",
+      "name": "count",
+      "offset": 0,
+      "slot": 2,
+      "value": "uint256",
+      "width": 256
+    },
+    {
+      "kind": "scalar",
+      "name": "last",
+      "offset": 0,
+      "slot": 3,
+      "value": "uint256",
+      "width": 256
+    }
+  ],
+  "target": {
+    "commit": null,
+    "repo": "holon/toy-gate",
+    "scope": "planted DISCH fixture (I31), variant a"
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "binding": null,
+  "disch_version": "holon-disch/0.1",
+  "doc": "I31 prereg instrument: the DISCH sidecar of the toy test milestone T31, variant a (tests_m3/test_disch.py), the counterpart of spec/M3/lib/disch.json. binding null: R0 is the zero storage and no witness is replayed on a real contract (the counter-laws are Bend-checked). expected: tests_m3/_i31.py::summary(analysis(..)) of the toy document at the prereg.",
+  "documents": [
+    "tests_m3/fixtures/disch/a/toygate.extracted.json"
+  ],
+  "expected": {
+    "toygate.extracted": {
+      "basis": [
+        {
+          "blocked": [
+            "storage",
+            "jammed"
+          ],
+          "check": "step#src/ToyGate.sol:36#0",
+          "checks": [
+            "step#src/ToyGate.sol:36#0"
+          ],
+          "classes": {
+            "anyone": {
+              "closure": [
+                "note",
+                "unjam"
+              ],
+              "named": {},
+              "status": "self",
+              "unsafe": {
+                "unjam": [
+                  "jammed"
+                ]
+              }
+            }
+          },
+          "excluded": {
+            "step": "step#src/ToyGate.sol:36#0"
+          },
+          "tag": "toygate_36_f54cbcc4",
+          "time": "0"
+        }
+      ],
+      "classes": {
+        "anyone": {
+          "actions": [
+            "note",
+            "step",
+            "unjam"
+          ],
+          "external": []
+        },
+        "onlyAdmin": {
+          "actions": [
+            "clear",
+            "enroll"
+          ],
+          "external": []
+        },
+        "onlyKeeper": {
+          "actions": [
+            "jam"
+          ],
+          "external": []
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "note",
+            "step",
+            "unjam"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "count",
+            "jammed",
+            "last"
+          ]
+        },
+        "onlyAdmin": {
+          "actions": [
+            "clear",
+            "enroll",
+            "note",
+            "step",
+            "unjam"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "count",
+            "jammed",
+            "keeper",
+            "last"
+          ]
+        },
+        "onlyKeeper": {
+          "actions": [
+            "jam",
+            "note",
+            "step",
+            "unjam"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "count",
+            "jammed",
+            "last"
+          ]
+        }
+      },
+      "dead": {},
+      "external": {},
+      "kinds": {
+        "input": 9,
+        "panic": 1,
+        "permission": 3,
+        "state": 1
+      },
+      "laws": [
+        {
+          "class": "anyone",
+          "closure": [
+            "note",
+            "unjam"
+          ],
+          "law_id": "L_disch_blk_toygate_36_f54cbcc4_anyone",
+          "status": "self",
+          "subform": "blocking",
+          "tag": "toygate_36_f54cbcc4"
+        },
+        {
+          "class": null,
+          "excluded": [
+            "step"
+          ],
+          "law_id": "L_disch_rev_toygate_36_f54cbcc4",
+          "subform": "revert",
+          "tag": "toygate_36_f54cbcc4"
+        }
+      ],
+      "permission": {
+        "clear": "clear#src/ToyGate.sol:14#0",
+        "enroll": "enroll#src/ToyGate.sol:14#0",
+        "jam": "jam#src/ToyGate.sol:19#0",
+        "note": null,
+        "step": null,
+        "unjam": null
+      }
+    }
+  },
+  "hypotheses": {},
+  "hypothesis_verdicts": null,
+  "inputs": [
+    {
+      "path": "tests_m3/fixtures/disch/a/model_toy.json",
+      "sha256": "331354bf043176b366addc62fde2a354c0bcad50cdad3cae39781c5cb77d0705"
+    },
+    {
+      "path": "tests_m3/fixtures/disch/a/toygate.extracted.json",
+      "sha256": "b3d29b4684cc673a5fe07e95c7df55bc15c0f81d9d4de018375082a31d225dac"
+    }
+  ],
+  "model_sidecar": "tests_m3/fixtures/disch/a/model_toy.json",
+  "r0": {
+    "doc": "the zero storage (no deployment)",
+    "keys": {},
+    "proxy_slots": [],
+    "values": {}
+  },
+  "search": {
+    "max_prefixes": 2000,
+    "neighbourhood_insertion_length_max": 2,
+    "neighbourhood_prefixes_per_entry_point_max": 2000,
+    "prefix_depth": 2
+  }
+}

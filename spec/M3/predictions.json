@@ -539,6 +539,156 @@
           "removed": "contracts/contracts/l1/rollup/Rollup.sol:447"
         }
       }
+    },
+    "I31": {
+      "title": "DISCH I: guard conjuncts, the enableable write closure over the extracted principal classes, blocking and external dependence",
+      "plan": "docs/BUILD_PLAN.md#i31",
+      "prompt": "prompts/I31_disch.md",
+      "predictions": [
+        {
+          "id": "I31-P1",
+          "claim": "On the extracted rollup document (spec/M2/facts/morph_rollup.extracted.json, model morph_rollup.extracted; Q19: no hand-written fact is read), rule D2 gives exactly six principal classes over the 24 actions with write records: onlyOwner (13 actions), onlyActiveSubmitter (commitBatch, commitState, proveState; predicate ISubmitter.isActive(caller), an external call), onlyChallenger (challengeState), anyone (commitBatchWithProof, finalizeBatch, initialize, initialize2, initialize3), caller_rollup_210 (initialize4: caller == sload of the EIP-1967 admin slot, external) and caller_rollup_674 (claimReward: batchChallengeReward[caller] != 0); 19 of the 24 have a permission check. holon disch records them in gen/M3/disch/closure.json exactly as tests_m3/_i31.py computes them.",
+          "check": "tests_m3/test_disch.py::TestClosure::test_principal_classes"
+        },
+        {
+          "id": "I31-P2",
+          "claim": "From the binding's deployment (the sidecar's r0, E-self), initialize is the one dead action (Initializable.sol:86-89). The enableable write closures (D5, 2 rounds each): anyone's Act is {commitBatchWithProof, finalizeBatch, initialize2, initialize3} with 21 paths, rollupDelayPeriod among them (initialize3 is callable by anyone once on this deployment); onlyActiveSubmitter's adds commitBatch and commitState, excludes proveState (Rollup.sol:606: no challenge exists unless a challenger acts) and writes the same 21 paths: its one effect on another component is call:IL1MessageQueue.popCrossDomainMessage (P, through finalization), so Write*_sub excludes enq[P] (no queue write sets an enqueue time; whitepaper §11.5's L via sendMessage is another contract's action, outside the extracted rollup), inChallenge and revertReqIndex (BUILD_PLAN I31's first prediction); onlyChallenger's has 23 paths (inChallenge, batchChallenged added); onlyOwner's 17 actions and 33 paths; caller_rollup_210's adds submitterContract and legacyCutoverBatchIndex; caller_rollup_674's adds claimReward.",
+          "check": "tests_m3/test_disch.py::TestClosure::test_dead_actions_and_the_enableable_write_closures"
+        },
+        {
+          "id": "I31-P3",
+          "claim": "D6 kinds over the live classed actions' 295 checks: 22 state, 31 external, 210 input, 19 permission, 11 panic, 1 loop, 1 never (initialize2's constant at Rollup.sol:189). External components: IL1MessageQueue 18 checks (13 read getFirstUnfinalizedMessageEnqueueTime: the delay guards at Rollup.sol:263, :265, :281, :283, :393, :393-394, :398 and :400), IRollupVerifier 2 (HypV-proof1, untestable), ISubmitter 8 (Hyp-ISubmitter, tested, failed, F-M2-40), address 2, code 1; no component-external check yields a law (they are recorded in gen/M3/disch/conjuncts.json for the linked models of I36 and I37).",
+          "check": "tests_m3/test_disch.py::TestClosure::test_conjunct_kinds_and_external_components"
+        },
+        {
+          "id": "I31-P4",
+          "claim": "15 basis elements over 8 blocked conditions. Blocked (Thm 6.10's premises with write directions): the stale challenge (rollup_363_e11d8bb2: inChallenge, proofWindow + startTime fits and is below block.timestamp) for anyone (x_closure {finalizeBatch, initialize2, initialize3}); the revert request (rollup_132_d953872f) for anyone, onlyActiveSubmitter, onlyChallenger and caller_rollup_210; the pause (pausableupgradeable_77_ed0ce816) for anyone, onlyActiveSubmitter and onlyChallenger; the open challenge (rollup_213_f2e7faf8) for onlyChallenger and caller_rollup_210; initialize2's reinitializer (initializable_120_b8d46c45) for anyone. Self: the stale challenge for onlyActiveSubmitter (proveState writes inChallenge), initialize3's and initialize4's reinitializers (initialize2, initialize3 write _initialized; statically unsafe, though they revert under B), the genesis guard (rollup_228_79cc3e9a) for onlyOwner (finalizeBatch writes finalizedStateRoots, at another key). Named classes (external dependence, DP_X empty, DP_{X u Y} not): onlyOwner for the revert request (revertBatch), the pause (setPause), the open challenge (revertBatch, setPause) and the stale challenge (revertBatch, setPause, updateProofWindow); onlyActiveSubmitter (proveState) for the open and the stale challenge; never onlyChallenger.",
+          "check": "tests_m3/test_disch.py::TestClosure::test_basis_elements_and_their_static_status"
+        },
+        {
+          "id": "I31-P5",
+          "claim": "holon derive --milestone M3 (catalog holon-rules/1.4) emits exactly 35 DISCH laws over the extracted document: 15 blocking, 8 revert, 6 external (existential) and 6 external_none (their separately generated forall-negations), with the ids, closures, excluded sets, named classes and writers of tests_m3/_i31.py::entries; none for an input, loop, panic, never, time or component-external check.",
+          "check": "tests_m3/test_disch.py::TestDerivation::test_the_disch_laws"
+        },
+        {
+          "id": "I31-P6",
+          "claim": "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter is REFUTED: from a reachable stale challenge (a challenger's challengeState, then time past the proof window), proveState by an active submitter (A-env for ISubmitter.isActive, as in P7) takes the timeout branch and sets inChallenge to 0 (the active submitter ends a stale challenge itself, slashing the challenged batch's submitter and requesting its revert); the Bend- and BendTT-checked witness replays on the real Rollup at the pinned commit with every step succeeding, the stale condition true before its last step and false after it.",
+          "check": "tests_m3/test_disch.py::TestOutcomes::test_the_active_submitter_ends_a_stale_challenge_itself"
+        },
+        {
+          "id": "I31-P7",
+          "claim": "O31's exists-strategy laws are PROVED: L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter (last step proveState) and L_disch_ext_rollup_363_e11d8bb2_onlyOwner (last step revertBatch, setPause or updateProofWindow), each by a checked witness from the deployment after which the commit's check at Rollup.sol:363 holds; their forall-negations L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter and _onlyOwner are REFUTED by such witnesses (an existential law is never REFUTED); all four replay on the real contract. The onlyActiveSubmitter laws hold relative to the environment's answer ISubmitter.isActive(caller) = true (A-env; the binding's stand-in gives it): I21 found Hyp-ISubmitter false (F-M2-40, the registry's owner can leave no submitter active), a dependence on the registry recorded in conjuncts.json and decided only when I36 links it.",
+          "check": "tests_m3/test_disch.py::TestOutcomes::test_owner_or_submitter_unblock_the_stale_challenge"
+        },
+        {
+          "id": "I31-P8",
+          "claim": "The pending revert request (rollup_132_d953872f: revertReqIndex != 0) is a PROVED blocking law for anyone, onlyActiveSubmitter, onlyChallenger and caller_rollup_210, and the pause (pausableupgradeable_77_ed0ce816) for anyone, onlyActiveSubmitter and onlyChallenger; only the owner discharges them: L_disch_ext_rollup_132_d953872f_onlyOwner (revertBatch) and L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner (setPause) are PROVED and their forall-negations REFUTED; their revert laws (7 and 6 excluded actions) are PROVED.",
+          "check": "tests_m3/test_disch.py::TestOutcomes::test_revert_request_and_pause_block_every_class_but_the_owner"
+        },
+        {
+          "id": "I31-P9",
+          "claim": "An open challenge (rollup_213_f2e7faf8: inChallenge) blocks the challenger (challengeState, Rollup.sol:475) and the cutover (initialize4, :213): both blocking laws PROVED; the active submitter (proveState) and the owner (revertBatch, setPause) unblock it: both external laws PROVED, both forall-negations REFUTED; its revert law PROVED.",
+          "check": "tests_m3/test_disch.py::TestOutcomes::test_an_open_challenge_blocks_challengers_and_the_cutover"
+        },
+        {
+          "id": "I31-P10",
+          "claim": "One-shot guards, non-dischargeable (no class is named): the reinitializers' blocking laws are PROVED with checked reachable inhabitants: L_disch_blk_initializable_120_b8d46c45_anyone (initialize2's; transport: initialize3's constant post keeps it), L_disch_blk_initializable_120_b95c70f1_anyone (initialize3's) and L_disch_blk_initializable_120_d9a34b48_caller_rollup_210 (initialize4's), the last two statically \"self\" but proved by the chain_revert route (initialize2 and initialize3 revert under B at their own reinitializer check, Initializable.sol:120); L_disch_blk_rollup_228_79cc3e9a_onlyOwner (the genesis guard) is UNKNOWN with a recorded bound (true: finalizeBatch writes finalizedStateRoots at key lastFinalizedBatchIndex + 1, never 0, a key argument no route gives, and no witness exists); their four revert laws are PROVED.",
+          "check": "tests_m3/test_disch.py::TestOutcomes::test_one_shot_guards"
+        },
+        {
+          "id": "I31-P11",
+          "claim": "Every REFUTED DISCH law's and every PROVED external law's witness (13 in all) replays on the real Rollup at the pinned commit through the I20 binding (holon's replay/M3/disch/report.json: passed) and through the prereg's independent instrument (tests_m3/_i31r.py with the harness copied at this prereg): every step succeeds on both sides, every step's external calls are the witness's, the law's blocked condition holds on the real storage before the last step and the last step discharges it.",
+          "check": "tests_m3/test_disch.py::TestOutcomes::test_every_witness_replays_on_the_real_contract"
+        },
+        {
+          "id": "I31-P12",
+          "claim": "BUILD_PLAN I31's O32 prediction, read as the whitepaper's O32 (the BVH pin, §5.7's non-dischargeable instance: the blocking invariant and chain_revert PROVED), is not realized by I31: commitBatch's pin check commitBatch#contracts/contracts/l1/rollup/Rollup.sol:261#0 (batchBlobVersionedHashes[parent index + 1] == 0) and its dual commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0 are kind input (the key reads the calldata's parent header), in no basis element, and no DISCH law's blocked condition reads batchBlobVersionedHashes (a predicted miss of the plan's O32: keyed conjuncts need I32's profiles or a later rule).",
+          "check": "tests_m3/test_disch.py::TestClosure::test_the_bvh_pin_gets_no_disch_law"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I31-R1",
+          "claim": "BUILD_PLAN I31's regression: the L_disch_stale analogue on the extracted model, L_disch_blk_rollup_363_e11d8bb2_anyone (the stale challenge preserved by every action of anyone's closure and by time), and the L_disch_stale_commit analogue, L_disch_rev_rollup_363_e11d8bb2 (commitBatch, commitState, commitBatchWithProof, challengeState and initialize4 always revert while it holds: the generalized chain_revert), are PROVED with checked reachable inhabitants, as L_disch_stale and L_disch_stale_commit are on M1. With P6..P10: 27 PROVED, 7 REFUTED, 1 UNKNOWN.",
+          "check": "tests_m3/test_disch.py::TestOutcomes::test_the_stale_challenge_blocks_permissionless_committers and tests_m3/test_disch.py::TestOutcomes::test_status_counts"
+        },
+        {
+          "id": "I31-R2",
+          "claim": "M1's six DISCH records keep their statuses (all PROVED) and I20's differential keeps its DISCH rows (L_disch_delay_nofree REFUTED on the extracted model, the other five PROVED); I31 regenerates no M0-M2 output: no commit that writes an I31 outcome path changes results/, gen/, laws/ or replay/ of M0-M2, spec/M1/, spec/M2/facts/, spec/M2/lib/ or gen/M3/sorts/.",
+          "check": "tests_m3/test_disch.py::TestGateAndRegressions::test_m1_and_i20_disch_records_are_unchanged"
+        },
+        {
+          "id": "I31-R3",
+          "claim": "Every M3 record that is not a DISCH law keeps the status it had before I31's first outcome commit, and its law changes only in rule_catalog_version (holon-rules/1.4).",
+          "check": "tests_m3/test_disch.py::TestGateAndRegressions::test_pre_i31_m3_records_keep_their_status"
+        }
+      ],
+      "outcome_paths": [
+        "laws/M3/L_disch_",
+        "results/M3/L_disch_",
+        "gen/M3/laws/L_disch_",
+        "gen/M3/proofs/L_disch_",
+        "gen/M3/L_disch_",
+        "gen/M3/disch/",
+        "replay/M3/disch/"
+      ],
+      "tests": [
+        "tests_m3/test_disch.py"
+      ],
+      "thresholds": {
+        "rule_catalog_version": "holon-rules/1.4",
+        "disch_sidecar": "spec/M3/lib/disch.json",
+        "model_sidecar": "spec/M3/lib/sort_types.json",
+        "documents": [
+          "spec/M2/facts/morph_rollup.extracted.json"
+        ],
+        "binding": "replay/M2/fragments.json",
+        "hypothesis_verdicts": "audit/rounds/M2/round2/a4.json",
+        "subforms": [
+          "blocking",
+          "revert",
+          "external",
+          "external_none"
+        ],
+        "laws": {
+          "blocking": 15,
+          "revert": 8,
+          "external": 6,
+          "external_none": 6,
+          "total": 35
+        },
+        "status_counts": {
+          "PROVED": 27,
+          "REFUTED": 7,
+          "UNKNOWN": 1
+        },
+        "witnesses_replayed": 13,
+        "g4_disch_canaries": 10,
+        "abstract_value_set_max": 16,
+        "search": {
+          "prefix_depth": 3,
+          "max_prefixes": 3000,
+          "neighbourhood_insertion_length_max": 2,
+          "neighbourhood_prefixes_per_entry_point_max": 20000
+        },
+        "time_candidates": "E - 1, E and E + 1 for every term E an atom of the blocked condition compares with block.timestamp, evaluated on the candidate state, and the trace's own times",
+        "witness_hash_tables": "the real keccak256 and sha256 of every key",
+        "toy": {
+          "T311": "tests_m3/fixtures/disch/a/disch_toy.json",
+          "T312": "tests_m3/fixtures/disch/b/disch_toy.json",
+          "search": {
+            "prefix_depth": 2,
+            "max_prefixes": 2000,
+            "neighbourhood_insertion_length_max": 2,
+            "neighbourhood_prefixes_per_entry_point_max": 2000
+          }
+        },
+        "blocking_routes": [
+          "frame",
+          "transport",
+          "chain_revert"
+        ]
+      }
     }
   }
 }
