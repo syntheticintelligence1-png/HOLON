@@ -43,6 +43,9 @@
                                                         (the linked codec documents gen/<M>/codec/<role>.json; I24)
   python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
                                                         (the back-test across documents, results/M3/backtest.json; I24)
+  python -m holon lossy --milestone M3 [--root DIR] [--out DIR] [--review PATH] [--records DIR] [--codec PATH ...]
+                        [--gen-dir DIR] [--check]       (PAR-lossy and injective pushing: gen/<M>/par_lossy/,
+                                                        spec/<M>/evidence_review.jsonl; I25)
   python -m holon types|termsize|model|run|replay --milestone M3 ...   (typed milestones, M3+ and T30+: I30's
                                                         holon.sorts; `run --laws` naming only laws outside I30's typed
                                                         SORT subforms, I24's PAR laws on M3, runs holon.pipeline)
@@ -148,6 +151,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["backtest"]:  # likewise for holon.backtest (the back-test across documents, I24)
         from . import backtest
         return backtest.main(argv[1:])
+    if argv[:1] == ["lossy"]:  # likewise for holon.rules.par_lossy (PAR-lossy and injective pushing, I25)
+        from .rules import par_lossy
+        return par_lossy.main(argv[1:])
     if argv[:1] == ["types"]:  # likewise for holon.sorts.types3 (I30: nominal types and the ghost-taint check)
         from .sorts import types3
         return types3.main(argv[1:])

@@ -12,7 +12,8 @@ holon.refinement.classify reads; and
 from_scratch_gate_s is the wall time the last full `holon gate` run recorded there.
 
 Computed: laws, unknown_rate, witness_replay_rate, canary_acceptance, refinement {compared,
-disagreements, unexplained}, refinement_disagreement_rate, cross_kernel_agreement and, where the
+disagreements, unexplained}, refinement_disagreement_rate, cross_kernel_agreement, where the milestone has
+PAR-lossy documents (gen/<M>/par_lossy/*.json, I25) evidenced_pair_coverage, and, where the
 milestone's predictions were preregistered, prediction_accuracy. Every other §13 metric is listed under
 not_applicable with the reason it cannot be measured yet. G1 regenerates metrics.json and compares it
 byte for byte.
@@ -167,6 +168,12 @@ def compute(milestone: str, root: Path = ROOT, results: Path | None = None) -> d
         "mutation_adequacy": "A1 mutation adequacy on real code is BUILD_PLAN I22 (blocked by Q6); the M0/M1 "
                              "mutations edit the facts, not the code (BUILD_PLAN V14)",
     }
+    # I25 (rule L8): evidenced-pair coverage, relative to the frozen evidence set (Prop 6.11), from
+    # gen/<M>/par_lossy/*.json and spec/<M>/evidence_review.jsonl; absent for a milestone without PAR-lossy documents
+    from .rules.par_lossy import metric as lossy_metric
+    epc = lossy_metric(milestone, root)
+    if epc is not None:
+        doc["evidenced_pair_coverage"] = epc
     pa = prediction_accuracy(milestone, recs, root)
     if pa is not None:
         doc["prediction_accuracy"] = pa
