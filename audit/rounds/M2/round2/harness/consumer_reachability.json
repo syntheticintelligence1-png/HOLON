@@ -1,0 +1,26 @@
+{
+  "doc": "Audit round M2/2, auditor A2 (I21-P13): the auditor's reading of the pinned node's derivation (/root/work/morph at 3e44e795586af3e11285b603ab642c67823add51, node/derivation and node/flags) for each step at which (*BatchInfo).ParseBatch rejected real mainnet commits in the go_consumer surface. holon audit hostile attaches the entry of a rejection label to its target finding as \"reachability\". It is the auditor's argument from the code (file:line at the pinned commit), checked by reading, not by running a node: no L1 endpoint runs here.",
+  "checkout_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "labels": {
+    "error:header_index": {
+      "public_schedule": [
+        "L1, at the time of each commit: the submitter's commitBatch (selectors 0xd63b3549 and 0x4a8d544f of the then-current ABIs) was accepted by the deployed Rollup; I59's replay holds all 2954 commits",
+        "L1, pinned code: Rollup.commitBatch's _loadBatchHeader (contracts/contracts/l1/rollup/Rollup.sol:259) accepts each of the 2954 parent headers too (sol_loader's harness on the real parents: solidity_on_rejected); BatchHeaderCodecV0.loadAndValidate requires only length >= 249",
+        "node: derivationBlock (node/derivation/derivation.go:236) fetches the Rollup's CommitBatch logs in [start, end] (:263-286) and, per log: local verify mode (the default, config.go:43) calls fetchBatchInfoOutline (:310), whose BatchIndex on the parent (verify_local.go:67) fails on a 281-byte version-0 header (common/batch validate: length != 249); layer1 mode calls fetchRollupDataByTxHash (:456) -> UnPackData -> parseBatch -> ParseBatch, whose BatchIndex (batch_info.go:92) fails the same way"
+      ],
+      "node_behaviour": "either mode logs the error and returns from derivationBlock (derivation.go:315-316 local, :461-462 layer1) before WriteLatestDerivationL1Height (:521): the L1 cursor does not advance, every later poll fetches the same log and fails again, so derivation stops for good at the first such commit (no batch after it is derived or verified by this node)",
+      "reachable_on_mainnet": "only with a non-default start height. With no stored cursor and no --derivation.startHeight, the first run pins the start to the latest confirmed L1 block (derivation.go:165-176), and the --mainnet preset sets only the rollup address (config.go:142-143), so a default node never processes these historical commits. An operator who sets --derivation.startHeight (flags.go:172-176, DERIVATION_START_HEIGHT) at or below the L1 block of the commit of any of batches 2..7575, as a node deriving the chain from L1 since the rollup's deployment would, reaches it: local mode stops at the first of these commits in its range; layer1 mode stops at batch 1 already if its range holds it (error:other, below), else at the first of these.",
+      "upstream_report": "for the human to decide (I21 report, Questions for the human)"
+    },
+    "error:other": {
+      "public_schedule": [
+        "L1, at the time of each commit: the submitter's commitBatch (selector 0xd63b3549) with one blob, the all-zero blob (its sha256 is fa43239b...e471, the versioned hash 0x010657f3...4014 of Rollup.sol's ZERO_VERSIONED_HASH), was accepted; I59's replay holds the 8 commits (batches 1, 23, 25, 26, 27, 28, 271 and 310)",
+        "node, layer1 mode: fetchRollupDataByTxHash (:456) -> UnPackData (ok) -> ParseBatch: the header steps pass (the parents are 249-byte version-0 headers), RetrieveBlobBytes of the zero blob gives zero bytes and zstd.DecompressBatchBytes fails ('morph da zstd decode: invalid frame', batch_info.go:122-124)"
+      ],
+      "node_behaviour": "layer1 mode returns from derivationBlock (:461-462) without advancing the cursor, as above: derivation stops at the first such commit. Local mode's fetchBatchInfoOutline decodes no blob, so it does not stop there.",
+      "reachable_on_mainnet": "only with a non-default start height (as above) and --derivation.verify-mode layer1, with the range holding the commit of batch 1, 23, 25-28, 271 or 310.",
+      "related_hypothesis": "HypZ (Dec(Enc x ++ 0^k) = x): the codec encodes the empty payload as nothing, and decoding zero bytes fails, so HypZ is false at x = the empty payload (A4, audit round M2/2); these 8 commits are its instances on mainnet",
+      "upstream_report": "for the human to decide (I21 report, Questions for the human)"
+    }
+  }
+}
