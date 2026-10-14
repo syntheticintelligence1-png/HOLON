@@ -141,6 +141,7 @@ class Ctx:
         self.out = self.rc.out
         self.log = log
         self.usc = U.load_sidecar(milestone, self.root, undo_sidecar)
+        self.deadline: float | None = None   # holon run --deadline: a wall-clock time box on each search
         self.traces: dict = {}
 
     def trace(self, doc_rel: str) -> TraceCtx:
@@ -233,7 +234,7 @@ class Decider:
                 kept["w"] = w2
                 return None
         s = US.UndoSearch(tc.factory, tc.doc, self.ctx.sorts_of(tc.doc_rel), self.ctx.usc.search, log=self.ctx.log,
-                          accept=accept)
+                          accept=accept, deadline=self.ctx.deadline)
         w, bound = self._search(s, el, tc)
         return (kept.get("w", w) if w is not None else None), bound
 
@@ -477,6 +478,7 @@ def run_main(a, ids: list[str] | None = None) -> int:
     gen = Path(a.gen_dir).resolve() if a.gen_dir else None
     out = Path(a.out).resolve() if a.out else None
     ctx = Ctx(a.milestone, root, a.sidecar, a.undo_sidecar, gen, out)
+    ctx.deadline = getattr(a, "deadline", None)
     lids = undo_laws(ctx.rc.derivation)
     if ids is not None:
         lids = [x for x in lids if x in set(ids)]
@@ -496,8 +498,13 @@ def run_main(a, ids: list[str] | None = None) -> int:
             report["laws"].pop(lid, None)
             if rep is not None:
                 report["laws"][lid] = rep
-        report["laws"] = dict(sorted(report["laws"].items()))
-        if own:
+        if own:   # merged into the report as it is now: runs of other laws may have written it meanwhile
+            cur = json.loads(rp.read_text()) if rp.is_file() else dict(report, laws={})
+            for lid in lids:
+                cur["laws"].pop(lid, None)
+                if lid in report["laws"]:
+                    cur["laws"][lid] = report["laws"][lid]
+            report = dict(cur, laws=dict(sorted(cur["laws"].items())))
             rp.parent.mkdir(parents=True, exist_ok=True)
             rp.write_text(dumps(report), encoding="utf-8")
             c = U.classification(ctx.m, ctx.root)
@@ -541,22 +548,33 @@ def replay_main(a) -> int:
         ctx.close()
 
 
-def split_argv(argv: list) -> tuple[list, str | None]:
-    """argv without --undo-sidecar (run3's parser does not take it), and its value."""
+def split_argv(argv: list, opt: str = "--undo-sidecar") -> tuple[list, str | None]:
+    """argv without opt (run3's parser takes neither --undo-sidecar nor --deadline), and its value."""
     out, val, skip = [], None, False
     for i, x in enumerate(argv):
         if skip:
             skip = False
             continue
-        if x == "--undo-sidecar":
+        if x == opt:
             val = argv[i + 1] if i + 1 < len(argv) else None
             skip = True
             continue
-        if x.startswith("--undo-sidecar="):
+        if x.startswith(opt + "="):
             val = x.split("=", 1)[1]
             continue
         out.append(x)
     return out, val
+
+
+def parse_deadline(v: str | None) -> float | None:
+    """--deadline: an ISO 8601 UTC time (2026-01-01T12:00:00Z) or epoch seconds; None without one."""
+    if not v:
+        return None
+    try:
+        return float(v)
+    except ValueError:
+        from datetime import datetime
+        return datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp()
 
 
 def main(argv: list) -> int:
@@ -564,6 +582,7 @@ def main(argv: list) -> int:
     the milestone's UNDO sidecar: spec/<M>/lib/undo.json, or --undo-sidecar for a test milestone)."""
     cmd = argv[0]
     rest, usc = split_argv(argv[1:])
+    rest, dl = split_argv(rest, "--deadline")
     ap = argparse.ArgumentParser(prog=f"holon {cmd}")
     ap.add_argument("--milestone", required=True)
     ap.add_argument("--sidecar")
@@ -572,6 +591,7 @@ def main(argv: list) -> int:
     ap.add_argument("--gen-dir")
     a, _unknown = ap.parse_known_args(rest)
     a.undo_sidecar = usc
+    a.deadline = parse_deadline(dl)
     root = ROOT
     try:
         dv = json.loads((root / "laws" / a.milestone / "DERIVATION.json").read_text())

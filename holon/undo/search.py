@@ -220,6 +220,10 @@ class Budget(Exception):
     pass
 
 
+class TimeBox(Exception):
+    """The caller's wall-clock time box (holon run --deadline) ended the search before its budget did."""
+
+
 class Disagree(Exception):
     """The real side refused X_VARIANTS witnesses in a row because a step the model runs successfully (x or y, with
     the model's external-call answers) does not succeed on the deployment: the model's answers for that action's
@@ -233,7 +237,8 @@ class UndoSearch:
     in a row for the same pair-step reason (Disagree: the model's call answers for that action are not the
     deployment's), which ends the search without a witness."""
 
-    def __init__(self, model_f, doc: dict, sorts: dict, budget: dict, log=None, accept=None):
+    def __init__(self, model_f, doc: dict, sorts: dict, budget: dict, log=None, accept=None,
+                 deadline: float | None = None):
         self.mf = model_f
         self.accept = accept
         self.refused = 0
@@ -251,12 +256,18 @@ class UndoSearch:
         self.cands = 0
         self.max_cands = int(self.budget.get("max_candidates", 200000))
         self.cont_depth = int(self.budget.get("continuation_depth", 2))
+        self.deadline = deadline
+
+    def timebox(self) -> None:
+        if self.deadline is not None and time.time() > self.deadline:
+            raise TimeBox()
 
     # ---------------------------------------------------------- helpers
     def tick(self, n: int = 1) -> None:
         self.cands += n
         if self.cands > self.max_cands:
             raise Budget()
+        self.timebox()
 
     def st_of(self, g: str) -> dict:
         return {"$call": "gh_get_st", "args": [{"$ref": g}]}
@@ -534,6 +545,7 @@ class UndoSearch:
             for d in range(depth + 1):
                 nxt = []
                 for trace, g in level:
+                    self.timebox()
                     w = at(trace, g)
                     if w is not None:
                         self.log(f"  witness at prefix depth {d} after {tried} states, {self.cands} candidates "
@@ -559,6 +571,12 @@ class UndoSearch:
                     break
         except Budget:
             return None, (f"the candidate budget ({self.max_cands}) ran out after {tried} prefix states; no witness"
+                          + self.refused_note())
+        except TimeBox:
+            when = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(self.deadline))
+            return None, (f"the time box ({when}) ended the search after {tried} prefix states and {self.cands} "
+                          f"candidates, at prefix depth <= {depth}; the preregistered budget (max {maxp} prefix "
+                          f"states, {self.max_cands} candidates) was not exhausted: no witness, and no bound"
                           + self.refused_note())
         except Disagree as e:
             return None, (f"stopped after {tried} prefix states and {self.cands} candidates: {self.X_VARIANTS} model "
