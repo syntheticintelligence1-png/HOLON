@@ -1395,6 +1395,7 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                     info["status"] = "PROVED" if ok else "UNKNOWN"
                     info["bend_seconds"] = r.seconds
                     info["bendtt"] = None if v is None else ("accepted" if v.ok else "rejected")
+                    info["bendtt_seconds"] = None if v is None else v.seconds
                     if not ok:
                         info["reason"] = ("escape hatch: " + ", ".join(hatches) if hatches else
                                           kernel_message((v.out if (v is not None and r.ok) else r.out)))
