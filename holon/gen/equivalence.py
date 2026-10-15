@@ -769,6 +769,8 @@ class Gen:
                 return leaf(n.expr, sub, bound, ind)
             if n.kind == "let":
                 ch = let_chain(n) if chain and not core else None
+                if ch is not None and not _duplicating(ch):
+                    ch = None   # the inlined chain is not much larger than its lets: the flat text is cheaper to check
                 if ch is not None:
                     r = chain_leaf(ch, sub, bound, ind, tys)
                     if r is not None:
@@ -1007,6 +1009,25 @@ class Gen:
                 body.append(f"      {ALIAS}.{cdst}{{{', '.join(out_args)}}}")
             proofs.append("\n".join(body) + "\n")
         return "\n".join(laws), "\n".join(proofs)
+
+
+CHAIN_GROWTH = 2.0
+
+
+def _duplicating(ch) -> bool:
+    """F35: a chain of lets whose leaf, with every let inlined, is more than CHAIN_GROWTH times the size of the lets and
+    the leaf written once (a let read more than once, again and again: a storage-write chain). Only such chains are
+    proved one let at a time; inlining any other costs less than the per-let helpers and lemmas (measured: a chain
+    with no repeated let, proved per let, took bend2 four times as long as its flat text)."""
+    lets, expr = ch
+    sub: dict = {}
+    for v, e in lets:
+        sub[v] = "(" + _IDENT.sub(lambda m: sub.get(m.group(1), m.group(1)), e) + ")"
+        if len(sub[v]) > 1 << 22:
+            return True
+    flat = len(_IDENT.sub(lambda m: sub.get(m.group(1), m.group(1)), expr))
+    plain = sum(len(e) for _, e in lets) + len(expr)
+    return flat > CHAIN_GROWTH * plain
 
 
 def _replace_calls(text: str, call: str, new: str) -> str:
@@ -1543,6 +1564,8 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
             for f in changed:
                 if f in proven:
                     out["lemmas"][f] = {"status": "PROVED", "class": proven[f]["class"], "attempts": search.attempts[f]}
+                    if proven[f].get("deferred"):   # unchecked by the search: the final check below decides it
+                        out["lemmas"][f]["status"] = "DEFERRED"
                 elif f in failed:
                     out["lemmas"][f] = {"status": "UNKNOWN", "class": None, "attempts": search.attempts[f]}
                 else:
@@ -1618,6 +1641,13 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                     ok = v.ok
                     if ok:
                         kern.append("BendTT")
+                if ok and (v is not None or not verdict):
+                    search.confirm()
+                    for f in out["lemmas"]:
+                        if out["lemmas"][f]["status"] == "DEFERRED":
+                            out["lemmas"][f]["status"] = "PROVED"
+                    if search.stats.get("deferred"):
+                        out["final"]["deferred_lemmas"] = search.stats["deferred"]
                 for info in out["roots"]:
                     if info["status"] == "PENDING":
                         info["status"] = "PROVED" if ok else "UNKNOWN"

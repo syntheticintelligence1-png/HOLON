@@ -14,6 +14,10 @@ Contract:
   verdict     the planted chain (a value that each let names twice, through a changed callee) is PROVED by bend2
               and by BendTT (--verdict, when available); a planted non-equivalent chain is never PROVED.
   determinism two runs give byte-identical proofs.
+  deferral    once a batch check of the lemma search hits bend.timeout_s, the remaining candidates are deferred:
+              unchecked, never cached, decided by the final whole-proof check alone (a wrong one is refused there and
+              searched again); with every batch check timing out, the planted chain is still PROVED by the final check
+              and the planted difference never is.
   Q34         equivalence.timeout_s (900) bounds only the final whole-proof check and G2's re-check, each kernel; a
               check that hits it is UNKNOWN; a checker crash is retried and logged, never acceptance.
 """
@@ -215,6 +219,33 @@ class TestQ34Bound(unittest.TestCase):
         w = [i for i in r["roots"] if i["root"] == "w"][0]
         self.assertEqual(w["status"], "UNKNOWN")
         self.assertIn("equivalence.timeout_s", w["reason"])
+
+
+class TestDeferral(unittest.TestCase):
+    def run_deferred(self, new: str) -> dict:
+        real = bend.check
+
+        def fake_check(p, cfg=None, timeout=None):   # every batch check of the search times out
+            if timeout is None:
+                return bend.Run(None, "\n[timeout]", 180.0, [])
+            return real(p, cfg, timeout)
+        with mock.patch.object(bend, "check", side_effect=fake_check):
+            return E.prove(OLD, new, STATEMENT, counter_tries=0, cache=ES.LemmaCache(None))
+
+    def test_deferred_lemmas_are_decided_by_the_final_check(self):
+        r = self.run_deferred(NEW)
+        self.assertEqual(r["status"], "PROVED", r["reason"])
+        self.assertGreater(r["final"].get("deferred_lemmas", 0), 0)
+        self.assertGreater(r["search"]["timeouts"], 0)
+        if bend.verdict_enabled():
+            self.assertIn("BendTT", r["kernels"])
+        self.assertTrue(all(v["status"] == "PROVED" for v in r["lemmas"].values()))
+
+    def test_a_deferred_difference_is_never_proved(self):
+        r = self.run_deferred(PLANTED)
+        self.assertNotEqual(r["status"], "PROVED")
+        self.assertNotIn("BendTT", r["kernels"] or [])
+        self.assertTrue(any(v["status"] != "PROVED" for v in r["lemmas"].values()))
 
 
 if __name__ == "__main__":
