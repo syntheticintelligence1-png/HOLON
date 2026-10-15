@@ -1047,7 +1047,7 @@ class Gate:
         from . import statement_diff as SD
         # I10: every entry of the statement-change log is accepted, each checked once against the tree it was
         # appended to (F-M2-22); and every statement-hash change is tied to an accepted entry (F-M2-08)
-        sd = SD.scan(self.root / SD.LOG, self.root)
+        sd = SD.scan(self.root / SD.LOG, self.root, milestone=self.m)
         if sd["problems"]:
             self.checks["G2"] = _res(False, "laws/STATEMENT_DIFF.jsonl: " + "; ".join(sd["problems"]))
             return

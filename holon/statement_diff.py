@@ -806,9 +806,12 @@ def _line_tag(e) -> str:
     return f"{e.get('kind')} {lid}"
 
 
-def scan(path: Path, root: Path, kinds=None) -> dict:
+def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> dict:
     """Every line of a STATEMENT_DIFF.jsonl with its verdict (see the module docstring):
-    {"problems": [..], "entries": [{"line", "entry", "ok", "committed", "commit"}], "git": bool, "note": str}."""
+    {"problems": [..], "entries": [{"line", "entry", "ok", "committed", "commit"}], "git": bool, "note": str}.
+    milestone (F35): the milestone being gated. Off git (a copied tree), a binding_change line of ANOTHER milestone
+    cannot be checked (it needs the old model at its bound commit) and is not that gate's claim: it is listed in the
+    note as not checked, never as accepted. Its own milestone's binding_change lines still fail off git."""
     path, root = Path(path), Path(root)
     out = {"problems": [], "entries": [], "git": False, "note": ""}
     if not path.is_file():
@@ -843,6 +846,10 @@ def scan(path: Path, root: Path, kinds=None) -> dict:
             continue
         if kinds is not None and (not isinstance(e, dict) or e.get("kind") not in kinds):
             continue   # only these kinds are checked (catalog_bridge)
+        if hist is None and milestone and isinstance(e, dict) and e.get("kind") == "binding_change" \
+                and e.get("milestone") and e.get("milestone") != milestone:
+            out.setdefault("unchecked", []).append(n)
+            continue
         commit = next((c for end, c in spans if start < end), None) if start < committed_len else None
         item = {"line": n, "entry": e, "ok": False, "committed": commit is not None, "commit": commit}
         out["entries"].append(item)
@@ -865,6 +872,9 @@ def scan(path: Path, root: Path, kinds=None) -> dict:
                                    "working tree")
         else:
             item["ok"] = True
+    if out.get("unchecked"):
+        out["note"] += (f"; {len(out['unchecked'])} binding_change line(s) of another milestone not checked here (no git "
+                        f"history; lines {', '.join(map(str, out['unchecked']))})")
     return out
 
 
