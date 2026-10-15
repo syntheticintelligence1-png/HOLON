@@ -2,7 +2,12 @@
 differential with --no-registry on the extracted facts"). The contract is clause 4 of the docstring of
 tests_m2/test_extracted_refinement.py.
 
-  python -m holon differential --milestone M2 [--root DIR]
+  python -m holon differential --milestone M2 [--root DIR] [--reuse-view]
+
+--reuse-view (I43) skips the extraction of step 1, which needs the replay toolchain (solc and the target checkout:
+holon.machine.load_extracted), and reuses the deltas of the committed gen/<M>/abstraction_diff.json: it recomputes the
+view of step 2 from them and refuses (exit 2, writing nothing) unless the view is the committed
+gen/<M>/extracted/m1_view.json byte for byte; steps 3 and 4 run as usual. G1 runs the full differential.
 
 For every window declaration of the milestone (holon.window: an extracted transitions document and the hand
 abstraction it views), this module
@@ -338,11 +343,76 @@ def ghost_reason(law: dict, ab: Abstraction, readers: set) -> str | None:
 
 
 # ------------------------------------------------------------------------------------------------ the run
-def run(milestone: str = "M2", root=None, log=print, out=None) -> int:
+class ReuseRefused(Exception):
+    """--reuse-view cannot stand for the extraction: the committed deltas or view are missing, or the view the
+    committed deltas give today is not the committed one, byte for byte."""
+
+
+def _document_sha256(doc_rel: str, root: Path) -> str:
+    """sha256 of the extracted document's bytes, located as holon.machine.load_extracted locates it (repo-relative or
+    absolute), which is what the extracted model's sha256 is."""
+    p = Path(doc_rel)
+    if not p.is_absolute():
+        p = (root / p) if (root / p).exists() else Path.cwd() / p
+    return sha256_file(p)
+
+
+def _committed_deltas(milestone: str, root: Path) -> list[dict]:
+    p = root / "gen" / milestone / "abstraction_diff.json"
+    try:
+        doc = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        raise ReuseRefused(f"no committed gen/{milestone}/abstraction_diff.json to reuse ({type(e).__name__}: {e})")
+    if doc.get("differential_version") != DIFF_VERSION or not isinstance(doc.get("deltas"), list):
+        raise ReuseRefused(f"gen/{milestone}/abstraction_diff.json is not a {DIFF_VERSION} document")
+    return doc["deltas"]
+
+
+def _plan(milestone: str, root: Path, decls: list, reuse_view: bool) -> list[tuple]:
+    """Per window declaration: (its repo-relative path, the declaration, the abstraction, its Abstraction, the deltas,
+    the view's text). With reuse_view the deltas are the committed abstraction_diff.json's (no extraction, so no replay
+    toolchain), and the view they give must be the committed m1_view.json byte for byte (ReuseRefused otherwise);
+    nothing is written here."""
+    from . import machine
+    committed = _committed_deltas(milestone, root) if reuse_view else None
+    plans = []
+    for p, decl in decls:
+        W.validate(decl, p)
+        drel = p.relative_to(root).as_posix()
+        fpath = root / decl["abstraction"]
+        facts = W.load_abstraction(decl, root)
+        ab = Abstraction(facts, lib_texts(fpath, root))
+        if reuse_view:
+            deltas = [{k: v for k, v in d.items() if k != "declaration"} for d in committed
+                      if isinstance(d, dict) and d.get("declaration") == drel]
+            doc_sha = _document_sha256(decl["facts"], root)
+        else:
+            model = machine.load_extracted(decl["facts"], root)
+            deltas = compute_deltas(model, decl, facts, ab)
+            doc_sha = model.sha256
+        view = dumps(view_facts(facts, deltas, decl["facts"], doc_sha, drel))
+        if reuse_view:
+            vp = root / "gen" / milestone / "extracted" / "m1_view.json"
+            if not vp.is_file() or vp.read_bytes() != view.encode("utf-8"):
+                raise ReuseRefused(f"the view the committed deltas of {drel} give today is not the committed "
+                                   f"gen/{milestone}/extracted/m1_view.json (an input of the view changed since it "
+                                   "was extracted): run holon differential without --reuse-view, with the replay "
+                                   "toolchain")
+        plans.append((drel, decl, facts, ab, deltas, view))
+    return plans
+
+
+def run(milestone: str = "M2", root=None, log=print, out=None, reuse_view: bool = False) -> int:
     """The differential of the tree under root; its outputs go under out (default: root itself): gen/<M>/extracted/
     (m1_view.json, m1/), gen/<M>/abstraction_diff.json, results/<M>/extracted_m1/ and results/<M>/differential.json
-    (G1 regenerates them into a scratch directory, holon.gate.regenerate_m2_outputs)."""
-    from . import ir, machine
+    (G1 regenerates them into a scratch directory, holon.gate.regenerate_m2_outputs).
+
+    reuse_view (I43; --reuse-view): skip the extraction (holon.machine.load_extracted, which needs the replay
+    toolchain) and reuse the deltas of the committed gen/<M>/abstraction_diff.json; recompute the view from them and
+    refuse (ReuseRefused, before writing anything) unless it is the committed gen/<M>/extracted/m1_view.json byte for
+    byte; then run the rest as usual (the M1 laws on the view, the not-run stubs, summary.json with every law,
+    differential.json and abstraction_diff.json)."""
+    from . import ir
     from .mpipeline import run_m1
     root = Path(root or ROOT)
     out = Path(out or root)
@@ -351,14 +421,7 @@ def run(milestone: str = "M2", root=None, log=print, out=None) -> int:
         log(f"holon differential: no window declaration under spec/{milestone}/lib/")
         return 1
     diffs, laws_out = [], {}
-    for p, decl in decls:
-        W.validate(decl, p)
-        drel = p.relative_to(root).as_posix()
-        model = machine.load_extracted(decl["facts"], root)
-        fpath = root / decl["abstraction"]
-        facts = W.load_abstraction(decl, root)
-        ab = Abstraction(facts, lib_texts(fpath, root))
-        deltas = compute_deltas(model, decl, facts, ab)
+    for drel, decl, facts, ab, deltas, view in _plan(milestone, root, decls, reuse_view):
         diffs += [dict(d, declaration=drel) for d in deltas]
         m1 = _milestone_of(decl["abstraction"])
         laws = [law for law in ir.load_laws_any(m1, root) if law.get("facts") == decl["abstraction"]]
@@ -366,7 +429,7 @@ def run(milestone: str = "M2", root=None, log=print, out=None) -> int:
         gen = out / "gen" / milestone / "extracted"
         gen.mkdir(parents=True, exist_ok=True)
         vf = gen / "m1_view.json"
-        vf.write_text(dumps(view_facts(facts, deltas, decl["facts"], model.sha256, drel)), encoding="utf-8")
+        vf.write_text(view, encoding="utf-8")
         readers = ab.ghost_readers()
         ghost_ids = [d["id"] for d in deltas if d["kind"] == "ghost"]
         skip = {law["law_id"]: ghost_reason(law, ab, readers) for law in laws}
@@ -374,7 +437,10 @@ def run(milestone: str = "M2", root=None, log=print, out=None) -> int:
         out_dir = out / "results" / milestone / "extracted_m1"
         statuses: dict = {}
         if runnable:
-            res = run_m1(m1, str(vf), str(out_dir), str(gen / "m1"), True, log=log, only=runnable)
+            # the records read the Lean report of the view's Lean directory (holon.lean: key "<M>/extracted_m1", this
+            # module's results/<M>/extracted_m1 layout), under root, never under out
+            res = run_m1(m1, str(vf), str(out_dir), str(gen / "m1"), True, log=log, only=runnable,
+                         lean_key=f"{milestone}/extracted_m1")
             statuses.update({lid: res.get(lid, "UNKNOWN") for lid in runnable})
         for lid, why in sorted(skip.items()):
             if why is None:
@@ -446,9 +512,15 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="holon differential")
     ap.add_argument("--milestone", default="M2")
     ap.add_argument("--root")
+    ap.add_argument("--reuse-view", action="store_true",
+                    help="reuse the committed deltas instead of extracting (no replay toolchain); refused (exit 2) "
+                         "unless they give the committed view byte for byte")
     a = ap.parse_args(argv)
     try:
-        return run(a.milestone, a.root)
+        return run(a.milestone, a.root, reuse_view=a.reuse_view)
+    except ReuseRefused as e:
+        print(f"holon differential: refused: {e}", file=sys.stderr)
+        return 2
     except (W.WindowError, ValueError) as e:
         print(f"holon differential: {type(e).__name__}: {e}", file=sys.stderr)
         return 1

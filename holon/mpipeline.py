@@ -33,6 +33,11 @@ the inbox file at the layout path and its law file the generators' statement; th
 the intake's attempt is last; checker, kernels, independence_class and non_vacuity are those of any PROVED record, and
 bound is null. Refused: the record stays as the generators left it, with one more attempt that carries the reason.
 Every other record has prover "generator". The exit status does not depend on the inbox.
+
+Lean for the promoted set (I43): a target milestone's record carries, last in kernels[], the lean4 entry
+holon.lean.kernel_entry_v2 reads from the committed report of the law's Lean directory (lean_key, or holon.lean.
+dir_key_for), computed once status, witness, witnesses and attempts are final; independence_class is I2 exactly when
+it is checked (holon.records). Regeneration order: holon run, holon lean, holon run again.
 """
 from __future__ import annotations
 
@@ -45,6 +50,7 @@ from pathlib import Path
 
 from . import bend, bindings, inhabit, intake, ir, records
 from . import facts as F
+from . import lean as LN
 from .gen import mlaws, mproofs
 from .gen import oracles as O
 from .gen import refs as R
@@ -615,7 +621,10 @@ def clean_gen(gen: Path, only: list[str] | None = None) -> None:
 
 
 def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str | None, no_registry: bool, log=print,
-           core: str = "import", only: list[str] | None = None) -> dict:
+           core: str = "import", only: list[str] | None = None, lean_key: str | None = None) -> dict:
+    """lean_key (I43): the Lean directory whose committed report the records read (holon.lean.kernel_entry_v2), e.g.
+    "M2/extracted_m1" for the M1 laws on M2's window view (holon.differential); by default the milestone's directory
+    whose facts document has the law's facts' content (holon.lean.dir_key_for), never one under gen_dir or out."""
     cfg = bend.config(ROOT)
     laws = ir.load_laws_any(milestone, ROOT)
     reg = ir.load_registry(milestone, ROOT)
@@ -630,6 +639,17 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
 
     def fpath_of(law: dict) -> Path:
         return override if (override and law["facts"] == primary) else ROOT / law["facts"]
+    lean_keys: dict = {}
+
+    def lean_entry_of(law: dict, rec: dict) -> dict | None:
+        """The record's lean4 entry (I43): read from the committed report under ROOT, after status, witness,
+        witnesses and attempts are final; none for a test milestone."""
+        if test_milestone(milestone):
+            return None
+        fp = fpath_of(law)
+        if fp not in lean_keys:
+            lean_keys[fp] = lean_key if lean_key is not None else LN.dir_key_for(milestone, fp, ROOT)
+        return LN.kernel_entry_v2(lean_keys[fp], law, fp, rec, ROOT)
     if no_registry:
         laws = [ir.rebind_facts(l, F.sha256_file(fpath_of(l))) for l in laws]
     else:
@@ -916,6 +936,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         rec["attempts"] = attempts
         kbound["laws"][lid] = {"model": model_src.stem, "cone": law_cone(law, cm.facts, stmt_text, model_src, cfg)}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT,
+                                     lean_entry=lean_entry_of(law, rec),
                                      ledger_required=not test_milestone(milestone),
                                      prover=agent[0]["prover"] if status == "PROVED" and agent is not None
                                      else "generator"))
