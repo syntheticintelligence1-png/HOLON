@@ -49,8 +49,8 @@ report. The pipelines read the report through kernel_entry_v2: a record's lean4 
 checked exactly the text emitted now, with the same verdict, statement hash and main theorem.
 
 The emission reads documents only: the laws, the committed records (status, witness, witnesses, attempts), the facts,
-the oracle sidecar spec/<M>/lib/oracles.json (modelled parameters), the SORT-site sidecar spec/<M>/lib/sort_sites.json
-and <laws dir>/DERIVATION.json (site entries). It never imports a Bend emitter, holon.sorts, holon.mpipeline or the
+the oracle sidecar spec/<M>/lib/oracles.json (modelled parameters), and through holon.gen.lean_sites.inputs the
+SORT-site entries of <laws dir>/DERIVATION.json and the sort sites sidecar. It never imports a Bend emitter, holon.sorts, holon.mpipeline or the
 facts helpers (rule L1, independence), and never reads a test, an instrument or a frozen sidecar of the contract.
 """
 from __future__ import annotations
@@ -702,35 +702,6 @@ def _oracle_params(milestone: str, facts_rel: str, root: Path) -> dict[str, str]
             if o.get("status") == "modelled" and isinstance(o.get("parameter"), dict)}
 
 
-def _derivation(d: LeanDir, root: Path) -> list[dict]:
-    p = Path(root) / d.laws / "DERIVATION.json"
-    if not p.is_file():
-        return []
-    return [e for e in _load_json(p).get("laws") or [] if isinstance(e, dict)]
-
-
-def _site_entries(d: LeanDir, facts_rel: str, root: Path) -> list[dict]:
-    """The SORT-site entries of the laws directory's DERIVATION.json over this facts document, in law-id order: the
-    sites a machine_oracle model carries (whatever their laws' statuses, so the model depends on documents only)."""
-    return sorted((e for e in _derivation(d, root) if (e.get("basis") or {}).get("kind") == "site"
-                   and e.get("facts") == facts_rel), key=lambda e: str(e.get("law_id")))
-
-
-def _site_entry(d: LeanDir, law_id: str, root: Path) -> dict | None:
-    return next((e for e in _derivation(d, root) if e.get("law_id") == law_id
-                 and (e.get("basis") or {}).get("kind") == "site"), None)
-
-
-def _site_sidecar(milestone: str, root: Path) -> dict:
-    """spec/<M>/lib/sort_sites.json, else M2's (as holon.sorts.sites reads it)."""
-    p = Path(root) / "spec" / milestone / "lib" / "sort_sites.json"
-    if not p.is_file():
-        p = Path(root) / "spec" / "M2" / "lib" / "sort_sites.json"
-    if not p.is_file():
-        raise LC.Unsupported(f"no SORT-site sidecar spec/{milestone}/lib/sort_sites.json")
-    return _load_json(p)
-
-
 def _laws_over(d: LeanDir, facts_rel: str, root: Path) -> list[dict]:
     """Every law of the directory's laws, of any status, whose facts document is facts_rel (for the view: the laws
     over the registry's facts, which the view stands for)."""
@@ -750,12 +721,13 @@ _MODELS: dict = {}
 
 
 def _build_model(d: LeanDir, law: dict, facts_path: Path, facts: dict, kind: str, root: Path):
-    """(Model, context) of a directory's model of one facts document; context: the machine Ctx, or the codec
-    document for the linked kind."""
+    """(Model, context, site entries) of a directory's model of one facts document. context: the machine Ctx, or the
+    codec document for the linked kind; site entries: the SORT-site derivation entries over the document
+    (holon.gen.lean_sites.inputs: <laws dir>/DERIVATION.json and the sort sites sidecar), machine_oracle only."""
     stem = _stem(facts_path, facts, kind)
     if kind == "linked":
         from .gen import lean_linked
-        return lean_linked.model(facts, stem), facts
+        return lean_linked.model(facts, stem), facts, []
     if kind not in ("machine", "machine_oracle"):
         raise LC.Unsupported(f"no Lean emitter covers model kind {kind!r} (rule L1)")
     from .gen import lean_machine, lean_mlaws, lean_sites
@@ -764,12 +736,12 @@ def _build_model(d: LeanDir, law: dict, facts_path: Path, facts: dict, kind: str
     params = _oracle_params(d.milestone, rel, root) if kind == "machine_oracle" else {}
     ctx = lean_machine.Ctx(facts, kind, params, lean_machine.lib_twin(Path(root) / anchor, Path(root)), stem)
     views = sorted({v for x in _laws_over(d, rel, root) for v in lean_mlaws.views(x)})
+    entries: list[dict] = []
     sites: list[str] = []
-    if kind == "machine_oracle":
-        entries = _site_entries(d, rel, root)
-        if entries:
-            sites = list(lean_sites.section(ctx, entries, _site_sidecar(d.milestone, root)))
-    return lean_machine.model(ctx, views, sites), ctx
+    if kind == "machine_oracle":   # the site declarations, and the oracle instances a site witness names
+        entries, sidecar = lean_sites.inputs(Path(root), Path(d.laws).name, rel)
+        sites = list(lean_sites.section(ctx, entries, sidecar))
+    return lean_machine.model(ctx, views, sites), ctx, entries
 
 
 def _model_of(d: LeanDir, law: dict, facts_path: Path, facts: dict, kind: str, root: Path):
@@ -789,10 +761,12 @@ def _model_of(d: LeanDir, law: dict, facts_path: Path, facts: dict, kind: str, r
 
 
 def _law_file(d: LeanDir, law: dict, record: dict, facts_path: Path, facts: dict, root: Path) -> LC.LawFile:
-    """The law file of one attempted law, dispatched by its model kind and Lean class; raises Unsupported."""
+    """The law file of one attempted law, dispatched by its model kind and Lean class; raises Unsupported. A machine
+    law with a site term (or of rule SORT, sub-form site) goes to holon.gen.lean_sites with its derivation entry,
+    whatever its status; any other machine law to holon.gen.lean_mproofs; a linked law to holon.gen.lean_linked."""
     status = record.get("status")
     kind = LC.model_kind(facts, law)
-    model, ctx = _model_of(d, law, facts_path, facts, kind, root)
+    model, ctx, entries = _model_of(d, law, facts_path, facts, kind, root)
     cls = LC.lean_class(record)
     lid = law["law_id"]
     if kind == "linked":
@@ -802,12 +776,8 @@ def _law_file(d: LeanDir, law: dict, record: dict, facts_path: Path, facts: dict
     else:
         from .gen import lean_mlaws, lean_mproofs, lean_sites
         stmts = lean_mlaws.statements(law, status, ctx)
-        entry = _site_entry(d, lid, root) if kind == "machine_oracle" else None
-        if entry is not None and cls in ("coercion_guard", LC.COUNTER_CLASS):
-            thms = lean_sites.theorems(cls, law, status, record, ctx, stmts, entry)
-        elif cls == "coercion_guard":
-            raise LC.Unsupported("coercion_guard re-checks a SORT-site law, and this law has no site entry in "
-                                 f"{d.laws}/DERIVATION.json")
+        if lean_mlaws.site_ids(law) or (law.get("rule"), law.get("subform")) == ("SORT", "site"):
+            thms = lean_sites.theorems(cls, law, status, record, ctx, stmts, lean_sites.site_entry(entries, lid))
         else:
             thms = lean_mproofs.theorems(cls, law, status, record, ctx, stmts)
     return LC.LawFile(lid, model, tuple(thms), main_theorem(lid, status), cls)
@@ -862,7 +832,7 @@ def _emission(d: LeanDir, root: Path, lenient: bool = False):
         if not it.attempted:
             continue
         try:
-            m, _ = _model_of(d, it.law, it.facts_path, it.facts, it.kind, root)
+            m = _model_of(d, it.law, it.facts_path, it.facts, it.kind, root)[0]
             if m.stem in models and models[m.stem] != m:
                 raise LeanDirError(f"{d.key}: two different models named {m.stem}")
             models[m.stem] = m
