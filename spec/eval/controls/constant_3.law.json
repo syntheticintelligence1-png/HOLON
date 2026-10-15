@@ -1,0 +1,36 @@
+{
+  "facts": "spec/eval/controls/constant_3.facts.json",
+  "facts_sha256": "06af3c3bd4657683cf914ebb61e1ec11cfac7e83a9c8a081be16434e5e628621",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_i48_constant_3",
+  "milestone": "T48",
+  "notes": "I48 control constant_3 (true; expected PROVED). x_zero: x == 0 on every reachable state (true; not inductive alone; the strengthening y_i == 0 for all i is a set of field constants houdini proposes)",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/1.0",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "x_zero",
+          "of": {
+            "var": "s"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

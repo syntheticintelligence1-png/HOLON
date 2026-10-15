@@ -1,0 +1,36 @@
+{
+  "facts": "spec/eval/controls/value_2.facts.json",
+  "facts_sha256": "c91a839928112376c906e01b8a2195b3deef216a5225fd30796418b6be337ad4",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_i48_value_2",
+  "milestone": "T48",
+  "notes": "I48 control value_2 (false; expected UNKNOWN). flag_down: flag == false on every reachable state",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/1.0",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "flag_down",
+          "of": {
+            "var": "s"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

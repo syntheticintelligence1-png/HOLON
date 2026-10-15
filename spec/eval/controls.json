@@ -1,0 +1,325 @@
+{
+  "budgets": {
+    "maxPrefixes": 3000,
+    "natMax": 5,
+    "prefixDepth": 3,
+    "run": {
+      "maxNodes": 400000,
+      "maxPrefixes": 3000,
+      "natMax": 5,
+      "prefixDepth": 3,
+      "reach_max_tries": 120,
+      "suffixDepth": 4
+    },
+    "run_rule": "I53 passes the run budgets explicitly (explore.mjs and houdini.mjs request budget, holon/mpipeline.py reach_search max_tries) instead of relying on the defaults, which I47's performance loop may change: the within_budget column is true of these budgets, not of whatever the defaults are when I53 runs.",
+    "source": "holon/js/explore.mjs (defaults at the I48 prereg: prefixDepth 3, suffixDepth 4, natMax 5, maxNodes 400000, maxPrefixes 3000), holon/js/policy_gen.mjs (an action's Nat input without facts.search.domains takes 0 and 1), holon/gen/mproofs.py reach_invariant with holon/js/houdini.mjs (strengthenings are field constants only, proposed from a breadth-first exploration of prefixDepth levels, at most maxPrefixes states), holon/mpipeline.py reach_search (max_tries 120); controls set no search hints",
+    "strengthening": "houdini proposes Nat and Bool fields constant on every explored reachable state; no relational candidate",
+    "suffixDepth": 4
+  },
+  "controls": [
+    {
+      "expected": "REFUTED",
+      "facts": "spec/eval/controls/depth_1.facts.json",
+      "family": "depth",
+      "id": "depth_1",
+      "law": "spec/eval/controls/depth_1.law.json",
+      "law_id": "L_i48_depth_1",
+      "size": 1,
+      "truth": false,
+      "within_budget": true,
+      "witness": [
+        {
+          "op": "inc"
+        },
+        {
+          "op": "fire"
+        }
+      ]
+    },
+    {
+      "expected": "REFUTED",
+      "facts": "spec/eval/controls/depth_2.facts.json",
+      "family": "depth",
+      "id": "depth_2",
+      "law": "spec/eval/controls/depth_2.law.json",
+      "law_id": "L_i48_depth_2",
+      "size": 2,
+      "truth": false,
+      "within_budget": true,
+      "witness": [
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "fire"
+        }
+      ]
+    },
+    {
+      "expected": "UNKNOWN",
+      "facts": "spec/eval/controls/depth_4.facts.json",
+      "family": "depth",
+      "id": "depth_4",
+      "law": "spec/eval/controls/depth_4.law.json",
+      "law_id": "L_i48_depth_4",
+      "size": 4,
+      "truth": false,
+      "within_budget": false,
+      "witness": [
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "fire"
+        }
+      ]
+    },
+    {
+      "expected": "UNKNOWN",
+      "facts": "spec/eval/controls/depth_8.facts.json",
+      "family": "depth",
+      "id": "depth_8",
+      "law": "spec/eval/controls/depth_8.law.json",
+      "law_id": "L_i48_depth_8",
+      "size": 8,
+      "truth": false,
+      "within_budget": false,
+      "witness": [
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "fire"
+        }
+      ]
+    },
+    {
+      "expected": "UNKNOWN",
+      "facts": "spec/eval/controls/depth_16.facts.json",
+      "family": "depth",
+      "id": "depth_16",
+      "law": "spec/eval/controls/depth_16.law.json",
+      "law_id": "L_i48_depth_16",
+      "size": 16,
+      "truth": false,
+      "within_budget": false,
+      "witness": [
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "fire"
+        }
+      ]
+    },
+    {
+      "expected": "REFUTED",
+      "facts": "spec/eval/controls/value_1.facts.json",
+      "family": "value",
+      "id": "value_1",
+      "law": "spec/eval/controls/value_1.law.json",
+      "law_id": "L_i48_value_1",
+      "size": 1,
+      "truth": false,
+      "within_budget": true,
+      "witness": [
+        {
+          "d": 1,
+          "op": "fire"
+        }
+      ]
+    },
+    {
+      "expected": "UNKNOWN",
+      "facts": "spec/eval/controls/value_2.facts.json",
+      "family": "value",
+      "id": "value_2",
+      "law": "spec/eval/controls/value_2.law.json",
+      "law_id": "L_i48_value_2",
+      "size": 2,
+      "truth": false,
+      "within_budget": false,
+      "witness": [
+        {
+          "d": 2,
+          "op": "fire"
+        }
+      ]
+    },
+    {
+      "expected": "UNKNOWN",
+      "facts": "spec/eval/controls/value_7.facts.json",
+      "family": "value",
+      "id": "value_7",
+      "law": "spec/eval/controls/value_7.law.json",
+      "law_id": "L_i48_value_7",
+      "size": 7,
+      "truth": false,
+      "within_budget": false,
+      "witness": [
+        {
+          "d": 7,
+          "op": "fire"
+        }
+      ]
+    },
+    {
+      "expected": "UNKNOWN",
+      "facts": "spec/eval/controls/value_1000.facts.json",
+      "family": "value",
+      "id": "value_1000",
+      "law": "spec/eval/controls/value_1000.law.json",
+      "law_id": "L_i48_value_1000",
+      "size": 1000,
+      "truth": false,
+      "within_budget": false,
+      "witness": [
+        {
+          "d": 1000,
+          "op": "fire"
+        }
+      ]
+    },
+    {
+      "expected": "UNKNOWN",
+      "facts": "spec/eval/controls/relational_1.facts.json",
+      "family": "relational",
+      "id": "relational_1",
+      "law": "spec/eval/controls/relational_1.law.json",
+      "law_id": "L_i48_relational_1",
+      "size": 1,
+      "truth": true,
+      "within_budget": false,
+      "witness": null
+    },
+    {
+      "expected": "UNKNOWN",
+      "facts": "spec/eval/controls/relational_2.facts.json",
+      "family": "relational",
+      "id": "relational_2",
+      "law": "spec/eval/controls/relational_2.law.json",
+      "law_id": "L_i48_relational_2",
+      "size": 2,
+      "truth": true,
+      "within_budget": false,
+      "witness": null
+    },
+    {
+      "expected": "UNKNOWN",
+      "facts": "spec/eval/controls/relational_4.facts.json",
+      "family": "relational",
+      "id": "relational_4",
+      "law": "spec/eval/controls/relational_4.law.json",
+      "law_id": "L_i48_relational_4",
+      "size": 4,
+      "truth": true,
+      "within_budget": false,
+      "witness": null
+    },
+    {
+      "expected": "PROVED",
+      "facts": "spec/eval/controls/constant_1.facts.json",
+      "family": "constant",
+      "id": "constant_1",
+      "law": "spec/eval/controls/constant_1.law.json",
+      "law_id": "L_i48_constant_1",
+      "size": 1,
+      "truth": true,
+      "within_budget": true,
+      "witness": null
+    },
+    {
+      "expected": "PROVED",
+      "facts": "spec/eval/controls/constant_3.facts.json",
+      "family": "constant",
+      "id": "constant_3",
+      "law": "spec/eval/controls/constant_3.law.json",
+      "law_id": "L_i48_constant_3",
+      "size": 3,
+      "truth": true,
+      "within_budget": true,
+      "witness": null
+    }
+  ],
+  "controls_version": "holon-eval-controls/0.1",
+  "ledger": "spec/eval/controls/ledger.json",
+  "milestone": "T48"
+}
