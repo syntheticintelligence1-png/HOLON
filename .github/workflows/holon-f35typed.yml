@@ -1,20 +1,17 @@
 # HOLON merge checks (docs/handoff/DEVIN.md §6) in parallel on GitHub-hosted runners.
 # The toolchain is installed once, at the pins in config/holon.json (.github/ci/install_toolchain.sh,
 # every download sha256-checked), cached, and restored by each check job. No secrets are used.
-name: holon-ci
+name: holon-f35-typed
 
 on:
   push:
-    branches: [claude/holon-v2-bend2-c6z3cd, 'claude/ci-**']
-  pull_request:
-    branches: [claude/holon-v2-bend2-c6z3cd]
-  workflow_dispatch:
+    branches: ['claude/ci-f35-typed']
 
 permissions:
   contents: read
 
 concurrency:
-  group: holon-ci-${{ github.ref }}
+  group: holon-f35-typed-${{ github.ref }}
   # every push to the integration branch keeps its own verdict; other refs cancel superseded runs
   cancel-in-progress: ${{ github.ref != 'refs/heads/claude/holon-v2-bend2-c6z3cd' }}
 
@@ -76,50 +73,16 @@ jobs:
             ~/.bend
             ~/holon-work
 
-  check:
-    name: ${{ matrix.name }}
+  typed:
+    name: the three typed M3 records, rerun (holon run --resume)
     needs: toolchain
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ matrix.timeout }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # DEVIN.md section 6 also lists `audit prereg --milestone M5`; spec/M5 does not exist in the repo yet
-          # (PREREG FAILED: spec/M5/predictions.json does not exist), so it joins the matrix when M5 does
-          - name: prereg-M2
-            timeout: 30
-            run: python -m holon audit prereg --milestone M2
-          - name: prereg-M3
-            timeout: 30
-            run: python -m holon audit prereg --milestone M3
-          - name: freeze-check
-            timeout: 15
-            run: python tools/freeze.py check
-          - name: frozen-suite
-            timeout: 120
-            run: HOLON_REPLAY=1 python -m unittest discover -s tests -t . -v
-          - name: gate-M0
-            timeout: 90
-            run: python -m holon gate --milestone M0 --report "$RUNNER_TEMP/ci-out/gate_report_M0.json"
-            report: "$RUNNER_TEMP/ci-out/gate_report_M0.json"
-          - name: gate-M1
-            timeout: 90
-            run: python -m holon gate --milestone M1 --report "$RUNNER_TEMP/ci-out/gate_report_M1.json"
-            report: "$RUNNER_TEMP/ci-out/gate_report_M1.json"
-          - name: gate-M2
-            timeout: 120
-            run: python -m holon gate --milestone M2 --report "$RUNNER_TEMP/ci-out/gate_report_M2.json"
-            report: "$RUNNER_TEMP/ci-out/gate_report_M2.json"
-          - name: gate-M3-partial
-            timeout: 120
-            run: python -m holon gate --milestone M3 --checks G3,G5,G8,G9,G11,G11V,GEVID --report "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
-            report: "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
+    timeout-minutes: 330
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0  # prereg audit and G2 read the history
-          persist-credentials: false  # the checks run repository code; they need no token
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -146,25 +109,49 @@ jobs:
             ~/holon-work
       - name: Verify the pins
         run: python .github/ci/verify_toolchain.py
-      - name: ${{ matrix.name }}
+      - name: Rerun the three typed laws
         run: |
-          mkdir -p "$RUNNER_TEMP/ci-out"
           set -o pipefail
-          ${{ matrix.run }} 2>&1 | tee "$RUNNER_TEMP/ci-out/${{ matrix.name }}.log"
-      - name: Test summary
-        if: always() && matrix.name == 'frozen-suite'
+          python -m holon run --milestone M3 --laws L_sort_realize_rollup_363_4a64383b,L_sort_tag_rollup_279_e01ea84a,L_sort_tag_rollup_406_e01ea84a --resume 2>&1 | tee "$RUNNER_TEMP/typed.log"
+      - name: Collect every changed or added file
+        if: always()
         run: |
-          grep -E '^(Ran [0-9]+ tests|OK|FAILED)' "$RUNNER_TEMP/ci-out/frozen-suite.log" | tee -a "$GITHUB_STEP_SUMMARY"
-      - name: Gate summary
-        if: always() && matrix.report
-        # the report is written by this run only (never the committed results/<m>/gate_report.json), so a
-        # gate that crashed before writing it leaves the summary unreadable instead of showing a stale verdict
-        run: python .github/ci/gate_summary.py "${{ matrix.report }}"
+          mkdir -p "$RUNNER_TEMP/out"
+          cp "$RUNNER_TEMP/typed.log" "$RUNNER_TEMP/out/typed.log" || true
+          git status --porcelain --untracked-files=all | tee "$RUNNER_TEMP/out/status.txt"
+          git status --porcelain --untracked-files=all | sed -E 's/^...//' | grep -v '^\.' > "$RUNNER_TEMP/files.txt" || true
+          tar -czf "$RUNNER_TEMP/out/changed.tgz" -T "$RUNNER_TEMP/files.txt" || true
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         if: always()
         with:
-          name: ${{ matrix.name }}
-          if-no-files-found: ignore
-          retention-days: 14
-          path: |
-            ${{ runner.temp }}/ci-out/
+          name: typed-out
+          retention-days: 7
+          path: ${{ runner.temp }}/out/
+
+  publish:
+    name: publish the outputs
+    needs: typed
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: typed-out
+          path: out
+      - name: Push the outputs (an orphan commit; no repository code runs here)
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.run_id }}
+          SRC: ${{ github.sha }}
+        run: |
+          cd out
+          ls -la
+          git init -q
+          git checkout -q -b results
+          git add -A
+          git -c user.name=holon-ci -c user.email=holon-ci@users.noreply.github.com commit -q -m "typed records rerun of run $RUN at $SRC"
+          git push -q "https://x-access-token:${TOKEN}@github.com/${REPO}" "HEAD:refs/heads/claude/ci-f35typed-out-${RUN}"
