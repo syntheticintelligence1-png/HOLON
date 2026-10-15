@@ -2,6 +2,168 @@
   "milestone": "M3",
   "doc": "Preregistration for M3 iterations (docs/BUILD_PLAN.md §0.1). One key per iteration under iterations. A key is written once, in its prereg commit, before any of its outcome_paths change; holon audit prereg checks the order and that the key is never edited afterwards. predictions count toward prediction accuracy; regressions are outcomes already recorded in the repo that must not change.",
   "iterations": {
+    "I42": {
+      "milestone": "M3",
+      "title": "I42: parameterized theory core, fundamental-cycle basis and image-restricted v1 header sufficiency",
+      "prompt": "prompts/I42_basis.md",
+      "tests": ["tests_m3/test_theory_basis.py"],
+      "outcome_paths": [
+        "gen/core/I42/",
+        "results/M3/I42/",
+        "holon/gen/basis.py",
+        "holon/gen/lean_basis.py",
+        "docs/iterations/I42.md",
+        "README.md"
+      ],
+      "recovery_disclosure": {
+        "accepted_by_user": true,
+        "prior_paused_worker_session": "d488e845-939d-466c-9391-75c0635a28f0",
+        "transcript": "/home/factory-user/.factory/sessions/-home-factory-user-repos-holon/d488e845-939d-466c-9391-75c0635a28f0.jsonl",
+        "transcript_sha256": "92fc41f1c656105802169a1a188fa88f945152b1dc63437c9cf26b8462f50bcb",
+        "base_commit": "153bb5eb6e32d30182e6b6781d2c36b2157be9da",
+        "scratch_directory": "/tmp/holon-i42-coord/",
+        "experimental_checker_invocations": 24,
+        "exit_0": 7,
+        "exit_1": 17,
+        "apparent_success_with_zero_laws": 1,
+        "separate_pinned_header_recheck": {
+          "time": "2026-10-14T23:57:19Z",
+          "tool": "tc-hv7szkv2t6u",
+          "seconds": 0.756
+        },
+        "five_law_prototype": {
+          "time": "2026-10-14T23:54:20Z",
+          "tool": "tc-acf0wtbjr4j",
+          "after_failures": true,
+          "established_whitepaper_statements": false,
+          "limitations": [
+            "Lemma 6.2 label was walk/reversal cancellation, not equivalence with symmetry, transitivity and whiskering",
+            "Theorem 6.3 label was factorization, not local-to-global domain coherence",
+            "walk endpoint validity was not checked",
+            "tree had no genuine spanning-tree evidence",
+            "flatness quantified arbitrary steps rather than a finite fundamental-cycle basis",
+            "Corollary 6.5 was incomplete"
+          ]
+        },
+        "header_prerequisites": {
+          "time": "2026-10-14T23:58:59Z",
+          "tool": "tc-ewjt1jzxiy5",
+          "seconds": 5.478,
+          "count": 6,
+          "established_full_two_edge_application": false
+        },
+        "header_application_failures": {
+          "count": 4,
+          "last": {
+            "time": "2026-10-15T00:14:42Z",
+            "tool": "tc-ejuzu0ax5wa",
+            "seconds": 0.204,
+            "error": "duplicate WNil"
+          }
+        },
+        "transitive_import_reflexivity_diagnostic": {
+          "time": "2026-10-15T00:14:53Z",
+          "tool": "tc-cnuskeubqtg",
+          "outcome": "passed"
+        },
+        "probe_topics": [
+          "probe_walk",
+          "erased-proof",
+          "equality",
+          "function-equality",
+          "syntax/import",
+          "walk_comp_hom",
+          "eq_dup",
+          "arbitrary-list walk roundtrip"
+        ],
+        "independent_lean_attempts": 0,
+        "genuine_nonflat_controls": 0,
+        "i48_outcomes": 0,
+        "i43_implementations": 0,
+        "accuracy_policy": "Observed formulas and the existing pinned-header result are regressions, not novel accuracy. Actual whitepaper theorems, independent Lean checks, generated header application and semantic controls are informed prospective forecasts."
+      },
+      "predictions": [
+        {
+          "id": "I42-P1",
+          "claim": "Parameterized endpoint-valid graph, walk, transport, holonomy, genuine spanning tree and finite fundamental-cycle basis are generated under gen/core/I42/ by target-agnostic Bend and Lean generators.",
+          "check": "tests_m3/test_theory_basis.py::TestI42CoreTheoryAndControls::test_checked_theory_and_independent_results",
+          "regression": false,
+          "classification": "informed_prospective_forecast"
+        },
+        {
+          "id": "I42-P2",
+          "claim": "Actual Lemma 6.2 congruence is equivalence, preserved by both whiskers, and congruent closed walks have identity holonomy.",
+          "check": "tests_m3/test_theory_basis.py::TestI42CoreTheoryAndControls::test_checked_theory_and_independent_results",
+          "regression": false,
+          "classification": "informed_prospective_forecast"
+        },
+        {
+          "id": "I42-P3",
+          "claim": "Theorem 6.3 proves global domain preservation and two-sided roundtrip on arbitrary endpoint-valid walks by structural induction from local edge premises.",
+          "check": "tests_m3/test_theory_basis.py::TestI42CoreTheoryAndControls::test_checked_theory_and_independent_results",
+          "regression": false,
+          "classification": "informed_prospective_forecast"
+        },
+        {
+          "id": "I42-P4",
+          "claim": "Theorem 6.4 derives (iii) => (i) => (ii) using a genuine spanning tree, finite fundamental-cycle flatness and tree-gauge reduction.",
+          "check": "tests_m3/test_theory_basis.py::TestI42CoreTheoryAndControls::test_checked_theory_and_independent_results",
+          "regression": false,
+          "classification": "informed_prospective_forecast"
+        },
+        {
+          "id": "I42-P5",
+          "claim": "Corollary 6.5 characterizes the coherent root-anchored global frame and chart transitions on arbitrary walks.",
+          "check": "tests_m3/test_theory_basis.py::TestI42CoreTheoryAndControls::test_checked_theory_and_independent_results",
+          "regression": false,
+          "classification": "informed_prospective_forecast"
+        },
+        {
+          "id": "I42-P6",
+          "claim": "Every whitepaper theorem is checked independently by Bend within 60.0 seconds and Lean 4 within 120.0 seconds using only propext and Quot.sound.",
+          "check": "tests_m3/test_theory_basis.py::TestI42CoreTheoryAndControls::test_checked_theory_and_independent_results",
+          "regression": false,
+          "classification": "informed_prospective_forecast"
+        },
+        {
+          "id": "I42-P7",
+          "claim": "The generated Bend and Lean image-restricted v1 header certificate imports checked core theory, discharges all six prerequisites and applies all four §6 results; no unrestricted claim is certified.",
+          "check": "tests_m3/test_theory_basis.py::TestI42V1HeaderApplication::test_generated_certificate_imports_checked_core",
+          "regression": false,
+          "classification": "informed_prospective_forecast"
+        },
+        {
+          "id": "I42-P8",
+          "claim": "Nonflat omitted-cycle, lossy inverse and unrestricted raw-domain semantic controls expose the precise failed premises without emitting an invalid certificate.",
+          "check": "tests_m3/test_theory_basis.py::TestI42CoreTheoryAndControls::test_semantic_controls",
+          "regression": false,
+          "classification": "informed_prospective_forecast"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I42-R1",
+          "claim": "The six observed prototype formulas and existing pinned L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned are not counted as novel; the preregistered application prerequisites are separate and older M3 artifacts retain their pinned hashes.",
+          "check": "tests_m3/test_theory_basis.py::TestI42HistoricalPreservation::test_existing_results_and_documentation",
+          "regression": true,
+          "classification": "known_observation_or_regression"
+        },
+        {
+          "id": "I42-R2",
+          "claim": "The pinned M3 header statuses remain unchanged; I25's inj_push proof generator and explicit not_pushed reporting for lossy/non-injective constructors remain, along with Bend 2's affine-Type function-variable duplication limitation.",
+          "check": "tests_m3/test_theory_basis.py::TestI42HistoricalPreservation::test_existing_results_and_documentation",
+          "regression": true,
+          "classification": "known_observation_or_regression"
+        },
+        {
+          "id": "I42-R3",
+          "claim": "Target identifiers in holon/ remain confined to the documented I30 baseline; no I42-owned module or theory artifact contains them.",
+          "check": "tests_m3/test_theory_basis.py::TestI42TargetAgnosticism::test_i42_owns_no_target_identifiers",
+          "regression": true,
+          "classification": "known_observation_or_regression"
+        }
+      ]
+    },
     "I41": {
       "title": "Untrusted prover intake",
       "plan": "docs/BUILD_PLAN.md#i41",

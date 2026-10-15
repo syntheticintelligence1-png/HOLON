@@ -1,0 +1,195 @@
+{
+  "instrument_version": "holon-theory-basis/1.0",
+  "iteration": "I42",
+  "milestone": "M3",
+  "recovery_disclosure": {
+    "accepted_by_user": true,
+    "prior_paused_worker_session": "d488e845-939d-466c-9391-75c0635a28f0",
+    "transcript": "/home/factory-user/.factory/sessions/-home-factory-user-repos-holon/d488e845-939d-466c-9391-75c0635a28f0.jsonl",
+    "transcript_sha256": "92fc41f1c656105802169a1a188fa88f945152b1dc63437c9cf26b8462f50bcb",
+    "base_commit": "153bb5eb6e32d30182e6b6781d2c36b2157be9da",
+    "scratch_directory": "/tmp/holon-i42-coord/",
+    "experimental_checker_invocations": 24,
+    "exit_0": 7,
+    "exit_1": 17,
+    "apparent_success_with_zero_laws": 1,
+    "separate_pinned_header_recheck": {"time": "2026-10-14T23:57:19Z", "tool": "tc-hv7szkv2t6u", "seconds": 0.756},
+    "five_law_prototype": {"time": "2026-10-14T23:54:20Z", "tool": "tc-acf0wtbjr4j", "after_failures": true, "established_whitepaper_statements": false, "limitations": ["Lemma 6.2 label was walk/reversal cancellation, not equivalence with symmetry, transitivity and whiskering", "Theorem 6.3 label was factorization, not local-to-global domain coherence", "walk endpoint validity was not checked", "tree had no genuine spanning-tree evidence", "flatness quantified arbitrary steps rather than a finite fundamental-cycle basis", "Corollary 6.5 was incomplete"]},
+    "header_prerequisites": {"time": "2026-10-14T23:58:59Z", "tool": "tc-ewjt1jzxiy5", "seconds": 5.478, "count": 6, "established_full_two_edge_application": false},
+    "header_application_failures": {"count": 4, "last": {"time": "2026-10-15T00:14:42Z", "tool": "tc-ejuzu0ax5wa", "seconds": 0.204, "error": "duplicate WNil"}},
+    "transitive_import_reflexivity_diagnostic": {"time": "2026-10-15T00:14:53Z", "tool": "tc-cnuskeubqtg", "outcome": "passed"},
+    "probe_topics": ["probe_walk", "erased-proof", "equality", "function-equality", "syntax/import", "walk_comp_hom", "eq_dup", "arbitrary-list walk roundtrip"],
+    "independent_lean_attempts": 0,
+    "genuine_nonflat_controls": 0,
+    "i48_outcomes": 0,
+    "i43_implementations": 0,
+    "accuracy_policy": "Observed formulas and the existing pinned-header result are regressions, not novel accuracy. Actual whitepaper theorems, independent Lean checks, generated header application and semantic controls are informed prospective forecasts."
+  },
+  "observed_regressions": [
+    {"id": "prereq_left_inv_go", "regression": true, "classification": "known_observation_or_regression", "counted_in_novel_accuracy": false},
+    {"id": "prereq_right_inv_go_on_image", "regression": true, "classification": "known_observation_or_regression", "counted_in_novel_accuracy": false},
+    {"id": "prereq_right_inv_sol_on_image", "regression": true, "classification": "known_observation_or_regression", "counted_in_novel_accuracy": false},
+    {"id": "prereq_domain_validate_go", "regression": true, "classification": "known_observation_or_regression", "counted_in_novel_accuracy": false},
+    {"id": "prereq_domain_load_sol", "regression": true, "classification": "known_observation_or_regression", "counted_in_novel_accuracy": false},
+    {"id": "prereq_fund_cycle_flat", "regression": true, "classification": "known_observation_or_regression", "counted_in_novel_accuracy": false},
+    {"id": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned", "regression": true, "classification": "known_observation_or_regression", "counted_in_novel_accuracy": false}
+  ],
+  "kernels": {
+    "bend": {"budget_seconds": 60.0, "laws_file": "LAWS.bend", "proof_file": "PROOF.bend", "require_expected_law": true},
+    "lean4": {"budget_seconds": 120.0, "allowed_axioms": ["propext", "Quot.sound"], "independent_check": true}
+  },
+  "vocabulary": {
+    "directory": "gen/core/I42/",
+    "types": ["Graph", "Edge", "Walk", "SpanningTree", "FundamentalCycleBasis"],
+    "definitions": ["walk_append", "walk_rev", "transport", "holonomy", "tree_path", "fundamental_cycle"],
+    "contracts": {
+      "Edge": "Explicit src and dst endpoints and involutive opposite/inverse edge opp; inverse orientation reverses endpoints.",
+      "Walk": "Inductive path list with checked adjacent endpoints; all composition, reversal and transport statements quantify endpoint-valid walks.",
+      "transport": "T(w), the edge-map composite along an endpoint-valid walk.",
+      "holonomy": "H(gamma) = T(gamma) on the domain at its closed-walk base vertex.",
+      "SpanningTree": "Genuine tree membership, connected root-path constructor, and cycle closure; not a collection of arbitrary chosen paths.",
+      "FundamentalCycleBasis": "Finite C_T = {c_e | e not in T}, one fundamental cycle per non-tree edge."
+    }
+  },
+  "theorems": [
+    {
+      "id": "lemma_6_2_congruence", "whitepaper_ref": "Lemma 6.2",
+      "statement": "Path congruence approx_D on endpoint-valid walks is reflexive, symmetric and transitive; u approx_D v implies p · u · q approx_D p · v · q for composable left and right whiskers. Congruent closed walks w approx_D 1_v have H(w) = id on D_v.",
+      "required_signatures": {
+        "laws": {"types": ["Graph", "Walk"], "definitions": ["eval_walk", "walk_append", "walk_rev"], "laws": ["congruence_refl", "congruence_symm", "congruence_trans", "whisker_left", "whisker_right", "closed_walk_holonomy_shift", "lemma_6_2_congruence"]},
+        "proof": {"definitions": ["Laws.congruence_refl", "Laws.congruence_symm", "Laws.congruence_trans", "Laws.whisker_left", "Laws.whisker_right", "Laws.closed_walk_holonomy_shift", "Laws.lemma_6_2_congruence"], "references": ["Walk", "walk_append", "eval_walk"]},
+        "lean": {"types": ["Graph", "Walk"], "definitions": ["eval_walk", "walk_append", "walk_rev"], "theorems": ["congruence_refl", "congruence_symm", "congruence_trans", "whisker_left", "whisker_right", "closed_walk_holonomy_shift", "lemma_6_2_congruence"]}
+      },
+      "bend_laws_path": "gen/core/I42/lemma_6_2_congruence/LAWS.bend",
+      "bend_proof_path": "gen/core/I42/lemma_6_2_congruence/PROOF.bend",
+      "lean_proof_path": "gen/core/I42/lemma_6_2_congruence.lean",
+      "result_path": "results/M3/I42/lemma_6_2_congruence.json",
+      "predicted_status": "PROVED", "regression": false, "classification": "informed_prospective_forecast"
+    },
+    {
+      "id": "thm_6_3_domain_coherence", "whitepaper_ref": "Theorem 6.3",
+      "statement": "If every generating e:u->v sends D_u into D_v and has local two-sided round-trip on D_u and D_v, structural induction on every endpoint-valid Walk w proves T(w)(D_src(w)) subset D_dst(w) and T(walk_rev(w))(T(w)(x)) = x for all x in D_src(w).",
+      "required_signatures": {
+        "laws": {"types": ["Graph", "Walk"], "definitions": ["eval_walk", "walk_append", "walk_rev"], "laws": ["edge_in_domain", "edge_inv", "walk_in_domain", "walk_roundtrip", "thm_6_3_domain_coherence"]},
+        "proof": {"definitions": ["Laws.walk_in_domain", "Laws.walk_roundtrip", "Laws.thm_6_3_domain_coherence"], "references": ["Walk", "edge_inv", "eval_walk", "walk_rev"]},
+        "lean": {"types": ["Graph", "Walk"], "definitions": ["eval_walk", "walk_append", "walk_rev"], "theorems": ["edge_in_domain", "edge_inv", "walk_in_domain", "walk_roundtrip", "thm_6_3_domain_coherence"]}
+      },
+      "bend_laws_path": "gen/core/I42/thm_6_3_domain_coherence/LAWS.bend",
+      "bend_proof_path": "gen/core/I42/thm_6_3_domain_coherence/PROOF.bend",
+      "lean_proof_path": "gen/core/I42/thm_6_3_domain_coherence.lean",
+      "result_path": "results/M3/I42/thm_6_3_domain_coherence.json",
+      "predicted_status": "PROVED", "regression": false, "classification": "informed_prospective_forecast"
+    },
+    {
+      "id": "thm_6_4_fundamental_cycle_basis", "whitepaper_ref": "Theorem 6.4 (iii) => (i) => (ii)",
+      "statement": "For a connected graph and genuine spanning tree T, tree-gauge reduction expresses every walk by tree paths and fundamental cycles c_e in finite C_T. If H(c_e)=id for every c_e in C_T (iii), every closed endpoint-valid gamma has H(gamma)=id (i), and all walks w1,w2:u->v give the same transport on D_u (ii).",
+      "required_signatures": {
+        "laws": {"types": ["Graph", "Walk", "SpanningTree", "FundamentalCycle"], "definitions": ["eval_walk", "walk_append", "walk_rev", "tree_path", "fund_cycle"], "laws": ["tree_gauge_decomposition", "thm_6_4_iii_imp_i", "thm_6_4_i_imp_ii", "thm_6_4_fundamental_cycle_basis"]},
+        "proof": {"definitions": ["Laws.tree_gauge_decomposition", "Laws.thm_6_4_iii_imp_i", "Laws.thm_6_4_i_imp_ii", "Laws.thm_6_4_fundamental_cycle_basis"], "references": ["Walk", "tree_path", "fund_cycle", "eval_walk"]},
+        "lean": {"types": ["Graph", "Walk", "SpanningTree", "FundamentalCycle"], "definitions": ["eval_walk", "walk_append", "walk_rev", "tree_path", "fund_cycle"], "theorems": ["tree_gauge_decomposition", "thm_6_4_iii_imp_i", "thm_6_4_i_imp_ii", "thm_6_4_fundamental_cycle_basis"]}
+      },
+      "bend_laws_path": "gen/core/I42/thm_6_4_fundamental_cycle_basis/LAWS.bend",
+      "bend_proof_path": "gen/core/I42/thm_6_4_fundamental_cycle_basis/PROOF.bend",
+      "lean_proof_path": "gen/core/I42/thm_6_4_fundamental_cycle_basis.lean",
+      "result_path": "results/M3/I42/thm_6_4_fundamental_cycle_basis.json",
+      "predicted_status": "PROVED", "regression": false, "classification": "informed_prospective_forecast"
+    },
+    {
+      "id": "cor_6_5_global_frame", "whitepaper_ref": "Corollary 6.5",
+      "statement": "Under Theorem 6.4, root-anchored tree transport tau_v = T(tree_path(r,v)):D_r->D_v forms a coherent global frame: for every w:u->v, T(w)(tau_u(x))=tau_v(x), and chart transition tau_v^{-1} composed with tau_u equals T(w)^{-1}. Includes the complete global-frame/basis characterization.",
+      "required_signatures": {
+        "laws": {"types": ["Graph", "Walk", "SpanningTree"], "definitions": ["eval_walk", "walk_append", "walk_rev", "tree_path", "tau", "basis_rank"], "laws": ["edge_chart_factorization", "chart_transition_conjugation", "basis_rank_relation", "cor_6_5_global_frame"]},
+        "proof": {"definitions": ["Laws.edge_chart_factorization", "Laws.chart_transition_conjugation", "Laws.basis_rank_relation", "Laws.cor_6_5_global_frame"], "references": ["Walk", "tree_path", "tau", "basis_rank"]},
+        "lean": {"types": ["Graph", "Walk", "SpanningTree"], "definitions": ["eval_walk", "walk_append", "walk_rev", "tree_path", "tau", "basis_rank"], "theorems": ["edge_chart_factorization", "chart_transition_conjugation", "basis_rank_relation", "cor_6_5_global_frame"]}
+      },
+      "bend_laws_path": "gen/core/I42/cor_6_5_global_frame/LAWS.bend",
+      "bend_proof_path": "gen/core/I42/cor_6_5_global_frame/PROOF.bend",
+      "lean_proof_path": "gen/core/I42/cor_6_5_global_frame.lean",
+      "result_path": "results/M3/I42/cor_6_5_global_frame.json",
+      "predicted_status": "PROVED", "regression": false, "classification": "informed_prospective_forecast"
+    }
+  ],
+  "header_application": {
+    "id": "v1_header_sufficiency",
+    "law_name": "L_par_v1_header_sufficiency",
+    "vertices": ["HeaderV1", "BytesV1 := Img(enc_v1)", "GoHeaderV1", "SolHeaderV1", "CommitHash"],
+    "directed_edges": ["enc_v1: HeaderV1 -> BytesV1", "validate_v1: BytesV1 -> GoHeaderV1", "load_v1: BytesV1 -> SolHeaderV1", "codec_v1: GoHeaderV1 -> HeaderV1", "sol_commit: SolHeaderV1 -> CommitHash", "go_commit: GoHeaderV1 -> CommitHash"],
+    "tree_root": "HeaderV1",
+    "tree_edges": ["enc_v1", "validate_v1", "load_v1", "sol_commit"],
+    "non_tree_chords": ["codec_v1", "go_commit"],
+    "fundamental_cycles": ["codec_v1 · enc_v1 · validate_v1", "go_commit · reverse(sol_commit) · reverse(load_v1) · validate_v1"],
+    "canonical_image": {"version": 1, "l1_message_queue_hash": 0, "canonical_field_packing_bytes": 89},
+    "prerequisites": ["prereq_domain_encode_v1", "prereq_domain_validate_v1", "prereq_right_inv_codec_v1", "prereq_right_inv_load_v1", "prereq_tree_gauge_rooted_at_header_v1", "prereq_fund_cycle_flat_sol_go_v1"],
+    "prerequisite_contracts": {
+      "prereq_domain_encode_v1": "For every canonical h:HeaderV1, enc_v1(h) is in BytesV1 := Img(enc_v1), with version 1, zero l1_message_queue_hash and 89-byte canonical packing.",
+      "prereq_domain_validate_v1": "For every b:BytesV1, validate_v1(b) lies in GoHeaderV1 and load_v1(b) lies in SolHeaderV1; each inverse orientation preserves the corresponding image domain.",
+      "prereq_right_inv_codec_v1": "For every h:HeaderV1 and b:BytesV1, codec_v1(validate_v1(enc_v1(h))) = h and enc_v1(codec_v1(validate_v1(b))) = b (two-sided inversion on the image).",
+      "prereq_right_inv_load_v1": "For every b:BytesV1 and s:SolHeaderV1 in the image, load_v1(b) = s implies inverse_load_v1(s) = b and load_v1(inverse_load_v1(s)) = s; both orientations preserve their domains.",
+      "prereq_tree_gauge_rooted_at_header_v1": "The four tree edges enc_v1, validate_v1, load_v1, sol_commit connect all five vertices without a cycle; root HeaderV1 yields endpoint-valid tree_path(root,v) and edge inverses on their image domains.",
+      "prereq_fund_cycle_flat_sol_go_v1": "Both independent chords codec_v1 and go_commit have identity holonomy on their fundamental cycles; in particular go_commit(validate_v1(b)) = sol_commit(load_v1(b)) for all b:BytesV1, and the codec_v1 roundtrip cycle is flat."
+    },
+    "applied_theorems": ["lemma_6_2_congruence", "thm_6_3_domain_coherence", "thm_6_4_fundamental_cycle_basis", "cor_6_5_global_frame"],
+    "import_contract": "Bend LAWS.bend and PROOF.bend each use explicit from ../<theorem>/LAWS.bend import ... and from ../<theorem>/PROOF.bend import ... for every core theorem. Lean 4 has no import: the self-contained v1_header_sufficiency.lean embeds verbatim checked core theorem declarations/proofs, proves six prerequisites and invokes all four core theorems and six prerequisites in L_par_v1_header_sufficiency; holon.lean.check_text verifies the closure.",
+    "bend_laws_path": "gen/core/I42/v1_header_sufficiency/LAWS.bend",
+    "bend_proof_path": "gen/core/I42/v1_header_sufficiency/PROOF.bend",
+    "lean_proof_path": "gen/core/I42/v1_header_sufficiency.lean",
+    "result_path": "results/M3/I42/L_par_v1_header_sufficiency.json",
+    "predicted_status": "PROVED"
+  },
+  "controls": [
+    {"id": "ctrl_omitted_cycle_nonflat", "premises": "Three-vertex triangle, D=top, all edges checked two-sided bijections; domain coherence and invertibility retained, only fundamental-cycle flatness fails: H(c_e) != id.", "prediction": "Walk independence REFUTED with concrete witness; no sufficiency certificate emitted.", "predicted_status": "REFUTED", "certificate_status": "MISS"},
+    {"id": "ctrl_non_invertible_lossy_edge", "premises": "Lossy projection edge violates local two-sided inverse prerequisite.", "prediction": "No sufficiency certificate.", "predicted_status": "UNKNOWN", "certificate_status": "MISS"},
+    {"id": "ctrl_raw_domain_unrestricted_obstruction", "premises": "Raw header unrestricted: version != 1 or l1_message_queue_hash != 0; domain/right-inverse prerequisite fails, preserving I24 obstruction.", "prediction": "Obstruction REFUTED; certificate UNKNOWN.", "predicted_status": "REFUTED", "certificate_status": "UNKNOWN"}
+  ],
+  "semantic_controls": {
+    "verification_entrypoint": "holon.gen.core.verify_control(control_id)",
+    "negative_contract": "Each negative control is re-evaluated against the compiled model; certificate_emitted is false, status is REFUTED or UNKNOWN, and failed_prerequisite is exactly the one pinned per control.",
+    "ctrl_tree_flat_extension": {"bend_laws_path": "gen/core/I42/controls/ctrl_tree_flat_extension/LAWS.bend", "bend_proof_path": "gen/core/I42/controls/ctrl_tree_flat_extension/PROOF.bend", "law_name": "ctrl_tree_flat_extension", "predicted_status": "PROVED"},
+    "ctrl_omitted_cycle_nonflat": {"bend_laws_path": "gen/core/I42/controls/ctrl_omitted_cycle_nonflat/LAWS.bend", "bend_proof_path": "gen/core/I42/controls/ctrl_omitted_cycle_nonflat/PROOF.bend", "law_name": "cl_ctrl_omitted_cycle_nonflat", "failed_prerequisite": "prereq_fund_cycle_flat", "counterexample": "eval_walk(fund_cycle, w0) != w0"},
+    "ctrl_non_invertible_lossy_edge": {"failed_prerequisite": "prereq_right_inv"},
+    "ctrl_raw_domain_unrestricted_obstruction": {"failed_prerequisite": "prereq_domain_coherence"}
+  },
+  "controls_result_path": "results/M3/I42/controls.json",
+  "prospective_predictions": [
+    {"id": "independent_lean_checks", "regression": false, "classification": "informed_prospective_forecast"},
+    {"id": "generated_v1_header_application", "regression": false, "classification": "informed_prospective_forecast"},
+    {"id": "semantic_controls", "regression": false, "classification": "informed_prospective_forecast"}
+  ],
+  "historical_preservation": {
+    "base_predictions_commit": "153bb5eb6e32d30182e6b6781d2c36b2157be9da",
+    "base_predictions_sha256": "41c49e523cc0969c95c622a470ae489e80e0398a9755e422dac6b2940a8542ce",
+    "i25_description": "I25 added the inj_push proof generator and explicit not_pushed reporting for lossy/non-injective constructors, while recording Bend 2's affine-Type function-variable duplication limitation.",
+    "pinned_sha256": {
+      "gen/M3/diagram/header_length.json": "b9b8cb0b6d42face2309af7bb25556e052844587f82301e6a6ded3c370faba23",
+      "gen/M3/codec/header_length.json": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+      "gen/M3/model/header_length.bend": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492",
+      "gen/M3/laws/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned/LAWS.bend": "82b44ab28fedec1cd030cb99be2f61d2c7695e8a2bcb647d94ca2f6633521b17",
+      "gen/M3/proofs/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned/PROOF.bend": "969e43647c9e23ac7c08101c96869b5ef0504d34444dd7aff2e7b0cc78878149",
+      "results/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.json": "5d18ea81d0c99d11148c7f3ef80a29de218e8da6f30bef0cd4d9658038b4da26",
+      "results/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.json": "f48508d665e790bab696f741268af0cfd2ecaf3d9e605660c2d509854ea831f5",
+      "results/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.json": "5a8028857729c67951aaff3d74b9bdf319dd07fe58c649a9530c21d01d6307f9",
+      "results/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.json": "c5752fa5876e33181e4bb6ff000d440bc6e66bd9571e901a64c5b3535e2084f7",
+      "results/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json": "bbb0f39a76026cf599f3dd2c85958e358fd392d8adb049e76eb4d36cb6e4b8ef",
+      "results/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.json": "808ad62b9a737c61aba9bd8ac70525fffee176941cc9c0d5ab6adc33ae694714",
+      "results/M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol.json": "b8900ae90300874fea308c5cef7780aef0f54bcbf6db47057a923140e50cfeec",
+      "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1.json": "77c2ca5af2240f076231a644ab830530010f1ce23c16f8f88064c32cd9c80a12",
+      "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1.json": "996fabd68dc874e63c96bbfd655054b39f13290ba7c9c03893d16bda4d9e6c7e",
+      "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1.json": "9192135a2f141663e9567528ad04b7f137cd8f6a5bb4b04604e9509c37e4af29",
+      "results/M3/summary.json": "52483e69c213d44a4d3e041f2f11a7f4c5c1cd7b7e33514c3fb7899db813ba75",
+      "prompts/I24_par.md": "300051fcd0145831f06548e187bbb7c5e5b17514fdccb029c08f40b7d434f358",
+      "prompts/I25_par_lossy.md": "64572c21356d45a3dc19e85883ce65b24058e58ef37b41e81e43294f47f1301f"
+    },
+    "result_expectations": {
+      "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0": ["REFUTED", null],
+      "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned": ["PROVED", null],
+      "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": ["REFUTED", null],
+      "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned": ["PROVED", null],
+      "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": ["REFUTED", null],
+      "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned": ["PROVED", null],
+      "L_par_dom_BatchHeaderBytes_validate_ok_load_sol": ["REFUTED", null],
+      "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1": ["PROVED", null],
+      "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1": ["PROVED", null],
+      "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1": ["UNKNOWN", null]
+    }
+  }
+}
