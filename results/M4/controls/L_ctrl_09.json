@@ -1,0 +1,81 @@
+{
+  "attempts": [
+    {
+      "applied": true,
+      "generator": "refl",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "ok": false,
+      "reason": "SOME PROOFS FAIL\nError:\n- expected : M.obsv_locked(M.exec_lock_restore(M.dec_lock_restore_0(Bool.not(locked)), stage, seq, mirror, acc, tier, locked, halted, alert, overflow, breach, diff_zero, parity, log))\n- observed : locked\nContext:\n- stage     : Nat\n- seq       : Nat\n- mirror    : Nat\n- acc       : Nat\n- tier      : Nat\n- locked    : Bool\n- halted    : Bool\n- alert     : Bool\n- overflow  : Bool"
+    },
+    {
+      "applied": false,
+      "generator": "case_split_guard",
+      "kind": "proof",
+      "ok": false,
+      "reason": "guard shape does not reduce to a single guard case-split"
+    },
+    {
+      "applied": false,
+      "generator": "nat_ind",
+      "kind": "proof",
+      "ok": false,
+      "reason": "requires custom inductive lemma or composite Nat witness beyond depth-3 split"
+    },
+    {
+      "applied": false,
+      "generator": "list_ind",
+      "kind": "proof",
+      "ok": false,
+      "reason": "requires custom list/trace structural lemma"
+    },
+    {
+      "applied": false,
+      "generator": "eq_chain",
+      "kind": "proof",
+      "ok": false,
+      "reason": "claim does not close by direct premise or single-step equality chain"
+    },
+    {
+      "applied": false,
+      "generator": "evaluate",
+      "kind": "proof",
+      "ok": false,
+      "reason": "universal binders present; closed evaluation inapplicable"
+    },
+    {
+      "bound": "prefixes: BFS depth 2 over policy actions (<= 100 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": false,
+      "kind": "refute",
+      "tried": 82
+    }
+  ],
+  "bound": "prefixes: BFS depth 2 over policy actions (<= 100 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+  "category": "TRUE_UNPROVED",
+  "compiled_sha256": "43ee5d2070c3f55cf2432dc70940e6b7ccb9429ce5e09c149f0d1ede863da2c4",
+  "control_id": "CTRL-09",
+  "description": "True UNDO law where lock_restore guards on not(locked) and sets locked := and(locked, true); holds for both Bool values of locked by case analysis, which unassisted tactics do not perform on state fields.",
+  "facts_sha256": "baf3910021a2131758fdcca08d7916d8eed37afd85839d36fce66a32a86083da",
+  "ground_truth_kind": "PROOF_ACCEPTED",
+  "ground_truth_laws_file": "gen/M4/controls/ground_truth/L_ctrl_09/LAWS.bend",
+  "ground_truth_proof_file": "gen/M4/controls/ground_truth/L_ctrl_09/PROOF.bend",
+  "ground_truth_symbol": "Laws.l_ctrl_09",
+  "ground_truth_verified": true,
+  "law_id": "L_ctrl_09",
+  "limitation_class": "guard_effect_joint_bool_case_split_absent",
+  "model_sha256": "452443f6ea3922cb4b53b3396e6d66527bf2418fdac3e78147f333cac7c0949e",
+  "rule": "UNDO",
+  "schema": "holon-control-result/0.1",
+  "statement_hash": "4b825323cab8ef40b9086de0c652320ea53980ca87fdfa96c1498ae31d010fce",
+  "status": "UNKNOWN",
+  "subform": "undo-lock-idempotent",
+  "tried_generators": [
+    "refl",
+    "case_split_guard",
+    "nat_ind",
+    "list_ind",
+    "eq_chain",
+    "evaluate"
+  ]
+}

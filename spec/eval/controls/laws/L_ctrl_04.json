@@ -1,0 +1,57 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "rule_catalog_version": "holon-rules/0.2",
+  "law_id": "L_ctrl_04",
+  "milestone": "M4",
+  "rule": "SORT",
+  "subform": "sort-window-halted",
+  "maps_to": "Evaluation control CTRL-04 (FALSE_BEYOND_BOUND)",
+  "facts": "eval_ctrl_machine.facts.json",
+  "facts_sha256": "baf3910021a2131758fdcca08d7916d8eed37afd85839d36fce66a32a86083da",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "Reach"
+      },
+      {
+        "q": "forall",
+        "name": "x",
+        "type": "Nat"
+      },
+      {
+        "q": "forall",
+        "name": "y",
+        "type": "Nat"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "obsv_halted",
+          "of": {
+            "step": {
+              "act": "check_window",
+              "args": {
+                "x": {
+                  "var": "x"
+                },
+                "y": {
+                  "var": "y"
+                }
+              }
+            },
+            "from": {
+              "var": "s"
+            }
+          }
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  }
+}
