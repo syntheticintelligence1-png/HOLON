@@ -237,11 +237,22 @@ def strip_comments(src: str) -> str:
     return "".join(out)
 
 
+# A char literal opens with a quote that does not continue an identifier (x' is a name, '"' a char).
+_CHAR_OPEN = re.compile(r"(?<![\w'!?])'")
+
+
 def forbidden(src: str) -> list[str]:
+    """The forbidden words and commands of a Lean source, comments removed, plus "string literal" or "char literal"
+    for any literal outside a comment. No generated Lean file holds one, and Lean lexes literals in ways a comment
+    stripper misreads (Q35's priority fix, after the escaped identifier of I42 Question 5): a raw string r"\\" ends
+    at its second quote, an interpolated string s!"{..}" holds code in its braces, and a char literal '"' holds the
+    quote a string blanker would open. Each could hide the code after it from this scan."""
     code = strip_comments(src)
+    lits = {"string literal"} if '"' in code else set()
+    lits |= {"char literal"} if _CHAR_OPEN.search(code) else set()
     code = re.sub(r'"(?:[^"\\]|\\.)*"', '""', code)
     return sorted(set(m.group(0) for m in FORBIDDEN.finditer(code))
-                  | {"#" + m.group(1) for m in FORBIDDEN_CMD.finditer(code)})
+                  | {"#" + m.group(1) for m in FORBIDDEN_CMD.finditer(code)} | lits)
 
 
 def first_error_block(out: str) -> str:
