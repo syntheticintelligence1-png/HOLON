@@ -585,6 +585,19 @@ def _binding_change(entry: dict, old: dict, new: dict, root: Path) -> dict:
     except Exception as e:  # noqa: BLE001  (a law that cannot be bound now has no binding change to check)
         return _res(False, f"{lid} cannot be bound on the tree: {type(e).__name__}: {e}")
     diff = [k for k in BINDING_KEYS if ob.get(k) != nb.get(k)]
+    bridge = None
+    if diff == ["statement_hash"]:   # F33: a catalog re-derivation moved the hash; it must be an accepted entry
+        bridge = catalog_bridge(m, lid, ob.get("statement_hash"), nb.get("statement_hash"), root)
+        want = {"old": ob.get("statement_hash"), "new": nb.get("statement_hash")}
+        if entry.get("statement_hash") != want:
+            return _res(False, f"the binding of {lid} changes its statement hash too: the entry must name it as "
+                               f"statement_hash {want} (bridged by an accepted catalog_rederivation)")
+        if bridge is None:
+            return _res(False, f"the binding of {lid} changes its statement hash, and no accepted catalog_rederivation "
+                               f"line of laws/STATEMENT_DIFF.jsonl maps {want['old']} to {want['new']}")
+        diff = []
+    elif entry.get("statement_hash") is not None:
+        return _res(False, f"the entry names a statement_hash change, but the binding of {lid} keeps its statement hash")
     if diff:
         return _res(False, f"the binding of {lid} changes {diff}, not only its cone: not a binding change")
     changed = B.changed_defs(ob, nb)
@@ -608,15 +621,35 @@ def _binding_change(entry: dict, old: dict, new: dict, root: Path) -> dict:
             return _res(False, f"the {tag} model's kernel forms are not the {tag} binding's ({', '.join(bad[:5])}): "
                                f"{ob['model']} at {commit_b[:12]} is not the bound model" if tag == "old" else
                                f"the {tag} model's kernel forms are not the {tag} binding's ({', '.join(bad[:5])})")
-    eqv = EQ.prove(old_text, new_text, B.statement_text(law, m, root), eo=eo, en=en)
+    eqv = EQ.prove(old_text, new_text, B.statement_text(law, m, root), eo=eo, en=en,
+                   cache=EQ.default_cache(old_text, new_text))
     eqv["bound_commit"] = commit_b
     eqv["models"] = {"old": _sha(old_bytes), "new": _sha(new_text.encode("utf-8")), "path": nb["model"]}
+    if bridge is not None:
+        eqv["catalog_bridge"] = bridge
     if eqv["status"] == "PROVED":
         return _res(True, f"binding_change: every root of {lid}'s statement is unchanged or proven extensionally equal "
                           f"old vs new ({eqv['reason']}), checked by {' and '.join(eqv['kernels']) or 'no kernel'}",
                     equivalence=eqv)
     return _res(False, f"binding_change without a checked equivalence ({eqv['status']}): {eqv['reason']}",
                 equivalence=eqv)
+
+
+def catalog_bridge(m: str, lid: str, old_hash, new_hash, root: Path) -> dict | None:
+    """(F33) {"old", "new", "line"}: the accepted catalog_rederivation line of laws/STATEMENT_DIFF.jsonl for law lid of
+    milestone m whose old_hash and new_hash are the two binding statement hashes, or None. Such a line establishes that
+    the hash moved only with rule_catalog_version (the claim is the same), so a binding_change may carry the hash change
+    with it; the change of the cone still needs the binding_change's own equivalence. Only catalog_rederivation lines
+    are checked here (scan with kinds), so a binding_change line never checks itself."""
+    if not isinstance(old_hash, str) or not isinstance(new_hash, str):
+        return None
+    s = scan(Path(root) / LOG, root, kinds=("catalog_rederivation",))
+    for x in s["entries"]:
+        e = x["entry"]
+        if (x.get("ok") and isinstance(e, dict) and e.get("milestone") == m and e.get("law_id") == lid
+                and e.get("old_hash") == old_hash and e.get("new_hash") == new_hash):
+            return {"old": old_hash, "new": new_hash, "line": x["line"]}
+    return None
 
 
 def binding_change_entries(milestone: str, root: Path) -> tuple[list[dict], list[str]]:
@@ -647,7 +680,15 @@ def binding_change_entries(milestone: str, root: Path) -> tuple[list[dict], list
         changed = B.changed_defs(ob, nb)
         if not changed:
             continue
-        if any(ob.get(k) != nb.get(k) for k in BINDING_KEYS):
+        moved = [k for k in BINDING_KEYS if ob.get(k) != nb.get(k)]
+        hashes = None
+        if moved == ["statement_hash"]:   # F33: bridged by an accepted catalog_rederivation, or not a binding change
+            if catalog_bridge(milestone, lid, ob.get("statement_hash"), nb.get("statement_hash"), root) is None:
+                notes.append(f"{lid}: its statement hash changed too, and no accepted catalog_rederivation maps "
+                             "the bound hash to the current one: not a binding change")
+                continue
+            hashes = {"old": ob.get("statement_hash"), "new": nb.get("statement_hash")}
+        elif moved:
             notes.append(f"{lid}: its binding changes beyond the cone: not a binding change")
             continue
         commit_b = None
@@ -659,10 +700,14 @@ def binding_change_entries(milestone: str, root: Path) -> tuple[list[dict], list
         if commit_b is None:
             notes.append(f"{lid}: no commit holds its current binding (commit spec/bindings/{milestone}.json first)")
             continue
-        out.append({"kind": "binding_change", "law_id": lid, "milestone": milestone, "old": law, "new": law,
-                    "bound_commit": commit_b, "defs": changed,
-                    "reason": f"{lid}: {len(changed)} definitions of its cone changed under the fixed statement "
-                              f"(model {nb['model']}); bound at {commit_b[:12]}"})
+        e = {"kind": "binding_change", "law_id": lid, "milestone": milestone, "old": law, "new": law,
+             "bound_commit": commit_b, "defs": changed,
+             "reason": f"{lid}: {len(changed)} definitions of its cone changed under the fixed statement "
+                       f"(model {nb['model']}); bound at {commit_b[:12]}"
+                       + (" (its statement hash moved with an accepted catalog_rederivation)" if hashes else "")}
+        if hashes:
+            e["statement_hash"] = hashes
+        out.append(e)
     return out, notes
 
 
@@ -746,6 +791,8 @@ def acceptance(entry: dict, result: dict, root: Path) -> dict:
                               "pair_sha256": eqv.get("pair_sha256"), "laws_sha256": _sha(eqv.get("laws")),
                               "proof_sha256": _sha(eqv.get("proof")),
                               "roots": {i["root"]: i.get("class") for i in eqv.get("roots") or []}}
+        if eqv.get("catalog_bridge"):
+            acc["equivalence"]["catalog_bridge"] = eqv["catalog_bridge"]
     if entry.get("signature"):
         acc["signature"] = "verified against keys/"
     return acc
@@ -758,7 +805,7 @@ def _line_tag(e) -> str:
     return f"{e.get('kind')} {lid}"
 
 
-def scan(path: Path, root: Path) -> dict:
+def scan(path: Path, root: Path, kinds=None) -> dict:
     """Every line of a STATEMENT_DIFF.jsonl with its verdict (see the module docstring):
     {"problems": [..], "entries": [{"line", "entry", "ok", "committed", "commit"}], "git": bool, "note": str}."""
     path, root = Path(path), Path(root)
@@ -793,12 +840,29 @@ def scan(path: Path, root: Path) -> dict:
         except ValueError as ex:
             out["problems"].append(f"line {n}: not JSON ({ex})")
             continue
+        if kinds is not None and (not isinstance(e, dict) or e.get("kind") not in kinds):
+            continue   # only these kinds are checked (catalog_bridge)
         commit = next((c for end, c in spans if start < end), None) if start < committed_len else None
         item = {"line": n, "entry": e, "ok": False, "committed": commit is not None, "commit": commit}
         out["entries"].append(item)
         acc = e.get("accepted") if isinstance(e, dict) else None
         if commit is not None:
             why = _verify_committed(e, acc, commit, root)
+            if why:
+                out["problems"].append(f"line {n}: {_line_tag(e)}: {why}")
+            else:
+                item["ok"] = True
+            continue
+        if (hist is None and isinstance(e, dict) and e.get("kind") == "binding_change" and isinstance(acc, dict)
+                and isinstance(acc.get("equivalence"), dict) and not e.get("signature")):
+            # F33: off git (a copied tree) the bound commit cannot be read; the committed proof artifacts are re-checked
+            # in both kernels and tied to the new model on the tree (the old side's tie needs the history)
+            eqv = acc["equivalence"]
+            mp = (eqv.get("models") or {}).get("path")
+            new_b = (root / mp).read_bytes() if isinstance(mp, str) and (root / mp).is_file() else None
+            why = ("its acceptance record names no new model on the tree" if new_b is None or
+                   _sha(new_b) != (eqv.get("models") or {}).get("new") else
+                   recheck_artifacts(e, eqv, root, old_cone=None, new_model=new_b))
             if why:
                 out["problems"].append(f"line {n}: {_line_tag(e)}: {why}")
             else:
@@ -862,7 +926,121 @@ def _verify_equivalence(e: dict, eqv, commit: str, root: Path) -> str | None:
         return "the old model its equivalence was proved on is not the model at its bound commit"
     if new is None or _sha(new) != models.get("new"):
         return f"the new model its equivalence was proved on is not {models.get('path')} at {commit[:7]}"
-    return None
+    br = e.get("statement_hash")
+    if br is not None:   # F33: the statement hash moved with an accepted catalog_rederivation line
+        cb = eqv.get("catalog_bridge") or {}
+        if not isinstance(br, dict) or (cb.get("old"), cb.get("new")) != (br.get("old"), br.get("new")):
+            return "its acceptance record names no catalog_rederivation bridging its statement hashes"
+        log = blob_at(root, commit, LOG.as_posix()) or b""
+        lines = log.decode("utf-8", errors="replace").splitlines()
+        n = cb.get("line")
+        x = _json_or_none(lines[n - 1].encode()) if isinstance(n, int) and 0 < n <= len(lines) else None
+        if not (isinstance(x, dict) and x.get("kind") == "catalog_rederivation" and x.get("law_id") == lid
+                and x.get("old_hash") == br.get("old") and x.get("new_hash") == br.get("new")):
+            return f"line {n} of {LOG} at {commit[:7]} is not the catalog_rederivation its statement hash moved with"
+    return recheck_artifacts(e, eqv, root, old_cone=(ob or {}).get("cone"), new_model=new)
+
+
+# ---------------------------------------------------------------- binding_change proof artifacts (F33)
+EQV_DIR = Path("spec") / "bindings" / "equivalence"
+ARTIFACTS = ("pair.bend", "LAWS.bend", "PROOF.bend")
+_RECHECKED: dict = {}
+
+
+def artifact_dir(e: dict, eqv: dict) -> Path:
+    """Where an accepted binding_change's proof artifacts live: spec/bindings/equivalence/<M>/<law>-<proof sha256[:16]>/
+    (pair.bend.gz, LAWS.bend.gz, PROOF.bend.gz; gzip without a timestamp, so the bytes are deterministic)."""
+    return EQV_DIR / str(e.get("milestone")) / f"{e.get('law_id')}-{str(eqv.get('proof_sha256'))[:16]}"
+
+
+def write_artifacts(e: dict, acc_eqv: dict, result: dict, root: Path) -> None:
+    import gzip
+    d = Path(root) / artifact_dir(e, acc_eqv)
+    d.mkdir(parents=True, exist_ok=True)
+    for name, text in zip(ARTIFACTS, (result.get("pair_text"), result.get("laws"), result.get("proof"))):
+        (d / (name + ".gz")).write_bytes(gzip.compress(text.encode("utf-8"), compresslevel=9, mtime=0))
+
+
+def expected_laws(roots: dict) -> list[str]:
+    """The root laws an equivalence's LAWS.bend states, from its acceptance record's root classes."""
+    out = []
+    for r, cls in sorted((roots or {}).items()):
+        if cls == "unchanged":
+            continue
+        out += [f"to_{r}", f"from_{r}"] if cls == "family" else [f"eq_{r}"]
+    return sorted(out)
+
+
+def recheck_artifacts(e: dict, eqv: dict, root: Path, old_cone: dict | None, new_model: bytes | None) -> str | None:
+    """G2 on an accepted binding_change, never a re-search (F33): its committed proof artifacts are the files its
+    acceptance record hashes (pair module, laws, proof), the laws are exactly the root laws the record names, no file
+    holds an escape hatch, the pair module is the new model verbatim plus the old side (linkage: its BendTT entries are
+    the new model's, and, prefix removed, hash to the old binding's cone when the bound commit can be read), and bend2
+    and BendTT (--verdict) accept PROOF.bend again. None when all of it holds, else the problem."""
+    import gzip
+    import shutil
+    import tempfile
+    from . import bend
+    from .gen import equivalence as EQ
+    from .pipeline import law_names
+    root = Path(root)
+    d = root / artifact_dir(e, eqv)
+    texts = {}
+    for name in ARTIFACTS:
+        p = d / (name + ".gz")
+        if not p.is_file():
+            return f"its proof artifact {p.relative_to(root)} is missing (G2 re-checks the committed proof in both kernels)"
+        try:
+            texts[name] = gzip.decompress(p.read_bytes()).decode("utf-8")
+        except (OSError, EOFError, UnicodeDecodeError) as ex:
+            return f"its proof artifact {p.relative_to(root)} does not decompress: {ex}"
+    for name, key in zip(ARTIFACTS, ("pair_sha256", "laws_sha256", "proof_sha256")):
+        if _sha(texts[name]) != eqv.get(key):
+            return f"its proof artifact {name} is not the file its acceptance record hashes ({key})"
+    memo = (eqv.get("pair_sha256"), eqv.get("proof_sha256"), _sha(json.dumps(old_cone, sort_keys=True)),
+            _sha(new_model or b""))
+    if memo in _RECHECKED:
+        return _RECHECKED[memo]
+    why = None
+    if sorted(law_names(texts["LAWS.bend"])) != expected_laws(eqv.get("roots")):
+        why = f"its LAWS.bend states {sorted(law_names(texts['LAWS.bend']))}, not the root laws {expected_laws(eqv.get('roots'))}"
+    elif bend.escape_hatches(texts["pair.bend"] + texts["LAWS.bend"] + texts["PROOF.bend"]):
+        why = "its proof artifacts hold an escape hatch"
+    if why is None:
+        try:
+            ep = EQ.kernel_entries_of(texts["pair.bend"], None, "pair module (artifact)")
+            en = EQ.kernel_entries_of(new_model.decode("utf-8"), None, "new model") if new_model is not None else None
+        except Exception as ex:  # noqa: BLE001
+            ep, why = None, f"its pair module does not translate to BendTT: {ex}"
+        if why is None and en is not None:
+            bad = sorted(n for n, t in en.items() if ep.get(n) != t)
+            if bad:
+                why = f"its pair module is not the new model verbatim ({', '.join(bad[:5])})"
+        if why is None and old_cone is not None:
+            bad = []
+            for n, h in sorted(old_cone.items()):
+                got = ep.get(EQ.PREFIX + n, ep.get(n))
+                if got is None or _sha(EQ.strip_prefix(got)) != h:
+                    bad.append(n)
+            if bad:
+                why = f"its pair module's old side is not the old binding's cone ({', '.join(bad[:5])})"
+    if why is None:
+        tmp = Path(tempfile.mkdtemp(prefix="holon-eqv-g2-"))
+        try:
+            for name in ARTIFACTS:
+                (tmp / name).write_text(texts[name])
+            r = bend.check(tmp / "PROOF.bend")
+            v = bend.check_verdict(tmp / "PROOF.bend") if r.ok else None
+            kern = eqv.get("kernels") or []
+            if not r.ok:
+                why = f"bend2 no longer accepts its PROOF.bend: {EQ.kernel_message(r.out, 6)}"
+            elif "BendTT" in kern and not (v is not None and v.ok):
+                why = f"BendTT no longer accepts its PROOF.bend: {EQ.kernel_message(v.out, 6)}"
+            _RECHECKED.setdefault("seconds", []).append((e.get("law_id"), r.seconds, v.seconds if v else None))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+    _RECHECKED[memo] = why
+    return why
 
 
 def check_file(path: Path, root: Path) -> list[str]:
@@ -877,7 +1055,10 @@ def append(entry: dict, root: Path) -> dict:
     root = Path(root)
     r = check_entry(entry, root)
     if r["ok"]:
-        line = json.dumps({**entry, "accepted": acceptance(entry, r, root)}, sort_keys=True, ensure_ascii=False)
+        acc = acceptance(entry, r, root)
+        if acc.get("equivalence"):   # F33: the proof artifacts G2 re-checks in both kernels
+            write_artifacts(entry, acc["equivalence"], r["equivalence"], root)
+        line = json.dumps({**entry, "accepted": acc}, sort_keys=True, ensure_ascii=False)
         p = root / LOG
         data = p.read_bytes() if p.exists() else b""
         if data and not data.endswith(b"\n"):
@@ -1074,7 +1255,8 @@ def main(argv: list[str] | None = None) -> int:
         bad, report = 0, {}
         for e in es:
             r = append(e, root) if a.append else check_entry(e, root)
-            report[e["law_id"]] = {"ok": r["ok"], "reason": r["reason"], "equivalence": r.get("equivalence")}
+            eqv = {k: v for k, v in (r.get("equivalence") or {}).items() if k not in ("pair_text", "proof", "laws")}
+            report[e["law_id"]] = {"ok": r["ok"], "reason": r["reason"], "equivalence": eqv}
             print(f"{e['law_id']}: {'accepted' if r['ok'] else 'REJECTED'}{' and appended' if r['ok'] and a.append else ''}"
                   f": {r['reason']}")
             bad += not r["ok"]
