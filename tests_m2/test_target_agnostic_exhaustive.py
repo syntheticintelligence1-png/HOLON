@@ -52,6 +52,8 @@ ALLOWLIST: dict[str, list[str]] = {
     "holon/sorts/extracted.py": ["kappa"],
     # the --morph checkout flag of I30's replay command (holon replay --milestone M3), as for holon/__main__.py
     "holon/sorts/run3.py": ["morph"],
+    # I43's frozen theory core II texts (emitted verbatim) name Thm 6.7's natural transformation eta2, not the migration
+    "holon/gen/theory2.py": ["eta2"],
 }
 TARGET_NAMES = {"Rollup", "Morph", "morph", "batchdata"}
 
