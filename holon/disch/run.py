@@ -314,6 +314,7 @@ class Run:
         self.real = None
         self.s12: dict = {}             # law id -> its S1+S2 candidate (or None): S3's witnesses
         self.deadline = None            # --deadline: a wall-clock time box on S3 (UNKNOWN by the time box)
+        self.law_box = None             # --law-timebox: seconds per law for S1+S2's syntheses, and again for S3
         self.validations: dict = {}     # law id -> candidates checked against the deployment's answers
 
     def doc_of(self, e: dict) -> Doc:
@@ -468,8 +469,13 @@ class Run:
         return ok
 
     def search(self, d: Doc, law: dict):
-        """S1+S2 over the shared exploration (S3 is decide_all's neighbourhood stage)."""
+        """S1+S2 over the shared exploration (S3 is decide_all's neighbourhood stage). The exploration is completed
+        first (it is shared and law-independent), so a per-law time box (--law-timebox) bounds only this law's
+        last-step syntheses."""
+        d.ex.state_at(1 << 40)
         ls = DS.LawSearch(d.ex, d.an, law, law_entries(d.an, law), d.judge, log=self.log)
+        if self.law_box:
+            ls.deadline = time.time() + self.law_box
         if self.binding():
             ls.validate = lambda trace, st, t: self.valid(d, law, trace, st, t)
         r = ls.refute(False, LAST_STEP_STATES)
@@ -530,12 +536,16 @@ class Run:
             ls = DS.LawSearch(d.ex, d.an, law, law_entries(d.an, law), d.judge, log=self.log)
             if self.binding():
                 ls.validate = lambda trace, st, t, d=d, law=law: self.valid(d, law, trace, st, t)
-            r = ls.neighbourhood(seeds, self.deadline)
+            dl = self.deadline
+            if self.law_box:
+                dl = min(x for x in (dl, time.time() + self.law_box) if x is not None)
+            r = ls.neighbourhood(seeds, dl)
             self.log(f"{lid}: S3 {'found a candidate' if r else 'found nothing'} in {round(time.time() - t0, 1)} s "
                      f"({ls.s3['prefixes']} neighbourhood prefixes{', time box' if ls.s3['timebox'] else ''})")
             att = pending[lid]["attempts"] + [{"kind": "search", "stage": "S3", "found": r is not None,
                                                "bound": ls.bound(), "timebox": ls.s3["timebox"]}]
-            bound = pending[lid]["bound"].split("; S3")[0] + "; S3" + ls.bound().split("; S3", 1)[1].split("; B held")[0]
+            s3 = ls.bound().split("; S3", 1)[1].split("; B held")[0]
+            bound = pending[lid]["bound"].replace("; S3: not run", "; S3" + s3)
             if r is not None:
                 out[lid] = ("CANDIDATE", {"attempts": att, "steps": r[0], "t": r[1], "stage": "S3", "bound": bound})
             else:
@@ -609,7 +619,10 @@ class Run:
                 "parent_statement_hash": sh, "bound": None}
         nd = self.paths(lid)["nonvac"]
         shutil.rmtree(nd, ignore_errors=True)
+        d.ex.state_at(1 << 40)
         ls = DS.LawSearch(d.ex, d.an, law, law_entries(d.an, law), d.judge, log=self.log)
+        if self.law_box:
+            ls.deadline = time.time() + self.law_box
         r = ls.inhabit(LAST_STEP_STATES)
         if r is None:
             return {**base, "bound": f"no reachable state where the premises hold: {ls.bound()}"}
@@ -780,6 +793,8 @@ def run_disch(a) -> int:
     if getattr(a, "deadline", None):
         from ..undo.run import parse_deadline
         r.deadline = parse_deadline(a.deadline)
+    if getattr(a, "law_timebox", None):
+        r.law_box = float(a.law_timebox)
     try:
         ids = r.ids(a.laws)
         if not ids:
@@ -892,8 +907,11 @@ def main(argv: list) -> int:
     ap.add_argument("--gen-dir")
     ap.add_argument("--deadline", help="a wall-clock time box on the S3 stage (ISO 8601 UTC or epoch seconds): a law "
                                        "S3 has not decided by then is UNKNOWN by the time box, recorded as such")
+    ap.add_argument("--law-timebox", help="seconds: a wall-clock time box on each DISCH law's S1+S2 last-step syntheses "
+                                           "(the shared exploration completed first) and again on its S3; a law it "
+                                           "leaves undecided is UNKNOWN by the time box, recorded as such")
     a, _unknown = ap.parse_known_args(rest)
-    base = strip_args(rest, ("--disch",))
+    base = strip_args(rest, ("--disch", "--law-timebox"))
     from ..undo import run as undo_run   # I30's laws (holon.sorts.run3) and I27's UNDO laws, as before the DISCH laws
     if cmd == "run":
         rc = 0

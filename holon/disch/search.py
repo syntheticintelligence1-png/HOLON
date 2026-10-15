@@ -269,6 +269,8 @@ class LawSearch:
         self.seen_states = 0
         self.capped = False
         self.validate = None            # (trace, step, t) -> bool: holon.disch.run.Run.valid
+        self.deadline = None            # a wall-clock time box on this law's last-step syntheses (holon run)
+        self.timeboxed = False          # the time box ended the search before its budget (UNKNOWN by the time box)
 
     # ------------------------------------------------------------------ time candidates
     def times(self, state: dict, trace: list) -> list:
@@ -319,6 +321,13 @@ class LawSearch:
         st, code = sy.synth(g, action, prev, self.ex.ts0, accept=accept)
         return st
 
+    def out_of_time(self) -> bool:
+        import time as _time
+        if self.deadline is not None and _time.time() > self.deadline:
+            self.timeboxed = True
+            return True
+        return False
+
     def refute(self, _s3: bool = False, max_states: int | None = None):
         """(witness steps, t) or None: the law's last step from a state where B holds, accepted when the judge finds
         the law's claim false there (a forall law) or true (an external law). At most max_states B-states are tried
@@ -330,6 +339,8 @@ class LawSearch:
                 return None
             n += 1
             for a in self.entries:
+                if self.out_of_time():
+                    return None
                 self.tries += 1
 
                 def acc(st, code, g=g, t=t, trace=trace):
@@ -354,6 +365,8 @@ class LawSearch:
                 return None
             n += 1
             for a in self.entries:
+                if self.out_of_time():
+                    return None
                 self.tries += 1
 
                 def acc(st, code, g=g, t=t):
@@ -433,6 +446,9 @@ class LawSearch:
             elif n3["prefixes"] >= n3["max"]:
                 s3 += " (budget exhausted)"
         cap = " (the last-step cap was reached)" if self.capped else ""
+        if self.timeboxed:
+            cap += (" (S1+S2 stopped by the run's per-law time box before its budget: UNKNOWN by the time box, not an "
+                    "exhausted budget)")
         return (f"{self.ex.bound().split('; S3')[0]}{s3}; B held at a candidate time in {self.bstates} of "
                 f"{self.seen_states} states; {self.tries} last-step syntheses{cap} "
                 f"({', '.join(self.entries) or 'no entry point'})")
