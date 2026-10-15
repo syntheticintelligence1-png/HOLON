@@ -352,7 +352,7 @@ def kappa_rho(e):
 
 def blocked_atoms(e) -> list:
     """D7: atoms(B_c)."""
-    kappa, rho = kappa_rho(e)
+    k_part, rho = kappa_rho(e)
     atoms = []
 
     def conj(x):
@@ -361,7 +361,7 @@ def blocked_atoms(e) -> list:
                 conj(y)
         elif x != 1:
             atoms.append(x)
-    conj(kappa)
+    conj(k_part)
     for d in (rho[1:] if _head(rho) == "||" else [rho]):
         atoms.append(neg(d))
     seen = []

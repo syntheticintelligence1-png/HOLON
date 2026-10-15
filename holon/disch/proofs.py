@@ -739,10 +739,10 @@ def law_proof(g: Gen, law: dict, model_import: str, section_import: str, laws_im
                      f"{{ar, en}}, e), {G}{g.targs})), {T}{g.targs}), hb, {post})")
         else:   # external_none: after the step B still holds (frame, transport) or the step reverts (the state is
             # kept, where B holds); either way c does not hold there, B and c being contradictory
-            bc, cc = g.sec.blk[tag]["code"], g.sec.chk[tag]
+            b_code, c_code = g.sec.blk[tag]["code"], g.sec.chk[tag]
             if tm is not None:
-                bc, cc = at_time(bc, T), at_time(cc, T)
-            r = contradicts(bc, cc)
+                b_code, c_code = at_time(b_code, T), at_time(c_code, T)
+            r = contradicts(b_code, c_code)
             if r is None:
                 raise NoProof(f"{act}: B and c are not contradictory by cases on their atoms")
             atoms, sb, sc, imps = r
