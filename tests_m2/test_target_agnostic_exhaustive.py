@@ -52,6 +52,12 @@ ALLOWLIST: dict[str, list[str]] = {
     "holon/sorts/extracted.py": ["kappa"],
     # the --morph checkout flag of I30's replay command (holon replay --milestone M3), as for holon/__main__.py
     "holon/sorts/run3.py": ["morph"],
+    # Cohen's kappa, the inter-labeller agreement of I48 rule C6 (its key is fixed by the preregistered
+    # spec/M4/lib/corpus.schema.json), not the Morph observer field
+    "holon/eval/agree.py": ["kappa"],
+    # the whitepaper's component count kappa (|E| - |V| + kappa), I42's basis document key, as already for
+    # holon/rules/par.py and holon/gen/mproofs.py
+    "holon/gen/basis.py": ["kappa"],
 }
 TARGET_NAMES = {"Rollup", "Morph", "morph", "batchdata"}
 

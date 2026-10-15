@@ -165,8 +165,9 @@ class Gate3:
                         bad.append(f"{args[0]}: {name} differs")
                 notes.append(args[0])
             # the I30 records and generated Bend files, decided again from scratch
-            p = self.holon(["run", "--milestone", self.m, "--out", tmp / "results", "--gen-dir", tmp / "gen",
-                            "--jobs", "3"], repo)
+            # the I30 laws only (I31: a DISCH law's G1 is its regeneration, holon.disch.gate)
+            p = self.holon(["run", "--milestone", self.m, "--laws", ",".join(sorted(self.entries)), "--out",
+                            tmp / "results", "--gen-dir", tmp / "gen", "--jobs", "3"], repo)
             if p.returncode != 0:
                 bad.append(f"holon run failed: {(p.stdout + p.stderr)[-600:]}")
             else:
@@ -452,6 +453,12 @@ class Gate3:
                     getattr(self, k.lower())()
                 except Exception as e:  # noqa: BLE001  (a crash is a failed check)
                     self.checks[k] = _res(False, f"error: {type(e).__name__}: {e}")
+            if self.setup_error is None and ok:
+                from ..disch import gate as disch_gate     # I31: the DISCH laws' checks, joined by name
+                try:
+                    disch_gate.join(self, only)
+                except Exception as e:  # noqa: BLE001  (a crash is a failed check)
+                    self.checks["G1"] = _res(False, f"DISCH checks: error: {type(e).__name__}: {e}")
             if self.setup_error is None:
                 self.whole_milestone(g, ok, only, ("G2", "G8"))
                 self.other_laws(g, ok, only)
@@ -533,6 +540,11 @@ class Gate3:
         from .. import ir
         from ..gate import Gate
         mine = set(self.entries)
+        try:      # I31: the DISCH laws have their own checks (holon.disch.gate)
+            dv = json.loads((self.root / "laws" / self.m / "DERIVATION.json").read_text())
+            mine |= {e["law_id"] for e in dv["laws"] if e.get("rule") == "DISCH"}
+        except (OSError, ValueError, KeyError):
+            pass
         others = [law["law_id"] for law in ir.load_laws_any(self.m, self.root) if law["law_id"] not in mine]
         has_ev = (self.gen / "evidence.json").is_file()
         want = [k for k in self.OTHER if (not only or k in only) and (others if k != "GEVID" else has_ev)]

@@ -48,6 +48,11 @@
                                                         spec/<M>/evidence_review.jsonl; I25)
   python -m holon refute --milestone M [--root DIR] [--sidecar PATH] [--only STAGE,..] [--check] [--results DIR]
                          [--gen-dir DIR] [--laws ID,..]   (the refutation engines, concretization, filter; I40)
+  python -m holon eval <command> ...                   (I48: the evaluation corpus, the renaming tool and the
+                                                        controls; holon.eval.cli lists the commands)
+  python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
+                                                        (the theory core and basis sufficiency by application:
+                                                        gen/<M>/theory/; I42)
   python -m holon types|termsize|model|run|replay --milestone M3 ...   (typed milestones, M3+ and T30+: I30's
                                                         holon.sorts; `run --laws` naming only laws outside I30's typed
                                                         SORT subforms, I24's PAR laws on M3, runs holon.pipeline)
@@ -104,11 +109,25 @@ def _untyped_laws(argv: list) -> bool:
                and entries[i].get("rule") != "UNDO" for i in ids)
 
 
+def _disch_milestone(argv: list) -> bool:
+    """Does the milestone derive DISCH laws (I31: a DISCH entry in laws/<M>/DERIVATION.json)?"""
+    from pathlib import Path
+    m = _arg(argv, "--milestone")
+    try:
+        dv = json.loads((Path(__file__).resolve().parents[1] / "laws" / str(m) / "DERIVATION.json").read_text())
+    except (OSError, ValueError):
+        return False
+    return any(isinstance(e, dict) and e.get("rule") == "DISCH" for e in dv.get("laws") or [])
+
+
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
     if argv[:1] == ["checker-upgrade"]:  # its flags go to holon.checker_upgrade unparsed
         from . import checker_upgrade
         return checker_upgrade.main(argv[1:])
+    if argv[:1] == ["eval"]:  # likewise for holon.eval.cli (I48)
+        from .eval import cli as eval_cli
+        return eval_cli.main(argv[1:])
     if argv[:1] == ["lean"]:  # likewise for holon.lean
         from . import lean
         return lean.main(argv[1:])
@@ -160,6 +179,12 @@ def main(argv=None) -> int:
     if argv[:1] == ["lossy"]:  # likewise for holon.rules.par_lossy (PAR-lossy and injective pushing, I25)
         from .rules import par_lossy
         return par_lossy.main(argv[1:])
+    if argv[:1] == ["basis"]:  # likewise for holon.gen.basis (the theory core and basis sufficiency, I42)
+        from .gen import basis
+        return basis.main(argv[1:])
+    if argv[:1] == ["disch"]:  # likewise for holon.analysis.closure (I31: DISCH I, the enableable write closure)
+        from .analysis import closure
+        return closure.main(argv[1:])
     if argv[:1] == ["undo"]:  # likewise for holon.rules.undo (I27: undo pairs, residues, static deadness)
         from .rules import undo
         return undo.main(argv[1:])
@@ -172,6 +197,19 @@ def main(argv=None) -> int:
     if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
+    if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv) and _disch_milestone(argv):
+        # I31: the DISCH laws of a typed milestone (holon.disch.run, after I30's laws for a whole-milestone run); a
+        # --laws list that names other laws too sends those on as before
+        from .disch import run as disch_run
+        split = disch_run.disch_ids_of(argv)
+        if split is None:
+            return disch_run.main(argv)
+        dids, others = split
+        if dids:
+            rc = 0
+            if others:
+                rc = main(disch_run.strip_args(argv, ("--laws", "--disch")) + ["--laws", ",".join(others)])
+            return max(rc, disch_run.main(disch_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(dids)]))
     if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv) and not _untyped_laws(argv):
         # the I30 laws of a typed milestone (holon.sorts.run3) and its UNDO laws (I27, holon.undo.run): run, replay
         from .undo import run as undo_run

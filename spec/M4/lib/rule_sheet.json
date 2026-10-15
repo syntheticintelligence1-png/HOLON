@@ -1,0 +1,98 @@
+{
+  "categories": [
+    "PAR",
+    "UNDO",
+    "NAT",
+    "SYM",
+    "FACT",
+    "SORT",
+    "DISCH",
+    "OWN",
+    "none"
+  ],
+  "doc": "I48 rule sheet for the corpus labellers (frozen at the I48 prereg). It restates whitepaper \u00a75 (the eight rules) and Appendix E (their law forms, bases and typical defects) for labelling a historical defect with the minimal rule that exposes it (\u00a713 'Corpus'). A labeller reads only the prompt rendered from spec/M4/lib/labeller_prompt.md: this sheet, the entry's title, the verbatim excerpt of its first source (its description), its source URLs (it cannot open them) and its fix diff; it runs without tools or repository access.",
+  "independence": "Labellers never see each other's labels, the corpus's later results, or any count of labels; each labels every entry once, in the corpus order.",
+  "minimal": "Label the single rule whose obligation, stated over the pre-fix code, the defect falsifies with the defect's own trigger as witness. When more than one rule's obligation is falsified, choose the minimal one: count the components, carriers (registers, slots, messages, encodings) and edges (functions or calls) the obligation's statement names; choose the smallest. Ties go to the more local basis: SORT (a site), PAR (a cycle), OWN (a view), FACT (a commitment), UNDO (a pair), SYM (a generator), NAT (a migration), DISCH (a guard closure). Label none only when no rule's obligation is falsified.",
+  "output": {
+    "justification": "two to five sentences: which carriers and edges the obligation is over, what the witness is, and why a smaller rule does not apply",
+    "primary": "one of categories",
+    "secondary": "one of categories other than primary, or null",
+    "subform": "free text naming the sub-form (e.g. 'round trip', 'cross-component codec', 'sign obligation', 'blocking')"
+  },
+  "rules": [
+    {
+      "id": "PAR",
+      "name": "parallel-path commutation and domain coherence (\u00a75.1)",
+      "obligation": "two parallel paths p, q between the same carriers (two encoders of one value, an encoder and its decoder, a stored value and its recomputation, two consumers, two branches, initial state versus the steady-state equation) compute the same value on every reachable input, including where each is defined; and every decoder of an interface carrier accepts the same inputs",
+      "typical": "codec drift between two languages, clones that diverged, branch or consumer disagreement, initialisation gaps, length or version checks that differ between components",
+      "witness": "one input on which the two paths differ, or which one decoder accepts and another rejects"
+    },
+    {
+      "id": "UNDO",
+      "name": "undo-loop residue (\u00a75.2)",
+      "obligation": "after an action a and the action that undoes it (revert, cancel, rollback, reorg handling, refund), every register a changed and the undo did not restore is never read again in a way an observer can see",
+      "typical": "values pinned after a revert, timers or cursors not reset, caches not cleared on reorg or rollback",
+      "witness": "a state and a trace a; undo; continuation whose observations differ from the continuation without a; undo"
+    },
+    {
+      "id": "NAT",
+      "name": "naturality and native equivalence across migrations (\u00a75.3)",
+      "obligation": "for each upgrade or migration and each object in flight across it, operating on the migrated state equals operating on a state created natively under the new version, and migrating before or after an operation commutes, and every reachable order of migrations gives the same state",
+      "typical": "unmigrated or zero-initialised fields after an upgrade, storage layout collisions, initialiser order, bonds or balances dropped at a cutover",
+      "witness": "an in-flight object whose migrated form behaves differently from its native form"
+    },
+    {
+      "id": "SYM",
+      "name": "symmetry splits (\u00a75.4)",
+      "obligation": "actions that should be invariant under shifting time, shifting an index, permuting principals within a role, scaling a unit, or reordering independent actions of different principals give the same results",
+      "typical": "sentinel values (0, address(0)) conflated with real ones, principal confusion, order dependence, front-running-sensitive state",
+      "witness": "two runs related by the symmetry (or two orders of two actions) whose results differ on a register that reaches a sink"
+    },
+    {
+      "id": "FACT",
+      "name": "factorization through commitments (\u00a75.5)",
+      "obligation": "whatever a consumer derives from committed or verified data is determined by the commitment: two inputs with the same commitment (hash, root, signature, proof) give the consumer the same result",
+      "typical": "unbound inputs in a proof or signature check, conflated commitments, verification that ignores part of the message, attribution not bound to content",
+      "witness": "two inputs with equal commitments on which a consumer acts differently, or an input a verifier accepts that the commitment does not bind"
+    },
+    {
+      "id": "SORT",
+      "name": "functoriality of the sort map (\u00a75.6)",
+      "obligation": "every value keeps its semantic sort along every edge: no read of an untagged union at the wrong member, signs and widths respected (no underflow, overflow or truncation that changes meaning), quantities conserved, payer and bearer keyed correctly",
+      "typical": "integer underflow or overflow, truncating casts, unit confusion, wrong type read from a union or tagged field, conservation broken by rounding",
+      "witness": "a state at a specific site where the operation leaves its sort (an underflow, a width wrap, a unit or type confusion)"
+    },
+    {
+      "id": "DISCH",
+      "name": "dischargeability (\u00a75.7)",
+      "obligation": "every guard an obligated principal must satisfy can be made true by that principal (with time and cost), or the dependence on another principal is intended; a principal cannot be blocked by others' state it cannot change, nor block its own constraint",
+      "typical": "deadlocks and stuck withdrawals or challenges, liveness depending on an external party, gas or size limits that make a required action impossible, self-disabling constraints",
+      "witness": "a reachable state from which the obligated principal can never make the guard true by its own actions and time (blocking), or can do so only through another principal"
+    },
+    {
+      "id": "OWN",
+      "name": "aliasing and lost writes (\u00a75.8)",
+      "obligation": "a view (slice, pointer, reference, returned buffer) handed to a caller is not written through another alias while it is live; a write meant to persist is not made to a copy that dies",
+      "typical": "shared backing arrays of slices, shallow copies of byte buffers or maps, value receivers that drop writes, memory reuse",
+      "witness": "a trace where a write through one alias changes a value another holder still reads, or where a write to a copy is lost"
+    },
+    {
+      "id": "none",
+      "name": "no rule exposes it",
+      "obligation": "the defect is not a violation of any of the eight obligations above over a diagram of the system (for example: a wrong constant everywhere, a missing feature, an external dependency's bug, a pure gas or resource issue with no guard involved)",
+      "typical": "consistently wrong specification (the intent lane's domain, \u00a75.10), configuration errors, cryptographic primitive bugs",
+      "witness": "n/a"
+    }
+  ],
+  "sheet_version": "holon-rule-sheet/0.1",
+  "tie_order": [
+    "SORT",
+    "PAR",
+    "OWN",
+    "FACT",
+    "UNDO",
+    "SYM",
+    "NAT",
+    "DISCH"
+  ]
+}

@@ -6,6 +6,10 @@
 #                                 key's thresholds.tool_pins) into a venv at $PREFIX/tools/extract, from the hash-pinned
 #                                 tools/extract-requirements.txt (wheels only, --require-hashes). Never inside the repo;
 #                                 holon's own extraction (`holon extract solidity`) imports none of them.
+#   tools/setup_env.sh --solc     only the pinned solc 0.8.24 (the static Linux binary of GitHub release v0.8.24),
+#                                 checked against config/holon.json replay.solc_sha256 and installed as
+#                                 $PREFIX/solc-0.8.24 (I48: rule N1 (e) and the Solidity isomorphism check). Nothing
+#                                 else; a download with another sha256 is refused and nothing is installed.
 # Only GitHub and package registries are used, because some sandboxes block
 # bend-lang.com, release.lean-lang.org and binaries.soliditylang.org.
 set -euo pipefail
@@ -24,6 +28,31 @@ if [ "${1:-}" = "--extract" ]; then
     -r "$HERE/extract-requirements.txt"
   "$VENV/bin/python" -m pip check
   "$VENV/bin/python" -I -c "import importlib.metadata as m; print({k: m.version(k) for k in ('slither-analyzer', 'crytic-compile', 'z3-solver')})"
+  exit 0
+fi
+
+if [ "${1:-}" = "--solc" ]; then
+  # The pinned solc 0.8.24 (I48), from the GitHub release only, its sha256 checked before it is installed.
+  WANT="$(python3 -I -c 'import json,sys; print(json.load(open(sys.argv[1]))["replay"]["solc_sha256"])' \
+    "$HERE/../config/holon.json")"
+  if ! printf '%s' "$WANT" | grep -Eqx '[0-9a-f]{64}'; then
+    echo "config/holon.json replay.solc_sha256 is not a sha256" >&2
+    exit 2
+  fi
+  DEST="$PREFIX/solc-0.8.24"
+  TMP="$(mktemp "$PREFIX/.solc-0.8.24.XXXXXX")"
+  trap 'rm -f "$TMP"' EXIT
+  curl -sSfL -o "$TMP" https://github.com/ethereum/solidity/releases/download/v0.8.24/solc-static-linux
+  GOT="$(sha256sum "$TMP" | cut -d' ' -f1)"
+  if [ "$GOT" != "$WANT" ]; then
+    echo "refusing: the downloaded solc has sha256 $GOT, not the pinned $WANT; nothing installed" >&2
+    exit 2
+  fi
+  chmod 0755 "$TMP"
+  mv -f "$TMP" "$DEST"
+  trap - EXIT
+  "$DEST" --version | tail -n 1
+  echo "installed $DEST (sha256 $GOT)"
   exit 0
 fi
 

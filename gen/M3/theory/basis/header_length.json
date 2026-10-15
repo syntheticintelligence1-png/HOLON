@@ -1,0 +1,6251 @@
+{
+  "basis_version": "holon-basis/0.1",
+  "component": "header_length",
+  "document": "basis",
+  "facts": "gen/M3/codec/header_length.json",
+  "inputs": [
+    {
+      "path": "gen/M3/codec/header_length.json",
+      "sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315"
+    },
+    {
+      "path": "gen/M3/diagram/header_length.json",
+      "sha256": "b9b8cb0b6d42face2309af7bb25556e052844587f82301e6a6ded3c370faba23"
+    },
+    {
+      "path": "gen/M3/laws/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned/LAWS.bend",
+      "sha256": "c9cc9734d585c4bfa2964c1b5024700d42420d5e50a4f42bdc6bdb73cb768019"
+    },
+    {
+      "path": "gen/M3/laws/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned/LAWS.bend",
+      "sha256": "53e12d1cc531a75c195ce85155bb91b87af25bca48a59b050d708c3e350a30af"
+    },
+    {
+      "path": "gen/M3/laws/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned/LAWS.bend",
+      "sha256": "82b44ab28fedec1cd030cb99be2f61d2c7695e8a2bcb647d94ca2f6633521b17"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2/LAWS.bend",
+      "sha256": "fab53750970671486c934d87a9c91b354df291247626d9da82ae4188beda0836"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2/LAWS.bend",
+      "sha256": "61b82413528b3381bb4a85a6f9caa4649ede06db32f999f30583da8c723b11fc"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2/LAWS.bend",
+      "sha256": "043321bef3ea58a267e7f964b533686638f66e5a0f88bb046b69dfb3ffa118d9"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2/LAWS.bend",
+      "sha256": "8fd529e83d9782f512ee855874f9fa91d6f9d3680b0a22ccb1f6a27257757d16"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2/LAWS.bend",
+      "sha256": "b8ac8d29c77ac0a84b4cce7e222ee57fead362959dd3f145b8f17e7ccf0ee0aa"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2/LAWS.bend",
+      "sha256": "dd6dd4d4b364f4cae35be0328ab9c704797b4e09d969f212b689dc35883a58d4"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2/LAWS.bend",
+      "sha256": "c5bf4b25db8c8671f36578aa512d3cf5f5308885860b48aa91714a26614b30d2"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2/LAWS.bend",
+      "sha256": "1261691dabdfce357d3384bbf1ab7c51542ebba7cd2ae50e5b81ec3d9691a4ea"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2/LAWS.bend",
+      "sha256": "5a5764027347345d65dde6530fd3397ec5f9c5f81ef7869ee2a0a2d0a03cf5c5"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2/LAWS.bend",
+      "sha256": "b8bfdc5288ff2f9cd3f9c84b7813972cc609b395d7628aa629695b31476f09c1"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2/LAWS.bend",
+      "sha256": "d860027297224e9c70df530995b349e39da258a02c31e31850cb37b7037b6a68"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2/LAWS.bend",
+      "sha256": "367d4ec587d3af37960fda503d2121cbc450a113d7f09dc2584909eade565694"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0/LAWS.bend",
+      "sha256": "5f014f5e8f6f5ed80e74fcdeae4ce94d557b8d51d0118b1c5f7933d22720fe75"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0/LAWS.bend",
+      "sha256": "9b42e8c78085e3e20c2af21e042915f2dd71ad1f1cb6fd0ab47540ec5cd23725"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0/LAWS.bend",
+      "sha256": "6e8ce4514bbe2c49aa1016dffc474c93673b24fdef58ec71ec842797d9908736"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0/LAWS.bend",
+      "sha256": "d64b2b9956b3cd9ed8123ef5c9af604f9b01117a81ef2ccc37b55535f4907049"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0/LAWS.bend",
+      "sha256": "e6249101fbd905f8db4b5c220f4219c3caf2169d1c29daa0b1e712d0df56d241"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0/LAWS.bend",
+      "sha256": "da767ea01ef5020a0c0b3a4c083d8a04913417d7428c05ca43bca944d4fc5468"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0/LAWS.bend",
+      "sha256": "4728a8bbd4a5cd112673e5cbada4c712edad586cb1219864e3bac62ecb4140b2"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0/LAWS.bend",
+      "sha256": "10889325090c28eaa610e5b66600a7dbdc84fee60404a18d4ea0f6e1db476c42"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0/LAWS.bend",
+      "sha256": "7aa6ac201a6521d38f41967ff2687853472947b07807ba209a3e8e3bd7fbbec0"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0/LAWS.bend",
+      "sha256": "f86f7df7f678d07778456c384329aa813335d00c53b13d6cf69be2be71c9335d"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0/LAWS.bend",
+      "sha256": "e4c45a03a8b4fca3bce1d68449edbdbb41e7ca5e57978e2dcb843fcff79fee88"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1/LAWS.bend",
+      "sha256": "a907a1439321f167280edc2c00ea3226a2e8c8b3d284a0e54945121bc0cd97b3"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1/LAWS.bend",
+      "sha256": "e984b9b55ee3340a213b8ffb64cfa400de1f1e9e291b45e0be1042dd435c3373"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1/LAWS.bend",
+      "sha256": "9935597fc2ac34604f2e0af7141b6d75ce8912aa9e98b866514db89db7b32750"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1/LAWS.bend",
+      "sha256": "aef52ec3a0e3027ce3f8b1e9e6ff5304efeb5779dd5a6afe94f4caccfe176812"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1/LAWS.bend",
+      "sha256": "4abe9da959cc9d80643ca0302fe5cbd62b2b299d80cd406db89e804883f5be6d"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1/LAWS.bend",
+      "sha256": "7dc0e2eee02f27e588159ec85ae1324d06be4b8546f1ed8b887e4669136c69ae"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1/LAWS.bend",
+      "sha256": "75600b0ae381b7701676e8b97538f7a5a81d7d729677de800fefd4d6714b69ce"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1/LAWS.bend",
+      "sha256": "26750f6af5867cad4459a87011cac9c0d6c44a398ec9d1378ac0565110ffbba9"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1/LAWS.bend",
+      "sha256": "5c707de7162b953c27546ad56817f1bf320b3a364bb49502e4384cc0e33cba2b"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1/LAWS.bend",
+      "sha256": "eb6074581632e53064b7758050ff1b50254ff7144cb021813336b068383e41cb"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1/LAWS.bend",
+      "sha256": "0a5fe2d39959f98c4c438f7f8aeede59cb5fe7424803c444eabd4da9ed9598bb"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1/LAWS.bend",
+      "sha256": "8846e0c31bbbaa0f63e68fe33e1cab588e7dc927c08bf065c7b1ae6ce6795c7f"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0/LAWS.bend",
+      "sha256": "77a5983bfb901fe46b66f528badc577710da685d1760464ed7ac0dd18e239526"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1/LAWS.bend",
+      "sha256": "e3a30432272e529c0c1fc8c524ba2dfe394cf34ada04f28f5dd34bf846b8928d"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2/LAWS.bend",
+      "sha256": "d09494fe244013d878eff276e8c8642b1537bb7127bda2257899f834dae17a81"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0/LAWS.bend",
+      "sha256": "393fa1060c3d0cad729b699cc70a76accda6479478859b5a196673e40f941d81"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1/LAWS.bend",
+      "sha256": "1c011d2948745861756b05cf62b0cd5f3394f5fa09a8a61ef2cfc5f66aca308b"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2/LAWS.bend",
+      "sha256": "b9a9fcce7ef14eed41ef4da77785fc53d19c643dd92f45ee617c929113e27377"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2/LAWS.bend",
+      "sha256": "ac0c06b02ffa1434da91b4350ea32c021584c4492db1401026984b3a5cb8b10a"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0/LAWS.bend",
+      "sha256": "b7cfca220e93ffcd7f46f44c84ec942350bc107c4af9cef03d1af9929dc89f4f"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1/LAWS.bend",
+      "sha256": "d23957d42b82d47eafdbbd02ba1d075a8be714ebdbb5fbb0b6e8d137c1a97607"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0/LAWS.bend",
+      "sha256": "bd62dea91c22aa309daa6d74d99cebd54207b223b73965093ff07fa0297b7a02"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1/LAWS.bend",
+      "sha256": "164fac3f4c10c3ea6c9c7bf98fc955e4429e3ffbe7ca8a85f605546c4d5c4e8a"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2/LAWS.bend",
+      "sha256": "a6d1417594d4be0f67f0794237ce967b79c9222965b4948ed1eef1787e4b9c8f"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0/LAWS.bend",
+      "sha256": "3d3c614088f667863e06295450b52945f33d99e0e57548b1a6d667c3bcc3a719"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1/LAWS.bend",
+      "sha256": "08af107e8ab82b4ba0dcb4b32c2c420a173e9efbb950476debcec105c2655ef0"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2/LAWS.bend",
+      "sha256": "fb1708c1ea14459c6867d25c6b026e98e20ed595d3b82650269f17347348bf4f"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1/LAWS.bend",
+      "sha256": "6614d85737aaa168f801e7910c59e7117ed3b948156b663c62355db92be5c8e4"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2/LAWS.bend",
+      "sha256": "58875f450c7354f5ac20bd814017f590fdd42a99748974b59897bf1a08df2767"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0/LAWS.bend",
+      "sha256": "0189d58d57eeb24ab23f8a212678c0aaa1f7ae951ae384690880ca688a5ba738"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1/LAWS.bend",
+      "sha256": "9e3533553de93d6d13e64075ef929c520acd85d65a83dcb24ca5f5a59985f0f1"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2/LAWS.bend",
+      "sha256": "3201ceb27e753487730d9f6a577ddd4ddfea4dfbc78c5bc0608607e22d7d312a"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0/LAWS.bend",
+      "sha256": "20d786cbe1502c66a4624f618c9941fdced63392c59e933a87d304ce93e7e3b0"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1/LAWS.bend",
+      "sha256": "6933f9500f46c66b5ab00dbcf29f6d7186c740e2687399ca4c4a94ce6da452c9"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2/LAWS.bend",
+      "sha256": "9456791ebde50a4824413402e532c05757c7a3967f1ac5aceedd8f103c244d2e"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0/LAWS.bend",
+      "sha256": "d4b56261da5ad856e51f824a841d0bd385d4a6c8a82246e34ead2d42a42f97db"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1/LAWS.bend",
+      "sha256": "ecb511bac1ef9f2f7ce337c024ddeb95aa78db83e7f1987aac0adc7fc3ac2b75"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2/LAWS.bend",
+      "sha256": "ab452d157de2cd047adffc1fe17059e88f5dec0c645cfbb408d9ba376558846a"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0/LAWS.bend",
+      "sha256": "beb0df3d51dee9ce4046b4766081c8944df8f7c097143d5483201f424b75213e"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1/LAWS.bend",
+      "sha256": "a5dd97de314950a0e299b00722ae26a8b47527d64c5c2013110c26fbbb8c8d42"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2/LAWS.bend",
+      "sha256": "0733792984e23399c400151d72ae299d892344b698481d3686e99d84afdac88d"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0/LAWS.bend",
+      "sha256": "dd98022027def26485a2be5d40059bf8d870e26d0d9983ec94bc4fcc50ea43c9"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1/LAWS.bend",
+      "sha256": "6d8af930183afb05936d1b3ae773a6d575d67bf137be09e33b1f692cc33c860f"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2/LAWS.bend",
+      "sha256": "562c7e73e0bf46fc67eaa42047cf68b4fe1573b9e9af45085419f636fee02791"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0/LAWS.bend",
+      "sha256": "2fd6c144be2838d069a6e793d839ba73efd246423f1816791424e65ac5c77207"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1/LAWS.bend",
+      "sha256": "5fedea17ae96bf1b5e69c770492eb07e910216c04861ccedee667ec2c9166088"
+    },
+    {
+      "path": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2/LAWS.bend",
+      "sha256": "53bbdc9bc380f501b55bb902ebb73f9513af7158147591a24a0b32755d28db73"
+    },
+    {
+      "path": "gen/M3/model/header_length.bend",
+      "sha256": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned/PROOF.bend",
+      "sha256": "7aab3dca4ec5a800201a8f536119a18f4de66977565109951d43ffdc36a03158"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned/PROOF.bend",
+      "sha256": "6ea2b73c25286947a96f5fed76ad98191ce01d0dcc1ec8097aabc3fcd33eb63a"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned/PROOF.bend",
+      "sha256": "969e43647c9e23ac7c08101c96869b5ef0504d34444dd7aff2e7b0cc78878149"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2/PROOF.bend",
+      "sha256": "faeaa17b4ebdddf70f9d18b5d4a12f65cdd9d0f046aa2f434b261d471e974b82"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2/PROOF.bend",
+      "sha256": "5166d5f518d82ec9c1cc087a271ba825fe9061dc9a003eb815bf16941cff8cd7"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2/PROOF.bend",
+      "sha256": "81c5b1e0afd50aeb1b116bc019c3cff70a9921b6d4800d587296d9837779ea44"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2/PROOF.bend",
+      "sha256": "a8b8bf135a208a47bfa21d465361bfd577a0a1274e80a7378ccb5fd46b05e24b"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2/PROOF.bend",
+      "sha256": "662d0bcffee9f23223e290ac654c559e298578b56132ee7a5332cde69778217e"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2/PROOF.bend",
+      "sha256": "9051b00505180bcfc8264ca4e0c89d303d59fd1d3d1d15fb7d573ae428183e0c"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2/PROOF.bend",
+      "sha256": "5a35e893440aca1f86ae81410504eac6015bbaaa41457e544d44aa442ebd1deb"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2/PROOF.bend",
+      "sha256": "10cc2ee73f5648c4b18318ca1f08c711ba139e51b7827edea71806c461bcbead"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2/PROOF.bend",
+      "sha256": "d553b8ee176a2e6a3913bba02cd5c672128bae1acdf54bc318e2980e713782cf"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2/PROOF.bend",
+      "sha256": "f1bed31ba52807a70bc4c87be94d9139ca36f52c39a7d35fe57ef02e5eb275ab"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2/PROOF.bend",
+      "sha256": "08cd945bbc3ea1da8f0a7005dded756b239d083beff5804a0cc7037420a9801b"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2/PROOF.bend",
+      "sha256": "3e3086300995288b7ff23d582782316250d2957ca717b259ba24b9ea7cf0a9d2"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0/PROOF.bend",
+      "sha256": "f3d712a8e2f0d9fc1e8970e64eb5f22356b0b22e52d2a0757fdc11f2ce3e06e1"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0/PROOF.bend",
+      "sha256": "4595edd96d9de25aecf857932879d58a142999f12c1313cc611faf52b2b84b6a"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0/PROOF.bend",
+      "sha256": "1b293576a9b71c88cd867a9f42dfca520cb561e7e9031545968f339bc867900c"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0/PROOF.bend",
+      "sha256": "52bf4f420587bc03dea7fa2d70281a9c7b2f969657e5590940fa03449f7bca31"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0/PROOF.bend",
+      "sha256": "9d6bfea84462e5e178daef6959b58e43cac4a4d247655cc981257fdb09635969"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0/PROOF.bend",
+      "sha256": "f66352828f4b6deafc2952e2b70d0c04ece1e4f916784d454c1110d7f4ca73c5"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0/PROOF.bend",
+      "sha256": "aaf4ccce81d3f4c46ea2d9c11269328b47d5a74807f7d7ff6e89f2b3d84f827c"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0/PROOF.bend",
+      "sha256": "befd63d0bfc0bc418497cf3ac974b422f155d24844c6eed8d34c7b4c9a2ce459"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0/PROOF.bend",
+      "sha256": "a48247a980931e99f75d37d4345e71f57d3f9e7e93ec6dc87148e371d4888932"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0/PROOF.bend",
+      "sha256": "5955fe259c07a3e5738f7e6c58831b218fd711efe970d2f0d550936577dcb094"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0/PROOF.bend",
+      "sha256": "df92751476834b803fda826d862ac35adb16c0f3ef942df4880656d107a62454"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1/PROOF.bend",
+      "sha256": "7b25f15918244fae265f83a1b4c3d6d82dd03ed328cadcbccdff4efcfd3b3622"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1/PROOF.bend",
+      "sha256": "c2c64a6f31c18e1b7c330b463439022dc9a1ad59524e5826d744b71588f6f929"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1/PROOF.bend",
+      "sha256": "e3532c55a634429258bffafe11b43dd95ebfa0b7e5a37c1b16243f48fe695674"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1/PROOF.bend",
+      "sha256": "12f6ccf731420417cbac1e93d7425be994fb2eecd9f2feab22fb8d02f81aacb2"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1/PROOF.bend",
+      "sha256": "c8ff4f4ccff38b7030ad0f3f7fb9453596996bdb8d05102d4460cded817a931b"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1/PROOF.bend",
+      "sha256": "bae9073f671979c72bd606d0cc7a5374f135b9fd0f2183bca3a567b4c3d433b4"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1/PROOF.bend",
+      "sha256": "448fae065c394105bfc6fa2138cc8f9805ca7bc58f4e446dd09636fc4948da20"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1/PROOF.bend",
+      "sha256": "0752c6993a23ec10ebf831366c67aefc32547ef09c3b28a0f337061645e561a1"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1/PROOF.bend",
+      "sha256": "81293e246dbc6934d401b93db792d62ed6d1da57b7e26e25c23d78b33beb45b0"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1/PROOF.bend",
+      "sha256": "905b57f759a55436616740efffce8a07afb49a42facba78d2c7f6b8727fb5670"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1/PROOF.bend",
+      "sha256": "d847b897cdd041b5d9702bf9e231ad21e6f975ef06dcbe4e5e099a93d2ff39db"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1/PROOF.bend",
+      "sha256": "d1aa3ab3118abf1dabaeb2377cea960805ba9a0c11a2448fbdd10528589ca5f9"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0/PROOF.bend",
+      "sha256": "1b49f083a9ab76f68e5785f41b86604d3cba9498b6a14f0cc8431b92b678bc92"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1/PROOF.bend",
+      "sha256": "84a1035a0cfe59d1dedbc80fc7866d6c5e9fb289b34454e3622cac7efdf0d8a6"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2/PROOF.bend",
+      "sha256": "7da92696fb32bbdbd660091cea640496cfb62f95889fed74cb1e07e71106e740"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0/PROOF.bend",
+      "sha256": "f384579c38d2eb53e1c081543e4358beed175b6fbb983fbb5feec35cc8e89a81"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1/PROOF.bend",
+      "sha256": "5e642358cad98440d8afa128d56734afa0fd7cb4ebe472da9661f997505bd02d"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2/PROOF.bend",
+      "sha256": "61e0d996f28208db3f2ce3a237257134108e1b95421142f05a488b340c837b76"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2/PROOF.bend",
+      "sha256": "18112311bb916540556fc1ad3a2e3fb7a881cb238cb78633283d694d91150681"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0/PROOF.bend",
+      "sha256": "d47d86fcca09f0b402b33663a86fba21bc5b347c373a7e61b0f7f32926894967"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1/PROOF.bend",
+      "sha256": "845e037e59698d52719821fd792828c209878dad5c362d5fbc348beef24cc799"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0/PROOF.bend",
+      "sha256": "bdc3b7075915439b1bc06a9cb5ff6f2c833d790d3841dcd74e5d8b655a203e58"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1/PROOF.bend",
+      "sha256": "8012c31d9fab41a4e23909a22057c5bde2d951a46e33ac2f4ad846aa7188d5b4"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2/PROOF.bend",
+      "sha256": "bc61d524e6baf5b30f9647e6b774f9002d128dd837dea971dc23c16be8ce5357"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0/PROOF.bend",
+      "sha256": "c0a8ed24fa61ee1f9c564cc82bb6231537e6e1f1120fa28eccf0e567ab4c1f9a"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1/PROOF.bend",
+      "sha256": "7617aea5aeeee4bfda346ddd7ac8276c6c804dcd50f01e7878db71aa04ea2d89"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2/PROOF.bend",
+      "sha256": "72ec50582f9f00688990f477f9e9aca420c3d1f000234cc5e973e6c000bb9bd7"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1/PROOF.bend",
+      "sha256": "cafded05283ffe3308de1c7ec1019c2197be0ba03fb029171fd71e57736c584b"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2/PROOF.bend",
+      "sha256": "f5b183cc3da6247d1ec169b538e273c5fcfdc67d020f556a73ab28052fe1c59c"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0/PROOF.bend",
+      "sha256": "c07a683d624ee7a3b643d8e41735efccfe0a80832864b52783dbd72f395b7b39"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1/PROOF.bend",
+      "sha256": "8d3715b7a95e79dddd0a4b0de55e1eebe4dc34c966cf6e815e66eaf907a1bd25"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2/PROOF.bend",
+      "sha256": "fd52f3d6228999d92e44b78a38f4d6cf9be23815a4659ce6e9b79842bbcf4812"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0/PROOF.bend",
+      "sha256": "670bf40c929a2ce14851be8f83832c7a9b18488d7d809de4ee3d78404521ece9"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1/PROOF.bend",
+      "sha256": "06825342525ad67e53fc46a456ab6127c2dcbee58f0c703cb195cdd09272038a"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2/PROOF.bend",
+      "sha256": "37cbfe0b6b12fe1cb5e94f8a91b6f2ab5e8e0a6e7fdb2b8fe783d3914ffab923"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0/PROOF.bend",
+      "sha256": "e059e2c12d8785a1ce4f92f65f4899c662950ef8cae8ead78954977fc627619d"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1/PROOF.bend",
+      "sha256": "7ca19748021d5a9ab147ec46508f70ab6ab66963d151ec841c5ace2736627d22"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2/PROOF.bend",
+      "sha256": "b25a8be0160a38754b4430884eee7a54d17fe8dc4057026ce0c7fbdbb1e771c7"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0/PROOF.bend",
+      "sha256": "ee1d952e3cc46aa4cd273992ff49075fd2b793b46086b814862d53177479f438"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1/PROOF.bend",
+      "sha256": "10ddcd5b752ce2e8487ab1ff84360967e3ab37af14098025a701a7e37419223a"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2/PROOF.bend",
+      "sha256": "79eaf6a5f8398952ebbab0dd7165735c7ec8a5aab3c29751f8a3f8ae49ecfd89"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0/PROOF.bend",
+      "sha256": "67928c00ebb840f940a15dc43843bfa287440faf138aa71b96d3f1cdfbc26049"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1/PROOF.bend",
+      "sha256": "891eea9434fd8d23c7d06c4efa1a1a01c1a6f3b9c3022362f029d2f1464f42f8"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2/PROOF.bend",
+      "sha256": "8d870c3d6b8419cf81642bb666f1a7862a15ca5e3e4eabc72987486e524316f8"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0/PROOF.bend",
+      "sha256": "120f103ef81dbbfbecaef8b9a201292142d5e47ca42265a938028dcebc900872"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1/PROOF.bend",
+      "sha256": "7c8df39472c282acbab96d88de388b1b747bf8e391e415f921999d270723b242"
+    },
+    {
+      "path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2/PROOF.bend",
+      "sha256": "3796b433fb3609b1ee9f2ddcbe69d68a8a5a542691678a27e495151dc95e0f3a"
+    },
+    {
+      "path": "laws/M3/DERIVATION.json",
+      "sha256": "7f21e2245a70445f98dbb322d6095a9dad326789a421d59d2f38760157a24e96"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json",
+      "sha256": "bc54e074e4d2205d49e7c91431be50f1aea9fc038e34ed53ceef16b204561d2b"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.json",
+      "sha256": "adab1291c51528d54e5819280ed888c72135afb3331d6f21121c0bf58db1659c"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.json",
+      "sha256": "feba212499cf32153945af01211725d2431340a51c79a7da572fd752a59b9cea"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.json",
+      "sha256": "926567b9edb493b574f51ebdb05e6a11440dd22c617901cd61b923c7bd8a4d03"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.json",
+      "sha256": "676d12f87fc6b80303d140008fd62211d1174b52fb713dc8e0d58e0638da6e92"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.json",
+      "sha256": "dd3a2df63e83aac58dd2af8546c274600840d2ab942e291879864b39ac0f00ab"
+    },
+    {
+      "path": "laws/M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol.json",
+      "sha256": "69fc295453a5aa4798b7fe021328186a952713193a24463a7cf578245000b417"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2.json",
+      "sha256": "d699a02e52a63d9509a510a0f6077160108a794e2ec14bdbb07651688c668735"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "sha256": "19924fcb72113ace1f3772ba16e3bc9e6e673d13d8fbc48f276890c411903a6d"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "sha256": "1a77e666fc9438ecbcefa4dc897d65d4768e3fd05b66c479d9f036c0059da662"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2.json",
+      "sha256": "eb58136e0c1f2518b3b4911b593c11506adb2c95e2f1ddb198dea97badb5666c"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "sha256": "e84d99f279d801b4325991464e07421f17b0f7fadb3cbdb42dae577a48c267a4"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "sha256": "2290d677c07e6e24f6bdd2f7bded8193f944c39c5625a3451ecb9e312802eccf"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "sha256": "25315d40dfe7c9bc70fb33d243962acdc41f90cfd54e7f68da84a974fbe0a4ac"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2.json",
+      "sha256": "e97b8fda29966d1e2250a330fefe27945a9e877b29d4ad86d959de28680482ee"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "sha256": "657db1083afbbeff795d73c856ed688f7a52a09b1b6a06954981d8d3f1d51ea5"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2.json",
+      "sha256": "3d5cacdb910bf78b16d67bd8ae9745e6f25c91e7577ac3816c0e8c616c4f1c67"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "sha256": "1651e79781fcf6930ac26bd9841b50c3f19b8bf67b1252543688256d21f269c9"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "sha256": "16ac8ea434157640771730475f7f38b65a2485cdfc31336f4451566969d4bb1f"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0.json",
+      "sha256": "28a685e66c0d0d3ef7554d3beba70cc84d12093ff8bd92d61d272821aee32152"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "sha256": "d9a1bc1bbe7adaaeea23406af4fbd969274b3bdfd99e0178afcde1bb4aa4c135"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "sha256": "39b78c21da02297bd10acd24c615438f3a92dc43c7c002404a3aa5b59d41d0f5"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0.json",
+      "sha256": "76904ddda2aaf40a370c6e705ca185020a65c32243bf21d329f72655d3b0e30d"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "sha256": "762dcf692c7dffac701263a19b545d9d4463726eaf932169c4a0ce8e07354aa8"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "sha256": "89a5298a6266881ebfb5bec5fb30ce3eed81f41b2a6b89ac5527a2d30b79d84f"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0.json",
+      "sha256": "a1560e85a3cf415cb0db5d0b81c5ee7e0c78f4981ed1c45644b5e0c57a784227"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "sha256": "7d0ee080387f538e9d02268893178f12d212cd65cbe6fb5043eea9bc874506ad"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0.json",
+      "sha256": "699b644662c3ea656e2fe07c4d455646268c01cf0d1ac84d82383ff253cbfcfa"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "sha256": "4e399825f5e1d6e7edc279ede4931338e180bd7b4e70c263788245141fff1927"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "sha256": "31b4cbc9636b5d15cf8fbcc5c2b753af0c3124773afdb4d00c207a78b62f4aea"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1.json",
+      "sha256": "4507affbaece51f2b9c66e7fd428f46f2484b5a4df04e3eb97fa33c9ec848b8c"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "sha256": "296710cac1700473ef261a1d312dda8358f019ece12f0210dcd46f1dae350cbf"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "sha256": "5107900eff5cb9f7b567a3003bbabf710565453d4583b4c5ce7203f653a95f3c"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1.json",
+      "sha256": "6c3f5b361ec69aa838247899d1555ddc5340c9e134dbae3081d396597a619981"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "sha256": "dd58f2a37230d321a7ba8262042403366b1eec67c6090b2f055bd2c52003e92c"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "sha256": "fc66a0e613ae23b1c1fc56e78f13a9ad6b9d6a7f3f9df8e0456e99261559ac29"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "sha256": "25ed43d1eea3e9d90bf4f7a4dcb5d62345fb6ebb1a46c10f3e7cc98ace1a5583"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1.json",
+      "sha256": "bcc0782b34d7a1df16e8e9a32ad0b5bbd62e03008b99e40bc623e2e1644d5527"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "sha256": "c42df7ff52d177b290072b61c18ce9b11f402d9d20cb59b07054966257629c34"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1.json",
+      "sha256": "c2c37c41b6254aa6eedcaac9ca15a775518015f09de283f4488610602b977aec"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "sha256": "38cd934e256b0d4fa22a5e64b2f6177609aa611bd6defa25fdf302f52b262e5d"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "sha256": "1853283d9263dd3a2f75b1f8ce67a494a71093a66953dfec6b500443d7a76443"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0.json",
+      "sha256": "65a6e5ef9a2d74ecd3f43d500b7f4ebb9feaf3aa0e2583370c627ab8bee18c21"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1.json",
+      "sha256": "65f835908dde0e3ff935ff4442fd542066ef0df63187fbb47c7b7d6c32b00f04"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2.json",
+      "sha256": "bab3af5366017b61c9ebf3b99a27ecf79eb465466f31e8f32afe801efb2e2e29"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "sha256": "e9cf052b1b808620616c2890e87f70896b42172c4cc672ccd06c38a6300d9320"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "sha256": "3f08cac5de31fd0355678cdcbda2f3c9c948bb0b5563f4805a9a58af72ae80e3"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "sha256": "32b81dafeb794c58d92330513b62baf1b10e59af63fcd06440af2d3ce0c69254"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "sha256": "bb095eab1bd71b59982755ded865e9beaaca1f2992e121be0ce6bcbb6d91379d"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "sha256": "3db7192c8a7087c453e54e7ca74adcaac7d2b025075434eb8c9e4dbd9c799f95"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "sha256": "d646a0fb4fea80ec6bd29de1d758d87e4084d9336d389d79304e965c6de0876a"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0.json",
+      "sha256": "f066c3b80f0f372aa0245b18786f2416465377b088d6fffd4ef00e8c59a4bcc0"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1.json",
+      "sha256": "f322a32580abd218b039d6df0d87cc29a9230e95c528527593d4f04301bb58f2"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2.json",
+      "sha256": "9b950d75e8f615c6e222225691e97d0d37d4011f262637c7511bff5a5269e5af"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "sha256": "7df46dc02d1c0b9a1e1443a580ca73a6ee604ab56a54870587f21e04101eaacc"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "sha256": "283eb7f3139b1ae685c31537bd3250f0d3eb07744fd39baac8ebc5e9bfd18706"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "sha256": "5a2ed48a4c6b08c729d7a005b145860d88151d185f65a134e6caa04ce35761e0"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "sha256": "c9c4f9a3c122eb149957f9c0193839b592f3f5543a650fd6f9d0f3823280a57b"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "sha256": "698de1ca251edc6410d65ce0c308cd45f5e3f69475b9048fe41bf2add0c62f7e"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "sha256": "662650fd27835a42a1c25d26df7655551c2a256b97c86a28bc7323b346f6fa10"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "sha256": "76adc5875c656c1b2ee960cb3e3a1bdb13dbdc0abff37c70430595300c18a37e"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "sha256": "4567b7d392609f6d2fbb48dd7aa02f688754a175ccde7190fac2f2a473fd8786"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0.json",
+      "sha256": "15d9a068f54ea5304e0200ff5d52a40d0da59c9b4b5c49b7500450d2a8c74564"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1.json",
+      "sha256": "62a504df92e0e2f9bfb265c4a579eb246c1d0c0d303762961e6b679410d327cf"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2.json",
+      "sha256": "f70b53082a72fe68733c26598c927840afda00f1953e304bea42c4a88183ad03"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "sha256": "2520ebd7a0af5b28b2bdff330a1a130c6b2cf9d09ad593e7b6cb5bbbce6b92d1"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "sha256": "8feca8f2b1f5a3ab52e7c9de71fed0ad2fe3eb4dc86dda0a0c5c35a6c7d24484"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "sha256": "28adba4d37f2ea489c4360492876d8e5f9f4a5840d067abb4734ca385748b47e"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "sha256": "d82b6ccb3de932cacfcc1d433bfe8aa1b63fa07b2823f19654366597250b3ef9"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "sha256": "b959e051d627126ce6072337f0e30839cab0cd05863610f2761026cc83e42afd"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "sha256": "eb2a560f939236d1d6ed5be78db18c67d7612884b08295ff1ec0c00cd384aefe"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0.json",
+      "sha256": "a51f0969ecea6e5d9ed84d0f9155dd58feea6943641074222647315c58b7b171"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1.json",
+      "sha256": "280fad1310b3420779299d95c1954bdbc2943bd0a33aca80e08540563093676b"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2.json",
+      "sha256": "2a610583c56e3435165368b900bca8c22a759dcf97d0e6241af3de323ffc7d0f"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "sha256": "d09da686c346b4488e8e44ea9653710f4fe4f4869972e3419fbafe66e2993fa6"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "sha256": "601d61b2b6d17474b521bd3d61cc2ed21e3c3dc144e01de449ea69225162d474"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "sha256": "37298c854126256eb53e969a33c5d4c8ad857e4ecbdb68607a01289196366517"
+    },
+    {
+      "path": "laws/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "sha256": "4a148d35ad16f9965e38f3f9d9e42d9c42e27d1456e0673b5acd8a41ec31a18d"
+    },
+    {
+      "path": "laws/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "sha256": "c1482f7992d83bfa7df5eaa7301202ed99ddd5f88acc2a8ba73dcf860f2febca"
+    },
+    {
+      "path": "laws/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "sha256": "d4bfb8d56db65170dc8f1f68767d2f167f5e3e9ca7e82c6b0989541b8647527d"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json",
+      "status": "REFUTED"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.json",
+      "status": "REFUTED"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.json",
+      "status": "REFUTED"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol.json",
+      "status": "REFUTED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "status": "PROVED"
+    },
+    {
+      "path": "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "status": "UNKNOWN"
+    },
+    {
+      "path": "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "status": "UNKNOWN"
+    },
+    {
+      "path": "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "status": "UNKNOWN"
+    }
+  ],
+  "instances": [
+    {
+      "available": [
+        {
+          "kind": "root",
+          "law": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+          "lhs": [
+            1
+          ],
+          "rhs": [
+            0,
+            2
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+          "lhs": [
+            1,
+            3
+          ],
+          "rhs": [
+            15,
+            16
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+          "lhs": [
+            1,
+            4
+          ],
+          "rhs": [
+            23,
+            24
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+          "lhs": [
+            1,
+            5
+          ],
+          "rhs": [
+            23,
+            24
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+          "lhs": [
+            1,
+            6
+          ],
+          "rhs": [
+            21,
+            22
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+          "lhs": [
+            1,
+            7
+          ],
+          "rhs": [
+            17,
+            18
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+          "lhs": [
+            1,
+            8
+          ],
+          "rhs": [
+            33,
+            34
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+          "lhs": [
+            1,
+            9
+          ],
+          "rhs": [
+            27,
+            28
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+          "lhs": [
+            1,
+            10
+          ],
+          "rhs": [
+            25,
+            26
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+          "lhs": [
+            1,
+            11
+          ],
+          "rhs": [
+            31,
+            32
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+          "lhs": [
+            1,
+            12
+          ],
+          "rhs": [
+            19,
+            20
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+          "lhs": [
+            1,
+            14
+          ],
+          "rhs": [
+            29,
+            30
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+          "lhs": [
+            0,
+            2,
+            3
+          ],
+          "rhs": [
+            0,
+            37,
+            38
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+          "lhs": [
+            0,
+            2,
+            4
+          ],
+          "rhs": [
+            0,
+            45,
+            46
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+          "lhs": [
+            0,
+            2,
+            5
+          ],
+          "rhs": [
+            0,
+            45,
+            46
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+          "lhs": [
+            0,
+            2,
+            6
+          ],
+          "rhs": [
+            0,
+            43,
+            44
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+          "lhs": [
+            0,
+            2,
+            7
+          ],
+          "rhs": [
+            0,
+            39,
+            40
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+          "lhs": [
+            0,
+            2,
+            8
+          ],
+          "rhs": [
+            0,
+            53,
+            54
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+          "lhs": [
+            0,
+            2,
+            9
+          ],
+          "rhs": [
+            0,
+            49,
+            50
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+          "lhs": [
+            0,
+            2,
+            10
+          ],
+          "rhs": [
+            0,
+            47,
+            48
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+          "lhs": [
+            0,
+            2,
+            12
+          ],
+          "rhs": [
+            0,
+            41,
+            42
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+          "lhs": [
+            0,
+            2,
+            13
+          ],
+          "rhs": [
+            0,
+            35,
+            36
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
+          "lhs": [
+            0,
+            2,
+            14
+          ],
+          "rhs": [
+            0,
+            51,
+            52
+          ]
+        }
+      ],
+      "canary_edge": 2,
+      "canary_law": "canary_unpinned_header_length_v0",
+      "certificates": [
+        {
+          "bytes": "0x00",
+          "decoders": [
+            "BatchHeaderBytes_Version"
+          ],
+          "kind": "constant_read",
+          "name": "const_read_p_batchheaderbytes_version_v0",
+          "side": "p"
+        },
+        {
+          "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "decoders": [
+            "BatchHeaderBytes_SequencerSetVerifyHash"
+          ],
+          "kind": "constant_read",
+          "name": "const_read_q_batchheaderbytes_sequencersetverifyhash_v0",
+          "side": "q"
+        },
+        {
+          "bytes": null,
+          "decoders": [
+            "BatchHeaderBytes_BlobCommitHash",
+            "BatchHeaderBytes_BlobVersionedHash"
+          ],
+          "kind": "weak_image",
+          "name": "weak_image_p_batchheaderbytes_blobcommithash_batchheaderbytes_blobversionedhash_v0",
+          "side": "p"
+        },
+        {
+          "bytes": null,
+          "decoders": [
+            "BatchHeaderBytes_BlobCommitHash",
+            "BatchHeaderBytes_BlobVersionedHash"
+          ],
+          "kind": "weak_image",
+          "name": "weak_image_q_batchheaderbytes_blobcommithash_batchheaderbytes_blobversionedhash_v0",
+          "side": "q"
+        }
+      ],
+      "component": "header_length",
+      "cycles": [
+        {
+          "covered": true,
+          "derivation": [
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 2,
+          "from": [
+            0,
+            2
+          ],
+          "steps": 1,
+          "to": [
+            1
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              3,
+              "lr"
+            ],
+            [
+              2,
+              "rl"
+            ]
+          ],
+          "edge": 5,
+          "from": [
+            1,
+            5
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            4
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              1,
+              "rl"
+            ]
+          ],
+          "edge": 16,
+          "from": [
+            15,
+            16
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            3
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              5,
+              "rl"
+            ]
+          ],
+          "edge": 18,
+          "from": [
+            17,
+            18
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            7
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              10,
+              "rl"
+            ]
+          ],
+          "edge": 20,
+          "from": [
+            19,
+            20
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            12
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              4,
+              "rl"
+            ]
+          ],
+          "edge": 22,
+          "from": [
+            21,
+            22
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            6
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              2,
+              "rl"
+            ]
+          ],
+          "edge": 24,
+          "from": [
+            23,
+            24
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            4
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              8,
+              "rl"
+            ]
+          ],
+          "edge": 26,
+          "from": [
+            25,
+            26
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            10
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              7,
+              "rl"
+            ]
+          ],
+          "edge": 28,
+          "from": [
+            27,
+            28
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            9
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              11,
+              "rl"
+            ]
+          ],
+          "edge": 30,
+          "from": [
+            29,
+            30
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            14
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              9,
+              "rl"
+            ]
+          ],
+          "edge": 32,
+          "from": [
+            31,
+            32
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            11
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              6,
+              "rl"
+            ]
+          ],
+          "edge": 34,
+          "from": [
+            33,
+            34
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            8
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              21,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 36,
+          "from": [
+            0,
+            35,
+            36
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            13
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              12,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 38,
+          "from": [
+            0,
+            37,
+            38
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            3
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              16,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 40,
+          "from": [
+            0,
+            39,
+            40
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            7
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              20,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 42,
+          "from": [
+            0,
+            41,
+            42
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            12
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              15,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 44,
+          "from": [
+            0,
+            43,
+            44
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            6
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              13,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 46,
+          "from": [
+            0,
+            45,
+            46
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            4
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              19,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 48,
+          "from": [
+            0,
+            47,
+            48
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            10
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              18,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 50,
+          "from": [
+            0,
+            49,
+            50
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            9
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              22,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 52,
+          "from": [
+            0,
+            51,
+            52
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            14
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              17,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 54,
+          "from": [
+            0,
+            53,
+            54
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            8
+          ]
+        }
+      ],
+      "dir": "basis/header_length_v0",
+      "edges": [
+        {
+          "id": 0,
+          "kind": "sigma",
+          "law": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+          "src": 0,
+          "tgt": 1
+        },
+        {
+          "fn": "BatchHeaderV0_Bytes",
+          "id": 1,
+          "kind": "encoder",
+          "src": 0,
+          "tgt": 2
+        },
+        {
+          "fn": "enc_sol",
+          "id": 2,
+          "kind": "encoder",
+          "src": 1,
+          "tgt": 2
+        },
+        {
+          "fn": "BatchHeaderBytes_BatchIndex",
+          "id": 3,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 4
+        },
+        {
+          "fn": "BatchHeaderBytes_BlobCommitHash",
+          "id": 4,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 11
+        },
+        {
+          "fn": "BatchHeaderBytes_BlobVersionedHash",
+          "id": 5,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 11
+        },
+        {
+          "fn": "BatchHeaderBytes_DataHash",
+          "id": 6,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 10
+        },
+        {
+          "fn": "BatchHeaderBytes_L1MessagePopped",
+          "id": 7,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 13
+        },
+        {
+          "fn": "BatchHeaderBytes_ParentBatchHash",
+          "id": 8,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 9
+        },
+        {
+          "fn": "BatchHeaderBytes_PostStateRoot",
+          "id": 9,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 5
+        },
+        {
+          "fn": "BatchHeaderBytes_PrevStateRoot",
+          "id": 10,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 12
+        },
+        {
+          "fn": "BatchHeaderBytes_SequencerSetVerifyHash",
+          "id": 11,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 8
+        },
+        {
+          "fn": "BatchHeaderBytes_TotalL1MessagePopped",
+          "id": 12,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 7
+        },
+        {
+          "fn": "BatchHeaderBytes_Version",
+          "id": 13,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 3
+        },
+        {
+          "fn": "BatchHeaderBytes_WithdrawalRoot",
+          "id": 14,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 6
+        },
+        {
+          "field": "BatchIndex",
+          "id": 15,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 14
+        },
+        {
+          "field": "BatchIndex",
+          "id": 16,
+          "kind": "some",
+          "side": "root",
+          "src": 14,
+          "tgt": 4
+        },
+        {
+          "field": "L1MessagePopped",
+          "id": 17,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 15
+        },
+        {
+          "field": "L1MessagePopped",
+          "id": 18,
+          "kind": "some",
+          "side": "root",
+          "src": 15,
+          "tgt": 13
+        },
+        {
+          "field": "TotalL1MessagePopped",
+          "id": 19,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 16
+        },
+        {
+          "field": "TotalL1MessagePopped",
+          "id": 20,
+          "kind": "some",
+          "side": "root",
+          "src": 16,
+          "tgt": 7
+        },
+        {
+          "field": "DataHash",
+          "id": 21,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 17
+        },
+        {
+          "field": "DataHash",
+          "id": 22,
+          "kind": "some",
+          "side": "root",
+          "src": 17,
+          "tgt": 10
+        },
+        {
+          "field": "BlobVersionedHash",
+          "id": 23,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 18
+        },
+        {
+          "field": "BlobVersionedHash",
+          "id": 24,
+          "kind": "some",
+          "side": "root",
+          "src": 18,
+          "tgt": 11
+        },
+        {
+          "field": "PrevStateRoot",
+          "id": 25,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 19
+        },
+        {
+          "field": "PrevStateRoot",
+          "id": 26,
+          "kind": "some",
+          "side": "root",
+          "src": 19,
+          "tgt": 12
+        },
+        {
+          "field": "PostStateRoot",
+          "id": 27,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 20
+        },
+        {
+          "field": "PostStateRoot",
+          "id": 28,
+          "kind": "some",
+          "side": "root",
+          "src": 20,
+          "tgt": 5
+        },
+        {
+          "field": "WithdrawalRoot",
+          "id": 29,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 21
+        },
+        {
+          "field": "WithdrawalRoot",
+          "id": 30,
+          "kind": "some",
+          "side": "root",
+          "src": 21,
+          "tgt": 6
+        },
+        {
+          "field": "SequencerSetVerifyHash",
+          "id": 31,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 22
+        },
+        {
+          "field": "SequencerSetVerifyHash",
+          "id": 32,
+          "kind": "some",
+          "side": "root",
+          "src": 22,
+          "tgt": 8
+        },
+        {
+          "field": "ParentBatchHash",
+          "id": 33,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 23
+        },
+        {
+          "field": "ParentBatchHash",
+          "id": 34,
+          "kind": "some",
+          "side": "root",
+          "src": 23,
+          "tgt": 9
+        },
+        {
+          "field": "version",
+          "id": 35,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 24
+        },
+        {
+          "field": "version",
+          "id": 36,
+          "kind": "some",
+          "side": "other",
+          "src": 24,
+          "tgt": 3
+        },
+        {
+          "field": "batchIndex",
+          "id": 37,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 25
+        },
+        {
+          "field": "batchIndex",
+          "id": 38,
+          "kind": "some",
+          "side": "other",
+          "src": 25,
+          "tgt": 4
+        },
+        {
+          "field": "l1MessagePopped",
+          "id": 39,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 26
+        },
+        {
+          "field": "l1MessagePopped",
+          "id": 40,
+          "kind": "some",
+          "side": "other",
+          "src": 26,
+          "tgt": 13
+        },
+        {
+          "field": "totalL1MessagePopped",
+          "id": 41,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 27
+        },
+        {
+          "field": "totalL1MessagePopped",
+          "id": 42,
+          "kind": "some",
+          "side": "other",
+          "src": 27,
+          "tgt": 7
+        },
+        {
+          "field": "dataHash",
+          "id": 43,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 28
+        },
+        {
+          "field": "dataHash",
+          "id": 44,
+          "kind": "some",
+          "side": "other",
+          "src": 28,
+          "tgt": 10
+        },
+        {
+          "field": "blobVersionedHash",
+          "id": 45,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 29
+        },
+        {
+          "field": "blobVersionedHash",
+          "id": 46,
+          "kind": "some",
+          "side": "other",
+          "src": 29,
+          "tgt": 11
+        },
+        {
+          "field": "prevStateHash",
+          "id": 47,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 30
+        },
+        {
+          "field": "prevStateHash",
+          "id": 48,
+          "kind": "some",
+          "side": "other",
+          "src": 30,
+          "tgt": 12
+        },
+        {
+          "field": "postStateHash",
+          "id": 49,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 31
+        },
+        {
+          "field": "postStateHash",
+          "id": 50,
+          "kind": "some",
+          "side": "other",
+          "src": 31,
+          "tgt": 5
+        },
+        {
+          "field": "withdrawRootHash",
+          "id": 51,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 32
+        },
+        {
+          "field": "withdrawRootHash",
+          "id": 52,
+          "kind": "some",
+          "side": "other",
+          "src": 32,
+          "tgt": 6
+        },
+        {
+          "field": "parentBatchHash",
+          "id": 53,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 33
+        },
+        {
+          "field": "parentBatchHash",
+          "id": 54,
+          "kind": "some",
+          "side": "other",
+          "src": 33,
+          "tgt": 9
+        }
+      ],
+      "kappa": 1,
+      "laws_used": [
+        "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0"
+      ],
+      "name": "basis_sufficient_header_length_v0",
+      "needed": [
+        "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+        "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+        "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0"
+      ],
+      "non_tree": [
+        2,
+        5,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36,
+        38,
+        40,
+        42,
+        44,
+        46,
+        48,
+        50,
+        52,
+        54
+      ],
+      "other": "Header",
+      "p": "BatchHeaderV0_Bytes",
+      "q": "enc_sol",
+      "rank": 22,
+      "root": "BatchHeaderV0",
+      "root_law": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+      "status": "emitted",
+      "tree": [
+        0,
+        1,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        17,
+        19,
+        21,
+        23,
+        25,
+        27,
+        29,
+        31,
+        33,
+        35,
+        37,
+        39,
+        41,
+        43,
+        45,
+        47,
+        49,
+        51,
+        53
+      ],
+      "uncovered": [],
+      "version": 0,
+      "vertices": [
+        {
+          "carrier": "BatchHeaderV0",
+          "id": 0,
+          "kind": "record"
+        },
+        {
+          "carrier": "Header",
+          "id": 1,
+          "kind": "record"
+        },
+        {
+          "carrier": "Bytes",
+          "id": 2,
+          "kind": "bytes"
+        },
+        {
+          "carrier": "Bytes@0+1",
+          "id": 3,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@1+8",
+          "id": 4,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@121+32",
+          "id": 5,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@153+32",
+          "id": 6,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@17+8",
+          "id": 7,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@185+32",
+          "id": 8,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@217+32",
+          "id": 9,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@25+32",
+          "id": 10,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@57+32",
+          "id": 11,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@89+32",
+          "id": 12,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@9+8",
+          "id": 13,
+          "kind": "slot"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "BatchIndex",
+          "id": 14,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "L1MessagePopped",
+          "id": 15,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "TotalL1MessagePopped",
+          "id": 16,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "DataHash",
+          "id": 17,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "BlobVersionedHash",
+          "id": 18,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "PrevStateRoot",
+          "id": 19,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "PostStateRoot",
+          "id": 20,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "WithdrawalRoot",
+          "id": 21,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "SequencerSetVerifyHash",
+          "id": 22,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV0",
+          "field": "ParentBatchHash",
+          "id": 23,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "Header",
+          "field": "version",
+          "id": 24,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "batchIndex",
+          "id": 25,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "l1MessagePopped",
+          "id": 26,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "totalL1MessagePopped",
+          "id": 27,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "dataHash",
+          "id": 28,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "blobVersionedHash",
+          "id": 29,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "prevStateHash",
+          "id": 30,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "postStateHash",
+          "id": 31,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "withdrawRootHash",
+          "id": 32,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "parentBatchHash",
+          "id": 33,
+          "kind": "field",
+          "side": "other"
+        }
+      ]
+    },
+    {
+      "available": [
+        {
+          "kind": "root",
+          "law": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+          "lhs": [
+            1
+          ],
+          "rhs": [
+            0,
+            2
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+          "lhs": [
+            1,
+            3
+          ],
+          "rhs": [
+            16,
+            17
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+          "lhs": [
+            1,
+            4
+          ],
+          "rhs": [
+            24,
+            25
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+          "lhs": [
+            1,
+            5
+          ],
+          "rhs": [
+            24,
+            25
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+          "lhs": [
+            1,
+            6
+          ],
+          "rhs": [
+            22,
+            23
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+          "lhs": [
+            1,
+            7
+          ],
+          "rhs": [
+            18,
+            19
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+          "lhs": [
+            1,
+            8
+          ],
+          "rhs": [
+            36,
+            37
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+          "lhs": [
+            1,
+            9
+          ],
+          "rhs": [
+            34,
+            35
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+          "lhs": [
+            1,
+            10
+          ],
+          "rhs": [
+            28,
+            29
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+          "lhs": [
+            1,
+            11
+          ],
+          "rhs": [
+            26,
+            27
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+          "lhs": [
+            1,
+            12
+          ],
+          "rhs": [
+            32,
+            33
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+          "lhs": [
+            1,
+            13
+          ],
+          "rhs": [
+            20,
+            21
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+          "lhs": [
+            1,
+            15
+          ],
+          "rhs": [
+            30,
+            31
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+          "lhs": [
+            0,
+            2,
+            3
+          ],
+          "rhs": [
+            0,
+            40,
+            41
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+          "lhs": [
+            0,
+            2,
+            4
+          ],
+          "rhs": [
+            0,
+            48,
+            49
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+          "lhs": [
+            0,
+            2,
+            5
+          ],
+          "rhs": [
+            0,
+            48,
+            49
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+          "lhs": [
+            0,
+            2,
+            6
+          ],
+          "rhs": [
+            0,
+            46,
+            47
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+          "lhs": [
+            0,
+            2,
+            7
+          ],
+          "rhs": [
+            0,
+            42,
+            43
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+          "lhs": [
+            0,
+            2,
+            8
+          ],
+          "rhs": [
+            0,
+            58,
+            59
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+          "lhs": [
+            0,
+            2,
+            9
+          ],
+          "rhs": [
+            0,
+            56,
+            57
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+          "lhs": [
+            0,
+            2,
+            10
+          ],
+          "rhs": [
+            0,
+            52,
+            53
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+          "lhs": [
+            0,
+            2,
+            11
+          ],
+          "rhs": [
+            0,
+            50,
+            51
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+          "lhs": [
+            0,
+            2,
+            13
+          ],
+          "rhs": [
+            0,
+            44,
+            45
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+          "lhs": [
+            0,
+            2,
+            14
+          ],
+          "rhs": [
+            0,
+            38,
+            39
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
+          "lhs": [
+            0,
+            2,
+            15
+          ],
+          "rhs": [
+            0,
+            54,
+            55
+          ]
+        }
+      ],
+      "canary_edge": 2,
+      "canary_law": "canary_unpinned_header_length_v1",
+      "certificates": [
+        {
+          "bytes": "0x01",
+          "decoders": [
+            "BatchHeaderBytes_Version"
+          ],
+          "kind": "constant_read",
+          "name": "const_read_p_batchheaderbytes_version_v1",
+          "side": "p"
+        },
+        {
+          "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "decoders": [
+            "BatchHeaderBytes_SequencerSetVerifyHash"
+          ],
+          "kind": "constant_read",
+          "name": "const_read_q_batchheaderbytes_sequencersetverifyhash_v1",
+          "side": "q"
+        },
+        {
+          "bytes": null,
+          "decoders": [
+            "BatchHeaderBytes_BlobCommitHash",
+            "BatchHeaderBytes_BlobVersionedHash"
+          ],
+          "kind": "weak_image",
+          "name": "weak_image_p_batchheaderbytes_blobcommithash_batchheaderbytes_blobversionedhash_v1",
+          "side": "p"
+        },
+        {
+          "bytes": null,
+          "decoders": [
+            "BatchHeaderBytes_BlobCommitHash",
+            "BatchHeaderBytes_BlobVersionedHash"
+          ],
+          "kind": "weak_image",
+          "name": "weak_image_q_batchheaderbytes_blobcommithash_batchheaderbytes_blobversionedhash_v1",
+          "side": "q"
+        }
+      ],
+      "component": "header_length",
+      "cycles": [
+        {
+          "covered": true,
+          "derivation": [
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 2,
+          "from": [
+            0,
+            2
+          ],
+          "steps": 1,
+          "to": [
+            1
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              3,
+              "lr"
+            ],
+            [
+              2,
+              "rl"
+            ]
+          ],
+          "edge": 5,
+          "from": [
+            1,
+            5
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            4
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              1,
+              "rl"
+            ]
+          ],
+          "edge": 17,
+          "from": [
+            16,
+            17
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            3
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              5,
+              "rl"
+            ]
+          ],
+          "edge": 19,
+          "from": [
+            18,
+            19
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            7
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              11,
+              "rl"
+            ]
+          ],
+          "edge": 21,
+          "from": [
+            20,
+            21
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            13
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              4,
+              "rl"
+            ]
+          ],
+          "edge": 23,
+          "from": [
+            22,
+            23
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            6
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              2,
+              "rl"
+            ]
+          ],
+          "edge": 25,
+          "from": [
+            24,
+            25
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            4
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              9,
+              "rl"
+            ]
+          ],
+          "edge": 27,
+          "from": [
+            26,
+            27
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            11
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              8,
+              "rl"
+            ]
+          ],
+          "edge": 29,
+          "from": [
+            28,
+            29
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            10
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              12,
+              "rl"
+            ]
+          ],
+          "edge": 31,
+          "from": [
+            30,
+            31
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            15
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              10,
+              "rl"
+            ]
+          ],
+          "edge": 33,
+          "from": [
+            32,
+            33
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            12
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              7,
+              "rl"
+            ]
+          ],
+          "edge": 35,
+          "from": [
+            34,
+            35
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            9
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              6,
+              "rl"
+            ]
+          ],
+          "edge": 37,
+          "from": [
+            36,
+            37
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            8
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              23,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 39,
+          "from": [
+            0,
+            38,
+            39
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            14
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              13,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 41,
+          "from": [
+            0,
+            40,
+            41
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            3
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              17,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 43,
+          "from": [
+            0,
+            42,
+            43
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            7
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              22,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 45,
+          "from": [
+            0,
+            44,
+            45
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            13
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              16,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 47,
+          "from": [
+            0,
+            46,
+            47
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            6
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              14,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 49,
+          "from": [
+            0,
+            48,
+            49
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            4
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              21,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 51,
+          "from": [
+            0,
+            50,
+            51
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            11
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              20,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 53,
+          "from": [
+            0,
+            52,
+            53
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            10
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              24,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 55,
+          "from": [
+            0,
+            54,
+            55
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            15
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              19,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 57,
+          "from": [
+            0,
+            56,
+            57
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            9
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              18,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 59,
+          "from": [
+            0,
+            58,
+            59
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            8
+          ]
+        }
+      ],
+      "dir": "basis/header_length_v1",
+      "edges": [
+        {
+          "id": 0,
+          "kind": "sigma",
+          "law": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+          "src": 0,
+          "tgt": 1
+        },
+        {
+          "fn": "BatchHeaderV1_Bytes",
+          "id": 1,
+          "kind": "encoder",
+          "src": 0,
+          "tgt": 2
+        },
+        {
+          "fn": "enc_sol",
+          "id": 2,
+          "kind": "encoder",
+          "src": 1,
+          "tgt": 2
+        },
+        {
+          "fn": "BatchHeaderBytes_BatchIndex",
+          "id": 3,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 4
+        },
+        {
+          "fn": "BatchHeaderBytes_BlobCommitHash",
+          "id": 4,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 12
+        },
+        {
+          "fn": "BatchHeaderBytes_BlobVersionedHash",
+          "id": 5,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 12
+        },
+        {
+          "fn": "BatchHeaderBytes_DataHash",
+          "id": 6,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 11
+        },
+        {
+          "fn": "BatchHeaderBytes_L1MessagePopped",
+          "id": 7,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 14
+        },
+        {
+          "fn": "BatchHeaderBytes_LastBlockNumber",
+          "id": 8,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 10
+        },
+        {
+          "fn": "BatchHeaderBytes_ParentBatchHash",
+          "id": 9,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 9
+        },
+        {
+          "fn": "BatchHeaderBytes_PostStateRoot",
+          "id": 10,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 5
+        },
+        {
+          "fn": "BatchHeaderBytes_PrevStateRoot",
+          "id": 11,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 13
+        },
+        {
+          "fn": "BatchHeaderBytes_SequencerSetVerifyHash",
+          "id": 12,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 8
+        },
+        {
+          "fn": "BatchHeaderBytes_TotalL1MessagePopped",
+          "id": 13,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 7
+        },
+        {
+          "fn": "BatchHeaderBytes_Version",
+          "id": 14,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 3
+        },
+        {
+          "fn": "BatchHeaderBytes_WithdrawalRoot",
+          "id": 15,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 6
+        },
+        {
+          "field": "BatchHeaderV0.BatchIndex",
+          "id": 16,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 15
+        },
+        {
+          "field": "BatchHeaderV0.BatchIndex",
+          "id": 17,
+          "kind": "some",
+          "side": "root",
+          "src": 15,
+          "tgt": 4
+        },
+        {
+          "field": "BatchHeaderV0.L1MessagePopped",
+          "id": 18,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 16
+        },
+        {
+          "field": "BatchHeaderV0.L1MessagePopped",
+          "id": 19,
+          "kind": "some",
+          "side": "root",
+          "src": 16,
+          "tgt": 14
+        },
+        {
+          "field": "BatchHeaderV0.TotalL1MessagePopped",
+          "id": 20,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 17
+        },
+        {
+          "field": "BatchHeaderV0.TotalL1MessagePopped",
+          "id": 21,
+          "kind": "some",
+          "side": "root",
+          "src": 17,
+          "tgt": 7
+        },
+        {
+          "field": "BatchHeaderV0.DataHash",
+          "id": 22,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 18
+        },
+        {
+          "field": "BatchHeaderV0.DataHash",
+          "id": 23,
+          "kind": "some",
+          "side": "root",
+          "src": 18,
+          "tgt": 11
+        },
+        {
+          "field": "BatchHeaderV0.BlobVersionedHash",
+          "id": 24,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 19
+        },
+        {
+          "field": "BatchHeaderV0.BlobVersionedHash",
+          "id": 25,
+          "kind": "some",
+          "side": "root",
+          "src": 19,
+          "tgt": 12
+        },
+        {
+          "field": "BatchHeaderV0.PrevStateRoot",
+          "id": 26,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 20
+        },
+        {
+          "field": "BatchHeaderV0.PrevStateRoot",
+          "id": 27,
+          "kind": "some",
+          "side": "root",
+          "src": 20,
+          "tgt": 13
+        },
+        {
+          "field": "BatchHeaderV0.PostStateRoot",
+          "id": 28,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 21
+        },
+        {
+          "field": "BatchHeaderV0.PostStateRoot",
+          "id": 29,
+          "kind": "some",
+          "side": "root",
+          "src": 21,
+          "tgt": 5
+        },
+        {
+          "field": "BatchHeaderV0.WithdrawalRoot",
+          "id": 30,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 22
+        },
+        {
+          "field": "BatchHeaderV0.WithdrawalRoot",
+          "id": 31,
+          "kind": "some",
+          "side": "root",
+          "src": 22,
+          "tgt": 6
+        },
+        {
+          "field": "BatchHeaderV0.SequencerSetVerifyHash",
+          "id": 32,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 23
+        },
+        {
+          "field": "BatchHeaderV0.SequencerSetVerifyHash",
+          "id": 33,
+          "kind": "some",
+          "side": "root",
+          "src": 23,
+          "tgt": 8
+        },
+        {
+          "field": "BatchHeaderV0.ParentBatchHash",
+          "id": 34,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 24
+        },
+        {
+          "field": "BatchHeaderV0.ParentBatchHash",
+          "id": 35,
+          "kind": "some",
+          "side": "root",
+          "src": 24,
+          "tgt": 9
+        },
+        {
+          "field": "LastBlockNumber",
+          "id": 36,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 25
+        },
+        {
+          "field": "LastBlockNumber",
+          "id": 37,
+          "kind": "some",
+          "side": "root",
+          "src": 25,
+          "tgt": 10
+        },
+        {
+          "field": "version",
+          "id": 38,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 26
+        },
+        {
+          "field": "version",
+          "id": 39,
+          "kind": "some",
+          "side": "other",
+          "src": 26,
+          "tgt": 3
+        },
+        {
+          "field": "batchIndex",
+          "id": 40,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 27
+        },
+        {
+          "field": "batchIndex",
+          "id": 41,
+          "kind": "some",
+          "side": "other",
+          "src": 27,
+          "tgt": 4
+        },
+        {
+          "field": "l1MessagePopped",
+          "id": 42,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 28
+        },
+        {
+          "field": "l1MessagePopped",
+          "id": 43,
+          "kind": "some",
+          "side": "other",
+          "src": 28,
+          "tgt": 14
+        },
+        {
+          "field": "totalL1MessagePopped",
+          "id": 44,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 29
+        },
+        {
+          "field": "totalL1MessagePopped",
+          "id": 45,
+          "kind": "some",
+          "side": "other",
+          "src": 29,
+          "tgt": 7
+        },
+        {
+          "field": "dataHash",
+          "id": 46,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 30
+        },
+        {
+          "field": "dataHash",
+          "id": 47,
+          "kind": "some",
+          "side": "other",
+          "src": 30,
+          "tgt": 11
+        },
+        {
+          "field": "blobVersionedHash",
+          "id": 48,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 31
+        },
+        {
+          "field": "blobVersionedHash",
+          "id": 49,
+          "kind": "some",
+          "side": "other",
+          "src": 31,
+          "tgt": 12
+        },
+        {
+          "field": "prevStateHash",
+          "id": 50,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 32
+        },
+        {
+          "field": "prevStateHash",
+          "id": 51,
+          "kind": "some",
+          "side": "other",
+          "src": 32,
+          "tgt": 13
+        },
+        {
+          "field": "postStateHash",
+          "id": 52,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 33
+        },
+        {
+          "field": "postStateHash",
+          "id": 53,
+          "kind": "some",
+          "side": "other",
+          "src": 33,
+          "tgt": 5
+        },
+        {
+          "field": "withdrawRootHash",
+          "id": 54,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 34
+        },
+        {
+          "field": "withdrawRootHash",
+          "id": 55,
+          "kind": "some",
+          "side": "other",
+          "src": 34,
+          "tgt": 6
+        },
+        {
+          "field": "parentBatchHash",
+          "id": 56,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 35
+        },
+        {
+          "field": "parentBatchHash",
+          "id": 57,
+          "kind": "some",
+          "side": "other",
+          "src": 35,
+          "tgt": 9
+        },
+        {
+          "field": "lastBlockNumber",
+          "id": 58,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 36
+        },
+        {
+          "field": "lastBlockNumber",
+          "id": 59,
+          "kind": "some",
+          "side": "other",
+          "src": 36,
+          "tgt": 10
+        }
+      ],
+      "kappa": 1,
+      "laws_used": [
+        "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1"
+      ],
+      "name": "basis_sufficient_header_length_v1",
+      "needed": [
+        "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+        "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+        "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1"
+      ],
+      "non_tree": [
+        2,
+        5,
+        17,
+        19,
+        21,
+        23,
+        25,
+        27,
+        29,
+        31,
+        33,
+        35,
+        37,
+        39,
+        41,
+        43,
+        45,
+        47,
+        49,
+        51,
+        53,
+        55,
+        57,
+        59
+      ],
+      "other": "Header",
+      "p": "BatchHeaderV1_Bytes",
+      "q": "enc_sol",
+      "rank": 24,
+      "root": "BatchHeaderV1",
+      "root_law": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+      "status": "emitted",
+      "tree": [
+        0,
+        1,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36,
+        38,
+        40,
+        42,
+        44,
+        46,
+        48,
+        50,
+        52,
+        54,
+        56,
+        58
+      ],
+      "uncovered": [],
+      "version": 1,
+      "vertices": [
+        {
+          "carrier": "BatchHeaderV1",
+          "id": 0,
+          "kind": "record"
+        },
+        {
+          "carrier": "Header",
+          "id": 1,
+          "kind": "record"
+        },
+        {
+          "carrier": "Bytes",
+          "id": 2,
+          "kind": "bytes"
+        },
+        {
+          "carrier": "Bytes@0+1",
+          "id": 3,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@1+8",
+          "id": 4,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@121+32",
+          "id": 5,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@153+32",
+          "id": 6,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@17+8",
+          "id": 7,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@185+32",
+          "id": 8,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@217+32",
+          "id": 9,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@249+8",
+          "id": 10,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@25+32",
+          "id": 11,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@57+32",
+          "id": 12,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@89+32",
+          "id": 13,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@9+8",
+          "id": 14,
+          "kind": "slot"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.BatchIndex",
+          "id": 15,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.L1MessagePopped",
+          "id": 16,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.TotalL1MessagePopped",
+          "id": 17,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.DataHash",
+          "id": 18,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.BlobVersionedHash",
+          "id": 19,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.PrevStateRoot",
+          "id": 20,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.PostStateRoot",
+          "id": 21,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.WithdrawalRoot",
+          "id": 22,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.SequencerSetVerifyHash",
+          "id": 23,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.ParentBatchHash",
+          "id": 24,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "LastBlockNumber",
+          "id": 25,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "Header",
+          "field": "version",
+          "id": 26,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "batchIndex",
+          "id": 27,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "l1MessagePopped",
+          "id": 28,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "totalL1MessagePopped",
+          "id": 29,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "dataHash",
+          "id": 30,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "blobVersionedHash",
+          "id": 31,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "prevStateHash",
+          "id": 32,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "postStateHash",
+          "id": 33,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "withdrawRootHash",
+          "id": 34,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "parentBatchHash",
+          "id": 35,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "lastBlockNumber",
+          "id": 36,
+          "kind": "field",
+          "side": "other"
+        }
+      ]
+    },
+    {
+      "available": [
+        {
+          "kind": "root",
+          "law": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+          "lhs": [
+            1
+          ],
+          "rhs": [
+            0,
+            2
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+          "lhs": [
+            1,
+            3
+          ],
+          "rhs": [
+            16,
+            17
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+          "lhs": [
+            1,
+            4
+          ],
+          "rhs": [
+            24,
+            25
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+          "lhs": [
+            1,
+            5
+          ],
+          "rhs": [
+            24,
+            25
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+          "lhs": [
+            1,
+            6
+          ],
+          "rhs": [
+            22,
+            23
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+          "lhs": [
+            1,
+            7
+          ],
+          "rhs": [
+            18,
+            19
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+          "lhs": [
+            1,
+            8
+          ],
+          "rhs": [
+            36,
+            37
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+          "lhs": [
+            1,
+            9
+          ],
+          "rhs": [
+            34,
+            35
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+          "lhs": [
+            1,
+            10
+          ],
+          "rhs": [
+            28,
+            29
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+          "lhs": [
+            1,
+            11
+          ],
+          "rhs": [
+            26,
+            27
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+          "lhs": [
+            1,
+            12
+          ],
+          "rhs": [
+            32,
+            33
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+          "lhs": [
+            1,
+            13
+          ],
+          "rhs": [
+            20,
+            21
+          ]
+        },
+        {
+          "kind": "round_trip_p",
+          "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+          "lhs": [
+            1,
+            15
+          ],
+          "rhs": [
+            30,
+            31
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+          "lhs": [
+            0,
+            2,
+            3
+          ],
+          "rhs": [
+            0,
+            40,
+            41
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+          "lhs": [
+            0,
+            2,
+            4
+          ],
+          "rhs": [
+            0,
+            48,
+            49
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+          "lhs": [
+            0,
+            2,
+            5
+          ],
+          "rhs": [
+            0,
+            48,
+            49
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+          "lhs": [
+            0,
+            2,
+            6
+          ],
+          "rhs": [
+            0,
+            46,
+            47
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+          "lhs": [
+            0,
+            2,
+            7
+          ],
+          "rhs": [
+            0,
+            42,
+            43
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+          "lhs": [
+            0,
+            2,
+            8
+          ],
+          "rhs": [
+            0,
+            58,
+            59
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+          "lhs": [
+            0,
+            2,
+            9
+          ],
+          "rhs": [
+            0,
+            56,
+            57
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+          "lhs": [
+            0,
+            2,
+            10
+          ],
+          "rhs": [
+            0,
+            52,
+            53
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+          "lhs": [
+            0,
+            2,
+            11
+          ],
+          "rhs": [
+            0,
+            50,
+            51
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+          "lhs": [
+            0,
+            2,
+            13
+          ],
+          "rhs": [
+            0,
+            44,
+            45
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+          "lhs": [
+            0,
+            2,
+            14
+          ],
+          "rhs": [
+            0,
+            38,
+            39
+          ]
+        },
+        {
+          "kind": "round_trip_q",
+          "law": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
+          "lhs": [
+            0,
+            2,
+            15
+          ],
+          "rhs": [
+            0,
+            54,
+            55
+          ]
+        }
+      ],
+      "canary_edge": 2,
+      "canary_law": "canary_unpinned_header_length_v2",
+      "certificates": [
+        {
+          "bytes": "0x02",
+          "decoders": [
+            "BatchHeaderBytes_Version"
+          ],
+          "kind": "constant_read",
+          "name": "const_read_p_batchheaderbytes_version_v2",
+          "side": "p"
+        },
+        {
+          "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "decoders": [
+            "BatchHeaderBytes_SequencerSetVerifyHash"
+          ],
+          "kind": "constant_read",
+          "name": "const_read_q_batchheaderbytes_sequencersetverifyhash_v2",
+          "side": "q"
+        },
+        {
+          "bytes": null,
+          "decoders": [
+            "BatchHeaderBytes_BlobCommitHash",
+            "BatchHeaderBytes_BlobHashesHash"
+          ],
+          "kind": "weak_image",
+          "name": "weak_image_p_batchheaderbytes_blobcommithash_batchheaderbytes_blobhasheshash_v2",
+          "side": "p"
+        },
+        {
+          "bytes": null,
+          "decoders": [
+            "BatchHeaderBytes_BlobCommitHash",
+            "BatchHeaderBytes_BlobHashesHash"
+          ],
+          "kind": "weak_image",
+          "name": "weak_image_q_batchheaderbytes_blobcommithash_batchheaderbytes_blobhasheshash_v2",
+          "side": "q"
+        }
+      ],
+      "component": "header_length",
+      "cycles": [
+        {
+          "covered": true,
+          "derivation": [
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 2,
+          "from": [
+            0,
+            2
+          ],
+          "steps": 1,
+          "to": [
+            1
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              3,
+              "lr"
+            ],
+            [
+              2,
+              "rl"
+            ]
+          ],
+          "edge": 5,
+          "from": [
+            1,
+            5
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            4
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              1,
+              "rl"
+            ]
+          ],
+          "edge": 17,
+          "from": [
+            16,
+            17
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            3
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              5,
+              "rl"
+            ]
+          ],
+          "edge": 19,
+          "from": [
+            18,
+            19
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            7
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              11,
+              "rl"
+            ]
+          ],
+          "edge": 21,
+          "from": [
+            20,
+            21
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            13
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              4,
+              "rl"
+            ]
+          ],
+          "edge": 23,
+          "from": [
+            22,
+            23
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            6
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              2,
+              "rl"
+            ]
+          ],
+          "edge": 25,
+          "from": [
+            24,
+            25
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            4
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              9,
+              "rl"
+            ]
+          ],
+          "edge": 27,
+          "from": [
+            26,
+            27
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            11
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              8,
+              "rl"
+            ]
+          ],
+          "edge": 29,
+          "from": [
+            28,
+            29
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            10
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              12,
+              "rl"
+            ]
+          ],
+          "edge": 31,
+          "from": [
+            30,
+            31
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            15
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              10,
+              "rl"
+            ]
+          ],
+          "edge": 33,
+          "from": [
+            32,
+            33
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            12
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              7,
+              "rl"
+            ]
+          ],
+          "edge": 35,
+          "from": [
+            34,
+            35
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            9
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              6,
+              "rl"
+            ]
+          ],
+          "edge": 37,
+          "from": [
+            36,
+            37
+          ],
+          "steps": 1,
+          "to": [
+            1,
+            8
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              23,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 39,
+          "from": [
+            0,
+            38,
+            39
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            14
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              13,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 41,
+          "from": [
+            0,
+            40,
+            41
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            3
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              17,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 43,
+          "from": [
+            0,
+            42,
+            43
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            7
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              22,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 45,
+          "from": [
+            0,
+            44,
+            45
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            13
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              16,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 47,
+          "from": [
+            0,
+            46,
+            47
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            6
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              14,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 49,
+          "from": [
+            0,
+            48,
+            49
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            4
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              21,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 51,
+          "from": [
+            0,
+            50,
+            51
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            11
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              20,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 53,
+          "from": [
+            0,
+            52,
+            53
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            10
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              24,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 55,
+          "from": [
+            0,
+            54,
+            55
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            15
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              19,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 57,
+          "from": [
+            0,
+            56,
+            57
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            9
+          ]
+        },
+        {
+          "covered": true,
+          "derivation": [
+            [
+              18,
+              "rl"
+            ],
+            [
+              0,
+              "rl"
+            ]
+          ],
+          "edge": 59,
+          "from": [
+            0,
+            58,
+            59
+          ],
+          "steps": 2,
+          "to": [
+            1,
+            8
+          ]
+        }
+      ],
+      "dir": "basis/header_length_v2",
+      "edges": [
+        {
+          "id": 0,
+          "kind": "sigma",
+          "law": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+          "src": 0,
+          "tgt": 1
+        },
+        {
+          "fn": "BatchCache_createBatchHeaderWithSequencerSetHash",
+          "id": 1,
+          "kind": "encoder",
+          "src": 0,
+          "tgt": 2
+        },
+        {
+          "fn": "enc_sol",
+          "id": 2,
+          "kind": "encoder",
+          "src": 1,
+          "tgt": 2
+        },
+        {
+          "fn": "BatchHeaderBytes_BatchIndex",
+          "id": 3,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 4
+        },
+        {
+          "fn": "BatchHeaderBytes_BlobCommitHash",
+          "id": 4,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 12
+        },
+        {
+          "fn": "BatchHeaderBytes_BlobHashesHash",
+          "id": 5,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 12
+        },
+        {
+          "fn": "BatchHeaderBytes_DataHash",
+          "id": 6,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 11
+        },
+        {
+          "fn": "BatchHeaderBytes_L1MessagePopped",
+          "id": 7,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 14
+        },
+        {
+          "fn": "BatchHeaderBytes_LastBlockNumber",
+          "id": 8,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 10
+        },
+        {
+          "fn": "BatchHeaderBytes_ParentBatchHash",
+          "id": 9,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 9
+        },
+        {
+          "fn": "BatchHeaderBytes_PostStateRoot",
+          "id": 10,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 5
+        },
+        {
+          "fn": "BatchHeaderBytes_PrevStateRoot",
+          "id": 11,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 13
+        },
+        {
+          "fn": "BatchHeaderBytes_SequencerSetVerifyHash",
+          "id": 12,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 8
+        },
+        {
+          "fn": "BatchHeaderBytes_TotalL1MessagePopped",
+          "id": 13,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 7
+        },
+        {
+          "fn": "BatchHeaderBytes_Version",
+          "id": 14,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 3
+        },
+        {
+          "fn": "BatchHeaderBytes_WithdrawalRoot",
+          "id": 15,
+          "kind": "decoder",
+          "src": 2,
+          "tgt": 6
+        },
+        {
+          "field": "BatchHeaderV0.BatchIndex",
+          "id": 16,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 15
+        },
+        {
+          "field": "BatchHeaderV0.BatchIndex",
+          "id": 17,
+          "kind": "some",
+          "side": "root",
+          "src": 15,
+          "tgt": 4
+        },
+        {
+          "field": "BatchHeaderV0.L1MessagePopped",
+          "id": 18,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 16
+        },
+        {
+          "field": "BatchHeaderV0.L1MessagePopped",
+          "id": 19,
+          "kind": "some",
+          "side": "root",
+          "src": 16,
+          "tgt": 14
+        },
+        {
+          "field": "BatchHeaderV0.TotalL1MessagePopped",
+          "id": 20,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 17
+        },
+        {
+          "field": "BatchHeaderV0.TotalL1MessagePopped",
+          "id": 21,
+          "kind": "some",
+          "side": "root",
+          "src": 17,
+          "tgt": 7
+        },
+        {
+          "field": "BatchHeaderV0.DataHash",
+          "id": 22,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 18
+        },
+        {
+          "field": "BatchHeaderV0.DataHash",
+          "id": 23,
+          "kind": "some",
+          "side": "root",
+          "src": 18,
+          "tgt": 11
+        },
+        {
+          "field": "BatchHeaderV0.BlobVersionedHash",
+          "id": 24,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 19
+        },
+        {
+          "field": "BatchHeaderV0.BlobVersionedHash",
+          "id": 25,
+          "kind": "some",
+          "side": "root",
+          "src": 19,
+          "tgt": 12
+        },
+        {
+          "field": "BatchHeaderV0.PrevStateRoot",
+          "id": 26,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 20
+        },
+        {
+          "field": "BatchHeaderV0.PrevStateRoot",
+          "id": 27,
+          "kind": "some",
+          "side": "root",
+          "src": 20,
+          "tgt": 13
+        },
+        {
+          "field": "BatchHeaderV0.PostStateRoot",
+          "id": 28,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 21
+        },
+        {
+          "field": "BatchHeaderV0.PostStateRoot",
+          "id": 29,
+          "kind": "some",
+          "side": "root",
+          "src": 21,
+          "tgt": 5
+        },
+        {
+          "field": "BatchHeaderV0.WithdrawalRoot",
+          "id": 30,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 22
+        },
+        {
+          "field": "BatchHeaderV0.WithdrawalRoot",
+          "id": 31,
+          "kind": "some",
+          "side": "root",
+          "src": 22,
+          "tgt": 6
+        },
+        {
+          "field": "BatchHeaderV0.SequencerSetVerifyHash",
+          "id": 32,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 23
+        },
+        {
+          "field": "BatchHeaderV0.SequencerSetVerifyHash",
+          "id": 33,
+          "kind": "some",
+          "side": "root",
+          "src": 23,
+          "tgt": 8
+        },
+        {
+          "field": "BatchHeaderV0.ParentBatchHash",
+          "id": 34,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 24
+        },
+        {
+          "field": "BatchHeaderV0.ParentBatchHash",
+          "id": 35,
+          "kind": "some",
+          "side": "root",
+          "src": 24,
+          "tgt": 9
+        },
+        {
+          "field": "LastBlockNumber",
+          "id": 36,
+          "kind": "projection",
+          "side": "root",
+          "src": 0,
+          "tgt": 25
+        },
+        {
+          "field": "LastBlockNumber",
+          "id": 37,
+          "kind": "some",
+          "side": "root",
+          "src": 25,
+          "tgt": 10
+        },
+        {
+          "field": "version",
+          "id": 38,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 26
+        },
+        {
+          "field": "version",
+          "id": 39,
+          "kind": "some",
+          "side": "other",
+          "src": 26,
+          "tgt": 3
+        },
+        {
+          "field": "batchIndex",
+          "id": 40,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 27
+        },
+        {
+          "field": "batchIndex",
+          "id": 41,
+          "kind": "some",
+          "side": "other",
+          "src": 27,
+          "tgt": 4
+        },
+        {
+          "field": "l1MessagePopped",
+          "id": 42,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 28
+        },
+        {
+          "field": "l1MessagePopped",
+          "id": 43,
+          "kind": "some",
+          "side": "other",
+          "src": 28,
+          "tgt": 14
+        },
+        {
+          "field": "totalL1MessagePopped",
+          "id": 44,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 29
+        },
+        {
+          "field": "totalL1MessagePopped",
+          "id": 45,
+          "kind": "some",
+          "side": "other",
+          "src": 29,
+          "tgt": 7
+        },
+        {
+          "field": "dataHash",
+          "id": 46,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 30
+        },
+        {
+          "field": "dataHash",
+          "id": 47,
+          "kind": "some",
+          "side": "other",
+          "src": 30,
+          "tgt": 11
+        },
+        {
+          "field": "blobVersionedHash",
+          "id": 48,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 31
+        },
+        {
+          "field": "blobVersionedHash",
+          "id": 49,
+          "kind": "some",
+          "side": "other",
+          "src": 31,
+          "tgt": 12
+        },
+        {
+          "field": "prevStateHash",
+          "id": 50,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 32
+        },
+        {
+          "field": "prevStateHash",
+          "id": 51,
+          "kind": "some",
+          "side": "other",
+          "src": 32,
+          "tgt": 13
+        },
+        {
+          "field": "postStateHash",
+          "id": 52,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 33
+        },
+        {
+          "field": "postStateHash",
+          "id": 53,
+          "kind": "some",
+          "side": "other",
+          "src": 33,
+          "tgt": 5
+        },
+        {
+          "field": "withdrawRootHash",
+          "id": 54,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 34
+        },
+        {
+          "field": "withdrawRootHash",
+          "id": 55,
+          "kind": "some",
+          "side": "other",
+          "src": 34,
+          "tgt": 6
+        },
+        {
+          "field": "parentBatchHash",
+          "id": 56,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 35
+        },
+        {
+          "field": "parentBatchHash",
+          "id": 57,
+          "kind": "some",
+          "side": "other",
+          "src": 35,
+          "tgt": 9
+        },
+        {
+          "field": "lastBlockNumber",
+          "id": 58,
+          "kind": "projection",
+          "side": "other",
+          "src": 1,
+          "tgt": 36
+        },
+        {
+          "field": "lastBlockNumber",
+          "id": 59,
+          "kind": "some",
+          "side": "other",
+          "src": 36,
+          "tgt": 10
+        }
+      ],
+      "kappa": 1,
+      "laws_used": [
+        "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2"
+      ],
+      "name": "basis_sufficient_header_length_v2",
+      "needed": [
+        "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+        "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+        "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2"
+      ],
+      "non_tree": [
+        2,
+        5,
+        17,
+        19,
+        21,
+        23,
+        25,
+        27,
+        29,
+        31,
+        33,
+        35,
+        37,
+        39,
+        41,
+        43,
+        45,
+        47,
+        49,
+        51,
+        53,
+        55,
+        57,
+        59
+      ],
+      "other": "Header",
+      "p": "BatchCache_createBatchHeaderWithSequencerSetHash",
+      "q": "enc_sol",
+      "rank": 24,
+      "root": "BatchHeaderV1",
+      "root_law": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+      "status": "emitted",
+      "tree": [
+        0,
+        1,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36,
+        38,
+        40,
+        42,
+        44,
+        46,
+        48,
+        50,
+        52,
+        54,
+        56,
+        58
+      ],
+      "uncovered": [],
+      "version": 2,
+      "vertices": [
+        {
+          "carrier": "BatchHeaderV1",
+          "id": 0,
+          "kind": "record"
+        },
+        {
+          "carrier": "Header",
+          "id": 1,
+          "kind": "record"
+        },
+        {
+          "carrier": "Bytes",
+          "id": 2,
+          "kind": "bytes"
+        },
+        {
+          "carrier": "Bytes@0+1",
+          "id": 3,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@1+8",
+          "id": 4,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@121+32",
+          "id": 5,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@153+32",
+          "id": 6,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@17+8",
+          "id": 7,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@185+32",
+          "id": 8,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@217+32",
+          "id": 9,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@249+8",
+          "id": 10,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@25+32",
+          "id": 11,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@57+32",
+          "id": 12,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@89+32",
+          "id": 13,
+          "kind": "slot"
+        },
+        {
+          "carrier": "Bytes@9+8",
+          "id": 14,
+          "kind": "slot"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.BatchIndex",
+          "id": 15,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.L1MessagePopped",
+          "id": 16,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.TotalL1MessagePopped",
+          "id": 17,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.DataHash",
+          "id": 18,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.BlobVersionedHash",
+          "id": 19,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.PrevStateRoot",
+          "id": 20,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.PostStateRoot",
+          "id": 21,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.WithdrawalRoot",
+          "id": 22,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.SequencerSetVerifyHash",
+          "id": 23,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "BatchHeaderV0.ParentBatchHash",
+          "id": 24,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "BatchHeaderV1",
+          "field": "LastBlockNumber",
+          "id": 25,
+          "kind": "field",
+          "side": "root"
+        },
+        {
+          "carrier": "Header",
+          "field": "version",
+          "id": 26,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "batchIndex",
+          "id": 27,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "l1MessagePopped",
+          "id": 28,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "totalL1MessagePopped",
+          "id": 29,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "dataHash",
+          "id": 30,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "blobVersionedHash",
+          "id": 31,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "prevStateHash",
+          "id": 32,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "postStateHash",
+          "id": 33,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "withdrawRootHash",
+          "id": 34,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "parentBatchHash",
+          "id": 35,
+          "kind": "field",
+          "side": "other"
+        },
+        {
+          "carrier": "Header",
+          "field": "lastBlockNumber",
+          "id": 36,
+          "kind": "field",
+          "side": "other"
+        }
+      ]
+    }
+  ],
+  "milestone": "M3"
+}

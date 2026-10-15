@@ -36,12 +36,24 @@
   "evidence_sha256": "468447af52cbc51819618da6648a9e781498d8623c124a0e4225adec17b1b2bd",
   "inputs": [
     {
+      "path": "audit/rounds/M2/round2/a4.json",
+      "sha256": "6c0dad33925dd592ed05842ee59ba93b13c67b1fa4174caf4c4778961dd18c13"
+    },
+    {
       "path": "gen/M3/codec/header_length.json",
       "sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315"
     },
     {
       "path": "gen/M3/diagram/header_length.json",
       "sha256": "b9b8cb0b6d42face2309af7bb25556e052844587f82301e6a6ded3c370faba23"
+    },
+    {
+      "path": "gen/M3/disch/closure.json",
+      "sha256": "6abeeaca1ddfd8e9454427a92fbad706c2c903a7138ba6a4551b3c53fdcc1a21"
+    },
+    {
+      "path": "gen/M3/disch/conjuncts.json",
+      "sha256": "5d08fb1a0d464b1c3445591c4455e5748ad57d02aacc941eaa1abc7f38e2d361"
     },
     {
       "path": "gen/M3/evidence.json",
@@ -196,6 +208,10 @@
       "sha256": "a6a4bff41fa38ffb4e340d7909908a311b41f5f315bac013502192240362d6bb"
     },
     {
+      "path": "replay/M2/fragments.json",
+      "sha256": "ec501c2be31737cb3ceffe910384e316b9ced7f1b2ccc58efb9c57b16fc10c9d"
+    },
+    {
       "path": "spec/M2/facts/morph_batch.go.extracted.json",
       "sha256": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573"
     },
@@ -214,6 +230,10 @@
     {
       "path": "spec/M3/lib/derive_extracted.json",
       "sha256": "87749c82c2e790561357e5d99b22ff1aa895774e3064a39e8e80f98e30466a6f"
+    },
+    {
+      "path": "spec/M3/lib/disch.json",
+      "sha256": "40f62c33d825f583653a857e7ca22a583d4af54f4d55fb75545b11e5971a73b4"
     },
     {
       "path": "spec/M3/lib/link.json",
@@ -235,6 +255,2198 @@
   "laws": [
     {
       "basis": {
+        "blocked": [
+          "!",
+          [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              2
+            ]
+          ]
+        ],
+        "check": "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "checks": [
+          "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+        ],
+        "class": "anyone",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "initializable_120_b8d46c45"
+      },
+      "closure": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize3"
+      ],
+      "entry_points": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_initializable_120_b8d46c45_anyone",
+      "rule": "DISCH",
+      "statement_hash": "sha256:9ebe197899b1b93da0930cf5797784c031fc98877530c7eb8b8c8edc9063246e",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              3
+            ]
+          ]
+        ],
+        "check": "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "checks": [
+          "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+        ],
+        "class": "anyone",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "initializable_120_b95c70f1"
+      },
+      "closure": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2"
+      ],
+      "entry_points": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_initializable_120_b95c70f1_anyone",
+      "rule": "DISCH",
+      "statement_hash": "sha256:39ec3874af4c2fea6c24e793797f3dd251db93e1d26f4b50ef89bee74fbc6d44",
+      "status": "self",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              4
+            ]
+          ]
+        ],
+        "check": "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "checks": [
+          "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+        ],
+        "class": "caller_rollup_210",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "initializable_120_d9a34b48"
+      },
+      "closure": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_initializable_120_d9a34b48_caller_rollup_210",
+      "rule": "DISCH",
+      "statement_hash": "sha256:045261eab9ad9c337a967a7b7efe6a0ee668f8662be47d9b59c41517ce6cd225",
+      "status": "self",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "_paused"
+        ],
+        "check": "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "checks": [
+          "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+        ],
+        "class": "anyone",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "pausableupgradeable_77_ed0ce816"
+      },
+      "closure": [
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_pausableupgradeable_77_ed0ce816_anyone",
+      "rule": "DISCH",
+      "statement_hash": "sha256:daa1401a5060c608ceadf2a8721744617131c08cf5fcd685d9fdf41dc7a081d4",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "_paused"
+        ],
+        "check": "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "checks": [
+          "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+        ],
+        "class": "onlyActiveSubmitter",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "pausableupgradeable_77_ed0ce816"
+      },
+      "closure": [
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter",
+      "rule": "DISCH",
+      "statement_hash": "sha256:462abfdd9585c717fb412f8556a5a26250d02e9bccc9a897d38a7aedc9859760",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "_paused"
+        ],
+        "check": "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "checks": [
+          "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+        ],
+        "class": "onlyChallenger",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "pausableupgradeable_77_ed0ce816"
+      },
+      "closure": [
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger",
+      "rule": "DISCH",
+      "statement_hash": "sha256:c2a9bf6c94177a3e516093b276d686663b3c3afd9eca128dc82f66efa7ba87ab",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ]
+        ],
+        "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+          "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+        ],
+        "class": "anyone",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_132_d953872f"
+      },
+      "closure": [
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_rollup_132_d953872f_anyone",
+      "rule": "DISCH",
+      "statement_hash": "sha256:4cc2a6106605085277513464bf437c71be8868749a9eac2627945e941e8a90ed",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ]
+        ],
+        "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+          "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+        ],
+        "class": "caller_rollup_210",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_132_d953872f"
+      },
+      "closure": [
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_rollup_132_d953872f_caller_rollup_210",
+      "rule": "DISCH",
+      "statement_hash": "sha256:03b774d515d1886c0107b6f7f34b68faf12891a88a337bb66321cd780e7995ed",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ]
+        ],
+        "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+          "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+        ],
+        "class": "onlyActiveSubmitter",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_132_d953872f"
+      },
+      "closure": [
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter",
+      "rule": "DISCH",
+      "statement_hash": "sha256:aeec7da322a49dab45edf42d12f50c4e6da2fc466f6559600b308189368f70f5",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ]
+        ],
+        "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+          "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+        ],
+        "class": "onlyChallenger",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_132_d953872f"
+      },
+      "closure": [
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_rollup_132_d953872f_onlyChallenger",
+      "rule": "DISCH",
+      "statement_hash": "sha256:3477b98bf52d85ccc1135b2213125c86606755cf93e0bbf72767be0738dba46e",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "inChallenge"
+        ],
+        "check": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+        ],
+        "class": "caller_rollup_210",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_213_f2e7faf8"
+      },
+      "closure": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210",
+      "rule": "DISCH",
+      "statement_hash": "sha256:107119db43ee5d064126b7041cacdf4cbebe47e9bda233e691a3817daa2a1170",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "inChallenge"
+        ],
+        "check": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+        ],
+        "class": "onlyChallenger",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_213_f2e7faf8"
+      },
+      "closure": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_rollup_213_f2e7faf8_onlyChallenger",
+      "rule": "DISCH",
+      "statement_hash": "sha256:b68b96e6d77bfcc189d4297c7cd22b950c3be6406ef611ed54f34e71152ad7d0",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "finalizedStateRoots"
+              ],
+              0
+            ],
+            0
+          ]
+        ],
+        "check": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0",
+        "checks": [
+          "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0"
+        ],
+        "class": "onlyOwner",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_228_79cc3e9a"
+      },
+      "closure": [
+        "addChallenger",
+        "claimProveRemaining",
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "entry_points": [
+        "addChallenger",
+        "claimProveRemaining",
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_rollup_228_79cc3e9a_onlyOwner",
+      "rule": "DISCH",
+      "statement_hash": "sha256:a14ae8d301c70cb21d594e88088431be3a722679ce95a25b0c568eca75e6ef26",
+      "status": "self",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "&&",
+          [
+            "storage",
+            "inChallenge"
+          ],
+          [
+            "!",
+            [
+              "fits",
+              256,
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "storage",
+                    "proofWindow"
+                  ],
+                  [
+                    "member",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "challenges"
+                      ],
+                      [
+                        "storage",
+                        "batchChallenged"
+                      ]
+                    ],
+                    "startTime"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ]
+          ],
+          [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "proofWindow"
+              ],
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "challenges"
+                  ],
+                  [
+                    "storage",
+                    "batchChallenged"
+                  ]
+                ],
+                "startTime"
+              ]
+            ]
+          ]
+        ],
+        "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "checks": [
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+        ],
+        "class": "anyone",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_363_e11d8bb2"
+      },
+      "closure": [
+        "finalizeBatch",
+        "initialize2",
+        "initialize3"
+      ],
+      "entry_points": [
+        "finalizeBatch",
+        "initialize2",
+        "initialize3"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_rollup_363_e11d8bb2_anyone",
+      "rule": "DISCH",
+      "statement_hash": "sha256:98c4da768563f9944fa7fe89a320804b0ed26ecebe5612fe65b03b4c949d1b83",
+      "status": "blocked",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "&&",
+          [
+            "storage",
+            "inChallenge"
+          ],
+          [
+            "!",
+            [
+              "fits",
+              256,
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "storage",
+                    "proofWindow"
+                  ],
+                  [
+                    "member",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "challenges"
+                      ],
+                      [
+                        "storage",
+                        "batchChallenged"
+                      ]
+                    ],
+                    "startTime"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ]
+          ],
+          [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "proofWindow"
+              ],
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "challenges"
+                  ],
+                  [
+                    "storage",
+                    "batchChallenged"
+                  ]
+                ],
+                "startTime"
+              ]
+            ]
+          ]
+        ],
+        "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "checks": [
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+        ],
+        "class": "onlyActiveSubmitter",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_363_e11d8bb2"
+      },
+      "closure": [
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "entry_points": [
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter",
+      "rule": "DISCH",
+      "statement_hash": "sha256:9b6fc51e78e828813cf4d548f045311266a796762b4badac2d450e4ffaf77f17",
+      "status": "self",
+      "subform": "blocking"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "_paused"
+        ],
+        "check": "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "checks": [
+          "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+        ],
+        "class": "onlyOwner",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "pausableupgradeable_77_ed0ce816"
+      },
+      "blocked_for": [
+        "anyone",
+        "onlyActiveSubmitter",
+        "onlyChallenger"
+      ],
+      "closure": [
+        "addChallenger",
+        "claimProveRemaining",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "entry_points": [
+        "addChallenger",
+        "claimProveRemaining",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner",
+      "rule": "DISCH",
+      "statement_hash": "sha256:184a79215ed0099527477c2bc700321dc91ecabcaeb1acbd9062cbff277eb435",
+      "subform": "external",
+      "writers": [
+        "setPause"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ]
+        ],
+        "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+          "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+        ],
+        "class": "onlyOwner",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_132_d953872f"
+      },
+      "blocked_for": [
+        "anyone",
+        "caller_rollup_210",
+        "onlyActiveSubmitter",
+        "onlyChallenger"
+      ],
+      "closure": [
+        "addChallenger",
+        "claimProveRemaining",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "entry_points": [
+        "addChallenger",
+        "claimProveRemaining",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_ext_rollup_132_d953872f_onlyOwner",
+      "rule": "DISCH",
+      "statement_hash": "sha256:f5c98010b4d1de2bf530df291ce894a140902c749a936bd30611f7dd9d8bc10e",
+      "subform": "external",
+      "writers": [
+        "revertBatch"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "inChallenge"
+        ],
+        "check": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+        ],
+        "class": "onlyActiveSubmitter",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_213_f2e7faf8"
+      },
+      "blocked_for": [
+        "caller_rollup_210",
+        "onlyChallenger"
+      ],
+      "closure": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "entry_points": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+      "rule": "DISCH",
+      "statement_hash": "sha256:9c95db109eb7b58fe9ca3a253a1bcd2947e94ab148e076a22b73c9023f6c0c02",
+      "subform": "external",
+      "writers": [
+        "proveState"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "inChallenge"
+        ],
+        "check": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+        ],
+        "class": "onlyOwner",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_213_f2e7faf8"
+      },
+      "blocked_for": [
+        "caller_rollup_210",
+        "onlyChallenger"
+      ],
+      "closure": [
+        "addChallenger",
+        "claimProveRemaining",
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "entry_points": [
+        "addChallenger",
+        "claimProveRemaining",
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyOwner",
+      "rule": "DISCH",
+      "statement_hash": "sha256:9e30666d3c4de40f7e7fffd22a59b3ed07e41903fa953bc2ffcebff2d6f1e73a",
+      "subform": "external",
+      "writers": [
+        "revertBatch",
+        "setPause"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "&&",
+          [
+            "storage",
+            "inChallenge"
+          ],
+          [
+            "!",
+            [
+              "fits",
+              256,
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "storage",
+                    "proofWindow"
+                  ],
+                  [
+                    "member",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "challenges"
+                      ],
+                      [
+                        "storage",
+                        "batchChallenged"
+                      ]
+                    ],
+                    "startTime"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ]
+          ],
+          [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "proofWindow"
+              ],
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "challenges"
+                  ],
+                  [
+                    "storage",
+                    "batchChallenged"
+                  ]
+                ],
+                "startTime"
+              ]
+            ]
+          ]
+        ],
+        "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "checks": [
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+        ],
+        "class": "onlyActiveSubmitter",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_363_e11d8bb2"
+      },
+      "blocked_for": [
+        "anyone"
+      ],
+      "closure": [
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "entry_points": [
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+      "rule": "DISCH",
+      "statement_hash": "sha256:7e43b7aefc01645ff98ff434c2e076a45812be37dd1d6eaea977fd003ee3d441",
+      "subform": "external",
+      "writers": [
+        "proveState"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "&&",
+          [
+            "storage",
+            "inChallenge"
+          ],
+          [
+            "!",
+            [
+              "fits",
+              256,
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "storage",
+                    "proofWindow"
+                  ],
+                  [
+                    "member",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "challenges"
+                      ],
+                      [
+                        "storage",
+                        "batchChallenged"
+                      ]
+                    ],
+                    "startTime"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ]
+          ],
+          [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "proofWindow"
+              ],
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "challenges"
+                  ],
+                  [
+                    "storage",
+                    "batchChallenged"
+                  ]
+                ],
+                "startTime"
+              ]
+            ]
+          ]
+        ],
+        "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "checks": [
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+        ],
+        "class": "onlyOwner",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_363_e11d8bb2"
+      },
+      "blocked_for": [
+        "anyone"
+      ],
+      "closure": [
+        "addChallenger",
+        "claimProveRemaining",
+        "finalizeBatch",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "entry_points": [
+        "addChallenger",
+        "claimProveRemaining",
+        "finalizeBatch",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyOwner",
+      "rule": "DISCH",
+      "statement_hash": "sha256:33fbd0799c1e07b13239fd9c9ffc1f095b21ddc37904cd7a30464a8d5736a00f",
+      "subform": "external",
+      "writers": [
+        "revertBatch",
+        "setPause",
+        "updateProofWindow"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "_paused"
+        ],
+        "check": "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "checks": [
+          "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+        ],
+        "class": "onlyOwner",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "pausableupgradeable_77_ed0ce816"
+      },
+      "blocked_for": [
+        "anyone",
+        "onlyActiveSubmitter",
+        "onlyChallenger"
+      ],
+      "closure": [
+        "addChallenger",
+        "claimProveRemaining",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "entry_points": [
+        "addChallenger",
+        "claimProveRemaining",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner",
+      "rule": "DISCH",
+      "statement_hash": "sha256:75d9d34b5c30bd408e62f2e24534087c4a6482a3546f256d9fdccff9a7c4b824",
+      "subform": "external_none",
+      "writers": [
+        "setPause"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ]
+        ],
+        "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+          "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+        ],
+        "class": "onlyOwner",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_132_d953872f"
+      },
+      "blocked_for": [
+        "anyone",
+        "caller_rollup_210",
+        "onlyActiveSubmitter",
+        "onlyChallenger"
+      ],
+      "closure": [
+        "addChallenger",
+        "claimProveRemaining",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "entry_points": [
+        "addChallenger",
+        "claimProveRemaining",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_noext_rollup_132_d953872f_onlyOwner",
+      "rule": "DISCH",
+      "statement_hash": "sha256:195d46006ee94ae53798226135c23e30902c746a65c14a95094ca62298183d88",
+      "subform": "external_none",
+      "writers": [
+        "revertBatch"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "inChallenge"
+        ],
+        "check": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+        ],
+        "class": "onlyActiveSubmitter",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_213_f2e7faf8"
+      },
+      "blocked_for": [
+        "caller_rollup_210",
+        "onlyChallenger"
+      ],
+      "closure": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "entry_points": [
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+      "rule": "DISCH",
+      "statement_hash": "sha256:0720e853089d23ec9b56bfa8a9fd10ee881e2b26aa985b12be35499761aa9c37",
+      "subform": "external_none",
+      "writers": [
+        "proveState"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "inChallenge"
+        ],
+        "check": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+        ],
+        "class": "onlyOwner",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_213_f2e7faf8"
+      },
+      "blocked_for": [
+        "caller_rollup_210",
+        "onlyChallenger"
+      ],
+      "closure": [
+        "addChallenger",
+        "claimProveRemaining",
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "entry_points": [
+        "addChallenger",
+        "claimProveRemaining",
+        "commitBatchWithProof",
+        "finalizeBatch",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyOwner",
+      "rule": "DISCH",
+      "statement_hash": "sha256:28371fd6e9209cf9d0c40e0a5e4bf539da25bf6f47c13e1e8ae148c90bbc8bf0",
+      "subform": "external_none",
+      "writers": [
+        "revertBatch",
+        "setPause"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "&&",
+          [
+            "storage",
+            "inChallenge"
+          ],
+          [
+            "!",
+            [
+              "fits",
+              256,
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "storage",
+                    "proofWindow"
+                  ],
+                  [
+                    "member",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "challenges"
+                      ],
+                      [
+                        "storage",
+                        "batchChallenged"
+                      ]
+                    ],
+                    "startTime"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ]
+          ],
+          [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "proofWindow"
+              ],
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "challenges"
+                  ],
+                  [
+                    "storage",
+                    "batchChallenged"
+                  ]
+                ],
+                "startTime"
+              ]
+            ]
+          ]
+        ],
+        "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "checks": [
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+        ],
+        "class": "onlyActiveSubmitter",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_363_e11d8bb2"
+      },
+      "blocked_for": [
+        "anyone"
+      ],
+      "closure": [
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "entry_points": [
+        "finalizeBatch",
+        "initialize2",
+        "initialize3",
+        "proveState"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+      "rule": "DISCH",
+      "statement_hash": "sha256:775e830e861b65cc450bbc1dae0dc799d55c3e8de1d1bc3a2734a57da7c32892",
+      "subform": "external_none",
+      "writers": [
+        "proveState"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "&&",
+          [
+            "storage",
+            "inChallenge"
+          ],
+          [
+            "!",
+            [
+              "fits",
+              256,
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "storage",
+                    "proofWindow"
+                  ],
+                  [
+                    "member",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "challenges"
+                      ],
+                      [
+                        "storage",
+                        "batchChallenged"
+                      ]
+                    ],
+                    "startTime"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ]
+          ],
+          [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "proofWindow"
+              ],
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "challenges"
+                  ],
+                  [
+                    "storage",
+                    "batchChallenged"
+                  ]
+                ],
+                "startTime"
+              ]
+            ]
+          ]
+        ],
+        "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "checks": [
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+        ],
+        "class": "onlyOwner",
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_363_e11d8bb2"
+      },
+      "blocked_for": [
+        "anyone"
+      ],
+      "closure": [
+        "addChallenger",
+        "claimProveRemaining",
+        "finalizeBatch",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "entry_points": [
+        "addChallenger",
+        "claimProveRemaining",
+        "finalizeBatch",
+        "importGenesisBatch",
+        "initialize2",
+        "initialize3",
+        "removeChallenger",
+        "renounceOwnership",
+        "revertBatch",
+        "setPause",
+        "transferOwnership",
+        "updateFinalizePeriodSeconds",
+        "updateProofWindow",
+        "updateRewardPercentage",
+        "updateRollupDelayPeriod",
+        "updateVerifier"
+      ],
+      "excluded": [],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyOwner",
+      "rule": "DISCH",
+      "statement_hash": "sha256:84eacc85576483a2da0cb0c665783c07a72615d9dca3f922af4be2bdcaecc2c3",
+      "subform": "external_none",
+      "writers": [
+        "revertBatch",
+        "setPause",
+        "updateProofWindow"
+      ]
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              2
+            ]
+          ]
+        ],
+        "check": "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "checks": [
+          "initialize2#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+        ],
+        "class": null,
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "initializable_120_b8d46c45"
+      },
+      "closure": [],
+      "entry_points": [
+        "initialize2"
+      ],
+      "excluded": [
+        "initialize2"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_rev_initializable_120_b8d46c45",
+      "rule": "DISCH",
+      "statement_hash": "sha256:a4648d4ca3a498bd45f3656c9af2d2a159dfa52d136d14f40d7e0e8e6af730ea",
+      "subform": "revert"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              3
+            ]
+          ]
+        ],
+        "check": "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "checks": [
+          "initialize3#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+        ],
+        "class": null,
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "initializable_120_b95c70f1"
+      },
+      "closure": [],
+      "entry_points": [
+        "initialize3"
+      ],
+      "excluded": [
+        "initialize3"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_rev_initializable_120_b95c70f1",
+      "rule": "DISCH",
+      "statement_hash": "sha256:ae6105d659905ed7bc046191b889d76a644f303c8c986448109d001b8c4d82cd",
+      "subform": "revert"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "&&",
+            [
+              "!",
+              [
+                "storage",
+                "_initializing"
+              ]
+            ],
+            [
+              "<",
+              [
+                "storage",
+                "_initialized"
+              ],
+              4
+            ]
+          ]
+        ],
+        "check": "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0",
+        "checks": [
+          "initialize4#@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:120#0"
+        ],
+        "class": null,
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "initializable_120_d9a34b48"
+      },
+      "closure": [],
+      "entry_points": [
+        "initialize4"
+      ],
+      "excluded": [
+        "initialize4"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_rev_initializable_120_d9a34b48",
+      "rule": "DISCH",
+      "statement_hash": "sha256:60dbe599b2410aa8e6e65b9b9f0abd2d24c3047bce9031528c3520aa1dc81132",
+      "subform": "revert"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "_paused"
+        ],
+        "check": "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+        "checks": [
+          "challengeState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitBatchWithProof#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "commitState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "finalizeBatch#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0",
+          "proveState#@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0"
+        ],
+        "class": null,
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "pausableupgradeable_77_ed0ce816"
+      },
+      "closure": [],
+      "entry_points": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "proveState"
+      ],
+      "excluded": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "proveState"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_rev_pausableupgradeable_77_ed0ce816",
+      "rule": "DISCH",
+      "statement_hash": "sha256:bbf19a5836617fc25571f384b62449a3c829bb9912320e9fa960c84fea2cf628",
+      "subform": "revert"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "==",
+            [
+              "storage",
+              "revertReqIndex"
+            ],
+            0
+          ]
+        ],
+        "check": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:132#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:214#0",
+          "proveState#contracts/contracts/l1/rollup/Rollup.sol:132#0"
+        ],
+        "class": null,
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_132_d953872f"
+      },
+      "closure": [],
+      "entry_points": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "initialize4",
+        "proveState"
+      ],
+      "excluded": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "finalizeBatch",
+        "initialize4",
+        "proveState"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_rev_rollup_132_d953872f",
+      "rule": "DISCH",
+      "statement_hash": "sha256:b39af989f1f235bda264fdb80d74b5440c614bb02e8116e3538d4c7283b48e4c",
+      "subform": "revert"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "storage",
+          "inChallenge"
+        ],
+        "check": "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0",
+        "checks": [
+          "challengeState#contracts/contracts/l1/rollup/Rollup.sol:475#0",
+          "initialize4#contracts/contracts/l1/rollup/Rollup.sol:213#0"
+        ],
+        "class": null,
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_213_f2e7faf8"
+      },
+      "closure": [],
+      "entry_points": [
+        "challengeState",
+        "initialize4"
+      ],
+      "excluded": [
+        "challengeState",
+        "initialize4"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_rev_rollup_213_f2e7faf8",
+      "rule": "DISCH",
+      "statement_hash": "sha256:d9825e2c38677461a94f4163980fc0f94496a0b5fa6b72b36a2cf3b0578ea5e5",
+      "subform": "revert"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "!",
+          [
+            "==",
+            [
+              "map",
+              [
+                "storage",
+                "finalizedStateRoots"
+              ],
+              0
+            ],
+            0
+          ]
+        ],
+        "check": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0",
+        "checks": [
+          "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0"
+        ],
+        "class": null,
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_228_79cc3e9a"
+      },
+      "closure": [],
+      "entry_points": [
+        "importGenesisBatch"
+      ],
+      "excluded": [
+        "importGenesisBatch"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_rev_rollup_228_79cc3e9a",
+      "rule": "DISCH",
+      "statement_hash": "sha256:ac58e5a74e70554e420436222d35780a7e83f1bc5eda95b07dcce1b0489be315",
+      "subform": "revert"
+    },
+    {
+      "basis": {
+        "blocked": [
+          "&&",
+          [
+            "storage",
+            "inChallenge"
+          ],
+          [
+            "!",
+            [
+              "fits",
+              256,
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "storage",
+                    "proofWindow"
+                  ],
+                  [
+                    "member",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "challenges"
+                      ],
+                      [
+                        "storage",
+                        "batchChallenged"
+                      ]
+                    ],
+                    "startTime"
+                  ]
+                ],
+                [
+                  "env",
+                  "block.timestamp"
+                ]
+              ]
+            ]
+          ],
+          [
+            "fits",
+            256,
+            [
+              "+",
+              [
+                "storage",
+                "proofWindow"
+              ],
+              [
+                "member",
+                [
+                  "map",
+                  [
+                    "storage",
+                    "challenges"
+                  ],
+                  [
+                    "storage",
+                    "batchChallenged"
+                  ]
+                ],
+                "startTime"
+              ]
+            ]
+          ]
+        ],
+        "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+        "checks": [
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
+          "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1"
+        ],
+        "class": null,
+        "kind": "guard_conjunct",
+        "model": "morph_rollup.extracted",
+        "tag": "rollup_363_e11d8bb2"
+      },
+      "closure": [],
+      "entry_points": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "initialize4"
+      ],
+      "excluded": [
+        "challengeState",
+        "commitBatch",
+        "commitBatchWithProof",
+        "commitState",
+        "initialize4"
+      ],
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_disch_rev_rollup_363_e11d8bb2",
+      "rule": "DISCH",
+      "statement_hash": "sha256:189d5ae5687dd761f38097990554f8b5bdfa4a5a715aae355ac930573a96eab6",
+      "subform": "revert"
+    },
+    {
+      "basis": {
         "key": {
           "p": "CODEC.BatchCache_createBatchHeaderWithSequencerSetHash",
           "q": "CODEC.enc_sol"
@@ -247,7 +2459,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:a6cb5b15956865d4ecded105ee46e5e2beba3554fa9b90e61f3466d4592170df",
+      "statement_hash": "sha256:e6d7e06a34ab84628b0066e3020156e962185e1fd14853491a9a33f4c4fcac39",
       "subform": "cross_component_codec"
     },
     {
@@ -264,7 +2476,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
       "rule": "PAR",
-      "statement_hash": "sha256:7f0ea0e7f22ccd169e9eba0a3a4e0ffc82747eb0bf6d12b46230b9a7ada5acbf",
+      "statement_hash": "sha256:fcae97b69259d5ed3e17e1262b966b062c6243140f888ef795302e72614c7d42",
       "subform": "cross_component_codec"
     },
     {
@@ -281,7 +2493,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:2c954ce2838b37a96bb846ba82ba79bc7f5717af963ee5238d4ffec789811a72",
+      "statement_hash": "sha256:3be4ef2a6657b1e7f1cd4e3448cfeab5020be10ad395de06de7f94491847343e",
       "subform": "cross_component_codec"
     },
     {
@@ -298,7 +2510,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
       "rule": "PAR",
-      "statement_hash": "sha256:a00685c8bb46e1ea06dbf9d0d1de18bf75cc7944bbf612d08b0a6a493d9a81da",
+      "statement_hash": "sha256:000b7576a8ad8ab750f11b4cb08f6638d87b364d93ed866870c6538bdf421a24",
       "subform": "cross_component_codec"
     },
     {
@@ -315,7 +2527,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:94d115865800649d5f3dc0cdc7bf8a56572bc5421cddfad6b95514ce97b4a2d4",
+      "statement_hash": "sha256:8c505b772bf62d2cd607521d6d0255eae742dc0d5aa27c9e3c86fd3a1b373fc0",
       "subform": "cross_component_codec"
     },
     {
@@ -332,7 +2544,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
       "rule": "PAR",
-      "statement_hash": "sha256:c0e1fd7d183b93c570597cb4fbc6c33dd25e37711cddcf40686137f4515e65cd",
+      "statement_hash": "sha256:2a72c5eb90c74b024557ea277063d4140ece4d6cbea8d5c277ee1f6426d8f48c",
       "subform": "cross_component_codec"
     },
     {
@@ -350,7 +2562,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol",
       "rule": "PAR",
-      "statement_hash": "sha256:b5c7064114f793ababd94aa95672903c6e668ee8e986d93a294bba1c6d038e4c",
+      "statement_hash": "sha256:88b6eb1515307148eb69c23915bf2148af1bc0439e5446f111c74aef15ee9c8f",
       "subform": "domain_coherence"
     },
     {
@@ -366,7 +2578,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:4b5f99b2508e08c3be89a96027e5c7ca0efbb69a9cd94d0a36197afeeed63955",
+      "statement_hash": "sha256:61bdf957762e32724f48afaff987f9f07818de1826b8bf42240e24e259cc4003",
       "subform": "round_trip"
     },
     {
@@ -382,7 +2594,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:9fe38e5c43579ed974101eed16ec1c0ba56dd4b0380c155953c787787efcce90",
+      "statement_hash": "sha256:876ad18344ce754ddb9985cf3f95a1cae40fd926cb1f26f00fffa6a6fcdae9d8",
       "subform": "round_trip"
     },
     {
@@ -398,7 +2610,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:c4b3c13009443b2a5ab4cdb2e0fc92927d2eab489f14b3dbfcb3ee53696d0ae2",
+      "statement_hash": "sha256:84600c35946f8d2b7ed10e72d5105bceba64ced56af824e1b089e6bcdc3ee407",
       "subform": "round_trip"
     },
     {
@@ -414,7 +2626,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:d5447b77c07d827463b9a84b9a67a5da6220084745bd201cc39867eb9eb7c00c",
+      "statement_hash": "sha256:dcce24c50f8975f8d82c6de13ea6e37e47b31ff9beb3d86792e230e9b037b42c",
       "subform": "round_trip"
     },
     {
@@ -430,7 +2642,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:8512b6c8bb6fe15f5810e57b496f89a2f335d1badd41f18bb274500784fe0c3a",
+      "statement_hash": "sha256:54a8dafbef67947806dacab969469379e674392a4782ed36eb95a0968a11737a",
       "subform": "round_trip"
     },
     {
@@ -446,7 +2658,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:ea6920912e48d3098e33f4bb313e81cc803c5c95049769af63bda35533284457",
+      "statement_hash": "sha256:43b6b6edd1490039e716f1595af1b48658e020bcec65cd45d8d2ad755dda29c9",
       "subform": "round_trip"
     },
     {
@@ -462,7 +2674,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:22f907d64a1c74149f02540ad11e2f80171f65f3ae2177218e75e655b6b88915",
+      "statement_hash": "sha256:0da8ffe1d2508120775f475d9d62757a461cf1040d1e98bbdfa5740193dff957",
       "subform": "round_trip"
     },
     {
@@ -478,7 +2690,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:0504bfb2d6374f8e54ebf407ba09c99bb4be14d9dcb632c447163ab602cda15a",
+      "statement_hash": "sha256:01d36457d086b03b2607dd37d147c1dddfe51c7de97a97001a4bd3de1cbaa100",
       "subform": "round_trip"
     },
     {
@@ -494,7 +2706,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:80d29db2887dd59a9cf8a0a0157c8b0686f7b74c84ffe0b7cecf4f4c56d1dc7e",
+      "statement_hash": "sha256:29ea5eb502ea0a6dc493dca03188b74bca9682e43c6e692e4ce612e4b1fdfc6e",
       "subform": "round_trip"
     },
     {
@@ -510,7 +2722,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:10ea414afb177ccf0fad167d5f87fef2322b155f9c94de9d1dd30a584c0ee4e2",
+      "statement_hash": "sha256:6b2ee276b501e08bddea80e6607a9e35b2e15d675548732df3a1762f13d97dff",
       "subform": "round_trip"
     },
     {
@@ -526,7 +2738,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:ddd9da9b83ea019ea60c8757e222ea559c200b9568cab36be7eb358db4bb51a8",
+      "statement_hash": "sha256:75d08a441d25ee2df342c61ab9c885d265b4fd8613b76f4f0cf54977b65603ab",
       "subform": "round_trip"
     },
     {
@@ -542,7 +2754,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:10ba885a4bc634cbf3e5a04d7889a79982cef7ea7aba9174e4935c98da0b8d14",
+      "statement_hash": "sha256:129773f78bc114078bdb8a2acde789d8639a86217a88fb92e85699c5df6022d2",
       "subform": "round_trip"
     },
     {
@@ -558,7 +2770,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:2ac4bb2e94e7ea57df8a17a28d79549ac515ed6da825875bdc1568032508b9b8",
+      "statement_hash": "sha256:91a275ed20ddbe0d3cc8841e688e6cb2381522aa6c7637b4ee9bed47f216e0a6",
       "subform": "round_trip"
     },
     {
@@ -574,7 +2786,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:f9405c13997276fc5273670541613c7ad724e15f9c752d1a38edcaaa32d8ef30",
+      "statement_hash": "sha256:4b747fd0af4c0951daa4d08deef2f65aba0b7fc0c8c8bd8b906dbc0c8ad97947",
       "subform": "round_trip"
     },
     {
@@ -590,7 +2802,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:67d879186ed0d2692389ad49fd3ab280f2c8b4a675fcb25eb97f1ee524a17f24",
+      "statement_hash": "sha256:f07a3f34fc215ff0522f376188d5648e1dc4ac8c90eb358e492474a3e6313260",
       "subform": "round_trip"
     },
     {
@@ -606,7 +2818,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:c194b0874eaeb86e6ed9364f94001a2081b4d89c59b82599619cd18232af94fa",
+      "statement_hash": "sha256:9920ca0ede8ecd85df643744bad5018c8112310ba625cfdebb0a7430226ab196",
       "subform": "round_trip"
     },
     {
@@ -622,7 +2834,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:d2160f7f2ce61bd6fb96f54df85aaec9fa5eec513c1a69fe8044e0ebee8474b4",
+      "statement_hash": "sha256:5b2525785151bfa89762b107723a4e6a7857ebe33647f4b9449ff91e2dbd9991",
       "subform": "round_trip"
     },
     {
@@ -638,7 +2850,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:4e2a69b0441278f8a6ccbcb1957d709f523dc0c7f718b8e39288e70140e03d2b",
+      "statement_hash": "sha256:8e14a209cf3e083096a8f89329e1fa6a9826fe90bdb43f15ca4c799464fdb223",
       "subform": "round_trip"
     },
     {
@@ -654,7 +2866,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:5d32aeb6450404c8a88e440ecc492c2b23f0a28973d35f29b6e0e7bb8469450b",
+      "statement_hash": "sha256:b4db47e02df32d355b958b8f3200d332eac25c747321427205e767239a8df91d",
       "subform": "round_trip"
     },
     {
@@ -670,7 +2882,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:3e49a5954b792b425d9a782c11fa81e253c3ab6ad4199bfd10b294a6af6d9bf2",
+      "statement_hash": "sha256:3e5914c417d1e6c747e035ffd39fba52facbab944cf56b0fff0b070b745b72be",
       "subform": "round_trip"
     },
     {
@@ -686,7 +2898,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:cbf23f4e49b2a4de659ff64b7f95d5b52e13663cf89593a364492025c1b9233f",
+      "statement_hash": "sha256:0a85026f3a0b314a6984e576645213fce6ea5193f726adf58c4382c62c19cc80",
       "subform": "round_trip"
     },
     {
@@ -702,7 +2914,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:141d55460cfd66786350f4dd1aa32378efbdd91c427f2f3fdb3f89c1a2a9d3bb",
+      "statement_hash": "sha256:38a3caceef6bacf2969853656c2a9ff69eabbb12cd389c21494d51e5245b1caa",
       "subform": "round_trip"
     },
     {
@@ -718,7 +2930,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:94c838efffb573c24f86eb615c5381a3be314286adc9e0eb48f80ebeb765c6d4",
+      "statement_hash": "sha256:3a322287227a7e260ea734a68a0a8b8a0afbdef0d142d759e132e282c40eefbd",
       "subform": "round_trip"
     },
     {
@@ -734,7 +2946,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:13d1986cb2c307c7ef82c7659474a2444434a7ca4de1c4e45cd7d6c5962abc0e",
+      "statement_hash": "sha256:22448c65dd9c4f511aa1908f55e8dea9527d064253ea706413b87fbff4c94b83",
       "subform": "round_trip"
     },
     {
@@ -750,7 +2962,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:ab454c5de9e9252910a0bea2f56f3bd90f2b20c20599848f5e6c0ead32176fd6",
+      "statement_hash": "sha256:1eb2baeeefe39b8f7dcca79017619e390abf8556e921c516c64d13623c6f71df",
       "subform": "round_trip"
     },
     {
@@ -766,7 +2978,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:2b92e991278d5f8ca0947d3715d091e8fe4de38d01f8538159b5af12b69730da",
+      "statement_hash": "sha256:c72d834175f590258271b3cac858a727abd735df577a053bce19bad1caf8aa6d",
       "subform": "round_trip"
     },
     {
@@ -782,7 +2994,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:b40e0c3b9c3c77ddf3da3bc317e5dbbe1dc38a35c9a701a69f47ce2769697eeb",
+      "statement_hash": "sha256:40f8a7d98ab5815cac0a623ae0b07994e352b171c37b5c773ec781e4c90901fa",
       "subform": "round_trip"
     },
     {
@@ -798,7 +3010,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:2768fa05dcc724cb09cfa46d6774908df31da41251076be305ff5fe9acd60bf7",
+      "statement_hash": "sha256:9fe7908a38acffd68e329909e74181f16ac51a5a8037efeec41168628c112c3d",
       "subform": "round_trip"
     },
     {
@@ -814,7 +3026,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:94712327df060f0f8d8bebeaa47b51dc808b62c730b8d15403399ffeffc3ff8c",
+      "statement_hash": "sha256:3d8751fec22f37b4702588cc9a6db566d1352e7ff81a77e4acb511a9803d8053",
       "subform": "round_trip"
     },
     {
@@ -830,7 +3042,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:427047d3a2d4e1310f455554d8c431332bc3b3ece06dcedecb8f48c7c46273f3",
+      "statement_hash": "sha256:3418145c70dcb9843d4b3a4b506e6e95f56d04b322f985eaef80745f6fa2a58b",
       "subform": "round_trip"
     },
     {
@@ -846,7 +3058,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:507b0fb004ffd3bda3334a664546671b383068ab9d0bb907bda803e23e13cd98",
+      "statement_hash": "sha256:b8535b82d808481d3d699bd0d922a25e89051e888b0c106c3ccd5b2d006e5f79",
       "subform": "round_trip"
     },
     {
@@ -862,7 +3074,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:a84f65888b5666e3e8534132fbf68d7aa8ce67d3044c4086aad7c5e75277118c",
+      "statement_hash": "sha256:aadb5078f2fb4115299315e5704c20543837143421660297b7148e8bf0817b68",
       "subform": "round_trip"
     },
     {
@@ -878,7 +3090,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:eb2d71272a1b6826a23899cd1a20e661c3a4245112dc515f078c60b541d6f633",
+      "statement_hash": "sha256:701886e1867133a7b428e91707aed883a042f06c734d2017b57fb9291d3a28f8",
       "subform": "round_trip"
     },
     {
@@ -894,7 +3106,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:6d56d98be258727736339470f719ac6cb867397c7179986a28f596b8b5d7f5ff",
+      "statement_hash": "sha256:63cd4d348c5f30871039688f66acfa8cac47f58da963c7a3ba2d51c7aba12fb3",
       "subform": "round_trip"
     },
     {
@@ -910,7 +3122,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:e41430ae9089964fd9a3a6f84bbbd934656c137d563cd5b17cb04e6f17fec5bb",
+      "statement_hash": "sha256:a3da4b43f186e7f00b2b3ee93fb49fe2f3c906995568fe37675c72be2b837a6e",
       "subform": "round_trip"
     },
     {
@@ -926,7 +3138,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:9e1cb088e2885db5b160c0a6ae26e9d9e2021ddd3f9ad9ce5e4810068d303c6b",
+      "statement_hash": "sha256:e8eeebf42042dc920bc0ff79397e9fb40a27cee3beed1c32fea8ada9c7830e4e",
       "subform": "round_trip"
     },
     {
@@ -942,7 +3154,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:94ca507f5e72fe345bde47b66c5f757f65c4eb34e645675c6836ed6f79a71419",
+      "statement_hash": "sha256:15c29e78c54d1d4a23677f6b54496d9bf848057a8c08d731029985faa2d5437b",
       "subform": "round_trip"
     },
     {
@@ -958,7 +3170,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:f00518dc3e65c310156aa89ec3d3ac585a1b76c8a1dcc281afd5d9c4c25c0c92",
+      "statement_hash": "sha256:c3c5bc89d7f81904132e2112a7d267c5038451a517a672b9b4b93749c70bcd39",
       "subform": "round_trip"
     },
     {
@@ -974,7 +3186,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:6e440630efb7ba789a847d69c77b346719babfb5ca1beb12469353ee7a8b54dc",
+      "statement_hash": "sha256:b481f0edf853f2702c26d5771e2a47c88fdaa156f205f8b35c22350d2f6ba563",
       "subform": "round_trip"
     },
     {
@@ -990,7 +3202,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:2906dd64a23f43c6ff44db087edf38966f970e4147840138b8e89841c90cf035",
+      "statement_hash": "sha256:fc657cac3bd2e82e8fda4771f58d322dab7225fd146e4e7cb7b800f3d8a0d62a",
       "subform": "round_trip"
     },
     {
@@ -1006,7 +3218,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:18a212fda61f6e7eb74b7a950efedd840bea89f2bccf38691dcd1e3a51947184",
+      "statement_hash": "sha256:4a69d544a25b96dd85297fc89cfe60bb885a18233b21d69db1111c0789dce293",
       "subform": "round_trip"
     },
     {
@@ -1022,7 +3234,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:7596f0760c313aa49c6e35c0ce5ba43a1d4e423206970187b0378fe0f0c3a87b",
+      "statement_hash": "sha256:582b49706248f824a6e5dc3edb61c999c6c03744409d2bdfa165b3dac0514cae",
       "subform": "round_trip"
     },
     {
@@ -1038,7 +3250,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:61bc16ce2c8f619cdd8b949dd2c94385ffd33f467865d27241b218838e25bf3d",
+      "statement_hash": "sha256:d100c000e85fd61f893287bb22f31f8d1fa13c02d963bcb245f0d848c32fd0a2",
       "subform": "round_trip"
     },
     {
@@ -1054,7 +3266,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:0785440e10be316974003254a1286afac35d31f5364857f08c674ee4dffc4a1e",
+      "statement_hash": "sha256:72f30d069c8a3fe6c5970f9c40a7d1d8371ea5760ce0eb03e0c000cdc775bc73",
       "subform": "round_trip"
     },
     {
@@ -1070,7 +3282,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:047c411cdf7e77776318ba329bbd6a5f45c92688d5891873bea19819156cba20",
+      "statement_hash": "sha256:bf2a312e163b4a84a1e40d1b4c91d4b735598ce086819bc13d4b746b8e9423f6",
       "subform": "round_trip"
     },
     {
@@ -1086,7 +3298,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:525798852be82f71c1aa0dbc06626a2ff006fc17df52789e15140c414439f0e0",
+      "statement_hash": "sha256:2b3d9cb4aa23e7fab0dc0ac6b1d7f6b011967d31071f10e474cf39f20a6c4c9d",
       "subform": "round_trip"
     },
     {
@@ -1102,7 +3314,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:886d5420f4ca8d007fae2e27be2eaf8a7a63d7db2e79374833fd32439682d01e",
+      "statement_hash": "sha256:faefd8ef1802c0112e554a3cddf07200238b10ec2f4587d61f5ac8864686f96d",
       "subform": "round_trip"
     },
     {
@@ -1118,7 +3330,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:d2a7a287d9d24022fbf71ca4ca952883e7e044e080a135c6d4b2fcfd4de12a7a",
+      "statement_hash": "sha256:968387e874302e510c7f38c53dd7c4e23655f717d49f0fb411598727aec5da2a",
       "subform": "round_trip"
     },
     {
@@ -1134,7 +3346,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:c55e39914719cd3f7cb116707207698eb21154f488eb943797f1510f3da72ae7",
+      "statement_hash": "sha256:2a5f788d8188ffac48730bfc0a643d873b40c7eb6166a04b9e49d77fa9e51d68",
       "subform": "round_trip"
     },
     {
@@ -1150,7 +3362,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:9c9a3b6fa7e57cd8b3daeeafc4096fd3a143cac3c912bc91a86894321a473a06",
+      "statement_hash": "sha256:5fbc3eef7c071bb9814960a56c14e1db72349cbc37992fe1620c0e5ef2ec7f20",
       "subform": "round_trip"
     },
     {
@@ -1166,7 +3378,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:f2caaba650eb2002dd3cdb6b9eefe500604b0a90de6cf047480b3ebb6cc9ebb2",
+      "statement_hash": "sha256:c543aad1e0898f8f2468ca9b0b68777cb05e72475360bf0a12dca0fe11bacf77",
       "subform": "round_trip"
     },
     {
@@ -1182,7 +3394,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:94fd83084bf4eb60af6b4969c4b002168cd4e9b81c98354045ebb01cb755d72d",
+      "statement_hash": "sha256:aa493950a994d3576a97595719e7dbde170e9f540180657b668fd72b24c12b1e",
       "subform": "round_trip"
     },
     {
@@ -1198,7 +3410,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:2b015f33a3103d81754722e68bb774ba10d8d64c5e72a0dc195753f7b333feef",
+      "statement_hash": "sha256:59acdadba838197126fc30f40bd74b715ef2776d695d75996ce517e58a1c2b24",
       "subform": "round_trip"
     },
     {
@@ -1214,7 +3426,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:aa78fa6985eda7abae5cfc479a4fb17a7bd1eed87b3bdc3e1806812503ca2ac0",
+      "statement_hash": "sha256:c7f2d773ce0d4451646c9bc904217624693deda15d48bef81ad327fcd3bf1033",
       "subform": "round_trip"
     },
     {
@@ -1230,7 +3442,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:6580656f4f7c6f82a922112e7af47c032af4ba5e4157f5ca89396a8178bd39b3",
+      "statement_hash": "sha256:66c33c5d3e326f79588eb53bc4ceab4a34ae66af07600919c8df2981e3f6eb67",
       "subform": "round_trip"
     },
     {
@@ -1246,7 +3458,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:ce3318397c5c4ba6335479ad0115a700f265664695cff49d4abb1a23d630adfe",
+      "statement_hash": "sha256:a66c25be98108c7f27b1d3e4c5a5c4d7a403b1e3778d0c537f2f18a0bd614459",
       "subform": "round_trip"
     },
     {
@@ -1262,7 +3474,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:0b725aea487f6e89cc1a724460acccc473cf11ce3d57c3485b85a2625d450d36",
+      "statement_hash": "sha256:60b1f49e7f0ab48a904ae2268e94b0867c0e96745044b83f0a0fffa073a2feda",
       "subform": "round_trip"
     },
     {
@@ -1278,7 +3490,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:4d0f0d1698df9e0cf3ffee3ee83ab52fd0c48d3ab4faf25c6c4c5400b54cc3d6",
+      "statement_hash": "sha256:4cbe6960e96f00ad4ca26996e23464668a4c34babf362e5a403c8b5587f3b912",
       "subform": "round_trip"
     },
     {
@@ -1294,7 +3506,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:ae4bf87a9c784339e6eebd614d511422c345aa47bfcc2510e72dbd9eb909ffd2",
+      "statement_hash": "sha256:7c655a325909fd3d825d2ea9c36389421f6b62e34f9b5fe64f6911f030a88f24",
       "subform": "round_trip"
     },
     {
@@ -1310,7 +3522,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:682453c6f18eea1d26bc640768275b23d0802d4ac6a15ca63a8e24e881c2de51",
+      "statement_hash": "sha256:2198d231d3245a8f6d4e54c6b4fe0a4d2948331fde89da4ee1a1884e62204d7f",
       "subform": "round_trip"
     },
     {
@@ -1326,7 +3538,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:075bce1e19f0e20aef3043573d7f64a56d8cc874612984bba91bb6764ac050b0",
+      "statement_hash": "sha256:8be39bfc7ef48cc3ac108dcb5b41ac402c3274e83ad56a4d922e3aaad71b4daa",
       "subform": "round_trip"
     },
     {
@@ -1342,7 +3554,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:8c0539190250f702adb4cc689fcd9267ef61a428d324b4ef8fe58cf7b4ae54d4",
+      "statement_hash": "sha256:68e7576feb260189317cad39dfa0405143a8bf4008e0c532718055902fc9e2c3",
       "subform": "round_trip"
     },
     {
@@ -1358,7 +3570,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:c1a4481ece9156ce7434233c5a0a06e66690b107554b0ed6651fd2cfbc8b5ba3",
+      "statement_hash": "sha256:5942821e9c44f115130c0011c1fe6184ab995bc2a8cf28027f8c0e39c5a26b77",
       "subform": "round_trip"
     },
     {
@@ -1374,7 +3586,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:f72c7289a64f2f3b0c8e0d0975c9b11232cf41f587c250fd71bcf6621b69f89f",
+      "statement_hash": "sha256:d0f45a8fc3c701df7df31961a03b311bfb62ca0b5ecd7575e51fa9496edb530f",
       "subform": "round_trip"
     },
     {
@@ -1390,7 +3602,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:56e007927b40ffcb8bc9002dcee9956c9da61035fc010a4d1d770e39824fde04",
+      "statement_hash": "sha256:5181141ecdfe645e39c13c4261702d803cba3203d4514fecec415948577a8c14",
       "subform": "round_trip"
     },
     {
@@ -1406,7 +3618,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:b1afd3025bb1dfcace341612d32c707c1e358b2b1be9ce952d6a023b23824cdb",
+      "statement_hash": "sha256:4019fbcdebb7845c12de53c46c7149020b059931dd0074c16fa3e7f2b3b8aa49",
       "subform": "round_trip"
     },
     {
@@ -1422,7 +3634,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:3ef90579c381398194adf5a32cb59d863e609a3ee530cdd115b149ae19d06b32",
+      "statement_hash": "sha256:4fba955ea52a0a506f839040eae86f4825e0081de0e5a9398e1bfa2becdfd9f8",
       "subform": "round_trip"
     },
     {
@@ -1438,7 +3650,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:69b3019c7fba62441242fb6c0f4a4a5682d2ae2ec972c25170b0e9cc5e87a874",
+      "statement_hash": "sha256:d97af76180b5824ffbdd195a73ebc30be5d35d13ed1a08612be955954e1add45",
       "subform": "round_trip"
     },
     {
@@ -1454,7 +3666,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:650c3b35b3147b05aa65f12781cbd7887860f4e3873b0671e75aa1c275892739",
+      "statement_hash": "sha256:5420b805271703913dd2588bf56c097be83e37e0411cc0ed43073615d3cb118f",
       "subform": "round_trip"
     },
     {
@@ -1470,7 +3682,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:97e8eb3514bb3b7af7193316df5cfcf85e3cb931194db1c0edd53c4ff87ffb22",
+      "statement_hash": "sha256:dfdab95ab970a5e5b8a2f66d2777f1851f3c5e6d9313cf86ce8905ca9e59d507",
       "subform": "round_trip"
     },
     {
@@ -1486,7 +3698,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2",
       "rule": "PAR",
-      "statement_hash": "sha256:be84f1c9a63ad709aab0c0753e6cee1b144b60da31ee2032a03ec630bd7971a1",
+      "statement_hash": "sha256:dffe0f8d21fe9d9309ac33db2e514eb94148c1db5511a8dd3df4e60d8a1f6690",
       "subform": "weak"
     },
     {
@@ -1502,7 +3714,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0",
       "rule": "PAR",
-      "statement_hash": "sha256:a8e8d7cf989125b4cdfef43ebb3abc7a659fc04ea8f2c73823f7ee5080ef6046",
+      "statement_hash": "sha256:37a9c36c74b1ca13708c7041dd23d0dc1a9a7633449d3c860c6c50ef314d5a64",
       "subform": "weak"
     },
     {
@@ -1518,7 +3730,7 @@
       "facts": "gen/M3/codec/header_length.json",
       "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1",
       "rule": "PAR",
-      "statement_hash": "sha256:c6ad396540d442ab4be259a5e728297998c42a92449073bf9089e823063811d4",
+      "statement_hash": "sha256:b1b7ab32ab83a9cd410990f5d80642c8dc2fa24e26bbd03175dfafb87c387da5",
       "subform": "weak"
     },
     {
@@ -1586,7 +3798,7 @@
       ],
       "law_id": "L_sort_realize_rollup_363_4a64383b",
       "rule": "SORT",
-      "statement_hash": "sha256:18578c8b24b435b96072e9b6c6e7abd0fcaa0a9ec89a9edfe9158378196d5fe0",
+      "statement_hash": "sha256:5c0d4ebe01675621550f9498cc172fc5098ce0297fb5cae02e9f931614f9d2b8",
       "subform": "realize"
     },
     {
@@ -1672,7 +3884,7 @@
       ],
       "law_id": "L_sort_tag_rollup_279_e01ea84a",
       "rule": "SORT",
-      "statement_hash": "sha256:b46e19ce42f2073aff06e94e4666eaff853aa8168eeadef7380fd14b1fb86a39",
+      "statement_hash": "sha256:08b61224a35d1796ebff0c89004108736be1fe8e029609e096805e20814876c3",
       "subform": "as_member"
     },
     {
@@ -1758,7 +3970,7 @@
       ],
       "law_id": "L_sort_tag_rollup_406_e01ea84a",
       "rule": "SORT",
-      "statement_hash": "sha256:ea84080ff41a39c831430e173524b0da7f3205879115b9e847432695477bfad6",
+      "statement_hash": "sha256:1701b77f9128a2fe988bf96336d9c7ccefc16ada7a7fa4d0c90f9960dacb49f3",
       "subform": "as_member"
     },
     {
@@ -1785,7 +3997,7 @@
       "facts": "spec/M2/facts/morph_rollup.extracted.json",
       "law_id": "L_undo_pair_Rollup_addChallenger_removeChallenger",
       "rule": "UNDO",
-      "statement_hash": "sha256:5aaf69dcfb97fb1a6dc54abcf6d1505b378aa64195671e87b1d3868f5e2a7508",
+      "statement_hash": "sha256:00aa10b77bfc6ef4cfa5c76c859aef2e633bfd752f27dfbf8578f42390deae06",
       "static": {
         "class": "dead",
         "residues": {}
@@ -1829,7 +4041,7 @@
       "facts": "spec/M2/facts/morph_rollup.extracted.json",
       "law_id": "L_undo_pair_Rollup_commitBatchWithProof_revertBatch",
       "rule": "UNDO",
-      "statement_hash": "sha256:f87dd90bf92eade2d600762eb32617ae607e906bbcb85c8e1c9c018b871636a5",
+      "statement_hash": "sha256:7ef53862a7e8e6705c2c8a88434cb40b4a705e3c9e3de6746cf5ce9a0c7d71f6",
       "static": {
         "class": "live",
         "residues": {
@@ -1877,7 +4089,7 @@
       "facts": "spec/M2/facts/morph_rollup.extracted.json",
       "law_id": "L_undo_pair_Rollup_commitBatch_revertBatch",
       "rule": "UNDO",
-      "statement_hash": "sha256:107078d1358951b690a93101385632bbe1c997400a87b3bed8d288828cd98660",
+      "statement_hash": "sha256:bb3717a7c2d7afcae3f1d4caadf619cf235e5d33bd39e5518ee0ea205abf6d4d",
       "static": {
         "class": "live",
         "residues": {
@@ -1924,7 +4136,7 @@
       "facts": "spec/M2/facts/morph_rollup.extracted.json",
       "law_id": "L_undo_pair_Rollup_commitState_revertBatch",
       "rule": "UNDO",
-      "statement_hash": "sha256:356a98761c0a886364ada5785dfadb2057d04db4daef42ba4d1f1eebde055d78",
+      "statement_hash": "sha256:128dc23b28362651e23a5955d2872bd12d8a44e1b639625ab8ef123567bfcf44",
       "static": {
         "class": "live",
         "residues": {
@@ -1958,7 +4170,7 @@
       "facts": "spec/M2/facts/morph_rollup.extracted.json",
       "law_id": "L_undo_pair_Rollup_removeChallenger_addChallenger",
       "rule": "UNDO",
-      "statement_hash": "sha256:09ab09d5b9aad50d7efde8a3c4f52900116da27ab621b17bce2f48c32f117f8e",
+      "statement_hash": "sha256:a069b426c6306125faa1cb6008c89149689d008b224d8e7a8be6e85226325db5",
       "static": {
         "class": "dead",
         "residues": {}
@@ -1987,7 +4199,7 @@
       "facts": "spec/M2/facts/morph_rollup.extracted.json",
       "law_id": "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes",
       "rule": "UNDO",
-      "statement_hash": "sha256:3230789884b0ebc58273b8dd4778c74503cee4c21dd6bfa0fc48f662cdda091c",
+      "statement_hash": "sha256:7d61dfa9cd980dc54648b146bc7031c421aa1c40ab3ab0477af282e18acaa76e",
       "static": {
         "class": "live",
         "excluded": [],
@@ -2087,7 +4299,7 @@
       "facts": "spec/M2/facts/morph_rollup.extracted.json",
       "law_id": "L_undo_res_Rollup_revertBatch_batchDataStore",
       "rule": "UNDO",
-      "statement_hash": "sha256:86eaa403639e2c81b47150499b953bd60421aa96714ed05ecd25414461c4bfac",
+      "statement_hash": "sha256:33b4830e4631dfbe5cc55dea66ef43a17fe5e9cc4797ec960d1fb69d4e65173d",
       "static": {
         "class": "live",
         "excluded": [
@@ -2229,7 +4441,7 @@
       "facts": "spec/M2/facts/morph_rollup.extracted.json",
       "law_id": "L_undo_res_Rollup_revertBatch_committedStateRoots",
       "rule": "UNDO",
-      "statement_hash": "sha256:e499d643e224916b7712f1bb0f563abbc980a3681d116b7e4b7af399b871c0e2",
+      "statement_hash": "sha256:f6121749f98daf4106a4e004dc7bb16dc6c9f84e79041c33eeb4f6a60252a5ec",
       "static": {
         "class": "dead",
         "excluded": [
@@ -3528,7 +5740,7 @@
       "version": null
     }
   ],
-  "rule_catalog_version": "holon-rules/1.3",
+  "rule_catalog_version": "holon-rules/1.4",
   "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",
   "uncovered": [
     {

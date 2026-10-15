@@ -1,0 +1,36 @@
+{
+  "facts": "spec/eval/controls/relational_2.facts.json",
+  "facts_sha256": "5725bb58eb6a874e0f062adcfddc7dda0540797e59f82e8322e349ad5b861392",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_i48_relational_2",
+  "milestone": "T48",
+  "notes": "I48 control relational_2 (true; expected UNKNOWN). a_le_b: a <= b on every reachable state (true: every c_i equals b; not inductive alone: copy_i from a state with c_i > b breaks it; the strengthening needs the SIZE equalities b == c_i, none of them a field constant)",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/1.0",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "a_le_b",
+          "of": {
+            "var": "s"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}

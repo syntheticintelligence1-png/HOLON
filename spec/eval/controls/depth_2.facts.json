@@ -1,0 +1,105 @@
+{
+  "abstractions": [
+    "A planted obligation of the depth family, size 2, for UNKNOWN calibration (L15); not a real target."
+  ],
+  "actions": [
+    {
+      "effects": {
+        "c": [
+          "+",
+          "c",
+          1
+        ]
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "inc",
+      "principal": "anyone",
+      "src": "control: inc()"
+    },
+    {
+      "effects": {
+        "flag": true
+      },
+      "guards": [
+        {
+          "reason": 1,
+          "require": [
+            ">=",
+            "c",
+            2
+          ]
+        }
+      ],
+      "inputs": [],
+      "name": "fire",
+      "principal": "anyone",
+      "src": "control: fire()"
+    }
+  ],
+  "coverage": {
+    "debt": [],
+    "modelled": [
+      "inc",
+      "fire"
+    ]
+  },
+  "defs": {},
+  "extraction": {
+    "date": "2026-10-15",
+    "method": "generated from spec/M4/lib/controls_plan.json (I48 rule K2)"
+  },
+  "facts_version": "holon-facts/0.2",
+  "ghost_state": [],
+  "initial": {
+    "c": 0,
+    "doc": "every register zero, flags down",
+    "flag": false,
+    "log": []
+  },
+  "observers": {
+    "flag_down": {
+      "body": [
+        "!",
+        "flag"
+      ],
+      "doc": "planted false invariant: the flag stays down",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Bool"
+    }
+  },
+  "params": {},
+  "policy": "generic",
+  "principals": {},
+  "reasons": {
+    "1": "the guard does not hold"
+  },
+  "state": [
+    [
+      "c",
+      "Nat",
+      "counter"
+    ],
+    [
+      "flag",
+      "Bool",
+      "raised once c >= SIZE"
+    ],
+    [
+      "log",
+      "List<Obs>",
+      "observations"
+    ]
+  ],
+  "target": {
+    "commit": "0000000000000000000000000000000000000000",
+    "repo": "holon/eval-controls",
+    "scope": "I48 control depth_2: registers c: Nat = 0, flag: Bool = false; actions inc() effect c := c + 1; fire() guard c >= SIZE effect flag := true"
+  },
+  "types": {}
+}
