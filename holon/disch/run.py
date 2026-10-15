@@ -4,7 +4,7 @@ tests_m3/test_disch.py, "Deciding", "Records" and "Replay").
 A DISCH law is decided over I30's typed model of its document (gen/<M>/sorts/models/<model>.bend) and its DISCH
 section (gen/<M>/disch/models/<model>.disch.bend, holon.disch.section):
 
-  forall laws    (blocking, revert, external_none) the proof generators first (holon.disch.proofs: frame,
+  forall laws    (blocking, revert, external_none) the proof generators first (holon.disch.proofs: frame, transport,
                  chain_revert; checked by bend2, then BendTT); a law they do not prove is searched for a refutation
                  (holon.disch.search: I30's S1-S3 from R0, the sidecar's budget); a refutation is written as a
                  counter-law in A30's shape (every premise a closed lemma that computes one step: the hash tables,
