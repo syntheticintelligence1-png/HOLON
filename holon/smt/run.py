@@ -1,5 +1,6 @@
 """The pinned z3 (spec/M3/lib/refute.json "solver"; config/holon.json "z3"; Q16): checked by sha256 before every run,
-random_seed 0, one thread, z3's deterministic rlimit per query (never a wall-clock timeout).
+random_seed 0, one thread, z3's deterministic rlimit per query, counted cumulatively over the query's check-sats, and
+z3's own memory_max_size (registered in config). Nothing answers by wall-clock time: the crash watchdog aborts.
 
   pin_check(solver) -> None | reason      the binary's and the library's sha256 and the version line
   Session(solver).check(text) -> "sat" | "unsat" | "unknown"
@@ -85,42 +86,116 @@ def parse_value(v: str) -> int:
     raise ValueError(f"unparsed solver value {v[:80]}")
 
 
+class WatchdogAbort(RuntimeError):
+    """The crash watchdog fired: the run is aborted, no verdict is recorded and the question is run again later."""
+
+
+class SolverCrash(RuntimeError):
+    """z3 ended without an answer (a crash, or killed from outside): never a verdict; nothing is recorded."""
+
+
+def registered_limits(root: Path | None = None) -> dict:
+    """The registered solver limits beyond the sidecar's rlimit (config/holon.json "z3"): memory_max_size_mb, z3's own
+    allocation count (deterministic for the pinned single-threaded binary; an overrun ends the query unknown), and
+    watchdog_s, a crash guard that aborts the run (never a verdict); e1_rounds_max and hash_rounds_max, BMC's
+    deterministic round caps for lazy E1 and hash concretization (a cap reached ends the query unknown)."""
+    import json
+    root = Path(root) if root else Path(__file__).resolve().parents[2]
+    z = (json.loads((root / "config" / "holon.json").read_text(encoding="utf-8")).get("z3") or {})
+    return {k: z.get(k) for k in ("memory_max_size_mb", "watchdog_s", "e1_rounds_max", "hash_rounds_max")}
+
+
 class Session:
-    """One interactive z3 process for one query: check, then read values."""
+    """One interactive z3 process for one query: check, then read values.
 
-    def __init__(self, solver: dict):
+    The budget is the query's rlimit, counted CUMULATIVELY over every check-sat of the session (the incremental E1
+    rounds and the hash concretization rounds included): z3's (get-info :rlimit) is the count since the process
+    started, and each further check-sat gets only the remainder, so a query never spends more than its rlimit and the
+    answer does not depend on load or wall-clock time. memory_mb is z3's memory_max_size (registered in config); the
+    watchdog only aborts (WatchdogAbort), it never answers."""
+
+    def __init__(self, solver: dict, rlimit: int | None = None, memory_mb: int | None = None,
+                 watchdog_s: float | None = None):
         self.solver = solver
+        self.rlimit = int(rlimit if rlimit is not None else solver["rlimit_per_query"])
+        lim = registered_limits()
+        self.memory_mb = memory_mb if memory_mb is not None else lim["memory_max_size_mb"]
+        self.watchdog_s = watchdog_s if watchdog_s is not None else lim["watchdog_s"]
         self.p = None
-
-    def check(self, text: str, guard_s: float | None = None, memory_mb: int | None = None) -> str:
-        """sat | unsat | unknown. guard_s and memory_mb are the build's resource guards (a wall-clock watchdog and an
-        address-space limit on the solver process): a guard that fires ends the query unknown, and self.guard says
-        which (the rlimit stays the budget the query states)."""
-        import threading
-
-        def limit():
-            if memory_mb:
-                import resource
-                resource.setrlimit(resource.RLIMIT_AS, (memory_mb << 20, memory_mb << 20))
         self.guard = None
-        self.guard_s = guard_s
-        self.p = subprocess.Popen([self.solver["binary"], "-in", "-smt2", "parallel.enable=false"],
-                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-                                  bufsize=1, preexec_fn=limit)
+        self.used = 0
+
+    def _start(self):
+        args = [self.solver["binary"], "-in", "-smt2", "parallel.enable=false"]
+        if self.memory_mb:
+            args.append(f"memory_max_size={int(self.memory_mb)}")
+        self.p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                  text=True, bufsize=1)
+
+    def _timed(self, fn):
+        import threading
+        fired = []
         timer = None
-        if guard_s:
+        if self.watchdog_s:
             def fire(proc=self.p):
-                self.guard = f"wall-clock guard {int(guard_s)} s"
+                fired.append(1)
                 proc.kill()
-            timer = threading.Timer(guard_s, fire)
+            timer = threading.Timer(float(self.watchdog_s), fire)
             timer.start()
         try:
-            return self._check(text)
-        except (BrokenPipeError, OSError):
-            return "unknown"
+            out = fn()
+        except (BrokenPipeError, OSError, RuntimeError):
+            if fired:
+                raise WatchdogAbort(f"the crash watchdog ({int(self.watchdog_s)} s) fired: no verdict") from None
+            raise
         finally:
             if timer is not None:
                 timer.cancel()
+        if fired:
+            raise WatchdogAbort(f"the crash watchdog ({int(self.watchdog_s)} s) fired: no verdict")
+        return out
+
+    def count(self) -> int:
+        """z3's cumulative resource count of this session."""
+        self.p.stdin.write("(get-info :rlimit)\n(echo \"@@done\")\n")
+        self.p.stdin.flush()
+        buf = []
+        while True:
+            line = self.p.stdout.readline()
+            if not line or line.strip() == "@@done":
+                break
+            buf.append(line.strip())
+        m = re.search(r":rlimit\s+(\d+)", " ".join(buf))
+        if not m:
+            raise RuntimeError(f"z3 get-info :rlimit: {' '.join(buf)[:200]}")
+        return int(m.group(1))
+
+    def check(self, text: str) -> str:
+        """sat | unsat | unknown for the query text (its header sets :rlimit, the whole budget, for this first
+        check-sat)."""
+        self.guard = None
+        self._start()
+        return self._timed(lambda: self._account(self._check(text)))
+
+    def more(self, text: str) -> str:
+        """Further declarations and assertions on the open query, then (check-sat) again (incremental), with only the
+        remainder of the query's rlimit."""
+        if self.guard is not None:
+            return "unknown"
+        rest = self.rlimit - self.used
+        if rest <= 0:
+            self.guard = f"rlimit {self.rlimit} spent (cumulative over the query's check-sats)"
+            return "unknown"
+        return self._timed(lambda: self._account(self._check(f"(set-option :rlimit {rest})\n" + text +
+                                                             "(check-sat)\n")))
+
+    def _account(self, res: str) -> str:
+        if self.p is None or self.p.poll() is not None:
+            return res
+        self.used = self.count()
+        if res == "unknown" and self.guard is None and self.used >= self.rlimit:
+            self.guard = f"rlimit {self.rlimit} spent (cumulative over the query's check-sats)"
+        return res
 
     def send(self, text: str) -> None:
         """Declarations or definitions on the open query (no check)."""
@@ -132,25 +207,6 @@ class Session:
                 break
             if line.startswith("(error"):
                 raise RuntimeError(f"z3: {line.strip()[:300]}")
-
-    def more(self, text: str) -> str:
-        """Further declarations and assertions on the open query, then (check-sat) again (incremental), under the
-        same wall-clock guard as the first check."""
-        import threading
-        timer = None
-        if getattr(self, "guard_s", None):
-            def fire(proc=self.p, g=self.guard_s):
-                self.guard = f"wall-clock guard {int(g)} s"
-                proc.kill()
-            timer = threading.Timer(self.guard_s, fire)
-            timer.start()
-        try:
-            return self._check(text + "(check-sat)\n")
-        except (BrokenPipeError, OSError):
-            return "unknown"
-        finally:
-            if timer is not None:
-                timer.cancel()
 
     def _check(self, text: str) -> str:
         self.p.stdin.write(text)
@@ -166,11 +222,15 @@ class Session:
             lines.append(line.strip())
         res = [x for x in lines if x in ("sat", "unsat", "unknown")]
         errs = [x for x in lines if x.startswith("(error")]
-        if not res and self.p.poll() is not None and self.guard is None:
-            self.guard = f"the solver process ended (exit {self.p.returncode}; memory guard or crash)"
         if errs and "out of memory" in errs[0]:
-            self.guard = "memory guard (the solver ran out of the address space it was given)"
+            self.guard = (f"memory_max_size {self.memory_mb} MB (z3's own allocation count, registered in "
+                          f"config/holon.json z3)")
+            self.close()
             return "unknown"
+        if not res and self.p.poll() is not None and self.guard is None:
+            rc = self.p.returncode
+            self.close()
+            raise SolverCrash(f"z3 ended without an answer (exit {rc}): a crash is never a verdict")
         if errs:
             self.close()
             raise RuntimeError(f"z3: {errs[0][:400]}")

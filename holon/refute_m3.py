@@ -173,37 +173,78 @@ def qfile(qid: str) -> str:
     return hashlib.sha256(qid.encode()).hexdigest()[:16]
 
 
-def run_question(root: Path, side: dict, env: dict, q: dict, log=print) -> dict:
+def run_question(root: Path, side: dict, env: dict, q: dict, log=print, out_root: Path | None = None) -> dict:
+    """One BMC question; its query files go under out_root (the repository root, or a scratch root for --check), named
+    relative to it, so a recomputation names them exactly as the committed result does."""
+    out_root = Path(out_root or root)
     p, _info = problem(root, side, env)
     name = qfile(q["id"])
-    r = BMC.search(p, q["target"], side["solver"], root / GENR / "smt" / "bmc", name, log=log)
-    r["queries"] = [str(Path(x).resolve().relative_to(root.resolve())) for x in r["queries"]]
+    r = BMC.search(p, q["target"], side["solver"], out_root / GENR / "smt" / "bmc", name, log=log)
+    r["queries"] = [str(Path(x).resolve().relative_to(out_root.resolve())) for x in r["queries"]]
     r["id"] = q["id"]
     r["target"] = q["target"]
     return r
 
 
-def bmc_stage(root: Path, side: dict, env: dict, only_ids: list | None = None, jobs: int = 1, log=print) -> None:
-    """Run (or resume) every BMC question: each result cached as gen/M3/refute/bmc/<question>.json."""
+def bmc_stage(root: Path, side: dict, env: dict, only_ids: list | None = None, jobs: int = 1, log=print,
+              out_root: Path | None = None, redo: bool = False) -> dict:
+    """Run (or resume) every BMC question: each result cached as <out_root>/gen/M3/refute/bmc/<question>.json. A
+    question the crash watchdog aborts, or whose solver crashes, gets no file (no verdict; it stays not run). redo:
+    run the questions that already have a file too. Returns {question id: result or None}."""
     from concurrent.futures import ThreadPoolExecutor
-    out = root / GENR / "bmc"
+    from .smt.run import SolverCrash, WatchdogAbort
+    out_root = Path(out_root or root)
+    out = out_root / GENR / "bmc"
     out.mkdir(parents=True, exist_ok=True)
     qs = [q for q in questions(root, side, env) if not only_ids or q["id"] in only_ids]
     if only_ids:
         qs.sort(key=lambda q: only_ids.index(q["id"]))
-    todo = [q for q in qs if not (out / f"{qfile(q['id'])}.json").is_file()]
+    todo = [q for q in qs if redo or not (out / f"{qfile(q['id'])}.json").is_file()]
 
     def one(q):
         try:
-            r = run_question(root, side, env, q, log=log)
+            r = run_question(root, side, env, q, log=log, out_root=out_root)
+        except (WatchdogAbort, SolverCrash) as x:
+            log(f"{q['id']}: no verdict ({x}); nothing recorded")
+            return q["id"], None
         except Exception as x:  # noqa: BLE001  (an encoder failure is an unknown with its reason, never a verdict)
             r = {"id": q["id"], "target": q["target"], "verdict": "unknown", "length": None, "path": None,
                  "largest_k": 0, "queries": [], "approx": [], "reason": f"encoder error: {type(x).__name__}: {x}"}
         (out / f"{qfile(q['id'])}.json").write_text(dumps(r), encoding="utf-8")
         log(f"{q['id']}: {r['verdict']} (largest_k {r['largest_k']})")
-        return r
+        return q["id"], r
     with ThreadPoolExecutor(max_workers=max(1, jobs)) as ex:
-        list(ex.map(one, todo))
+        return dict(ex.map(one, todo))
+
+
+def bmc_check(root: Path, side: dict, env: dict, only_ids: list | None = None, jobs: int = 1, log=print) -> list:
+    """--check for BMC: every question decided again from scratch in a scratch root; each result file and each query
+    file it names must be byte-identical to the committed one, and every question must have a committed result.
+    Returns the differences."""
+    import tempfile
+    import shutil
+    diff = []
+    tmp = Path(tempfile.mkdtemp(prefix="holon-refute-check-"))
+    try:
+        got = bmc_stage(root, side, env, only_ids, jobs, log, out_root=tmp, redo=True)
+        for qid, r in sorted(got.items()):
+            name = f"{qfile(qid)}.json"
+            a, b = root / GENR / "bmc" / name, tmp / GENR / "bmc" / name
+            if not a.is_file():
+                diff.append(f"bmc/{name} ({qid}): no committed result")
+                continue
+            if r is None or not b.is_file():
+                diff.append(f"bmc/{name} ({qid}): no verdict on recomputation")
+                continue
+            if a.read_bytes() != b.read_bytes():
+                diff.append(f"bmc/{name} ({qid}): result differs")
+                continue
+            for qf in r.get("queries") or []:
+                if not (root / qf).is_file() or (root / qf).read_bytes() != (tmp / qf).read_bytes():
+                    diff.append(f"{qf}: query file differs")
+        return diff
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 def cached(root: Path, qid: str) -> dict | None:
@@ -619,14 +660,13 @@ def main(a, root: Path) -> int:
                 sess.close()
         files["layouts.json"] = {"document": "layouts", "source": "spec/M2/facts/morph_header.extracted.json",
                                  "functions": res}
+    ids = [x for x in (getattr(a, "questions", None) or "").split("|") if x] or None
+    jobs = int(getattr(a, "jobs", None) or 1)
+    diff = []
     if "bmc" in stages and not a.check:
-        import os
-        ids = [x for x in (os.environ.get("HOLON_REFUTE_QUESTIONS") or "").split("|") if x]
-        if os.environ.get("HOLON_REFUTE_GUARD_S"):
-            BMC.GUARD_S = float(os.environ["HOLON_REFUTE_GUARD_S"])
-        if os.environ.get("HOLON_REFUTE_MEMORY_MB"):
-            BMC.MEMORY_MB = int(os.environ["HOLON_REFUTE_MEMORY_MB"])
-        bmc_stage(root, side, env, ids or None, jobs=int(os.environ.get("HOLON_REFUTE_JOBS") or 1))
+        bmc_stage(root, side, env, ids, jobs=jobs)
+    if "bmc" in stages and a.check:
+        diff += bmc_check(root, side, env, ids, jobs=jobs)
     if "smt" in stages:
         if not a.check:
             import shutil
@@ -650,10 +690,14 @@ def main(a, root: Path) -> int:
         if not a.check:
             import shutil
             shutil.rmtree(root / TESTS, ignore_errors=True)
-    if "replay" in stages and not a.check:
-        rep = replay_stage(root, side, env)
-        (root / REPLAY).parent.mkdir(parents=True, exist_ok=True)
-        (root / REPLAY).write_text(dumps(rep), encoding="utf-8")
+    if "replay" in stages:
+        rep = dumps(replay_stage(root, side, env))
+        if a.check:
+            if not (root / REPLAY).is_file() or (root / REPLAY).read_text(encoding="utf-8") != rep:
+                diff.append(str(REPLAY))
+        else:
+            (root / REPLAY).parent.mkdir(parents=True, exist_ok=True)
+            (root / REPLAY).write_text(rep, encoding="utf-8")
     if "bmc" in stages:
         files["reaches.json"] = reach_docs(root, side)
         files["i21.json"] = i21_doc(root, side)
@@ -670,7 +714,6 @@ def main(a, root: Path) -> int:
         docs = concretize(root, side, env, write=not a.check)
         files["concretization.json"] = docs["concretization"]
         files["filter.json"] = docs["filter"]
-    diff = []
     for rp, text in sorted(texts.items()):
         p = root / rp
         if a.check:

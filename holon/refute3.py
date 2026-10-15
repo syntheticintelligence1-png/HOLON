@@ -2,9 +2,11 @@
 milestone's laws, the witnesses' concretization, emitted tests, their replay and the final filter.
 
   python -m holon refute --milestone M [--root DIR] [--sidecar PATH] [--only STAGE,..] [--check] [--results DIR]
-                         [--gen-dir DIR] [--laws ID,..]
+                         [--gen-dir DIR] [--laws ID,..] [--jobs N] [--questions ID|ID..]
 
-Stages, in order: layouts, smt, fuzz, bmc, emit, replay, filter. A test milestone (T<n>) needs --sidecar (its I40
+--check recomputes every stage it runs and compares bytes with the committed files: BMC decides every question again
+from scratch in a scratch root (each result and query file must match, every question must have a committed result),
+and the replay runs again on the real contract. Stages, in order: layouts, smt, fuzz, bmc, emit, replay, filter. A test milestone (T<n>) needs --sidecar (its I40
 sidecar, whose "base" is the milestone sidecar spec/M3/lib/refute.json) and runs BMC on the laws holon run left
 undecided in --results (and on those --laws names: a control query, whose PROVED record is never rewritten); a law BMC
 refutes gets its counter-law (I30's generator, checked by Bend and BendTT) and its record as I30's pipeline writes a
@@ -337,6 +339,8 @@ def main(argv: list) -> int:
     ap.add_argument("--results")
     ap.add_argument("--gen-dir")
     ap.add_argument("--laws")
+    ap.add_argument("--jobs", type=int, default=1, help="BMC questions run in parallel (the results do not depend on it)")
+    ap.add_argument("--questions", help="BMC question ids separated by |: run (or --check) only these")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else ROOT
     try:

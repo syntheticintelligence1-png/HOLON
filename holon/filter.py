@@ -76,30 +76,31 @@ FINAL_BINS = ("finding", "model_defect", "known_limitation", "pending")
 
 
 def final_bin(ss: dict[str, dict], conc: dict) -> str:
-    """The final filter F1-F4 (I40; whitepaper §9.6) over a record's sides and its concretization {"kind", "result"}:
+    """The final bin of a REFUTED record (I40; whitepaper §9.6), written from the contract's F1-F4 in order:
 
-      F1 model_defect      some side failed;
-      F2 known_limitation  the kind is bmc and BMC showed no public path within its bound (result no_path);
-      F3 finding           the kind is not go_only, the concretization has a path, some public_schedule side passed and
-                           observed the obstruction, every side that is not internal_harness or emulated_storage passed
-                           and observed it, and a blocking side is present only for kind bmc (a public path supersedes
-                           the construction);
-      F4 pending           anything else.
+      F1 model_defect     a side failed;
+      F2 known_limitation the concretization is a BMC question whose answer is no_path (no public path within H);
+      F3 finding          the concretization is not go_only and has a path; a public_schedule side passed and observed
+                          the obstruction; every side that is neither internal_harness nor emulated_storage passed and
+                          observed it; and an internal_harness or emulated_storage side appears only when the
+                          concretization is a BMC path (a public path supersedes the construction);
+      F4 pending          anything else.
 
-    bin_of above stays I4's provisional rule."""
-    vals = [s for s in (ss or {}).values() if isinstance(s, dict)]
-    if any(s.get("status") == "failed" for s in vals):
+    ss: side name -> {"status", "provenance", "obstruction_observed"}; conc: {"kind", "result", ...}."""
+    side_list = [v if isinstance(v, dict) else {} for v in (ss or {}).values()]
+    kind = (conc or {}).get("kind")
+    result = (conc or {}).get("result")
+
+    def held(side: dict) -> bool:   # passed, and the obstruction the law claims was observed
+        return side.get("status") == "passed" and side.get("obstruction_observed") is True
+
+    if any(side.get("status") == "failed" for side in side_list):                        # F1
         return "model_defect"
-    kind, result = (conc or {}).get("kind"), (conc or {}).get("result")
-    if kind == "bmc" and result == "no_path":
+    if kind == "bmc" and result == "no_path":                                             # F2
         return "known_limitation"
-
-    def good(s):
-        return s.get("status") == "passed" and s.get("obstruction_observed") is True
-    public = [s for s in vals if s.get("provenance") == "public_schedule"]
-    nonblocking = [s for s in vals if s.get("provenance") not in BLOCKING]
-    blocking = [s for s in vals if s.get("provenance") in BLOCKING]
-    if (kind != "go_only" and result == "path" and any(good(s) for s in public) and all(good(s) for s in nonblocking)
-            and (not blocking or kind == "bmc")):
-        return "finding"
-    return "pending"
+    public_held = any(side.get("provenance") == "public_schedule" and held(side) for side in side_list)
+    others_held = all(held(side) for side in side_list if side.get("provenance") not in BLOCKING)
+    construction = any(side.get("provenance") in BLOCKING for side in side_list)
+    if kind != "go_only" and result == "path" and public_held and others_held and (not construction or kind == "bmc"):
+        return "finding"                                                                  # F3
+    return "pending"                                                                      # F4

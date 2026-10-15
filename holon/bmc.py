@@ -1979,10 +1979,6 @@ def write_query(f, text: str):
     return gz
 
 
-GUARD_S = None          # the build's wall-clock watchdog per query (None: none); a fired guard is an unknown
-MEMORY_MB = None
-
-
 def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", log=None, ks=None) -> dict:
     """Iterative deepening, k = 1..H. At each k the actions before the last step widen through the cone's levels
     (level 0: the writers of what the target reads; each further level the writers of what the previous level's guards
@@ -1990,7 +1986,9 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
     k. Every k unsat gives no_path; a query that ends unknown (the rlimit) stops the search: unknown, with the largest
     k decided."""
     from pathlib import Path
-    from .smt.run import Session
+    from .smt.run import Session, registered_limits
+    lim = registered_limits()
+    e1_max, hash_max = int(lim["e1_rounds_max"]), int(lim["hash_rounds_max"])
     largest = 0
     queries = []
     approx = set()
@@ -2006,12 +2004,12 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
                 f = Path(qdir) / f"{name}.k{k}{tag}.smt2"
                 f.parent.mkdir(parents=True, exist_ok=True)
                 queries.append(str(f))
-            sess = Session(solver)
+            sess = Session(solver, rlimit=p.rlimit)
             try:
-                res = sess.check(text, GUARD_S, MEMORY_MB)
+                res = sess.check(text)
                 u.sent_defs = len(u.q.defs)
                 rounds = 0
-                while res == "sat" and rounds < 64:
+                while res == "sat" and rounds < e1_max:
                     viol = u.violations(sess)
                     if not viol:
                         break
@@ -2023,16 +2021,16 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
                     res = sess.more("".join(f"(define-fun {n} () {srt} {e})\n" for n, srt, e in u.q.defs[nd:]) +
                                     "".join(f"(assert {x})\n" for x in u.q.asserts[na:]))
                     u.sent_defs = len(u.q.defs)
-                if res == "sat" and rounds >= 64:
+                if res == "sat" and rounds >= e1_max:
                     res = "unknown"
-                    sess.guard = "E1 instantiation did not converge in 64 rounds"
+                    sess.guard = f"E1 instantiation did not converge in {e1_max} rounds (registered cap)"
                 hrounds = 0
                 if res == "sat" and target.get("observe"):
                     na = len(u.q.asserts)
                     for a in u.pin_inputs(sess):
                         u.q.add(a)
                     res = sess.more("".join(f"(assert {x})\n" for x in u.q.asserts[na:]))
-                while res == "sat" and target.get("observe") and hrounds < 32:
+                while res == "sat" and target.get("observe") and hrounds < hash_max:
                     # the observed contents must hash for real: concretize the hash words (and re-close E1)
                     na = len(u.q.asserts)
                     for a in u.real_hashes(sess):
@@ -2047,13 +2045,17 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
                     res = sess.more("".join(f"(define-fun {n} () {srt} {e})\n" for n, srt, e in u.q.defs[nd:]) +
                                     "".join(f"(assert {x})\n" for x in u.q.asserts[na:]))
                     u.sent_defs = len(u.q.defs)
-                if res == "sat" and hrounds >= 32:
+                if res == "sat" and hrounds >= hash_max:
                     res = "unknown"
-                    sess.guard = "hash concretization did not converge in 32 rounds"
+                    sess.guard = f"hash concretization did not converge in {hash_max} rounds (registered cap)"
                 if hrounds and res == "unsat":
                     res = "unknown"
                     sess.guard = "no model with real hash values for the contents tried (hash concretization)"
                 u.q.inst["cf_asserted"] = u.q.inst.get("cf", 0) - len(u.q.pending)
+                if u.q.inst.get("cf"):
+                    # lazy E1: cf counts the premise's instances the answer covers; cf_asserted are written in this
+                    # file; every other instance holds in the final model (sat) or was not needed (unsat)
+                    u.q.extra["e1"] = "lazy"
                 text = u.q.text()
                 if qdir is not None:
                     queries[-1] = str(write_query(Path(qdir, f"{name}.k{k}{tag}.smt2"), text))
