@@ -75,7 +75,7 @@ def _run(mode: str, paths: list[Path]) -> list[dict]:
         p = subprocess.run([str(exe), mode, *chunk], capture_output=True, timeout=1800)
         if p.returncode != 0:
             raise RuntimeError(f"goscan {mode}: {p.stderr.decode(errors='replace').strip()[:800]}")
-        out += [json.loads(line) for line in p.stdout.decode("utf-8").splitlines() if line]
+        out += [json.loads(line) for line in p.stdout.decode("utf-8").split("\n") if line]   # one object a line
     if len(out) != len(paths):
         raise RuntimeError(f"goscan {mode}: {len(out)} results for {len(paths)} files")
     return out
