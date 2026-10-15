@@ -521,6 +521,7 @@ def catalog_rederivation_entries(milestone: str, root: Path) -> tuple[list[dict]
 
 
 # ---------------------------------------------------------------- binding changes (F31)
+EQV_DEADLINE: float | None = None   # F33: a time.monotonic() deadline for the equivalence searches (rebind --deadline)
 BINDING_KEYS = ("statement_hash", "statement_sha256", "counter_sha256", "model")   # fixed by a binding_change
 
 
@@ -622,7 +623,7 @@ def _binding_change(entry: dict, old: dict, new: dict, root: Path) -> dict:
                                f"{ob['model']} at {commit_b[:12]} is not the bound model" if tag == "old" else
                                f"the {tag} model's kernel forms are not the {tag} binding's ({', '.join(bad[:5])})")
     eqv = EQ.prove(old_text, new_text, B.statement_text(law, m, root), eo=eo, en=en,
-                   cache=EQ.default_cache(old_text, new_text))
+                   cache=EQ.default_cache(old_text, new_text), deadline=EQV_DEADLINE)
     eqv["bound_commit"] = commit_b
     eqv["models"] = {"old": _sha(old_bytes), "new": _sha(new_text.encode("utf-8")), "path": nb["model"]}
     if bridge is not None:
@@ -853,21 +854,6 @@ def scan(path: Path, root: Path, kinds=None) -> dict:
             else:
                 item["ok"] = True
             continue
-        if (hist is None and isinstance(e, dict) and e.get("kind") == "binding_change" and isinstance(acc, dict)
-                and isinstance(acc.get("equivalence"), dict) and not e.get("signature")):
-            # F33: off git (a copied tree) the bound commit cannot be read; the committed proof artifacts are re-checked
-            # in both kernels and tied to the new model on the tree (the old side's tie needs the history)
-            eqv = acc["equivalence"]
-            mp = (eqv.get("models") or {}).get("path")
-            new_b = (root / mp).read_bytes() if isinstance(mp, str) and (root / mp).is_file() else None
-            why = ("its acceptance record names no new model on the tree" if new_b is None or
-                   _sha(new_b) != (eqv.get("models") or {}).get("new") else
-                   recheck_artifacts(e, eqv, root, old_cone=None, new_model=new_b))
-            if why:
-                out["problems"].append(f"line {n}: {_line_tag(e)}: {why}")
-            else:
-                item["ok"] = True
-            continue
         r = check_entry(e, root)
         if not r["ok"]:
             out["problems"].append(f"line {n}: {_line_tag(e)}: {r['reason']}")
@@ -938,7 +924,15 @@ def _verify_equivalence(e: dict, eqv, commit: str, root: Path) -> str | None:
         if not (isinstance(x, dict) and x.get("kind") == "catalog_rederivation" and x.get("law_id") == lid
                 and x.get("old_hash") == br.get("old") and x.get("new_hash") == br.get("new")):
             return f"line {n} of {LOG} at {commit[:7]} is not the catalog_rederivation its statement hash moved with"
-    return recheck_artifacts(e, eqv, root, old_cone=(ob or {}).get("cone"), new_model=new)
+    law = _json_or_none(blob_at(root, commit, f"laws/{m}/{lid}.json") or b"")
+    try:   # the law's statement as it was when the line was appended, emitted as bind_law emits it
+        from . import bindings as B
+        stmt = B.statement_text(law, str(m), root) if _is_law(law) else None
+    except Exception:  # noqa: BLE001  (a statement that cannot be emitted ties nothing)
+        stmt = None
+    if stmt is None:
+        return f"laws/{m}/{lid}.json at {commit[:7]} gives no statement to tie its equivalence to"
+    return recheck_artifacts(e, eqv, root, old, new, stmt, old_cone=(ob or {}).get("cone"))
 
 
 # ---------------------------------------------------------------- binding_change proof artifacts (F33)
@@ -961,28 +955,25 @@ def write_artifacts(e: dict, acc_eqv: dict, result: dict, root: Path) -> None:
         (d / (name + ".gz")).write_bytes(gzip.compress(text.encode("utf-8"), compresslevel=9, mtime=0))
 
 
-def expected_laws(roots: dict) -> list[str]:
-    """The root laws an equivalence's LAWS.bend states, from its acceptance record's root classes."""
-    out = []
-    for r, cls in sorted((roots or {}).items()):
-        if cls == "unchanged":
-            continue
-        out += [f"to_{r}", f"from_{r}"] if cls == "family" else [f"eq_{r}"]
-    return sorted(out)
-
-
-def recheck_artifacts(e: dict, eqv: dict, root: Path, old_cone: dict | None, new_model: bytes | None) -> str | None:
+def recheck_artifacts(e: dict, eqv: dict, root: Path, old_model: bytes | None, new_model: bytes | None,
+                      statement: str | None, old_cone: dict | None = None) -> str | None:
     """G2 on an accepted binding_change, never a re-search (F33): its committed proof artifacts are the files its
-    acceptance record hashes (pair module, laws, proof), the laws are exactly the root laws the record names, no file
-    holds an escape hatch, the pair module is the new model verbatim plus the old side (linkage: its BendTT entries are
-    the new model's, and, prefix removed, hash to the old binding's cone when the bound commit can be read), and bend2
-    and BendTT (--verdict) accept PROOF.bend again. None when all of it holds, else the problem."""
+    acceptance record hashes, and every claim in them is regenerated rather than read from the record (which the
+    appending agent wrote):
+      * the pair module is holon.gen.equivalence.pair_module of the old model (at the bound commit), the new model (at
+        the appending commit) and the law's statement, byte for byte (so its roots come from the statement, and its
+        old side is the old model; when the old binding's cone is given, it hashes to it too);
+      * LAWS.bend is holon.gen.equivalence.root_laws_text of that pair module, byte for byte (eq_<r> / to_<r>,
+        from_<r> for every changed root), and states at least one law;
+      * no file holds an escape hatch;
+      * bend2 accepts PROOF.bend again, and BendTT (--verdict) too whenever it is enabled or the record names it.
+    The two models and the statement are required (a copied tree without the history cannot give them). None when all
+    of it holds, else the problem."""
     import gzip
     import shutil
     import tempfile
     from . import bend
     from .gen import equivalence as EQ
-    from .pipeline import law_names
     root = Path(root)
     d = root / artifact_dir(e, eqv)
     texts = {}
@@ -997,45 +988,51 @@ def recheck_artifacts(e: dict, eqv: dict, root: Path, old_cone: dict | None, new
     for name, key in zip(ARTIFACTS, ("pair_sha256", "laws_sha256", "proof_sha256")):
         if _sha(texts[name]) != eqv.get(key):
             return f"its proof artifact {name} is not the file its acceptance record hashes ({key})"
-    memo = (eqv.get("pair_sha256"), eqv.get("proof_sha256"), _sha(json.dumps(old_cone, sort_keys=True)),
-            _sha(new_model or b""))
+    if old_model is None or new_model is None or not isinstance(statement, str):
+        return ("its proof artifacts cannot be tied to the two models and the statement here (G2 needs the old model at "
+                "the bound commit, the new model and the law's statement: the git history)")
+    memo = (eqv.get("pair_sha256"), eqv.get("laws_sha256"), eqv.get("proof_sha256"), _sha(old_model),
+            _sha(new_model), _sha(statement), _sha(json.dumps(old_cone, sort_keys=True)))
     if memo in _RECHECKED:
         return _RECHECKED[memo]
     why = None
-    if sorted(law_names(texts["LAWS.bend"])) != expected_laws(eqv.get("roots")):
-        why = f"its LAWS.bend states {sorted(law_names(texts['LAWS.bend']))}, not the root laws {expected_laws(eqv.get('roots'))}"
-    elif bend.escape_hatches(texts["pair.bend"] + texts["LAWS.bend"] + texts["PROOF.bend"]):
+    if bend.escape_hatches(texts["pair.bend"] + texts["LAWS.bend"] + texts["PROOF.bend"]):
         why = "its proof artifacts hold an escape hatch"
     if why is None:
         try:
-            ep = EQ.kernel_entries_of(texts["pair.bend"], None, "pair module (artifact)")
-            en = EQ.kernel_entries_of(new_model.decode("utf-8"), None, "new model") if new_model is not None else None
-        except Exception as ex:  # noqa: BLE001
-            ep, why = None, f"its pair module does not translate to BendTT: {ex}"
-        if why is None and en is not None:
-            bad = sorted(n for n, t in en.items() if ep.get(n) != t)
-            if bad:
-                why = f"its pair module is not the new model verbatim ({', '.join(bad[:5])})"
+            eo = EQ.kernel_entries_of(old_model.decode("utf-8"), None, "old model")
+            en = EQ.kernel_entries_of(new_model.decode("utf-8"), None, "new model")
+            pm = EQ.pair_module(old_model.decode("utf-8"), new_model.decode("utf-8"), statement, None, eo, en)
+        except Exception as ex:  # noqa: BLE001  (no pair module, nothing proved)
+            pm, why = None, f"the pair module of its two models and statement cannot be built: {ex}"
+        if why is None and pm.text != texts["pair.bend"]:
+            why = "its pair module is not the pair module of the old model, the new model and the law's statement"
+        if why is None:
+            try:
+                laws_text, names = EQ.root_laws_text(pm)
+            except EQ.Unsupported as ex:
+                laws_text, names, why = None, [], f"its root laws cannot be regenerated: {ex}"
+            if why is None and not names:
+                why = "its statement's roots are all unchanged: an equivalence with no law proves nothing"
+            elif why is None and laws_text != texts["LAWS.bend"]:
+                why = (f"its LAWS.bend is not the root laws regenerated from the statement and the pair module "
+                       f"({', '.join(names)})")
         if why is None and old_cone is not None:
-            bad = []
-            for n, h in sorted(old_cone.items()):
-                got = ep.get(EQ.PREFIX + n, ep.get(n))
-                if got is None or _sha(EQ.strip_prefix(got)) != h:
-                    bad.append(n)
+            bad = sorted(n for n, h in old_cone.items() if n not in eo or _sha(eo[n]) != h)
             if bad:
-                why = f"its pair module's old side is not the old binding's cone ({', '.join(bad[:5])})"
+                why = f"its old model is not the old binding's cone ({', '.join(bad[:5])})"
     if why is None:
         tmp = Path(tempfile.mkdtemp(prefix="holon-eqv-g2-"))
         try:
             for name in ARTIFACTS:
                 (tmp / name).write_text(texts[name])
             r = bend.check(tmp / "PROOF.bend")
-            v = bend.check_verdict(tmp / "PROOF.bend") if r.ok else None
-            kern = eqv.get("kernels") or []
+            need_tt = bend.verdict_enabled() or "BendTT" in (eqv.get("kernels") or [])
+            v = bend.check_verdict(tmp / "PROOF.bend") if (r.ok and need_tt) else None
             if not r.ok:
                 why = f"bend2 no longer accepts its PROOF.bend: {EQ.kernel_message(r.out, 6)}"
-            elif "BendTT" in kern and not (v is not None and v.ok):
-                why = f"BendTT no longer accepts its PROOF.bend: {EQ.kernel_message(v.out, 6)}"
+            elif need_tt and not (v is not None and v.ok):
+                why = f"BendTT does not accept its PROOF.bend: {EQ.kernel_message(v.out if v else '', 6)}"
             _RECHECKED.setdefault("seconds", []).append((e.get("law_id"), r.seconds, v.seconds if v else None))
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
@@ -1247,10 +1244,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--root", default=str(ir.ROOT))
     ap.add_argument("--milestone", default="M2", help="reextract, recatalog: the milestone whose laws are re-derived")
     ap.add_argument("--append", action="store_true", help="reextract, recatalog, rebind: append every accepted entry")
-    ap.add_argument("--report", help="rebind: write every entry's equivalence result (JSON) to this file")
+    ap.add_argument("--report", help="rebind: write every entry's equivalence result (JSON) to this file, rewritten "
+                                     "after each entry")
+    ap.add_argument("--deadline", type=float, help="rebind: a time box in seconds for the whole run; when it fires, the "
+                                                   "lemma search stops and the entry is UNKNOWN (search_stop: time box), "
+                                                   "with its stats in the report")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve()
     if a.command == "rebind":   # F31: the binding_change entries of laws whose cone changed under a fixed statement
+        global EQV_DEADLINE
+        if a.deadline is not None:
+            import time
+            EQV_DEADLINE = time.monotonic() + a.deadline
         es, notes = binding_change_entries(a.milestone, root)
         bad, report = 0, {}
         for e in es:
@@ -1260,6 +1265,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{e['law_id']}: {'accepted' if r['ok'] else 'REJECTED'}{' and appended' if r['ok'] and a.append else ''}"
                   f": {r['reason']}")
             bad += not r["ok"]
+            if a.report:   # incrementally: a killed run keeps the entries it finished
+                Path(a.report).write_text(json.dumps(report, indent=1, sort_keys=True) + "\n")
         for n in notes:
             print(f"no binding_change entry: {n}")
         if a.report:

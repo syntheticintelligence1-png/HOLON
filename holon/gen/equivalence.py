@@ -1209,6 +1209,35 @@ def _lemma_file(proven: dict, trying: dict, libs=()) -> str:
     return "\n".join(parts)
 
 
+def root_laws_text(pm: "PairModule") -> tuple[str, list[str]]:
+    """(LAWS.bend text, law names) of a PROVED equivalence on pair module pm, regenerated from pm alone (F33: G2
+    compares it byte for byte with a committed LAWS.bend): eq_<r> for a changed definition root, to_<r> and from_<r>
+    for a changed datatype root, nothing for an unchanged root, in pm.roots order, as prove writes them. Raises
+    Unsupported for a root no PROVED equivalence states a law for."""
+    gen = Gen(pm)
+    src = lambda d: _source_name(d, pm.old_items)
+    changed = sorted({src(d) for d in pm.dirty_entries
+                      if pm.old_items[src(d)].kind == "def" and src(d) in pm.new_items
+                      and pm.new_items[src(d)].kind == "def"})
+    lemmas = {g: LEMMA + g for g in changed}
+    laws, names = [], []
+    for r in pm.roots:
+        if r not in pm.dirty_entries:
+            continue
+        if r in pm.new_items and pm.new_items[r].kind == "def" and r in changed:
+            laws.append(gen.law_text(r, f"eq_{r}"))
+            names.append(f"eq_{r}")
+        elif r in pm.new_items and pm.new_items[r].kind == "type":
+            fam = gen.family(r, lemmas)
+            if fam is None:
+                raise Unsupported(f"the family root {r} has no transport law")
+            laws.append(fam[0])
+            names += [f"to_{r}", f"from_{r}"]
+        else:
+            raise Unsupported(f"the changed root {r} is not a definition or a datatype of both models")
+    return f"import Base\nimport ./pair.bend as {ALIAS}\n\n" + "\n".join(laws), names
+
+
 def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = None, workdir: Path | None = None,
           verdict: bool | None = None, counter_tries: int = 300, eo: dict | None = None, en: dict | None = None,
           cache=None, workers: int | None = None, batch: int | None = None, deadline: float | None = None) -> dict:
@@ -1298,10 +1327,9 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                 else:
                     out["lemmas"][f] = {"status": "BLOCKED", "class": None, "attempts": search.attempts[f],
                                         "blocked_by": [g for g in deps[f] if g not in proven]}
-            if stop and stop != "time box":
-                out["reason"] = stop
-                return out
-            if stop:
+            if stop:   # the time box, or a stop of the search (repeated bend timeouts, a failure outside the lemmas):
+                # no verdict on what it did not reach; the roots are still decided below (UNKNOWN unless proven by the
+                # final check) and the counter search still runs (AGENTS rule 6: UNKNOWN, with what was tried)
                 out["search_stop"] = stop
             out["roots"] = []
             # ---- root obligations
@@ -1429,7 +1457,8 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
         st = [i["status"] for i in out["roots"]]
         out["status"] = ("REFUTED" if "REFUTED" in st else "PROVED" if all(s == "PROVED" for s in st) else
                          "UNSUPPORTED" if "UNSUPPORTED" in st else "UNKNOWN")
-        out["reason"] = _summary(out)
+        out["reason"] = _summary(out) + (f"; the lemma search stopped: {out['search_stop']}" if out.get("search_stop")
+                                         else "")
         return out
     finally:
         out["seconds"] = round(time.monotonic() - t0, 3)

@@ -15,7 +15,13 @@ Contract:
                  catalog_rederivation mapping exactly those two hashes; it then covers the rebinding of the hash and
                  the cone together, and nothing else.
   artifacts      G2 re-checks a committed binding_change from its proof artifacts (the files its acceptance record
-                 hashes) in both kernels, and refuses a missing or altered artifact without running any search.
+                 hashes) in both kernels, and refuses a missing or altered artifact without running any search; the
+                 pair module and LAWS.bend are regenerated from the two models and the statement and compared byte
+                 for byte (a vacuous or empty LAWS.bend is refused).
+  crashes        (F33 review) a bend2 crash is never a verdict: it never moves a definition to its next class and
+                 never reaches the cache, so cold and warm runs give the same bytes; a lemma that crashes in every
+                 larger file ends the search (UNKNOWN) instead of looping; a slice miss is never a candidate failure;
+                 a search stop is UNKNOWN with the roots decided.
 """
 from __future__ import annotations
 
@@ -23,6 +29,7 @@ import gzip
 import json
 import shutil
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -166,26 +173,173 @@ class TestArtifacts(unittest.TestCase):
     def test_g2_recheck_refuses_missing_or_altered_artifacts(self):
         r = run(workers=1, batch=1)
         self.assertEqual(r["status"], "PROVED", r["reason"])
+        self.assertEqual(E.root_laws_text(E.pair_module(OLD, NEW, STATEMENT))[0], r["laws"],
+                         "LAWS.bend regenerates from the pair module alone")
+        old_b, new_b = OLD.encode(), NEW.encode()
         tmp = Path(tempfile.mkdtemp(prefix="holon-f33-"))
         try:
             e = {"kind": "binding_change", "law_id": "L_x", "milestone": "M9"}
             acc = SD.acceptance({**e, "old": {}, "new": {}}, {"ok": True, "equivalence": {**r, "models": {}}}, tmp)
             eqv = acc["equivalence"]
-            self.assertIn("missing", SD.recheck_artifacts(e, eqv, tmp, None, None))
+            self.assertIn("missing", SD.recheck_artifacts(e, eqv, tmp, old_b, new_b, STATEMENT))
             SD.write_artifacts(e, eqv, r, tmp)
             d = tmp / SD.artifact_dir(e, eqv)
             first = {p.name: p.read_bytes() for p in d.iterdir()}
             SD.write_artifacts(e, eqv, r, tmp)
             self.assertEqual(first, {p.name: p.read_bytes() for p in d.iterdir()}, "deterministic bytes")
-            new_b = NEW.encode()
-            self.assertIsNone(SD.recheck_artifacts(e, eqv, tmp, None, new_b))
+            self.assertIsNone(SD.recheck_artifacts(e, eqv, tmp, old_b, new_b, STATEMENT))
+            self.assertIn("git history", SD.recheck_artifacts(e, eqv, tmp, None, new_b, STATEMENT),
+                          "no old model (a copied tree): not re-checked, not accepted")
             proof = gzip.decompress((d / "PROOF.bend.gz").read_bytes()).decode()
             (d / "PROOF.bend.gz").write_bytes(gzip.compress((proof + "\n").encode(), mtime=0))
-            self.assertIn("not the file its acceptance record hashes", SD.recheck_artifacts(e, eqv, tmp, None, new_b))
+            self.assertIn("not the file its acceptance record hashes",
+                          SD.recheck_artifacts(e, eqv, tmp, old_b, new_b, STATEMENT))
             (d / "PROOF.bend.gz").write_bytes(first["PROOF.bend.gz"])
-            self.assertIn("not the new model", SD.recheck_artifacts(e, eqv, tmp, None, PLANTED["bit"].encode()))
+            self.assertIn("not the pair module", SD.recheck_artifacts(e, eqv, tmp, old_b, PLANTED["bit"].encode(),
+                                                                      STATEMENT))
         finally:
             shutil.rmtree(tmp)
+
+    def test_g2_recheck_refuses_vacuous_or_empty_laws(self):
+        """The review's attack: laws named like the root laws but stating {1n == 1n : Nat}, or no laws at all with every
+        root recorded unchanged, pass both kernels; G2 regenerates the laws from the statement and refuses them."""
+        r = run(workers=1, batch=1)
+        head = f"import Base\nimport ./pair.bend as {E.ALIAS}\n\n"
+        names = ["eq_look", "to_Reach", "from_Reach"]
+        vac_laws = head + "\n".join(f"law {n}:\n  {{1n == 1n : Nat}}\n" for n in names)
+        vac_proof = (head.replace("\n\n", "\nimport ./LAWS.bend as Laws\n\n")
+                     + "\n".join(f"def Laws.{n}() -> {{1n == 1n : Nat}}:\n  {{==}}\n" for n in names))
+        for laws, proof, roots in ((vac_laws, vac_proof, None), (head, head, "unchanged")):
+            fake = {**r, "laws": laws, "proof": proof, "models": {}}
+            if roots:
+                fake["roots"] = [{"root": i["root"], "class": "unchanged"} for i in r["roots"]]
+            tmp = Path(tempfile.mkdtemp(prefix="holon-f33-"))
+            try:
+                e = {"kind": "binding_change", "law_id": "L_x", "milestone": "M9"}
+                eqv = SD.acceptance({**e, "old": {}, "new": {}}, {"ok": True, "equivalence": fake}, tmp)["equivalence"]
+                SD.write_artifacts(e, eqv, fake, tmp)
+                why = SD.recheck_artifacts(e, eqv, tmp, OLD.encode(), NEW.encode(), STATEMENT)
+                self.assertIsNotNone(why)
+                self.assertIn("LAWS.bend is not the root laws regenerated", why)
+            finally:
+                shutil.rmtree(tmp)
+
+
+class TestCrashes(unittest.TestCase):
+    """bend2's stack overflow is not deterministic (F33): a crash is never a verdict. It can cost a proof, never change
+    one (cold and warm runs give the same bytes), and a lemma that crashes only in larger files ends the search instead
+    of rebuilding the same batch forever (the review's livelock)."""
+    OVERFLOW = "Error: the machine stack overflowed"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.c0 = ES.LemmaCache(None)
+        cls.cold = E.prove(OLD, NEW, STATEMENT, counter_tries=0, workers=1, batch=48, cache=cls.c0)
+        cls.T = {v["def"]: v["text"] for v in cls.c0.ok.values()}
+
+    def crashing(self, cache, crash, **kw):
+        orig = ES.Search._check
+
+        def fake(search, text, job):
+            if crash(text):
+                return E.Check(False, self.OVERFLOW, 0.01, None)
+            return orig(search, text, job)
+        ES.Search._check = fake
+        try:
+            return E.prove(OLD, NEW, STATEMENT, counter_tries=0, workers=1, batch=48, cache=cache,
+                           deadline=time.monotonic() + 300, **kw)
+        finally:
+            ES.Search._check = orig
+
+    def test_a_crash_in_larger_files_gives_the_crash_free_proof_cold_and_warm(self):
+        self.assertEqual(self.cold["status"], "PROVED", self.cold["reason"])
+        T = self.T
+        mine, uses, todo = T["look"], set(), ["look"]
+        while todo:   # the lemmas look's file must hold
+            t = T[todo.pop()]
+            for g in T:
+                if g not in uses and (E.LEMMA + g + "(") in t:
+                    uses.add(g)
+                    todo.append(g)
+        others = [t for g, t in T.items() if g != "look" and g not in uses]
+        self.assertTrue(others)
+        cache = ES.LemmaCache(None)
+        r = self.crashing(cache, lambda t: mine in t and any(o in t for o in others))
+        self.assertEqual(r["status"], "PROVED", r["reason"])
+        self.assertGreater(r["search"].get("overflow_retries", 0), 0, "the crash was injected")
+        self.assertEqual(r["proof"], self.cold["proof"], "a crash never moves a definition to its next class")
+        warm = E.prove(OLD, NEW, STATEMENT, counter_tries=0, workers=1, batch=48, cache=cache)
+        self.assertEqual(warm["search"]["checks"], 0)
+        self.assertEqual(warm["proof"], self.cold["proof"], "warm after a crash run == crash-free cold")
+
+    def test_a_lemma_that_always_crashes_stays_unknown_and_nothing_is_cached(self):
+        mine = self.T["look"]
+        cache = ES.LemmaCache(None)
+        r = self.crashing(cache, lambda t: mine in t)
+        self.assertNotEqual(r["status"], "PROVED")
+        self.assertEqual(r["lemmas"]["look"]["status"], "UNKNOWN")
+        self.assertNotIn("look", {v["def"] for v in cache.ok.values()}, "no other class's text is cached")
+        key = next(k for k, v in self.c0.ok.items() if v["def"] == "look")
+        self.assertFalse([k for k in cache.bad if k[0] == key], "a crash is never cached as a failed candidate")
+        warm = E.prove(OLD, NEW, STATEMENT, counter_tries=0, workers=1, batch=48, cache=cache)
+        self.assertEqual(warm["proof"], self.cold["proof"])
+
+    def test_a_proven_lemma_that_crashes_in_larger_files_ends_the_search(self):
+        T = self.T
+        cache = ES.LemmaCache(None)
+        for k, v in self.c0.ok.items():
+            if v["def"] != "look":
+                cache.ok[k] = dict(v)
+        before = json.dumps(cache.ok, sort_keys=True)
+        r = self.crashing(cache, lambda t: T["st_get"] in t and T["kw_get"] in t)
+        self.assertNotIn("search_stop", r, r.get("search_stop"))
+        self.assertLess(r["search"]["checks"], 30, r["search"])
+        self.assertEqual(r["lemmas"]["st_get"]["status"], "UNKNOWN")
+        self.assertIn("crashed", " ".join(r["lemmas"]["st_get"]["attempts"]))
+        self.assertEqual(r["lemmas"]["look"]["status"], "BLOCKED")
+        self.assertNotEqual(r["status"], "PROVED")
+        self.assertEqual(json.dumps(cache.ok, sort_keys=True), before, "the cache is unchanged by a crash")
+        self.assertEqual(cache.bad, {})
+
+
+class TestSliceMiss(unittest.TestCase):
+    def test_a_slice_miss_pinned_on_a_candidate_is_never_its_failure(self):
+        """bend2 reports a name a pair-module slice lacks as "expected : a defined name" with a Location at the
+        referencing definition; the search switches to the whole pair module and caches nothing for the candidate."""
+        base = run(workers=1, batch=1)
+        orig = ES.Search._check
+        seen = []
+
+        def fake(search, text, job):
+            if not search.full_pair and not seen and (E.LEMMA + "look(") in text:
+                seen.append(job)
+                return E.Check(False, "expected : a defined name\nobserved : P.nothing\nLocation: " + E.LEMMA + "look",
+                               0.01, E.LEMMA + "look")
+            return orig(search, text, job)
+        cache = ES.LemmaCache(None)
+        ES.Search._check = fake
+        try:
+            r = E.prove(OLD, NEW, STATEMENT, counter_tries=0, workers=1, batch=48, cache=cache)
+        finally:
+            ES.Search._check = orig
+        self.assertTrue(seen)
+        self.assertEqual(r["search"]["slice_misses"], 1)
+        self.assertEqual(r["proof"], base["proof"])
+        self.assertFalse([m for m in cache.bad.values() if "a defined name" in m])
+
+
+class TestSearchStop(unittest.TestCase):
+    def test_a_search_stop_is_unknown_with_roots_and_what_was_tried(self):
+        orig = ES.Search._check
+        ES.Search._check = lambda search, text, job: E.Check(False, "Error: something else", 0.01, None)
+        try:
+            r = E.prove(OLD, NEW, STATEMENT, counter_tries=0, workers=1, batch=48, cache=ES.LemmaCache(None))
+        finally:
+            ES.Search._check = orig
+        self.assertEqual(r["status"], "UNKNOWN", r["reason"])
+        self.assertIn("outside the lemmas", r["search_stop"])
+        self.assertTrue(r["roots"], "the roots are still decided")
+        self.assertIn("the lemma search stopped", r["reason"])
 
 
 class TestTargetAgnostic(unittest.TestCase):

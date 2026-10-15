@@ -13,13 +13,18 @@ How a lemma is found (F31/F32's classes, in a fixed order, CLASSES):
     candidate. So the same obligation gives the same text in any law, any run, any order.
   * The chosen proof of f is the first class, in CLASSES order, whose candidate bend2 accepts. Whether a candidate is
     accepted depends only on its text and the lemmas it uses, so batching, parallel checks and the cache below cannot
-    change which text is chosen: the final PROOF.bend is byte-identical whatever the history.
+    change which text is chosen. bend2 can also crash (its stack overflow is not deterministic, F33): a crash is never
+    a verdict, so it never moves f to its next class and nothing chosen after it is cached. A failure without a
+    location is retried, then bisected; the block bisection names is checked alone (a candidate whose dependencies
+    are proven), and when it still crashes, or is a proven lemma that crashes only in larger files, f is left
+    unproven for this run (UNKNOWN, not cached, not absorbed from the cache again). So a crash can cost a proof, never
+    change one: the final PROOF.bend is byte-identical whatever the history, whenever it is built.
   * Candidates are checked in batches (up to `batch` definitions, 256 by default: a check costs about the sum of the
     lemmas it holds, and every check must hold the proven lemmas its batch uses, so a few large batches beat many
     small ones once the proven lemmas are costly in (level, name) order) in a small file: Base, the
     core block, the lemma libraries, the proven lemmas the batch uses (transitively) and the batch, importing a SLICE
-    of the pair module (the items the file reaches, closed under reference; the full pair module when a slice misses
-    a name). bend2 checks a file in order and stops at the first error, so a failing batch still proves every lemma
+    of the pair module (the items the file reaches, closed under reference; the full pair module from the first
+    "expected : a defined name", which is never taken for a candidate's failure while a slice is in use). bend2 checks a file in order and stops at the first error, so a failing batch still proves every lemma
     before the failing one; the failing candidate's class is marked failed (the kernel's message kept) and f moves on
     to its next class. At most `workers` (2) batch files are checked at once: the second batch includes the first
     one's lemmas it uses, so its verdict is exact either way.
@@ -63,12 +68,13 @@ def clean_message(msg: str) -> str:
 
 
 def generator_sha256() -> str:
-    """sha256 of the class order and of the source of the modules that produce candidate texts (the search itself, this
-    module, decides only which candidates are checked, never their text)."""
+    """sha256 of the class order and of the source of the modules that produce candidate texts and their labels (this
+    module too: _make chooses which lemmas a class is given, resets the fresh-name counter and names the class)."""
+    import sys
     from . import eqlib, eqprove, eqterms, equivalence
     from ..sorts import prelude3_lemmas
     h = hashlib.sha256(repr(CLASSES).encode())
-    for m in (equivalence, eqprove, eqterms, eqlib, prelude3_lemmas):
+    for m in (equivalence, eqprove, eqterms, eqlib, prelude3_lemmas, sys.modules[__name__]):
         h.update(b"\0")
         h.update(Path(m.__file__).read_bytes())
     return h.hexdigest()
@@ -227,6 +233,7 @@ class Search:
         self.last_seconds = 0.0
         self.overflow_streak = 0
         self.jobs = 0
+        self.file_checks: dict = {}            # sha256 of a batch file -> times checked (a cap on identical batches)
         self.stats = {"checks": 0, "check_seconds": 0.0, "cache_hits": 0, "cache_failed_skips": 0, "candidates": 0,
                       "failed_candidates": 0, "timeouts": 0, "slice_misses": 0, "by_class": {}}
 
@@ -455,16 +462,18 @@ class Search:
                 if kind != "proven" and f not in self.proven and f in self.cur and self.cur[f][2] == text:
                     self._prove(f, self.cur[f][1], text)
             return None
-        if "[timeout]" in r.out:
+        if "[timeout]" in r.out:   # holon's bend timeout (config bend.timeout_s): no verdict, nothing learned
             self.stats["timeouts"] += 1
             return None if self.stats["timeouts"] <= 6 else "bend timed out on lemma files repeatedly"
+        if "a defined name" in r.out and not self.full_pair:
+            # a slice of the pair module missed a name: bend2 pins it on the referencing definition, but it is the
+            # slice's failure, not the candidate's (never attributed, never cached)
+            self.stats["slice_misses"] += 1
+            self.full_pair = True
+            self.progress("a pair-module slice missed a name: checking against the whole pair module from here")
+            return None
         j = self._owner(r.location or "", blocks)
         if j is None:
-            if "a defined name" in r.out and not self.full_pair:
-                self.stats["slice_misses"] += 1
-                self.full_pair = True
-                self.progress("a pair-module slice missed a name: checking against the whole pair module from here")
-                return None
             if "stack overflowed" in r.out and self.overflow_streak < 5:
                 # bend2's stack overflow is not a verdict and not deterministic (the same file overflowed and
                 # passed in two runs, F33): check the same batch again before blaming any lemma
@@ -482,13 +491,7 @@ class Search:
             for g, t, k in blocks[:j]:
                 if k != "proven" and g not in self.proven and g in self.cur and self.cur[g][2] == t:
                     self._prove(g, self.cur[g][1], t)
-            if kind == "proven":   # not persisted: the crash may not recur (bend2's overflows are not deterministic)
-                self.proven.pop(f, None)
-                self.attempts[f].append(f"{self.cur.get(f, (0, 'cached', ''))[1]}: crashed in a larger file: "
-                                        f"{clean_message(r.out)}")
-                self.next_cls[f] = 0
-            elif f in self.cur and self.cur[f][2] == text and f not in self.proven:
-                self._reject_current(f, r.out, persist=False)
+            self._crashed(f, text, kind, r.out)
             return None
         for f, text, kind in blocks[:j]:   # bend2 checks in order: everything before the failure passed
             if kind != "proven" and f not in self.proven and f in self.cur and self.cur[f][2] == text:
@@ -499,6 +502,48 @@ class Search:
         elif f in self.cur and self.cur[f][2] == text and f not in self.proven:
             self._reject_current(f, r.out)
         return None
+
+    def _crashed(self, f: str, text: str, kind: str, out: str):
+        """Bisection named block f of a file that crashed without a location, again and again. A crash is not a verdict:
+        f never moves to its next class on it and nothing is cached. A candidate whose dependencies are proven is
+        checked alone (its own text, the proven lemmas it uses): accepted, it is proven; refused with a location, that
+        is a kernel verdict like any other. Otherwise (it crashes alone too, or it is a proven lemma that crashes only
+        in larger files) f stays unproven for this run: UNKNOWN, and never absorbed from the cache again, so the same
+        failing batch is not rebuilt (no livelock)."""
+        why = clean_message(out)
+        if kind != "proven" and f in self.cur and self.cur[f][2] == text and f not in self.proven \
+                and all(g in self.proven for g in self.deps[f]):
+            for _ in range(2):
+                blocks, ftext = self._file([f], {})
+                self.jobs += 1
+                r = self._check(ftext, self.jobs)
+                self.stats["checks"] += 1
+                self.stats["check_seconds"] += r.seconds
+                self.stats["crash_alone_checks"] = self.stats.get("crash_alone_checks", 0) + 1
+                if r.ok:
+                    self._prove(f, self.cur[f][1], text)
+                    return
+                if "[timeout]" not in r.out and r.location:
+                    j = self._owner(r.location, blocks)
+                    if j is not None and blocks[j][0] == f and blocks[j][2] == "cand":
+                        self._reject_current(f, r.out)   # a kernel rejection with a location: deterministic
+                        return
+                    break
+                why = clean_message(r.out) or why
+        if kind == "proven":
+            self.proven.pop(f, None)
+            # a proven lemma that uses f no longer has its lemma in the file: it goes back to waiting (in memory only;
+            # it stays cached, and is blocked behind f for this run)
+            gone = True
+            while gone:
+                gone = [g for g in self.proven if any(h not in self.proven for h in self.deps[g])]
+                for g in gone:
+                    self.proven.pop(g)
+        self.cur.pop(f, None)
+        self.attempts[f].append(f"bend2 crashed without a location in a file holding this lemma (not a verdict, not "
+                                f"cached): {why}")
+        self.failed[f] = "bend2 crashed (no verdict)"
+        self.stats["crashed"] = self.stats.get("crashed", 0) + 1
 
     def _bisect(self, blocks: list):
         """Index of the first block whose prefix fails (blocks are in dependency order, so every prefix is a file of its
@@ -550,6 +595,11 @@ class Search:
                 for c in chunks:
                     files.append(self._file(c, spec))
                     spec = {**spec, **{f: self.cur[f][2] for f in c}}
+                for _, t in files:   # the same batch file again and again is a loop, not a search
+                    h = _sha(t)
+                    self.file_checks[h] = self.file_checks.get(h, 0) + 1
+                    if self.file_checks[h] > 8:
+                        return "the same lemma batch was checked 8 times without progress"
                 ids = []
                 for _ in files:
                     self.jobs += 1
