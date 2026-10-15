@@ -14,6 +14,7 @@
   python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
   python -m holon replay [--milestone M] [--morph PATH] [--forge F] [--solc S] [--work DIR] [--write-pins]
   python -m holon lean --milestone M0 [--json] [--jobs N]   (Lean 4 second kernel, I9)
+  python -m holon theory2 --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]   (theory core II, I43)
   python -m holon layout FN VERSION [--facts PATH]      (layout algebra, for humans)
   python -m holon diagram --milestone M2 [--out DIR] [--root DIR]   (one diagram per fact document)
   python -m holon sorts [--milestone M2] [--root DIR] [--out DIR] [--facts PATH ...]   (refined sorts, I13)
@@ -134,6 +135,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["historical"]:  # likewise for holon.historical (fetch | replay, I59)
         from . import historical
         return historical.main(argv[1:])
+    if argv[:1] == ["theory2"]:  # likewise for holon.gen.theory2 (theory core II, I43)
+        from .gen import theory2
+        return theory2.main(argv[1:])
     if argv[:1] == ["differential"]:  # likewise for holon.differential (I20)
         from . import differential
         return differential.main(argv[1:])
