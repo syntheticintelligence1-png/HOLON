@@ -54,7 +54,7 @@ from pathlib import Path
 # by observed success on real cones (F31: congruence proved 189 of 203 changed definitions, normalize 10, the other
 # classes one each; eqprove, F32, only what nothing else proves), so a definition costs one candidate most of the time.
 CLASSES = ("congruence", "congruence-old", "normalize", "congruence-x", "congruence-old-x", "congruence-core",
-           "eqprove")
+           "eqprove", "congruence-flat")
 
 _DEF = re.compile(r"^def ([A-Za-z_][\w.]*)\(", re.M)
 _PREF = re.compile(r"(?<![\w.])P\.([A-Za-z_]\w*)")
@@ -294,6 +294,8 @@ class Search:
             r = gen.congruence(f, L + f, lemmas, "old", expand=True)
         elif cls == "congruence-core":
             r = gen.congruence(f, L + f, lemmas, "new", core=True)
+        elif cls == "congruence-flat":   # F35: every let inlined into the motives (the pre-F35 text), last resort
+            r = gen.congruence(f, L + f, lemmas, "new", chain=False)
         else:
             raise Unsupported(f"unknown class {cls}")
         if r is None:
@@ -302,7 +304,8 @@ class Search:
             text, ih = r
             label = (("induction" if ih else "congruence") + (" (old tree)" if "old" in cls else "")
                      + (" (wildcards split)" if cls.endswith("-x") else "")
-                     + (" with Base identities" if cls.endswith("-core") else ""))
+                     + (" with Base identities" if cls.endswith("-core") else "")
+                     + (" (lets inlined)" if cls.endswith("-flat") else ""))
             return label, text
         return cls, r
 

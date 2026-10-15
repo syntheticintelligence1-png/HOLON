@@ -536,24 +536,44 @@ class Gen:
 
     # -- congruence / induction over a driver's match tree
     def congruence(self, f: str, lemma: str, lemmas: dict, driver: str = "new", expand: bool = False,
-                   core: bool = False) -> tuple[str, bool] | None:
+                   core: bool = False, chain: bool = True) -> tuple[str, bool] | None:
         """(proof text, uses its own induction hypothesis) or None. lemmas: {g: lemma def name} for every changed
         function proven equal (f itself included, for the induction hypothesis). expand: a wildcard of a multi-value
         match is split into its type's constructors too (the other side may match on it), or None when the driver
-        tree has no such wildcard."""
+        tree has no such wildcard.
+
+        chain (F35): a leaf reached through a chain of lets (lets, then the leaf expression) is proved one let at a
+        time instead of with every let inlined into every motive (F34: a storage-write chain o1..o6, each let naming
+        the previous one twice, inlined into 142-200 KB of motives that run BendTT out of its pinned fuel). Let i's
+        value is rewritten to its other-side form inside a helper q_<f>__t<n>, the rest of the chain as a function
+        of v_i and of the variables it reads; the rewritten value is bound by a proof-level let and passed on by
+        name. Every motive then holds one let's value, never the chain. A chain whose variables' types are not all
+        known (a let's value is annotated `{e : T}`, a variable of known type, or a call of a model definition) is
+        inlined as before."""
         hdr, names, ret = self.header(f, lemma)
         params, _ = self.sig(f)
         it = self.pm.new_items[f] if driver == "new" else self.pm.old_items[f]
         body = parse_body(it.body)
         self._side = (lambda e: e) if driver == "new" else (lambda e: rename(e, {n: PREFIX + n for n in self.pm.renamed}))
         lines = [hdr]
+        helpers: list = []
+        bridges: list = []
+        chains: list = []
         used_ih = [False]
         targets = set(lemmas)
 
-        def leaf(expr: str, sub: dict, bound: set, ind: int) -> list[str]:
+        def fixed_of(sub: dict) -> str:
             args = ", ".join(subst(n, sub) for n in names)
-            cur = subst(self.q(self._side(expr), bound), sub)
-            fixed = f"{ALIAS}.{PREFIX}{f}({args})" if driver == "new" else f"{ALIAS}.{f}({args})"
+            return f"{ALIAS}.{PREFIX}{f}({args})" if driver == "new" else f"{ALIAS}.{f}({args})"
+
+        def motive_of(fixed: str, side: str) -> str:
+            return f"{{{fixed} == {side} : {ret}}}" if driver == "new" else f"{{{side} == {fixed} : {ret}}}"
+
+        def rewrite(cur: str, fixed: str, wrap, ind: int, mot=None) -> tuple[list, str]:
+            """Rewrite every call of a proven changed definition in cur (innermost first) towards the fixed side;
+            wrap(side) places the side term in the goal, mot(goal side) gives the motive (default: the lemma's own
+            orientation against fixed). Returns (proof lines, the rewritten term)."""
+            mot = mot or (lambda side: motive_of(fixed, side))
             out = []
             for _ in range(10000):
                 cs = calls(cur, targets if driver == "new" else {PREFIX + g for g in targets})
@@ -568,19 +588,23 @@ class Gen:
                     used_ih[0] = True
                 # every occurrence of this same call is rewritten at once (F32: one step per distinct instance)
                 call_txt = cur[s:e]
-                motive_side = _replace_calls(cur, call_txt, "_")
+                motive = mot(wrap(_replace_calls(cur, call_txt, "_")))
                 if driver == "new":
-                    motive = f"{{{fixed} == {motive_side} : {ret}}}"
                     out.append(" " * ind + f"%{lemmas[g]}({gargs}) : {motive}")
                     cur = _replace_calls(cur, call_txt, f"{ALIAS}.{PREFIX}{g}({gargs})")
                 else:
                     gret = self.q(self.pm.new_items[g].ret, set())
-                    motive = f"{{{motive_side} == {fixed} : {ret}}}"
                     out.append(" " * ind + f"%Equal.sym({gret}, {ALIAS}.{PREFIX}{g}({gargs}), {ALIAS}.{g}({gargs}), "
                                            f"{lemmas[g]}({gargs})) : {motive}")
                     cur = _replace_calls(cur, call_txt, f"{ALIAS}.{g}({gargs})")
             else:
                 raise Unsupported("too many rewrites")
+            return out, cur
+
+        def leaf(expr: str, sub: dict, bound: set, ind: int) -> list[str]:
+            cur = subst(self.q(self._side(expr), bound), sub)
+            fixed = fixed_of(sub)
+            out, cur = rewrite(cur, fixed, lambda side: side, ind)
             if core and driver == "new":   # Base identities, new form -> old form (each a lemma of CORE)
                 for _ in range(10000):
                     hit = None
@@ -601,12 +625,154 @@ class Gen:
             out.append(" " * ind + "{==}")
             return out
 
+        def let_chain(n: Node):
+            """[(var, value)], leaf expression of a chain of lets ending in a leaf expression, or None."""
+            out = []
+            while n.kind == "let":
+                out.append((n.var, n.expr))
+                n = n.body
+            return (out, n.expr) if n.kind == "expr" and out else None
+
+        def chain_leaf(ch, sub: dict, bound: set, ind: int, tys: dict) -> list[str] | None:
+            """The leaf of a chain of lets, proved through one lemma per let over variables (F35; see congruence).
+
+            For each let i the driver reads, t_i(xs, v_i) is the driver's rest of the chain from let i (its body calls
+            t_k on the next let's value, or is the leaf), and u_i(xs, v_i) the other side's (the same over the other
+            side's let values when its definition is a chain of lets over the same variables, else the rewritten
+            driver values). Lemma L_i(xs, v_i): {u_i(xs, v_i) == t_i(xs, v_i)} rewrites the next let's value (or the
+            leaf) to the other side's, bridges any remaining difference with a lemma proved by computation on that one
+            value, and ends with L_k. Every term a step compares is one let's value over variables; no lemma
+            unfolds a chain."""
+            lets, expr = ch
+            cvars = [v for v, _ in lets]
+            if len(set(cvars)) != len(cvars) or any(v in names or v in sub or v in bound for v in cvars):
+                return None   # shadowing: inline as before
+            if core and driver == "new":
+                return None   # Base identities: the flat leaf
+            inner = bound | set(cvars)
+            vals = [subst(self.q(self._side(e), inner), sub) for _, e in lets]
+            leaf_txt = subst(self.q(self._side(expr), inner), sub)
+            vty = {}
+            for v, t in tys.items():
+                if t:
+                    vty[v] = self.q(t.strip().lstrip("+"), set())
+            for (v, _), val in zip(lets, vals):
+                t = self._value_type(val, vty)
+                if t is None:
+                    return None
+                vty[v] = t
+            ovals, oleaf = self._other_chain(f, driver, cvars, sub, inner)
+            idents = lambda t: set(_IDENT.findall(t))
+            uses = lambda i, txts: any(lets[i][0] in idents(x) for x in txts)
+            # the lets either side's rest reads
+            used = [i for i in range(len(lets)) if uses(i, vals[i + 1:] + [leaf_txt])
+                    or (ovals is not None and uses(i, ovals[i + 1:] + [oleaf]))]
+            if not used:
+                return None
+            cid = len(chains) + 1
+            mine: list = []
+            tsym = {}
+
+            def other(t: str) -> str:   # the rewritten form of a driver text, when the other side has no chain
+                return rewrite(t, "", lambda s: s, 0, mot=lambda s: "")[1]
+
+            def free_of(txts, i) -> list | None:
+                locs = {w for w, _ in lets[i:]}
+                fr = sorted({x for t in txts for x in idents(t)} & (inner - locs))
+                return None if any(x not in vty for x in fr) else fr
+
+            # helpers, last let first (each calls the next one)
+            for n_, i in enumerate(reversed(used)):
+                v = lets[i][0]
+                nxt = [j for j in used if j > i]
+                ov_k = (ovals[nxt[0]] if ovals is not None else other(vals[nxt[0]])) if nxt else None
+                if nxt:
+                    k = nxt[0]
+                    tb = f"{tsym[k][0]}({', '.join(tsym[k][2] + [vals[k]])})"
+                    ub = f"{tsym[k][1]}({', '.join(tsym[k][3] + [ov_k])})"
+                else:
+                    tb = leaf_txt
+                    ub = oleaf if ovals is not None else other(leaf_txt)
+                tf, uf = free_of([tb], i + 1), free_of([ub], i + 1)
+                if tf is None or uf is None:
+                    return None
+                tf = [x for x in tf if x != v]
+                uf = [x for x in uf if x != v]
+                tn, un = f"{lemma}__t{cid}_{i + 1}", f"{lemma}__u{cid}_{i + 1}"
+                tsym[i] = (tn, un, tf, uf)
+                mine.append(f"def {tn}({', '.join(f'+{x}: {vty[x]}' for x in tf + [v])}) -> {ret}:\n  {tb}\n")
+                mine.append(f"def {un}({', '.join(f'+{x}: {vty[x]}' for x in uf + [v])}) -> {ret}:\n  {ub}\n")
+
+            def call(i: int, last: str, side: str) -> str:
+                nm = tsym[i][0] if side == "t" else tsym[i][1]
+                xs = tsym[i][2] if side == "t" else tsym[i][3]
+                return f"{nm}({', '.join(xs + [last])})"
+
+            def step(val: str, oval: str, ty: str, wrap, mot, ind_: int, out_: list) -> bool:
+                """Rewrite val (in place wrap) to the other side's oval; False when a bridge has unknown variables."""
+                steps, val = rewrite(val, "", wrap, ind_, mot=mot)
+                out_ += steps
+                if val != oval:
+                    fr = sorted((idents(val) | idents(oval)) & inner)
+                    if any(x not in vty for x in fr):
+                        return False
+                    bn = f"{lemma}__b{cid}_{len(mine) + 1}"
+                    mine.append(f"def {bn}({', '.join(f'+{x}: {vty[x]}' for x in fr)}) -> "
+                                f"{{{oval} == {val} : {ty}}}:\n  {{==}}\n")
+                    out_.append(" " * ind_ + f"%{bn}({', '.join(fr)}) : {mot(wrap('_'))}")
+                return True
+
+            def lem_ref(i: int, arg: str) -> str:
+                xs = sorted(set(tsym[i][2]) | set(tsym[i][3]))
+                return f"{lemma}__l{cid}_{i + 1}({', '.join(xs + [arg])})"
+
+            # the lemmas L_i, last let first
+            for i in reversed(used):
+                v = lets[i][0]
+                xs = sorted(set(tsym[i][2]) | set(tsym[i][3]))
+                ucall, tcall = call(i, v, "u"), call(i, v, "t")
+                body: list = []
+                mot = lambda side, ucall=ucall: f"{{{ucall} == {side} : {ret}}}"
+                nxt = [j for j in used if j > i]
+                if nxt:
+                    k = nxt[0]
+                    ov_k = ovals[k] if ovals is not None else other(vals[k])
+                    if not step(vals[k], ov_k, vty[lets[k][0]], lambda s, k=k: call(k, s, "t"), mot, 2, body):
+                        return None
+                    body.append(f"  %{lem_ref(k, ov_k)} : {mot('_')}")
+                else:
+                    ol = oleaf if ovals is not None else other(leaf_txt)
+                    if not step(leaf_txt, ol, ret, lambda s: s, mot, 2, body):
+                        return None
+                body.append("  {==}")
+                ln = f"{lemma}__l{cid}_{i + 1}"
+                mine.append(f"def {ln}({', '.join(f'+{x}: {vty[x]}' for x in xs + [v])}) -> {{{ucall} == {tcall} : {ret}}}:\n"
+                            + "".join(b_ + "\n" for b_ in body))
+            # the leaf of the lemma itself: the first let's value, then L of the first let
+            fixed = fixed_of(sub)
+            out: list = []
+            i0 = used[0]
+            ov0 = ovals[i0] if ovals is not None else other(vals[i0])
+            if not step(vals[i0], ov0, vty[lets[i0][0]], lambda s: call(i0, s, "t"),
+                        lambda side: motive_of(fixed, side), ind, out):
+                return None
+            out.append(" " * ind + f"%{lem_ref(i0, ov0)} : {motive_of(fixed, '_')}")
+            out.append(" " * ind + "{==}")
+            chains.append(cid)
+            helpers.extend(mine)
+            return out
+
         expanded = [False]
 
         def walk(n: Node, sub: dict, bound: set, ind: int, tys: dict) -> list[str]:
             if n.kind == "expr":
                 return leaf(n.expr, sub, bound, ind)
             if n.kind == "let":
+                ch = let_chain(n) if chain and not core else None
+                if ch is not None:
+                    r = chain_leaf(ch, sub, bound, ind, tys)
+                    if r is not None:
+                        return r
                 e = subst(self.q(self._side(n.expr), bound), sub)
                 return walk(n.body, {**sub, n.var: f"({e})"}, bound | {n.var}, ind, tys)
             out = [" " * ind + f"match {' '.join(n.scrut)}:"]
@@ -637,7 +803,56 @@ class Gen:
         lines += walk(body, {}, set(names), 2, {n: t for _, n, t in params})
         if expand and not expanded[0]:
             return None
-        return "\n".join(lines) + "\n", used_ih[0]
+        return "".join(h + "\n" for h in helpers + bridges) + "\n".join(lines) + "\n", used_ih[0]
+
+    def _other_chain(self, f: str, driver: str, cvars: list, sub: dict, inner: set):
+        """(values, leaf) of the other side's definition of f, as texts in the driver's terms, when its body is a
+        chain of lets over exactly the variables cvars (in order), ending in a leaf expression; else (None, None)."""
+        it = self.pm.old_items[f] if driver == "new" else self.pm.new_items[f]
+        mine = self.pm.new_items[f] if driver == "new" else self.pm.old_items[f]
+        try:
+            n = parse_body(it.body)
+        except Unsupported:
+            return None, None
+        lets = []
+        while n.kind == "let":
+            lets.append((n.var, n.expr))
+            n = n.body
+        if n.kind != "expr" or [v for v, _ in lets] != cvars:
+            return None, None
+        pmap = {o: m for (_, o, _), (_, m, _) in zip(it.params, mine.params) if o != m}
+        if set(pmap) & set(cvars):
+            return None, None
+        side = (lambda e: rename(e, {x: PREFIX + x for x in self.pm.renamed})) if driver == "new" else (lambda e: e)
+        conv = lambda e: subst(self.q(rename(side(e), pmap) if pmap else side(e), inner), sub)
+        return [conv(e) for _, e in lets], conv(n.expr)
+
+    def _value_type(self, val: str, vty: dict) -> str | None:
+        """The (qualified) type of a let's value, when it is evident: an annotation {e : T}, a variable of known type,
+        or a call of a model definition (its declared result type); else None."""
+        v = val.strip()
+        while v.startswith("(") and _close(v, 0) == len(v):
+            v = v[1:-1].strip()
+        if v.startswith("{") and _close(v, 0) == len(v):
+            parts = split_top(v[1:-1], ":")
+            if len(parts) >= 2 and " == " not in ":".join(parts[:-1]) and " != " not in ":".join(parts[:-1]):
+                return parts[-1].strip()
+            return None
+        if re.match(r"[a-z_][A-Za-z0-9_]*$", v):
+            return vty.get(v)
+        m = re.match(ALIAS + r"\.([A-Za-z_]\w*)\(", v)
+        if m and _close(v, m.end() - 1) == len(v):
+            name = m.group(1)
+            if name.startswith(PREFIX):
+                name = name[len(PREFIX):]
+                items = self.pm.old_items
+            else:
+                items = self.pm.new_items
+            it = items.get(name)
+            if it is not None and it.kind == "def" and "-" not in [q for q, _, _ in it.params] and \
+                    not re.search(r"(?<![\w.])[a-z]", it.ret):
+                return self.q(it.ret, set())
+        return None
 
     def _ctor_patterns(self, ty: str | None) -> list[str]:
         """Source patterns of every constructor of a type (fresh field names), [] when unknown."""
@@ -889,9 +1104,15 @@ class Check:
     location: str | None
 
 
-def _run(d: Path, name: str, cfg: dict | None, verdict: bool = False) -> Check:
+def _run(d: Path, name: str, cfg: dict | None, verdict: bool = False, final: list | None = None) -> Check:
+    """One check of d/name. final: the crash log of a final whole-proof check (Q34): then the check is bounded by
+    equivalence.timeout_s and a crash is retried (each crash appended to the log), never taken for a verdict."""
     from .. import bend
-    r = bend.check_verdict(d / name, cfg) if verdict else bend.check(d / name, cfg)
+    if final is not None:
+        r, log = bend.check_equivalence(d / name, cfg, verdict=verdict)
+        final.extend(log)
+    else:
+        r = bend.check_verdict(d / name, cfg) if verdict else bend.check(d / name, cfg)
     m = re.search(r"^Location: (\S+)", r.out, re.M)
     text = "\n".join(ln for ln in r.out.splitlines() if "is available: run bend update" not in ln).strip()
     return Check(bool(r.ok), text, r.seconds, m.group(1) if m else None)
@@ -1381,7 +1602,9 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                 _write(tmp, {"LAWS.bend": laws_text, "PROOF.bend": proof_text})
                 from ..pipeline import law_names
                 hatches = bend.escape_hatches(proof_text + laws_text + pm.text)
-                r = _run(tmp, "PROOF.bend", cfg)
+                crashes = out["final"].setdefault("crashes", [])
+                r = _run(tmp, "PROOF.bend", cfg, final=crashes)
+                out["final"]["timeout_s"] = bend.equivalence_timeout(cfg)
                 ok = r.ok and sorted(law_names(laws_text)) == sorted(expected) and not hatches
                 bad = search.owner_of(r.location or "") if (not r.ok and not hatches) else None
                 if bad is not None and final_tries < 3:   # a cached lemma the whole file refuses: search it again
@@ -1391,7 +1614,7 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                 kern = ["bend"] if ok else []
                 v = None
                 if ok and verdict:
-                    v = _run(tmp, "PROOF.bend", cfg, verdict=True)
+                    v = _run(tmp, "PROOF.bend", cfg, verdict=True, final=crashes)
                     ok = v.ok
                     if ok:
                         kern.append("BendTT")
@@ -1402,8 +1625,13 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                         info["bendtt"] = None if v is None else ("accepted" if v.ok else "rejected")
                         info["bendtt_seconds"] = None if v is None else v.seconds
                         if not ok:
+                            last = v if (v is not None and r.ok) else r
                             info["reason"] = ("escape hatch: " + ", ".join(hatches) if hatches else
-                                              kernel_message((v.out if (v is not None and r.ok) else r.out)))
+                                              (f"the final check hit equivalence.timeout_s "
+                                               f"({bend.equivalence_timeout(cfg)} s): no verdict" if "[timeout]" in last.out
+                                               else "the checker crashed on every try: no verdict"
+                                               if crashes and "stack overflow" in last.out.lower()
+                                               else kernel_message(last.out)))
                 out.update(laws=laws_text, proof=proof_text, kernels=kern)
             break
         # ---- counters: a refutation for every root that is not proven, and for every lemma that failed
