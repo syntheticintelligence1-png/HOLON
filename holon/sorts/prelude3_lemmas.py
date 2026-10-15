@@ -8,9 +8,11 @@ about a pair of models, never about one law): reversal is an involution (lp_rev_
 reflexive, sound (b_eq(x, y) == True gives x == y) and blind to reversal (lp_beq_rev), and the filter over a table
 with a first entry answers that entry's value when its key matches, else the rest's answer (lp_filt_con, lp_filt_nil).
 
-The proofs of lp_rev_rev, lp_beq_refl, lp_filt_nil and lp_filt_con were produced once by holon.gen.eqprove from the
-statements and are kept as fixed text; lp_beq_sound and lp_beq_rev are written out (reflection, and a case split
-whose two contradictory cases are closed by rewriting). The kernel checks all of it (bend2 and BendTT, tests_m3).
+The statements are fixed. The proofs of lp_rev_rev, lp_beq_refl, lp_filt_nil and lp_filt_con are generated from their
+statements by holon.gen.eqprove (GENERATED, proved against the prelude's own definitions; text()). lp_beq_sound,
+lp_rev2, lp_beq_rev_h and lp_beq_rev are written out by hand (HAND: reflection, and a case split whose two
+contradictory cases are closed by rewriting); docs/iterations/F32.md asks the human about them. The kernel checks all
+of it (bend2 and BendTT, tests_m3).
 
 The text is used only for a model whose prelude definitions these lemmas mention, and every definition they reach, are
 the prelude's own text (applies); the model's names are reached through the pair module's alias P, as every lemma of
@@ -19,69 +21,25 @@ holon.gen.equivalence does. The library depends on holon.gen.eqlib (emitted befo
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 
 # the prelude definitions the statements mention
 NAMES = ["b_rev", "b_eq", "h_filt", "h_step", "h_one", "h_cons", "h_ends", "h_end1", "ite", "w0", "W", "HKB"]
 
-TEXT = '''\
-# ---- holon.sorts.prelude3_lemmas: lemmas about the M3 prelude's definitions (fixed text)
-def lp_rev_rev(+x: List<&2, U32>, +a: List<&2, U32>) -> {P.b_rev(P.b_rev(x, a), Nil{}) == P.b_rev(a, x) : List<&2, U32>}:
-  match x:
-    case Nil{}:
-      {==}
-    case Con{+v_1, +v_2}:
-      match a:
-        case Nil{}:
-          %Equal.sym(List<&2, U32>, P.b_rev(P.b_rev(v_2, Con{v_1, Nil{}}), Nil{}), P.b_rev(Con{v_1, Nil{}}, v_2), lp_rev_rev(v_2, Con{v_1, Nil{}})) : {_ == Con{v_1, v_2} : List<&2, U32>}
-          {==}
-        case Con{+v_3, +v_4}:
-          %Equal.sym(List<&2, U32>, P.b_rev(P.b_rev(v_2, Con{v_1, Con{v_3, v_4}}), Nil{}), P.b_rev(Con{v_1, Con{v_3, v_4}}, v_2), lp_rev_rev(v_2, Con{v_1, Con{v_3, v_4}})) : {_ == P.b_rev(v_4, Con{v_3, Con{v_1, v_2}}) : List<&2, U32>}
-          {==}
+HEADER = "# ---- holon.sorts.prelude3_lemmas: lemmas about the M3 prelude's definitions\n"
 
+L = "List<&2, U32>"
+# (lemma, [(param, type)], left, right, type): fixed statements whose proofs holon.gen.eqprove generates (text())
+GENERATED = [
+    ("lp_rev_rev", [("x", L), ("a", L)], "P.b_rev(P.b_rev(x, a), Nil{})", "P.b_rev(a, x)", L),
+    ("lp_beq_refl", [("x", L)], "P.b_eq(x, x)", "True{}", "Bool"),
+    ("lp_filt_nil", [("rk", L)], "P.h_filt(rk, Nil{})", "P.w0()", "P.W"),
+    ("lp_filt_con", [("rk", L), ("cb", L), ("cv", "P.W"), ("cs", "List<&2, P.HKB>")],
+     "P.h_filt(rk, Con{P.HKB{cb, cv}, cs})", "P.ite(P.W, P.b_eq(cb, rk), cv, P.h_filt(rk, cs))", "P.W"),
+]
 
-def lp_beq_refl(+x: List<&2, U32>) -> {P.b_eq(x, x) == True{} : Bool}:
-  match x:
-    case Nil{}:
-      {==}
-    case Con{+v_1, +v_2}:
-      %Equal.sym(Bool, P.b_eq(v_2, v_2), True{}, lp_beq_refl(v_2)) : {Bool.and(Cmp.is_eq(U32.cmp(v_1, v_1)), _) == True{} : Bool}
-      %Equal.sym(Bool, Cmp.is_eq(U32.cmp(v_1, v_1)), True{}, lbu_eq_self(v_1)) : {Bool.and(_, True{}) == True{} : Bool}
-      {==}
-
-
-def lp_filt_nil(+rk: List<&2, U32>) -> {P.h_filt(rk, Nil{}) == P.w0() : P.W}:
-  match rk:
-    case Nil{}:
-      {==}
-    case Con{+v_1, +v_2}:
-      %Equal.sym(P.W, P.h_filt(v_2, Nil{}), P.w0(), lp_filt_nil(v_2)) : {_ == P.W{0, 0, 0, 0, 0, 0, 0, 0} : P.W}
-      {==}
-
-def lp_filt_con__h1496(+v_2: List<&2, U32>, +v_1132: U32, +v_1: U32, +v_1133: List<&2, U32>, +cv: P.W, +cs: List<&2, P.HKB>, +ih_1499: {P.h_filt(v_2, Con{P.HKB{v_1133, cv}, P.h_step(v_1, cs)}) == P.ite(P.W, P.b_eq(v_1133, v_2), cv, P.h_filt(v_2, P.h_step(v_1, cs))) : P.W}, c_1497: Bool, +e_1498: {Cmp.is_eq(U32.cmp(v_1132, v_1)) == c_1497 : Bool}) -> {P.h_filt(v_2, P.h_cons(Cmp.is_eq(U32.cmp(v_1132, v_1)), v_1133, cv, P.h_step(v_1, cs))) == P.ite(P.W, Bool.and(Cmp.is_eq(U32.cmp(v_1132, v_1)), P.b_eq(v_1133, v_2)), cv, P.h_filt(v_2, P.h_step(v_1, cs))) : P.W}:
-  match c_1497:
-    case True{}:
-      %Equal.sym(Bool, Cmp.is_eq(U32.cmp(v_1132, v_1)), True{}, e_1498) : {P.h_filt(v_2, P.h_cons(_, v_1133, cv, P.h_step(v_1, cs))) == P.ite(P.W, Bool.and(_, P.b_eq(v_1133, v_2)), cv, P.h_filt(v_2, P.h_step(v_1, cs))) : P.W}
-      %Equal.sym(P.W, P.h_filt(v_2, Con{P.HKB{v_1133, cv}, P.h_step(v_1, cs)}), P.ite(P.W, P.b_eq(v_1133, v_2), cv, P.h_filt(v_2, P.h_step(v_1, cs))), ih_1499) : {_ == P.ite(P.W, P.b_eq(v_1133, v_2), cv, P.h_filt(v_2, P.h_step(v_1, cs))) : P.W}
-      {==}
-    case False{}:
-      %Equal.sym(Bool, Cmp.is_eq(U32.cmp(v_1132, v_1)), False{}, e_1498) : {P.h_filt(v_2, P.h_cons(_, v_1133, cv, P.h_step(v_1, cs))) == P.ite(P.W, Bool.and(_, P.b_eq(v_1133, v_2)), cv, P.h_filt(v_2, P.h_step(v_1, cs))) : P.W}
-      {==}
-
-def lp_filt_con(+rk: List<&2, U32>, +cb: List<&2, U32>, +cv: P.W, +cs: List<&2, P.HKB>) -> {P.h_filt(rk, Con{P.HKB{cb, cv}, cs}) == P.ite(P.W, P.b_eq(cb, rk), cv, P.h_filt(rk, cs)) : P.W}:
-  match rk:
-    case Nil{}:
-      match cb:
-        case Nil{}:
-          {==}
-        case Con{+v_3, +v_4}:
-          {==}
-    case Con{+v_1, +v_2}:
-      match cb:
-        case Nil{}:
-          {==}
-        case Con{+v_1132, +v_1133}:
-          lp_filt_con__h1496(v_2, v_1132, v_1, v_1133, cv, cs, lp_filt_con(v_2, v_1133, cv, P.h_step(v_1, cs)), Cmp.is_eq(U32.cmp(v_1132, v_1)), {==})
-
+# written out by hand (they use the generated lemmas above by name)
+HAND = '''\
 def lp_beq_sound(+x: List<&2, U32>, +y: List<&2, U32>, +e: {P.b_eq(x, y) == True{} : Bool}) -> {x == y : List<&2, U32>}:
   match x y:
     case Nil{} Nil{}:
@@ -133,6 +91,28 @@ REFLECT = [
     ("lp_beq_sound", [("x", "List<&2, U32>"), ("y", "List<&2, U32>")], "P.b_eq(x, y)", ("x", "y")),
 ]
 
+@lru_cache(maxsize=1)
+def text() -> str:
+    """The library's Bend text: each GENERATED statement with the proof holon.gen.eqprove finds for it over Base and
+    the prelude's own definitions (deterministic), then HAND. Raises holon.gen.eqprove.Fail when a proof is not
+    found (applies is then False)."""
+    from ..gen import eqlib, eqprove as EP, eqterms as ET
+    from ..gen.equivalence import ALIAS, PREFIX
+    from .prelude3 import PRELUDE
+    bd, bt = eqlib.base_defs()
+    pd, pt = ET.read_source("import Base\n\n" + PRELUDE, qualify=ALIAS)
+    defs, types = {**bd, **pd}, {**bt, **pt}
+    parts = [HEADER]
+    for name, ps, lhs, rhs, ty in GENERATED:
+        pv = EP.Prover(defs, types, f"{ALIAS}.{PREFIX}", set(), {}, tag=name)
+        try:
+            body = pv.prove_lemma(name, ps, ET.parse(lhs), ET.parse(rhs), ty)
+        except (EP.E.TermError, RecursionError) as e:
+            raise EP.Fail(f"{name}: {e}")
+        parts.append("\n".join(pv.out + [body]))
+    parts.append(HAND)
+    return "\n".join(parts)
+
 
 def _closure() -> dict:
     from ..gen.equivalence import parse_items
@@ -154,4 +134,11 @@ def applies(new_items: dict) -> bool:
     need = _closure()
     if set(NAMES) - set(need):
         return False
-    return all(n in new_items and new_items[n].text == t for n, t in need.items())
+    if not all(n in new_items and new_items[n].text == t for n, t in need.items()):
+        return False
+    from ..gen import eqprove as EP
+    try:
+        text()
+    except EP.Fail:
+        return False
+    return True

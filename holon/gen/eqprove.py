@@ -15,10 +15,11 @@ every step written as Bend text that the kernel checks (bend2 and BendTT); nothi
                  the goal is rewritten with it.
   lemma          (class c) where the two sides still differ, the differing subterms are generalized into a lemma for
   discovery      all values of its parameters (common subterms and variables become parameters), tested on generated
-                 values, then proved by the same engine, by induction when one of its sides recurses: an accumulator
-                 argument fixed at a constructor (a `done` flag at True{}) gives one such lemma per constructor value,
-                 discovered from the definition's shape, never named. A proved lemma closes every instance of the
-                 same difference.
+                 values, then proved by the same engine, by induction when one of its sides recurses (a lemma
+                 whose proof uses its own induction hypothesis is labelled "lemma discovery with induction"). The
+                 lemma comes from the difference itself, never from a name; there is no enumeration of an argument's
+                 constructors and no mutual induction. A proved lemma closes every instance of the same difference
+                 within one definition's proof; it is not shared across definitions (each proof rediscovers it).
 
 Variables are opened (matched) when a definition of the model waits on them: a record, a list, a Bool; a U32 or a
 Word only when a model definition reads its bits (bit by bit definitions), never for Base arithmetic.
@@ -292,7 +293,7 @@ class Prover:
         if st["split"]:
             parts.append("case split" + (" with reflection" if st["reflect"] else ""))
         if st["lemma"]:
-            parts.append("lemma discovery" + (" with induction (accumulator specialization)" if st["lemma_ih"] else ""))
+            parts.append("lemma discovery" + (" with induction" if st["lemma_ih"] else ""))
         if st["ih"]:
             parts.append("induction")
         if st["bits"]:

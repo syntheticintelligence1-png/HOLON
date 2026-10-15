@@ -104,8 +104,8 @@ class TestPreludeLemmas(unittest.TestCase):
     def test_checked_in_both_kernels_and_guarded(self):
         from holon.sorts import prelude3_lemmas as PL
         _, new = preludes()
-        self.assertEqual(bend.escape_hatches(PL.TEXT), [])
-        for kernel, ok, out in check_text(eqlib.text() + "\n" + PL.TEXT, pair=new):
+        self.assertEqual(bend.escape_hatches(PL.text()), [])
+        for kernel, ok, out in check_text(eqlib.text() + "\n" + PL.text(), pair=new):
             self.assertTrue(ok, f"{kernel}: {out}")
         _, items = E.parse_items(new)
         self.assertTrue(PL.applies({i.name: i for i in items}))
@@ -126,7 +126,7 @@ class TestClasses(unittest.TestCase):
             self.assertEqual(r["lemmas"][f]["status"], "PROVED", f)
             self.assertTrue(r["lemmas"][f]["class"].startswith("eqprove"), (f, r["lemmas"][f]["class"]))
         self.assertIn("case split with reflection", r["lemmas"]["kw_set"]["class"])
-        self.assertIn("accumulator specialization", r["lemmas"]["kw_set"]["class"])
+        self.assertIn("lemma discovery with induction", r["lemmas"]["kw_set"]["class"])
         self.assertIn("prelude library", r["lemmas"]["h_get"]["class"])
         self.assertIn("bit by bit", r["lemmas"]["u_b4"]["class"])
         self.assertEqual(sorted(x.split()[1].rstrip(":") for x in r["laws"].splitlines() if x.startswith("law ")),

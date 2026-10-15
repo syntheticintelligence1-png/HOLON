@@ -1133,25 +1133,21 @@ def _owner(loc: str, trying: dict):
     return best
 
 
-# Lemma libraries about fixed model text (holon.sorts.prelude3_lemmas): each is used only for a new model that holds
-# the definitions it is about with exactly its text (the module's applies). The Base library holon.gen.eqlib is
-# always emitted.
-LIBRARY_MODULES = ("holon.sorts.prelude3_lemmas",)
+def library_modules() -> tuple:
+    """Lemma libraries about fixed model text (holon.sorts.prelude3_lemmas): each is used only for a new model that
+    holds the definitions it is about with exactly its text (the module's applies). The Base library holon.gen.eqlib
+    is always emitted. Imported statically, so the generator closure (holon.records.generator_files) holds them."""
+    from ..sorts import prelude3_lemmas
+    return (prelude3_lemmas,)
 
 
 def libraries_for(pm: "PairModule") -> list:
-    import importlib
-    out = []
-    for name in LIBRARY_MODULES:
-        m = importlib.import_module(name)
-        if m.applies(pm.new_items):
-            out.append(m)
-    return out
+    return [m for m in library_modules() if m.applies(pm.new_items)]
 
 
 def library_text(libs) -> str:
     from . import eqlib
-    return eqlib.text() + "".join("\n" + m.TEXT for m in libs)
+    return eqlib.text() + "".join("\n" + m.text() for m in libs)
 
 
 _LEMMA_REF = re.compile(r"(?<![\w.])" + LEMMA + r"([A-Za-z0-9_]+)\(")

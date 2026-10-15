@@ -12,8 +12,8 @@ RULES are the oriented rewrites the prover may use anywhere in a goal (holon.gen
 left side, right side) meaning {left == right} for all parameters, used left to right (each one simplifies: fewer
 operations or a constant). REFLECT names the reflection lemmas: from {cond == True{}} they give an equality.
 
-Every name defined here starts with `lb` (no model definition may start so; holon.gen.equivalence refuses a model
-that does).
+Every name defined here starts with `lb`. A model may define names starting with `lb` too (real models do); they
+cannot collide, because every lemma file reaches the model's names only through the pair module's alias P.
 """
 from __future__ import annotations
 
