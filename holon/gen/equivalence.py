@@ -1133,6 +1133,36 @@ def _owner(loc: str, trying: dict):
     return best
 
 
+def default_cache_path(old_text: str, new_text: str, cfg: dict | None = None) -> Path:
+    """F33: where the lemma cache of a model pair lives, outside the repository:
+    ~/.holon/cache/eqv/<sha256 of the two model texts>/<sha256 of the bend fingerprint, the BendTT kernel's sha256 and
+    the generator's own source>.jsonl. Pair modules built from the same two models (the laws of one model pair) share it."""
+    import os
+    from .. import bend
+    from . import eqsearch
+    pair = hashlib.sha256(old_text.encode() + b"\0" + new_text.encode()).hexdigest()[:24]
+    try:
+        cfg = cfg or bend.config()
+        fp = bend.fingerprint(cfg)
+        kp = bend.verdict_kernel_path(Path(fp["checkout"]))
+        kern = bend.file_sha256(kp) if kp.is_file() else "no-kernel"
+        ident = fp["fingerprint"] + "\0" + kern
+    except Exception as e:  # noqa: BLE001  (no checker: the key says so, and nothing is checked anyway)
+        ident = f"no-checker: {type(e).__name__}"
+    who = hashlib.sha256((ident + "\0" + eqsearch.generator_sha256()).encode()).hexdigest()[:24]
+    return Path(os.path.expanduser("~")) / ".holon" / "cache" / "eqv" / pair / f"{who}.jsonl"
+
+
+def default_cache(old_text: str, new_text: str, cfg: dict | None = None):
+    """The persistent lemma cache of a model pair (holon.gen.eqsearch.LemmaCache), shared within the process;
+    HOLON_EQV_CACHE=0 gives a cache in memory only."""
+    import os
+    from . import eqsearch
+    if os.environ.get("HOLON_EQV_CACHE", "1") == "0":
+        return eqsearch.LemmaCache(None)
+    return eqsearch.cache_at(default_cache_path(old_text, new_text, cfg))
+
+
 def library_modules() -> tuple:
     """Lemma libraries about fixed model text (holon.sorts.prelude3_lemmas): each is used only for a new model that
     holds the definitions it is about with exactly its text (the module's applies). The Base library holon.gen.eqlib
@@ -1180,7 +1210,8 @@ def _lemma_file(proven: dict, trying: dict, libs=()) -> str:
 
 
 def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = None, workdir: Path | None = None,
-          verdict: bool | None = None, counter_tries: int = 300, eo: dict | None = None, en: dict | None = None) -> dict:
+          verdict: bool | None = None, counter_tries: int = 300, eo: dict | None = None, en: dict | None = None,
+          cache=None, workers: int | None = None, batch: int | None = None, deadline: float | None = None) -> dict:
     """Decide the equivalence obligation of a binding change (see the module docstring). Deterministic: the same two
     model texts and statement give byte-identical laws and proofs."""
     from .. import bend
@@ -1195,6 +1226,7 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
         out["reason"] = f"unsupported: {e}"
         return out
     out["pair_sha256"] = hashlib.sha256(pm.text.encode()).hexdigest()
+    out["pair_text"] = pm.text
     try:
         ep = kernel_entries_of(pm.text, cfg, "pair module")
     except Exception as e:  # noqa: BLE001  (a pair module the checker refuses proves nothing)
@@ -1217,49 +1249,21 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
     failed: dict = {}
     try:
         _write(tmp, {"pair.bend": pm.text})
-        # ---- lemmas, bottom-up: a changed definition is attempted once every changed definition it calls is proven
-        cands: dict = {}
-
-        def candidates(f):
-            lemmas = {g: LEMMA + g for g in proven}
-            lemmas[f] = LEMMA + f
-            out_c = []
-            for cls, mk in (("normalize", lambda: gen.normalize(f, LEMMA + f)),
-                            ("congruence", lambda: gen.congruence(f, LEMMA + f, lemmas, "new")),
-                            ("congruence-old", lambda: gen.congruence(f, LEMMA + f, lemmas, "old")),
-                            ("congruence-x", lambda: gen.congruence(f, LEMMA + f, lemmas, "new", expand=True)),
-                            ("congruence-old-x", lambda: gen.congruence(f, LEMMA + f, lemmas, "old", expand=True)),
-                            ("congruence-core", lambda: gen.congruence(f, LEMMA + f, lemmas, "new", core=True))):
-                try:
-                    r = mk()
-                except Unsupported as e:
-                    out_c.append((cls, None, f"not applicable: {e}"))
-                    continue
-                if r is None:
-                    continue
-                if isinstance(r, tuple):
-                    text, ih = r
-                    cls = (("induction" if ih else "congruence") + (" (old tree)" if "old" in cls else "")
-                           + (" (wildcards split)" if cls.endswith("-x") else "")
-                           + (" with Base identities" if cls.endswith("-core") else ""))
-                else:
-                    text = r
-                out_c.append((cls, text, None))
-            out_c.append(("eqprove", (lambda f=f: engine(f)), None))   # F32: built only when reached
-            return out_c
-
+        # ---- lemmas (holon.gen.eqsearch): found bottom-up in small, batched bend2 checks, cached by obligation; the
+        # final whole-file check below, in both kernels, is the only verdict
         engine_state: dict = {}
 
-        def engine(f):
-            """(class, text) of the F32 proof classes (holon.gen.eqprove) for f, or raises Unsupported."""
+        def engine(f, cone):
+            """(class, text) of the F32 proof classes (holon.gen.eqprove) for f, or raises Unsupported. Only the
+            changed definitions f reaches are given (all proven by then): the text depends on f's obligation alone."""
             from . import eqprove as EP
             if "defs" not in engine_state:
                 from . import eqlib, eqterms as ET
                 bd, bt = eqlib.base_defs()
                 pd, pt = ET.read_source(pm.text, qualify=ALIAS)
                 engine_state["defs"], engine_state["types"] = {**bd, **pd}, {**bt, **pt}
-            callee = {f"{ALIAS}.{g}": LEMMA + g for g in proven}
-            opaque = set(callee) | {f"{ALIAS}.{PREFIX}{g}" for g in proven}
+            callee = {f"{ALIAS}.{g}": LEMMA + g for g in cone}
+            opaque = set(callee) | {f"{ALIAS}.{PREFIX}{g}" for g in cone}
             pv = EP.Prover(engine_state["defs"], engine_state["types"], f"{ALIAS}.{PREFIX}", opaque, callee,
                            tag=LEMMA + f, libraries=libs)
             params, ret = gen.sig(f)
@@ -1272,130 +1276,108 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                 raise Unsupported(f"no proof found: {str(e)[:300]}")
             return pv.label(), "\n".join(pv.out + [text])
 
-        def materialize(f):
-            """Build the lazy candidates at the head of f's list until one has a text (or none is left)."""
-            while cands[f] and callable(cands[f][0][1]):
-                cls, mk, _ = cands[f][0]
-                try:
-                    lab, text = mk()
-                    cands[f][0] = (lab, text, None)
-                except Unsupported as e:
-                    out["lemmas"][f]["attempts"].append(f"{cls}: {e}")
-                    cands[f] = cands[f][1:]
-            return bool(cands[f])
-        for _ in range(MAX_ROUNDS):
-            frontier = [f for f in changed if f not in proven and f not in failed and all(g in proven for g in deps[f])]
-            _progress(f"round: {len(proven)} proven, {len(failed)} failed, frontier {len(frontier)}")
-            if not frontier:
-                break
-            for f in frontier:
-                cands[f] = [c for c in candidates(f)]
-                failed_why = [f"{c[0]}: {c[2]}" for c in cands[f] if c[1] is None]
-                cands[f] = [c for c in cands[f] if c[1] is not None]
-                out["lemmas"][f] = {"status": "UNKNOWN", "class": None, "attempts": failed_why}
-            trying = {f: cands[f][0][:2] for f in frontier if materialize(f)}
-            for f in frontier:
-                if not cands[f]:
-                    failed[f] = "no class applies"
-            while trying:
-                _write(tmp, {"LEMMAS.bend": _lemma_file(proven, trying, libs)})
-                r = _run(tmp, "LEMMAS.bend", cfg)
-                if r.ok:
-                    for f, (cls, text) in sorted(trying.items()):
-                        proven[f] = {"class": cls, "text": text}
-                        out["lemmas"][f].update({"status": "PROVED", "class": cls})
-                    break
-                loc = r.location or ""
-                bad = _owner(loc, trying)
-                if bad is None:   # not attributable to one lemma: try each alone
-                    for f in sorted(trying):
-                        _write(tmp, {"LEMMAS.bend": _lemma_file(proven, {f: trying[f]}, libs)})
-                        rr = _run(tmp, "LEMMAS.bend", cfg)
-                        if not rr.ok:
-                            bad, r = f, rr
-                            break
-                    if bad is None:
-                        out["reason"] = f"lemma check failed outside the lemmas: {kernel_message(r.out)}"
-                        return out
-                cls = trying[bad][0]
-                out["lemmas"][bad]["attempts"].append(f"{cls}: {kernel_message(r.out)}")
-                cands[bad] = cands[bad][1:]
-                if materialize(bad):
-                    trying[bad] = cands[bad][0][:2]
+        from . import eqsearch as ES
+        head = f"import Base\nimport ./pair.bend as {ALIAS}\n\n" + CORE + "\n" + library_text(libs) + "\n"
+        if cache is None:
+            cache = ES.LemmaCache(None)
+        search = ES.Search(pm, gen, libs, changed, deps, cfg, tmp, head, LEMMA, PREFIX, ALIAS, cache=cache,
+                           workers=ES.default_workers() if workers is None else workers,
+                           batch=ES.default_batch() if batch is None else batch, engine=engine, progress=_progress)
+        out["search"] = search.stats
+        final_tries = 0
+        while True:
+            stop = search.run(deadline)
+            proven = {f: search.proven[f] for f in search.ordered()}
+            failed = dict(search.failed)
+            out["lemmas"] = {}
+            for f in changed:
+                if f in proven:
+                    out["lemmas"][f] = {"status": "PROVED", "class": proven[f]["class"], "attempts": search.attempts[f]}
+                elif f in failed:
+                    out["lemmas"][f] = {"status": "UNKNOWN", "class": None, "attempts": search.attempts[f]}
                 else:
-                    del trying[bad]
-                    failed[bad] = "every class failed"
-        for f in changed:
-            if f not in proven and f not in out["lemmas"]:
-                blockers = [g for g in deps[f] if g not in proven]
-                out["lemmas"][f] = {"status": "BLOCKED", "class": None, "attempts": [], "blocked_by": blockers}
-        # ---- root obligations
-        lemmas = {g: LEMMA + g for g in proven}
-        laws, proofs, expected = [], [], []
-        for r in pm.roots:
-            info = {"root": r}
-            if r not in pm.dirty_entries:
-                info.update(kind="unchanged", **{"class": "unchanged"}, status="PROVED",
-                            reason="the kernel form of the root and of everything it reaches is unchanged")
-            elif r in pm.new_items and pm.new_items[r].kind == "def" and r in changed:
-                info.update(kind="function", law=f"eq_{r}")
-                if r in proven:
-                    laws.append(gen.law_text(r, f"eq_{r}"))
-                    proofs.append(gen.law_def(r, f"eq_{r}", LEMMA + r))
-                    expected.append(f"eq_{r}")
-                    info.update(**{"class": proven[r]["class"]}, status="PENDING")
+                    out["lemmas"][f] = {"status": "BLOCKED", "class": None, "attempts": search.attempts[f],
+                                        "blocked_by": [g for g in deps[f] if g not in proven]}
+            if stop and stop != "time box":
+                out["reason"] = stop
+                return out
+            if stop:
+                out["search_stop"] = stop
+            out["roots"] = []
+            # ---- root obligations
+            lemmas = {g: LEMMA + g for g in proven}
+            laws, proofs, expected = [], [], []
+            for r in pm.roots:
+                info = {"root": r}
+                if r not in pm.dirty_entries:
+                    info.update(kind="unchanged", **{"class": "unchanged"}, status="PROVED",
+                                reason="the kernel form of the root and of everything it reaches is unchanged")
+                elif r in pm.new_items and pm.new_items[r].kind == "def" and r in changed:
+                    info.update(kind="function", law=f"eq_{r}")
+                    if r in proven:
+                        laws.append(gen.law_text(r, f"eq_{r}"))
+                        proofs.append(gen.law_def(r, f"eq_{r}", LEMMA + r))
+                        expected.append(f"eq_{r}")
+                        info.update(**{"class": proven[r]["class"]}, status="PENDING")
+                    else:
+                        info.update(**{"class": None}, status="UNKNOWN",
+                                    reason=_why(r, out["lemmas"], deps, proven))
+                elif r in pm.new_items and pm.new_items[r].kind == "type":
+                    info.update(kind="family")
+                    try:
+                        fam = gen.family(r, lemmas)
+                    except Unsupported as e:
+                        fam = None
+                        info["reason"] = str(e)
+                    if fam is None:
+                        need = sorted({g for d in [r] for g in _family_calls(pm, r)} - set(proven))
+                        info.update(**{"class": None}, status="UNKNOWN",
+                                    reason=info.get("reason") or ("the family class needs lemmas for " + ", ".join(need) + ": "
+                                           + "; ".join(f"{g}: {_why(g, out['lemmas'], deps, proven)}" for g in need[:3])))
+                    else:
+                        laws.append(fam[0])
+                        proofs.append(fam[1])
+                        expected += [f"to_{r}", f"from_{r}"]
+                        info.update(**{"class": "family"}, status="PENDING", law=f"to_{r}, from_{r}")
                 else:
-                    info.update(**{"class": None}, status="UNKNOWN",
-                                reason=_why(r, out["lemmas"], deps, proven))
-            elif r in pm.new_items and pm.new_items[r].kind == "type":
-                info.update(kind="family")
-                try:
-                    fam = gen.family(r, lemmas)
-                except Unsupported as e:
-                    fam = None
-                    info["reason"] = str(e)
-                if fam is None:
-                    need = sorted({g for d in [r] for g in _family_calls(pm, r)} - set(proven))
-                    info.update(**{"class": None}, status="UNKNOWN",
-                                reason=info.get("reason") or ("the family class needs lemmas for " + ", ".join(need) + ": "
-                                       + "; ".join(f"{g}: {_why(g, out['lemmas'], deps, proven)}" for g in need[:3])))
-                else:
-                    laws.append(fam[0])
-                    proofs.append(fam[1])
-                    expected += [f"to_{r}", f"from_{r}"]
-                    info.update(**{"class": "family"}, status="PENDING", law=f"to_{r}, from_{r}")
-            else:
-                info.update(kind="other", **{"class": None}, status="UNSUPPORTED",
-                            reason="a changed root that is not a definition or a datatype of both models")
-            out["roots"].append(info)
-        # ---- the final check: the root laws, every lemma, both kernels
-        if expected:
-            laws_text = f"import Base\nimport ./pair.bend as {ALIAS}\n\n" + "\n".join(laws)
-            proof_text = (f"import Base\nimport ./pair.bend as {ALIAS}\nimport ./LAWS.bend as Laws\n\n" + CORE + "\n"
-                          + library_text(libs) + "\n"
-                          + "\n".join(proven[f]["text"] for f in proven) + "\n" + "\n".join(proofs))
-            _write(tmp, {"LAWS.bend": laws_text, "PROOF.bend": proof_text})
-            from ..pipeline import law_names
-            hatches = bend.escape_hatches(proof_text + laws_text + pm.text)
-            r = _run(tmp, "PROOF.bend", cfg)
-            ok = r.ok and sorted(law_names(laws_text)) == sorted(expected) and not hatches
-            kern = ["bend"] if ok else []
-            v = None
-            if ok and verdict:
-                v = _run(tmp, "PROOF.bend", cfg, verdict=True)
-                ok = v.ok
-                if ok:
-                    kern.append("BendTT")
-            for info in out["roots"]:
-                if info["status"] == "PENDING":
-                    info["status"] = "PROVED" if ok else "UNKNOWN"
-                    info["bend_seconds"] = r.seconds
-                    info["bendtt"] = None if v is None else ("accepted" if v.ok else "rejected")
-                    info["bendtt_seconds"] = None if v is None else v.seconds
-                    if not ok:
-                        info["reason"] = ("escape hatch: " + ", ".join(hatches) if hatches else
-                                          kernel_message((v.out if (v is not None and r.ok) else r.out)))
-            out.update(laws=laws_text, proof=proof_text, kernels=kern)
+                    info.update(kind="other", **{"class": None}, status="UNSUPPORTED",
+                                reason="a changed root that is not a definition or a datatype of both models")
+                out["roots"].append(info)
+            # ---- the final check: the root laws, every lemma, both kernels
+            if expected:
+                laws_text = f"import Base\nimport ./pair.bend as {ALIAS}\n\n" + "\n".join(laws)
+                proof_text = (f"import Base\nimport ./pair.bend as {ALIAS}\nimport ./LAWS.bend as Laws\n\n" + CORE + "\n"
+                              + library_text(libs) + "\n"
+                              + "\n".join(proven[f]["text"] for f in proven) + "\n" + "\n".join(proofs))
+                out["final"] = {"proof_bytes": len(proof_text), "lemmas": len(proven)}
+                _write(tmp, {"LAWS.bend": laws_text, "PROOF.bend": proof_text})
+                from ..pipeline import law_names
+                hatches = bend.escape_hatches(proof_text + laws_text + pm.text)
+                r = _run(tmp, "PROOF.bend", cfg)
+                ok = r.ok and sorted(law_names(laws_text)) == sorted(expected) and not hatches
+                bad = search.owner_of(r.location or "") if (not r.ok and not hatches) else None
+                if bad is not None and final_tries < 3:   # a cached lemma the whole file refuses: search it again
+                    final_tries += 1
+                    search.reject(bad, r.out)
+                    continue
+                kern = ["bend"] if ok else []
+                v = None
+                if ok and verdict:
+                    v = _run(tmp, "PROOF.bend", cfg, verdict=True)
+                    ok = v.ok
+                    if ok:
+                        kern.append("BendTT")
+                for info in out["roots"]:
+                    if info["status"] == "PENDING":
+                        info["status"] = "PROVED" if ok else "UNKNOWN"
+                        info["bend_seconds"] = r.seconds
+                        info["bendtt"] = None if v is None else ("accepted" if v.ok else "rejected")
+                        info["bendtt_seconds"] = None if v is None else v.seconds
+                        if not ok:
+                            info["reason"] = ("escape hatch: " + ", ".join(hatches) if hatches else
+                                              kernel_message((v.out if (v is not None and r.ok) else r.out)))
+                out.update(laws=laws_text, proof=proof_text, kernels=kern)
+            break
         # ---- counters: a refutation for every root that is not proven, and for every lemma that failed
         todo = [i["root"] for i in out["roots"] if i["status"] != "PROVED" and i.get("kind") == "function"]
         todo += [f for f in sorted(failed) if f not in todo]
