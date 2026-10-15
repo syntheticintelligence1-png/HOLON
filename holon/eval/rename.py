@@ -29,6 +29,7 @@ import hashlib
 import os
 import re
 import unicodedata
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
@@ -187,11 +188,19 @@ def _go_facts(root: Path, paths: list[str]) -> dict[str, FileFacts]:
     return out
 
 
+def _parse_all(datas: list[bytes]) -> list:
+    """solc's parse-only AST of each text (None where it cannot parse), a few solc processes at a time."""
+    if not datas:
+        return []
+    exe = solidity.require_solc()
+    with ThreadPoolExecutor(max_workers=min(4, len(datas))) as ex:
+        return list(ex.map(lambda d: solidity.parse(d, exe), datas))
+
+
 def _sol_facts(root: Path, paths: list[str]) -> dict[str, FileFacts]:
-    exe = solidity.require_solc() if paths else None
+    datas = [(root / p).read_bytes() for p in paths]
     out = {}
-    for path in paths:
-        data = (root / path).read_bytes()
+    for path, data, tree in zip(paths, datas, _parse_all(datas)):
         f = FileFacts(path, "solidity", data)
         for kind, s, e in solidity.lex(data):
             if kind == "id":
@@ -203,8 +212,8 @@ def _sol_facts(root: Path, paths: list[str]) -> dict[str, FileFacts]:
                 f.comments.append((s, e, kept))
                 if kept:
                     f.kept_words |= words(data[s:e])
-        f.ast = solidity.parse(data, exe)
-        f.parsed = f.ast is not None
+        f.ast = tree
+        f.parsed = tree is not None
         if f.parsed:
             names = solidity.ast_names(f.ast)
             f.declared, f.abi, f.override = names["decls"], names["abi"], names["override"]
@@ -368,13 +377,12 @@ def isomorphism_problems(sf: SetFacts, out: Path, idmap: dict[str, str]) -> list
             mapped = [[t, idmap.get(lit, lit) if t == "IDENT" else lit] for t, lit in a["tokens"]]
             if mapped != b["tokens"] or a["preamble"] != b["preamble"]:
                 problems.append(f"{p}: token stream differs under the map")
-    for p, f in sf.files.items():
-        if f.language != "solidity":
-            continue
-        new = (out / p).read_bytes()
+    sol = [p for p, f in sf.files.items() if f.language == "solidity"]
+    news = [(out / p).read_bytes() for p in sol]
+    for p, new, tree in zip(sol, news, _parse_all(news)):
+        f = sf.files[p]
         if _sol_stream(f.data, idmap) != _sol_stream(new, {}):
             problems.append(f"{p}: token stream differs under the map")
-        tree = solidity.parse(new)
         if (tree is None) != (f.ast is None):
             problems.append(f"{p}: solc parses only one of the original and the renamed file")
         elif tree is not None and solidity.normal_ast(f.ast, idmap) != solidity.normal_ast(tree):
