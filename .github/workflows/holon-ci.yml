@@ -111,6 +111,10 @@ jobs:
             timeout: 120
             run: python -m holon gate --milestone M2 --report "$RUNNER_TEMP/ci-out/gate_report_M2.json"
             report: "$RUNNER_TEMP/ci-out/gate_report_M2.json"
+          - name: gate-M3-G2
+            timeout: 120
+            run: python -m holon gate --milestone M3 --checks G2 --report "$RUNNER_TEMP/ci-out/gate_report_M3_G2.json"
+            report: "$RUNNER_TEMP/ci-out/gate_report_M3_G2.json"
           - name: gate-M3-partial
             timeout: 120
             run: python -m holon gate --milestone M3 --checks G3,G5,G8,G9,G11,G11V,GEVID --report "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
