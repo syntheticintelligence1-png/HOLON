@@ -734,9 +734,9 @@ def blob_at(root: Path, commit: str, rel: str) -> bytes | None:
     return b.stdout if b.returncode == 0 else None
 
 
-def committed_history(path: Path, root: Path) -> list[tuple[str, bytes]] | None:
-    """[(commit, bytes)] of every committed version of `path` reachable from HEAD, oldest first (read-only git);
-    None without git history (e.g. a copy of the tree)."""
+def committed_history(path: Path, root: Path, first_parent: bool = False) -> list[tuple[str, bytes]] | None:
+    """[(commit, bytes)] of every committed version of `path` reachable from HEAD (with first_parent, only along
+    HEAD's first-parent chain), oldest first (read-only git); None without git history (e.g. a copy of the tree)."""
     root = Path(root).resolve()
     try:
         rel = Path(path).resolve().relative_to(root).as_posix()
@@ -744,7 +744,8 @@ def committed_history(path: Path, root: Path) -> list[tuple[str, bytes]] | None:
         return None
     if not in_git(root):
         return None
-    p = _git(root, "log", "--topo-order", "--reverse", "--format=%H", "HEAD", "--", rel)
+    p = _git(root, "log", "--topo-order", "--reverse", *(["--first-parent"] if first_parent else []), "--format=%H",
+             "HEAD", "--", rel)
     if p.returncode != 0:
         return None
     out = []
@@ -753,6 +754,42 @@ def committed_history(path: Path, root: Path) -> list[tuple[str, bytes]] | None:
         if b is not None:
             out.append((c, b))
     return out
+
+
+def merged_lines(data: bytes, path: Path, root: Path) -> tuple[list[tuple[int, str]], dict, list[str]]:
+    """Append-only over a history with merges. The file must extend every committed version along HEAD's first-parent
+    chain (spans: (end offset, commit) of the bytes each of them appended), and keep every line of every other
+    committed version (a version a merge brought in from a side line): a line is never dropped or rewritten, only
+    appended. Returns (spans, {line bytes: the oldest commit whose version holds that line, for lines of side
+    versions}, [problem])."""
+    problems = []
+    chain = committed_history(path, root, first_parent=True) or []
+    spans, prev = [], 0
+    for c, v in chain:
+        if not data.startswith(v):
+            problems.append("append-only: the file no longer extends a committed version of itself")
+            return [], {}, problems
+        if len(v) > prev:
+            spans.append((len(v), c))
+            prev = len(v)
+    on_chain = {c for c, _v in chain}
+    have = data.splitlines(keepends=True)
+    counts: dict = {}
+    for ln in have:
+        counts[ln] = counts.get(ln, 0) + 1
+    side: dict = {}
+    for c, v in committed_history(path, root) or []:
+        if c in on_chain:
+            continue
+        need: dict = {}
+        for ln in v.splitlines(keepends=True):
+            need[ln] = need.get(ln, 0) + 1
+            side.setdefault(ln, c)
+        if any(counts.get(ln, 0) < k for ln, k in need.items()):
+            problems.append(f"append-only: the file drops or rewrites a line of the version committed at {c[:7]} "
+                            "(merged from another line of history)")
+            return [], {}, problems
+    return spans, side, problems
 
 
 def committed_versions(path: Path, root: Path) -> list[bytes]:
@@ -817,15 +854,10 @@ def scan(path: Path, root: Path, kinds=None) -> dict:
     data = path.read_bytes()
     hist = committed_history(path, root)
     out["git"] = hist is not None
-    spans, prev = [], 0   # (end offset, commit): the bytes up to `end` were appended by `commit`
-    for c, v in hist or []:
-        if not data.startswith(v):
-            out["problems"].append("append-only: the file no longer extends a committed version of itself")
-            spans = []
-            break
-        if len(v) > prev:
-            spans.append((len(v), c))
-            prev = len(v)
+    # (end offset, commit): the bytes up to `end` were appended by `commit` (HEAD's first-parent chain); a line a
+    # merge brought in from another line of history is committed by the oldest commit whose version holds it
+    spans, side, probs = merged_lines(data, path, root) if hist is not None else ([], {}, [])
+    out["problems"] += probs
     committed_len = spans[-1][0] if spans else 0
     out["note"] = ("no git history (a copied tree): every line checked against the working tree" if hist is None else
                    f"{len(hist)} committed versions, {committed_len} committed bytes; committed lines verified against "
@@ -843,7 +875,7 @@ def scan(path: Path, root: Path, kinds=None) -> dict:
             continue
         if kinds is not None and (not isinstance(e, dict) or e.get("kind") not in kinds):
             continue   # only these kinds are checked (catalog_bridge)
-        commit = next((c for end, c in spans if start < end), None) if start < committed_len else None
+        commit = next((c for end, c in spans if start < end), None) if start < committed_len else side.get(raw)
         item = {"line": n, "entry": e, "ok": False, "committed": commit is not None, "commit": commit}
         out["entries"].append(item)
         acc = e.get("accepted") if isinstance(e, dict) else None
@@ -1100,14 +1132,22 @@ def registry_changes(milestone: str, root: Path) -> dict:
             if parent.returncode != 0:
                 continue
             pc = parent.stdout.decode().strip()
-            pairs.append((c[:7], _json_or_none(blob_at(root, pc, reg_rel)), _json_or_none(blob_at(root, c, reg_rel)),
-                          pc, c))
+            first = _json_or_none(blob_at(root, pc, reg_rel))
+            child = _json_or_none(blob_at(root, c, reg_rel))
+            pairs.append((c[:7], first, child, pc, c, None))
+            # a merge: a law the first parent does not hold, held by another parent under another hash, changed in
+            # the merge against that parent (a law the first parent holds is compared with the first parent only)
+            fs = (first or {}).get("statements") if isinstance(first, dict) else None
+            ps = _git(root, "rev-parse", f"{c}^@")
+            for po in (ps.stdout.decode().split()[1:] if ps.returncode == 0 else []):
+                pairs.append((c[:7], _json_or_none(blob_at(root, po, reg_rel)), child, po, c,
+                              set(fs) if isinstance(fs, dict) else set()))
     cur = root / reg_rel
     head = _json_or_none(blob_at(root, "HEAD", reg_rel))
     if cur.is_file():
-        pairs.append(("working tree", head, _json_or_none(cur.read_bytes()), "HEAD", None))
+        pairs.append(("working tree", head, _json_or_none(cur.read_bytes()), "HEAD", None, None))
     changes, seen = [], set()
-    for at, a, b, ra, rb in pairs:
+    for at, a, b, ra, rb, skip in pairs:
         sa = (a or {}).get("statements") if isinstance(a, dict) else None
         sb = (b or {}).get("statements") if isinstance(b, dict) else None
         if not isinstance(sa, dict):
@@ -1115,6 +1155,8 @@ def registry_changes(milestone: str, root: Path) -> dict:
         sb = sb if isinstance(sb, dict) else {}
         for lid in sorted(sa):
             if lid in sb and sb[lid] == sa[lid]:
+                continue
+            if skip is not None and (lid in skip or lid not in sb):
                 continue
             old = _json_or_none(blob_at(root, ra, f"laws/{milestone}/{lid}.json"))
             if lid in sb:

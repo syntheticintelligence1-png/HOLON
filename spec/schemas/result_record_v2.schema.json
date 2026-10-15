@@ -65,6 +65,10 @@
       }
     },
     "independence_class": {"enum": ["none", "I1", "I1-shared", "I2"]},
+    "disch": {"type": "object", "required": ["law_id", "rule", "subform", "facts", "basis", "closure", "excluded", "entry_points"],
+              "properties": {"rule": {"const": "DISCH"},
+                             "subform": {"enum": ["blocking", "revert", "external", "external_none"]}},
+              "description": "I31 (additive): a DISCH law's DERIVATION.json entry without statement_hash (holon.disch.run)"},
     "refinement_refs": {"type": "array",
                         "description": "I16: the refinement records of the edges the cone uses (holon.records.refinement_refs): per-edge records under results/M2/refinement/ and trace-corpus per_action entries of replay/<m>/report.json. 'pending:I16' is no longer accepted.",
                         "items": {"type": "string",

@@ -235,6 +235,23 @@ def _typed(law: dict) -> bool:
     return coerce((law.get("statement") or {}).get("claim"))
 
 
+def _disch(law: dict) -> bool:
+    """An I31 DISCH law (holon.rules.disch): a holon-ir/0.3 law whose claim is a disch term. holon.disch.run decides
+    it over the typed model of its document and the DISCH section, and writes its law file with
+    holon.disch.proofs.laws_text."""
+    if law.get("ir_version") != "holon-ir/0.3" or law.get("rule") != "DISCH":
+        return False
+    c = (law.get("statement") or {}).get("claim") or {}
+    return any(isinstance(x, dict) and "disch" in x for x in c.get("eq") or [])
+
+
+def _disch_section(law: dict, m: str, root: Path) -> Path:
+    """The DISCH section a DISCH law's file imports (gen/<m>/disch/models/<importable section name>)."""
+    from .disch.section import section_file
+    from .sorts.model3 import model_name as typed_name
+    return Path(root) / "gen" / m / "disch" / "models" / section_file(typed_name(law["facts"]))
+
+
 def _typed_model(law: dict, m: str, root: Path, importable: bool = False) -> Path:
     """The typed model of a typed-SORT law, as its records name it (gen/<m>/sorts/models/<model>.bend, a link: docs/
     HUMAN_ANSWERS.md Q25) or, with importable, the file behind that link which its law file imports."""
@@ -296,7 +313,7 @@ def model_path(law: dict, m: str, root: Path) -> Path:
     if _width(law):   # the extracted model (holon model's gen/<m>/extracted/model.bend)
         from .sorts.width import model_path as width_model
         return width_model(m, root)
-    if _typed(law):   # F30: the typed model gen/<m>/sorts/models/<model>.bend (I30), never gen/<m>/model/
+    if _typed(law) or _disch(law):   # F30: the typed model gen/<m>/sorts/models/<model>.bend (I30; I31's DISCH laws)
         return _typed_model(law, m, root)
     from .codecrun import codec_kind
     if codec_kind(law, root) == "linked":   # I24: the component model gen/<m>/model/<role>.bend (rule X9)
@@ -311,6 +328,20 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
+    if _disch(law):   # I31: as holon.disch.run writes it (holon.disch.proofs.laws_text); an external law (an
+        from .disch import proofs as DP   # existential law, never REFUTED) has no counter-law
+        from .disch.section import tables
+        from .gen.mlaws import law_name
+        from .sorts.proofs3 import rel_import
+        if counter and law.get("subform") == "external":
+            return None
+        laws_dir = Path(root) / "gen" / m / "laws" / law["law_id"]
+        hashes = [b["name"] for b in law["statement"].get("binders", []) if str(b.get("type", "")).startswith("Fn<")]
+        kind = "counter" if counter else ("exists" if law.get("subform") == "external" else "forall")
+        return DP.laws_text(law["law_id"], statement_hash(law, m, root),
+                            rel_import(laws_dir, _typed_model(law, m, root, importable=True)),
+                            rel_import(laws_dir, _disch_section(law, m, root)), tables(hashes),
+                            law_name(law["law_id"], counter), kind)
     if _undo(law):   # I27: emitted as holon.undo.run writes it (holon.undo.proofs.law_file)
         import os
         from .undo import proofs as UP
@@ -387,6 +418,10 @@ def statement_text(law: dict, m: str, root: Path) -> str:
         from .sorts.width import roots_text
         return roots_text(law, root)
     t = _emit(law, m, root, counter=False)
+    if t is not None and _disch(law):   # I31: the statement reaches the model through the DISCH section's terms
+        sp = _disch_section(law, m, root)
+        if sp.is_file():
+            t = t + "\n" + sp.read_text()
     return t if t is not None else records.ir_roots_text(law)
 
 
@@ -621,7 +656,7 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     laws/STATEMENT_DIFF.jsonl was introduced maps each changed law to an accepted entry that covers it; the log
     extends its version at that commit and every committed version (append-only). Lines before the I10 commit
     are grandfathered. Returns (problems, note); off git the check cannot run, and the note says so."""
-    from .statement_diff import blob_at, committed_versions, cutoff_commit, in_git
+    from .statement_diff import blob_at, cutoff_commit, in_git, merged_lines
     root = Path(root)
     if not in_git(root):
         return [], "binding change log not checked: no git history (a copied tree)"
@@ -632,7 +667,7 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     data = p.read_bytes() if p.exists() else b""
     base = blob_at(root, cut, CHANGES.as_posix()) or b""
     problems = []
-    if not data.startswith(base) or any(not data.startswith(v) for v in committed_versions(p, root)):
+    if not data.startswith(base) or merged_lines(data, p, root)[2]:   # append-only, merges included
         problems.append(f"{CHANGES} does not extend its committed versions (append-only)")
         return problems, ""
     entries = _accepted_entries(root)

@@ -1,0 +1,66 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+  "milestone": "M3",
+  "notes": "external dependence (whitepaper \u00a75.7): a reachable state where the blocked condition holds and a step of the named class after which the guard holds; morph_rollup.extracted:external:rollup_213_f2e7faf8:onlyActiveSubmitter",
+  "rule": "DISCH",
+  "rule_catalog_version": "holon-rules/1.4",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "exists",
+        "type": "Reach"
+      },
+      {
+        "name": "t",
+        "q": "exists",
+        "type": "Word"
+      },
+      {
+        "name": "a",
+        "q": "exists",
+        "type": "Act"
+      },
+      {
+        "name": "e",
+        "q": "exists",
+        "type": "Env"
+      },
+      {
+        "name": "keccak256",
+        "q": "exists",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "at": {
+            "var": "t"
+          },
+          "disch": "morph_rollup.extracted:external:rollup_213_f2e7faf8:onlyActiveSubmitter",
+          "env": {
+            "var": "e"
+          },
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "external"
+}

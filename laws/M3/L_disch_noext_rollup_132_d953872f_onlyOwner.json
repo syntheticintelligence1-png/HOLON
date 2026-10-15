@@ -1,0 +1,66 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_disch_noext_rollup_132_d953872f_onlyOwner",
+  "milestone": "M3",
+  "notes": "the forall-negation of the external law (BUILD_PLAN \u00a72.12: an existential law is never REFUTED): no step of the named class discharges the guard while the blocked condition holds; morph_rollup.extracted:external_none:rollup_132_d953872f:onlyOwner",
+  "rule": "DISCH",
+  "rule_catalog_version": "holon-rules/1.4",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "t",
+        "q": "forall",
+        "type": "Word"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "e",
+        "q": "forall",
+        "type": "Env"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "at": {
+            "var": "t"
+          },
+          "disch": "morph_rollup.extracted:external_none:rollup_132_d953872f:onlyOwner",
+          "env": {
+            "var": "e"
+          },
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "external_none"
+}
