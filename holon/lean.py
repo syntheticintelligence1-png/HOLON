@@ -91,14 +91,16 @@ FORBIDDEN = re.compile(r"\b(sorry|admit|native_decide|bv_decide|decide\s*\+\s*na
 # of the file): forbidden like the tactics above (audit F-M2-32)
 FORBIDDEN_CMD = re.compile(r"#\s*(eval|exit)\b")   # anywhere: a command may start mid-line (F36)
 # F36 review: allowlists over the code tokens, since a word list cannot name everything that changes what Lean reads
-# or runs. Only what the Lean generators emit is admitted (holon.gen.lean_proofs, holon.gen.theory):
+# or runs. Only what the Lean generators emit is admitted (holon.gen.lean_proofs, holon.gen.theory, and I43's
+# holon.gen.lean_* emitters):
 #   * set_option: these option names only. `doc.verso` makes Lean elaborate the `lean` code blocks of a doc comment
-#     as commands (#eval included) while the scan reads the doc comment as a comment;
+#     as commands (#eval included) while the scan reads the doc comment as a comment. maxHeartbeats, which I43's
+#     emitters set for their larger proofs, bounds elaboration work only: it cannot change what a proof proves;
 #   * `#` commands: `#print` only (`#guard`, `#reduce`, `#check_failure`, `#guard_msgs` and the rest are refused);
 #   * no attribute at all (`@[...]` or the `attribute` command): a parser attribute (command_parser, term_parser, ...)
 #     takes a ParserDescr from Init.Prelude and adds tokens, which the static token sets below cannot know.
 # What remains assumed: the file extends no grammar, so Lean reads it with the 4.34.0 token table.
-SET_OPTION_ALLOWED = frozenset({"maxRecDepth", "autoImplicit"})
+SET_OPTION_ALLOWED = frozenset({"maxRecDepth", "autoImplicit", "maxHeartbeats"})
 HASH_CMD_ALLOWED = frozenset({"print"})
 # A canary counts as rejected only for a semantic reason (audit F-M2-32): the kernel decided the flipped claim false,
 # or found the two sides not definitionally equal. A parse, name or goal-shape error rejects it vacuously, and
