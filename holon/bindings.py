@@ -647,7 +647,7 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     laws/STATEMENT_DIFF.jsonl was introduced maps each changed law to an accepted entry that covers it; the log
     extends its version at that commit and every committed version (append-only). Lines before the I10 commit
     are grandfathered. Returns (problems, note); off git the check cannot run, and the note says so."""
-    from .statement_diff import blob_at, committed_versions, cutoff_commit, in_git
+    from .statement_diff import blob_at, cutoff_commit, in_git, merged_lines
     root = Path(root)
     if not in_git(root):
         return [], "binding change log not checked: no git history (a copied tree)"
@@ -658,7 +658,7 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     data = p.read_bytes() if p.exists() else b""
     base = blob_at(root, cut, CHANGES.as_posix()) or b""
     problems = []
-    if not data.startswith(base) or any(not data.startswith(v) for v in committed_versions(p, root)):
+    if not data.startswith(base) or merged_lines(data, p, root)[2]:   # append-only, merges included
         problems.append(f"{CHANGES} does not extend its committed versions (append-only)")
         return problems, ""
     entries = _accepted_entries(root)
