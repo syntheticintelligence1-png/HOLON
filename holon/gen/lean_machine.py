@@ -947,3 +947,37 @@ def model(ctx: Ctx, views: list[str], site_decls: list[str]) -> Model:
     if dup:
         raise Unsupported(f"the model declares {dup} twice")
     return Model(stem=ctx.stem, decls=tuple(decls))
+
+
+# ---------------------------------------------------------------------- for the proof classes
+def decl_names(decls: list[str] | tuple[str, ...]) -> list[str]:
+    """The names of a model's top-level declarations, in order."""
+    out = []
+    for d in decls:
+        m = _DECL.match(d)
+        if m:
+            out.append(m.group(1))
+    return out
+
+
+def qualify(text: str, names: set[str]) -> str:
+    """A term written inside namespace Model, written for use after `end Model`: every identifier that names a
+    top-level model declaration (not after a dot) gets the prefix Model."""
+    return re.sub(r"(?<![A-Za-z0-9_.'])([A-Za-z_][A-Za-z0-9_']*)",
+                  lambda m: "Model." + m.group(1) if m.group(1) in names else m.group(1), text)
+
+
+def cone(decls: list[str] | tuple[str, ...], roots: list[str]) -> list[str]:
+    """The definitions (def, not types) reachable from roots through the declarations' texts, in model order."""
+    names = decl_names(decls)
+    text = dict(zip(names, decls))
+    seen, todo = set(), [r for r in roots if r in text]
+    while todo:
+        n = todo.pop()
+        if n in seen:
+            continue
+        seen.add(n)
+        body = text[n].split(":=", 1)[1] if ":=" in text[n] else text[n]
+        todo += [w for w in re.findall(r"[A-Za-z_][A-Za-z0-9_']*", body) if w in text and w not in seen]
+    return [n for n in names if n in seen and re.match(r"(?:noncomputable\s+)?def\s", text[n])]
+
