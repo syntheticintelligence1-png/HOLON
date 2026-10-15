@@ -103,6 +103,7 @@ class Session:
                 import resource
                 resource.setrlimit(resource.RLIMIT_AS, (memory_mb << 20, memory_mb << 20))
         self.guard = None
+        self.guard_s = guard_s
         self.p = subprocess.Popen([self.solver["binary"], "-in", "-smt2", "parallel.enable=false"],
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
                                   bufsize=1, preexec_fn=limit)
@@ -133,11 +134,23 @@ class Session:
                 raise RuntimeError(f"z3: {line.strip()[:300]}")
 
     def more(self, text: str) -> str:
-        """Further declarations and assertions on the open query, then (check-sat) again (incremental)."""
+        """Further declarations and assertions on the open query, then (check-sat) again (incremental), under the
+        same wall-clock guard as the first check."""
+        import threading
+        timer = None
+        if getattr(self, "guard_s", None):
+            def fire(proc=self.p, g=self.guard_s):
+                self.guard = f"wall-clock guard {int(g)} s"
+                proc.kill()
+            timer = threading.Timer(self.guard_s, fire)
+            timer.start()
         try:
             return self._check(text + "(check-sat)\n")
         except (BrokenPipeError, OSError):
             return "unknown"
+        finally:
+            if timer is not None:
+                timer.cancel()
 
     def _check(self, text: str) -> str:
         self.p.stdin.write(text)
