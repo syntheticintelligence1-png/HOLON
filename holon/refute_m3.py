@@ -352,7 +352,16 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             if r is not None:
                 r = confirmed(root, "cc", f"v{v}", r)
             conc.update(bound={"H": H, "rlimit": rl})
-            if r is None:
+            m0 = [k for k, v in sorted(ss.items()) if v.get("provenance") == "public_schedule"
+                  and v.get("status") == "passed"]
+            if (r is None or r["verdict"] != "path") and m0:
+                # the record's own replay is the M0 commit-path rule's commit (holon.mreplay.m0_commit_sides): a
+                # public commit of the witness's version from the deployment's initial state
+                conc.update(result="path", length=1,
+                            reason=f"a commit at version {v} from R0 by the M0 commit-path rule (its I4 side {m0[0]}, "
+                                   f"holon.mreplay.m0_commit_sides); BMC: "
+                                   f"{r['reason'] if r is not None else 'not run'}")
+            elif r is None:
                 conc.update(result="unknown", reason="BMC on the witness's commit was not run within the I40 build's "
                                                       "time box")
             else:
