@@ -2,6 +2,69 @@
   "milestone": "M3",
   "doc": "Preregistration for M3 iterations (docs/BUILD_PLAN.md §0.1). One key per iteration under iterations. A key is written once, in its prereg commit, before any of its outcome_paths change; holon audit prereg checks the order and that the key is never edited afterwards. predictions count toward prediction accuracy; regressions are outcomes already recorded in the repo that must not change.",
   "iterations": {
+    "I43": {
+      "title": "Theory Core II: equivariance, naturality and independent Lean promotion",
+      "plan": "docs/BUILD_PLAN.md#i43",
+      "prompt": "prompts/I43_promotion.md",
+      "predictions": [
+        {
+          "id": "I43-P1",
+          "claim": "Parameterized endpoint-valid Walk induction proves transport equivariance and orbit-invariant closed-walk flatness; Bend and fresh independent Lean 4 kernels accept thm_6_6_equivariance with the expected law present.",
+          "check": "tests_m3.test_theory_equivariance.TestI43TheoryCoreIIOutcomes.test_thm_6_6_equivariance_and_stab_closure"
+        },
+        {
+          "id": "I43-P2",
+          "claim": "Parameterized Walk induction proves naturality of transport and horizontal and vertical pasting of adjacent flat cycle cells; Bend and independent Lean 4 accept thm_6_7_naturality_pasting with the expected law present.",
+          "check": "tests_m3.test_theory_equivariance.TestI43TheoryCoreIIOutcomes.test_thm_6_7_naturality_and_pasting"
+        },
+        {
+          "id": "I43-P3",
+          "claim": "Positive fixtures check; a non-equivariant edge and a broken naturality square each yield a concrete Bend-checked REFUTED witness, with no positive certificate for the broken edge.",
+          "check": "tests_m3.test_theory_equivariance.TestI43TheoryCoreIIOutcomes.test_positive_and_negative_controls"
+        },
+        {
+          "id": "I43-P4",
+          "claim": "Q8 promotes every individually PROVED registered M0-M3 law, not a selected subset, with fresh self-contained Lean 4 statements faithful to the IR, per-file budget 120 seconds, no external imports or escape hatches; accepted Lean checks yield I2, failures retain I1 with reason, and disagreement blocks.",
+          "check": "tests_m3.test_lean_promoted.TestI43LeanPromotedOutcomes.test_independent_promotion"
+        },
+        {
+          "id": "I43-P5",
+          "claim": "Schema-valid effective records preserve archival records and effective-record consumers drive gates, summaries and metrics, raising on stale, invalid or incomplete selection rather than falling back to I1.",
+          "check": "tests_m3.test_lean_promoted.TestI43LeanPromotedOutcomes.test_effective_result_views"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I43-R1",
+          "claim": "The prereg census is an exact join of the base registries, law IR and primary individual result records: 92 PROVED (M0 5, M1 8, M2 6, M3 73). Missing results and summary discrepancies never count as PROVED.",
+          "check": "tests_m3.test_lean_promoted.TestI43PromotionPreregContract.test_base_census"
+        },
+        {
+          "id": "I43-R2",
+          "claim": "I42 certificates are not present on this base; the same inclusion rule admits them only after their checked primary records exist, without fabricating them in this branch.",
+          "check": "tests_m3.test_theory_equivariance.TestI43EquivariancePreregContract.test_contract"
+        }
+      ],
+      "outcome_paths": [
+        "gen/core/I43/",
+        "gen/M3/I43/",
+        "results/M3/I43/",
+        "holon/gen/equivariance.py",
+        "holon/lean_promoted.py",
+        "holon/result_views.py",
+        "docs/iterations/I43.md",
+        "README.md"
+      ],
+      "tests": [
+        "tests_m3/test_theory_equivariance.py",
+        "tests_m3/test_lean_promoted.py"
+      ],
+      "thresholds": {
+        "base_proved": {"M0": 5, "M1": 8, "M2": 6, "M3": 73},
+        "bend_budget_seconds": 60.0,
+        "lean_budget_seconds": 120.0
+      }
+    },
     "I41": {
       "title": "Untrusted prover intake",
       "plan": "docs/BUILD_PLAN.md#i41",

@@ -1,0 +1,1895 @@
+{
+  "iteration": "I43",
+  "base_commit": "153bb5eb6e32d30182e6b6781d2c36b2157be9da",
+  "selection": {
+    "name": "Q8 every PROVED law",
+    "milestone_order": [
+      "M0",
+      "M1",
+      "M2",
+      "M3"
+    ],
+    "iteration_order": "milestone order, then law_id lexicographic",
+    "rule": "For every law_id in laws/<M>/REGISTRY.json statements join the individual IR (gen/<M>/**/*.law.json when present, otherwise registered laws/<M>/<id>.json; M0 uses laws/M0/<id>.json) by law_id and registered statement hash and results/<M>/<id>.json by law_id. Select iff the individual primary status is PROVED and the IR exists and agrees with the registry. Never use summary.json as evidence of proof. Refuted, unknown, missing or mismatched inputs are not promoted; report debt and fail completeness checks, not an implicit success.",
+    "generated_ir_disposition": "No gen/M1..M3/**/*.law.json files exist at the base. The committed registered laws/M1..M3/<id>.json are the individual IR, not fabricated generated files. If future generated individual IR appears, require it to agree with the registered archival statement before using it.",
+    "summary_disposition": "Compare every summary.json entry with the individual result, and detect missing or extra keys. Individual status decides the census; a discrepancy is visible debt and fails the selection-consistency gate.",
+    "missing_source_disposition": "A missing individual result or IR never becomes PROVED from a summary, proof file or registry entry. Report it and refuse a complete effective view until restored.",
+    "base_counts": {
+      "M0": 5,
+      "M1": 8,
+      "M2": 6,
+      "M3": 73
+    },
+    "base_total": 92
+  },
+  "selected": [
+    {
+      "milestone": "M0",
+      "law_id": "L_par_hdr_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M0/L_par_hdr_v0.json",
+      "record_path": "results/M0/L_par_hdr_v0.json",
+      "statement_hash": "sha256:d753f5fc344e138c5d065014ba0f5c152106a4c44644a790e1900cfd4ad581c8"
+    },
+    {
+      "milestone": "M0",
+      "law_id": "L_par_hdr_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M0/L_par_hdr_v1.json",
+      "record_path": "results/M0/L_par_hdr_v1.json",
+      "statement_hash": "sha256:54f4a3d5e509023c308b2b9edcffbcdd9dc75f5420db66ba5e81ac5e94e91a76"
+    },
+    {
+      "milestone": "M0",
+      "law_id": "L_rt_go_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M0/L_rt_go_v0.json",
+      "record_path": "results/M0/L_rt_go_v0.json",
+      "statement_hash": "sha256:cd9b7a0519326f9a2974a0242f4b637749a3c6efea3636c5f0f99885b99c3db5"
+    },
+    {
+      "milestone": "M0",
+      "law_id": "L_rt_go_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M0/L_rt_go_v1.json",
+      "record_path": "results/M0/L_rt_go_v1.json",
+      "statement_hash": "sha256:091b2c8c5785fbc857250b6f3fc9af20853bcf1b240471038c00d1bdfcf79d77"
+    },
+    {
+      "milestone": "M0",
+      "law_id": "L_rt_go_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M0/L_rt_go_v2.json",
+      "record_path": "results/M0/L_rt_go_v2.json",
+      "statement_hash": "sha256:529c9ef84201b214c684642f8683bb42afeb1d9aff6ddc759efcadeb028d78aa"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_delay_nofree",
+      "sort": "DISCH",
+      "proof_class": "nat_split",
+      "ir_path": "laws/M1/L_disch_delay_nofree.json",
+      "record_path": "results/M1/L_disch_delay_nofree.json",
+      "statement_hash": "sha256:f5ce4f3185edbd215801d443b6243f2204316a1cff4cc88764028f1ab03c7595"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_delay_pay",
+      "sort": "DISCH",
+      "proof_class": "evaluate",
+      "ir_path": "laws/M1/L_disch_delay_pay.json",
+      "record_path": "results/M1/L_disch_delay_pay.json",
+      "statement_hash": "sha256:99034c66e191e8f0073714a551a330555eb751024a16c308bad3f3fcd42c1534"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_delay_prove",
+      "sort": "DISCH",
+      "proof_class": "evaluate",
+      "ir_path": "laws/M1/L_disch_delay_prove.json",
+      "record_path": "results/M1/L_disch_delay_prove.json",
+      "statement_hash": "sha256:6f2d6dcd5141e9569d35e5e0622ac3318b42e8fd25f2954467767464e55e508d"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_delay_wait",
+      "sort": "DISCH",
+      "proof_class": "evaluate",
+      "ir_path": "laws/M1/L_disch_delay_wait.json",
+      "record_path": "results/M1/L_disch_delay_wait.json",
+      "statement_hash": "sha256:4bd81056051a82d78ef8cac54d119f2148a95a804218f3b936ecd70db05205b2"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_stale",
+      "sort": "DISCH",
+      "proof_class": "deadline",
+      "ir_path": "laws/M1/L_disch_stale.json",
+      "record_path": "results/M1/L_disch_stale.json",
+      "statement_hash": "sha256:a0243ce6687fe0e8587e507a4413c9cbc17214b844269df8bca36e29a441c297"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_stale_commit",
+      "sort": "DISCH",
+      "proof_class": "chain_revert",
+      "ir_path": "laws/M1/L_disch_stale_commit.json",
+      "record_path": "results/M1/L_disch_stale_commit.json",
+      "statement_hash": "sha256:f16e4a0e3e04b5e7c8704d4c873540f27968167225afad83a98217b9ef0fb7d6"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_undo_BD",
+      "sort": "UNDO",
+      "proof_class": "noninterference",
+      "ir_path": "laws/M1/L_undo_BD.json",
+      "record_path": "results/M1/L_undo_BD.json",
+      "statement_hash": "sha256:3c8a37fdd3f483f21e5d91caa8ebf89b4e501e9bdd6d159559d87a5760dcfb47"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_undo_CSR",
+      "sort": "UNDO",
+      "proof_class": "noninterference",
+      "ir_path": "laws/M1/L_undo_CSR.json",
+      "record_path": "results/M1/L_undo_CSR.json",
+      "statement_hash": "sha256:495a29ac6d11b350f95c4edc18fd0b7d9193c2f6a2f4b7e7a1d68156c221cf6b"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_def_bvh_at_6126d1f1",
+      "sort": "SORT",
+      "proof_class": "coercion_guard",
+      "ir_path": "laws/M2/L_sort_site_def_bvh_at_6126d1f1.json",
+      "record_path": "results/M2/L_sort_site_def_bvh_at_6126d1f1.json",
+      "statement_hash": "sha256:90b3e9b477dd29926dcb53c13068a1213348be3533d86b1af9b5edb748ee315a"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_def_bvh_at_e064679d",
+      "sort": "SORT",
+      "proof_class": "coercion_guard",
+      "ir_path": "laws/M2/L_sort_site_def_bvh_at_e064679d.json",
+      "record_path": "results/M2/L_sort_site_def_bvh_at_e064679d.json",
+      "statement_hash": "sha256:67c8f7820d0e37f56550ca235e8325d8fda5f53ca20aac16d8e8b3bfcd996941"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_def_w_b4cd5068",
+      "sort": "SORT",
+      "proof_class": "coercion_guard",
+      "ir_path": "laws/M2/L_sort_site_def_w_b4cd5068.json",
+      "record_path": "results/M2/L_sort_site_def_w_b4cd5068.json",
+      "statement_hash": "sha256:c8a8fc4a3070a8536da27a556898fa4456c2e7f0c158b2f1d9683cb7d873ee65"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_441_b4cd5068",
+      "sort": "SORT",
+      "proof_class": "coercion_guard",
+      "ir_path": "laws/M2/L_sort_site_rollup_441_b4cd5068.json",
+      "record_path": "results/M2/L_sort_site_rollup_441_b4cd5068.json",
+      "statement_hash": "sha256:f9fdb9fc834c5c21c29655a5ab6cf7d0e21713155a5f0cb3aed3c05d568d7f51"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_485_495_b4cd5068",
+      "sort": "SORT",
+      "proof_class": "coercion_guard",
+      "ir_path": "laws/M2/L_sort_site_rollup_485_495_b4cd5068.json",
+      "record_path": "results/M2/L_sort_site_rollup_485_495_b4cd5068.json",
+      "statement_hash": "sha256:ceeb92360bab72f0687420d198aa1b4316f4933d5c4941e3b6e8cee7b474af93"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_644_660_e68daf06",
+      "sort": "SORT",
+      "proof_class": "coercion_guard",
+      "ir_path": "laws/M2/L_sort_site_rollup_644_660_e68daf06.json",
+      "record_path": "results/M2/L_sort_site_rollup_644_660_e68daf06.json",
+      "statement_hash": "sha256:dce368cad0524c43545ed2703fe7e4efef8db0a94964e18786584672e1dfc524"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.json",
+      "record_path": "results/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.json",
+      "statement_hash": "sha256:87e4b30cbbbf456415d54e7bc2e3d26c94a763c02c80ee71ec6084056936e2fb"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.json",
+      "record_path": "results/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.json",
+      "statement_hash": "sha256:f5b28ff7ad8e26276ebf3bc17a1b72dd396f09b5d4cd3fc98bc9379eeb3b6de3"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.json",
+      "record_path": "results/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.json",
+      "statement_hash": "sha256:f05f5389ecb72e184553dff68e801a8649ce2a97e666e52b25c5f61e4c8c70c1"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2.json",
+      "statement_hash": "sha256:40d51dce32394a66bf35ad6a07e26830d15d1ec7e7f32d06877609466b5ee893"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "statement_hash": "sha256:e8453aa80b60ed54d38bbcb0797da1933bdb343c2359ef05a2fb9d7310cbb3c3"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "statement_hash": "sha256:20b3a00568d72f69ec53e1c39e412876aeff07d9ddeb1e005cb65f930bbcff54"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2.json",
+      "statement_hash": "sha256:00281c5fad3cb1531cdf18311ad40b8d7df409a3ffae056fdf3977d4d5c6d1ce"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "statement_hash": "sha256:401e42ffe802f67af6da6747d5ef5938e32abf78118429afa89b9fef43603684"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "statement_hash": "sha256:1c072532dce408725b3feda10e08c99f7cd55eb2af8150e675f4a965e30ac545"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "statement_hash": "sha256:77339445ae4b8aded678b32ce13fcf3898d3ca2777665fa831ce6d34d8d75ba4"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2.json",
+      "statement_hash": "sha256:58ef2f66ebb802f14b20960ed29eaceb47eb7370c8ab1a82a58847126ed47f18"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "statement_hash": "sha256:ba0f21c2466bbc705415bb9da1f04c3fd20207ed7cc361c8edb3297c8d31c86b"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2.json",
+      "statement_hash": "sha256:bd1336de6a56f32701196225f13faa9fc8231f99011c124fd070875ee40aa0a6"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "statement_hash": "sha256:4996b9fe1b4a1bfcc6b3f35580893e876a340eae072ec6ce8dc9e3b0e8e91d44"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "record_path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "statement_hash": "sha256:6d41876e34fd934838390173031fa3bbf51228cb0a5e58c5c97a6dc2d19872c0"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0.json",
+      "statement_hash": "sha256:2109ce63f6b94cf1bfcbcae2f6d0b137b9bc9513c3628e392af943edc95eecd1"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "statement_hash": "sha256:bd7dd6c4680d637eb5bf949abc0405ff98c1622a7b0eabaeb0e5a36b25e1ba3c"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "statement_hash": "sha256:94eb93a51962cd5f13e328cbdadf4cdd509ea4bc3b1d357510b2aafd938b844a"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0.json",
+      "statement_hash": "sha256:c7419e3bdcc6ddff00205933fa84d46dee96d15b47edb4404e4bc52544682548"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "statement_hash": "sha256:e59e8873eeeba6507bd05946b8ef8da8d62401ffbdc01b35483ef334be767123"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "statement_hash": "sha256:3e207ea4f152c4aa1a6ffc05d6c85c8207f0590fa40341ddc49e73e2e1afb109"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0.json",
+      "statement_hash": "sha256:09a1a803dc43b4b849e7fb197eb0beb77524cea5b4242c70e299760fd42a542b"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "statement_hash": "sha256:eb369f69fbbd0976b7586cc5c9e4030a596505ae722f28d8d54e5d743c327931"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0.json",
+      "statement_hash": "sha256:2701bc3195967cf2e4aa88f3c3b3c03d8cf95674ef28d850c8f55dbeefb804bc"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "statement_hash": "sha256:71cef67da3644704a5029cd4ee7ac75fa3d9f4a7f47f70b7f83ab124a608974a"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "statement_hash": "sha256:ac45251ddd2126977dbb32382c47d64b26a187186acbf90fac07a019ef26997a"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1.json",
+      "statement_hash": "sha256:d3923d3bc6e99256db6dd349e7aa2f71af9b109f745c856ad663727853866dce"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "statement_hash": "sha256:e6a7d7a2ec8429846664ebe812bfc59060ac34571afe8cd1be9ea802c4edde93"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "statement_hash": "sha256:56f35263dad0056a1de636c7417595d7438e18093a83050484a673034eafc273"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1.json",
+      "statement_hash": "sha256:d5b811eb128a3b2c22644e8c7a9869b405f1019751082942770d90396b32bb67"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "statement_hash": "sha256:cc6975e50cd69e9fdcbc734ac7d652b3fe3c3b0bb57ceb33ea177ff238c36994"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "statement_hash": "sha256:fca6a885160d3d7aa6fe4eceb3fa4b00f201f35f90def39ee67c933c9cf533ec"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "statement_hash": "sha256:93583b4e2e5b8df29980d258aa4129272606524b74ba48771056d65a7a4918f3"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1.json",
+      "statement_hash": "sha256:9f702df747806f2c07b6452fe7fe333f26cc177a1cf14d24a6959b8579709832"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "statement_hash": "sha256:e6e53adeb908c22100b2bfa66f7e801fd7df4209309a3fecde80f30aed670341"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1.json",
+      "statement_hash": "sha256:324ca20fdda272f64251596a524a420811da4dd0ae17d0355340b63bcaecfa48"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "statement_hash": "sha256:47291e03b9933ff3b2033ff0a4d28c9ddedb5e59b3d675aac6b0a285ae4cad40"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "record_path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "statement_hash": "sha256:17d04a57b8c95c2739d1fa3d4647dc56c8f91d38a282bbd291bd753c9b9b8366"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0.json",
+      "statement_hash": "sha256:81354ac19bd1458e16f4813df0fec38a0a689ebf8c988046a6151c40ee3e438a"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1.json",
+      "statement_hash": "sha256:cc7213faeed730d7ddd2e092be83066b6375df5f83a7b5e12379c7089b2e9064"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2.json",
+      "statement_hash": "sha256:220b4c6e0f88bf6094ae12db9b7bb749b1735bceb4f117f2512ef13b0fcc0660"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "statement_hash": "sha256:7899e174a3ae34edf546f3a503c7b93cbc3959d30636bc5459ac097c6c123795"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "statement_hash": "sha256:4fc86cc5d851897012d891021e50ee81019e793fe0a72be3728fcd419d0ba5c7"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "statement_hash": "sha256:fa2ed2b6e2cdf9eadc4e8bbb533d6ca2054f05c07520054cfef80c4572da4854"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "statement_hash": "sha256:cda3023660b4079d436bfa3f4563a08d8d6102cc7f2c0c2796634d09f346c000"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "statement_hash": "sha256:c64580027f622f6a33b3f786683916dd59627d4e30585514ada3add03d7dce50"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "statement_hash": "sha256:82d82e49184104c9fc7800732c96c215325230a5735f0a59b57631300882334a"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0.json",
+      "statement_hash": "sha256:e0775c25e6703e29d28a627a91527416d722d99efca530f13fc3cd8e0f293823"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1.json",
+      "statement_hash": "sha256:2d2c9b566ff44307408a3977c3fe9f82c9c1ef080f2c13d2c5c00c7c56c409f9"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2.json",
+      "statement_hash": "sha256:e5b7328ce33a89ea63adba96df310c4f9a92c8e9543c7360c1363b3f6576d8bc"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "statement_hash": "sha256:6cdb51850b11fc2e2b3c887af51d4eacb9a453aa631cb6187f9aa9fe6e9ddc3b"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "statement_hash": "sha256:fbe228a12c1aff033340383c08d48cf07847272a7a91b3f3b825c87138455679"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "statement_hash": "sha256:4272ee9e1ca26b5ddbdbce1b93defd947c69dedb44c13281ca8c68501eeb9dce"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "statement_hash": "sha256:cb87deccdb7db8fbdde71f17f4fe3156728d8afd2a23131da3cae5ae8a276c5e"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "statement_hash": "sha256:28b26593e43775d858fdf74145230fac00efa5a2b4ce2b4ff06c534bbe40d158"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "statement_hash": "sha256:5d662800167f4e7a5eeb49c2faa705603209b916d28628c0afcaf03e506be15d"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "statement_hash": "sha256:f19d5ac894da805582876f287db6680cdf9187f97ace7b3f122407beb25dcf5d"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "statement_hash": "sha256:a19ce2f7a4128577ce3aba969473c2be33139b2fa300b9b84d1fa047c7cfbe43"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0.json",
+      "statement_hash": "sha256:8ff7731c59b42006d0a8faa345e86809d5943fcb2abfef805d3847120731c24d"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1.json",
+      "statement_hash": "sha256:0d316781bef248b5262d6e344d7513b92cfa2f3074688681a98c6bfe374b8b40"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2.json",
+      "statement_hash": "sha256:b92e3287165d7b0ea0189b6d86e1f25b6d1a901b9627ca00932eba9f69a2d075"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "statement_hash": "sha256:119c43c36cf9137e7cd86e15921991d91bb3afba3c97a31980499a22891cfafe"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "statement_hash": "sha256:e9fa70bd0be51f287889ef166fd2978252e0aaa1fe8f18e6a70759253a5a35b8"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "statement_hash": "sha256:56793d90cbadead11614934fcf936368443e63821593b3fce1f781afb6164d12"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "statement_hash": "sha256:f28702f64d54b6d5ee66682c9b281df3ca5365af432b5cdd9b4bf242dd3dd7f8"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "statement_hash": "sha256:e2de5003ca18f832c7c90c0d1b3d8f2687709126a7615c3f2fb49db15128bf18"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "statement_hash": "sha256:3bf5488f5f75f8e823f260f601f59131d4e622ec8e94b805ef27554a5d3288f8"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0.json",
+      "statement_hash": "sha256:0b5c35c305567b6bd87a704c87ef6a7a0b7b4114a50d897a314391b74667119b"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1.json",
+      "statement_hash": "sha256:2c47aa5478644fec911f91414fbcc6bc58f2b81d06e0d4f1de09f663f587e004"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2.json",
+      "statement_hash": "sha256:df85804d2d3f22076bcbeebcb3d8248c2ca41775d8de669e92f932ce56e82ba1"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "statement_hash": "sha256:c79b7f686066925c4d4091eeaa8700bda507320a8f06222115b201ae0312c6fc"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "statement_hash": "sha256:59d63b751ed77f63e6cbcf912dd71765f92a521f85ad00ea013e096499838637"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
+      "sort": "PAR",
+      "proof_class": "open_refl",
+      "ir_path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "record_path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "statement_hash": "sha256:a1d3fbc6832afd9e6e5ff84aa762c48e1f3bb9ae3f6892c2753a23af981a2e0a"
+    }
+  ],
+  "excluded": [
+    {
+      "milestone": "M0",
+      "law_id": "L_dom_hdr",
+      "status": "REFUTED",
+      "ir_path": "laws/M0/L_dom_hdr.json",
+      "record_path": "results/M0/L_dom_hdr.json"
+    },
+    {
+      "milestone": "M0",
+      "law_id": "L_par_hdr_ssvh",
+      "status": "REFUTED",
+      "ir_path": "laws/M0/L_par_hdr_ssvh.json",
+      "record_path": "results/M0/L_par_hdr_ssvh.json"
+    },
+    {
+      "milestone": "M0",
+      "law_id": "L_par_hdr_v2",
+      "status": "REFUTED",
+      "ir_path": "laws/M0/L_par_hdr_v2.json",
+      "record_path": "results/M0/L_par_hdr_v2.json"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_fact_Z",
+      "status": "REFUTED",
+      "ir_path": "laws/M1/L_fact_Z.json",
+      "record_path": "results/M1/L_fact_Z.json"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_nat_eta2",
+      "status": "REFUTED",
+      "ir_path": "laws/M1/L_nat_eta2.json",
+      "record_path": "results/M1/L_nat_eta2.json"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_own_txspayload",
+      "status": "REFUTED",
+      "ir_path": "laws/M1/L_own_txspayload.json",
+      "record_path": "results/M1/L_own_txspayload.json"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_sort_remaining",
+      "status": "REFUTED",
+      "ir_path": "laws/M1/L_sort_remaining.json",
+      "record_path": "results/M1/L_sort_remaining.json"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_sym_omega",
+      "status": "REFUTED",
+      "ir_path": "laws/M1/L_sym_omega.json",
+      "record_path": "results/M1/L_sym_omega.json"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_tag_BVH",
+      "status": "REFUTED",
+      "ir_path": "laws/M1/L_tag_BVH.json",
+      "record_path": "results/M1/L_tag_BVH.json"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_undo_BVH",
+      "status": "REFUTED",
+      "ir_path": "laws/M1/L_undo_BVH.json",
+      "record_path": "results/M1/L_undo_BVH.json"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_undo_cancel",
+      "status": "REFUTED",
+      "ir_path": "laws/M1/L_undo_cancel.json",
+      "record_path": "results/M1/L_undo_cancel.json"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_def_lci_356891e4",
+      "status": "UNKNOWN",
+      "ir_path": "laws/M2/L_sort_site_def_lci_356891e4.json",
+      "record_path": "results/M2/L_sort_site_def_lci_356891e4.json"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17",
+      "status": "UNKNOWN",
+      "ir_path": "laws/M2/L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17.json",
+      "record_path": "results/M2/L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17.json"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_363_1fc7f88a",
+      "status": "REFUTED",
+      "ir_path": "laws/M2/L_sort_site_rollup_363_1fc7f88a.json",
+      "record_path": "results/M2/L_sort_site_rollup_363_1fc7f88a.json"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_636_e68daf06",
+      "status": "REFUTED",
+      "ir_path": "laws/M2/L_sort_site_rollup_636_e68daf06.json",
+      "record_path": "results/M2/L_sort_site_rollup_636_e68daf06.json"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_width_batchheadercodecv0_144_1abeb29c",
+      "status": "UNKNOWN",
+      "ir_path": "laws/M2/L_sort_width_batchheadercodecv0_144_1abeb29c.json",
+      "record_path": "results/M2/L_sort_width_batchheadercodecv0_144_1abeb29c.json"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_width_batchheadercodecv0_166_8ad80b42",
+      "status": "UNKNOWN",
+      "ir_path": "laws/M2/L_sort_width_batchheadercodecv0_166_8ad80b42.json",
+      "record_path": "results/M2/L_sort_width_batchheadercodecv0_166_8ad80b42.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
+      "status": "REFUTED",
+      "ir_path": "laws/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json",
+      "record_path": "results/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
+      "status": "REFUTED",
+      "ir_path": "laws/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.json",
+      "record_path": "results/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1",
+      "status": "REFUTED",
+      "ir_path": "laws/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.json",
+      "record_path": "results/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol",
+      "status": "REFUTED",
+      "ir_path": "laws/M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol.json",
+      "record_path": "results/M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2",
+      "status": "UNKNOWN",
+      "ir_path": "laws/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "record_path": "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0",
+      "status": "UNKNOWN",
+      "ir_path": "laws/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "record_path": "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1",
+      "status": "UNKNOWN",
+      "ir_path": "laws/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "record_path": "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_sort_realize_rollup_363_4a64383b",
+      "status": "MISSING_RECORD",
+      "ir_path": "laws/M3/L_sort_realize_rollup_363_4a64383b.json",
+      "record_path": "results/M3/L_sort_realize_rollup_363_4a64383b.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_sort_tag_rollup_279_e01ea84a",
+      "status": "UNKNOWN",
+      "ir_path": "laws/M3/L_sort_tag_rollup_279_e01ea84a.json",
+      "record_path": "results/M3/L_sort_tag_rollup_279_e01ea84a.json"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_sort_tag_rollup_406_e01ea84a",
+      "status": "UNKNOWN",
+      "ir_path": "laws/M3/L_sort_tag_rollup_406_e01ea84a.json",
+      "record_path": "results/M3/L_sort_tag_rollup_406_e01ea84a.json"
+    }
+  ],
+  "base_debt": [
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_delay_nofree",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_delay_pay",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_delay_prove",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_delay_wait",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_stale",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_disch_stale_commit",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_fact_Z",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_nat_eta2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_own_txspayload",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_sort_remaining",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_sym_omega",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_tag_BVH",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_undo_BD",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_undo_BVH",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_undo_CSR",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M1",
+      "law_id": "L_undo_cancel",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_def_bvh_at_6126d1f1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_def_bvh_at_e064679d",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_def_lci_356891e4",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_def_w_b4cd5068",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_363_1fc7f88a",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_441_b4cd5068",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_485_495_b4cd5068",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_636_e68daf06",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_site_rollup_644_660_e68daf06",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_width_batchheadercodecv0_144_1abeb29c",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M2",
+      "law_id": "L_sort_width_batchheadercodecv0_166_8ad80b42",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_sort_realize_rollup_363_4a64383b",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_sort_realize_rollup_363_4a64383b",
+      "kind": "missing_individual_record",
+      "disposition": "not PROVED; block complete effective selection until source and record are restored"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_sort_tag_rollup_279_e01ea84a",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_sort_tag_rollup_279_e01ea84a",
+      "kind": "summary_disagreement",
+      "summary_status": null,
+      "individual_status": "UNKNOWN",
+      "disposition": "individual primary record controls selection; fail summary consistency gate, do not silently repair"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_sort_tag_rollup_406_e01ea84a",
+      "kind": "generated_ir_absent",
+      "disposition": "use registered archival laws/<M>/<id>.json as IR when its hash matches registry; do not invent a generated IR"
+    },
+    {
+      "milestone": "M3",
+      "law_id": "L_sort_tag_rollup_406_e01ea84a",
+      "kind": "summary_disagreement",
+      "summary_status": null,
+      "individual_status": "UNKNOWN",
+      "disposition": "individual primary record controls selection; fail summary consistency gate, do not silently repair"
+    }
+  ],
+  "core_certificate_inclusion": {
+    "rule": "Enumerate checked core certificates under gen/core/I42/ and gen/core/I43/ with their primary Bend records. Include iff primary Bend certificate status is PROVED, expected law is present and sources agree with recorded statement. Do not treat a directory, a prediction or a Lean check alone as primary proof. Apply unchanged rule after I42 merge before production promotion.",
+    "before_i42_merge": "No I42 certificate population exists on base 153bb5e. None is fabricated or counted as already PROVED.",
+    "after_i42_merge": "Recompute deterministic selection with I42 primary records present; promote all and only checked PROVED I42 certificates alongside checked I43 certificates. Missing/UNKNOWN/REFUTED certificates remain outside the promoted set."
+  },
+  "kernels": {
+    "bend_budget_seconds": 60.0,
+    "lean_budget_seconds": 120.0,
+    "lean_version": "Lean 4",
+    "file_policy": "One fresh self-contained Lean 4 file per certificate; no imports (including Std and Mathlib), no carry-over declarations or external generated modules. Kernel acceptance and theorem statement fidelity are required.",
+    "external_imports": [],
+    "forbidden": [
+      "sorry",
+      "admit",
+      "axiom",
+      "unsafe",
+      "partial",
+      "implemented_by",
+      "extern",
+      "native_decide"
+    ],
+    "allowed_axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "failure_policy": "Timeout, unsupported form and recursion depth retain I1 with recorded attempt and reason; kernel disagreement is blocking, never silently downgraded."
+  },
+  "theory_core_ii": {
+    "base_statement_note": "Whitepaper §6 labels Theorem 6.6 as Stab(T_a) subgroup/submonoid and Theorem 6.7 as generator-square pasting and vertical composition. The requested arbitrary-Walk transport and flat-boundary results are stronger requested I43 core forms, not literal quotations of those theorem statements.",
+    "certificates": [
+      {
+        "id": "thm_6_6_equivariance",
+        "required_laws": [
+          "thm_6_6_walk_transport_equivariance",
+          "thm_6_6_holonomy_orbit_invariance",
+          "thm_6_6_stab_closure_composition",
+          "thm_6_6_stab_closure_inverse",
+          "thm_6_6_stab_submonoid_partial_action",
+          "thm_6_6_equivariance"
+        ],
+        "title": "Equivariance of Walk Transport and Holonomy",
+        "parameters": [
+          "arbitrary endpoint-valid Walk w : u -> v",
+          "carrier action alpha : G -> (X -> X)",
+          "for each vertex v and g: D_v(x) implies D_v(alpha_g(x))",
+          "for each generating edge e and g: phi(e)(alpha_g(x)) = alpha_g(phi(e)(x))"
+        ],
+        "claims": [
+          "T(w)(alpha_g(x)) = alpha_g(T(w)(x)) for all endpoint-valid w, by structural induction on Walk",
+          "for every closed gamma, T_a(gamma) = id iff T_{alpha_g(a)}(gamma) = id along G-orbits on its domain",
+          "g1 and g2 in Stab(T_a) implies g1 composition g2 in Stab(T_a)",
+          "inverse g in Stab(T_a) for an invertible action",
+          "Stab(T_a) forms a submonoid for partial actions with identity"
+        ],
+        "proof_method": "structural induction, empty walk base and edge-cons extension (not a bounded two-step walk)",
+        "bend_budget_seconds": 60.0,
+        "lean_budget_seconds": 120.0,
+        "artifacts": {
+          "bend_laws": "gen/core/I43/thm_6_6_equivariance/LAWS.bend",
+          "bend_proof": "gen/core/I43/thm_6_6_equivariance/PROOF.bend",
+          "lean": "gen/core/I43/thm_6_6_equivariance/Proof.lean",
+          "record": "results/M3/I43/thm_6_6_equivariance.json"
+        }
+      },
+      {
+        "id": "thm_6_7_naturality_pasting",
+        "required_laws": [
+          "thm_6_7_naturality_square",
+          "thm_6_7_horizontal_pasting",
+          "thm_6_7_vertical_composition",
+          "thm_6_7_entry_points_consequence",
+          "thm_6_7_naturality_pasting"
+        ],
+        "title": "Naturality of Walk Transport and 2-Cell Diagram Pasting",
+        "parameters": [
+          "two diagrams D1 and D2 on graph G",
+          "vertex morphisms eta_v : X_1,v -> X_2,v",
+          "each generating edge e has phi_2(e)(eta_s(e)(x)) = eta_t(e)(phi_1(e)(x))"
+        ],
+        "claims": [
+          "T_2(w)(eta_u(x)) = eta_v(T_1(w)(x)) for any endpoint-valid Walk w : u -> v, by structural induction",
+          "horizontal pasting op2 composition op1 when op1 preserves D yields a flat composite boundary",
+          "vertical composition eta2 composition eta1 preserves naturality",
+          "entry-point transport across natural transformations follows from naturality"
+        ],
+        "proof_method": "structural induction on Walk plus composition/pasting, not finite specialization",
+        "bend_budget_seconds": 60.0,
+        "lean_budget_seconds": 120.0,
+        "artifacts": {
+          "bend_laws": "gen/core/I43/thm_6_7_naturality_pasting/LAWS.bend",
+          "bend_proof": "gen/core/I43/thm_6_7_naturality_pasting/PROOF.bend",
+          "lean": "gen/core/I43/thm_6_7_naturality_pasting/Proof.lean",
+          "record": "results/M3/I43/thm_6_7_naturality_pasting.json"
+        }
+      }
+    ],
+    "controls": {
+      "record": "results/M3/I43/controls.json",
+      "positive": [
+        {
+          "kind": "equivariance",
+          "law_id": "ctrl_equivariant_walk",
+          "description": "nontrivial action and walks longer than two steps",
+          "artifacts": {
+            "bend_laws": "gen/core/I43/controls/positive/equivariance/LAWS.bend",
+            "bend_proof": "gen/core/I43/controls/positive/equivariance/PROOF.bend",
+            "lean": "gen/core/I43/controls/positive/equivariance/Proof.lean"
+          }
+        },
+        {
+          "kind": "naturality",
+          "law_id": "ctrl_natural_pasting",
+          "description": "natural edge squares and horizontally and vertically pasted flat cells",
+          "artifacts": {
+            "bend_laws": "gen/core/I43/controls/positive/naturality/LAWS.bend",
+            "bend_proof": "gen/core/I43/controls/positive/naturality/PROOF.bend",
+            "lean": "gen/core/I43/controls/positive/naturality/Proof.lean"
+          }
+        }
+      ],
+      "negative": [
+        {
+          "id": "ctrl_non_equivariant_edge",
+          "kind": "equivariance",
+          "witness_keys": ["g", "e", "x"],
+          "counter_claim": "phi(e, alpha(g, x)) != alpha(g, phi(e, x))",
+          "artifacts": {
+            "bend_laws": "gen/core/I43/controls/negative/equivariance/LAWS.bend",
+            "bend_proof": "gen/core/I43/controls/negative/equivariance/PROOF.bend"
+          },
+          "expected": "REFUTED",
+          "witness": "a concrete g, e and x with phi(e)(alpha_g(x)) != alpha_g(phi(e)(x)); refutes Walk transport equivariance",
+          "certificate": "must not emit an equivariance certificate for broken edge"
+        },
+        {
+          "id": "ctrl_broken_naturality_square",
+          "kind": "naturality",
+          "witness_keys": ["e", "x"],
+          "counter_claim": "eta_v(phi_1(e, x)) != phi_2(e, eta_u(x))",
+          "artifacts": {
+            "bend_laws": "gen/core/I43/controls/negative/naturality/LAWS.bend",
+            "bend_proof": "gen/core/I43/controls/negative/naturality/PROOF.bend"
+          },
+          "expected": "REFUTED",
+          "witness": "a concrete edge and x where phi_2(e)(eta_s(e)(x)) != eta_t(e)(phi_1(e)(x)); refutes pasted cycle naturality/flatness"
+        }
+      ],
+      "downstream": "I29 and I34 are not on this base; no target-specific certificates or downstream artifacts are fabricated."
+    }
+  },
+  "promotion_outputs": {
+    "manifest": "results/M3/I43/lean_promoted_manifest.json",
+    "lean_statement_hash": "sha256 of UTF-8 whitespace-normalized comment-stripped theorem declaration from theorem <name> through proposition before :=, prefixed sha256:",
+    "core_statement_hashes": "record statement_hash and lean_statement_hash are maps from each required_laws ID to independent normalized declaration hashes, never equated across languages",
+    "lean_dir": "gen/M3/I43/",
+    "effective_records": "results/M3/I43/records/<milestone>/<law_id>.json",
+    "views": "holon/result_views.py",
+    "archive_policy": "Do not rewrite results/M0..M3/L_*.json; validate effective records against both result_record and result_record_v2 schemas and the frozen selection."
+  }
+}
