@@ -1,4 +1,4 @@
-; holon-smt {"cone":"full","instances":{"cf":21,"cf_asserted":2,"cost":1,"dense":5,"nz":7,"time":1},"logic":"QF_AUFBV","random_seed":0,"rlimit":200000000,"steps":1,"terms":{"blobhash":6,"keccak256":7}}
+; holon-smt {"cone":"full","e1":"lazy","instances":{"cf":21,"cf_asserted":2,"cost":1,"dense":5,"nz":7,"time":1},"logic":"QF_AUFBV","random_seed":0,"rlimit":200000000,"steps":1,"terms":{"blobhash":6,"keccak256":7}}
 ; target: {"actions":["commitBatch"],"blob_gap":true,"cond":["==",["member",["param","batchDataInput"],"version"],2],"kind":"step"}
 ; actions before the last step: addChallenger, challengeState, claimProveRemaining, claimReward, commitBatch, commitBatchWithProof, commitState, finalizeBatch, importGenesisBatch, initialize, initialize2, initialize3, initialize4, proveState, removeChallenger, renounceOwnership, revertBatch, setPause, transferOwnership, updateFinalizePeriodSeconds, updateProofWindow, updateRewardPercentage, updateRollupDelayPeriod, updateVerifier (the whole cone)
 ; over-approximation: commitBatch: check commitBatch#contracts/contracts/l1/rollup/Rollup.sol:937#0 in loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations

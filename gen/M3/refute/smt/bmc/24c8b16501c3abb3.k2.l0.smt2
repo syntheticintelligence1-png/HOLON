@@ -1,4 +1,4 @@
-; holon-smt {"cone":"levels<=0","instances":{"cf":3,"cf_asserted":1,"cost":0,"dense":10,"nz":3,"time":2},"logic":"QF_AUFBV","random_seed":0,"rlimit":200000000,"steps":2,"terms":{"blobhash":12,"keccak256":3}}
+; holon-smt {"cone":"levels<=0","e1":"lazy","instances":{"cf":3,"cf_asserted":1,"cost":0,"dense":10,"nz":3,"time":2},"logic":"QF_AUFBV","random_seed":0,"rlimit":200000000,"steps":2,"terms":{"blobhash":12,"keccak256":3}}
 ; target: {"action":"claimProveRemaining","check":"claimProveRemaining#contracts/contracts/l1/rollup/Rollup.sol:817#0","kind":"check"}
 ; actions before the last step: claimProveRemaining, initialize, proveState, renounceOwnership, transferOwnership (cone levels 0..0 of 3: an under-approximation)
 (set-option :rlimit 200000000)

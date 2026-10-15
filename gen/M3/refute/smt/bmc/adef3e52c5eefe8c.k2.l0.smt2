@@ -1,4 +1,4 @@
-; holon-smt {"cone":"levels<=0","instances":{"cf":21,"cf_asserted":2,"cost":1,"dense":5,"nz":7,"time":1},"logic":"QF_AUFBV","random_seed":0,"rlimit":200000000,"steps":1,"terms":{"blobhash":6,"keccak256":7}}
+; holon-smt {"cone":"levels<=0","e1":"lazy","instances":{"cf":21,"cf_asserted":2,"cost":1,"dense":5,"nz":7,"time":1},"logic":"QF_AUFBV","random_seed":0,"rlimit":200000000,"steps":1,"terms":{"blobhash":6,"keccak256":7}}
 ; target: {"actions":["commitBatch"],"blob_gap":true,"cond":["==",["member",["param","batchDataInput"],"version"],2],"kind":"step"}
 ; the last step's goal is false in every state: no path of any length (the query states one step; it decides every k <= 2)
 ; actions before the last step: challengeState, commitBatch, commitBatchWithProof, commitState, finalizeBatch, importGenesisBatch, initialize, initialize2, initialize3, initialize4, proveState, revertBatch, setPause, updateFinalizePeriodSeconds, updateProofWindow, updateRollupDelayPeriod (cone levels 0..0 of 2: an under-approximation)
