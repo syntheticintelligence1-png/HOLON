@@ -564,22 +564,22 @@ def _binding_change(entry: dict, old: dict, new: dict, root: Path) -> dict:
     A proof carried by the entry (any key) is never read."""
     from . import bindings as B
     from .gen import equivalence as EQ
-    m, lid, bc = entry.get("milestone"), new["law_id"], entry.get("bound_commit")
-    if not isinstance(m, str) or not isinstance(bc, str) or not isinstance(entry.get("defs"), list):
+    m, lid, commit_b = entry.get("milestone"), new["law_id"], entry.get("bound_commit")
+    if not isinstance(m, str) or not isinstance(commit_b, str) or not isinstance(entry.get("defs"), list):
         return _res(False, "an unsigned binding_change carries milestone, bound_commit and defs (the equivalence is "
                            "generated and checked here; a supplied proof does not count)")
     if not in_git(root):
         return _res(False, "a binding_change is checked against the bound kernel forms at bound_commit, which needs the "
                            "git history (a copied tree cannot check it)")
-    if _git(root, "merge-base", "--is-ancestor", bc, "HEAD").returncode != 0:
-        return _res(False, f"bound_commit {bc[:12]} is not a commit in HEAD's history")
+    if _git(root, "merge-base", "--is-ancestor", commit_b, "HEAD").returncode != 0:
+        return _res(False, f"bound_commit {commit_b[:12]} is not a commit in HEAD's history")
     cur = root / "laws" / m / f"{lid}.json"
     law = _json_or_none(cur.read_bytes()) if cur.is_file() else None
     if not _is_law(law) or core(law) != core(new):
         return _res(False, f"the entry's statement is not {lid}'s statement on the tree")
-    ob = _binding_at(root, bc, m, lid)
+    ob = _binding_at(root, commit_b, m, lid)
     if ob is None:
-        return _res(False, f"spec/bindings/{m}.json at {bc[:12]} binds no {lid}")
+        return _res(False, f"spec/bindings/{m}.json at {commit_b[:12]} binds no {lid}")
     try:
         nb = B.bind_law(law, m, root)
     except Exception as e:  # noqa: BLE001  (a law that cannot be bound now has no binding change to check)
@@ -589,16 +589,16 @@ def _binding_change(entry: dict, old: dict, new: dict, root: Path) -> dict:
         return _res(False, f"the binding of {lid} changes {diff}, not only its cone: not a binding change")
     changed = B.changed_defs(ob, nb)
     if not changed:
-        return _res(False, f"the binding of {lid} at {bc[:12]} is the binding on the tree: nothing changed")
+        return _res(False, f"the binding of {lid} at {commit_b[:12]} is the binding on the tree: nothing changed")
     if sorted(entry["defs"]) != changed:
         return _res(False, f"the entry's defs are not the changed definitions of {lid}'s binding ({len(changed)}: "
                            f"{', '.join(changed[:6])}{' ...' if len(changed) > 6 else ''})")
-    old_bytes = model_at(root, bc, ob["model"])
+    old_bytes = model_at(root, commit_b, ob["model"])
     if old_bytes is None:
-        return _res(False, f"{ob['model']} does not exist at {bc[:12]}")
+        return _res(False, f"{ob['model']} does not exist at {commit_b[:12]}")
     old_text, new_text = old_bytes.decode("utf-8"), (root / nb["model"]).read_text()
     try:
-        eo = EQ.kernel_entries_of(old_text, None, f"{ob['model']} at {bc[:12]}")
+        eo = EQ.kernel_entries_of(old_text, None, f"{ob['model']} at {commit_b[:12]}")
         en = EQ.kernel_entries_of(new_text, None, nb["model"])
     except Exception as e:  # noqa: BLE001
         return _res(False, f"a model does not translate to BendTT: {e}")
@@ -606,10 +606,10 @@ def _binding_change(entry: dict, old: dict, new: dict, root: Path) -> dict:
         bad = sorted(d for d, h in bnd["cone"].items() if d not in es or hashlib.sha256(es[d].encode()).hexdigest() != h)
         if bad:
             return _res(False, f"the {tag} model's kernel forms are not the {tag} binding's ({', '.join(bad[:5])}): "
-                               f"{ob['model']} at {bc[:12]} is not the bound model" if tag == "old" else
+                               f"{ob['model']} at {commit_b[:12]} is not the bound model" if tag == "old" else
                                f"the {tag} model's kernel forms are not the {tag} binding's ({', '.join(bad[:5])})")
     eqv = EQ.prove(old_text, new_text, B.statement_text(law, m, root), eo=eo, en=en)
-    eqv["bound_commit"] = bc
+    eqv["bound_commit"] = commit_b
     eqv["models"] = {"old": _sha(old_bytes), "new": _sha(new_text.encode("utf-8")), "path": nb["model"]}
     if eqv["status"] == "PROVED":
         return _res(True, f"binding_change: every root of {lid}'s statement is unchanged or proven extensionally equal "
@@ -650,19 +650,19 @@ def binding_change_entries(milestone: str, root: Path) -> tuple[list[dict], list
         if any(ob.get(k) != nb.get(k) for k in BINDING_KEYS):
             notes.append(f"{lid}: its binding changes beyond the cone: not a binding change")
             continue
-        bc = None
+        commit_b = None
         for c in hist:   # newest first: keep going back while the law's binding is the current one
             x = _binding_at(root, c, milestone, lid)
             if ir.canonical_json(x) != ir.canonical_json(ob):
                 break
-            bc = c
-        if bc is None:
+            commit_b = c
+        if commit_b is None:
             notes.append(f"{lid}: no commit holds its current binding (commit spec/bindings/{milestone}.json first)")
             continue
         out.append({"kind": "binding_change", "law_id": lid, "milestone": milestone, "old": law, "new": law,
-                    "bound_commit": bc, "defs": changed,
+                    "bound_commit": commit_b, "defs": changed,
                     "reason": f"{lid}: {len(changed)} definitions of its cone changed under the fixed statement "
-                              f"(model {nb['model']}); bound at {bc[:12]}"})
+                              f"(model {nb['model']}); bound at {commit_b[:12]}"})
     return out, notes
 
 

@@ -377,6 +377,10 @@ class _Closure:
             for k in ("on", "from", "at", "env"):
                 self.term(t.get(k))
             return
+        if isinstance(t.get("undo"), str) and isinstance(t.get("on"), list):   # an UNDO term (I27)
+            self.undo(t["undo"])
+            self.term(t["on"])
+            return
         for v in t.values():
             self.term(v)
 
@@ -413,6 +417,19 @@ class _Closure:
             return
         from ..analysis.closure import disch_ref
         self.out["disch:" + did] = disch_ref(did, self.law, self.root)
+
+    def undo(self, uid: str) -> None:
+        """undo:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the pair or residue
+        basis ID (holon.rules.undo.undo_ref), recomputed from the law's document; and every action of the document
+        as it states it (A_<name>): the claim observes every trace, so every action is in its meaning."""
+        if "undo:" + uid in self.out:
+            return
+        from ..rules.undo import undo_ref
+        self.out["undo:" + uid] = undo_ref(uid, self.law, self.root)
+        self.acts_sig()
+        self.tmpl("step")
+        for n in sorted(self.acts):
+            self.action(n)
 
     def site(self, sid: str) -> None:
         """site:<ID>: the site's spec (holon.sorts.sites.site_ref), from the facts, their library and the sidecar."""

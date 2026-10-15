@@ -76,6 +76,13 @@ def check_binder_types(law: dict, facts: dict | None) -> None:
         t = str(b.get("type", ""))
         if t in BASE_TYPES or t.startswith("Fn<") or re.fullmatch(r"Bytes\([0-9]+\)", t):
             continue
+        # I27: a 256-bit word, and the value type of a storage family of the law's transitions document
+        if t == "Word" and (facts or {}).get("facts_version") == "holon-facts/0.3":
+            continue
+        mv = re.fullmatch(r"Val\[([A-Za-z_][A-Za-z0-9_]*)\]", t)
+        if mv and mv.group(1) in {f.get("name") for f in ((facts or {}).get("storage") or []) +
+                                  ((facts or {}).get("inherited_storage") or []) if isinstance(f, dict)}:
+            continue
         if t not in types:
             raise IRError(f"{law.get('law_id')}: binder {b.get('name')}: {t} is neither an IR type nor a record type "
                           "of its facts")
@@ -237,6 +244,9 @@ def render_term(t: dict) -> str:
     if "disch" in t and "on" in t and "from" in t:
         return (f"disch_ok[{t['disch']}]({render_term(t['on'])}, {render_term(t['from'])}, "
                 f"{render_term(t.get('at'))}, {render_term(t.get('env'))})")
+    # holon-ir/0.3 (I27): an UNDO term, the undo law of the pair or residue ID over the law's binders (holon.rules.undo)
+    if "undo" in t and isinstance(t.get("on"), list):
+        return f"undo_ok[{t['undo']}]({', '.join(render_term(a) for a in t['on'])})"
     # holon-ir/0.3 (I24): a facts expression in a state, with an action's inputs ({"expr": E, "from": S, ..})
     if "expr" in t and "from" in t:
         from .diagram.access import render as render_expr

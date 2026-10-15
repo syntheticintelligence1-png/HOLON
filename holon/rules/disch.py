@@ -78,7 +78,9 @@ def _fresh(ctx) -> tuple[C.Sidecar, dict]:
         if have != text:
             raise Refused(f"gen/{ctx.milestone}/disch/{name} is stale: it is not what `holon disch --milestone "
                           f"{ctx.milestone}` writes now")
-    inp = getattr(ctx, "inputs", None)
+    inp = getattr(ctx, "disch_inputs", None)
+    if inp is None:
+        inp = getattr(ctx, "inputs", None)
     if inp is not None:   # DERIVATION's inputs: the sidecar and every file holon disch reads
         inp.read(sc.path)
         for i in sc.doc.get("inputs") or []:

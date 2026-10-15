@@ -897,8 +897,8 @@ def strip_args(rest: list, names: tuple) -> list:
 
 def main(argv: list) -> int:
     """holon run | replay of a typed milestone with DISCH laws (holon/__main__.py sends --laws naming only DISCH laws,
-    or a run or replay of the whole milestone, here): I30's laws first (holon.sorts.run3, as before), then the DISCH
-    laws."""
+    or a run or replay of the whole milestone, here): I30's and I27's laws first (holon.undo.run, as before), then the
+    DISCH laws."""
     cmd, rest = argv[0], argv[1:]
     ap = argparse.ArgumentParser(prog=f"holon {cmd}", add_help=False)
     ap.add_argument("--milestone", required=True)
@@ -909,12 +909,13 @@ def main(argv: list) -> int:
     ap.add_argument("--gen-dir")
     a, _unknown = ap.parse_known_args(rest)
     base = strip_args(rest, ("--disch",))
+    from ..undo import run as undo_run   # I30's laws (holon.sorts.run3) and I27's UNDO laws, as before the DISCH laws
     if cmd == "run":
         rc = 0
         if not a.laws:
             dv = json.loads((ROOT / "laws" / a.milestone / "DERIVATION.json").read_text())
-            if any(isinstance(e, dict) and e.get("rule") == "SORT" for e in dv.get("laws") or []):
-                rc = R3.main([cmd] + base)
+            if any(isinstance(e, dict) and e.get("rule") in ("SORT", "UNDO") for e in dv.get("laws") or []):
+                rc = undo_run.main([cmd] + base)
         return max(rc, run_disch(a))
-    rc = R3.main([cmd] + base)
+    rc = undo_run.main([cmd] + base)
     return max(rc, replay_disch(a))

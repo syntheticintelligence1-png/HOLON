@@ -246,6 +246,10 @@
     {
       "path": "spec/M3/lib/sort_types.json",
       "sha256": "9318a9aa27a5e6a8571099f09bd81ab545f87bbd724e1755422df6f771c52150"
+    },
+    {
+      "path": "spec/M3/lib/undo.json",
+      "sha256": "10fe2cef27768ea38e7dffebdf2f019568e809c739dc03cff554040c1ed501c1"
     }
   ],
   "laws": [
@@ -3968,6 +3972,511 @@
       "rule": "SORT",
       "statement_hash": "sha256:1701b77f9128a2fe988bf96336d9c7ccefc16ada7a7fa4d0c90f9960dacb49f3",
       "subform": "as_member"
+    },
+    {
+      "basis": {
+        "a": "addChallenger",
+        "contract": "Rollup",
+        "criteria": [
+          "guard"
+        ],
+        "kind": "undo_pair",
+        "model": "morph_rollup.extracted",
+        "residues": [],
+        "restores": [
+          {
+            "a_write": "writes[0]",
+            "family": "isChallenger",
+            "how": "zero",
+            "pin": "guards[1]",
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "removeChallenger"
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_undo_pair_Rollup_addChallenger_removeChallenger",
+      "rule": "UNDO",
+      "statement_hash": "sha256:00aa10b77bfc6ef4cfa5c76c859aef2e633bfd752f27dfbf8578f42390deae06",
+      "static": {
+        "class": "dead",
+        "residues": {}
+      },
+      "subform": "pair"
+    },
+    {
+      "basis": {
+        "a": "commitBatchWithProof",
+        "contract": "Rollup",
+        "criteria": [
+          "cursor",
+          "event",
+          "guard"
+        ],
+        "kind": "undo_pair",
+        "model": "morph_rollup.extracted",
+        "residues": [
+          "batchBlobVersionedHashes",
+          "batchDataStore",
+          "committedStateRoots"
+        ],
+        "restores": [
+          {
+            "a_write": "writes[0]",
+            "family": "committedBatches",
+            "how": "zero",
+            "pin": "guards[14]",
+            "undo_write": "writes[1]"
+          },
+          {
+            "a_write": "writes[4]",
+            "family": "lastCommittedBatchIndex",
+            "how": "cursor",
+            "pin": null,
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "revertBatch"
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_undo_pair_Rollup_commitBatchWithProof_revertBatch",
+      "rule": "UNDO",
+      "statement_hash": "sha256:7ef53862a7e8e6705c2c8a88434cb40b4a705e3c9e3de6746cf5ce9a0c7d71f6",
+      "static": {
+        "class": "live",
+        "residues": {
+          "batchBlobVersionedHashes": "live",
+          "batchDataStore": "live",
+          "committedStateRoots": "dead"
+        }
+      },
+      "subform": "pair"
+    },
+    {
+      "basis": {
+        "a": "commitBatch",
+        "contract": "Rollup",
+        "criteria": [
+          "cursor",
+          "event",
+          "guard"
+        ],
+        "kind": "undo_pair",
+        "model": "morph_rollup.extracted",
+        "residues": [
+          "batchBlobVersionedHashes",
+          "batchDataStore",
+          "committedStateRoots"
+        ],
+        "restores": [
+          {
+            "a_write": "writes[0]",
+            "family": "committedBatches",
+            "how": "zero",
+            "pin": "guards[14]",
+            "undo_write": "writes[1]"
+          },
+          {
+            "a_write": "writes[4]",
+            "family": "lastCommittedBatchIndex",
+            "how": "cursor",
+            "pin": null,
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "revertBatch"
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_undo_pair_Rollup_commitBatch_revertBatch",
+      "rule": "UNDO",
+      "statement_hash": "sha256:bb3717a7c2d7afcae3f1d4caadf619cf235e5d33bd39e5518ee0ea205abf6d4d",
+      "static": {
+        "class": "live",
+        "residues": {
+          "batchBlobVersionedHashes": "live",
+          "batchDataStore": "live",
+          "committedStateRoots": "dead"
+        }
+      },
+      "subform": "pair"
+    },
+    {
+      "basis": {
+        "a": "commitState",
+        "contract": "Rollup",
+        "criteria": [
+          "cursor",
+          "event",
+          "guard"
+        ],
+        "kind": "undo_pair",
+        "model": "morph_rollup.extracted",
+        "residues": [
+          "batchDataStore",
+          "committedStateRoots"
+        ],
+        "restores": [
+          {
+            "a_write": "writes[0]",
+            "family": "committedBatches",
+            "how": "zero",
+            "pin": "guards[13]",
+            "undo_write": "writes[1]"
+          },
+          {
+            "a_write": "writes[4]",
+            "family": "lastCommittedBatchIndex",
+            "how": "cursor",
+            "pin": null,
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "revertBatch"
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_undo_pair_Rollup_commitState_revertBatch",
+      "rule": "UNDO",
+      "statement_hash": "sha256:128dc23b28362651e23a5955d2872bd12d8a44e1b639625ab8ef123567bfcf44",
+      "static": {
+        "class": "live",
+        "residues": {
+          "batchDataStore": "live",
+          "committedStateRoots": "dead"
+        }
+      },
+      "subform": "pair"
+    },
+    {
+      "basis": {
+        "a": "removeChallenger",
+        "contract": "Rollup",
+        "criteria": [
+          "guard"
+        ],
+        "kind": "undo_pair",
+        "model": "morph_rollup.extracted",
+        "residues": [],
+        "restores": [
+          {
+            "a_write": "writes[0]",
+            "family": "isChallenger",
+            "how": "literal",
+            "pin": "guards[1]",
+            "undo_write": "writes[0]"
+          }
+        ],
+        "undo": "addChallenger"
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_undo_pair_Rollup_removeChallenger_addChallenger",
+      "rule": "UNDO",
+      "statement_hash": "sha256:a069b426c6306125faa1cb6008c89149689d008b224d8e7a8be6e85226325db5",
+      "static": {
+        "class": "dead",
+        "residues": {}
+      },
+      "subform": "pair"
+    },
+    {
+      "basis": {
+        "contract": "Rollup",
+        "cursors": [
+          "lastCommittedBatchIndex"
+        ],
+        "family": "batchBlobVersionedHashes",
+        "kind": "undo_residue",
+        "model": "morph_rollup.extracted",
+        "pairs": [
+          "commitBatch",
+          "commitBatchWithProof"
+        ],
+        "undo": "revertBatch",
+        "zero": [
+          "challenges",
+          "committedBatches"
+        ]
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes",
+      "rule": "UNDO",
+      "statement_hash": "sha256:7d61dfa9cd980dc54648b146bc7031c421aa1c40ab3ab0477af282e18acaa76e",
+      "static": {
+        "class": "live",
+        "excluded": [],
+        "live_readers": [
+          {
+            "action": "commitBatch",
+            "at": "guards[7].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[8].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[9].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[10].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[19].reaches[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "checks[3]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "writes[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "writes[2]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "events[0]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "mstores[2]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "mstores[13]"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "loops[0]"
+          },
+          {
+            "action": "commitState",
+            "at": "guards[8].reaches[0]"
+          },
+          {
+            "action": "commitState",
+            "at": "writes[0]"
+          },
+          {
+            "action": "commitState",
+            "at": "writes[2]"
+          },
+          {
+            "action": "commitState",
+            "at": "events[0]"
+          },
+          {
+            "action": "commitState",
+            "at": "mstores[12]"
+          }
+        ]
+      },
+      "subform": "residue"
+    },
+    {
+      "basis": {
+        "contract": "Rollup",
+        "cursors": [
+          "lastCommittedBatchIndex"
+        ],
+        "family": "batchDataStore",
+        "kind": "undo_residue",
+        "model": "morph_rollup.extracted",
+        "pairs": [
+          "commitBatch",
+          "commitBatchWithProof",
+          "commitState"
+        ],
+        "undo": "revertBatch",
+        "zero": [
+          "challenges",
+          "committedBatches"
+        ]
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_undo_res_Rollup_revertBatch_batchDataStore",
+      "rule": "UNDO",
+      "statement_hash": "sha256:33b4830e4631dfbe5cc55dea66ef43a17fe5e9cc4797ec960d1fb69d4e65173d",
+      "static": {
+        "class": "live",
+        "excluded": [
+          {
+            "action": "batchExist",
+            "at": "returns",
+            "rules": [
+              "D3"
+            ]
+          },
+          {
+            "action": "challengeState",
+            "at": "guards[6].reaches[0]",
+            "rules": [
+              "D3"
+            ]
+          },
+          {
+            "action": "challengeState",
+            "at": "guards[8].reaches[0]",
+            "rules": [
+              "D2"
+            ]
+          },
+          {
+            "action": "challengeState",
+            "at": "panics[1]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "challengeState",
+            "at": "writes[2]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[2].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[3].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "checks[2]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "panics[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "guards[7].reaches[0]",
+            "rules": [
+              "D3"
+            ]
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "guards[10].reaches[0]",
+            "rules": [
+              "D2"
+            ]
+          },
+          {
+            "action": "proveState",
+            "at": "panics[2]",
+            "rules": [
+              "D2"
+            ]
+          },
+          {
+            "action": "proveState",
+            "at": "panics[3]",
+            "rules": [
+              "D2"
+            ]
+          },
+          {
+            "action": "proveState",
+            "at": "calls[1]",
+            "rules": [
+              "D2"
+            ]
+          },
+          {
+            "action": "proveState",
+            "at": "writes[4]",
+            "rules": [
+              "D2"
+            ]
+          }
+        ],
+        "live_readers": [
+          {
+            "action": "batchInsideChallengeWindow",
+            "at": "returns"
+          }
+        ]
+      },
+      "subform": "residue"
+    },
+    {
+      "basis": {
+        "contract": "Rollup",
+        "cursors": [
+          "lastCommittedBatchIndex"
+        ],
+        "family": "committedStateRoots",
+        "kind": "undo_residue",
+        "model": "morph_rollup.extracted",
+        "pairs": [
+          "commitBatch",
+          "commitBatchWithProof",
+          "commitState"
+        ],
+        "undo": "revertBatch",
+        "zero": [
+          "challenges",
+          "committedBatches"
+        ]
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_undo_res_Rollup_revertBatch_committedStateRoots",
+      "rule": "UNDO",
+      "statement_hash": "sha256:f6121749f98daf4106a4e004dc7bb16dc6c9f84e79041c33eeb4f6a60252a5ec",
+      "static": {
+        "class": "dead",
+        "excluded": [
+          {
+            "action": "commitBatch",
+            "at": "guards[17].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "guards[17].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "commitState",
+            "at": "guards[16].reaches[0]",
+            "rules": [
+              "D1"
+            ]
+          },
+          {
+            "action": "initialize2",
+            "at": "writes[2]",
+            "rules": [
+              "D1"
+            ]
+          }
+        ],
+        "live_readers": []
+      },
+      "subform": "residue"
     }
   ],
   "links": [],

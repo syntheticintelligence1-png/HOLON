@@ -51,10 +51,9 @@ CATALOG = {"SORT": {"site": _sites, "width": _width}}
 #   holon-rules/1.2  I30's: the rules of holon-rules/1.1 unchanged (the same producer objects), plus SORT's typed
 #                    subforms realize, as_member and reinterpret (holon.rules.sort; whitepaper §7.8); M3 and later, and
 #                    test milestones T<n> with n >= 30. M2 keeps I15's SORT/site and I20's SORT/width.
-#   holon-rules/1.4  I31's: the rules of holon-rules/1.2 unchanged (the same producer objects), plus rule DISCH's
-#                    sub-forms blocking, revert, external and external_none (holon.rules.disch); M3 and later. A typed
-#                    test milestone keeps holon-rules/1.2 and takes 1.4 through derive's --catalog. (holon-rules/1.3 is
-#                    I27's, when it is merged: its rules are then in 1.4 as well.)
+#   holon-rules/1.4  I31's: the rules of holon-rules/1.3 unchanged (the same producer objects: PAR, SORT, I27's UNDO),
+#                    plus rule DISCH's sub-forms blocking, revert, external and external_none (holon.rules.disch); M3
+#                    and later. A typed test milestone keeps holon-rules/1.2 and takes 1.4 through derive's --catalog.
 from . import par as _par  # noqa: E402
 from . import disch as _disch  # noqa: E402
 PAR_CATALOG_VERSION = "holon-rules/1.1"
@@ -63,15 +62,22 @@ DISCH_CATALOG_VERSION = "holon-rules/1.4"
 CATALOGS = {RULE_CATALOG_VERSION: CATALOG, PAR_CATALOG_VERSION: {"PAR": dict(_par.PRODUCERS)}}
 CATALOGS[TYPED_CATALOG_VERSION] = {**{r: subs for r, subs in CATALOGS[PAR_CATALOG_VERSION].items()},
                                    "SORT": dict(_sort.PRODUCERS)}
-CATALOGS[DISCH_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[TYPED_CATALOG_VERSION].items()},
+#   holon-rules/1.3  I27's: the rules of holon-rules/1.2 unchanged (the same producer objects: I24's PAR, I30's SORT),
+#                    plus rule UNDO's subforms pair and residue (holon.rules.undo; whitepaper §5.2). A test milestone
+#                    keeps its catalog and takes this one through derive's --catalog.
+from . import undo as _undo  # noqa: E402
+UNDO_CATALOG_VERSION = "holon-rules/1.3"
+CATALOGS[UNDO_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[TYPED_CATALOG_VERSION].items()},
+                                  "UNDO": dict(_undo.PRODUCERS)}
+CATALOGS[DISCH_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[UNDO_CATALOG_VERSION].items()},
                                    "DISCH": dict(_disch.PRODUCERS)}
 
 
 def catalog_version(milestone: str) -> str:
     """The rule-catalog version a milestone derives with: holon-rules/1.4 for the typed target milestones (M3 and
-    later), holon-rules/1.2 for the typed test milestones (T<n> with n >= 30; holon.sorts.typed_sidecar.typed);
-    holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's catalog may be replaced with
-    `--catalog`."""
+    later: I27's UNDO and I31's DISCH); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
+    holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's
+    catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
     return DISCH_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
@@ -217,7 +223,7 @@ class TypedDocument:
 
 
 def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = None, assignment: str | None = None,
-                sidecar: str | None = None, disch: str | None = None) -> dict:
+                sidecar: str | None = None, disch: str | None = None, undo_sidecar: str | None = None) -> dict:
     """derive's typed part (I30), for a typed milestone (M3+, T30+): the sidecar's transitions documents (or --facts),
     the frozen assignment gen/<M>/sorts/assignment.json (read, never written: Thm 6.18) and every producer of catalog
     `cv` that takes the typed context (every rule but PAR, whose engine is _par_part). No hand-written fact document, no
@@ -262,13 +268,15 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
     # --disch for a test milestone (without one a test milestone derives nothing for DISCH)
     ctx.disch_sidecar = disch
     ctx.disch_enabled = bool(disch) or target_milestone(milestone)
-    ctx.inputs = Inputs(root)          # DISCH's inputs: DERIVATION lists them, the obstructions document does not
+    ctx.disch_inputs = Inputs(root)    # DISCH's inputs: DERIVATION lists them, the obstructions document does not
+    ctx.undo_sidecar = undo_sidecar     # I27: rule UNDO's sidecar (default spec/<M>/lib/undo.json)
+    ctx.inputs = inputs
     pairs = []
     try:
         for rule in _typed_rules(catalog):
             for sub in sorted(catalog[rule]):
                 pairs += catalog[rule][sub].produce(ctx)
-    except _sort.SortRuleError as e:
+    except (_sort.SortRuleError, _undo.UndoError) as e:
         raise DeriveError(str(e)) from e
     ids = [law["law_id"] for law, _ in pairs]
     dup = sorted({i for i in ids if ids.count(i) > 1})
@@ -291,7 +299,7 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
            "inputs": inputs.listing(), "sorts_sha256": A.get("sorts_sha256"),
            "obstructions": sorted(obstructions, key=lambda o: o["id"])}
     return {"laws": laws, "entries": entries, "inputs": inputs, "assignment": A,
-            "shas": {d.rel: d.sha256 for d in by_rel.values()}, "obstructions": obs, "disch_inputs": ctx.inputs}
+            "shas": {d.rel: d.sha256 for d in by_rel.values()}, "obstructions": obs, "disch_inputs": ctx.disch_inputs}
 
 
 def _typed_rules(catalog: dict) -> list[str]:
@@ -326,7 +334,7 @@ def _is_transitions_file(f: str, root: Path) -> bool:
 
 def compute(milestone: str, root: Path, facts: list[str] | None = None, assignment: str | None = None,
             sidecar: str | None = None, catalog: str | None = None, codecs: list[str] | None = None,
-            disch: str | None = None) -> dict:
+            disch: str | None = None, undo_sidecar: str | None = None) -> dict:
     """Everything derive writes, as documents (nothing is written here), with the milestone's catalog or `catalog`:
     holon-rules/1.0 here (I15's SORT/site, I20's SORT/width); a later catalog in compute_catalog (I24's PAR, I30's
     typed SORT, I31's DISCH)."""
@@ -334,7 +342,7 @@ def compute(milestone: str, root: Path, facts: list[str] | None = None, assignme
     if cv not in CATALOGS:
         raise ValueError(f"unknown catalog {cv!r} (known: {sorted(CATALOGS)})")
     if CATALOGS[cv] is not CATALOG:
-        return compute_catalog(milestone, root, cv, facts, codecs, assignment, sidecar, disch)
+        return compute_catalog(milestone, root, cv, facts, codecs, assignment, sidecar, disch, undo_sidecar)
     from ..gen import refs as R
     inputs = Inputs(root)
     paths = _documents(milestone, root, facts)
@@ -617,7 +625,7 @@ def _par_part(milestone: str, root: Path, cv: str, inputs: Inputs, facts: list[s
 
 def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None = None,
                     codecs: list[str] | None = None, assignment: str | None = None, sidecar: str | None = None,
-                    disch: str | None = None) -> dict:
+                    disch: str | None = None, undo_sidecar: str | None = None) -> dict:
     """Everything derive writes for a catalog after holon-rules/1.0, as documents (nothing is written): rule PAR (I24)
     and the rules that take the typed context (I30's SORT realize, as_member and reinterpret), each over its own
     documents, in one DERIVATION and one REGISTRY.
@@ -648,7 +656,7 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
     if has_par and (pfacts or codecs or (not given and (target_milestone(milestone) or not typed_rules))):
         par = _par_part(milestone, root, cv, inputs, pfacts, codecs, assignment)
     if typed_rules and (tfacts or not given):
-        typed = _typed_part(milestone, root, cv, tfacts, assignment, sidecar, disch)
+        typed = _typed_part(milestone, root, cv, tfacts, assignment, sidecar, disch, undo_sidecar)
         inputs.files.update(typed["inputs"].files)
         inputs.files.update(typed["disch_inputs"].files)
     laws, entries, shas = {}, [], {}
@@ -698,8 +706,8 @@ def diff(base: dict, new: dict) -> dict:
     out = []
     for lid in sorted(set(b) | set(n)):
         x, y = b.get(lid), n.get(lid)
-        eb = set(x["entry_points"]) if x else set()
-        en = set(y["entry_points"]) if y else set()
+        eb = set(x.get("entry_points") or []) if x else set()
+        en = set(y.get("entry_points") or []) if y else set()
         if x is None:
             change = "added"
         elif y is None:
@@ -715,7 +723,7 @@ def diff(base: dict, new: dict) -> dict:
 def derive(milestone: str, root: str | None = None, out: str | None = None, obstructions: str | None = None,
            facts: list[str] | None = None, assignment: str | None = None, against: str | None = None,
            diff_path: str | None = None, log=print, catalog: str | None = None, codecs: list[str] | None = None,
-           sidecar: str | None = None, disch: str | None = None) -> int:
+           sidecar: str | None = None, disch: str | None = None, undo_sidecar: str | None = None) -> int:
     root_p = Path(root).resolve() if root else ROOT
     cv = catalog or catalog_version(milestone)
     if cv not in CATALOGS:
@@ -730,7 +738,8 @@ def derive(milestone: str, root: str | None = None, out: str | None = None, obst
               file=sys.stderr)
         return 1
     try:
-        res = compute(milestone, root_p, facts, assignment, sidecar, catalog=cv, codecs=codecs, disch=disch)
+        res = compute(milestone, root_p, facts, assignment, sidecar, catalog=cv, codecs=codecs, disch=disch,
+                      undo_sidecar=undo_sidecar)
         base = None
         if against:
             ap = Path(against)
@@ -766,7 +775,7 @@ def derive(milestone: str, root: str | None = None, out: str | None = None, obst
     n_obs = len(res["obstructions"]["obstructions"]) if res["obstructions"] is not None else 0
     log(f"holon derive: {len(res['laws'])} laws, {n_obs} obstructions -> {laws_dir}")
     for e in res["derivation"]["laws"]:
-        log(f"  {e['law_id']:58s} {', '.join(e['entry_points'])}")
+        log(f"  {e['law_id']:58s} {', '.join(e.get('entry_points') or [])}")
     return 0
 
 
@@ -787,8 +796,9 @@ def main(argv=None) -> int:
                                       "spec/<M>/lib/sort_types.json)")
     ap.add_argument("--disch", help="the DISCH sidecar (I31; default spec/<M>/lib/disch.json for a target milestone; a "
                                     "test milestone derives DISCH only with one)")
+    ap.add_argument("--undo-sidecar", help="rule UNDO's sidecar (default spec/<M>/lib/undo.json; I27)")
     a = ap.parse_args(argv)
     if bool(a.against) != bool(a.diff):
         ap.error("--against and --diff go together")
     return derive(a.milestone, a.root, a.out, a.obstructions, a.facts, a.assignment, a.against, a.diff,
-                  catalog=a.catalog, codecs=a.codec, sidecar=a.sidecar, disch=a.disch)
+                  catalog=a.catalog, codecs=a.codec, sidecar=a.sidecar, disch=a.disch, undo_sidecar=a.undo_sidecar)

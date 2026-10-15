@@ -1,7 +1,7 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "title": "HOLON law IR (holon-ir/0.3): typed state-machine laws with function binders, CF/hyp premises and scope",
- "description": "Extends holon-ir/0.2 (I7): rule_catalog_version (hashed), Fn<A,B>, Bytes(n), List<Nat> and record-ref binder types (a record type of the law's facts, checked against them by holon.ir.check_binder_types: G3 and holon run), Reach, the application term {app: f, args}, premises {cf: {fn, set: [terms]}} (a finite set; global injectivity is rejected by holon.ir.check_premises, G3), {hyp: {name}} and {neq: [a, b]}, statement.scope (bounded{H} bounds every Trace binder to H actions; at_state{ref} is Unsupported until a generator resolves the state), structured maps_to, and the negation links of an existential law and its frozen negation subform (negation, negation_of: holon.ir.negation_law). The 0.3 statement hash covers the statement and the content hashes (refs) of the definitions it depends on, transitively (holon.gen.refs), not the facts bundle. I15 adds, additively, the SORT-site term {site: ID, on: A, from: S} (holon.sorts.sites): the Bool 'every evaluation of the subtraction site ID while action A runs from state S has minuend >= subtrahend', rendered site_ok[ID](A, S); its statement ref site:ID hashes the site's spec (basis and hit points) computed from the facts and the SORT-site sidecar (holon.gen.refs). I24 adds, additively, the codec terms {call, args}, {field, of}, {bytes}, {some} (with {var} and {bool}) of laws over a holon-facts/0.1 document or a linked codec document (holon.diagram.linked), and the expr term {expr: E, from: S [, action: A, on: T] [, bind: {name: term}]} over a holon-facts/0.2 document; their refs are holon.gen.refs's (codec terms: fn:, type:, carrier:; expr: the closure of what E names).",
+ "description": "Extends holon-ir/0.2 (I7): rule_catalog_version (hashed), Fn<A,B>, Bytes(n), List<Nat> and record-ref binder types (a record type of the law's facts, checked against them by holon.ir.check_binder_types: G3 and holon run), Reach, the application term {app: f, args}, premises {cf: {fn, set: [terms]}} (a finite set; global injectivity is rejected by holon.ir.check_premises, G3), {hyp: {name}} and {neq: [a, b]}, statement.scope (bounded{H} bounds every Trace binder to H actions; at_state{ref} is Unsupported until a generator resolves the state), structured maps_to, and the negation links of an existential law and its frozen negation subform (negation, negation_of: holon.ir.negation_law). The 0.3 statement hash covers the statement and the content hashes (refs) of the definitions it depends on, transitively (holon.gen.refs), not the facts bundle. I15 adds, additively, the SORT-site term {site: ID, on: A, from: S} (holon.sorts.sites): the Bool 'every evaluation of the subtraction site ID while action A runs from state S has minuend >= subtrahend', rendered site_ok[ID](A, S); its statement ref site:ID hashes the site's spec (basis and hit points) computed from the facts and the SORT-site sidecar (holon.gen.refs). I24 adds, additively, the codec terms {call, args}, {field, of}, {bytes}, {some} (with {var} and {bool}) of laws over a holon-facts/0.1 document or a linked codec document (holon.diagram.linked), and the expr term {expr: E, from: S [, action: A, on: T] [, bind: {name: term}]} over a holon-facts/0.2 document; their refs are holon.gen.refs's (codec terms: fn:, type:, carrier:; expr: the closure of what E names). I27 adds, additively, the UNDO term {undo: ID, on: [terms]} (holon.rules.undo; rendered undo_ok[ID](args); its statement ref undo:ID) and the binder types Word and Val[<family>] (a storage family of the law's transitions document).",
  "type": "object",
  "required": [
   "ir_version",
@@ -232,6 +232,11 @@
        "type": "string",
        "pattern": "^(?!(State|Trace|Act|Nat|Bool|Reach)$)[A-Z][A-Za-z0-9_]*$",
        "description": "a record ref: a record type the law's facts declare (holon.ir.check_binder_types)"
+      },
+      {
+       "type": "string",
+       "pattern": "^(Word|Val\\[[A-Za-z_][A-Za-z0-9_]*\\])$",
+       "description": "I27: a 256-bit word (Word) and the value type of a storage family of the law's document (Val[<family>]), the binders k and v of an UNDO residue law (holon.ir.check_binder_types)"
       }
      ]
     }
@@ -380,6 +385,9 @@
     },
     {
      "$ref": "#/$defs/t_disch"
+    },
+    {
+     "$ref": "#/$defs/t_undo"
     }
    ]
   },
@@ -905,6 +913,27 @@
     },
     "env": {
      "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_undo": {
+   "type": "object",
+   "required": [
+    "undo",
+    "on"
+   ],
+   "additionalProperties": false,
+   "description": "an UNDO term (I27, holon.rules.undo): the undo id <model>:pair:<a>:<undo> or <model>:residue:<undo>:<family> applied to the law's binders, in order: the Bool 'the pair's undo law holds' (pair: s, x, y, t) or 'setting the residue's register at k to v changes no observation of t' (residue: s, k, v, t), then the hash binders; rendered undo_ok[ID](args); its statement ref undo:ID hashes the template, version, subform and basis recomputed from the document (holon.gen.refs)",
+   "properties": {
+    "undo": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:(pair|residue):[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+    },
+    "on": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/term"
+     }
     }
    }
   }
