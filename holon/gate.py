@@ -44,7 +44,9 @@ A full run records its wall time as from_scratch_gate_s in results/<m>/metrics_t
         premises pass holon.ir.check_premises (no global injectivity) and every 0.3 record-ref binder type names a
         facts type; no file under gen/<m>/proofs/ declares a law, comments removed as Bend removes them
         (laws_in_proofs: prover separation for milestones after M1, I10); no bare core LAWS
-        import (I8); gen/<m>/lean/*.lean hold none of holon.lean.FORBIDDEN, comments removed (I9)
+        import (I8); gen/<m>/lean/*.lean hold none of holon.lean.FORBIDDEN, comments removed (I9); since I43, for a
+        milestone with Lean directories (holon.lean.lean_dirs: M1-M3, M2 also gen/M2/extracted/m1/lean) every .lean
+        file under each of them, models/ included, each offending file named by its repo-relative path
   G5    every PROVED/REFUTED PROOF.bend re-checks: exit 0 and ALL PROOFS CHECK, each within
         bend.budget_s_per_file seconds (default 120), and imports exactly its LAWS.bend (F-M2-07); so does every
         REFUTED entry point's counter-law of a SORT-site record (I15, gen/<m>/proofs/<id>/entry_<e>/); timings go
@@ -82,7 +84,20 @@ A full run records its wall time as from_scratch_gate_s in results/<m>/metrics_t
         prove-the-refuted-law Lean canary are rejected, each for a semantic reason (a claim decided false or a
         definitional mismatch, never a parse or goal-shape error). Since the M2/1 audit (F-M2-20), every decided
         law must list lean4 as checked when the pinned toolchain is present, and G7 fails, labelled single-kernel,
-        when it is absent. Lean timings go to gate_timing.json (G7_lean)
+        when it is absent. Lean timings go to gate_timing.json (G7_lean). Since I43, for holon-ir/0.2 and 0.3
+        milestones with Lean directories (holon.lean.lean_dirs; M2: results/M2 and results/M2/extracted_m1), over the
+        laws I43 covers (holon.lean.items, attempted: PROVED, or REFUTED over a covered model kind): each attempted
+        record has exactly one lean4 entry, independence_class I2 exactly when it is checked; a not_run entry has an
+        allowed reason (a REFUTED law's only a resource limit); a failed entry fails G7 (a blocking cross-kernel
+        finding); every checked entry's file regenerates byte-identical (holon.lean.emit, its sha256 the record's) and
+        re-checks from scratch within the budget with allowed axioms; the model files regenerate byte-identical; no
+        record outside the covered set has a lean4 entry; without the pinned toolchain G7 fails, labelled
+        single-kernel. The detail reports "cross-kernel coverage <dir key>: <checked>/<proved>" per directory and two
+        canaries, each rejected by Lean for a semantic reason: flip:<law> (the first checked REFUTED law, its
+        counter-law's claim relation flipped, its refutation dropped) and perturb:<law> (the first PROVED law, in the
+        directories' order, either of Bend class evaluate over a machine model without oracle parameters whose claim
+        has a Nat equation, its constant k stated as k + 1, or a linked round trip without premise whose right side
+        is a field of two or more cells, its first two cells swapped; the proof kept)
   G4    >= 10 canaries of >= 3 kinds (pin_const, swap_fn, negated; state machines: holon.mcanary, including
         I15's drop_lemma and force_coercion over SORT-site laws, checked on the instrumented model), all rejected, each for a
         semantic reason (an expected/observed mismatch), never a parse error; an accepted canary
@@ -1355,9 +1370,14 @@ class Gate:
         bad += self.oracle_rules()
         for f in laws_in_proofs(self.gen):   # prover separation (I10, L14): no law under proofs/
             bad.append(f"{f.relative_to(self.root)}: declares a law under proofs/")
-        # Lean G3 (I9): the generated Lean files, comments removed, hold none of holon.lean.FORBIDDEN
+        # Lean G3 (I9): the generated Lean files, comments removed, hold none of holon.lean.FORBIDDEN. A milestone with
+        # Lean directories (I43): every .lean file under each of them, models/ included; otherwise gen/<m>/lean/*.lean
         from . import lean
-        lean_files = sorted(lean.lean_dir(self.m, self.root).glob("*.lean"))
+        ldirs = lean.lean_dirs(self.m, self.root)
+        if ldirs:
+            lean_files = sorted({f for d in ldirs for f in (self.root / d.lean).rglob("*.lean") if f.is_file()})
+        else:
+            lean_files = sorted(lean.lean_dir(self.m, self.root).glob("*.lean"))
         bad += lean.g3_violations(lean_files, self.root)   # decoded from bytes, lexed as Lean does (F36)
         extra = f"; {len(lean_files)} Lean files free of forbidden tactics and commands" if lean_files else ""
         self.checks["G3"] = _res(not bad, "no escape hatches" + extra if not bad else "; ".join(bad))
@@ -1462,8 +1482,11 @@ class Gate:
         from . import lean
         from .gen.lean_model import load_facts
         if self.irv != "holon-ir/0.1":
-            return True, (f"Lean: not applicable to {self.irv} (the Lean emitters cover holon-ir/0.1 header laws; "
-                          "state machines are I43)")
+            dirs = lean.lean_dirs(self.m, self.root)
+            if dirs:
+                return self.g7_lean_dirs(dirs)
+            return True, (f"Lean: not applicable to {self.m} ({self.irv}): it has no Lean directory (holon.lean."
+                          "lean_dirs covers the target milestones M1-M3)")
         lcfg = lean.config(self.root)
         facts = load_facts(self.facts_path)
         fsha = F.sha256_file(self.facts_path)
@@ -1567,6 +1590,196 @@ class Gate:
                   + (f"; I1-shared, lean4 not checked: {', '.join(unrun)}" if unrun else "")
                   + f"; canaries: {', '.join(can_out) or 'none'}")
         return not bad, detail + (f"; FAILED: {'; '.join(bad)}" if bad else "")
+
+    def g7_lean_dirs(self, dirs: list) -> tuple[bool, str]:
+        """Lean G7 for the holon-ir/0.2 and 0.3 milestones (I43): over the laws of every Lean directory of the
+        milestone (holon.lean.lean_dirs, in order; holon.lean.items reads the committed records), see the module
+        docstring, G7. The canaries are holon's own reading: the gate re-renders their statements (holon.lean
+        .item_statements, lean_mlaws.perturbed_nat, lean_linked.swap_canary) and keeps each law file's proofs."""
+        from . import lean
+        from .gen import lean_common as LC
+        lcfg = lean.config(self.root)
+        budget = float(lcfg["budget_s_per_file"])
+        bad, todo, coverage, notrun = [], [], [], {}
+        cands: list = []   # (dir, item, LawFile) of every attempted item with an emitted file, dirs in order
+        for d in dirs:
+            items = lean.items(d, self.root)
+            try:
+                files, models = lean.emit(d, self.root)
+            except Exception as e:  # noqa: BLE001  (an emitter crash is a failed check, never a pass)
+                bad.append(f"{d.key}: the Lean emitters cannot regenerate the directory: {type(e).__name__}: {e}")
+                files, models = {}, {}
+            ldir = self.root / d.lean
+            proved = checked = 0
+            for it in items:
+                lid, rec = it.law_id, it.record
+                ks = [k for k in rec.get("kernels") or [] if k.get("name") == "lean4"]
+                proved += it.status == "PROVED"
+                if not it.attempted:
+                    if ks:
+                        bad.append(f"{d.key}:{lid}: a lean4 entry on a record outside the covered set "
+                                   f"({it.status}, kind {it.kind})")
+                    continue
+                lf = files.get(lid)
+                if isinstance(lf, LC.LawFile):
+                    cands.append((d, it, lf))
+                if len(ks) != 1:
+                    bad.append(f"{d.key}:{lid}: {len(ks)} lean4 entries (exactly one expected)")
+                    continue
+                k = ks[0]
+                res = k.get("result")
+                if (rec.get("independence_class") == "I2") != (res == "checked"):
+                    bad.append(f"{d.key}:{lid}: independence_class {rec.get('independence_class')} but lean4 {res}")
+                want = lid if it.status == "PROVED" else f"{lid}_counter"
+                if k.get("theorem") != want:
+                    bad.append(f"{d.key}:{lid}: the lean4 entry names theorem {k.get('theorem')!r}, not {want}")
+                if res == "failed":
+                    bad.append(f"{d.key}:{lid}: lean4 failed, a cross-kernel finding that blocks the gate: "
+                               f"{k.get('note') or ''} {str(k.get('detail') or '')[:200]}".rstrip())
+                elif res == "not_run":
+                    reason = k.get("reason")
+                    allowed = LC.REFUTED_REASONS if it.status == "REFUTED" else LC.ALLOWED_REASONS
+                    if reason not in allowed:
+                        bad.append(f"{d.key}:{lid}: lean4 not_run with reason {reason!r} (allowed for a "
+                                   f"{it.status} law: {', '.join(allowed)})")
+                    else:
+                        notrun[reason] = notrun.get(reason, 0) + 1
+                elif res == "checked":
+                    checked += it.status == "PROVED"
+                    if not isinstance(lf, LC.LawFile):
+                        bad.append(f"{d.key}:{lid}: the Lean emitters cannot regenerate the checked file: {lf}")
+                        continue
+                    text = lf.text()
+                    f = ldir / f"{lid}.lean"
+                    if lean.sha256_text(text) != k.get("source_sha256"):
+                        bad.append(f"{d.key}:{lid}: the record's lean4 source_sha256 is not the regenerated text's")
+                    if k.get("source") not in (None, f.relative_to(self.root).as_posix()):
+                        bad.append(f"{d.key}:{lid}: the lean4 source {k.get('source')!r} is not "
+                                   f"{f.relative_to(self.root).as_posix()}")
+                    if lf.main != want:
+                        bad.append(f"{d.key}:{lid}: the regenerated file's main theorem is {lf.main}, not {want}")
+                    if not f.is_file() or f.read_bytes() != text.encode("utf-8"):
+                        bad.append(f"{f.relative_to(self.root).as_posix()} differs from its regeneration")
+                    todo.append((f"{d.key}:{lid}", text, [want]))
+                else:
+                    bad.append(f"{d.key}:{lid}: lean4 result {res!r} (checked, not_run or failed expected)")
+            for stem, mdl in sorted(models.items()):
+                f = ldir / "models" / f"{stem}.lean"
+                if not f.is_file() or f.read_bytes() != mdl.text().encode("utf-8"):
+                    bad.append(f"{f.relative_to(self.root).as_posix()} differs from its regeneration")
+            coverage.append(f"cross-kernel coverage {d.key}: {checked}/{proved}")
+        ok_v, version = lean.toolchain_ok(lcfg)
+        if not ok_v:
+            return False, (f"Lean: single-kernel: the pinned Lean toolchain is unavailable ({version}); the "
+                           f"{self.irv} laws of {', '.join(d.key for d in dirs)} have no second-independent kernel "
+                           f"(a labelled failure, not a pass); {'; '.join(coverage)}"
+                           + (f"; {'; '.join(bad)}" if bad else ""))
+        canaries, why_none = self.lean_canaries(cands)
+        bad += why_none
+        tmp = Path(tempfile.mkdtemp(prefix="holon-gate-lean-"))
+        jobs = max(1, min(int(lcfg.get("jobs", 4)), os.cpu_count() or 1))
+        work = todo + [(cid, text, None) for cid, text in canaries]
+        try:
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=jobs) as ex:
+                results = list(ex.map(lambda w: lean.check_text(w[1], tmp / re.sub(r"[^\w.-]", "_", w[0]),
+                                                                expect=w[2], cfg=lcfg), work))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+        timing, can_out, rechecked = {}, [], 0
+        cids = {c[0] for c in canaries}
+        for (wid, _, _), r in zip(work, results):
+            timing[wid] = r["seconds"]
+            if wid in cids:
+                rejected = r["result"] == "rejected"
+                semantic = rejected and lean.semantic_rejection(r["out"])
+                why = " ".join(lean.first_error_block(r["out"]).split())[:160]
+                can_out.append(f"{wid} {'rejected (' + why + ')' if semantic else r['result']}")
+                if not rejected:
+                    bad.append(f"Lean canary {wid}: {r['result']} (a canary must be rejected by Lean itself)")
+                elif not semantic:
+                    bad.append(f"Lean canary {wid}: rejected, but not for a semantic reason (a decided-false claim or a "
+                               f"definitional mismatch): {why}")
+                continue
+            if r["result"] != "checked":
+                bad.append(f"{wid}: Lean {r['result']}: {lean._first_error(r['out'], 3)}")
+            elif r["seconds"] > budget:
+                bad.append(f"{wid}: Lean took {r['seconds']} s, over the budget of {budget:g} s")
+            elif not set(r["axioms"]) <= lean.ALLOWED_AXIOMS:
+                bad.append(f"{wid}: axioms {r['axioms']} outside {sorted(lean.ALLOWED_AXIOMS)}")
+            else:
+                rechecked += 1
+        self.timings = {**(self.timings or {}), "G7_lean": dict(sorted(timing.items()))}
+        slowest = max((timing[w[0]] for w in todo), default=0)
+        fp = lean.fingerprint(lcfg)["fingerprint"]
+        detail = (f"Lean {lcfg['pinned_version']} (second-independent: own emitters, elaborator and kernel; toolchain "
+                  f"fingerprint {fp[:19]}{' pinned' if lcfg.get('pinned_fingerprint') else ', not pinned'}): "
+                  f"{'; '.join(coverage)}; {rechecked}/{len(todo)} checked files regenerated byte-identical and "
+                  f"re-checked from scratch, axioms within {{{', '.join(sorted(lean.ALLOWED_AXIOMS))}}}, slowest "
+                  f"{slowest} s (budget {budget:g} s)"
+                  + (f"; not_run: {', '.join(f'{n} {r}' for r, n in sorted(notrun.items()))}" if notrun else "")
+                  + f"; canaries: {', '.join(can_out) or 'none'}")
+        return not bad, detail + (f"; FAILED: {'; '.join(bad)}" if bad else "")
+
+    def lean_canaries(self, cands: list) -> tuple[list[tuple[str, str]], list[str]]:
+        """G7's two Lean canaries (I43) from the attempted items (dir, item, LawFile), directories in order and law ids
+        in order within each: [(id, text)], and what could not be built. The texts are the law files with one
+        statement re-rendered, their proofs kept, so Lean must reject each for a semantic reason.
+          flip:<law>     the first REFUTED law whose lean4 entry is checked: its counter-law's claim relation flipped
+                         (holon.lean.item_statements(flip=True)), its refutation theorem dropped;
+          perturb:<law>  the first PROVED law that is either of Bend class evaluate over a machine model without oracle
+                         parameters, with a Nat equation in its claim (lean_mlaws.perturbed_nat: k stated as k + 1), or
+                         a linked round trip without premise whose right side is a field of two or more cells
+                         (lean_linked.swap_canary: its first two cells swapped)."""
+        from . import lean
+        from .gen import lean_common as LC
+        from .gen import lean_linked, lean_mlaws
+        out, bad = [], []
+
+        def checked(it) -> bool:
+            return any(k.get("name") == "lean4" and k.get("result") == "checked"
+                       for k in it.record.get("kernels") or [])
+
+        flip = next(((d, it, lf) for d, it, lf in cands if it.status == "REFUTED" and checked(it)), None)
+        if flip is None:
+            bad.append("no flip canary: no REFUTED law's lean4 entry is checked")
+        else:
+            d, it, lf = flip
+            name = f"{it.law_id}_counter"
+            try:
+                stmt = dict(lean.item_statements(it, flip=True, root=self.root))[name]
+                c = lf.replace_statement(name, stmt).without(f"{it.law_id}_refuted")
+                out.append((f"flip:{it.law_id}", c.text()))
+            except Exception as e:  # noqa: BLE001  (a canary that cannot be built fails the check)
+                bad.append(f"flip canary {d.key}:{it.law_id}: {type(e).__name__}: {e}")
+        perturb = None
+        for d, it, lf in cands:
+            if it.status != "PROVED":
+                continue
+            try:
+                if it.kind == "machine" and LC.bend_class(it.record) == "evaluate":
+                    p = lean_mlaws.perturbed_nat(it.law)
+                    if p is None:
+                        continue
+                    stmts = dict(lean.item_statements(it, law=p[0], root=self.root))
+                    if it.law_id in stmts:
+                        perturb = (d, it, lf.replace_statement(it.law_id, stmts[it.law_id]))
+                elif (it.kind == "linked" and it.law.get("subform") == "round_trip"
+                      and not it.law["statement"].get("assume")):
+                    stmt = lean_linked.swap_canary(it.law, it.facts)
+                    if stmt is not None:
+                        perturb = (d, it, lf.replace_statement(it.law_id, stmt))
+            except Exception as e:  # noqa: BLE001
+                bad.append(f"perturb canary {d.key}:{it.law_id}: {type(e).__name__}: {e}")
+                break
+            if perturb is not None:
+                break
+        if perturb is None and not any(b.startswith("perturb canary") for b in bad):
+            bad.append("no perturb canary: no PROVED evaluate law over a machine model without oracle parameters has a "
+                       "Nat equation in its claim, and no linked round trip without premise has a wide field")
+        elif perturb is not None:
+            out.append((f"perturb:{perturb[1].law_id}", perturb[2].text()))
+        return out, bad
 
     # ------------------------------------------------------------ canaries (G4)
     def canary_candidates(self, facts: dict) -> list[tuple[str, str, dict]]:
