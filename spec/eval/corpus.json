@@ -1,0 +1,547 @@
+{
+  "candidates_sha256": "4960c3438c878efac673dcb31f26b2711537494f77bf54dd764afe17673e8871",
+  "corpus_version": "holon-eval-corpus/0.1",
+  "entries": [
+    {
+      "candidate": "arbitrum:011",
+      "description": "The extraPostTxFilter hook in the block production loop calls RevertToSnapshot on a snapshot ID that has already been invalidated by Finalise, causing a guaranteed panic if the filter ever returns an error. During block production, ProduceBlockAdvanced creates a state snapshot before applying each transaction, then calls ApplyTransactionWithResultFilter to execute the transaction. Inside ApplyTransactionWithResultFilter, after the result filter callback succeeds, Finalise is called on the StateDB. Finalise clears the journal via clearJournalAndRefund, which calls journal.reset(), wiping all valid revision IDs.",
+      "files": [
+        "arbos/block_processor.go"
+      ],
+      "fix_commit": "fb4e3b9bd256e9e69af81600b6b2471c49265a7c",
+      "fix_date": "2026-04-01T13:59:25Z",
+      "id": "c01",
+      "kind": "rollup",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "c4de7385249f35881417afc555dc355439e44984",
+      "repo": "https://github.com/OffchainLabs/nitro",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://docs.arbitrum.io/audit-reports/2026_07_10_trail_of_bits_arbitrum_arbos_60_61_code_review_final_comprehensive_report.pdf"
+        }
+      ],
+      "system": "arbitrum",
+      "title": "RevertToSnapshot after Finalise causes a panic in extraPostTxFilter error path"
+    },
+    {
+      "candidate": "compound:099",
+      "description": "The Compound protocol establishes money markets for ERC20 tokens. For a variety of reasons, including security issues or to support new features, these underlying tokens may perform a migration to a new contract in the future. The token balances from the old contract will be transferred as-is to the new contract. All funds deposited on Compound will remain credited to the corresponding CToken. However, the functionality of the CToken will still refer to the old token address; borrows and redemptions will be impossible to ful\ufb01ll.",
+      "files": [
+        "contracts/CErc20.sol",
+        "contracts/CErc20Delegator.sol",
+        "contracts/CToken.sol",
+        "contracts/CTokenInterfaces.sol"
+      ],
+      "fix_commit": "b198cb4dac977c61fa793ffe441c932438e83cdc",
+      "fix_date": "2021-02-16T19:31:53Z",
+      "id": "c02",
+      "kind": "defi",
+      "languages": [
+        "solidity"
+      ],
+      "prefix_commit": "c5fcc34222693ad5f547b14ed01ce719b5f4b000",
+      "repo": "https://github.com/compound-finance/compound-protocol",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://github.com/trailofbits/publications/blob/master/reviews/compound-2.pdf"
+        }
+      ],
+      "system": "compound",
+      "title": "18. Token migration results in orphaned balances"
+    },
+    {
+      "candidate": "cosmos:001",
+      "description": "Cosmos SDK chains in unpatched releases that use the x/distribution module are affected. Description An issue was discovered in the distribution module where a malicious deposit into the Validator Rewards pool would result in an integer overflow that would cause a chain halt. A malicious validator can interact with the distribution module to introduce this state.",
+      "files": [
+        "x/distribution/keeper/msg_server.go"
+      ],
+      "fix_commit": "c4a14fa7b6828432fdabdb8b4af68ade9403ce49",
+      "fix_date": "2025-07-08T14:37:16Z",
+      "id": "c03",
+      "kind": "appchain",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "c1ece303dda957e3ec5b859b727f882b30282d01",
+      "repo": "https://github.com/cosmos/cosmos-sdk",
+      "sources": [
+        {
+          "kind": "advisory",
+          "url": "https://github.com/advisories/GHSA-p22h-3m2v-cmgh"
+        }
+      ],
+      "system": "cosmos",
+      "title": "Cosmos SDK's Integer Overflow vulnerability in its Validator Rewards pool can cause a chain halt"
+    },
+    {
+      "candidate": "go-ethereum:001",
+      "description": "A vulnerable node can be made to consume very large amounts of memory when handling specially crafted p2p messages sent from an attacker node. Full details will be available at the Github security [advisory](https://github.com/ethereum/go-ethereum/security/advisories/GHSA-4xc9-8hmq-j652)",
+      "files": [
+        "core/rawdb/accessors_chain.go"
+      ],
+      "fix_commit": "84b12df09e0a67e99a3943f26ccf1b6e6c19a85a",
+      "fix_date": "2024-04-15T12:54:51Z",
+      "id": "c04",
+      "kind": "client",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "3705acd1a97b2cc9bbb092b326a9d8cfbc42037a",
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "sources": [
+        {
+          "kind": "advisory",
+          "url": "https://geth.ethereum.org/docs/vulnerabilities/vulnerabilities.json#GETH-2024-01"
+        },
+        {
+          "kind": "advisory",
+          "url": "https://github.com/ethereum/go-ethereum/security/advisories/GHSA-4xc9-8hmq-j652"
+        },
+        {
+          "kind": "advisory",
+          "url": "https://geth.ethereum.org/docs/vulnerabilities/vulnerabilities"
+        },
+        {
+          "kind": "issue",
+          "url": "https://github.com/ethereum/go-ethereum/pull/29534"
+        }
+      ],
+      "system": "go-ethereum",
+      "title": "DoS via malicious p2p message"
+    },
+    {
+      "candidate": "optimism:006",
+      "description": "The standalone SuperPermissionedDisputeGame.initialize function is payable, but the game has no bond accounting, distribution, or withdrawal path for an initialization value. A nonzero initialization bond sent to a SuperPermissioned clone therefore remains trapped in that clone. The normal U20 configuration validator checks that SUPER_PERMISSIONED has a zero initialization bond, but the game implementation itself does not enforce that invariant. Any configuration path that supplies a nonzero bond can consequently create publicly usable game clones that hold unre- coverable ETH. Malformed privileged game configuration can permanently lock ETH in each created SuperPermissioned clone. The amount is bounded per clone, but the condition is repeated for every game created under the affected configuration.",
+      "files": [
+        "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol"
+      ],
+      "fix_commit": "44eb9547baef1331df04b826a15ca0e05ddedc1f",
+      "fix_date": "2026-08-13T11:30:32Z",
+      "id": "c05",
+      "kind": "rollup",
+      "languages": [
+        "solidity"
+      ],
+      "prefix_commit": "38e7aa89894f64287558c84548fee259ed5d359e",
+      "repo": "https://github.com/ethereum-optimism/optimism",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://github.com/ethereum-optimism/optimism/blob/7c2e64f60028baca88367c35e1007e568036648b/docs/security-reviews/2026_08-U20-Cantina.pdf"
+        }
+      ],
+      "system": "optimism",
+      "title": "SuperPermissioned game initialization can trap a configured bond"
+    },
+    {
+      "candidate": "wormhole:016",
+      "description": "The code that processes CoinGecko responses contains an unchecked type assertion. The bug is triggered when CoinGecko returns invalid data, and could be exploited for denial of service (DoS). The relevant code appears in figure 4.1. The data object that is returned as part of CoinGecko\u2019s response to a query is cast to a map m of type map[string]interface{} (yellow). However, the cast\u2019s success is not verified. As a result, a nil pointer dereference can occur when m is accessed (red).",
+      "files": [
+        "node/pkg/governor/governor_prices.go"
+      ],
+      "fix_commit": "a5092db9822da1b3d66156c83f7332a4854d2b1c",
+      "fix_date": "2023-05-05T14:13:40Z",
+      "id": "c06",
+      "kind": "bridge",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "478ea22a3fee43d1079b9555ca9696dfc2608632",
+      "repo": "https://github.com/wormhole-foundation/wormhole",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://github.com/wormhole-foundation/wormhole/blob/bb5957f321b0a9d168f52e906699ee77baa82a28/audits/2023-04-trailofbits-node.pdf"
+        }
+      ],
+      "system": "wormhole",
+      "title": "4. Unchecked type assertion in queryCoinGecko"
+    },
+    {
+      "candidate": "arbitrum:008",
+      "description": "The GetMultiGasPricingConstraints function in the ArbGasInfo precompile iterates over a Go map to build the resources slice for each constraint. Because Go map iteration order is non-deterministic, the resulting WeightedResource array can have its elements in a different order on different nodes. The slice is ABI-encoded and returned to callers, so any on-chain consumer (i.e., a smart contract calling this precompile) will receive return data that varies across validators, which can lead to a consensus failure. The function calls constraint.ResourcesWithWeights(), which returns a map[multigas.ResourceKind]uint64. It then ranges over this map to populate a []WeightedResource slice:",
+      "files": [
+        "precompiles/ArbGasInfo.go"
+      ],
+      "fix_commit": "90213f9de796ead5ed864643825f2063892ea398",
+      "fix_date": "2026-03-06T14:18:57Z",
+      "id": "c07",
+      "kind": "rollup",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "35986d4c606dbc28a821a0bb5922721ca48ed0cf",
+      "repo": "https://github.com/OffchainLabs/nitro",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://docs.arbitrum.io/audit-reports/2026_07_10_trail_of_bits_arbitrum_arbos_60_61_code_review_final_comprehensive_report.pdf"
+        }
+      ],
+      "system": "arbitrum",
+      "title": "Non-deterministic map iteration in multi-gas constraint precompiles"
+    },
+    {
+      "candidate": "cosmos:005",
+      "description": "An issue was discovered in the groups module where malicious proposals would result in an errors triggered in the module's end blocker that could result in a chain halt. Any set of users that can interact with the groups module could introduce this state.",
+      "files": [
+        "x/group/keeper/msg_server.go"
+      ],
+      "fix_commit": "cbd69fb1f4fac418c1f8c6253f5f91fb1263776a",
+      "fix_date": "2025-03-12T14:51:25Z",
+      "id": "c08",
+      "kind": "appchain",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "548ca00b11f89145fc112e54e680f6710172bb5a",
+      "repo": "https://github.com/cosmos/cosmos-sdk",
+      "sources": [
+        {
+          "kind": "advisory",
+          "url": "https://github.com/advisories/GHSA-47ww-ff84-4jrg"
+        }
+      ],
+      "system": "cosmos",
+      "title": "Cosmos SDK: x/group can halt when erroring in EndBlocker"
+    },
+    {
+      "candidate": "go-ethereum:002",
+      "description": "The p2p handler spawned a new goroutine to respond to ping requests. By flooding a node with ping requests, an unbounded number of goroutines can be created, leading to resource exhaustion and potentially crash due to OOM.",
+      "files": [
+        "p2p/peer.go"
+      ],
+      "fix_commit": "7ec60d5f0c45bc68fd4e814479df065acec95d60",
+      "fix_date": "2023-08-09T14:00:31Z",
+      "id": "c09",
+      "kind": "client",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "e13fa32cea3497aa311226c62daf21c5847c8e4f",
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "sources": [
+        {
+          "kind": "advisory",
+          "url": "https://geth.ethereum.org/docs/vulnerabilities/vulnerabilities.json#GETH-2023-01"
+        },
+        {
+          "kind": "advisory",
+          "url": "https://github.com/ethereum/go-ethereum/security/advisories/GHSA-ppjg-v974-84cm"
+        },
+        {
+          "kind": "advisory",
+          "url": "https://geth.ethereum.org/docs/vulnerabilities/vulnerabilities"
+        },
+        {
+          "kind": "issue",
+          "url": "https://github.com/ethereum/go-ethereum/pull/27887"
+        }
+      ],
+      "system": "go-ethereum",
+      "title": "DoS via malicious p2p message"
+    },
+    {
+      "candidate": "optimism:007",
+      "description": "The standard validator selects super mode from the Portal's AnchorStateRegistry , but decodes an AnchorStateRegistry independently from each dispute game factory's encoded arguments. It validates each decoded registry's implementation, ProxyAdmin , SystemConfig , DGF,",
+      "files": [
+        "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol",
+        "packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol"
+      ],
+      "fix_commit": "ef695a353f8fd71ad03220a7b9e20f05d5c1715f",
+      "fix_date": "2026-08-13T03:04:23Z",
+      "id": "c10",
+      "kind": "rollup",
+      "languages": [
+        "solidity"
+      ],
+      "prefix_commit": "6eef20dd9c23d5849ca261a2308ff9a25242067c",
+      "repo": "https://github.com/ethereum-optimism/optimism",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://github.com/ethereum-optimism/optimism/blob/7c2e64f60028baca88367c35e1007e568036648b/docs/security-reviews/2026_08-U20-Cantina.pdf"
+        }
+      ],
+      "system": "optimism",
+      "title": "The validator does not bind dispute-game registries to the Portal's registry"
+    },
+    {
+      "candidate": "wormhole:027",
+      "description": "In several places where a Context is required, the Wormhole node creates a new background Context rather than using the passed-in Context. If the passed-in Context is canceled or times out, a go routine using the background Context will not detect this, and resources will be leaked.",
+      "files": [
+        "node/pkg/watchers/algorand/watcher.go"
+      ],
+      "fix_commit": "b5f1622129cba472d95672f5c9b461d2b322f7a3",
+      "fix_date": "2023-05-05T14:13:40Z",
+      "id": "c11",
+      "kind": "bridge",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "91fd0e05172b5e237b55b1029d705bc51a3006e8",
+      "repo": "https://github.com/wormhole-foundation/wormhole",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://github.com/wormhole-foundation/wormhole/blob/bb5957f321b0a9d168f52e906699ee77baa82a28/audits/2023-04-trailofbits-node.pdf"
+        }
+      ],
+      "system": "wormhole",
+      "title": "15. Missing or wrong context"
+    },
+    {
+      "candidate": "arbitrum:021",
+      "description": "Finally, the recoverInternal function will be reached, where the server will crash if it attempts to access an offset of the message and the length is not the expected one.",
+      "files": [
+        "daprovider/anytrust/util/util.go",
+        "daprovider/reader.go"
+      ],
+      "fix_commit": "8dff9a2c011395031366f76c9faeb80852207a81",
+      "fix_date": "2026-01-12T14:02:44Z",
+      "id": "c12",
+      "kind": "rollup",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "b4178a009b07d61be26c46e9b77be591cf599675",
+      "repo": "https://github.com/OffchainLabs/nitro",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://docs.arbitrum.io/audit-reports/2026_01_12_trail_of_bits_nitro_external_da_security_review.pdf"
+        }
+      ],
+      "system": "arbitrum",
+      "title": "Missing sequencer message length checks"
+    },
+    {
+      "candidate": "cosmos:007",
+      "description": "An issue was discovered in IBC-Go's deserialization of acknowledgements that results in non-deterministic behavior which can halt a chain. Any user that can open an IBC channel can introduce this state to the chain",
+      "files": [
+        "modules/apps/transfer/ibc_module.go"
+      ],
+      "fix_commit": "9869b3c6f7eb05a935b1eb33611c5406f68438a5",
+      "fix_date": "2025-02-27T19:57:30Z",
+      "id": "c13",
+      "kind": "appchain",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "37ab926637aab78892aed61952fbb4b49da48ccd",
+      "repo": "https://github.com/cosmos/ibc-go",
+      "sources": [
+        {
+          "kind": "advisory",
+          "url": "https://github.com/advisories/GHSA-jg6f-48ff-5xrw"
+        }
+      ],
+      "system": "cosmos",
+      "title": "IBC-Go has Non-deterministic JSON Unmarshalling of IBC Acknowledgement"
+    },
+    {
+      "candidate": "go-ethereum:003",
+      "description": "A vulnerable node, if configured to use high verbosity logging, can be made to crash when handling specially crafted p2p messages sent from an attacker node. Full details are available at the Github security [advisory](https://github.com/ethereum/go-ethereum/security/advisories/GHSA-wjxw-gh3m-7pm5)",
+      "files": [
+        "p2p/peer.go",
+        "p2p/peer_error.go"
+      ],
+      "fix_commit": "870b4505a05cd8b3604078ed4afcd3012bf72a47",
+      "fix_date": "2022-03-07T17:25:45Z",
+      "id": "c14",
+      "kind": "client",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "a79afd9ac325e12021ae56928ba4af32bb3cc78f",
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "sources": [
+        {
+          "kind": "advisory",
+          "url": "https://geth.ethereum.org/docs/vulnerabilities/vulnerabilities.json#GETH-2022-01"
+        },
+        {
+          "kind": "advisory",
+          "url": "https://github.com/ethereum/go-ethereum/security/advisories/GHSA-wjxw-gh3m-7pm5"
+        },
+        {
+          "kind": "advisory",
+          "url": "https://geth.ethereum.org/docs/vulnerabilities/vulnerabilities"
+        },
+        {
+          "kind": "issue",
+          "url": "https://github.com/ethereum/go-ethereum/pull/24507"
+        }
+      ],
+      "system": "go-ethereum",
+      "title": "DoS via malicious p2p message"
+    },
+    {
+      "candidate": "optimism:003",
+      "description": "The U20 StandardValidator stores the release's approved superPermissioned DisputeGameImpl address and passes it into the new specialized SPDG validation path. However, assertValidSuperPermissionedDisputeGame does not compare the factory's registered implemen- tation with that address. It calls version() on both contracts and accepts equality between the returned strings. The registered candidate controls its own version() result. A different implementation can there- fore report 1.0.0 , retain the canonical packed ASR and proposer arguments and make the validator return an empty success string. The other SPDG checks authenticate only the ASR and the proposer bytes stored by the factory; they do not prove that the registered implementation enforces those arguments or any game semantics.",
+      "files": [
+        "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol",
+        "packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol"
+      ],
+      "fix_commit": "283bb456cf5b17f407f8f72826820d3852d966fe",
+      "fix_date": "2026-08-13T00:26:55Z",
+      "id": "c15",
+      "kind": "rollup",
+      "languages": [
+        "solidity"
+      ],
+      "prefix_commit": "b15448f66b1470d16a3fb38978369c48ba91842e",
+      "repo": "https://github.com/ethereum-optimism/optimism",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://github.com/ethereum-optimism/optimism/blob/7c2e64f60028baca88367c35e1007e568036648b/docs/security-reviews/2026_08-U20-Cantina.pdf"
+        }
+      ],
+      "system": "optimism",
+      "title": "StandardValidator accepts arbitrary same-version super-permissioned game implementations"
+    },
+    {
+      "candidate": "wormhole:019",
+      "description": "The Polygon connector does not read from the PollSubscription.quit channel, nor does it write to the PollSubscription.unsubDone channel. A caller who calls Unsubscribe on the PollSubscription could hang.",
+      "files": [
+        "node/pkg/watchers/evm/connectors/common.go",
+        "node/pkg/watchers/evm/connectors/polygon.go"
+      ],
+      "fix_commit": "5d137b6d88d093d00ae4d569f24be6a9c10c0a80",
+      "fix_date": "2023-05-04T18:07:07Z",
+      "id": "c16",
+      "kind": "bridge",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "100a01b4b17fbf396a9e7b3ffde2733a5086d1aa",
+      "repo": "https://github.com/wormhole-foundation/wormhole",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://github.com/wormhole-foundation/wormhole/blob/bb5957f321b0a9d168f52e906699ee77baa82a28/audits/2023-04-trailofbits-node.pdf"
+        }
+      ],
+      "system": "wormhole",
+      "title": "7. PolygonConnector does not properly use channels"
+    },
+    {
+      "candidate": "arbitrum:020",
+      "description": "The executeValidatePregimage function of the oneStepProverHostio contract is missing validation of the PreImageType and ptr inputs; validation of these inputs is present in the equivalent implementation in Nitro\u2019s machine.rs, so there is a divergence between Nitro and the challenge protocol. We can see in the figure below that, in Nitro, both the preImageType and the ptr inputs are checked. Note that an invalid preimage_type will cause 0 to be pushed to the stack, while an invalid ptr will cause the machine status to be set to errored through the error! macro.",
+      "files": [
+        "src/osp/OneStepProverHostIo.sol"
+      ],
+      "fix_commit": "76c5e0a0b95cb9f54e6a4527d82eb1b92ac67f45",
+      "fix_date": "2026-01-10T06:24:02Z",
+      "id": "c17",
+      "kind": "rollup",
+      "languages": [
+        "solidity"
+      ],
+      "prefix_commit": "4341b132cfbdcc980ead03765ca5224ff6cb5d97",
+      "repo": "https://github.com/OffchainLabs/nitro-contracts",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://docs.arbitrum.io/audit-reports/2026_01_12_trail_of_bits_nitro_external_da_security_review.pdf"
+        }
+      ],
+      "system": "arbitrum",
+      "title": "Missing validations in executeValidatePreimage"
+    },
+    {
+      "candidate": "cosmos:008",
+      "description": "An issue was discovered in the groups module where a malicious proposal would result in a division by zero, and subsequently halt a chain due to the resulting error. Any user that can interact with the groups module can introduce this state.",
+      "files": [
+        "x/group/keeper/msg_server.go",
+        "x/group/simulation/msg_factory.go",
+        "x/group/types.go"
+      ],
+      "fix_commit": "0a98b65b24900a0e608866c78f172cf8e4140aea",
+      "fix_date": "2025-02-20T16:14:22Z",
+      "id": "c18",
+      "kind": "appchain",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "a01cb3ba66ac66efa9d30534cbba5e17d55c3182",
+      "repo": "https://github.com/cosmos/cosmos-sdk",
+      "sources": [
+        {
+          "kind": "advisory",
+          "url": "https://github.com/advisories/GHSA-x5vx-95h7-rv4p"
+        }
+      ],
+      "system": "cosmos",
+      "title": "Cosmos SDK: Groups module can halt chain when handling a malicious proposal"
+    },
+    {
+      "candidate": "go-ethereum:004",
+      "description": "The `snap/1` protocol handler contains two vulnerabilities related to the `GetTrieNodes` packet, which can be exploited to crash the node. Full details are available at the Github security [advisory](https://github.com/ethereum/go-ethereum/security/advisories/GHSA-59hh-656j-3p7v)",
+      "files": [
+        "eth/protocols/snap/handler.go",
+        "trie/trie.go"
+      ],
+      "fix_commit": "3a6fe69f2356c50d1819be3417fcb89abc6e9cfe",
+      "fix_date": "2021-09-29T13:19:40Z",
+      "id": "c19",
+      "kind": "client",
+      "languages": [
+        "go"
+      ],
+      "prefix_commit": "42bc1944a17260d75dc1e33e1571c804b9a4a88a",
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "sources": [
+        {
+          "kind": "advisory",
+          "url": "https://geth.ethereum.org/docs/vulnerabilities/vulnerabilities.json#GETH-2021-03"
+        },
+        {
+          "kind": "advisory",
+          "url": "https://github.com/ethereum/go-ethereum/security/advisories/GHSA-59hh-656j-3p7v"
+        },
+        {
+          "kind": "advisory",
+          "url": "https://geth.ethereum.org/docs/vulnerabilities/vulnerabilities"
+        },
+        {
+          "kind": "issue",
+          "url": "https://github.com/ethereum/go-ethereum/pull/23657"
+        }
+      ],
+      "system": "go-ethereum",
+      "title": "DoS via malicious `snap/1` request"
+    },
+    {
+      "candidate": "optimism:004",
+      "description": "The U20 StandardValidator accepts the expected L2 chain ID as caller-supplied ValidationInputDev.l2ChainID , but the new super-permissioned-game branch returns through assertValidSuperPermissionedDisputeGame without comparing that value with SystemConfig.l2 ChainId() . The general SystemConfig validation at lines 285-303 also does not perform this com- parison. Super-game implementations deliberately store zero rather than a member chain ID, so the remaining game-argument checks cannot establish the missing binding. This matters because OptimismPortal2.proveWithdrawalTransaction selects a member output root by calling rootClaimByChainId(systemConfig.l2ChainId()) . A validator invocation for chain X can therefore return an empty success string while the Portal will use chain Y's root. If Y is absent from the super root, withdrawals for the affected Portal revert. If Y is present, the Portal checks withdrawals against Y's MessagePasser root rather than X's, creating a wrong-domain settlement configuration and potentially allowing the same Y withdrawal evidence to be settled through more than one Portal. For example, an imported deployment or reinitialization can store chain ID Y in SystemConfig while the validator input and intended domain use chain ID X. The DGF, ASR, implementations, proposer and all other checked fields can remain canonical. U20 validates the super-game configuration without comparing X and Y, so it returns an empty success string. The Portal later selects Y from every super root. It either cannot find Y and blocks withdrawals or verifies an X Portal withdrawal against Y's",
+      "files": [
+        "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol"
+      ],
+      "fix_commit": "cba37e86e44a6bc4fb414da62f2bb1d5b906502a",
+      "fix_date": "2026-08-12T23:09:58Z",
+      "id": "c20",
+      "kind": "rollup",
+      "languages": [
+        "solidity"
+      ],
+      "prefix_commit": "6456cd0e1d812137cc54376d62403b538020c04d",
+      "repo": "https://github.com/ethereum-optimism/optimism",
+      "sources": [
+        {
+          "kind": "audit",
+          "url": "https://github.com/ethereum-optimism/optimism/blob/7c2e64f60028baca88367c35e1007e568036648b/docs/security-reviews/2026_08-U20-Cantina.pdf"
+        }
+      ],
+      "system": "optimism",
+      "title": "U20 StandardValidator does not bind the SystemConfig chain ID to the validated super-game domain"
+    }
+  ],
+  "protocol_sha256": "600be4809044ae9a13b727a042aeb95960b038d0e74c0511f8910cfdd3148f05",
+  "rule_sheet_sha256": "07cf70eda559bbc2d559ce920ce2a278db0efb1ad59203d691256ef6c587d253"
+}

@@ -207,7 +207,7 @@
       "description": "The GetMultiGasPricingConstraints function in the ArbGasInfo precompile iterates over a Go map to build the resources slice for each constraint. Because Go map iteration order is non-deterministic, the resulting WeightedResource array can have its elements in a different order on different nodes. The slice is ABI-encoded and returned to callers, so any on-chain consumer (i.e., a smart contract calling this precompile) will receive return data that varies across validators, which can lead to a consensus failure. The function calls constraint.ResourcesWithWeights(), which returns a map[multigas.ResourceKind]uint64. It then ranges over this map to populate a []WeightedResource slice:",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c07",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -298,7 +298,7 @@
       "description": "The extraPostTxFilter hook in the block production loop calls RevertToSnapshot on a snapshot ID that has already been invalidated by Finalise, causing a guaranteed panic if the filter ever returns an error. During block production, ProduceBlockAdvanced creates a state snapshot before applying each transaction, then calls ApplyTransactionWithResultFilter to execute the transaction. Inside ApplyTransactionWithResultFilter, after the result filter callback succeeds, Finalise is called on the StateDB. Finalise clears the journal via clearJournalAndRefund, which calls journal.reset(), wiping all valid revision IDs.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c01",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -561,7 +561,7 @@
       "description": "The executeValidatePregimage function of the oneStepProverHostio contract is missing validation of the PreImageType and ptr inputs; validation of these inputs is present in the equivalent implementation in Nitro\u2019s machine.rs, so there is a divergence between Nitro and the challenge protocol. We can see in the figure below that, in Nitro, both the preImageType and the ptr inputs are checked. Note that an invalid preimage_type will cause 0 to be pushed to the stack, while an invalid ptr will cause the machine status to be set to errored through the error! macro.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c17",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -592,7 +592,7 @@
       "description": "Finally, the recoverInternal function will be reached, where the server will crash if it attempts to access an offset of the message and the length is not the expected one.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c12",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -671,7 +671,7 @@
       "prefix_commit": "005f426fb82442e949392d692871059194d05503",
       "published": "2026-01-12",
       "rank": 23,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/OffchainLabs/nitro",
       "source_lines": 1,
       "sources": [
@@ -2442,7 +2442,7 @@
       "prefix_commit": "9f56785626ab7efaec0abaa48d9f19e303b7abc6",
       "published": "2025-12-01",
       "rank": 84,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/OffchainLabs/nitro",
       "source_lines": 2,
       "sources": [
@@ -2765,7 +2765,7 @@
       "prefix_commit": "1f73305316cf1b1f3e2ab18ce4d46a807b89e58e",
       "published": "2025-05-06",
       "rank": 95,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/OffchainLabs/nitro",
       "source_lines": 4,
       "sources": [
@@ -2854,7 +2854,7 @@
       "prefix_commit": "38605ae3d4afbe62df34cd7ce363227b831d7c36",
       "published": "2025-05-06",
       "rank": 98,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/OffchainLabs/nitro",
       "source_lines": 3,
       "sources": [
@@ -6617,7 +6617,7 @@
       "description": "The Compound protocol establishes money markets for ERC20 tokens. For a variety of reasons, including security issues or to support new features, these underlying tokens may perform a migration to a new contract in the future. The token balances from the old contract will be transferred as-is to the new contract. All funds deposited on Compound will remain credited to the corresponding CToken. However, the functionality of the CToken will still refer to the old token address; borrows and redemptions will be impossible to ful\ufb01ll.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c02",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -6805,7 +6805,7 @@
       "description": "Cosmos SDK chains in unpatched releases that use the x/distribution module are affected. Description An issue was discovered in the distribution module where a malicious deposit into the Validator Rewards pool would result in an integer overflow that would cause a chain halt. A malicious validator can interact with the distribution module to introduce this state.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c03",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -6925,7 +6925,7 @@
       "description": "An issue was discovered in the groups module where malicious proposals would result in an errors triggered in the module's end blocker that could result in a chain halt. Any set of users that can interact with the groups module could introduce this state.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c08",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -6987,7 +6987,7 @@
       "description": "An issue was discovered in IBC-Go's deserialization of acknowledgements that results in non-deterministic behavior which can halt a chain. Any user that can open an IBC channel can introduce this state to the chain",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c13",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -7018,7 +7018,7 @@
       "description": "An issue was discovered in the groups module where a malicious proposal would result in a division by zero, and subsequently halt a chain due to the resulting error. Any user that can interact with the groups module can introduce this state.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c18",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -7068,7 +7068,7 @@
       "prefix_commit": "f22d2a84a1311a5659c04ea5a739ff4ab1aa7df3",
       "published": "2024-12-16",
       "rank": 9,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/cosmos/cosmos-sdk",
       "source_lines": 92,
       "sources": [
@@ -7099,7 +7099,7 @@
       "prefix_commit": "1effb80c8b789c7b3aa7eee587182c6998426f38",
       "published": "2024-11-20",
       "rank": 10,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/cosmos/cosmos-sdk",
       "source_lines": 108,
       "sources": [
@@ -7161,7 +7161,7 @@
       "prefix_commit": "bbf1066b8035a487c7376e5d1cdcda68834df336",
       "published": "2024-04-05",
       "rank": 12,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/cosmos/ibc-go",
       "source_lines": 20,
       "sources": [
@@ -7193,7 +7193,7 @@
       "prefix_commit": "6689e3689b16c02f8b3c46efec31f8c7d04aa833",
       "published": "2024-03-12",
       "rank": 13,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/cosmos/cosmos-sdk",
       "source_lines": 82,
       "sources": [
@@ -7209,7 +7209,7 @@
       "description": "A vulnerable node can be made to consume very large amounts of memory when handling specially crafted p2p messages sent from an attacker node. Full details will be available at the Github security [advisory](https://github.com/ethereum/go-ethereum/security/advisories/GHSA-4xc9-8hmq-j652)",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c04",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -7252,7 +7252,7 @@
       "description": "The p2p handler spawned a new goroutine to respond to ping requests. By flooding a node with ping requests, an unbounded number of goroutines can be created, leading to resource exhaustion and potentially crash due to OOM.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c09",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -7295,7 +7295,7 @@
       "description": "A vulnerable node, if configured to use high verbosity logging, can be made to crash when handling specially crafted p2p messages sent from an attacker node. Full details are available at the Github security [advisory](https://github.com/ethereum/go-ethereum/security/advisories/GHSA-wjxw-gh3m-7pm5)",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c14",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -7339,7 +7339,7 @@
       "description": "The `snap/1` protocol handler contains two vulnerabilities related to the `GetTrieNodes` packet, which can be exploited to crash the node. Full details are available at the Github security [advisory](https://github.com/ethereum/go-ethereum/security/advisories/GHSA-59hh-656j-3p7v)",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c19",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -7400,7 +7400,7 @@
       "prefix_commit": "f38abc55f135587ce3cf60c9d574ec2a4ebb8197",
       "published": "2021-08-24",
       "rank": 5,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/ethereum/go-ethereum",
       "source_lines": 100,
       "sources": [
@@ -7482,7 +7482,7 @@
       "prefix_commit": "6b5840961407960a06ed20cb5dd1b782080653ff",
       "published": "2020-12-10",
       "rank": 7,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/ethereum/go-ethereum",
       "source_lines": 6,
       "sources": [
@@ -7550,7 +7550,7 @@
       "prefix_commit": "b68929caee777e22f8c6e1bbae0e8c91f5d4cfe5",
       "published": "2020-12-10",
       "rank": 8,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/ethereum/go-ethereum",
       "source_lines": 651,
       "sources": [
@@ -7604,7 +7604,7 @@
       "prefix_commit": "3b00a77de57ab2737a7887521c192ce004c721e3",
       "published": "2020-11-12",
       "rank": 9,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/ethereum/go-ethereum",
       "source_lines": 2351,
       "sources": [
@@ -7654,7 +7654,7 @@
       "prefix_commit": "855fc76ae187091bd125e16a07a6635d42acd1fc",
       "published": "2022-02-11",
       "rank": 1,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/ethereum-optimism/optimism",
       "source_lines": 87,
       "sources": [
@@ -7703,7 +7703,7 @@
       "description": "The U20 StandardValidator stores the release's approved superPermissioned DisputeGameImpl address and passes it into the new specialized SPDG validation path. However, assertValidSuperPermissionedDisputeGame does not compare the factory's registered implemen- tation with that address. It calls version() on both contracts and accepts equality between the returned strings. The registered candidate controls its own version() result. A different implementation can there- fore report 1.0.0 , retain the canonical packed ASR and proposer arguments and make the validator return an empty success string. The other SPDG checks authenticate only the ASR and the proposer bytes stored by the factory; they do not prove that the registered implementation enforces those arguments or any game semantics.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c15",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -7735,7 +7735,7 @@
       "description": "The U20 StandardValidator accepts the expected L2 chain ID as caller-supplied ValidationInputDev.l2ChainID , but the new super-permissioned-game branch returns through assertValidSuperPermissionedDisputeGame without comparing that value with SystemConfig.l2 ChainId() . The general SystemConfig validation at lines 285-303 also does not perform this com- parison. Super-game implementations deliberately store zero rather than a member chain ID, so the remaining game-argument checks cannot establish the missing binding. This matters because OptimismPortal2.proveWithdrawalTransaction selects a member output root by calling rootClaimByChainId(systemConfig.l2ChainId()) . A validator invocation for chain X can therefore return an empty success string while the Portal will use chain Y's root. If Y is absent from the super root, withdrawals for the affected Portal revert. If Y is present, the Portal checks withdrawals against Y's MessagePasser root rather than X's, creating a wrong-domain settlement configuration and potentially allowing the same Y withdrawal evidence to be settled through more than one Portal. For example, an imported deployment or reinitialization can store chain ID Y in SystemConfig while the validator input and intended domain use chain ID X. The DGF, ASR, implementations, proposer and all other checked fields can remain canonical. U20 validates the super-game configuration without comparing X and Y, so it returns an empty success string. The Portal later selects Y from every super root. It either cannot find Y and blocks withdrawals or verifies an X Portal withdrawal against Y's",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c20",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -7795,7 +7795,7 @@
       "description": "The standalone SuperPermissionedDisputeGame.initialize function is payable, but the game has no bond accounting, distribution, or withdrawal path for an initialization value. A nonzero initialization bond sent to a SuperPermissioned clone therefore remains trapped in that clone. The normal U20 configuration validator checks that SUPER_PERMISSIONED has a zero initialization bond, but the game implementation itself does not enforce that invariant. Any configuration path that supplies a nonzero bond can consequently create publicly usable game clones that hold unre- coverable ETH. Malformed privileged game configuration can permanently lock ETH in each created SuperPermissioned clone. The amount is bounded per clone, but the condition is repeated for every game created under the affected configuration.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c05",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -7826,7 +7826,7 @@
       "description": "The standard validator selects super mode from the Portal's AnchorStateRegistry , but decodes an AnchorStateRegistry independently from each dispute game factory's encoded arguments. It validates each decoded registry's implementation, ProxyAdmin , SystemConfig , DGF,",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c10",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -8988,7 +8988,7 @@
       "prefix_commit": "e41d64f2819b13f942fe00432591e26d1388e80d",
       "published": "2026-06-08",
       "rank": 45,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/ethereum-optimism/optimism",
       "source_lines": 87,
       "sources": [
@@ -9089,7 +9089,7 @@
       "prefix_commit": "88d42e506d61e13c1f5a5e1c0e1b4816d7093590",
       "published": "2026-06-08",
       "rank": 48,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/ethereum-optimism/optimism",
       "source_lines": 72,
       "sources": [
@@ -9194,7 +9194,7 @@
       "prefix_commit": "88d42e506d61e13c1f5a5e1c0e1b4816d7093590",
       "published": "2026-06-08",
       "rank": 51,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/ethereum-optimism/optimism",
       "source_lines": 72,
       "sources": [
@@ -9457,7 +9457,7 @@
       "prefix_commit": "75fe8cc9b944fe17f94c2fbab9326716a3fdce6e",
       "published": "2023-05-05",
       "rank": 9,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/wormhole-foundation/wormhole",
       "source_lines": 25,
       "sources": [
@@ -9635,7 +9635,7 @@
       "prefix_commit": "9e522ace16da5b37dabb119e46be090ec0950278",
       "published": "2023-04-07",
       "rank": 15,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/wormhole-foundation/wormhole",
       "source_lines": 4,
       "sources": [
@@ -9651,7 +9651,7 @@
       "description": "The code that processes CoinGecko responses contains an unchecked type assertion. The bug is triggered when CoinGecko returns invalid data, and could be exploited for denial of service (DoS). The relevant code appears in figure 4.1. The data object that is returned as part of CoinGecko\u2019s response to a query is cast to a map m of type map[string]interface{} (yellow). However, the cast\u2019s success is not verified. As a result, a nil pointer dereference can occur when m is accessed (red).",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c06",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -9742,7 +9742,7 @@
       "description": "The Polygon connector does not read from the PollSubscription.quit channel, nor does it write to the PollSubscription.unsubDone channel. A caller who calls Unsubscribe on the PollSubscription could hang.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c16",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -9990,7 +9990,7 @@
       "description": "In several places where a Context is required, the Wormhole node creates a new background Context rather than using the passed-in Context. If the passed-in Context is canceled or times out, a go routine using the background Context will not detect this, and resources will be leaked.",
       "duplicate_of": null,
       "eligible": true,
-      "entry": null,
+      "entry": "c11",
       "excluded_by": null,
       "exclusion_note": null,
       "files": [
@@ -10036,7 +10036,7 @@
       "prefix_commit": "3b8de17d02ca60e2cac3f4d86d3112c5f572ba96",
       "published": "2023-04-07",
       "rank": 28,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/wormhole-foundation/wormhole",
       "source_lines": 46,
       "sources": [
@@ -12173,7 +12173,7 @@
       "prefix_commit": "bad4f7061b36f1933e539cb60a83bc5bb12e61a3",
       "published": "2022-07-01",
       "rank": 101,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/wormhole-foundation/wormhole",
       "source_lines": 8,
       "sources": [
@@ -12206,7 +12206,7 @@
       "prefix_commit": "4e70aa0f167534b41cb608591f8e577c5657b1dc",
       "published": "2022-07-01",
       "rank": 102,
-      "reason": null,
+      "reason": "past_n",
       "repo": "https://github.com/wormhole-foundation/wormhole",
       "source_lines": 233,
       "sources": [
