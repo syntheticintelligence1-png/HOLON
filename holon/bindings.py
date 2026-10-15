@@ -563,12 +563,15 @@ def _accepted_entries(root: Path) -> dict[int, dict]:
 
 
 def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: list[str],
-                 hash_only: bool = True) -> bool:
+                 hash_only: bool = True, hashes: tuple | None = None) -> bool:
     """Does an accepted STATEMENT_DIFF entry cover rebinding law lid? law: its current IR, which the entry's new
     statement must be (None: not compared, for a logged line whose law may have changed again since). defs: the
     definitions whose kernel form changed or that entered or left the cone. hash_only: nothing in the binding changed
     but the statement hash (F30: a catalog_rederivation changes no claim, so it covers a rebinding only when no
-    definition, emitted statement, counter-law or model changed; anything more needs its own entry)."""
+    definition, emitted statement, counter-law or model changed; anything more needs its own entry). F33: a
+    binding_change whose statement hash moved with an accepted catalog_rederivation (its "statement_hash" bridge, which
+    its own acceptance verified) covers a rebinding that changes the hash and the cone together; hashes: (bound,
+    current) statement hashes, which must then be the bridge's (None: not compared)."""
     from .statement_diff import core
     if not isinstance(e, dict) or (e.get("law_id") or (e.get("new") or {}).get("law_id")) != lid:
         return False
@@ -577,6 +580,11 @@ def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: 
     if stmt_changed:
         if e.get("kind") == "catalog_rederivation":
             return hash_only and not defs
+        br = e.get("statement_hash")
+        if e.get("kind") == "binding_change" and isinstance(br, dict):
+            return (isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"]) and bool(defs)
+                    and set(defs) <= set(e.get("defs") or [])
+                    and (hashes is None or (br.get("old"), br.get("new")) == tuple(hashes)))
         return e.get("kind") in ("strengthening", "weakening", "reextraction")
     return (e.get("kind") == "binding_change" and isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"])
             and set(defs) <= set(e.get("defs") or []))
@@ -595,8 +603,9 @@ def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_de
     for lid in changed:
         sc = a[lid].get("statement_hash") != b[lid].get("statement_hash")
         ho = hash_only_change(a[lid], b[lid])
-        n = next((n for n, e in sorted(entries.items()) if entry_covers(e, lid, current.get(lid), sc, law_defs[lid], ho)),
-                 None)
+        hs = (a[lid].get("statement_hash"), b[lid].get("statement_hash"))
+        n = next((n for n, e in sorted(entries.items())
+                  if entry_covers(e, lid, current.get(lid), sc, law_defs[lid], ho, hs)), None)
         if n is None:
             missing.append((lid, "no accepted laws/STATEMENT_DIFF.jsonl entry covers it ("
                                  + ("its statement hash changed: a strengthening, weakening or reextraction, or a "
