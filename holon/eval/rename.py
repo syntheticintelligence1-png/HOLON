@@ -33,7 +33,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
-from . import common, golang, solidity
+from . import common, golang, solidity, sollex
 
 MAP_VERSION = "holon-rename/0.1"
 
@@ -202,13 +202,13 @@ def _sol_facts(root: Path, paths: list[str]) -> dict[str, FileFacts]:
     out = {}
     for path, data, tree in zip(paths, datas, _parse_all(datas)):
         f = FileFacts(path, "solidity", data)
-        for kind, s, e in solidity.lex(data):
+        for kind, s, e in sollex.lex(data):
             if kind == "id":
                 f.idents.append((s, e, data[s:e].decode("ascii")))
             elif kind == "str":
-                f.string_words |= words(solidity.literal_value(data[s:e]).encode("utf-8", errors="surrogateescape"))
+                f.string_words |= words(sollex.value(data[s:e]))
             elif kind == "comment":
-                kept = solidity.kept_comment(data[s:e])
+                kept = sollex.kept(data[s:e])
                 f.comments.append((s, e, kept))
                 if kept:
                     f.kept_words |= words(data[s:e])
@@ -392,9 +392,9 @@ def isomorphism_problems(sf: SetFacts, out: Path, idmap: dict[str, str]) -> list
 
 def _sol_stream(data: bytes, idmap: dict) -> list[tuple[str, bytes]]:
     out = []
-    for kind, s, e in solidity.lex(data):
+    for kind, s, e in sollex.lex(data):
         text = data[s:e]
-        if kind == "comment" and not solidity.kept_comment(text):
+        if kind == "comment" and not sollex.kept(text):
             continue
         if kind == "id":
             name = text.decode("ascii")
@@ -410,7 +410,7 @@ def _identifier_spans(path: str, language: str, data: bytes, at: Path) -> list[t
         if not g["ok"]:
             raise common.Refused(f"{path}: the renamed file does not parse with go/parser")
         return [(off, off + len(name.encode("utf-8")), name) for off, name, _ in g["idents"]]
-    return [(s, e, data[s:e].decode("ascii")) for kind, s, e in solidity.lex(data) if kind == "id"]
+    return [(s, e, data[s:e].decode("ascii")) for kind, s, e in sollex.lex(data) if kind == "id"]
 
 
 def restore(data: bytes, spans: list[tuple[int, int, str]], inverse: dict[str, str], comments: list[dict]) -> bytes:

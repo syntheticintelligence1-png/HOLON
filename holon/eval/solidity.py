@@ -1,134 +1,25 @@
-"""The Solidity side of the renaming tool (I48 rules N1-N3): holon's own lexer (comments, string, hex and unicode string
-literals, identifiers, numbers), and the pinned solc 0.8.24 run with --stop-after parsing on a copy whose version
-pragmas are neutralised, for the declared, ABI-visible and override names.
-
-The lexer works on the file's bytes (every lexically significant character of Solidity is ASCII), so its offsets are
-byte offsets and a file that is not valid UTF-8 round-trips unchanged.
+"""The Solidity side of the renaming tool (I48 rules N1-N3): the pinned solc 0.8.24 run with --stop-after parsing on
+a copy whose version pragmas are neutralised, for the declared, ABI-visible and override names, and the normalised AST
+of rule N3. The lexer is holon.eval.sollex (it works on the file's bytes, so its offsets are byte offsets and a file
+that is not valid UTF-8 round-trips unchanged).
 """
 from __future__ import annotations
 
 import json
 import os
-import re
 import subprocess
 import tempfile
 from pathlib import Path
 
-from . import common
-
-# ------------------------------------------------------------------------------------------------- the lexer
-_ID = re.compile(rb"[A-Za-z_$][A-Za-z0-9_$]*")
-_NUMBER = re.compile(rb"0[xX][0-9A-Fa-f_]*|(?:[0-9][0-9_]*(?:\.[0-9][0-9_]*)?|\.[0-9][0-9_]*)(?:[eE]-?[0-9_]+)?")
-_OPS = sorted([b">>>=", b"<<=", b">>=", b">>>", b"**", b"==", b"!=", b"<=", b">=", b"&&", b"||", b"++", b"--", b"+=",
-               b"-=", b"*=", b"/=", b"%=", b"|=", b"&=", b"^=", b"<<", b">>", b"=>", b"->", b":="], key=len, reverse=True)
-_SPACE = b" \t\r\n\f\v"
+from . import common, sollex
 
 
-def _quoted_end(src: bytes, i: int) -> int:
-    """The end of the quoted literal opening at i: just after the matching quote, an escaped character never closing
-    it; a literal left open stops before the end of its line (or at the end of the file)."""
-    q, j = src[i], i + 1
-    while j < len(src):
-        c = src[j]
-        if c == q:
-            return j + 1
-        if c == 0x0A:
-            return j
-        j += 2 if c == 0x5C else 1
-    return len(src)
-
-
-def lex(src: bytes) -> list[tuple[str, int, int]]:
-    """Solidity's tokens as (kind, start, end), byte offsets: id, num, str (a string or unicode"..." literal), hex
-    (hex"..."), comment (// to the end of its line, without the newline; /* to */), op. Whitespace is no token."""
-    out, i, n = [], 0, len(src)
-    while i < n:
-        c = src[i]
-        if c in _SPACE:
-            i += 1
-            continue
-        two = src[i:i + 2]
-        if two == b"//":
-            j = src.find(b"\n", i)
-            j = n if j < 0 else j
-            out.append(("comment", i, j))
-            i = j
-            continue
-        if two == b"/*":
-            j = src.find(b"*/", i + 2)
-            j = n if j < 0 else j + 2
-            out.append(("comment", i, j))
-            i = j
-            continue
-        if c in b"\"'":
-            j = _quoted_end(src, i)
-            out.append(("str", i, j))
-            i = j
-            continue
-        m = _ID.match(src, i)
-        if m:
-            j = m.end()
-            word = m.group(0)
-            if word in (b"hex", b"unicode") and j < n and src[j] in b"\"'":
-                k = _quoted_end(src, j)
-                out.append(("hex" if word == b"hex" else "str", i, k))
-                i = k
-                continue
-            out.append(("id", i, j))
-            i = j
-            continue
-        m = _NUMBER.match(src, i)
-        if m and m.end() > i:
-            out.append(("num", i, m.end()))
-            i = m.end()
-            continue
-        op = next((o for o in _OPS if src.startswith(o, i)), None)
-        j = i + (len(op) if op else 1)
-        out.append(("op", i, j))
-        i = j
-    return out
-
-
-def kept_comment(text: bytes) -> bool:
-    """Rule N1: a Solidity comment stays verbatim when it holds an @solidity or @custom: NatSpec tag."""
-    return b"@solidity" in text or b"@custom:" in text
-
-
-_ESCAPES = {"n": "\n", "r": "\r", "t": "\t", "\\": "\\", "'": "'", '"': '"', "\n": ""}
-
-
-def literal_value(lit: bytes) -> str:
-    """The value of a string or unicode string literal (its text from the lexer), each escape decoded to the code
-    point it names; an escape Solidity does not know stands for its character."""
-    s = lit.decode("utf-8", errors="surrogateescape")
-    if s.startswith("unicode"):
-        s = s[len("unicode"):]
-    body = s[1:-1] if len(s) >= 2 and s[-1] == s[0] else s[1:]
-    out, i = [], 0
-    while i < len(body):
-        c = body[i]
-        if c != "\\" or i + 1 == len(body):
-            out.append(c)
-            i += 1
-            continue
-        e = body[i + 1]
-        width = {"x": 2, "u": 4}.get(e)
-        if width:
-            digits = body[i + 2:i + 2 + width]
-            if len(digits) == width and all(ch in "0123456789abcdefABCDEF" for ch in digits):
-                out.append(chr(int(digits, 16)))
-                i += 2 + width
-                continue
-        out.append(_ESCAPES.get(e, e))
-        i += 2
-    return "".join(out)
-
-
+# ------------------------------------------------------------------------------------------------- pragmas
 def neutralise(src: bytes) -> bytes:
     """The bytes solc parses (rule N3): every `pragma solidity <expr>;` (pragma directly followed by solidity, up to
     the next ; token) becomes `pragma solidity >=0.0.0;` (solc 0.8.24 refuses an unsatisfied version pragma even
     when it stops after parsing)."""
-    toks = lex(src)
+    toks = sollex.lex(src)
     parts, last = [], 0
     for i, (k, s, e) in enumerate(toks):
         if k != "id" or src[s:e] != b"pragma" or s < last or i + 1 >= len(toks):
