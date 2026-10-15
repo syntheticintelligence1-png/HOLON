@@ -47,6 +47,8 @@
   python -m holon lossy --milestone M3 [--root DIR] [--out DIR] [--review PATH] [--records DIR] [--codec PATH ...]
                         [--gen-dir DIR] [--check]       (PAR-lossy and injective pushing: gen/<M>/par_lossy/,
                                                         spec/<M>/evidence_review.jsonl; I25)
+  python -m holon refute --milestone M [--root DIR] [--sidecar PATH] [--only STAGE,..] [--check] [--results DIR]
+                         [--gen-dir DIR] [--laws ID,..]   (the refutation engines, concretization, filter; I40)
   python -m holon eval <command> ...                   (I48: the evaluation corpus, the renaming tool and the
                                                         controls; holon.eval.cli lists the commands)
   python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
@@ -130,6 +132,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["lean"]:  # likewise for holon.lean
         from . import lean
         return lean.main(argv[1:])
+    if argv[:1] == ["refute"]:  # likewise for holon.refute3 (the refutation engines, I40)
+        from . import refute3
+        return refute3.main(argv[1:])
     if argv[:1] == ["sorts"]:  # likewise for holon.sorts
         from . import sorts
         return sorts.main(argv[1:])

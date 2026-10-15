@@ -47,5 +47,22 @@
       "sha256": "fae0038f9cbd1be5f5b32ff74a016b202fb6a2253374fc2e84451f9aa1af6261",
       "path": "/root/.holon/tools/cvc5-1.2.0/cvc5"
     }
+  },
+  "z3": {
+    "doc": "I40 (Q16): the pinned z3 of spec/M3/lib/refute.json solver, installed by tools/setup_env.sh --extract; holon.smt.run checks the binary's and the library's sha256 before every run; random_seed 0, one thread, z3's deterministic rlimit per query.",
+    "version": "4.16.0",
+    "requirement": "z3-solver==4.16.0.0",
+    "binary": "/root/.holon/tools/extract/bin/z3",
+    "binary_sha256": "a06c2a851d58c5f5a7c1e5de188fd0e1b1135e778112aee83ffd1a433685516b",
+    "library": "/root/.holon/tools/extract/lib/python3.13/site-packages/z3/lib/libz3.so",
+    "library_sha256": "7d8507589c3f5cd194c156d70bfcdc935a713784f7df36553c8f0b8d22347fc8",
+    "random_seed": 0,
+    "rlimit_per_query": 200000000,
+    "memory_max_size_mb": 4096,
+    "glibc": "glibc 2.39",
+    "watchdog_s": 14400,
+    "e1_rounds_max": 64,
+    "hash_rounds_max": 32,
+    "limits_doc": "I40 round 2 (lead ruling, docs/HUMAN_ANSWERS.md): the only search budget is the sidecar's rlimit per query, counted cumulatively over every check-sat of the query's session from the first check-sat on (holon.smt.run.Session). Registered beside it: memory_max_size_mb, z3's own accounting of the bytes it has allocated, which z3 reads from glibc's malloc (malloc_usable_size), so it is deterministic for this pinned single-threaded binary on the registered glibc, with z3 run in a fixed environment (no malloc tunables or preloads) and with no address-space or data rlimit and no strict overcommit (holon.smt.run.environment_check refuses to run otherwise); an overrun ends the query unknown, named in its reason. e1_rounds_max and hash_rounds_max, BMC's deterministic round caps for lazy E1 and hash concretization (a cap reached ends the query unknown, named in its reason); watchdog_s, a crash guard only: when it fires the run aborts, nothing is recorded and the question stays not run. A solver that ends without an answer is a crash too. No answer depends on wall-clock time, load or an environment variable."
   }
 }

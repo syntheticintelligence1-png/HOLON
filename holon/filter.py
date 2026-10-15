@@ -68,3 +68,39 @@ def record_fields(report: dict | None, lid: str, witness, witness_sha256) -> tup
         return {}, "pending"
     ss = sides(report["laws"][lid])
     return provenance_of(ss), bin_of(ss)
+
+
+# ------------------------------------------------------------------------------------------------ I40: the final rule
+FINAL_RULE = "holon-filter/1.0"
+FINAL_BINS = ("finding", "model_defect", "known_limitation", "pending")
+
+
+def final_bin(ss: dict[str, dict], conc: dict) -> str:
+    """The final bin of a REFUTED record (I40; whitepaper §9.6), written from the contract's F1-F4 in order:
+
+      F1 model_defect     a side failed;
+      F2 known_limitation the concretization is a BMC question whose answer is no_path (no public path within H);
+      F3 finding          the concretization is not go_only and has a path; a public_schedule side passed and observed
+                          the obstruction; every side that is neither internal_harness nor emulated_storage passed and
+                          observed it; and an internal_harness or emulated_storage side appears only when the
+                          concretization is a BMC path (a public path supersedes the construction);
+      F4 pending          anything else.
+
+    ss: side name -> {"status", "provenance", "obstruction_observed"}; conc: {"kind", "result", ...}."""
+    side_list = [v if isinstance(v, dict) else {} for v in (ss or {}).values()]
+    kind = (conc or {}).get("kind")
+    result = (conc or {}).get("result")
+
+    def held(side: dict) -> bool:   # passed, and the obstruction the law claims was observed
+        return side.get("status") == "passed" and side.get("obstruction_observed") is True
+
+    if any(side.get("status") == "failed" for side in side_list):                        # F1
+        return "model_defect"
+    if kind == "bmc" and result == "no_path":                                             # F2
+        return "known_limitation"
+    public_held = any(side.get("provenance") == "public_schedule" and held(side) for side in side_list)
+    others_held = all(held(side) for side in side_list if side.get("provenance") not in BLOCKING)
+    construction = any(side.get("provenance") in BLOCKING for side in side_list)
+    if kind != "go_only" and result == "path" and public_held and others_held and (not construction or kind == "bmc"):
+        return "finding"                                                                  # F3
+    return "pending"                                                                      # F4
