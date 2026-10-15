@@ -54,7 +54,7 @@ from pathlib import Path
 # by observed success on real cones (F31: congruence proved 189 of 203 changed definitions, normalize 10, the other
 # classes one each; eqprove, F32, only what nothing else proves), so a definition costs one candidate most of the time.
 CLASSES = ("congruence", "congruence-old", "normalize", "congruence-x", "congruence-old-x", "congruence-core",
-           "eqprove")
+           "eqprove", "congruence-flat")
 
 _DEF = re.compile(r"^def ([A-Za-z_][\w.]*)\(", re.M)
 _PREF = re.compile(r"(?<![\w.])P\.([A-Za-z_]\w*)")
@@ -232,6 +232,7 @@ class Search:
         self.full_pair = False
         self.last_seconds = 0.0
         self.overflow_streak = 0
+        self.defer = False                     # F35: candidates are deferred to the final check (see _apply)
         self.jobs = 0
         self.file_checks: dict = {}            # sha256 of a batch file -> times checked (a cap on identical batches)
         self.stats = {"checks": 0, "check_seconds": 0.0, "cache_hits": 0, "cache_failed_skips": 0, "candidates": 0,
@@ -294,6 +295,8 @@ class Search:
             r = gen.congruence(f, L + f, lemmas, "old", expand=True)
         elif cls == "congruence-core":
             r = gen.congruence(f, L + f, lemmas, "new", core=True)
+        elif cls == "congruence-flat":   # F35: every let inlined into the motives (the pre-F35 text), last resort
+            r = gen.congruence(f, L + f, lemmas, "new", chain=False)
         else:
             raise Unsupported(f"unknown class {cls}")
         if r is None:
@@ -302,7 +305,8 @@ class Search:
             text, ih = r
             label = (("induction" if ih else "congruence") + (" (old tree)" if "old" in cls else "")
                      + (" (wildcards split)" if cls.endswith("-x") else "")
-                     + (" with Base identities" if cls.endswith("-core") else ""))
+                     + (" with Base identities" if cls.endswith("-core") else "")
+                     + (" (lets inlined)" if cls.endswith("-flat") else ""))
             return label, text
         return cls, r
 
@@ -462,9 +466,16 @@ class Search:
                 if kind != "proven" and f not in self.proven and f in self.cur and self.cur[f][2] == text:
                     self._prove(f, self.cur[f][1], text)
             return None
-        if "[timeout]" in r.out:   # holon's bend timeout (config bend.timeout_s): no verdict, nothing learned
+        if "[timeout]" in r.out:   # holon's bend timeout (config bend.timeout_s): no verdict
             self.stats["timeouts"] += 1
-            return None if self.stats["timeouts"] <= 6 else "bend timed out on lemma files repeatedly"
+            # F35: a batch file holds the proven lemmas its candidates use, so near the top of a large cone every batch
+            # check costs about the whole cone and cannot finish within bend.timeout_s (which is not raised). From the
+            # first timeout on, the remaining candidates are DEFERRED: taken unchecked, never cached, and decided by
+            # the final whole-proof check alone (both kernels, equivalence.timeout_s), which refuses a wrong one by
+            # its location and sends it back to the search (reject). A deferral is never a verdict.
+            self.defer = True
+            self._defer_blocks(blocks)
+            return None
         if "a defined name" in r.out and not self.full_pair:
             # a slice of the pair module missed a name: bend2 pins it on the referencing definition, but it is the
             # slice's failure, not the candidate's (never attributed, never cached)
@@ -502,6 +513,27 @@ class Search:
         elif f in self.cur and self.cur[f][2] == text and f not in self.proven:
             self._reject_current(f, r.out)
         return None
+
+    def _defer_blocks(self, blocks: list):
+        for f, text, kind in blocks:
+            if kind != "proven" and f not in self.proven and f in self.cur and self.cur[f][2] == text:
+                self._defer(f)
+
+    def _defer(self, f: str):
+        """Take f's current candidate unchecked (deferred to the final check; not cached)."""
+        i, label, text = self.cur.pop(f)
+        self.proven[f] = {"class": label, "text": text, "deferred": True}
+        self.stats["deferred"] = self.stats.get("deferred", 0) + 1
+        per_class = self.stats["by_class"]
+        per_class[label] = per_class.get(label, 0) + 1
+
+    def confirm(self):
+        """The final whole-proof check accepted every lemma in both kernels: deferred lemmas are now checked, and are
+        cached like any other (so the other laws of the same model pair find them)."""
+        for f, p in self.proven.items():
+            if p.get("deferred"):
+                p.pop("deferred")
+                self.cache.put(self.key(f), f, p["class"], p["text"], self.attempts[f])
 
     def _crashed(self, f: str, text: str, kind: str, out: str):
         """Bisection named block f of a file that crashed without a location, again and again. A crash is not a verdict:
@@ -590,6 +622,11 @@ class Search:
                     return None
                 if deadline is not None and now > deadline:
                     return "time box"
+                if self.defer:   # see _apply: no more batch checks; every eligible candidate is deferred
+                    for f in elig:
+                        if f in self.cur:
+                            self._defer(f)
+                    continue
                 chunks = [elig[i:i + size] for i in range(0, len(elig), size)][:self.workers]
                 files, spec = [], {}
                 for c in chunks:
