@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.605
+      "seconds": 0.519
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.68
+      "seconds": 0.969
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.605
+    "seconds": 0.519
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -248,8 +248,8 @@
   "evidence_triage": "finding",
   "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
   "filter_bin": "finding",
-  "generator_sha256": "1ad5c44b955b60bd142a6db5b90e41ec5f5772b0b8c42a615f2263d976eae87e",
-  "independence_class": "I1-shared",
+  "generator_sha256": "d1882dd70f9658fd353bfa77b18630f193e996ca17f04a47e1c6a66616b93457",
+  "independence_class": "I2",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -269,6 +269,19 @@
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
+    },
+    {
+      "axioms": [
+        "propext"
+      ],
+      "name": "lean4",
+      "reading": "Lean reads the holon-facts/0.2 document itself (holon.gen.lean_machine), the target library through its Lean twin (hand-written target input, like the Bend library: common mode, I9 Question 4); Nat, Bool and lists as in Bend; premises are hypotheses as in Bend; the statement is the frozen Lean text of the same IR",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M1/lean/L_undo_BVH.lean",
+      "source_sha256": "5bfe386538193e210aaa316d45c102b1c89e656ff1aceb5c45a7fcfa5f0ee14d",
+      "theorem": "L_undo_BVH_counter",
+      "version": "4.34.0"
     }
   ],
   "law_id": "L_undo_BVH",

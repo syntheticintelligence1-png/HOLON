@@ -12,7 +12,7 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 1.11
+      "seconds": 0.669
     },
     {
       "bound": "record fills (ones, counting, 0xff, zeros, one field 0xff, 8 random with seed 20261013), the premises applied, kept when the named encoders' ok atoms over record fields hold (33 candidates); hit: ones",
@@ -26,20 +26,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.194
+      "seconds": 1.417
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.706
+      "seconds": 1.63
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.194
+    "seconds": 1.417
   },
   "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
   "cone": [
@@ -62,8 +62,8 @@
   "evidence_triage": "finding",
   "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
   "filter_bin": "pending",
-  "generator_sha256": "ad3e93622aac800e34b5b3d3fe0ef57ce586deeb7e301c15a5bd49641162af5e",
-  "independence_class": "I1-shared",
+  "generator_sha256": "6edb096526c01d13473f23697310d9bdf093dfa5f0d036bc953dc67620f709c3",
+  "independence_class": "I2",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -83,6 +83,17 @@
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
+    },
+    {
+      "axioms": [],
+      "name": "lean4",
+      "reading": "Lean cells are Option (BitVec 8): a record's byte is a BitVec 8 where Bend's is a U32, so Lean's theorems cover byte-valued records only (a narrower domain than Bend's, I9 Surprise 5); an undefined cell (Bend 57005) is none, and the decoders' orderings compare it as 57005; every premise is a hypothesis where Bend pins a field to a constant or to another record's field (an equivalent statement)",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M3/lean/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.lean",
+      "source_sha256": "a19ea39f179e10d3ca5dc26183c5c9bfc4cf59ff447f72c40283c019dd97393f",
+      "theorem": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_counter",
+      "version": "4.34.0"
     }
   ],
   "law_id": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
@@ -108,7 +119,7 @@
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2/LAWS.bend",
-    "parent_statement_hash": "sha256:981660bb2284dd1f18e10d0f3685f61e25825736cd019b4d85d686173934b262",
+    "parent_statement_hash": "sha256:e6d7e06a34ab84628b0066e3020156e962185e1fd14853491a9a33f4c4fcac39",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -141,7 +152,7 @@
     "kind": "unbounded"
   },
   "statement": "\u2200 h: BatchHeaderV1, \u2200 k: Header. k.version == 0x02 \u2227 h.BatchHeaderV0.BatchIndex == k.batchIndex \u2227 h.BatchHeaderV0.BlobVersionedHash == k.blobVersionedHash \u2227 h.BatchHeaderV0.DataHash == k.dataHash \u2227 h.BatchHeaderV0.L1MessagePopped == k.l1MessagePopped \u2227 h.LastBlockNumber == k.lastBlockNumber \u2227 h.BatchHeaderV0.ParentBatchHash == k.parentBatchHash \u2227 h.BatchHeaderV0.PostStateRoot == k.postStateHash \u2227 h.BatchHeaderV0.PrevStateRoot == k.prevStateHash \u2227 h.BatchHeaderV0.TotalL1MessagePopped == k.totalL1MessagePopped \u2227 h.BatchHeaderV0.WithdrawalRoot == k.withdrawRootHash \u21d2 BatchCache_createBatchHeaderWithSequencerSetHash(h) == enc_sol(k)",
-  "statement_hash": "sha256:981660bb2284dd1f18e10d0f3685f61e25825736cd019b4d85d686173934b262",
+  "statement_hash": "sha256:e6d7e06a34ab84628b0066e3020156e962185e1fd14853491a9a33f4c4fcac39",
   "statement_scope": {
     "kind": "unbounded"
   },

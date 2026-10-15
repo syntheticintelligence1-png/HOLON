@@ -17,7 +17,8 @@ listed under not_applicable with a reason.
   G6    every REFUTED entry point is a passed entry of replay/<M>/sorts/report.json, with the record's trace, and
         no REFUTED record's own replay failed (a kernel-accepted counter-law the real contract disagrees with)
   G9    every record is valid under the v1 and v2 schemas
-  G7    BendTT (--verdict) re-checks every decided law's proofs
+  G7    BendTT (--verdict) re-checks every decided law's proofs; joined (I43) with holon.gate's Lean G7 over the
+        milestone's Lean directories (on M3 the PAR laws), with its cross-kernel coverage and canary lines
   G4    canaries: per I30 subform among the laws, a counter-law whose witness is mutated (its entry step's clock or
         its first argument changed) must be rejected by Bend
 
@@ -305,17 +306,29 @@ class Gate3:
                                  if not bad else "; ".join(bad[:8]))
 
     def g7(self):
+        """BendTT over the I30 laws' proofs, joined (I43) with holon.gate's Lean G7 over the milestone's Lean
+        directories (on M3, the PAR laws: the typed and UNDO laws are over no covered model kind). Without a decided
+        I30 law, G7 is the Lean result alone; without either, not applicable."""
+        from .. import lean
         bad, n = [], 0
         for lid, label, proof, _laws in self.proofs():
             n += 1
             r = bend.check_verdict(proof)
             if not r.ok:
                 bad.append(f"{lid} {label}: BendTT {r.first_line}")
-        if n == 0:
-            self.na["G7"] = "no I30 law of this milestone is decided: no proof file to re-check"
+        bendtt = (f"{n} proof files re-checked by BendTT (--verdict)" if not bad else "; ".join(bad[:8]))
+        if not lean.lean_dirs(self.m, self.root):
+            if n == 0:
+                self.na["G7"] = "no I30 law of this milestone is decided: no proof file to re-check"
+                return
+            self.checks["G7"] = _res(not bad, bendtt)
             return
-        self.checks["G7"] = _res(not bad and n > 0, f"{n} proof files re-checked by BendTT (--verdict)" if not bad
-                                 else "; ".join(bad[:8]))
+        from ..gate import Gate
+        lean_ok, lean_detail = Gate(self.m, self.root).g7_lean()
+        if n == 0:
+            self.checks["G7"] = _res(lean_ok, f"I30 laws: none decided, no proof file to re-check; {lean_detail}")
+            return
+        self.checks["G7"] = _res(not bad and lean_ok, f"I30 laws: {bendtt}; {lean_detail}")
 
     def g11(self):
         bad = []
