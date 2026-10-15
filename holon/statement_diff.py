@@ -954,14 +954,22 @@ def registry_changes(milestone: str, root: Path) -> dict:
             if parent.returncode != 0:
                 continue
             pc = parent.stdout.decode().strip()
-            pairs.append((c[:7], _json_or_none(blob_at(root, pc, reg_rel)), _json_or_none(blob_at(root, c, reg_rel)),
-                          pc, c))
+            first = _json_or_none(blob_at(root, pc, reg_rel))
+            child = _json_or_none(blob_at(root, c, reg_rel))
+            pairs.append((c[:7], first, child, pc, c, None))
+            # a merge: a law the first parent does not hold, held by another parent under another hash, changed in
+            # the merge against that parent (a law the first parent holds is compared with the first parent only)
+            fs = (first or {}).get("statements") if isinstance(first, dict) else None
+            ps = _git(root, "rev-parse", f"{c}^@")
+            for po in (ps.stdout.decode().split()[1:] if ps.returncode == 0 else []):
+                pairs.append((c[:7], _json_or_none(blob_at(root, po, reg_rel)), child, po, c,
+                              set(fs) if isinstance(fs, dict) else set()))
     cur = root / reg_rel
     head = _json_or_none(blob_at(root, "HEAD", reg_rel))
     if cur.is_file():
-        pairs.append(("working tree", head, _json_or_none(cur.read_bytes()), "HEAD", None))
+        pairs.append(("working tree", head, _json_or_none(cur.read_bytes()), "HEAD", None, None))
     changes, seen = [], set()
-    for at, a, b, ra, rb in pairs:
+    for at, a, b, ra, rb, skip in pairs:
         sa = (a or {}).get("statements") if isinstance(a, dict) else None
         sb = (b or {}).get("statements") if isinstance(b, dict) else None
         if not isinstance(sa, dict):
@@ -969,6 +977,8 @@ def registry_changes(milestone: str, root: Path) -> dict:
         sb = sb if isinstance(sb, dict) else {}
         for lid in sorted(sa):
             if lid in sb and sb[lid] == sa[lid]:
+                continue
+            if skip is not None and (lid in skip or lid not in sb):
                 continue
             old = _json_or_none(blob_at(root, ra, f"laws/{milestone}/{lid}.json"))
             if lid in sb:
