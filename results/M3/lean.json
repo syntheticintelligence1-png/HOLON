@@ -1,0 +1,2612 @@
+{
+  "allowed_axioms": [
+    "Quot.sound",
+    "propext"
+  ],
+  "canaries": [
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_equivar_compose_swapped",
+      "group": "theory_core_ii",
+      "status": "REFUTED"
+    },
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_paste_grid_2x2_missing_v",
+      "group": "theory_core_ii",
+      "status": "REFUTED"
+    },
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_equivar_mig_eta2_unmigrated_rhs",
+      "group": "equivariance",
+      "status": "REFUTED"
+    },
+    {
+      "bend_check_ok": false,
+      "bend_verdict_ok": false,
+      "canary_id": "canary_paste_csr_last_mig_legacy",
+      "group": "pasting",
+      "status": "REFUTED"
+    },
+    {
+      "canary_id": "canary_lean_flipped_claim",
+      "group": "lean",
+      "lean_check_ok": false,
+      "semantic_rejection": true,
+      "status": "REFUTED"
+    }
+  ],
+  "groups": {
+    "equivariance": {
+      "bend_check_ok": true,
+      "bend_verdict_ok": true,
+      "law_count": 4,
+      "laws": [
+        {
+          "axioms": [],
+          "law_id": "basis_equivar_mig_legacy_wait",
+          "lean_module": "gen/M3/lean/Holon/Basis/Equivariance.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "basis_equivar_mig_legacy_send_msg",
+          "lean_module": "gen/M3/lean/Holon/Basis/Equivariance.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [
+            "propext"
+          ],
+          "law_id": "basis_equivar_mig_eta2_wait",
+          "lean_module": "gen/M3/lean/Holon/Basis/Equivariance.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [
+            "propext"
+          ],
+          "law_id": "basis_equivar_mig_compose_wait",
+          "lean_module": "gen/M3/lean/Holon/Basis/Equivariance.lean",
+          "status": "PROVED"
+        }
+      ],
+      "laws_only_verdict_ok": false,
+      "lean_check_ok": true
+    },
+    "pasting": {
+      "bend_check_ok": true,
+      "bend_verdict_ok": true,
+      "law_count": 4,
+      "laws": [
+        {
+          "axioms": [],
+          "law_id": "basis_paste_lci_mig_legacy",
+          "lean_module": "gen/M3/lean/Holon/Basis/Pasting.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [
+            "propext"
+          ],
+          "law_id": "basis_paste_lci_mig_eta2",
+          "lean_module": "gen/M3/lean/Holon/Basis/Pasting.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [
+            "propext"
+          ],
+          "law_id": "basis_paste_lci_mig_chain",
+          "lean_module": "gen/M3/lean/Holon/Basis/Pasting.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [
+            "propext"
+          ],
+          "law_id": "basis_paste_tags_mig_chain",
+          "lean_module": "gen/M3/lean/Holon/Basis/Pasting.lean",
+          "status": "PROVED"
+        }
+      ],
+      "laws_only_verdict_ok": false,
+      "lean_check_ok": true
+    },
+    "theory_core_ii": {
+      "bend_check_ok": true,
+      "bend_verdict_ok": true,
+      "law_count": 10,
+      "laws": [
+        {
+          "axioms": [],
+          "law_id": "core_equivar_compose",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "core_equivar_whisker",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "core_equivar_obs",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "core_equivar_pred",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "core_equivar_homotopy",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "core_paste_grid_2x2",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "core_paste_h_3",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "core_paste_v_obs",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "core_paste_square_trans",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        },
+        {
+          "axioms": [],
+          "law_id": "core_paste_whisker_interchange",
+          "lean_module": "gen/M3/lean/Holon/Core.lean",
+          "status": "PROVED"
+        }
+      ],
+      "laws_only_verdict_ok": false,
+      "lean_check_ok": true
+    }
+  },
+  "lake_build_ok": true,
+  "lean_toolchain_version": "4.34.0",
+  "promoted_laws": {
+    "counts_by_milestone": {
+      "M0": 5,
+      "M1": 8,
+      "M2": 6,
+      "M3": 73
+    },
+    "milestones": {
+      "M0": [
+        {
+          "bend_generator": "open_refl",
+          "facts": "facts/morph_header.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.1",
+          "law_id": "L_par_hdr_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M0/lean/L_par_hdr_v0.lean",
+            "source_sha256": "1fc627af21f73e07a710949a070dba2780a3466c5a96616192af291f606d7a92",
+            "theorem": "L_par_hdr_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M0/lean/L_par_hdr_v0.lean",
+          "lean_theorem": "L_par_hdr_v0",
+          "milestone": "M0",
+          "prior_independence_class": "I2",
+          "rule": "PAR",
+          "statement_hash": "sha256:d753f5fc344e138c5d065014ba0f5c152106a4c44644a790e1900cfd4ad581c8",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "facts/morph_header.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.1",
+          "law_id": "L_par_hdr_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M0/lean/L_par_hdr_v1.lean",
+            "source_sha256": "8ef24211b58cd683177895113db8b9889130f945f3a708e3c08049cd5e171e49",
+            "theorem": "L_par_hdr_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M0/lean/L_par_hdr_v1.lean",
+          "lean_theorem": "L_par_hdr_v1",
+          "milestone": "M0",
+          "prior_independence_class": "I2",
+          "rule": "PAR",
+          "statement_hash": "sha256:54f4a3d5e509023c308b2b9edcffbcdd9dc75f5420db66ba5e81ac5e94e91a76",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "facts/morph_header.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.1",
+          "law_id": "L_rt_go_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M0/lean/L_rt_go_v0.lean",
+            "source_sha256": "a07d2cffd51ca0135b8f86a3b519a4af16f1afe530be724013d339c837e918fc",
+            "theorem": "L_rt_go_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M0/lean/L_rt_go_v0.lean",
+          "lean_theorem": "L_rt_go_v0",
+          "milestone": "M0",
+          "prior_independence_class": "I2",
+          "rule": "PAR",
+          "statement_hash": "sha256:cd9b7a0519326f9a2974a0242f4b637749a3c6efea3636c5f0f99885b99c3db5",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "facts/morph_header.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.1",
+          "law_id": "L_rt_go_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M0/lean/L_rt_go_v1.lean",
+            "source_sha256": "93e6becf1efc66900a0b1dc221adcb66cd1c06aeb8eaaf9267a95935c0016bcd",
+            "theorem": "L_rt_go_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M0/lean/L_rt_go_v1.lean",
+          "lean_theorem": "L_rt_go_v1",
+          "milestone": "M0",
+          "prior_independence_class": "I2",
+          "rule": "PAR",
+          "statement_hash": "sha256:091b2c8c5785fbc857250b6f3fc9af20853bcf1b240471038c00d1bdfcf79d77",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "facts/morph_header.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.1",
+          "law_id": "L_rt_go_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M0/lean/L_rt_go_v2.lean",
+            "source_sha256": "3f777cea2737be2dc0ff266dd9aad38b8f6e720ee19f2a086ec23bbd992e8dcb",
+            "theorem": "L_rt_go_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M0/lean/L_rt_go_v2.lean",
+          "lean_theorem": "L_rt_go_v2",
+          "milestone": "M0",
+          "prior_independence_class": "I2",
+          "rule": "PAR",
+          "statement_hash": "sha256:529c9ef84201b214c684642f8683bb42afeb1d9aff6ddc759efcadeb028d78aa",
+          "status": "PROVED"
+        }
+      ],
+      "M1": [
+        {
+          "bend_generator": "nat_split",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.2",
+          "law_id": "L_disch_delay_nofree",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M1/L_disch_delay_nofree.lean",
+            "source_sha256": "dcc35928c548c4e836811b84a23bfd2be0651522b849e8e99bb43922ea8a57d5",
+            "theorem": "L_disch_delay_nofree",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M1/L_disch_delay_nofree.lean",
+          "lean_theorem": "L_disch_delay_nofree",
+          "milestone": "M1",
+          "prior_independence_class": "I1-shared",
+          "rule": "DISCH",
+          "statement_hash": "sha256:f5ce4f3185edbd215801d443b6243f2204316a1cff4cc88764028f1ab03c7595",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "evaluate",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.2",
+          "law_id": "L_disch_delay_pay",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M1/L_disch_delay_pay.lean",
+            "source_sha256": "81c82fc3ad197c28afc01f8cb1ce892b599b0059d12c2cb7ff1a8c489bc75159",
+            "theorem": "L_disch_delay_pay",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M1/L_disch_delay_pay.lean",
+          "lean_theorem": "L_disch_delay_pay",
+          "milestone": "M1",
+          "prior_independence_class": "I1-shared",
+          "rule": "DISCH",
+          "statement_hash": "sha256:99034c66e191e8f0073714a551a330555eb751024a16c308bad3f3fcd42c1534",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "evaluate",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.2",
+          "law_id": "L_disch_delay_prove",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M1/L_disch_delay_prove.lean",
+            "source_sha256": "12d3078452aae3b43b9bb9201800f14254908936ccce2c85d010b7e1a24aacdd",
+            "theorem": "L_disch_delay_prove",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M1/L_disch_delay_prove.lean",
+          "lean_theorem": "L_disch_delay_prove",
+          "milestone": "M1",
+          "prior_independence_class": "I1-shared",
+          "rule": "DISCH",
+          "statement_hash": "sha256:6f2d6dcd5141e9569d35e5e0622ac3318b42e8fd25f2954467767464e55e508d",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "evaluate",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.2",
+          "law_id": "L_disch_delay_wait",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M1/L_disch_delay_wait.lean",
+            "source_sha256": "7edb5e2b61ee96b2429f0bc6fd7cff59a014679aa9f39bab4ffe6b3a77f82578",
+            "theorem": "L_disch_delay_wait",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M1/L_disch_delay_wait.lean",
+          "lean_theorem": "L_disch_delay_wait",
+          "milestone": "M1",
+          "prior_independence_class": "I1-shared",
+          "rule": "DISCH",
+          "statement_hash": "sha256:4bd81056051a82d78ef8cac54d119f2148a95a804218f3b936ecd70db05205b2",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "deadline",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.2",
+          "law_id": "L_disch_stale",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M1/L_disch_stale.lean",
+            "source_sha256": "591298d196de7990065266d43012f2a24be2edea89e026e448285981f11e4c8a",
+            "theorem": "L_disch_stale",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M1/L_disch_stale.lean",
+          "lean_theorem": "L_disch_stale",
+          "milestone": "M1",
+          "prior_independence_class": "I1-shared",
+          "rule": "DISCH",
+          "statement_hash": "sha256:a0243ce6687fe0e8587e507a4413c9cbc17214b844269df8bca36e29a441c297",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "chain_revert",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.2",
+          "law_id": "L_disch_stale_commit",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M1/L_disch_stale_commit.lean",
+            "source_sha256": "9bf7c29cb2e89a9a5bce112889f6aeba9124a5e22f26ed19a188e67edc31b6ac",
+            "theorem": "L_disch_stale_commit",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M1/L_disch_stale_commit.lean",
+          "lean_theorem": "L_disch_stale_commit",
+          "milestone": "M1",
+          "prior_independence_class": "I1-shared",
+          "rule": "DISCH",
+          "statement_hash": "sha256:f16e4a0e3e04b5e7c8704d4c873540f27968167225afad83a98217b9ef0fb7d6",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "noninterference",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.2",
+          "law_id": "L_undo_BD",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M1/L_undo_BD.lean",
+            "source_sha256": "f9d084ed6b49ac74e8668a3cdb356099758463feab0de91106a110044f381452",
+            "theorem": "L_undo_BD",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M1/L_undo_BD.lean",
+          "lean_theorem": "L_undo_BD",
+          "milestone": "M1",
+          "prior_independence_class": "I1-shared",
+          "rule": "UNDO",
+          "statement_hash": "sha256:3c8a37fdd3f483f21e5d91caa8ebf89b4e501e9bdd6d159559d87a5760dcfb47",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "noninterference",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.2",
+          "law_id": "L_undo_CSR",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M1/L_undo_CSR.lean",
+            "source_sha256": "6589bb02548ca69279423bd8f9295f40b19be6d7097db2177d25a1d9bac8066c",
+            "theorem": "L_undo_CSR",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M1/L_undo_CSR.lean",
+          "lean_theorem": "L_undo_CSR",
+          "milestone": "M1",
+          "prior_independence_class": "I1-shared",
+          "rule": "UNDO",
+          "statement_hash": "sha256:495a29ac6d11b350f95c4edc18fd0b7d9193c2f6a2f4b7e7a1d68156c221cf6b",
+          "status": "PROVED"
+        }
+      ],
+      "M2": [
+        {
+          "bend_generator": "coercion_guard",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_sort_site_def_bvh_at_6126d1f1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M2/L_sort_site_def_bvh_at_6126d1f1.lean",
+            "source_sha256": "5452b82627013e164468dfa522b01e727e4a78c07fbeb35fbad91cac7113746b",
+            "theorem": "L_sort_site_def_bvh_at_6126d1f1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M2/L_sort_site_def_bvh_at_6126d1f1.lean",
+          "lean_theorem": "L_sort_site_def_bvh_at_6126d1f1",
+          "milestone": "M2",
+          "prior_independence_class": "I1-shared",
+          "rule": "SORT",
+          "statement_hash": "sha256:90b3e9b477dd29926dcb53c13068a1213348be3533d86b1af9b5edb748ee315a",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "coercion_guard",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_sort_site_def_bvh_at_e064679d",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M2/L_sort_site_def_bvh_at_e064679d.lean",
+            "source_sha256": "0cf1e4cc435ebb77ef535a4919439492c7e8739aae91c458e84733472a0d3991",
+            "theorem": "L_sort_site_def_bvh_at_e064679d",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M2/L_sort_site_def_bvh_at_e064679d.lean",
+          "lean_theorem": "L_sort_site_def_bvh_at_e064679d",
+          "milestone": "M2",
+          "prior_independence_class": "I1-shared",
+          "rule": "SORT",
+          "statement_hash": "sha256:67c8f7820d0e37f56550ca235e8325d8fda5f53ca20aac16d8e8b3bfcd996941",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "coercion_guard",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_sort_site_def_w_b4cd5068",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M2/L_sort_site_def_w_b4cd5068.lean",
+            "source_sha256": "bd4479fe66fada9ec054a7992d69579df6d8bbddd18dcc90be638e36f8f8233b",
+            "theorem": "L_sort_site_def_w_b4cd5068",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M2/L_sort_site_def_w_b4cd5068.lean",
+          "lean_theorem": "L_sort_site_def_w_b4cd5068",
+          "milestone": "M2",
+          "prior_independence_class": "I1-shared",
+          "rule": "SORT",
+          "statement_hash": "sha256:c8a8fc4a3070a8536da27a556898fa4456c2e7f0c158b2f1d9683cb7d873ee65",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "coercion_guard",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_sort_site_rollup_441_b4cd5068",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M2/L_sort_site_rollup_441_b4cd5068.lean",
+            "source_sha256": "eda33ff56b8e62254ab636401cac7e35725b6bffe67dcf7efaf9c8504cd81639",
+            "theorem": "L_sort_site_rollup_441_b4cd5068",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M2/L_sort_site_rollup_441_b4cd5068.lean",
+          "lean_theorem": "L_sort_site_rollup_441_b4cd5068",
+          "milestone": "M2",
+          "prior_independence_class": "I1-shared",
+          "rule": "SORT",
+          "statement_hash": "sha256:f9fdb9fc834c5c21c29655a5ab6cf7d0e21713155a5f0cb3aed3c05d568d7f51",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "coercion_guard",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_sort_site_rollup_485_495_b4cd5068",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M2/L_sort_site_rollup_485_495_b4cd5068.lean",
+            "source_sha256": "e42e9cfda3df418fcde867f39c152b30e1cae8f62c230de6533222053cdbd9ee",
+            "theorem": "L_sort_site_rollup_485_495_b4cd5068",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M2/L_sort_site_rollup_485_495_b4cd5068.lean",
+          "lean_theorem": "L_sort_site_rollup_485_495_b4cd5068",
+          "milestone": "M2",
+          "prior_independence_class": "I1-shared",
+          "rule": "SORT",
+          "statement_hash": "sha256:ceeb92360bab72f0687420d198aa1b4316f4933d5c4941e3b6e8cee7b474af93",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "coercion_guard",
+          "facts": "spec/M1/facts/morph_rollup.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_sort_site_rollup_644_660_e68daf06",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M2/L_sort_site_rollup_644_660_e68daf06.lean",
+            "source_sha256": "583e2be8ef6a4a09d7be8f2e92930306021a353d9c6f8dc493c44e35bb134f6b",
+            "theorem": "L_sort_site_rollup_644_660_e68daf06",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M2/L_sort_site_rollup_644_660_e68daf06.lean",
+          "lean_theorem": "L_sort_site_rollup_644_660_e68daf06",
+          "milestone": "M2",
+          "prior_independence_class": "I1-shared",
+          "rule": "SORT",
+          "statement_hash": "sha256:dce368cad0524c43545ed2703fe7e4efef8db0a94964e18786584672e1dfc524",
+          "status": "PROVED"
+        }
+      ],
+      "M3": [
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+          "lean4_kernel": {
+            "axioms": [],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.lean",
+            "source_sha256": "c353f327797924e19a3d757a9b31552bd204af3fecf0a4633b6a63f81312d521",
+            "theorem": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.lean",
+          "lean_theorem": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:87e4b30cbbbf456415d54e7bc2e3d26c94a763c02c80ee71ec6084056936e2fb",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+          "lean4_kernel": {
+            "axioms": [],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.lean",
+            "source_sha256": "2accc077a706cd0527cb67402d73e0105c72602aa9b94d16949f931015b97512",
+            "theorem": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.lean",
+          "lean_theorem": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:f5b28ff7ad8e26276ebf3bc17a1b72dd396f09b5d4cd3fc98bc9379eeb3b6de3",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+          "lean4_kernel": {
+            "axioms": [],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.lean",
+            "source_sha256": "fb27a39cf179df48d5dcb2af0b26b9777e56120736124d33fb7813d7433a924c",
+            "theorem": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.lean",
+          "lean_theorem": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:f05f5389ecb72e184553dff68e801a8649ce2a97e666e52b25c5f61e4c8c70c1",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2.lean",
+            "source_sha256": "805c2e70c6c499073dd7f8adfa48e2d9a83b9214716d09013e47c26e057bda58",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:40d51dce32394a66bf35ad6a07e26830d15d1ec7e7f32d06877609466b5ee893",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2.lean",
+            "source_sha256": "3bbb22959efd9b4b98b4a279138f03a5e3e207fddc2987ee8a66c363eb069918",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:e8453aa80b60ed54d38bbcb0797da1933bdb343c2359ef05a2fb9d7310cbb3c3",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2.lean",
+            "source_sha256": "0865a5191d77c897bfbf3441e39906ee785af16b192b820c367ba8764a5186cd",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:20b3a00568d72f69ec53e1c39e412876aeff07d9ddeb1e005cb65f930bbcff54",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2.lean",
+            "source_sha256": "dc2d5e9b42e608fa29618bb135a6e273684e56916b24b577846de29e10e7e977",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:00281c5fad3cb1531cdf18311ad40b8d7df409a3ffae056fdf3977d4d5c6d1ce",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2.lean",
+            "source_sha256": "764896cf5bb3b29ac23fd871ad32434a7ec0b846d3c82350b27a968f354dc8de",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:401e42ffe802f67af6da6747d5ef5938e32abf78118429afa89b9fef43603684",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2.lean",
+            "source_sha256": "e4f547b2ca1f9513fac1a199d68a6aea6c1a1688d80a4d7cf124a60df7e9f732",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:1c072532dce408725b3feda10e08c99f7cd55eb2af8150e675f4a965e30ac545",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2.lean",
+            "source_sha256": "429e8a71456e0f92c5c2c3c11c5294d5f8cbfb852e030c41442f776ecd616beb",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:77339445ae4b8aded678b32ce13fcf3898d3ca2777665fa831ce6d34d8d75ba4",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2.lean",
+            "source_sha256": "31aa5b9596525ca89ec24e84747fe0578e6c23669569c521a54e13c8888342a8",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:58ef2f66ebb802f14b20960ed29eaceb47eb7370c8ab1a82a58847126ed47f18",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2.lean",
+            "source_sha256": "c13454f32e42ea227e1100b52c08988fba771cc90581982b6f3a6eb04219a9f3",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:ba0f21c2466bbc705415bb9da1f04c3fd20207ed7cc361c8edb3297c8d31c86b",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2.lean",
+            "source_sha256": "b0fc63b479944fc05db2729d94f0a82af7c1afc9d8fc5f364a180a9f54da902f",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:bd1336de6a56f32701196225f13faa9fc8231f99011c124fd070875ee40aa0a6",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2.lean",
+            "source_sha256": "26216c7c1dc0cb597b1eaaa3bded3051fc7c262c49e323c5951a8f09137edce3",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:4996b9fe1b4a1bfcc6b3f35580893e876a340eae072ec6ce8dc9e3b0e8e91d44",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2.lean",
+            "source_sha256": "839f69e55d9976bfc877b79443f7ca9ef700e6397491c3f4f47e396c6a40acb0",
+            "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2.lean",
+          "lean_theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:6d41876e34fd934838390173031fa3bbf51228cb0a5e58c5c97a6dc2d19872c0",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0.lean",
+            "source_sha256": "0f59e1c700700bce0ae9c807bd4cf2dcd59f3d71a39c7e5ad3262668ef624afb",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:2109ce63f6b94cf1bfcbcae2f6d0b137b9bc9513c3628e392af943edc95eecd1",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0.lean",
+            "source_sha256": "96cdd135e0a542381a3a81abcb39c03b985e9c1637e6752ed007616092952af5",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:bd7dd6c4680d637eb5bf949abc0405ff98c1622a7b0eabaeb0e5a36b25e1ba3c",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0.lean",
+            "source_sha256": "1b328fdda068904f7f27493f7f153fa3028c7f6e390ddcfdeb073f7609991ac1",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:94eb93a51962cd5f13e328cbdadf4cdd509ea4bc3b1d357510b2aafd938b844a",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0.lean",
+            "source_sha256": "4763a16fb526b62a4fac21fde0b64f95f5e251b94daee979b5c152b036a363ad",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:c7419e3bdcc6ddff00205933fa84d46dee96d15b47edb4404e4bc52544682548",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0.lean",
+            "source_sha256": "d05e56725fb2d5403857cad4361b6ad92ccff30fb2b7593ee718f62acb6e8551",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:e59e8873eeeba6507bd05946b8ef8da8d62401ffbdc01b35483ef334be767123",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0.lean",
+            "source_sha256": "e6a96dfa02c1c4dde34e39a5838dd24056a35718c1d6787ed29ced3417f661f2",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:3e207ea4f152c4aa1a6ffc05d6c85c8207f0590fa40341ddc49e73e2e1afb109",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0.lean",
+            "source_sha256": "4aecd1ea33de2ccd3ce649a97a88d7f24592c33bdb569781660cb9e29e45af6f",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:09a1a803dc43b4b849e7fb197eb0beb77524cea5b4242c70e299760fd42a542b",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0.lean",
+            "source_sha256": "ac72cc59878c7d0d46b59868561f918ca5c520dbbc9ec0c1ec152b0e6bb8d90e",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:eb369f69fbbd0976b7586cc5c9e4030a596505ae722f28d8d54e5d743c327931",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0.lean",
+            "source_sha256": "ab7cc292d7bf3da63b7bf26c8befce60fbcae8a8e84915e6c78e0ec19bf2f306",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:2701bc3195967cf2e4aa88f3c3b3c03d8cf95674ef28d850c8f55dbeefb804bc",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0.lean",
+            "source_sha256": "3867760349738c75f59dbbf883b87c954458b91bd8e480e22be6d15c8222036b",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:71cef67da3644704a5029cd4ee7ac75fa3d9f4a7f47f70b7f83ab124a608974a",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0.lean",
+            "source_sha256": "4969b4df42e21d6590887c25081d3a5aa8c0c2084ebc940200c6c149b4a97484",
+            "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:ac45251ddd2126977dbb32382c47d64b26a187186acbf90fac07a019ef26997a",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1.lean",
+            "source_sha256": "335906da026cd00cdedf7bce218a2d0b1acec9dac13009106e2e428d4053cd4a",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:d3923d3bc6e99256db6dd349e7aa2f71af9b109f745c856ad663727853866dce",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1.lean",
+            "source_sha256": "8b0fcc9f0a9cce1fb49eb23a7b09d5c0548960783790d7d9f91a7578c8868a3d",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:e6a7d7a2ec8429846664ebe812bfc59060ac34571afe8cd1be9ea802c4edde93",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1.lean",
+            "source_sha256": "b987684533ff2d3c78a44dd33c75102a8434f75d82342dd184a888fff8ba7e0b",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:56f35263dad0056a1de636c7417595d7438e18093a83050484a673034eafc273",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1.lean",
+            "source_sha256": "0a970b882a8fc03b9942393916ac583991110ab998fc1cda15e9b9de8c126b44",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:d5b811eb128a3b2c22644e8c7a9869b405f1019751082942770d90396b32bb67",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1.lean",
+            "source_sha256": "8d6e342a9ab364aeb81badafbadb8c615b3281400dd3327091cd4f018dbf2662",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:cc6975e50cd69e9fdcbc734ac7d652b3fe3c3b0bb57ceb33ea177ff238c36994",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1.lean",
+            "source_sha256": "723879061639c7b0c29b57e4cfba4b8d1a8c8b087fde7c89397e616f2bbefe82",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:fca6a885160d3d7aa6fe4eceb3fa4b00f201f35f90def39ee67c933c9cf533ec",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1.lean",
+            "source_sha256": "5f7ac8bc8d93a46f900da26a759def4aaf6f1d2fe749aa3fa3bf1c3adf247538",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:93583b4e2e5b8df29980d258aa4129272606524b74ba48771056d65a7a4918f3",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1.lean",
+            "source_sha256": "a1b4a72dbbf72653be98b56372a3c953b3b9b468e97f98a53aa4fecdf9c464a7",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:9f702df747806f2c07b6452fe7fe333f26cc177a1cf14d24a6959b8579709832",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1.lean",
+            "source_sha256": "59ba428894ada17121632abdd9c7625400b76a14d52cb17c1d91a082796cefd9",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:e6e53adeb908c22100b2bfa66f7e801fd7df4209309a3fecde80f30aed670341",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1.lean",
+            "source_sha256": "6a02a04ca265ed38ddaf9f0beb5631a98e3f5e3733f0947415284dd99b218655",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:324ca20fdda272f64251596a524a420811da4dd0ae17d0355340b63bcaecfa48",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1.lean",
+            "source_sha256": "684b355fe5532039781c5b46af21e6ecd2e359dc98a22e17cbfa03f17a4aa6d8",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:47291e03b9933ff3b2033ff0a4d28c9ddedb5e59b3d675aac6b0a285ae4cad40",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1.lean",
+            "source_sha256": "4a005339ac3a5b8745ef21c22dab6dbaa677ef7acbbd423a92527ac70a0ddec8",
+            "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1.lean",
+          "lean_theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:17d04a57b8c95c2739d1fa3d4647dc56c8f91d38a282bbd291bd753c9b9b8366",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0.lean",
+            "source_sha256": "ddca9c97b8e9889d777b18bab06185adafaa54a29842a36c3c79dc33c92da2e6",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:81354ac19bd1458e16f4813df0fec38a0a689ebf8c988046a6151c40ee3e438a",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1.lean",
+            "source_sha256": "2f3a7f2fbf68ac7f115a0daa8c0342077618f887c541ab06b4bb8753462cc079",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:cc7213faeed730d7ddd2e092be83066b6375df5f83a7b5e12379c7089b2e9064",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2.lean",
+            "source_sha256": "468b10b0fc00fdebf5056975c4d9388cc3dcea8eb02fa146595336cca55b4caa",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:220b4c6e0f88bf6094ae12db9b7bb749b1735bceb4f117f2512ef13b0fcc0660",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0.lean",
+            "source_sha256": "6b96f2936c163e4c8eeca713a523f2a2ea46e586f36771381eb7e1aebd24e07b",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:7899e174a3ae34edf546f3a503c7b93cbc3959d30636bc5459ac097c6c123795",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1.lean",
+            "source_sha256": "fa08a37457ad50c46331a451ff96619d900eb890e28edea917a34f7cfde58c33",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:4fc86cc5d851897012d891021e50ee81019e793fe0a72be3728fcd419d0ba5c7",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2.lean",
+            "source_sha256": "fc040a4fd7134ffdb2d03a5a8b3fb36facd3c80951d9d028a470e81b06d6b301",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:fa2ed2b6e2cdf9eadc4e8bbb533d6ca2054f05c07520054cfef80c4572da4854",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2.lean",
+            "source_sha256": "8a12c9d6fdc9bf34a60e95c847b40cce737540f1f10f5839c6338a77c4719210",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:cda3023660b4079d436bfa3f4563a08d8d6102cc7f2c0c2796634d09f346c000",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0.lean",
+            "source_sha256": "2de624b77f749e75675ff782a05a953df140905aa9d57899692f81b2d02db03b",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:c64580027f622f6a33b3f786683916dd59627d4e30585514ada3add03d7dce50",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1.lean",
+            "source_sha256": "cb45f68e1ea6f896f9d928d0997beec63b2a9bde02cc964697d2a6b65845220d",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:82d82e49184104c9fc7800732c96c215325230a5735f0a59b57631300882334a",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0.lean",
+            "source_sha256": "2285312b23d83d5e5d28312a8c4ebac24b48c255bf9bfa18c2ce3fc30ae9de93",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:e0775c25e6703e29d28a627a91527416d722d99efca530f13fc3cd8e0f293823",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1.lean",
+            "source_sha256": "9ab173161e3a44a42c7056cbbdc96c770e2570109c2678f0ee5c4ee491e31a8d",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:2d2c9b566ff44307408a3977c3fe9f82c9c1ef080f2c13d2c5c00c7c56c409f9",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2.lean",
+            "source_sha256": "f9fc4a7ad0a86f79e9c8fc8e43766333a8348ad7e094f855ed118cadf011bb51",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:e5b7328ce33a89ea63adba96df310c4f9a92c8e9543c7360c1363b3f6576d8bc",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0.lean",
+            "source_sha256": "00336f3a13a0ef31192dd6f4194fafac451f5a3e02283172e76c63f682b9dea5",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:6cdb51850b11fc2e2b3c887af51d4eacb9a453aa631cb6187f9aa9fe6e9ddc3b",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1.lean",
+            "source_sha256": "1e12a1a6e86375b7b73da4a22578c849f264648c9f85c75f969e84326fb20338",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:fbe228a12c1aff033340383c08d48cf07847272a7a91b3f3b825c87138455679",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2.lean",
+            "source_sha256": "e6e28ea3ecb901d0116a16be2ac37f8051f3cc7eabf633504aa4432e330fddc8",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:4272ee9e1ca26b5ddbdbce1b93defd947c69dedb44c13281ca8c68501eeb9dce",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1.lean",
+            "source_sha256": "988618a23390149d2cc0be04ce518181de3a1891f49b311d3b5d52468044a361",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:cb87deccdb7db8fbdde71f17f4fe3156728d8afd2a23131da3cae5ae8a276c5e",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2.lean",
+            "source_sha256": "0a15673c535af5c28c2097b01b3d79856e4260b95799477c016065b0ebbea118",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:28b26593e43775d858fdf74145230fac00efa5a2b4ce2b4ff06c534bbe40d158",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0.lean",
+            "source_sha256": "52be28324a325530726479377db938465a79fc35691c03c9ec3a0373bf795589",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:5d662800167f4e7a5eeb49c2faa705603209b916d28628c0afcaf03e506be15d",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1.lean",
+            "source_sha256": "3c5844221dc4880653c6a2686947746e410e46c786d4ab8e0fe073f5fdfa612b",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:f19d5ac894da805582876f287db6680cdf9187f97ace7b3f122407beb25dcf5d",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2.lean",
+            "source_sha256": "3833fd3db0181ad661303d2f33f861eade2306cac9f42dc7dd454db1c0600064",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:a19ce2f7a4128577ce3aba969473c2be33139b2fa300b9b84d1fa047c7cfbe43",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0.lean",
+            "source_sha256": "b653e3d5a78849f1b9d009460da084d6d484f7b7641826fcfa2240455f53ebfd",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:8ff7731c59b42006d0a8faa345e86809d5943fcb2abfef805d3847120731c24d",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1.lean",
+            "source_sha256": "f71ef50a4f28c00905dcfc98f75e178c9a230418a226f0aba3a75dc667322f9f",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:0d316781bef248b5262d6e344d7513b92cfa2f3074688681a98c6bfe374b8b40",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2.lean",
+            "source_sha256": "f865e7980b0834c27f1e82c91bb354cf82040fed1b840562bbf2ffc100d028e6",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:b92e3287165d7b0ea0189b6d86e1f25b6d1a901b9627ca00932eba9f69a2d075",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0.lean",
+            "source_sha256": "ffe723932be8b5c384becd727bc76cdf8eca7c93663d572de1d7a674e055a48b",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:119c43c36cf9137e7cd86e15921991d91bb3afba3c97a31980499a22891cfafe",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1.lean",
+            "source_sha256": "acdb3f095cbb791525ac15dde0025af5a7e4bd2b006998f0d5953c5738b52e71",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:e9fa70bd0be51f287889ef166fd2978252e0aaa1fe8f18e6a70759253a5a35b8",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2.lean",
+            "source_sha256": "989577fa3040fe273fd415d7ae74d99f9d172a7822d4bba71cb7c70cff56fa70",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:56793d90cbadead11614934fcf936368443e63821593b3fce1f781afb6164d12",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0.lean",
+            "source_sha256": "04723eed35a52a710262a319c383c4e4a99fd0f65788a633fb1beff86a3ffe38",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:f28702f64d54b6d5ee66682c9b281df3ca5365af432b5cdd9b4bf242dd3dd7f8",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1.lean",
+            "source_sha256": "53e672cfd144cf5c4f6d011238bfdcbe64002cc312d7c1201fe631020380fefb",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:e2de5003ca18f832c7c90c0d1b3d8f2687709126a7615c3f2fb49db15128bf18",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2.lean",
+            "source_sha256": "8c22adf7b92c8915b0589fb59728701f62a29754462754d0ee626326869aed29",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:3bf5488f5f75f8e823f260f601f59131d4e622ec8e94b805ef27554a5d3288f8",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0.lean",
+            "source_sha256": "87c5eb5249e556bdaac688524ce0028ed07e1dd08ec2fabb9066294fa378f31c",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:0b5c35c305567b6bd87a704c87ef6a7a0b7b4114a50d897a314391b74667119b",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1.lean",
+            "source_sha256": "9da242354c3f340a7727a237816f382ad1a171a2fb9db930ae67096eb162d5e8",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:2c47aa5478644fec911f91414fbcc6bc58f2b81d06e0d4f1de09f663f587e004",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2.lean",
+            "source_sha256": "6b3ad2e805bf98fa5fa49a1dd1c318477222ddc0ef3cff0bd015f3ed1c69d518",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:df85804d2d3f22076bcbeebcb3d8248c2ca41775d8de669e92f932ce56e82ba1",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0.lean",
+            "source_sha256": "6b12ee6695f652ff20c0e9fe38976200c24c37d7e38bab5e67919437c5d8afe2",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:c79b7f686066925c4d4091eeaa8700bda507320a8f06222115b201ae0312c6fc",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1.lean",
+            "source_sha256": "23990eae9c5c5fcec0232d0568d59e56098c3610b8d65756ec107a46c2a3b470",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:59d63b751ed77f63e6cbcf912dd71765f92a521f85ad00ea013e096499838637",
+          "status": "PROVED"
+        },
+        {
+          "bend_generator": "open_refl",
+          "facts": "gen/M3/codec/header_length.json",
+          "independence_class": "I2",
+          "ir_version": "holon-ir/0.3",
+          "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
+          "lean4_kernel": {
+            "axioms": [
+              "propext"
+            ],
+            "name": "lean4",
+            "result": "checked",
+            "role": "second-independent",
+            "source": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2.lean",
+            "source_sha256": "5864f139a86e15c794b08dfb03cc3646209428864adf348ed9c3270b5ae4ea8f",
+            "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
+            "version": "4.34.0"
+          },
+          "lean_module": "gen/M3/lean/Holon/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2.lean",
+          "lean_theorem": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
+          "milestone": "M3",
+          "prior_independence_class": "I1-shared",
+          "rule": "PAR",
+          "statement_hash": "sha256:a1d3fbc6832afd9e6e5ff84aa762c48e1f3bb9ae3f6892c2753a23af981a2e0a",
+          "status": "PROVED"
+        }
+      ]
+    },
+    "total_promoted_laws": 92
+  },
+  "summary": {
+    "canaries_refuted": 5,
+    "equivariance_basis_laws": 4,
+    "m2_core_laws": 31,
+    "m3_core_total_laws": 53,
+    "pasting_basis_laws": 4,
+    "promoted_m0_laws": 5,
+    "promoted_m1_laws": 8,
+    "promoted_m2_laws": 6,
+    "promoted_m3_laws": 73,
+    "theory_core_i_laws": 12,
+    "theory_core_ii_laws": 10,
+    "total_new_bend_laws": 18,
+    "total_promoted_i2_laws": 92
+  }
+}

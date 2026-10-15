@@ -338,3 +338,143 @@ law core_cycle_basis_2:
   for cyc: @a:A -> {t(a) == e(a) : B}
   for tree_law: @x:X -> {l(t(r(x))) == obs(x) : Y}
   @+x:X -> {l(e(r(x))) == obs(x) : Y}
+
+law core_equivar_compose:
+  for -A: Data
+  for -B: Type
+  for -f: A -> B
+  for -s1: A -> A
+  for s2: A -> A
+  for -t1: B -> B
+  for -t2: B -> B
+  for h1: @x:A -> {f(s1(x)) == t1(f(x)) : B}
+  for h2: @x:A -> {f(s2(x)) == t2(f(x)) : B}
+  @+a:A -> {f(s1(s2(a))) == t1(t2(f(a))) : B}
+
+law core_equivar_whisker:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for f: A -> B
+  for -g: B -> C
+  for -s: A -> A
+  for -t: B -> B
+  for -u: C -> C
+  for hf: @x:A -> {f(s(x)) == t(f(x)) : B}
+  for hg: @y:B -> {g(t(y)) == u(g(y)) : C}
+  @+a:A -> {g(f(s(a))) == u(g(f(a))) : C}
+
+law core_equivar_obs:
+  for -A: Data
+  for -B: Type
+  for -V: Type
+  for f: A -> B
+  for -s: A -> A
+  for -t: B -> B
+  for -obs_A: A -> V
+  for -obs_B: B -> V
+  for heq: @a:A -> {f(s(a)) == t(f(a)) : B}
+  for hobs: @b:B -> {obs_B(t(b)) == obs_B(b) : V}
+  for hnat: @a:A -> {obs_B(f(a)) == obs_A(a) : V}
+  @+a:A -> {obs_B(f(s(a))) == obs_A(a) : V}
+
+law core_equivar_pred:
+  for -A: Data
+  for -B: Type
+  for f: A -> B
+  for -s: A -> A
+  for -t: B -> B
+  for -P: A -> Bool
+  for -Q: B -> Bool
+  for heq: @a:A -> {f(s(a)) == t(f(a)) : B}
+  for hq: @b:B -> {Q(t(b)) == Q(b) : Bool}
+  for hnat: @a:A -> {Q(f(a)) == P(a) : Bool}
+  for hp: @a:A -> {P(a) == True{} : Bool}
+  @+a:A -> {Q(f(s(a))) == True{} : Bool}
+
+law core_equivar_homotopy:
+  for -A: Data
+  for -B: Type
+  for -f: A -> B
+  for -s1: A -> A
+  for s2: A -> A
+  for -t: B -> B
+  for hs: @a:A -> {s1(a) == s2(a) : A}
+  for heq: @a:A -> {f(s2(a)) == t(f(a)) : B}
+  @+a:A -> {f(s1(a)) == t(f(a)) : B}
+
+law core_paste_grid_2x2:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for -f1: A -> B
+  for f2: A -> B
+  for f3: A -> B
+  for -g1: B -> C
+  for -g2: B -> C
+  for -g3: B -> C
+  for hf12: @a:A -> {f1(a) == f2(a) : B}
+  for hf23: @a:A -> {f2(a) == f3(a) : B}
+  for hg12: @b:B -> {g1(b) == g2(b) : C}
+  for hg23: @b:B -> {g2(b) == g3(b) : C}
+  @+a:A -> {g1(f1(a)) == g3(f3(a)) : C}
+
+law core_paste_h_3:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for -D: Type
+  for -f1: A -> B
+  for f2: A -> B
+  for -g1: B -> C
+  for -g2: B -> C
+  for -h1: C -> D
+  for -h2: C -> D
+  for hf: @a:A -> {f1(a) == f2(a) : B}
+  for hg: @b:B -> {g1(b) == g2(b) : C}
+  for hh: @a:A -> {h1(g2(f2(a))) == h2(g2(f2(a))) : D}
+  @+a:A -> {h1(g1(f1(a))) == h2(g2(f2(a))) : D}
+
+law core_paste_v_obs:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for -V: Type
+  for f: A -> B
+  for -g: B -> C
+  for -obs_A: A -> V
+  for -obs_B: B -> V
+  for -obs_C: C -> V
+  for h1: @a:A -> {obs_B(f(a)) == obs_A(a) : V}
+  for h2: @b:B -> {obs_C(g(b)) == obs_B(b) : V}
+  @+a:A -> {obs_C(g(f(a))) == obs_A(a) : V}
+
+law core_paste_square_trans:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for -A1: Type
+  for -B1: Type
+  for -C1: Type
+  for f: A -> B
+  for -g: B -> C
+  for -u: A -> A1
+  for -v: B -> B1
+  for -w: C -> C1
+  for -f1: A1 -> B1
+  for -g1: B1 -> C1
+  for h_left: @a:A -> {v(f(a)) == f1(u(a)) : B1}
+  for h_right: @b:B -> {w(g(b)) == g1(v(b)) : C1}
+  @+a:A -> {w(g(f(a))) == g1(f1(u(a))) : C1}
+
+law core_paste_whisker_interchange:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for -f1: A -> B
+  for -f2: A -> B
+  for -g1: B -> C
+  for -g2: B -> C
+  for hg1: @a:A -> {g1(f1(a)) == g2(f1(a)) : C}
+  for hf: @a:A -> {f1(a) == f2(a) : B}
+  @+a:A -> {g1(f1(a)) == g2(f2(a)) : C}

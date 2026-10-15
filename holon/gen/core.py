@@ -193,7 +193,93 @@ THEORY_CORE_I: list[tuple[str, list[tuple[str, str, str]], list[tuple[str, str]]
      "@+x:X -> {l(e(r(x))) == obs(x) : Y}", "core_basis"),
 ]
 
+# ---- I43 (Theory core II: equivariance and 2-cell pasting). Emitted into M3+ core libraries alongside
+# CATALOG and THEORY_CORE_I.
+THEORY_CORE_II: list[tuple[str, list[tuple[str, str, str]], list[tuple[str, str]], str, str]] = [
+    ("core_equivar_compose",
+     [("-", "A", "Data"), ("-", "B", "Type"),
+      ("-", "f", "A -> B"), ("-", "s1", "A -> A"), ("", "s2", "A -> A"),
+      ("-", "t1", "B -> B"), ("-", "t2", "B -> B")],
+     [("h1", "@x:A -> {f(s1(x)) == t1(f(x)) : B}"),
+      ("h2", "@x:A -> {f(s2(x)) == t2(f(x)) : B}")],
+     "@+a:A -> {f(s1(s2(a))) == t1(t2(f(a))) : B}", "core_equivar"),
+    ("core_equivar_whisker",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"),
+      ("", "f", "A -> B"), ("-", "g", "B -> C"),
+      ("-", "s", "A -> A"), ("-", "t", "B -> B"), ("-", "u", "C -> C")],
+     [("hf", "@x:A -> {f(s(x)) == t(f(x)) : B}"),
+      ("hg", "@y:B -> {g(t(y)) == u(g(y)) : C}")],
+     "@+a:A -> {g(f(s(a))) == u(g(f(a))) : C}", "core_equivar"),
+    ("core_equivar_obs",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "V", "Type"),
+      ("", "f", "A -> B"), ("-", "s", "A -> A"), ("-", "t", "B -> B"),
+      ("-", "obs_A", "A -> V"), ("-", "obs_B", "B -> V")],
+     [("heq", "@a:A -> {f(s(a)) == t(f(a)) : B}"),
+      ("hobs", "@b:B -> {obs_B(t(b)) == obs_B(b) : V}"),
+      ("hnat", "@a:A -> {obs_B(f(a)) == obs_A(a) : V}")],
+     "@+a:A -> {obs_B(f(s(a))) == obs_A(a) : V}", "core_equivar"),
+    ("core_equivar_pred",
+     [("-", "A", "Data"), ("-", "B", "Type"),
+      ("", "f", "A -> B"), ("-", "s", "A -> A"), ("-", "t", "B -> B"),
+      ("-", "P", "A -> Bool"), ("-", "Q", "B -> Bool")],
+     [("heq", "@a:A -> {f(s(a)) == t(f(a)) : B}"),
+      ("hq", "@b:B -> {Q(t(b)) == Q(b) : Bool}"),
+      ("hnat", "@a:A -> {Q(f(a)) == P(a) : Bool}"),
+      ("hp", "@a:A -> {P(a) == True{} : Bool}")],
+     "@+a:A -> {Q(f(s(a))) == True{} : Bool}", "core_equivar"),
+    ("core_equivar_homotopy",
+     [("-", "A", "Data"), ("-", "B", "Type"),
+      ("-", "f", "A -> B"), ("-", "s1", "A -> A"), ("", "s2", "A -> A"),
+      ("-", "t", "B -> B")],
+     [("hs", "@a:A -> {s1(a) == s2(a) : A}"),
+      ("heq", "@a:A -> {f(s2(a)) == t(f(a)) : B}")],
+     "@+a:A -> {f(s1(a)) == t(f(a)) : B}", "core_equivar"),
+    ("core_paste_grid_2x2",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"),
+      ("-", "f1", "A -> B"), ("", "f2", "A -> B"), ("", "f3", "A -> B"),
+      ("-", "g1", "B -> C"), ("-", "g2", "B -> C"), ("-", "g3", "B -> C")],
+     [("hf12", "@a:A -> {f1(a) == f2(a) : B}"),
+      ("hf23", "@a:A -> {f2(a) == f3(a) : B}"),
+      ("hg12", "@b:B -> {g1(b) == g2(b) : C}"),
+      ("hg23", "@b:B -> {g2(b) == g3(b) : C}")],
+     "@+a:A -> {g1(f1(a)) == g3(f3(a)) : C}", "core_paste_ii"),
+    ("core_paste_h_3",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"), ("-", "D", "Type"),
+      ("-", "f1", "A -> B"), ("", "f2", "A -> B"),
+      ("-", "g1", "B -> C"), ("-", "g2", "B -> C"),
+      ("-", "h1", "C -> D"), ("-", "h2", "C -> D")],
+     [("hf", "@a:A -> {f1(a) == f2(a) : B}"),
+      ("hg", "@b:B -> {g1(b) == g2(b) : C}"),
+      ("hh", "@a:A -> {h1(g2(f2(a))) == h2(g2(f2(a))) : D}")],
+     "@+a:A -> {h1(g1(f1(a))) == h2(g2(f2(a))) : D}", "core_paste_ii"),
+    ("core_paste_v_obs",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"), ("-", "V", "Type"),
+      ("", "f", "A -> B"), ("-", "g", "B -> C"),
+      ("-", "obs_A", "A -> V"), ("-", "obs_B", "B -> V"), ("-", "obs_C", "C -> V")],
+     [("h1", "@a:A -> {obs_B(f(a)) == obs_A(a) : V}"),
+      ("h2", "@b:B -> {obs_C(g(b)) == obs_B(b) : V}")],
+     "@+a:A -> {obs_C(g(f(a))) == obs_A(a) : V}", "core_paste_ii"),
+    ("core_paste_square_trans",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"),
+      ("-", "A1", "Type"), ("-", "B1", "Type"), ("-", "C1", "Type"),
+      ("", "f", "A -> B"), ("-", "g", "B -> C"),
+      ("-", "u", "A -> A1"), ("-", "v", "B -> B1"), ("-", "w", "C -> C1"),
+      ("-", "f1", "A1 -> B1"), ("-", "g1", "B1 -> C1")],
+     [("h_left", "@a:A -> {v(f(a)) == f1(u(a)) : B1}"),
+      ("h_right", "@b:B -> {w(g(b)) == g1(v(b)) : C1}")],
+     "@+a:A -> {w(g(f(a))) == g1(f1(u(a))) : C1}", "core_paste_ii"),
+    ("core_paste_whisker_interchange",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"),
+      ("-", "f1", "A -> B"), ("-", "f2", "A -> B"),
+      ("-", "g1", "B -> C"), ("-", "g2", "B -> C")],
+     [("hg1", "@a:A -> {g1(f1(a)) == g2(f1(a)) : C}"),
+      ("hf", "@a:A -> {f1(a) == f2(a) : B}")],
+     "@+a:A -> {g1(f1(a)) == g2(f2(a)) : C}", "core_paste_ii"),
+]
+
 _THEORY_CORE_I_CLASSES = ("core_whisker", "core_paste", "core_domain_local", "core_basis")
+_THEORY_CORE_II_CLASSES = ("core_equivar", "core_paste_ii")
+_THEORY_CORE_CLASSES = _THEORY_CORE_I_CLASSES + _THEORY_CORE_II_CLASSES
 
 HELPERS = ["def core_efq(-P: Type, x: Empty) -> P:", "  match x:", "",
            "def core_is_true(b: Bool) -> Type:", "  match b:", "    case True{}:", "      Unit", "    case False{}:", "      Empty", ""]
@@ -205,7 +291,8 @@ _CASES = {"nat1": [list(c) for c in itertools.product(*_NATC[:1])],
           "nat3": [list(c) for c in itertools.product(*_NATC[:3])],
           "bool1": [["True{}"], ["False{}"]],
           "compose": [[]], "absurd": [[]],
-          "core_whisker": [[]], "core_paste": [[]], "core_domain_local": [[]], "core_basis": [[]]}
+          "core_whisker": [[]], "core_paste": [[]], "core_domain_local": [[]], "core_basis": [[]],
+          "core_equivar": [[]], "core_paste_ii": [[]]}
 _PRED = {"1n+p": "p", "1n+q": "q", "1n+r": "r"}
 MAX_COMPOSE = 12   # composition candidates per case
 
@@ -491,7 +578,7 @@ def compositions(goal: str, sources: list, lemmas: list, prefix: str, depth: int
 def laws_text(include_theory_core_i: bool = False) -> str:
     out = ["# GENERATED by holon.gen.core: the core library's statements (Q14a: proofs come from per-class",
            "# generators, never by hand). Import core/PROOF.bend, never this file alone.", "import Base", ""]
-    entries = CATALOG + (THEORY_CORE_I if include_theory_core_i else [])
+    entries = CATALOG + (THEORY_CORE_I + THEORY_CORE_II if include_theory_core_i else [])
     for name, bs, hs, claim, _ in entries:
         out.append(f"law {name}:")
         out += [f"  for {mo}{n}: {t}" for mo, n, t in bs] + [f"  for {n}: {t}" for n, t in hs] + [f"  {claim}", ""]
@@ -567,9 +654,75 @@ class _Lemma:
                     f"{{{t_fn}({v}) == {rhs} : {ret_ty}}}}} : {{{lhs} == _ : {ret_ty}}}; {e1}({v}))"]
         raise ValueError(f"core: unknown Theory core I class: {self.cls!r}")
 
+    def _theory_core_ii_candidates(self) -> list[str]:
+        m = _PI_EQ_CLAIM.fullmatch(self.claim.strip())
+        if not m:
+            raise ValueError(f"core: unsupported Theory core II claim shape: {self.claim!r}")
+        v_mod, v, _v_ty, lhs, _rhs, ret_ty = m.groups()
+        unerased = [n for mo, n, _ in self.bs if mo == ""]
+        if self.cls == "core_equivar":
+            if len(self.hs) == 2 and len(self.bs) == 7:
+                h1, h2 = (h[0] for h in self.hs)
+                s2, t1 = unerased[0], self.bs[-2][1]
+                return [f"{v_mod}{v} => (%{h2}({v}) : {{{lhs} == {t1}(_) : {ret_ty}}}; {h1}({s2}({v})))"]
+            if len(self.hs) == 2 and len(self.bs) == 8:
+                hf, hg = (h[0] for h in self.hs)
+                f, g = unerased[0], self.bs[4][1]
+                return [f"{v_mod}{v} => (%{hg}({f}({v})) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{hf}({v}) : {{{lhs} == {g}(_) : {ret_ty}}}; {{==}}))"]
+            if len(self.hs) == 2 and len(self.bs) == 6:
+                hs, heq = (h[0] for h in self.hs)
+                f = self.bs[2][1]
+                return [f"{v_mod}{v} => (%{heq}({v}) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{hs}({v}) : {{{lhs} == {f}(_) : {ret_ty}}}; {{==}}))"]
+            if len(self.hs) == 3:
+                heq, hobs, hnat = (h[0] for h in self.hs)
+                f, obs_b = unerased[0], self.bs[-1][1]
+                return [f"{v_mod}{v} => (%{hnat}({v}) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{hobs}({f}({v})) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{heq}({v}) : {{{lhs} == {obs_b}(_) : {ret_ty}}}; {{==}})))"]
+            if len(self.hs) == 4:
+                heq, hq, hnat, hp = (h[0] for h in self.hs)
+                f, q_pred = unerased[0], self.bs[-1][1]
+                return [f"{v_mod}{v} => (%{hp}({v}) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{hnat}({v}) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{hq}({f}({v})) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{heq}({v}) : {{{lhs} == {q_pred}(_) : {ret_ty}}}; {{==}}))))"]
+        if self.cls == "core_paste_ii":
+            if len(self.hs) == 4:
+                hf12, hf23, hg12, hg23 = (h[0] for h in self.hs)
+                f2, f3 = unerased[0], unerased[1]
+                g1, g2 = self.bs[6][1], self.bs[7][1]
+                return [f"{v_mod}{v} => (%{hg23}({f3}({v})) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{hf23}({v}) : {{{lhs} == {g2}(_) : {ret_ty}}}; "
+                        f"(%{hg12}({f2}({v})) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{hf12}({v}) : {{{lhs} == {g1}(_) : {ret_ty}}}; {{==}}))))"]
+            if len(self.hs) == 3:
+                hf, hg, hh = (h[0] for h in self.hs)
+                f2 = unerased[0]
+                g1, h1 = self.bs[6][1], self.bs[8][1]
+                return [f"{v_mod}{v} => (%{hh}({v}) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{hg}({f2}({v})) : {{{lhs} == {h1}(_) : {ret_ty}}}; "
+                        f"(%{hf}({v}) : {{{lhs} == {h1}({g1}(_)) : {ret_ty}}}; {{==}})))"]
+            if len(self.hs) == 2 and len(self.bs) == 9:
+                h1, h2 = (h[0] for h in self.hs)
+                f = unerased[0]
+                return [f"{v_mod}{v} => (%{h1}({v}) : {{{lhs} == _ : {ret_ty}}}; {h2}({f}({v})))"]
+            if len(self.hs) == 2 and len(self.bs) == 13:
+                h_left, h_right = (h[0] for h in self.hs)
+                f, g1 = unerased[0], self.bs[-1][1]
+                return [f"{v_mod}{v} => (%{h_left}({v}) : {{{lhs} == {g1}(_) : {ret_ty}}}; {h_right}({f}({v})))"]
+            if len(self.hs) == 2 and len(self.bs) == 7:
+                hg1, hf = (h[0] for h in self.hs)
+                g2 = self.bs[-1][1]
+                return [f"{v_mod}{v} => (%{hf}({v}) : {{{lhs} == {g2}(_) : {ret_ty}}}; {hg1}({v}))"]
+        raise ValueError(f"core: unknown Theory core II class: {self.cls!r}")
+
     def _candidates(self, case: list) -> list[str]:
         if self.cls in _THEORY_CORE_I_CLASSES:
             return self._theory_core_i_candidates()
+        if self.cls in _THEORY_CORE_II_CLASSES:
+            return self._theory_core_ii_candidates()
         if self.cls == "absurd":
             return ["(%Equal.sym(Bool, False{}, True{}, e) : core_is_true(_); Unit{})"]
         k = len(case)
@@ -611,7 +764,7 @@ class _Lemma:
 
     def body(self, choice: list[int], indent: str = "  ") -> tuple[list[str], list[int]]:
         """Lines of the body and, per case, the index of the line holding its chosen term."""
-        if self.cls in ("absurd", "compose", *_THEORY_CORE_I_CLASSES):
+        if self.cls in ("absurd", "compose", *_THEORY_CORE_CLASSES):
             return [indent + self.candidates([])[choice[0]]], [0]
         k = len(self.cases[0])
         scrut = " ".join(n for _, n, _ in self.bs[:k])
@@ -630,7 +783,7 @@ class _Lemma:
 
 
 def lemmas(prefix: str, include_theory_core_i: bool = False) -> list[_Lemma]:
-    entries = CATALOG + (THEORY_CORE_I if include_theory_core_i else [])
+    entries = CATALOG + (THEORY_CORE_I + THEORY_CORE_II if include_theory_core_i else [])
     return [_Lemma(e, prefix, entries[:i]) for i, e in enumerate(entries)]
 
 
@@ -700,14 +853,14 @@ def emit(gen_dir: Path, omit: str | None = None, cfg: dict | None = None,
         include_theory_core_i = any(re.fullmatch(r"M([3-9]|\d\d+)", part) for part in gen_dir.parts)
     choices = dict(solve(gen_dir, cfg))
     if include_theory_core_i:
-        for name, *_ in THEORY_CORE_I:
+        for name, *_ in THEORY_CORE_I + THEORY_CORE_II:
             choices[name] = [0]
     d = gen_dir / "core"
     d.mkdir(parents=True, exist_ok=True)
     (d / "LAWS.bend").write_text(laws_text(include_theory_core_i=include_theory_core_i))
     text, _ = _proof_text(lemmas("Laws.", include_theory_core_i=include_theory_core_i), choices, omit)
     (d / "PROOF.bend").write_text(text)
-    entries = CATALOG + (THEORY_CORE_I if include_theory_core_i else [])
+    entries = CATALOG + (THEORY_CORE_I + THEORY_CORE_II if include_theory_core_i else [])
     return [e[0] for e in entries]
 
 

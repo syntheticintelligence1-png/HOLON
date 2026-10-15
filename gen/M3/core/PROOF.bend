@@ -396,3 +396,43 @@ def Laws.core_tree_unique_2(A, B, C, f, g1, g2, t, e1, e2):
 # class core_basis
 def Laws.core_cycle_basis_2(X, A, B, Y, r, t, e, l, obs, cyc, tree_law):
   +x => (%cyc(r(x)) : {l(_) == obs(x)  : Y}; tree_law(x))
+
+# class core_equivar
+def Laws.core_equivar_compose(A, B, f, s1, s2, t1, t2, h1, h2):
+  +a => (%h2(a) : {f(s1(s2(a)))  == t1(_) : B}; h1(s2(a)))
+
+# class core_equivar
+def Laws.core_equivar_whisker(A, B, C, f, g, s, t, u, hf, hg):
+  +a => (%hg(f(a)) : {g(f(s(a)))  == _ : C}; (%hf(a) : {g(f(s(a)))  == g(_) : C}; {==}))
+
+# class core_equivar
+def Laws.core_equivar_obs(A, B, V, f, s, t, obs_A, obs_B, heq, hobs, hnat):
+  +a => (%hnat(a) : {obs_B(f(s(a)))  == _ : V}; (%hobs(f(a)) : {obs_B(f(s(a)))  == _ : V}; (%heq(a) : {obs_B(f(s(a)))  == obs_B(_) : V}; {==})))
+
+# class core_equivar
+def Laws.core_equivar_pred(A, B, f, s, t, P, Q, heq, hq, hnat, hp):
+  +a => (%hp(a) : {Q(f(s(a)))  == _ : Bool}; (%hnat(a) : {Q(f(s(a)))  == _ : Bool}; (%hq(f(a)) : {Q(f(s(a)))  == _ : Bool}; (%heq(a) : {Q(f(s(a)))  == Q(_) : Bool}; {==}))))
+
+# class core_equivar
+def Laws.core_equivar_homotopy(A, B, f, s1, s2, t, hs, heq):
+  +a => (%heq(a) : {f(s1(a))  == _ : B}; (%hs(a) : {f(s1(a))  == f(_) : B}; {==}))
+
+# class core_paste_ii
+def Laws.core_paste_grid_2x2(A, B, C, f1, f2, f3, g1, g2, g3, hf12, hf23, hg12, hg23):
+  +a => (%hg23(f3(a)) : {g1(f1(a))  == _ : C}; (%hf23(a) : {g1(f1(a))  == g2(_) : C}; (%hg12(f2(a)) : {g1(f1(a))  == _ : C}; (%hf12(a) : {g1(f1(a))  == g1(_) : C}; {==}))))
+
+# class core_paste_ii
+def Laws.core_paste_h_3(A, B, C, D, f1, f2, g1, g2, h1, h2, hf, hg, hh):
+  +a => (%hh(a) : {h1(g1(f1(a)))  == _ : D}; (%hg(f2(a)) : {h1(g1(f1(a)))  == h1(_) : D}; (%hf(a) : {h1(g1(f1(a)))  == h1(g1(_)) : D}; {==})))
+
+# class core_paste_ii
+def Laws.core_paste_v_obs(A, B, C, V, f, g, obs_A, obs_B, obs_C, h1, h2):
+  +a => (%h1(a) : {obs_C(g(f(a)))  == _ : V}; h2(f(a)))
+
+# class core_paste_ii
+def Laws.core_paste_square_trans(A, B, C, A1, B1, C1, f, g, u, v, w, f1, g1, h_left, h_right):
+  +a => (%h_left(a) : {w(g(f(a)))  == g1(_) : C1}; h_right(f(a)))
+
+# class core_paste_ii
+def Laws.core_paste_whisker_interchange(A, B, C, f1, f2, g1, g2, hg1, hf):
+  +a => (%hf(a) : {g1(f1(a))  == g2(_) : C}; hg1(a))

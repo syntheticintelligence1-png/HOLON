@@ -1338,7 +1338,7 @@ class Gate:
             bad.append(f"{f.relative_to(self.root)}: declares a law under proofs/")
         # Lean G3 (I9): the generated Lean files, comments removed, hold none of holon.lean.FORBIDDEN
         from . import lean
-        lean_files = sorted(lean.lean_dir(self.m, self.root).glob("*.lean"))
+        lean_files = sorted(lean.lean_dir(self.m, self.root).rglob("*.lean"))
         for f in lean_files:
             hits = lean.forbidden(f.read_text(encoding="utf-8"))
             if hits:
