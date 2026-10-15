@@ -759,8 +759,22 @@ def cc_items(root: Path, env: dict) -> list[dict]:
         if r is None or r["verdict"] != "path" or not r.get("path"):
             continue
         sol = bytes.fromhex(pl["sol"][2:])
+        inputs = set()
+
+        def strings(x):
+            if isinstance(x, dict):
+                for v in x.values():
+                    strings(v)
+            elif isinstance(x, list):
+                for v in x:
+                    strings(v)
+            elif isinstance(x, str) and x.startswith("0x"):
+                inputs.add(x.lower())
+        strings([st["args"] for st in r["path"]])
         cands = []
         for h in r.get("observed") or []:
+            if h.lower() in inputs:      # a byte string the path passed in, not one the step built
+                continue
             b = bytes.fromhex(h[2:])
             if len(b) == len(sol) and all(b[j] == sol[j] for j in pl["cells"]):
                 cands.append(h)
