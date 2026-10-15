@@ -1,0 +1,46 @@
+{
+  "document": "i21",
+  "findings": {
+    "F-M2-42": {
+      "evm": {
+        "largest_k": 6,
+        "length": null,
+        "path": null,
+        "reason": "solver unknown at k = 7 (cone levels <= 0) (memory guard (the solver ran out of the address space it was given)); rlimit 200000000",
+        "verdict": "unknown"
+      }
+    },
+    "T1": {
+      "evm": {
+        "largest_k": 0,
+        "length": null,
+        "path": null,
+        "reason": "solver unknown at k = 1 ((:reason-unknown \"canceled\")); rlimit 200000000",
+        "verdict": "unknown"
+      },
+      "go": {
+        "reason": "out_of_scope: the node's derivation (Go) stopping at such a parent is node-side reachability; it needs I39's Go derivation and product machine, which does not exist yet",
+        "verdict": "out_of_scope"
+      }
+    },
+    "T2": {
+      "evm": {
+        "largest_k": 0,
+        "length": null,
+        "path": null,
+        "reason": "solver unknown at k = 1 (wall-clock guard 2400 s); rlimit 200000000",
+        "verdict": "unknown"
+      },
+      "go": {
+        "reason": "out_of_scope: ParseBatch on the zero blob is the Go codec (I38) and derivation (I39)",
+        "verdict": "out_of_scope"
+      }
+    }
+  },
+  "out_of_scope": {
+    "F-M2-38": "the frozen enc_sol of facts/morph_header.json (a frozen-file question for the human, I11 Q1)",
+    "F-M2-39": "the Go frontend's infeasible path (a frontend defect, I38)",
+    "F-M2-40": "Hyp-ISubmitter (the Submitter registry is not extracted, I36)",
+    "F-M2-41": "HypZ (the Go compression codec, I38)"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "approx": [
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 overflow outcome",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "loop count past the bound",
+    "loop exit value past the bound",
+    "memory pointer"
+  ],
+  "id": "cc:v2",
+  "largest_k": 0,
+  "length": null,
+  "path": null,
+  "queries": [
+    "gen/M3/refute/smt/bmc/d3143b367d4d2a18.k1.smt2.gz"
+  ],
+  "reason": "solver unknown at k = 1 (wall-clock guard 2400 s); rlimit 200000000",
+  "target": {
+    "actions": [
+      "commitBatch"
+    ],
+    "cond": [
+      "==",
+      [
+        "member",
+        [
+          "param",
+          "batchDataInput"
+        ],
+        "version"
+      ],
+      2
+    ],
+    "kind": "step",
+    "observe": {
+      "byte0": 2,
+      "fn": "keccak256",
+      "lengths": [
+        257
+      ]
+    }
+  },
+  "verdict": "unknown"
+}

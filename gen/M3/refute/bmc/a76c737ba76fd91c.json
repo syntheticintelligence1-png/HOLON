@@ -1,0 +1,77 @@
+{
+  "approx": [
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 overflow outcome",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 overflow outcome",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitBatchWithProof: memory loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatchWithProof: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitState: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitState: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitState: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "loop count past the bound",
+    "loop exit value past the bound",
+    "memory pointer"
+  ],
+  "id": "i21:T2",
+  "largest_k": 0,
+  "length": null,
+  "path": null,
+  "queries": [
+    "gen/M3/refute/smt/bmc/a76c737ba76fd91c.k1.smt2.gz"
+  ],
+  "reason": "solver unknown at k = 1 (wall-clock guard 2400 s); rlimit 200000000",
+  "target": {
+    "actions": [
+      "commitBatch",
+      "commitBatchWithProof",
+      "commitState"
+    ],
+    "cond": [
+      "&&",
+      [
+        "<=",
+        [
+          "member",
+          [
+            "param",
+            "batchDataInput"
+          ],
+          "version"
+        ],
+        1
+      ],
+      [
+        "==",
+        [
+          "blobhash",
+          0
+        ],
+        0
+      ]
+    ],
+    "kind": "step",
+    "post": [
+      "==",
+      [
+        "map",
+        [
+          "storage",
+          "batchBlobVersionedHashes"
+        ],
+        [
+          "storage",
+          "lastCommittedBatchIndex"
+        ]
+      ],
+      "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+    ]
+  },
+  "verdict": "unknown"
+}

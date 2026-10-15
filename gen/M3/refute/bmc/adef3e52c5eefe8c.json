@@ -1,0 +1,81 @@
+{
+  "approx": [
+    "challengeState: loop contracts/contracts/l1/rollup/Rollup.sol:489-493 beyond 7 iterations is havoc",
+    "challengeState: loop contracts/contracts/l1/rollup/Rollup.sol:489-493 is havoc (batchDataStore: a mapping read without a key)",
+    "challengeState: loop contracts/contracts/l1/rollup/Rollup.sol:489-493 overflow outcome",
+    "challengeState: loop contracts/contracts/l1/rollup/Rollup.sol:489-493 overflow writes batchDataStore",
+    "challengeState: loop contracts/contracts/l1/rollup/Rollup.sol:489-493 writes batchDataStore",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 overflow outcome",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 overflow outcome",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitBatchWithProof: memory loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatchWithProof: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitState: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitState: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitState: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "finalizeBatch: loop contracts/contracts/l1/rollup/Rollup.sol:744-751 beyond 7 iterations is havoc",
+    "finalizeBatch: loop contracts/contracts/l1/rollup/Rollup.sol:744-751 overflow outcome",
+    "loop count past the bound",
+    "loop exit value past the bound",
+    "memory pointer",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 beyond 7 iterations is havoc",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 is havoc (batchChallengeReward: a mapping read without a key)",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow outcome",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes batchChallengeReward",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes challenges",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes committedBatches",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes inChallenge",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes revertReqIndex",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes batchChallengeReward",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes challenges",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes committedBatches",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes inChallenge",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes revertReqIndex"
+  ],
+  "id": "i21:F-M2-42",
+  "largest_k": 6,
+  "length": null,
+  "path": null,
+  "queries": [
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k1.smt2",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k2.l0.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k2.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k3.l0.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k3.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k4.l0.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k4.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k5.l0.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k5.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k6.l0.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k6.smt2.gz",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k7.l0.smt2.gz"
+  ],
+  "reason": "solver unknown at k = 7 (cone levels <= 0) (memory guard (the solver ran out of the address space it was given)); rlimit 200000000",
+  "target": {
+    "actions": [
+      "commitBatch"
+    ],
+    "blob_gap": true,
+    "cond": [
+      "==",
+      [
+        "member",
+        [
+          "param",
+          "batchDataInput"
+        ],
+        "version"
+      ],
+      2
+    ],
+    "kind": "step"
+  },
+  "verdict": "unknown"
+}

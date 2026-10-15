@@ -1,0 +1,45 @@
+{
+  "approx": [
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 overflow outcome",
+    "loop count past the bound",
+    "loop exit value past the bound"
+  ],
+  "id": "reach:commitBatch#contracts/contracts/l1/rollup/Rollup.sol:913#0",
+  "largest_k": 1,
+  "length": 1,
+  "path": [
+    {
+      "action": "commitBatch",
+      "args": {
+        "batchDataInput": {
+          "lastBlockNumber": 0,
+          "numL1Messages": 0,
+          "parentBatchHeader": "0x00c7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "version": 2,
+          "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010300c7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000",
+      "env": {
+        "blobhash": [],
+        "block.timestamp": 3618502788666131106986593281521497120414687020801267626233049500247285301228,
+        "caller": "0x0000000000000000000000000000000000001002",
+        "calls": [],
+        "msg.value": 1157566400206995456
+      }
+    }
+  ],
+  "queries": [
+    "gen/M3/refute/smt/bmc/553fb2f35a6fc554.k1.smt2"
+  ],
+  "reason": "sat at k = 1 (the first sat depth)",
+  "target": {
+    "action": "commitBatch",
+    "check": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:913#0",
+    "kind": "check"
+  },
+  "verdict": "path"
+}
