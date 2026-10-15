@@ -1,0 +1,165 @@
+{
+  "$defs": {
+    "control": {
+      "additionalProperties": false,
+      "properties": {
+        "expected": {
+          "enum": [
+            "PROVED",
+            "REFUTED",
+            "UNKNOWN"
+          ]
+        },
+        "facts": {
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "depth",
+            "value",
+            "relational",
+            "constant"
+          ]
+        },
+        "id": {
+          "pattern": "^[a-z]+_[0-9]+$",
+          "type": "string"
+        },
+        "law": {
+          "type": "string"
+        },
+        "law_id": {
+          "pattern": "^L_i48_[a-z]+_[0-9]+$",
+          "type": "string"
+        },
+        "size": {
+          "type": "integer"
+        },
+        "truth": {
+          "type": "boolean"
+        },
+        "within_budget": {
+          "type": "boolean"
+        },
+        "witness": {
+          "type": [
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "size",
+        "truth",
+        "facts",
+        "law",
+        "law_id",
+        "witness",
+        "within_budget",
+        "expected"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "budgets": {
+      "additionalProperties": false,
+      "properties": {
+        "maxPrefixes": {
+          "type": "integer"
+        },
+        "natMax": {
+          "type": "integer"
+        },
+        "prefixDepth": {
+          "type": "integer"
+        },
+        "run": {
+          "additionalProperties": false,
+          "properties": {
+            "maxNodes": {
+              "type": "integer"
+            },
+            "maxPrefixes": {
+              "type": "integer"
+            },
+            "natMax": {
+              "type": "integer"
+            },
+            "prefixDepth": {
+              "type": "integer"
+            },
+            "reach_max_tries": {
+              "type": "integer"
+            },
+            "suffixDepth": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "prefixDepth",
+            "suffixDepth",
+            "natMax",
+            "maxPrefixes",
+            "maxNodes",
+            "reach_max_tries"
+          ],
+          "type": "object"
+        },
+        "run_rule": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "strengthening": {
+          "type": "string"
+        },
+        "suffixDepth": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source",
+        "prefixDepth",
+        "suffixDepth",
+        "natMax",
+        "maxPrefixes",
+        "strengthening",
+        "run",
+        "run_rule"
+      ],
+      "type": "object"
+    },
+    "controls": {
+      "items": {
+        "$ref": "#/$defs/control"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "controls_version": {
+      "const": "holon-eval-controls/0.1"
+    },
+    "ledger": {
+      "const": "spec/eval/controls/ledger.json"
+    },
+    "milestone": {
+      "pattern": "^T[0-9]+$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "controls_version",
+    "milestone",
+    "budgets",
+    "ledger",
+    "controls"
+  ],
+  "title": "I48 controls (spec/eval/controls.json): planted obligations with known ground truth, sized against the factory's budgets",
+  "type": "object"
+}

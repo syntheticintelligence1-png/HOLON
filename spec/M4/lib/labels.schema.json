@@ -1,0 +1,257 @@
+{
+  "$defs": {
+    "label": {
+      "additionalProperties": false,
+      "properties": {
+        "justification": {
+          "pattern": "\\S",
+          "type": "string"
+        },
+        "primary": {
+          "enum": [
+            "PAR",
+            "UNDO",
+            "NAT",
+            "SYM",
+            "FACT",
+            "SORT",
+            "DISCH",
+            "OWN",
+            "none"
+          ]
+        },
+        "secondary": {
+          "enum": [
+            "PAR",
+            "UNDO",
+            "NAT",
+            "SYM",
+            "FACT",
+            "SORT",
+            "DISCH",
+            "OWN",
+            "none",
+            null
+          ]
+        },
+        "subform": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary",
+        "secondary",
+        "subform",
+        "justification"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "checks": {
+      "additionalProperties": false,
+      "properties": {
+        "a_differs_from_b": {
+          "const": true
+        },
+        "adjudicator_is_a": {
+          "const": true
+        },
+        "one_model_per_role": {
+          "const": true
+        }
+      },
+      "required": [
+        "one_model_per_role",
+        "a_differs_from_b",
+        "adjudicator_is_a"
+      ],
+      "type": "object"
+    },
+    "family": {
+      "enum": [
+        "same",
+        "other"
+      ]
+    },
+    "invocation": {
+      "const": [
+        "claude",
+        "-p",
+        "--tools",
+        "",
+        "--strict-mcp-config",
+        "--disable-slash-commands",
+        "--no-session-persistence",
+        "--setting-sources",
+        "",
+        "--system-prompt",
+        "<system_prompt>",
+        "--model",
+        "<model>",
+        "--output-format",
+        "json"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "labeller": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "labels": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "attempts": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "cli": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "is_error": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "num_turns": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "result": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "session_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "subtype": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "is_error",
+                    "num_turns",
+                    "result",
+                    "session_id",
+                    "subtype"
+                  ],
+                  "type": "object"
+                },
+                "outcome": {
+                  "enum": [
+                    "ok",
+                    "cli_error",
+                    "turns",
+                    "unparsable",
+                    "invalid"
+                  ]
+                }
+              },
+              "required": [
+                "cli",
+                "outcome"
+              ],
+              "type": "object"
+            },
+            "maxItems": 6,
+            "minItems": 1,
+            "type": "array"
+          },
+          "entry": {
+            "pattern": "^c[0-9]{2}$",
+            "type": "string"
+          },
+          "label": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/label"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "response": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "entry",
+          "prompt_sha256",
+          "attempts",
+          "response",
+          "label"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "model_tag": {
+      "enum": [
+        "A",
+        "B"
+      ]
+    },
+    "prompt_template_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "a",
+        "b",
+        "adjudicator"
+      ]
+    },
+    "rule_sheet_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "system_prompt_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "tools": {
+      "const": "none"
+    }
+  },
+  "required": [
+    "labeller",
+    "role",
+    "model_tag",
+    "family",
+    "tools",
+    "invocation",
+    "system_prompt_sha256",
+    "checks",
+    "rule_sheet_sha256",
+    "prompt_template_sha256",
+    "labels"
+  ],
+  "title": "I48 raw labels of one labeller (spec/eval/labels/<who>.json): the frozen invocation, the model tag, the tool's run-time model checks, and per entry the rendered prompt's sha256, every attempt (the CLI's reduced output and its outcome; at most 6 under the retry rule), the last response and the label it gives (null when the last attempt is not ok)",
+  "type": "object"
+}

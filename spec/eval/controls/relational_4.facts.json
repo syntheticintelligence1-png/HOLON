@@ -1,0 +1,183 @@
+{
+  "abstractions": [
+    "A planted obligation of the relational family, size 4, for UNKNOWN calibration (L15); not a real target."
+  ],
+  "actions": [
+    {
+      "effects": {
+        "b": [
+          "+",
+          "b",
+          1
+        ],
+        "c_1": [
+          "+",
+          "c_1",
+          1
+        ],
+        "c_2": [
+          "+",
+          "c_2",
+          1
+        ],
+        "c_3": [
+          "+",
+          "c_3",
+          1
+        ],
+        "c_4": [
+          "+",
+          "c_4",
+          1
+        ]
+      },
+      "guards": [
+        {
+          "reason": 1,
+          "require": [
+            "<",
+            "b",
+            3
+          ]
+        }
+      ],
+      "inputs": [],
+      "name": "bump",
+      "principal": "anyone",
+      "src": "control: bump()"
+    },
+    {
+      "effects": {
+        "a": "c_1"
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "copy_1",
+      "principal": "anyone",
+      "src": "control: copy_1()"
+    },
+    {
+      "effects": {
+        "a": "c_2"
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "copy_2",
+      "principal": "anyone",
+      "src": "control: copy_2()"
+    },
+    {
+      "effects": {
+        "a": "c_3"
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "copy_3",
+      "principal": "anyone",
+      "src": "control: copy_3()"
+    },
+    {
+      "effects": {
+        "a": "c_4"
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "copy_4",
+      "principal": "anyone",
+      "src": "control: copy_4()"
+    }
+  ],
+  "coverage": {
+    "debt": [],
+    "modelled": [
+      "bump",
+      "copy_1",
+      "copy_2",
+      "copy_3",
+      "copy_4"
+    ]
+  },
+  "defs": {},
+  "extraction": {
+    "date": "2026-10-15",
+    "method": "generated from spec/M4/lib/controls_plan.json (I48 rule K2)"
+  },
+  "facts_version": "holon-facts/0.2",
+  "ghost_state": [],
+  "initial": {
+    "a": 0,
+    "b": 0,
+    "c_1": 0,
+    "c_2": 0,
+    "c_3": 0,
+    "c_4": 0,
+    "doc": "every register zero, flags down",
+    "log": []
+  },
+  "observers": {
+    "a_le_b": {
+      "body": [
+        "<=",
+        "a",
+        "b"
+      ],
+      "doc": "planted true invariant; its strengthening is relational (b == c_i)",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Bool"
+    }
+  },
+  "params": {},
+  "policy": "generic",
+  "principals": {},
+  "reasons": {
+    "1": "the guard does not hold"
+  },
+  "state": [
+    [
+      "a",
+      "Nat",
+      "copied from some c_i"
+    ],
+    [
+      "b",
+      "Nat",
+      "bumped up to 3"
+    ],
+    [
+      "c_1",
+      "Nat",
+      "bumped with b"
+    ],
+    [
+      "c_2",
+      "Nat",
+      "bumped with b"
+    ],
+    [
+      "c_3",
+      "Nat",
+      "bumped with b"
+    ],
+    [
+      "c_4",
+      "Nat",
+      "bumped with b"
+    ],
+    [
+      "log",
+      "List<Obs>",
+      "observations"
+    ]
+  ],
+  "target": {
+    "commit": "0000000000000000000000000000000000000000",
+    "repo": "holon/eval-controls",
+    "scope": "I48 control relational_4: registers a: Nat = 0, b: Nat = 0, c_1..c_SIZE: Nat = 0; actions bump() guard b < 3 effect b := b + 1 and every c_i := c_i + 1; copy_i() effect a := c_i, one per i"
+  },
+  "types": {}
+}

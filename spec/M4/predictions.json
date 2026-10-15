@@ -1,0 +1,144 @@
+{
+  "milestone": "M4",
+  "doc": "Preregistration for M4 iterations (docs/BUILD_PLAN.md §0.1). One key per iteration under iterations. A key is written once, in its prereg commit, before any of its outcome_paths change; holon audit prereg checks the order and that the key is never edited afterwards. predictions count toward prediction accuracy; regressions are outcomes already recorded in the repo that must not change.",
+  "iterations": {
+    "I48": {
+      "title": "Evaluation corpus and unsolved controls: 20 public defects across six fixed systems (two rollups, four beyond), collected by fresh agents from fixed indexes read at snapshots pinned at the prereg (the mechanical ones recomputed by the instrument) and selected mechanically (round robin) from every recorded candidate, doubly labelled with the minimal rule by two different models of one family in fresh tool-less processes from frozen prompts and adjudicated, an isomorphic renaming tool checked by round trip and by independent parsers, and 14 controls with independently computed ground truth sized against pinned budgets",
+      "plan": "docs/BUILD_PLAN.md#i48",
+      "prompt": "prompts/I48_eval_corpus.md",
+      "predictions": [
+        {
+          "id": "I48-P1",
+          "claim": "System spread: under the frozen protocol (fixed indexes, newest first, round-robin selection), at least 4 of the 6 systems contribute at least 3 entries each to the 20, at least 2 of these not rollups (Q20 and the exit ask 3 systems; round robin alone makes one entry from each system with a candidate near certain, so the prediction counts systems with 3 entries).",
+          "check": "tests_m4/test_eval_corpus.py::TestCorpus::test_system_spread_prediction",
+          "expected": {
+            "min_systems_with_3_entries": 4,
+            "min_non_rollup_systems_with_3_entries": 2
+          }
+        },
+        {
+          "id": "I48-P2",
+          "claim": "Inter-rater agreement between two different models of the same family, each prompt read by a fresh tool-less process (labeller a: model A, the family's most capable model available to the build; labeller b: model B, a smaller model of the same family): Cohen's kappa of their primary labels over the nine categories is at least 0.40 (reported, never an exit condition; an undefined kappa is a miss).",
+          "check": "tests_m4/test_eval_corpus.py::TestLabels::test_agreement_prediction",
+          "expected": {
+            "kappa_at_least": 0.4
+          }
+        },
+        {
+          "id": "I48-P3",
+          "claim": "The corpus spans the rules: the final labels use at least 5 of the 9 categories, and at most 5 of the 20 entries are labelled none.",
+          "check": "tests_m4/test_eval_corpus.py::TestLabels::test_label_spread_prediction",
+          "expected": {
+            "distinct_labels_at_least": 5,
+            "none_at_most": 5
+          }
+        },
+        {
+          "id": "I48-P4",
+          "claim": "Renaming strength: in at least 6 of the 20 entries, at least one identifier the renaming renames (rule N1 fixes exactly which) occurs on a pre-fix line that the fix deletes or changes, so the contamination mitigation reaches the defect's own lines in at least 30% of the corpus.",
+          "check": "tests_m4/test_eval_corpus.py::TestRenaming::test_renaming_strength_prediction",
+          "expected": {
+            "entries_with_a_renamed_identifier_on_a_changed_line_at_least": 6,
+            "of": 20
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I48-R1",
+          "claim": "Construction (candidates and corpus, C1-C4 and the plan's exit C7): candidates.json validates and follows the protocol (one fresh collector per system; one index record per index, a git snapshot exactly its prereg pin, its whole item list and how far it was examined under the stop rule; ids and ranks in items order; a mechanical item yielding exactly one candidate with the item's published and title, an audit item exactly its recorded number of findings, a note when it has none; excluded_repo exactly when an excluded pattern or subject is found, with excluded_by naming it, an opened mechanical item only by its repo; no supplementary source holding an excluded pattern; repositories, other_repo, notes, duplicates); the mechanical indexes' items are the instrument's lists recomputed at their pins (reachable from the pinned branches, the geth list with its pinned sha256) and an in-repo folder's items exactly its reports at its pin; an opened mechanical candidate's description is a verbatim excerpt of its item and its fix commit is the earliest reachable commit its item names, when it names one; every fix commit is reachable by git clone from a branch or tag (an other_repo one in its own GitHub repository) and its git facts are the instrument's (holon eval verify agrees); the selection is rule C4's round robin (holon eval select --check); corpus.json names its inputs' sha256 and holds 20 entries from at least 3 systems, at least 2 not rollups, every a and b label non-null and every disagreement adjudicated with a non-null label.",
+          "check": "tests_m4/test_eval_corpus.py::TestCandidates::test_candidates_validate_and_follow_the_protocol and tests_m4/test_eval_corpus.py::TestCandidates::test_indexes_are_the_snapshots and tests_m4/test_eval_corpus.py::TestCandidates::test_mechanical_candidates_are_their_items and tests_m4/test_eval_corpus.py::TestCandidates::test_git_facts_are_the_instruments and tests_m4/test_eval_corpus.py::TestCandidates::test_holon_verify_agrees and tests_m4/test_eval_corpus.py::TestCorpus::test_selection_is_rule_c4 and tests_m4/test_eval_corpus.py::TestCorpus::test_corpus_names_its_inputs and tests_m4/test_eval_corpus.py::TestCorpus::test_exit_criterion and tests_m4/test_eval_corpus.py::TestCorpus::test_cli_selection_is_reproducible",
+          "expected": {
+            "entries": 20,
+            "min_systems": 3,
+            "min_non_rollup_systems": 2
+          }
+        },
+        {
+          "id": "I48-R2",
+          "claim": "Construction (the instruments): every pinned instrument, tests_m4/__init__.py, tests_m4/_i48.py and tests_m4/_m4.py included, still has its prereg sha256, and the loaded instrument, its readers and the test module are the files on disk (a fresh copy of each, imported under another name, has the same functions, test methods, globals, module bindings and constants; checked before and after the module's tests too); the protocol (with its index enumerations, the snapshot pins and the labelling invocation), rule sheet, prompt templates, reserved names and schemas are well formed; the instrument's kappa, round-robin selection, diff cap, attempt outcome and retry rule, snapshot rule, index enumerators, pre-filter, named commits and description check, -U0 line reader, Go printer (with the cgo preamble as cmd/cgo reads it), rule N1 on the second and third reviews' Go and Solidity cases and Solidity checks behave on synthetic cases.",
+          "check": "tests_m4/test_eval_corpus.py::TestPreregInstruments::test_instruments_are_the_preregistered_ones and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_protocol_is_well_formed and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_rule_sheet_is_well_formed and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_schemas_parse and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_reserved_names_are_well_formed and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_prompt_templates_render and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_prompt_diff_cap and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_attempt_outcome_on_synthetic_outputs and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_retry_rule_on_synthetic_sequences and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_snapshot_rule_on_a_synthetic_graph and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_kappa_instrument and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_selection_instrument_on_a_synthetic_list and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_index_enumerators_on_synthetic_data and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_old_lines_from_a_synthetic_diff and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_go_printer_flags_injected_changes and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_n1_go_cases and tests_m4/test_eval_corpus.py::TestSolidityInstrument::test_solidity_checks_flag_injected_changes and tests_m4/test_eval_corpus.py::TestSolidityInstrument::test_n1_solidity_cases"
+        },
+        {
+          "id": "I48-R3",
+          "claim": "I48 changes nothing of M0-M3 and no prereg input: its commits under spec/eval/, gen/eval/ and holon/eval/ touch no law, record, fact, replay, spec/M1-M3, gen/M0-M3, tests/ or tests_m1-m4 file, and nothing under holon/ (holon/eval/ and the CLI entry holon/__main__.py aside), tools/ (tools/setup_env.sh aside), config/, spec/M4/ (spec/M4/amendments.jsonl aside), spec/schemas/, spec/heldout/ or prompts/; commits that touch none of the eval paths are not scoped by this check; no holon/eval/ module enters a generator closure (computed in a child process) or imports a test module.",
+          "check": "tests_m4/test_eval_corpus.py::TestRegressions::test_i48_outcome_commits_touch_nothing_else and tests_m4/test_eval_corpus.py::TestRegressions::test_eval_code_enters_no_generator_closure and tests_m4/test_eval_corpus.py::TestRegressions::test_eval_code_imports_no_instrument"
+        },
+        {
+          "id": "I48-R4",
+          "claim": "Construction (the controls, ground truth by construction and by an independent interpreter): controls.json lists the plan's 14 controls (within the budget: depth 1 and 2, value 1, constant 1 and 3; expected REFUTED 3, PROVED 2, UNKNOWN 9) with the plan's budgets and run budgets; each facts and law file is exactly the instrument's document (no search key, no hints module, no library directory), each law validates against the IR 0.3 schema; the interpreter confirms each witness is a shortest one, each true control holds on its finite reachable set and is not inductive alone, and within_budget; the sidecar ledger classifies every generated model; holon eval controls --check passes; the plan records the sha256 of the files its sizing rests on (sizing_sources), which I53 asserts or re-derives the sizing from.",
+          "check": "tests_m4/test_eval_corpus.py::TestPreregInstruments::test_controls_plan_expands_to_fourteen and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_controls_plan_names_its_sizing_sources and tests_m4/test_eval_corpus.py::TestPreregInstruments::test_controls_plan_agrees_with_the_interpreter and tests_m4/test_eval_corpus.py::TestControls::test_manifest_is_the_plans and tests_m4/test_eval_corpus.py::TestControls::test_documents_are_the_plans and tests_m4/test_eval_corpus.py::TestControls::test_ground_truth_is_independent and tests_m4/test_eval_corpus.py::TestControls::test_sizing_is_the_interpreters and tests_m4/test_eval_corpus.py::TestControls::test_ledger_bundles_classify_the_models and tests_m4/test_eval_corpus.py::TestControls::test_cli_controls_are_reproducible",
+          "expected": {
+            "controls": 14,
+            "REFUTED": 3,
+            "PROVED": 2,
+            "UNKNOWN": 9
+          }
+        },
+        {
+          "id": "I48-R5",
+          "claim": "Construction (the labels, C5-C6): both labellers label all 20 entries and the adjudicator exactly the disagreements, three different labellers, each prompt read by a fresh tool-less process run exactly as the protocol's labelling_invocation (the invocation and the system prompt's sha256 recorded; model tags a: A, b: B, adjudicator: A, model names never recorded; the tool's run-time model checks all true); every attempt is recorded with the outcome attempt_outcome gives, and the attempts follow the retry rule (a cli_error attempt not counted, at most 5 of them; a second counted attempt after a failed one; no more); every prompt_sha256 is that of the prompt re-rendered from the frozen template (diff capped at 60000 characters) and every label is what its last, ok response says (else null); entries carry the raw labels and final_label; the agreement is the instrument's kappa.",
+          "check": "tests_m4/test_eval_corpus.py::TestLabels::test_raw_labels_are_complete_and_blind_to_each_other and tests_m4/test_eval_corpus.py::TestLabels::test_labelling_runs_are_the_protocols and tests_m4/test_eval_corpus.py::TestLabels::test_entries_carry_the_raw_labels_and_the_final_label and tests_m4/test_eval_corpus.py::TestLabels::test_agreement_is_the_instruments",
+          "expected": {
+            "doubly_labelled": 20
+          }
+        },
+        {
+          "id": "I48-R6",
+          "claim": "Construction (the renaming, N0-N3): for every entry, rename then unrename returns the pre-fix files byte for byte; every renamed .go file's goast printout and every renamed .sol file's independent token stream (and solc 0.8.24 AST when both parse) equal the original's under the map; the map renames exactly rule N1's identifiers (exact for every set: none reserved, cgo selectors kept, dotted names kept, Unicode words, no word of a .sol file solc cannot parse) with new_names' names and records exactly the removed comments (each the original's bytes at its offset); the renaming documents record what the instrument found and holon eval renaming --check passes.",
+          "check": "tests_m4/test_eval_corpus.py::TestRenaming::test_round_trip_and_isomorphism_on_every_entry and tests_m4/test_eval_corpus.py::TestRenaming::test_renaming_documents",
+          "expected": {
+            "entries": 20,
+            "roundtrip": true,
+            "isomorphic": true
+          }
+        }
+      ],
+      "outcome_paths": [
+        "spec/eval/",
+        "gen/eval/"
+      ],
+      "tests": [
+        "tests_m4/test_eval_corpus.py"
+      ],
+      "thresholds": {
+        "n": 20,
+        "min_systems": 3,
+        "min_non_rollup_systems": 2,
+        "max_per_system": 8,
+        "systems": [
+          "arbitrum",
+          "compound",
+          "cosmos",
+          "go-ethereum",
+          "optimism",
+          "wormhole"
+        ],
+        "cutoff": "2026-10-15T00:00:00Z",
+        "selection": "round robin over the systems in the protocol's order, newest fix first within a system (rule C4)",
+        "protocol": "spec/M4/lib/corpus_protocol.json",
+        "rule_sheet": "spec/M4/lib/rule_sheet.json",
+        "prompts": [
+          "spec/M4/lib/labeller_prompt.md",
+          "spec/M4/lib/adjudicator_prompt.md"
+        ],
+        "rename_reserved": "spec/M4/lib/rename_reserved.json",
+        "controls_plan": "spec/M4/lib/controls_plan.json",
+        "agreement": "Cohen's kappa over the nine categories with Cohen's standard error and 95% interval, reported (not an exit condition); prediction I48-P2 names a level",
+        "labellers": "labeller a and the adjudicator: model A (the family's most capable model available to the build); labeller b: model B (a smaller, different model of the same family); each prompt read by a fresh tool-less process (corpus_protocol.json labelling_invocation), models recorded only as the tags A and B with the tool's run-time checks; retry rule: cli_error attempts not counted (at most 5, 60 s apart), one more counted attempt after a failed one, no third (Q9: labelled same)",
+        "control_set_size": 14,
+        "control_run_budgets": {
+          "prefixDepth": 3,
+          "suffixDepth": 4,
+          "natMax": 5,
+          "maxPrefixes": 3000,
+          "maxNodes": 400000,
+          "reach_max_tries": 120
+        },
+        "renaming": "rule N1 (declared in the set; not reserved, with the package-clause names and, in Go files importing \"C\", every C.X selector name; not exported (a Unicode upper-case initial) or ABI-visible or override; used nowhere outside the set that the checkout shows; in no string or kept comment; in no .sol file of the set solc cannot parse; words Unicode-aware), directives and @solidity/@custom: comments kept, other comments removed and restored; round trip byte for byte; isomorphism by the goast printer, an independent Solidity lexer and the pinned solc 0.8.24",
+        "diff_cap_characters": 60000,
+        "indexes": "every git index read at a snapshot pinned at the prereg (corpus_protocol.json snapshots: the newest first-parent commit of the branch whose committer date is before the cutoff, for the advisory database, the geth list on branch website of ethereum/go-ethereum, and the four in-repo audit folders), every page at a recorded fetch (final URL and sha256); the mechanical indexes (ghsa, geth) are enumerated and pre-filtered by the instrument's rule, their collectors work from holon eval index's item list, and their fix commits (when the item names a reachable one) and descriptions are checked against the items"
+      }
+    }
+  }
+}

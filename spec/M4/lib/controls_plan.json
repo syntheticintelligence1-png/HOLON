@@ -1,0 +1,97 @@
+{
+  "budgets": {
+    "maxPrefixes": 3000,
+    "natMax": 5,
+    "nat_input_domain": [
+      0,
+      1
+    ],
+    "prefixDepth": 3,
+    "run": {
+      "maxNodes": 400000,
+      "maxPrefixes": 3000,
+      "natMax": 5,
+      "prefixDepth": 3,
+      "reach_max_tries": 120,
+      "suffixDepth": 4
+    },
+    "run_rule": "I53 passes the run budgets explicitly (explore.mjs and houdini.mjs request budget, holon/mpipeline.py reach_search max_tries) instead of relying on the defaults, which I47's performance loop may change: the within_budget column is true of these budgets, not of whatever the defaults are when I53 runs.",
+    "source": "holon/js/explore.mjs (defaults at the I48 prereg: prefixDepth 3, suffixDepth 4, natMax 5, maxNodes 400000, maxPrefixes 3000), holon/js/policy_gen.mjs (an action's Nat input without facts.search.domains takes 0 and 1), holon/gen/mproofs.py reach_invariant with holon/js/houdini.mjs (strengthenings are field constants only, proposed from a breadth-first exploration of prefixDepth levels, at most maxPrefixes states), holon/mpipeline.py reach_search (max_tries 120); controls set no search hints",
+    "strengthening": "houdini proposes Nat and Bool fields constant on every explored reachable state; no relational candidate",
+    "suffixDepth": 4
+  },
+  "doc": "I48 controls plan (frozen at the I48 prereg; BUILD_PLAN I48: 'planted true and false obligations with known ground truth, sized beyond the budgets, for UNKNOWN calibration (L15)'). Rules K0-K4 of tests_m4/test_eval_corpus.py read this file. Each control is a holon-facts/0.2 machine and one holon-ir/0.3 law over its reachable states (binder s: Reach), run as test milestone T48 by I53. Ground truth is fixed by construction and recomputed by the instrument's explicit-state enumerator (tests_m4/_i48.py), never by HOLON. I48 does not run holon on the controls: the factory's outcomes on them are I53's measurement.",
+  "documents": "Rule K2. The facts document is the family's machine below as holon-facts/0.2 with the generic policy and no search key (no domains, no budget: holon/js/explore.mjs and houdini.mjs would read facts.search); the law is holon-ir/0.3, milestone T48, rule SORT with no subform (the generic Reach path, as the I8 reach fixtures; no rule-specific routing such as SORT/width's decided_without_bend in holon/mpipeline.py), catalog holon-rules/1.0, no premise, claim <observer>(s) == true over the one binder s: Reach, scope unbounded, facts_sha256 the facts file's sha256. Every field, the observer's name and the machine's registers, actions, guards and effects are fixed by expected_documents, so no field can carry a hint. spec/eval/policy_hints.mjs and spec/eval/lib/ never exist (holon/gen/targetlib.py's hints_for and lib_files would read them for spec/eval/controls/*.facts.json). spec/eval/controls/ledger.json (holon-ledger/0.1, a sidecar ledger holon.records reads next to the facts) holds one bundle per control, so that I53's runs resolve an exact bundle and never write into I48's outcome paths.",
+  "families": [
+    {
+      "expected": "REFUTED within the budget, UNKNOWN beyond it",
+      "family": "depth",
+      "law": "flag_down: flag == false on every reachable state",
+      "machine": "registers c: Nat = 0, flag: Bool = false; actions inc() effect c := c + 1; fire() guard c >= SIZE effect flag := true",
+      "sizes": [
+        1,
+        2,
+        4,
+        8,
+        16
+      ],
+      "truth": false,
+      "within_budget": "SIZE + 1 <= prefixDepth (the reachable-prefix BFS reaches the violating state)",
+      "witness": "inc repeated SIZE times, then fire (SIZE + 1 actions)"
+    },
+    {
+      "expected": "REFUTED within the budget, UNKNOWN beyond it",
+      "family": "value",
+      "law": "flag_down: flag == false on every reachable state",
+      "machine": "register flag: Bool = false; action fire(d: Nat) guard d == SIZE effect flag := true",
+      "sizes": [
+        1,
+        2,
+        7,
+        1000
+      ],
+      "truth": false,
+      "within_budget": "SIZE in nat_input_domain (the generic policy tries the input)",
+      "witness": "fire(SIZE) (one action)"
+    },
+    {
+      "expected": "UNKNOWN",
+      "family": "relational",
+      "law": "a_le_b: a <= b on every reachable state (true: every c_i equals b; not inductive alone: copy_i from a state with c_i > b breaks it; the strengthening needs the SIZE equalities b == c_i, none of them a field constant)",
+      "machine": "registers a: Nat = 0, b: Nat = 0, c_1..c_SIZE: Nat = 0; actions bump() guard b < 3 effect b := b + 1 and every c_i := c_i + 1; copy_i() effect a := c_i, one per i",
+      "sizes": [
+        1,
+        2,
+        4
+      ],
+      "truth": true,
+      "within_budget": "never (the needed strengthening is relational)",
+      "witness": null
+    },
+    {
+      "expected": "PROVED",
+      "family": "constant",
+      "law": "x_zero: x == 0 on every reachable state (true; not inductive alone; the strengthening y_i == 0 for all i is a set of field constants houdini proposes)",
+      "machine": "registers x: Nat = 0, y_1..y_SIZE: Nat = 0; actions copy() effect x := y_1; shift_i() effect y_i := y_(i+1) for i < SIZE; clear() effect y_SIZE := 0",
+      "sizes": [
+        1,
+        3
+      ],
+      "truth": true,
+      "within_budget": "always (constant strengthening)",
+      "witness": null
+    }
+  ],
+  "ids": "control id = <family>_<size>; facts spec/eval/controls/<id>.facts.json; law spec/eval/controls/<id>.law.json, law_id L_i48_<family>_<size> (holon-ir/0.3's law_id pattern ^L[0-9]?_...); both documents are exactly tests_m4/_i48.py::expected_documents(control, plan), written as json.dumps(doc, indent=2, sort_keys=True) + newline",
+  "milestone": "T48",
+  "plan_version": "holon-eval-controls-plan/0.1",
+  "sizing": "Rule K4, recomputed by the instrument's interpreter (tests_m4/_i48.py), never by HOLON: a false control is within the budget iff a breadth-first search over the generic policy's inputs finds a violating trace of at most prefixDepth actions; a true control is within the budget iff no counterexample to induction exists in the box (every Nat register 0..3, every Bool either value) for the claim together with houdini's constants (the registers constant on the depth-prefixDepth exploration). Each true control's claim alone has such a counterexample (it is not inductive alone), so a PROVED needs the strengthening.",
+  "sizing_sources": {
+    "holon/gen/mproofs.py": "a5054e2a606440b490a6aa7fb88dda54421c540ea25cd5cc0e4c777cdfb93162",
+    "holon/js/explore.mjs": "b8db6d6cdda44fa6b967c8d5fb3e968d986b37824fca725cba4aea7090e37941",
+    "holon/js/houdini.mjs": "31d55dc7c76d75b3bd76e4a4a94f177b6d790f817bb85f8c58b7e5fa5d1b8f8e",
+    "holon/js/policy_gen.mjs": "fab6553cd076966354ab9dff1399a77f2e0f4e82e8e5edad22fbb9a3b8718202",
+    "holon/mpipeline.py": "d8f7c73ce96df4f9c6c8ef30bbd8b9fbb78dd4aa527af0836d998c8e6187fc11"
+  },
+  "sizing_sources_rule": "The sizing (rule K4: the generic policy's Nat inputs {0, 1} in holon/js/policy_gen.mjs, houdini's field-constant proposals from a breadth-first exploration of prefixDepth levels in holon/js/houdini.mjs and holon/gen/mproofs.py, the explorer's reachable-prefix search in holon/js/explore.mjs, and reach_search in holon/mpipeline.py) rests on these files as they were at the I48 prereg (sha256 at that base). I53 asserts these sha256 before it runs the controls; when a file changed (I47's performance loop may change them), I53 re-derives the sizing of every control from the changed code and reports it, instead of reading within_budget from I48."
+}
