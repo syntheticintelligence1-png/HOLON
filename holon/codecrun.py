@@ -10,9 +10,10 @@ holon.mpipeline.run_m1 hands every holon-ir/0.3 law whose facts are a codec docu
 
 Machine laws (holon-facts/0.2) stay with holon.mpipeline. The record is the run's usual one (v1 and v2 fields,
 holon.records; evidence fields from the milestone's evidence set, or for a test milestone from the set its laws'
-codec documents give, built here in memory), with non_vacuity for every PROVED law with premises. The checker's
-word is final: PROVED and REFUTED only through a LAWS.bend / PROOF.bend pair Bend accepts at its acceptance point
-(holon.mpipeline.accepted).
+codec documents give, built here in memory), with non_vacuity for every PROVED law with premises, and (I43) for a
+target milestone the lean4 kernel entry holon.lean.kernel_entry_v2 reads from the committed Lean report of the law's
+Lean directory. The checker's word is final: PROVED and REFUTED only through a LAWS.bend / PROOF.bend pair Bend accepts
+at its acceptance point (holon.mpipeline.accepted).
 """
 from __future__ import annotations
 
@@ -22,6 +23,7 @@ import shutil
 from pathlib import Path
 
 from . import bend, ir, records
+from . import lean as LN
 from .diagram import linked as L
 from .gen import codec01 as C1
 from .gen import linked as GL
@@ -226,7 +228,12 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
     rec["status"] = status
     rec["attempts"] = attempts
     cone_entry = {"model": model_src.stem, "cone": bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))}
-    rec.update(records.v2_fields(law, rec, stmt_text, model_src, rel, compiled, root, ledger_required=not test))
+    # I43: the lean4 entry, from the committed Lean report under root (never one under gen), once status, witness and
+    # attempts are final; none for a test milestone
+    lean_entry = None if test else LN.kernel_entry_v2(LN.dir_key_for(milestone, root / rel, root), law, root / rel,
+                                                     rec, root)
+    rec.update(records.v2_fields(law, rec, stmt_text, model_src, rel, compiled, root, lean_entry=lean_entry,
+                                 ledger_required=not test))
     rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
     rec.update(evidence_fields(law, status, root, milestone))
     # §8.5 (I12): model_assumptions are the hypothesis premises (a codec law has none); the ledger entries meeting the
