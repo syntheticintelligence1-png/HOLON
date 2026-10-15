@@ -424,6 +424,13 @@ class Decider:
                     "witness_provenance": {"solidity": "internal_harness"} if status == "REFUTED" else None,
                     "filter_bin": "finding" if status == "REFUTED" else None,
                     **R.evidence_fields(law, {"status": status}, ctx.root)})
+        if ctx.m not in ("M0", "M1"):
+            # an M2+ record (holon.mpipeline, F-M2-12): model_assumptions are the law's hypothesis premises (§8.5) and
+            # the ledger entries meeting the cone stay in ledger_assumptions; the extracted model replaces no ledger
+            # stand-in by an oracle parameter, so they are all of them (holon.gen.oracles.ledger_problems)
+            from ..gen import oracles as O
+            rec["ledger_assumptions"] = sorted(rec["model_assumptions"])
+            rec["model_assumptions"] = O.hypothesis_premises(law, None)
         rec["statement"] = law.get("notes", "")
         return rec
 

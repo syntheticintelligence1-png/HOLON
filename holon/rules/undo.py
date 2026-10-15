@@ -634,11 +634,13 @@ def classification(milestone: str, root: Path, results: Path | None = None) -> d
 
 
 def warnings(milestone: str, root: Path, results: Path | None = None) -> list:
-    """The gate's GUNDO warnings: one per disagreement of the regenerated classification, sorted by law."""
+    """The gate's GUNDO warnings: one per disagreement of the regenerated classification, sorted by law. A
+    classification that cannot be computed (an unreadable DERIVATION or record) is itself one warning, with the
+    error: it never silently removes the others."""
     try:
         c = classification(milestone, root, results)
-    except (OSError, ValueError):
-        return []
+    except (OSError, ValueError) as e:
+        return [{"check": "GUNDO", "law": None, "error": f"{type(e).__name__}: {e}"}]
     return [{"check": "GUNDO", "law": lid} for lid in c["disagreements"]]
 
 
