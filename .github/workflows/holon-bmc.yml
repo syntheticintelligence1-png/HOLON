@@ -1,0 +1,107 @@
+# I40 round 2: the BMC questions of `holon refute --milestone M3`, decided from scratch and sharded over GitHub-hosted
+# runners. Every answer comes from the pinned z3's deterministic budget (holon.smt.run.Session: the query's rlimit
+# counted cumulatively over its check-sats, z3's own memory_max_size, both registered in config/holon.json), so where a
+# question runs does not change its result. The shard jobs run repository code without credentials; the publish job
+# runs none: it collects the shards' outputs and pushes them, alone on an orphan commit, to claude/ci-bmcout-<run id>.
+name: holon-bmc
+
+on:
+  push:
+    branches: ['claude/ci-bmc-**']
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  SHARDS: '20'
+
+jobs:
+  shard:
+    name: bmc shard ${{ matrix.shard }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    env:
+      SHARD: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - name: The pinned z3 (hash-pinned wheels, tools/extract-requirements.txt)
+        run: bash tools/setup_env.sh --extract
+      - name: The solver pin (binary and library sha256, version line)
+        run: |
+          python - <<'PY'
+          import json, sys
+          from holon.smt.run import pin_check
+          why = pin_check(json.load(open("spec/M3/lib/refute.json"))["solver"])
+          print(why or "the pinned z3 is installed as pinned")
+          sys.exit(1 if why else 0)
+          PY
+      - name: This shard's questions, decided from scratch
+        run: |
+          rm -rf gen/M3/refute/bmc gen/M3/refute/smt/bmc
+          IDS="$(python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from holon import refute_m3 as R
+          side = json.load(open("spec/M3/lib/refute.json"))
+          env = json.load(open("spec/M3/refute_env.json"))
+          qs = R.questions(Path(".").resolve(), side, env)
+          n, k = int(os.environ["SHARDS"]), int(os.environ["SHARD"])
+          print("|".join(q["id"] for i, q in enumerate(qs) if i % n == k))
+          PY
+          )"
+          echo "questions: $IDS"
+          python -m holon refute --milestone M3 --only bmc --jobs 3 --questions "$IDS" 2>&1 | tee "$RUNNER_TEMP/bmc-${SHARD}.log"
+          mkdir -p gen/M3/refute/bmc gen/M3/refute/smt/bmc
+          cp "$RUNNER_TEMP/bmc-${SHARD}.log" gen/M3/refute/bmc/shard-${SHARD}.log
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: bmc-shard-${{ matrix.shard }}
+          if-no-files-found: warn
+          retention-days: 7
+          path: |
+            gen/M3/refute/bmc/
+            gen/M3/refute/smt/bmc/
+
+  publish:
+    name: publish the outputs
+    needs: shard
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          pattern: bmc-shard-*
+          merge-multiple: true
+          path: out
+      - name: Push the outputs (an orphan commit; no repository code runs here)
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.run_id }}
+          SRC: ${{ github.sha }}
+        run: |
+          cd out
+          find . -type f | sort | head -5; find . -type f | wc -l
+          git init -q
+          git checkout -q -b results
+          git add -A
+          git -c user.name=holon-ci -c user.email=holon-ci@users.noreply.github.com commit -q -m "BMC outputs of run $RUN at $SRC"
+          git push -q "https://x-access-token:${TOKEN}@github.com/${REPO}" "HEAD:refs/heads/claude/ci-bmcout-${RUN}"
