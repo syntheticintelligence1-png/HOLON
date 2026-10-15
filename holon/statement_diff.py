@@ -1026,13 +1026,27 @@ def recheck_artifacts(e: dict, eqv: dict, root: Path, old_model: bytes | None, n
         try:
             for name in ARTIFACTS:
                 (tmp / name).write_text(texts[name])
-            r = bend.check(tmp / "PROOF.bend")
+            # Q34: bounded by equivalence.timeout_s in each kernel; a crash is retried and logged, never a verdict
+            r, crashes = bend.check_equivalence(tmp / "PROOF.bend")
             need_tt = bend.verdict_enabled() or "BendTT" in (eqv.get("kernels") or [])
-            v = bend.check_verdict(tmp / "PROOF.bend") if (r.ok and need_tt) else None
+            v = None
+            if r.ok and need_tt:
+                v, more = bend.check_equivalence(tmp / "PROOF.bend", verdict=True)
+                crashes += more
+            for c in crashes:
+                _RECHECKED.setdefault("crashes", []).append((e.get("law_id"), c))
+
+            def _why(kernel, run):
+                if run is not None and bend.timed_out(run):
+                    return (f"{kernel} did not finish its PROOF.bend within equivalence.timeout_s "
+                            f"({bend.equivalence_timeout()} s): UNKNOWN, not re-checked")
+                if run is not None and bend.crashed(run):
+                    return f"{kernel} crashed on its PROOF.bend on every try (no verdict): not re-checked"
+                return None
             if not r.ok:
-                why = f"bend2 no longer accepts its PROOF.bend: {EQ.kernel_message(r.out, 6)}"
+                why = _why("bend2", r) or f"bend2 no longer accepts its PROOF.bend: {EQ.kernel_message(r.out, 6)}"
             elif need_tt and not (v is not None and v.ok):
-                why = f"BendTT does not accept its PROOF.bend: {EQ.kernel_message(v.out if v else '', 6)}"
+                why = _why("BendTT", v) or f"BendTT does not accept its PROOF.bend: {EQ.kernel_message(v.out if v else '', 6)}"
             _RECHECKED.setdefault("seconds", []).append((e.get("law_id"), r.seconds, v.seconds if v else None))
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
