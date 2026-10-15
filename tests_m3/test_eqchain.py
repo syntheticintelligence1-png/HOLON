@@ -199,11 +199,13 @@ class TestQ34Bound(unittest.TestCase):
         self.assertTrue(r.ok)
         self.assertEqual(len(log), 1)
         self.assertEqual(m.call_args.kwargs["timeout"], 900)
-        with mock.patch.object(bend, "check", side_effect=[crash, crash, crash]):
+        n = int(bend.config()["equivalence"]["crash_tries"])
+        with mock.patch.object(bend, "check", side_effect=[crash] * n) as m:
             r, log = bend.check_equivalence(ROOT / "x" / "PROOF.bend")
+        self.assertEqual(m.call_count, n)
         self.assertFalse(r.ok)
         self.assertTrue(bend.crashed(r))
-        self.assertEqual(len(log), 3)
+        self.assertEqual(len(log), n)
 
     def test_the_bound_is_only_for_final_checks(self):
         seen = []

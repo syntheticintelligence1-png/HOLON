@@ -338,12 +338,15 @@ def crashed(r: Run) -> bool:
     return (not r.ok) and "stack overflow" in r.out.lower() and "Location:" not in r.out
 
 
-def check_equivalence(proof_file: Path, cfg: dict | None = None, verdict: bool = False, tries: int = 3) -> tuple:
+def check_equivalence(proof_file: Path, cfg: dict | None = None, verdict: bool = False, tries: int | None = None) -> tuple:
     """(Run, crash log) of the final check of an equivalence proof in bend2 (verdict=False) or BendTT (--verdict),
-    bounded by equivalence_timeout. A crash is never a verdict: it is retried, up to `tries` runs in all, and each
+    bounded by equivalence_timeout. A crash is never a verdict: it is retried, up to `tries` runs in all (default
+    config equivalence.crash_tries), and each
     crash is logged ({kernel, seconds, message}). The last run is returned: a crash or a timeout there is UNKNOWN to
     the caller, never acceptance."""
     t = equivalence_timeout(cfg)
+    if tries is None:
+        tries = int((cfg or config()).get("equivalence", {}).get("crash_tries", 3))
     log = []
     for _ in range(max(1, tries)):
         r = check_verdict(proof_file, cfg, timeout=t) if verdict else check(proof_file, cfg, timeout=t)
