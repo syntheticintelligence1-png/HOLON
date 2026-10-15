@@ -1460,6 +1460,95 @@
         "baseline_total_lines": 340,
         "congruence_proof_lines": 215
       }
+    },
+    "I43": {
+      "title": "Theory core II: equivariance, 2-cell pasting, and Lean 4 promotion for the promoted set",
+      "plan": "docs/BUILD_PLAN.md#i43",
+      "prompt": "prompts/I43_theory_core_ii.md",
+      "predictions": [
+        {
+          "id": "I43-P1",
+          "claim": "THEORY_CORE_II adds 10 polymorphic Bend 2 laws (5 equivariance: core_equivar_compose, core_equivar_whisker, core_equivar_obs, core_equivar_pred, core_equivar_homotopy; 5 2-cell pasting: core_paste_grid_2x2, core_paste_h_3, core_paste_v_obs, core_paste_square_trans, core_paste_whisker_interchange) to holon.gen.core and emits them into gen/M3/core/{LAWS,PROOF}.bend (53 total laws = 31 CATALOG + 12 THEORY_CORE_I + 10 THEORY_CORE_II), passing both bend and bend --verdict (ALL PROOFS CHECK) with zero escape hatches while LAWS.bend alone fails bend --verdict and holon/ generators remain target-agnostic.",
+          "check": "tests_m3/test_theory_core_ii.py::TestTheoryCoreIIBuild::test_theory_core_ii_registered_in_holon_gen_core and tests_m3/test_theory_core_ii.py::TestTheoryCoreIIBuild::test_m3_core_includes_theory_core_ii_and_m2_core_untouched and tests_m3/test_theory_core_ii.py::TestTheoryCoreIIBuild::test_core_emit_reproduces_m3_core_files and tests_m3/test_theory_core_ii.py::TestTheoryCoreIIBuild::test_holon_generators_remain_target_agnostic"
+        },
+        {
+          "id": "I43-P2",
+          "claim": "gen/M3/basis/equivariance/{LAWS,PROOF}.bend proves 4 concrete equivariance laws over gen/M1/model/morph_rollup.bend (basis_equivar_mig_legacy_wait, basis_equivar_mig_legacy_send_msg, basis_equivar_mig_eta2_wait, and basis_equivar_mig_compose_wait via C.core_equivar_whisker), passing both bend and bend --verdict with zero escape hatches.",
+          "check": "tests_m3/test_theory_core_ii.py::TestEquivarianceAndPastingBasis::test_equivariance_basis_checks"
+        },
+        {
+          "id": "I43-P3",
+          "claim": "gen/M3/basis/pasting/{LAWS,PROOF}.bend proves 4 concrete 2-cell pasting laws over gen/M1/model/morph_rollup.bend (basis_paste_lci_mig_legacy, basis_paste_lci_mig_eta2, basis_paste_lci_mig_chain via C.core_paste_v_obs, and basis_paste_tags_mig_chain via C.core_paste_v_obs), passing both bend and bend --verdict with zero escape hatches.",
+          "check": "tests_m3/test_theory_core_ii.py::TestEquivarianceAndPastingBasis::test_pasting_basis_checks"
+        },
+        {
+          "id": "I43-P4",
+          "claim": "All 5 negative canaries across theory_core_ii, equivariance, pasting, and lean (4 Bend canaries canary_equivar_compose_swapped, canary_paste_grid_2x2_missing_v, canary_equivar_mig_eta2_unmigrated_rhs, canary_paste_csr_last_mig_legacy + 1 Lean 4 canary canary_lean_flipped_claim) are rejected by both bend and bend --verdict or holon.lean.check_text with genuine semantic type/tactic mismatches.",
+          "check": "tests_m3/test_theory_core_ii.py::TestPreregSidecar::test_prereg_theory_core_ii_basis_and_canaries_check_in_bend and tests_m3/test_theory_core_ii.py::TestNegativeCanaries::test_negative_canaries_rejected_under_basis_dir"
+        },
+        {
+          "id": "I43-P5",
+          "claim": "gen/M3/lean/ builds cleanly under Lean 4.34.0 (lake build --no-cache) with holon.lean.forbidden(txt) == [], #print axioms verification, and zero sorry, admit, axiom, native_decide, or unsafe declarations, and gen/M3/lean/report.json plus results/M3/lean.json deterministically record all 92 promoted PROVED laws across M0..M3 (5 M0 + 8 M1 + 6 M2 + 73 M3) at independence_class I2 with lean4 kernel result checked and axioms within {Quot.sound, propext}, alongside all 10 THEORY_CORE_II laws and 8 equivariance/pasting basis laws.",
+          "check": "tests_m3/test_theory_core_ii.py::TestLeanPromotion::test_m3_lean_project_exists_and_has_no_escape_hatches and tests_m3/test_theory_core_ii.py::TestLeanPromotion::test_results_m3_lean_json_and_i2_promotion"
+        },
+        {
+          "id": "I43-P6",
+          "claim": "The preregistered promoted-set inventory in spec/M3/lib/theory_core_ii.json enumerates exactly 92 PROVED laws across M0..M3 (5 M0 + 8 M1 + 6 M2 + 73 M3) and 18 new Bend/Lean theory and basis laws (10 THEORY_CORE_II + 4 equivariance + 4 pasting).",
+          "check": "tests_m3/test_theory_core_ii.py::TestPreregSidecar::test_prereg_promoted_set_counts"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I43-R1",
+          "claim": "Extending holon.gen.core with THEORY_CORE_II preserves all 31 CATALOG and 12 THEORY_CORE_I laws in gen/M3/core/{LAWS,PROOF}.bend and leaves gen/M2/core/{LAWS,PROOF}.bend untouched at 31 laws (AGENTS.md: never edit gen/M0-M2).",
+          "check": "tests_m3/test_theory_core_ii.py::TestTheoryCoreIIBuild::test_m3_core_includes_theory_core_ii_and_m2_core_untouched"
+        },
+        {
+          "id": "I43-R2",
+          "claim": "spec/M3/lib/theory_core_ii.json is byte-identical to tests_m3._i43.theory_core_ii_doc(ROOT) over the frozen input hashes.",
+          "check": "tests_m3/test_theory_core_ii.py::TestPreregSidecar::test_sidecar_is_byte_identical_to_i43_recomputation and tests_m3/test_theory_core_ii.py::TestPreregSidecar::test_inputs_sha256_match"
+        },
+        {
+          "id": "I43-R3",
+          "claim": "tests_m3/_i43.py is an independent preregistration computation and does not import holon.gen.{basis,core,mproofs,lean_*} or holon.lean.",
+          "check": "tests_m3/test_theory_core_ii.py::TestPreregSidecar::test_i43_module_does_not_import_target_generators"
+        },
+        {
+          "id": "I43-R4",
+          "claim": "Every Lean source file in gen/M0/lean/ and gen/M3/lean/ is free of sorry, admit, axiom, native_decide, and unsafe declarations.",
+          "check": "tests_m3/test_theory_core_ii.py::TestLeanPromotion::test_m3_lean_project_exists_and_has_no_escape_hatches"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/basis/equivariance/",
+        "gen/M3/basis/pasting/",
+        "gen/M3/lean/",
+        "results/M3/lean.json"
+      ],
+      "tests": [
+        "tests_m3/test_theory_core_ii.py"
+      ],
+      "thresholds": {
+        "sidecar": "spec/M3/lib/theory_core_ii.json",
+        "lean_toolchain_version": "4.34.0",
+        "allowed_axioms": [
+          "Quot.sound",
+          "propext"
+        ],
+        "m2_core_laws": 31,
+        "theory_core_i_laws": 12,
+        "theory_core_ii_laws": 10,
+        "m3_core_total_laws": 53,
+        "equivariance_basis_laws": 4,
+        "pasting_basis_laws": 4,
+        "total_new_bend_laws": 18,
+        "promoted_m0_laws": 5,
+        "promoted_m1_laws": 8,
+        "promoted_m2_laws": 6,
+        "promoted_m3_laws": 73,
+        "total_promoted_i2_laws": 92,
+        "canaries_refuted": 5
+      }
     }
   }
 }
