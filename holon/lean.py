@@ -8,7 +8,8 @@ law for PROVED, the counter-law at the recorded witness for REFUTED), check it i
 project (Lean 4.34.0, no Mathlib, no dependencies, nothing reused from an earlier build), and audit it:
 
   * Lean G3: the file, comments removed, holds none of FORBIDDEN (the comments located by a lexer that mirrors
-    Lean 4.34.0's tokenizer, F36; a file it cannot classify exactly is refused);
+    Lean 4.34.0's tokenizer, F36; a file it cannot classify exactly is refused), and nothing outside the allowlists
+    (set_option names, `#` commands, no attribute: structure_violations);
   * `#print axioms` for every theorem the file declares (appended by the runner, whatever the file says)
     lists only ALLOWED_AXIOMS;
   * the theorem carrying the verdict is among them; each file checks within lean.budget_s_per_file.
@@ -50,10 +51,23 @@ FORBIDDEN = re.compile(r"\b(sorry|admit|native_decide|bv_decide|decide\s*\+\s*na
                        r"infix|infixl|infixr|prefix|postfix|import|run_cmd|run_tac|run_elab|initialize|"
                        r"builtin_initialize|debug\.skipKernelTC|Lean\.Elab|Lean\.Meta|"
                        # F36: sorry by its constant, and the commands that add tokens (a token may hold `--`)
-                       r"sorryAx|binder_predicate|declare_syntax_cat|declare_simp_like_tactic)\b")
+                       r"sorryAx|binder_predicate|declare_syntax_cat|declare_simp_like_tactic|"
+                       # F36 review: code run at elaboration or a grammar extension by another name
+                       r"unsafeBaseIO|unsafeIO|unsafeEIO|unsafeCast|elab_rules|simproc|dsimproc|grind_propagator|"
+                       r"unif_hint|ParserDescr|TrailingParserDescr)\b")
 # commands that run code or cut elaboration short (#eval runs IO during the lake build; #exit stops checking the rest
 # of the file): forbidden like the tactics above (audit F-M2-32)
 FORBIDDEN_CMD = re.compile(r"#\s*(eval|exit)\b")   # anywhere: a command may start mid-line (F36)
+# F36 review: allowlists over the code tokens, since a word list cannot name everything that changes what Lean reads
+# or runs. Only what the Lean generators emit is admitted (holon.gen.lean_proofs, holon.gen.theory):
+#   * set_option: these option names only. `doc.verso` makes Lean elaborate the `lean` code blocks of a doc comment
+#     as commands (#eval included) while the scan reads the doc comment as a comment;
+#   * `#` commands: `#print` only (`#guard`, `#reduce`, `#check_failure`, `#guard_msgs` and the rest are refused);
+#   * no attribute at all (`@[...]` or the `attribute` command): a parser attribute (command_parser, term_parser, ...)
+#     takes a ParserDescr from Init.Prelude and adds tokens, which the static token sets below cannot know.
+# What remains assumed: the file extends no grammar, so Lean reads it with the 4.34.0 token table.
+SET_OPTION_ALLOWED = frozenset({"maxRecDepth", "autoImplicit"})
+HASH_CMD_ALLOWED = frozenset({"print"})
 # A canary counts as rejected only for a semantic reason (audit F-M2-32): the kernel decided the flipped claim false,
 # or found the two sides not definitionally equal. A parse, name or goal-shape error rejects it vacuously, and
 # "unsolved goals" alone is not enough (a syntax error can surface first as an empty tactic block's unsolved goal).
@@ -201,7 +215,9 @@ def _id_rest(c: str) -> bool:       # isIdRest
 # From the token table of Lean 4.34.0 with `import Lean` (a superset of what a file without imports sees), plus the
 # scoped tokens Init declares: the characters c for which some token holds c followed by '-' (resp. '/'), so that a
 # `--` (resp. `/-`) right after c may be the inside of a token rather than a comment (`<-` then `-x`; `//` then
-# `-x`; `\/` then `-x`). The scan refuses such a spot instead of guessing.
+# `-x`; `\/` then `-x`). The scan refuses such a spot instead of guessing. These sets, and the quote sets below, are
+# checked against a dump of that table (tests_m3/test_lean_lexer.py TestTokenTable). They hold only while the file
+# adds no token, which the allowlists enforce (no attribute, so no parser attribute; FORBIDDEN names the commands).
 _TOKEN_BEFORE_DASH = frozenset("<-/")
 _TOKEN_BEFORE_SLASH = frozenset("/=\\")
 # Tokens that end in a quote ("]'", "⊕'", "Σ'", "×'"): a ' right after one of these characters is the token's last
@@ -417,15 +433,41 @@ def scan_text(src: str) -> str:
     return "".join(out)
 
 
+def _code_tokens(src: str) -> list[tuple[str, str]]:
+    """The code tokens of src (whitespace and comments dropped). Raises LeanLexError like lex."""
+    return [(k, t) for k, t in lex(src) if k not in ("ws", "comment")]
+
+
+def structure_violations(toks: list[tuple[str, str]]) -> list[str]:
+    """What the allowlists refuse (F36 review): a set_option outside SET_OPTION_ALLOWED, a `#` command outside
+    HASH_CMD_ALLOWED, and any attribute (`@[` or the `attribute` command)."""
+    bad = set()
+    for i, (k, t) in enumerate(toks):
+        nxt = toks[i + 1] if i + 1 < len(toks) else ("", "")
+        if k == "ident" and ident_name(t) == "set_option":
+            name = ident_name(nxt[1]) if nxt[0] == "ident" else nxt[1]
+            if name not in SET_OPTION_ALLOWED:
+                bad.add(f"set_option {name}")
+        elif k == "ident" and ident_name(t) == "attribute":
+            bad.add("attribute")
+        elif k == "symbol" and t == "@" and nxt == ("symbol", "["):
+            bad.add("@[")
+        elif k == "symbol" and t == "#" and nxt[0] == "ident" and ident_name(nxt[1]) not in HASH_CMD_ALLOWED:
+            bad.add("#" + ident_name(nxt[1]))
+    return sorted(bad)
+
+
 def forbidden(src: str) -> list[str]:
-    """The FORBIDDEN words and commands in the code Lean compiles; a file the audit cannot lex exactly yields
-    ['unlexable: <reason>'] (refused, never silently passed)."""
+    """The FORBIDDEN words and commands in the code Lean compiles, and what the allowlists refuse; a file the audit
+    cannot lex exactly yields ['unlexable: <reason>'] (refused, never silently passed)."""
     try:
         code = scan_text(src)
+        toks = _code_tokens(src)
     except LeanLexError as e:
         return [f"unlexable: {e}"]
     return sorted(set(m.group(0) for m in FORBIDDEN.finditer(code))
-                  | {"#" + m.group(1) for m in FORBIDDEN_CMD.finditer(code)})
+                  | {"#" + m.group(1) for m in FORBIDDEN_CMD.finditer(code)}
+                  | set(structure_violations(toks)))
 
 
 def g3_violations(files, root: Path | str = ROOT) -> list[str]:
@@ -465,7 +507,18 @@ def semantic_rejection(out: str) -> bool:
 
 
 def theorems(src: str) -> list[str]:
-    return re.findall(r"^theorem\s+([A-Za-z_][A-Za-z0-9_.]*)", strip_comments(src), re.M)
+    """Every theorem the file declares, by its name token after the `theorem` keyword wherever it stands (mid-line,
+    after a modifier or a doc comment; F36 review), in source order, each once. A name `#print axioms` cannot
+    resolve from the end of the file (one inside a namespace) gets no audit line and the check fails closed
+    (missing_theorem)."""
+    toks = _code_tokens(src)
+    names = []
+    for i, (k, t) in enumerate(toks[:-1]):
+        if k == "ident" and t == "theorem" and toks[i + 1][0] == "ident":
+            name = ident_name(toks[i + 1][1])
+            if name not in names:
+                names.append(name)
+    return names
 
 
 _AX = re.compile(r"'([^']+)' (does not depend on any axioms|depends on axioms: \[([^\]]*)\])", re.S)

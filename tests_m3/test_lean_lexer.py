@@ -1,4 +1,5 @@
-"""F36: Lean G3 sees exactly the code Lean compiles (holon.lean.lex, strip_comments, scan_text, forbidden).
+"""F36: Lean G3 reads the code tokens the way Lean 4.34.0 lexes them (holon.lean.lex, strip_comments, scan_text,
+forbidden), and refuses what would change that reading or run code.
 
 Before F36, holon.lean.strip_comments was a character scanner: it started a comment at every `--` and `/-` outside a
 "..." or '.' literal, and forbidden() then blanked every "..."-shaped span. Lean 4.34.0 starts a comment only at a
@@ -13,9 +14,17 @@ recorded with `lean <file>`, no imports). For every probe Lean accepts that hold
 (`hides`), forbidden() must now report something; for the ones whose construct sits in a real comment, nothing. The
 Lean-backed tests re-check each recorded acceptance with the pinned toolchain when it is installed, and skip (with
 the reason) when it is not. Every committed Lean file must still pass G3 and lex back to its exact text.
+
+F36 review: what is shown is that every probe below is caught, not that no other route exists. Two routes the first
+probe set missed are closed by allowlists (holon.lean.structure_violations): `set_option doc.verso true` (Lean then
+elaborates the `lean` code blocks of a doc comment as commands, #eval included, while the scan reads a comment) and a
+parser attribute (`@[term_parser]` or `attribute [term_parser]` over a ParserDescr from Init.Prelude adds a token that
+may hold `--`). The static token-character sets of holon.lean are derived here from Lean's own token table
+(TestTokenTable). The assumption left: the file extends no grammar, so Lean reads it with that table.
 """
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -64,6 +73,19 @@ PROBES = {
     "doc_nest_trick": ('/-- a /- b -/\naxiom bad : False\n-- -/\ndef z : Nat := 0\n', True, False),
     "modoc_nest_trick": ('/-! a /- b -/\naxiom bad : False\n-- -/\n', True, False),
     "verso_doc": ('set_option doc.verso true\n/-- {lean}`(sorry : Nat)` -/\ndef z : Nat := 0\n', True, False),
+    # F36 review: a Verso doc comment's `lean` code block is elaborated as commands; its IO runs (the environment
+    # changes are discarded after the doc comment, so the probe shows the IO: Lean writes verso_ran.txt)
+    "verso_codeblock": ('set_option doc.verso true\n/--\n```lean\n#eval IO.FS.writeFile "verso_ran.txt" "x"\n```\n-/\n'
+                        'def z : Nat := 0\n', True, True),
+    "verso_codeblock_in": ('set_option doc.verso true in\n/--\n```lean\n#eval IO.FS.writeFile "verso_ran_in.txt" "x"\n'
+                           '```\n-/\ndef z : Nat := 0\n', True, True),
+    # F36 review: a parser attribute adds the token "≺--" (a hole), which hides the rest of its line from a lexer
+    # that reads `--` as a comment
+    "parser_attr": ('@[term_parser] def holeTok : Lean.ParserDescr := Lean.ParserDescr.node `Lean.Parser.Term.hole 1024 '
+                    '(Lean.ParserDescr.symbol "≺--")\ndef x : Nat := @id ≺-- 0 axiom bad : False\n', True, True),
+    "parser_attr_cmd": ('def holeTok : Lean.ParserDescr := Lean.ParserDescr.node `Lean.Parser.Term.hole 1024 '
+                        '(Lean.ParserDescr.symbol "≺--")\nattribute [term_parser] holeTok\n'
+                        'def x : Nat := @id ≺-- 0 axiom bad : False\n', True, True),
     # multi-character tokens right before `-`
     "arrow_dashdash": ('instance : Neg (IO Int) := ⟨fun x => x⟩\ndef f : IO Int := do\n  let y <--(pure (sorry : Int))\n'
                        '  return y\n', True, True),
@@ -91,7 +113,12 @@ PROBES = {
     "guill_prime": ("def «a»' : Nat := 1\n", False, False),
 }
 # accepted by Lean, nothing forbidden in the code Lean compiles, and lexable: G3 must pass them
-CLEAN = ("doc_nest_trick", "modoc_nest_trick", "verso_doc", "crlf_ok")
+CLEAN = ("doc_nest_trick", "modoc_nest_trick", "crlf_ok")
+# F36 review: verso_doc hides nothing (its `{lean}` role declares nothing), but any set_option outside the allowlist,
+# doc.verso included, is refused: a Verso doc comment's code blocks run (verso_codeblock)
+REFUSED_BY_ALLOWLIST = {"verso_doc": "set_option doc.verso", "verso_codeblock": "set_option doc.verso",
+                        "verso_codeblock_in": "set_option doc.verso", "parser_attr": "@[",
+                        "parser_attr_cmd": "attribute"}
 
 
 def committed_lean_files() -> list[Path]:
@@ -134,6 +161,30 @@ class TestProbes(unittest.TestCase):
             with self.subTest(probe=name):
                 self.assertEqual(self.L.forbidden(PROBES[name][0]), [])
 
+    def test_the_allowlists_refuse_grammar_and_option_changes(self):
+        for name, hit in sorted(REFUSED_BY_ALLOWLIST.items()):
+            with self.subTest(probe=name):
+                self.assertIn(hit, self.L.forbidden(PROBES[name][0]))
+        L = self.L
+        for src, hit in (("set_option «doc».verso true\n", "set_option doc.verso"),
+                         ("set_option doc.verso.module true\n", "set_option doc.verso.module"),
+                         ("theorem t : True := by set_option pp.all true in trivial\n", "set_option pp.all"),
+                         ("#guard 1 = 1\n", "#guard"), ("#reduce 1\n", "#reduce"),
+                         ("#guard_msgs in\n#check 1\n", "#guard_msgs"),
+                         ("@[simp] theorem t : True := trivial\n", "@["),
+                         ("def f : IO Unit := unsafeBaseIO (pure ())\n", "unsafeBaseIO"),
+                         ("def p : Lean.TrailingParserDescr := default\n", "TrailingParserDescr")):
+            with self.subTest(src=src):
+                self.assertIn(hit, L.forbidden(src))
+        self.assertEqual(L.forbidden("set_option maxRecDepth 20000\nset_option autoImplicit false\n"
+                                     "theorem t : True := trivial\n#print axioms t\n"), [])
+
+    def test_theorems_are_found_wherever_they_stand(self):
+        src = ("theorem a : True := trivial\nprivate theorem b : True := trivial\n"
+               "def x : Nat := 1 theorem c : True := trivial\n/-- d -/ theorem d : True := trivial\n"
+               "-- theorem e : True := trivial\n")
+        self.assertEqual(self.L.theorems(src), ["a", "b", "c", "d"])
+
     def test_lex_covers_the_source_exactly(self):
         for name, (src, _, _) in sorted(PROBES.items()):
             try:
@@ -147,7 +198,8 @@ class TestProbes(unittest.TestCase):
         L = self.L
         self.assertEqual(L.ident_name("«a b».«c»"), "a b.c")
         self.assertEqual(L.forbidden("theorem t : False := «sorry»\n"), ["sorry"])
-        self.assertEqual(L.forbidden("set_option «debug».«skipKernelTC» true\n"), ["debug.skipKernelTC"])
+        self.assertEqual(L.forbidden("set_option «debug».«skipKernelTC» true\n"),
+                         ["debug.skipKernelTC", "set_option debug.skipKernelTC"])
         self.assertEqual(L.strip_comments("a /-/- -/ b -/ c\n"), "a  b -/ c\n")   # `/-/-` opens one level
         self.assertEqual(L.strip_comments("x /-- d /- e -/ f -/ y"), "x  y")
         self.assertEqual(L.strip_comments('r#"a"--"# -- c'), 'r#"a"--"# ')
@@ -232,6 +284,90 @@ class TestProbesWithLean(unittest.TestCase):
             with self.subTest(probe=name):
                 got, out = self.lean(name + "_ax", PROBES[name][0].rstrip("\n") + "\n#print axioms bad\n")
                 self.assertIn("Unknown constant `bad`", out)
+
+    def test_a_verso_code_block_runs_io(self):
+        """verso_codeblock: Lean runs the #eval in the doc comment's code block (the file it writes exists)."""
+        if self.skip:
+            self.skipTest(self.skip)
+        for name, out_file in (("verso_codeblock", "verso_ran.txt"), ("verso_codeblock_in", "verso_ran_in.txt")):
+            with self.subTest(probe=name):
+                f = self.tmp / out_file
+                if f.exists():
+                    f.unlink()
+                got, out = self.lean(name + "_io", PROBES[name][0])
+                self.assertTrue(got, out[-800:])
+                self.assertTrue(f.exists(), f"{name}: the code block's #eval did not run")
+
+
+class TestTokenTable(unittest.TestCase):
+    """The static token-character sets of holon.lean, derived from the token table of the pinned Lean 4.34.0 with
+    `import Lean` (global tokens and every namespace's scoped tokens; a superset of what a file without imports sees).
+    One Lean run per test class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.L = holon_module("holon.lean")
+        cls.tokens, cls.skip = None, None
+        try:
+            b = cls.L.toolchain_bin()
+            ok, detail = cls.L.toolchain_ok()
+        except cls.L.LeanUnavailable as e:
+            ok, detail = False, str(e)
+        if not ok:
+            cls.skip = f"the pinned Lean toolchain is not available: {detail}"
+            return
+        tmp = Path(tempfile.mkdtemp(prefix="holon-f36-tok-"))
+        try:
+            f = tmp / "Tokens.lean"
+            f.write_text(TOKEN_DUMP, encoding="utf-8")
+            p = subprocess.run(["nice", str(b / "lean"), str(f)], capture_output=True, text=True, timeout=600,
+                               env=cls.L._env(b), cwd=tmp)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+        if p.returncode != 0:
+            raise AssertionError(f"the token dump failed: {(p.stdout + p.stderr)[-800:]}")
+        cls.tokens = sorted({json.loads(line) for line in p.stdout.splitlines() if line.startswith('"')})
+
+    def setUp(self):
+        if self.skip:
+            self.skipTest(self.skip)
+
+    def test_the_dump_is_the_token_table(self):
+        self.assertGreater(len(self.tokens), 500)
+        for t in ("<-", "//", "]'", "#'", "/--", "/-!"):
+            self.assertIn(t, self.tokens)
+
+    def before(self, ch: str) -> set:
+        return {t[i - 1] for t in self.tokens for i in range(1, len(t)) if t[i] == ch}
+
+    def test_characters_before_dash_and_slash(self):
+        self.assertEqual(self.before("-"), set(self.L._TOKEN_BEFORE_DASH))
+        self.assertEqual(self.before("/"), set(self.L._TOKEN_BEFORE_SLASH))
+
+    def test_tokens_ending_in_a_quote(self):
+        ends = {t[-2] for t in self.tokens if len(t) > 1 and t.endswith("'")}
+        self.assertEqual(ends, set(self.L._TICK_TOKEN_BEFORE) | set(self.L._TICK_REFUSE_BEFORE))
+
+    def test_no_token_opens_a_comment_or_a_literal(self):
+        """No token but the doc-comment openers starts with `--` or `/-`, and none holds a string quote."""
+        self.assertEqual(sorted({t for t in self.tokens if t.startswith(("--", "/-"))}), ["/-!", "/--"])
+        self.assertEqual([t for t in self.tokens if '"' in t], [])
+
+
+# the token dump: Lean.Parser.getTokenTable (global tokens) and the scoped token entries of parserExtension
+TOKEN_DUMP = """import Lean
+open Lean Lean.Parser in
+#eval show CoreM Unit from do
+  let env ← getEnv
+  let mut out : Array String := (getTokenTable env).findPrefix ""
+  for (_, arr) in (parserExtension.ext.getState env).scopedEntries.map.toList do
+    for e in arr.toList do
+      match e with
+      | .token tk => out := out.push tk
+      | _ => pure ()
+  for t in out.qsort (· < ·) do
+    IO.println (repr t)
+"""
 
 
 if __name__ == "__main__":
