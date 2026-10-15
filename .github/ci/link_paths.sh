@@ -7,3 +7,5 @@ sudo chmod o+x /root
 sudo ln -sfn "$HOME/.holon" /root/.holon
 sudo ln -sfn "$HOME/holon-work" /root/work
 ls -ld /root/.holon /root/work
+# the bend wrapper (tools/install_bend.sh) is found as `bend`, as config bend.cmd expects
+if [ -n "${GITHUB_PATH:-}" ]; then echo "$HOME/.holon/bin" >> "$GITHUB_PATH"; fi
