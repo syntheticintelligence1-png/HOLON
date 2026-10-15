@@ -117,6 +117,22 @@ class Machine:
                 continue
             self.fams[s["name"]] = s
         self.maxlen = int(byte_length_max)
+        self.check_reads, self.write_reads = {}, {}
+        for n, prog in self.progs.items():
+            cr = {}
+            for c in prog.checks():
+                r = set()
+                _storage_names(c.expr, r)
+                cr[c.id] = (c.seq, r)
+            lr = set()
+            for lp in prog.records(Loop):
+                _storage_names([lp.cond, lp.head, lp.brk, [x[1] for x in lp.carried], [x[1] for x in lp.next]], lr)
+            self.check_reads[n] = (cr, lr)
+            wr = {}
+            for w in prog.records(Write):
+                r = wr.setdefault(w.family, set())
+                _storage_names([w.path, w.value, w.cond], r)
+            self.write_reads[n] = wr
         self.reads, self.writes = {}, {}
         for n, a in self.actions.items():
             r, w = set(), set()
@@ -130,6 +146,15 @@ class Machine:
 
     def params(self, action: str) -> list[dict]:
         return self.actions[action].get("params") or []
+
+    def guard_reads(self, action: str, upto_seq=None) -> set:
+        """The families an action's checks (up to a seq) and loop controls read: what decides whether it succeeds."""
+        cr, lr = self.check_reads[action]
+        out = set(lr)
+        for _cid, (seq, r) in cr.items():
+            if upto_seq is None or (seq is not None and seq <= upto_seq):
+                out |= r
+        return out
 
     def mutating(self, action: str) -> bool:
         return self.actions[action].get("mutability") not in ("view", "pure")
@@ -184,6 +209,12 @@ class Sym:
         self.loads: list = []          # (check, bytes value, condition): byte strings the action's checks read
         self.stores: list = []         # (write record, value, condition)
         self.ghost_writes: list = []
+        self.extra_fams: dict = {}
+        self.pre = dict(pre)
+        self.needed = None            # the families whose writes matter (None: all)
+        self.stop = None              # a check id after which nothing matters (the target of the last step)
+        self.stopped = False
+        self.want_stores = False
 
     # ---------------------------------------------------------- helpers
     def fresh(self, why: str, sort: str = BV) -> str:
@@ -237,14 +268,14 @@ class Sym:
 
     # ---------------------------------------------------------- storage
     def fam(self, name: str) -> dict:
-        f = self.m.fams.get(name)
+        f = self.m.fams.get(name) or self.extra_fams.get(name)
         if f is None:
             raise Unsup(f"storage family {name} not in the document's layout")
         return f
 
     def load(self, ref: Ref):
         base = self._load_base(ref)
-        for wpath, val in reversed(ref.overlays):
+        for wpath, val, ocond in reversed(ref.overlays):
             if len(wpath) > len(ref.path):
                 raise Unsup("a read through a store to a deeper path")
             if [k for k, _ in wpath] != [k for k, _ in ref.path[:len(wpath)]]:
@@ -268,7 +299,7 @@ class Sym:
                     v = lit(0)
                 else:
                     raise Unsup("a read through a stored aggregate")
-            c = band(*conds)
+            c = band(ocond, *conds)
             base = self._merge(c, v, base)
         return base
 
@@ -319,6 +350,8 @@ class Sym:
             return lit(int(t))
         if isinstance(t, int):
             return lit(t & MASK)
+        if isinstance(t, str) and t.startswith("0x"):
+            return lit(int(t, 16) & MASK)
         if not isinstance(t, list) or not t or not isinstance(t[0], str):
             raise Unsup(f"not a term: {str(t)[:60]}")
         h = t[0]
@@ -397,6 +430,8 @@ class Sym:
         return v
 
     def addr(self, x) -> str:
+        if x == "@this":
+            return self.env["this"]
         if isinstance(x, str) and x in self.env.get("@names", {}):
             return self.env["@names"][x]
         if isinstance(x, str) and x.startswith("0x"):
@@ -404,6 +439,12 @@ class Sym:
         if isinstance(x, int):
             return lit(x)
         return self.word(self.ev(x))
+
+    def t_ghost(self, t):
+        g = "@" + t[1]
+        if g not in self.pre:
+            raise Unsup(f"ghost {t[1]}")
+        return f"(select {self.pre[g]} {self.word(self.ev(t[2]))})"
 
     def t_unknown(self, t):
         return self.fresh(f"unknown term {canonical(t)[:60]}")
@@ -646,6 +687,17 @@ class Sym:
 
     def t_fits(self, t):
         n = t[1] if isinstance(t[1], int) else lit_val(self.word(self.ev(t[1])))
+        x = t[2]
+        if n == 256 and isinstance(x, list) and len(x) == 3 and x[0] in ("+", "-", "*"):
+            a, b = self.word(self.ev(x[1])), self.word(self.ev(x[2]))
+            if x[0] == "+":
+                return B(f"(bvuge (bvadd {a} {b}) {a})")
+            if x[0] == "-":
+                return B(f"(bvuge {a} {b})")
+            if lit_val(a) is not None or lit_val(b) is not None:
+                c, y = (lit_val(a), b) if lit_val(a) is not None else (lit_val(b), a)
+                return B("true" if c in (0, 1) else f"(bvule {y} {lit(MASK // c)})")
+            return B(f"(bvumul_noovfl {a} {b})")
         kind, r = self._exact(t[2], None)
         if kind is None:          # neg: the exact value is -x
             return B(eq(r, lit(0)))
@@ -668,13 +720,14 @@ class Sym:
         v = self.ev(x)
         if isinstance(v, Ref):
             v = self.value(v)
-        bts = v if isinstance(v, Bytes) else self.word_as_bytes(self.word(v))
+        srcw = None if isinstance(v, Bytes) else self.word(v)
+        bts = v if isinstance(v, Bytes) else self.word_as_bytes(srcw)
         if bts.const is not None:
             from .keccak import keccak256
             import hashlib
             d = keccak256(bts.const) if fn == "keccak256" else hashlib.sha256(bts.const).digest()
             return self.q.hash_known(fn, bts.const, int.from_bytes(d, "big"))
-        return self.q.hash_term(fn, bts.arr, bts.off, bts.n, bts.nmax, bts.nmin)
+        return self.q.hash_term(fn, bts.arr, bts.off, bts.n, bts.nmax, bts.nmin, src_word=srcw)
 
     def t_keccak256(self, t):
         return self._hash("keccak256", t[1])
@@ -811,7 +864,7 @@ class Sym:
                 si = f"(bvadd {frm} {lit(i)})"
                 b = ite(f"(bvult {si} {src.n})", src.at(si), ZERO8)
                 na = f"(store {a} (bvadd {off} {lit(i)}) {b})"
-                a = na if (nv is not None) else self.q.define(ite(f"(bvult {lit(i)} {n})", na, a), ARR, "m")
+                a = self.q.define(na if (nv is not None) else ite(f"(bvult {lit(i)} {n})", na, a), ARR, "m")
             m.arr = self.q.define(ite(cond, a, m.arr), ARR, "m")
         elif k == "mloop":
             kvar, cnt = w[2], self.word(self.ev(w[3]))
@@ -869,7 +922,7 @@ class Sym:
         v = self.value(self.ev(t[3]))
         if isinstance(v, Ref):
             raise Unsup("a store of a storage reference")
-        return Ref(base.fam, base.path, base.overlays + ((tuple(base.path) + tuple(wpath), v),))
+        return Ref(base.fam, base.path, base.overlays + ((tuple(base.path) + tuple(wpath), v, "true"),))
 
     def path(self, fam: str, accs) -> list:
         out = []
@@ -936,6 +989,8 @@ class Sym:
 
     def block(self, steps, guard: str) -> None:
         for s in steps:
+            if self.stopped:
+                return
             if isinstance(s, Check):
                 self.check(s, guard)
             elif isinstance(s, Write):
@@ -948,6 +1003,8 @@ class Sym:
 
     def mstore(self, s: MStore, guard: str) -> None:
         """A memory store record: changes no family; kept (with its reach condition) for store targets."""
+        if not self.want_stores:
+            return
         g0 = self.guard
         self.guard = band(self.ok, guard)
         try:
@@ -984,8 +1041,12 @@ class Sym:
             except Unsup:
                 pass
         self.ok = self.q.define(band(self.ok, bor(bnot(guard), v)), "Bool", "ok")
+        if self.stop is not None and c.id == self.stop and c.loop is None:
+            self.stopped = True
 
     def write(self, w: Write, guard: str) -> None:
+        if self.needed is not None and w.family not in self.needed:
+            return
         g0 = self.guard
         try:
             self.guard = band(self.ok, guard)
@@ -1028,8 +1089,8 @@ class Sym:
             self.post[fam] = self.q.define(ite(cond, v, self.post[fam]))
             return
         if isinstance(val, Ref) and val.fam == fam and not path and not val.path:
-            for wpath, v in val.overlays:
-                self._apply(fam, list(wpath), v, cond)
+            for wpath, v, oc in val.overlays:
+                self._apply(fam, list(wpath), v, band(cond, oc))
             return
         if f.get("kind") != "mapping" or not path or path[0][0] != "map":
             raise Unsup(f"a write of {fam} at {path}")
@@ -1061,7 +1122,57 @@ class Sym:
 
     def loop(self, lp: Loop, guard: str) -> None:
         """A loop record, unrolled UNROLL times; past that, every value it defines and every family it writes is fresh
-        (an over-approximation, noted)."""
+        (an over-approximation, noted). A loop whose values the encoding cannot carry is havoc as a whole."""
+        saved = (dict(self.post), self.ok, dict(self.fails), dict(self.reached), list(self.loads), list(self.stores),
+                 list(self.ghost_writes), list(self.bubble), self.guard)
+        try:
+            self._loop(lp, guard)
+        except Unsup as x:
+            (self.post, self.ok, self.fails, self.reached, self.loads, self.stores, self.ghost_writes, self.bubble,
+             self.guard) = saved
+            self.notes.append(f"{self.action}: loop {lp.src} is havoc ({x})")
+            written = set()
+            for w in lp.body:
+                if isinstance(w, Write):
+                    written.add(w.family)
+            for fam in sorted(written):
+                old = self.post[fam]
+                self._havoc(fam, f"{self.action}: loop {lp.src} writes {fam}")
+                new = self.post[fam]
+                if isinstance(old, dict):
+                    self.post[fam] = {k: self.q.define(ite(guard, new[k], old[k]), A256, "s") for k in old}
+                else:
+                    sort = BV if self.fam(fam).get("kind") == "scalar" else A256
+                    self.post[fam] = self.q.define(ite(guard, new, old), sort, "s")
+            ov = self.q.fresh(f"x_{self.tag}", "Bool")
+            self.ok = self.q.define(band(self.ok, bor(bnot(guard), ov)), "Bool", "ok")
+            self._unbind(lp)
+            for key in [k for k in list(self.subst) if json.loads(k)[1:2] == [lp.src]]:
+                self.subst.pop(key, None)
+            self.subst[canonical(lp.sym("count"))] = self.q.fresh(f"x_{self.tag}")
+            for j in range(len(lp.returns)):
+                self.subst[canonical(lp.sym("returned", j))] = self.q.fresh(f"x_{self.tag}")
+                self.subst[canonical(lp.sym("exit", ["return", j]))] = self.q.fresh(f"x_{self.tag}")
+            for n, _e, _v in lp.carried:
+                self.subst[canonical(lp.sym("exit", n))] = self._fresh_like(n)
+            for n, _e in lp.exits:
+                self.subst.setdefault(canonical(lp.sym("exit", n)), self._fresh_like(n))
+
+    def _fresh_like(self, n):
+        """A fresh value for a loop name: a storage family's fresh state (a whole mapping), else a word."""
+        if isinstance(n, list) and len(n) == 2 and n[0] == "storage" and n[1] in self.m.fams \
+                and self.m.fams[n[1]].get("kind") != "scalar":
+            f = self.m.fams[n[1]]
+            name = f"{n[1]}#havoc_{self.q.n + 1}"
+            self.extra_fams[name] = f
+            if f.get("fields"):
+                self.pre[name] = {fl["name"]: self.q.fresh(f"x_{self.tag}", A256) for fl in f["fields"]}
+            else:
+                self.pre[name] = self.q.fresh(f"x_{self.tag}", A256)
+            return Ref(name)
+        return self.q.fresh(f"x_{self.tag}")
+
+    def _loop(self, lp: Loop, guard: str) -> None:
         g0 = self.guard
         c0 = band(guard, self.truth(self.safe(lp.cond, "loop condition")))
         vals = {}
@@ -1155,6 +1266,9 @@ class Sym:
             a, b = self.bytes_of(a), self.bytes_of(b)
             return Bytes(self.q.define(ite(c, a.arr, b.arr), ARR), ite(c, a.off, b.off), ite(c, a.n, b.n),
                          max(a.nmax, b.nmax), min(a.nmin, b.nmin))
+        if isinstance(a, Ref) and isinstance(b, Ref) and a.fam == b.fam and a.path == b.path:
+            return Ref(a.fam, a.path, tuple((p, v, band(oc, bnot(c))) for p, v, oc in b.overlays) +
+                       tuple((p, v, band(oc, c)) for p, v, oc in a.overlays))
         if isinstance(a, (dict, Ref)) or isinstance(b, (dict, Ref)):
             return self._merge(c, self.value(a), self.value(b))
         return self.q.define(ite(c, self.word(a), self.word(b)))
@@ -1238,50 +1352,53 @@ class Problem:
         self.immutables = immutables or {}
         self.this = this
         self.value_max = value_max
-        self.ghosts = ghosts or {}
+        self.ghosts = dict(ghosts or {})
+        for spec in self.answers.values():
+            if isinstance(spec, dict):
+                for g in spec.get("ghost") or []:
+                    self.ghosts.setdefault(g["name"], {})
         self.consts = doc_consts or {}
 
-    def cone(self, families: set, last: list[str]) -> list[str]:
-        """The non-view actions that can write a family the target reads, closed under the families those writers'
-        own guards read (the cone of influence, family-level)."""
-        fams = set(families)
+    def cone(self, last_reads: set, last: list[str]) -> tuple[list[str], set]:
+        """(the non-view actions that can write a family the target reads, the cone's families): the families the
+        target reads (the last step's guards up to the target, its predicate), closed under the families each writer's
+        guards read and its writes to cone families read (the cone of influence, family-level; Def 4.2 coarsened to
+        families). A call whose answer reads a ghost makes the ghost a cone family; a call whose answer writes it makes
+        its action a writer."""
+        ghost_writers = {name for name, spec in self.answers.items() if isinstance(spec, dict) and spec.get("ghost")}
+        ghost_readers = {name for name, spec in self.answers.items() if isinstance(spec, dict)
+                         and '"ghost"' in json.dumps([spec.get("ok", 1), spec.get("ret")])}
+
+        def calls(a):
+            out = set()
+            _call_fns(self.m.actions[a], out)
+            return out
+        fams = set(last_reads)
         for a in last:
-            fams |= self.m.reads[a]
-        ghost_writers = {}
-        for name, spec in self.answers.items():
-            if isinstance(spec, dict) and spec.get("ghost"):
-                ghost_writers[name] = {g["name"] for g in spec["ghost"]}
-        ghost_readers = {name for name, spec in self.answers.items()
-                         if isinstance(spec, dict) and "ghost" in json.dumps(spec.get("ok", 1)) + json.dumps(spec.get("ret"))}
+            if calls(a) & ghost_readers:
+                fams.add("@ghost")
         acts = set()
+        self.levels = []
         while True:
-            fns_needed = set()
+            lvl = []
             for a in sorted(self.m.actions):
-                if not self.m.mutating(a):
-                    continue
-                calls = set()
-                _call_fns(self.m.actions[a], calls)
-                writes_ghost = any(fn in ghost_writers for fn in calls)
-                if self.m.writes[a] & fams or (writes_ghost and fams & {"@ghost"}):
+                if self.m.mutating(a) and (self.m.writes[a] & fams or ("@ghost" in fams and calls(a) & ghost_writers)):
                     if a not in acts:
-                        acts.add(a)
+                        lvl.append(a)
+                    acts.add(a)
+            if lvl:
+                self.levels.append(lvl)
             new = set(fams)
             for a in acts:
-                new |= self.m.reads[a]
-                calls = set()
-                _call_fns(self.m.actions[a], calls)
-                if calls & ghost_readers:
-                    new.add("@ghost")
-            for a in last:
-                calls = set()
-                _call_fns(self.m.actions[a], calls)
-                if calls & ghost_readers:
+                new |= self.m.guard_reads(a)
+                for f in self.m.writes[a] & fams:
+                    new |= self.m.write_reads[a].get(f, set())
+                if calls(a) & ghost_readers:
                     new.add("@ghost")
             if new == fams:
                 break
             fams = new
-            del fns_needed
-        return sorted(acts)
+        return sorted(acts), fams
 
 
 def r0_symbolic(q: E.Query, p: Problem) -> dict:
@@ -1352,7 +1469,7 @@ def param_value(q: E.Query, p: dict, tag: str, maxlen: int, decode: dict, path: 
 class Unrolled:
     """The k-step query of one target, with what decoding a model needs."""
 
-    def __init__(self, p: Problem, target: dict, k: int):
+    def __init__(self, p: Problem, target: dict, k: int, level: int | None = None):
         self.p, self.target, self.k = p, target, k
         q = self.q = E.Query(p.rlimit)
         m = p.m
@@ -1360,9 +1477,35 @@ class Unrolled:
         fams = set()
         _storage_names(target.get("pred"), fams)
         _storage_names(target.get("post"), fams)
-        self.cone = p.cone(fams, last)
+        _storage_names(target.get("cond"), fams)
+        self.stop = None
+        for a in last:
+            if target["kind"] == "check":
+                seq = m.check_reads[a][0][target["check"]][0]
+                self.stop = target["check"]
+                fams |= m.guard_reads(a, seq)
+            else:
+                fams |= m.guard_reads(a)
+                if target["kind"] == "store":
+                    for st in m.progs[a].records(MStore):
+                        _storage_names(st.value, fams)
+        self.cone, self.cone_fams = p.cone(fams, last)
+        self.levels = list(p.levels)
+        self.level = level
+        if level is not None and level < len(self.levels):
+            # an under-approximation: only the actions of the cone's first levels before the last step (a sat answer
+            # is still a candidate path; an unsat answer decides nothing and the search widens)
+            self.cone = sorted(a for lv in self.levels[:level + 1] for a in lv)
+        if target["kind"] in ("state", "step"):
+            self.cone_fams |= fams
         state = r0_symbolic(q, p)
         names = {n: lit(a) for n, a in p.principals}
+        self.trivial = False
+        if k > 1 and target["kind"] == "check" and self._goal_false(last, state, names):
+            # the last step's goal is false in every state (e.g. a check whose condition is a constant): no path of any
+            # length exists, and the prefix is not encoded
+            self.trivial = True
+            k = 1
         self.steps = []
         tss = []
         cost = 0
@@ -1398,11 +1541,16 @@ class Unrolled:
                 inp = {}
                 for prm in m.params(a):
                     inp[prm["name"]] = param_value(q, prm, tag, m.maxlen, decode, (prm["name"],))
+                q.group = f"{i}/{a}"
                 sym = Sym(q, m, a, state, inp, env, p.answers, tag, p.immutables, p.consts)
+                sym.needed = None if (final and target["kind"] in ("state", "step")) else self.cone_fams
+                sym.stop = self.stop if final else None
+                sym.want_stores = final and target["kind"] == "store"
                 sym.run()
                 if (m.actions[a].get("cost") or {}).get("terms"):
                     cost += 1
                     self.cost_constraint(sym, a, i, j)
+                q.group = None
                 per.append({"action": a, "sym": sym, "decode": decode, "sel": eq(sel, lit(j))})
             self.steps.append({"sel": sel, "env": env, "acts": per, "final": final})
             if not final:
@@ -1432,12 +1580,40 @@ class Unrolled:
         E.time_chain(q, tss, p.deployed_at)
         q.close()
         notes = sorted({n for st in self.steps for x in st["acts"] for n in x["sym"].notes})
-        q.notes = [f"target: {canonical(target)}", f"cone: {', '.join(self.cone)}"] + \
+        q.notes = [f"target: {canonical(target)}", f"actions before the last step: {', '.join(self.cone)}"
+                   + (f" (cone levels 0..{level} of {len(self.levels)}: an under-approximation)"
+                      if level is not None and level + 1 < len(self.levels) else " (the whole cone)")] + \
             [f"over-approximation: {n}" for n in notes]
         self.approx = notes
-        q.extra = {"steps": k}
+        if self.trivial:
+            q.notes.insert(1, f"the last step's goal is false in every state: no path of any length (the query states "
+                              f"one step; it decides every k <= {self.k})")
+        q.extra = {"steps": k, "cone": "full" if level is None or level + 1 >= len(self.levels) else f"levels<={level}"}
         q.inst["time"] = k
         q.inst["cost"] = cost
+
+    def _goal_false(self, last: list, state: dict, names: dict) -> bool:
+        """Is the target's goal syntactically false for every last action from an arbitrary state?"""
+        q2 = E.Query(self.p.rlimit)
+        free = {}
+        for fam, v in state.items():
+            if isinstance(v, dict):
+                free[fam] = {k: q2.fresh("fs", A256) for k in v}
+            else:
+                srt = A256 if (fam.startswith("@") or self.p.m.fams[fam].get("kind") == "mapping") else BV
+                free[fam] = q2.fresh("fs", srt)
+        env = {"@names": names, "caller": q2.fresh("c"), "block.timestamp": q2.fresh("t"), "msg.value": q2.fresh("v"),
+               "blobhash": [q2.fresh("b") for _ in range(self.p.blob_max)], "this": q2.fresh("th"),
+               "msg.data.length": q2.fresh("dl")}
+        for a in last:
+            inp = {prm["name"]: param_value(q2, prm, "g", self.p.m.maxlen, {}, (prm["name"],))
+                   for prm in self.p.m.params(a)}
+            sym = Sym(q2, self.p.m, a, free, inp, env, self.p.answers, "g", self.p.immutables, self.p.consts)
+            sym.stop = self.stop
+            sym.run()
+            if self.goal({"sym": sym}) != "false":
+                return False
+        return True
 
     def cost_constraint(self, sym: Sym, a: str, i: int, j: int) -> None:
         """E7: c0 + sum over the action's loops of c_l * iters_l <= G, with non-negative uninterpreted coefficients
@@ -1561,39 +1737,59 @@ class Unrolled:
         return out
 
 
+GUARD_S = None          # the build's wall-clock watchdog per query (None: none); a fired guard is an unknown
+MEMORY_MB = None
+
+
 def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", log=None, ks=None) -> dict:
-    """Iterative deepening, k = 1..H: the first sat k gives a candidate path (decoded from the model); every k unsat
-    gives no_path; a k that ends unknown (the rlimit) stops the search: unknown, with the largest k decided."""
+    """Iterative deepening, k = 1..H. At each k the actions before the last step widen through the cone's levels
+    (level 0: the writers of what the target reads; each further level the writers of what the previous level's guards
+    read): a sat answer at any level is a candidate path (decoded from the model); only the whole cone's unsat decides
+    k. Every k unsat gives no_path; a query that ends unknown (the rlimit) stops the search: unknown, with the largest
+    k decided."""
     from pathlib import Path
     from .smt.run import Session
     largest = 0
     queries = []
     approx = set()
     for k in (ks or range(1, p.H + 1)):
-        u = Unrolled(p, target, k)
-        approx |= set(u.approx)
-        text = u.q.text()
-        if qdir is not None:
-            f = Path(qdir) / f"{name}.k{k}.smt2"
-            f.parent.mkdir(parents=True, exist_ok=True)
-            f.write_text(text, encoding="utf-8")
-            queries.append(str(f))
-        sess = Session(solver)
-        try:
-            res = sess.check(text)
-            if log:
-                log(f"  {name} k={k}: {res} ({len(text) // 1024} KiB)")
-            if res == "sat":
-                path = u.decode(sess)
-                return {"verdict": "path", "length": k, "path": path, "largest_k": k, "queries": queries,
-                        "approx": sorted(approx), "reason": f"sat at k = {k} (the first sat depth)"}
-            if res != "unsat":
-                why = sess.reason()
-                return {"verdict": "unknown", "length": None, "path": None, "largest_k": largest, "queries": queries,
-                        "approx": sorted(approx), "reason": f"solver unknown at k = {k} ({why.strip()}); rlimit "
-                                                            f"{p.rlimit}"}
-        finally:
-            sess.close()
+        lv = 0
+        while True:
+            u = Unrolled(p, target, k, lv if k > 1 else None)
+            full = k == 1 or lv + 1 >= len(u.levels)
+            approx |= set(u.approx)
+            text = u.q.text()
+            tag = "" if full else f".l{lv}"
+            if qdir is not None:
+                f = Path(qdir) / f"{name}.k{k}{tag}.smt2"
+                f.parent.mkdir(parents=True, exist_ok=True)
+                f.write_text(text, encoding="utf-8")
+                queries.append(str(f))
+            sess = Session(solver)
+            try:
+                res = sess.check(text, GUARD_S, MEMORY_MB)
+                if log:
+                    log(f"  {name} k={k}{tag}: {res} ({len(text) // 1024} KiB){' ' + sess.guard if sess.guard else ''}")
+                if res == "sat":
+                    path = u.decode(sess)
+                    return {"verdict": "path", "length": k, "path": path, "largest_k": k, "queries": queries,
+                            "approx": sorted(approx),
+                            "reason": f"sat at k = {k} (the first sat depth){'' if full else f', cone levels <= {lv}'}"}
+                if res != "unsat":
+                    why = sess.guard or sess.reason()
+                    return {"verdict": "unknown", "length": None, "path": None, "largest_k": largest,
+                            "queries": queries, "approx": sorted(approx),
+                            "reason": f"solver unknown at k = {k}{'' if full else f' (cone levels <= {lv})'} "
+                                      f"({why.strip()}); rlimit {p.rlimit}"}
+            finally:
+                sess.close()
+            if u.trivial and res == "unsat":
+                return {"verdict": "no_path", "length": None, "path": None, "largest_k": p.H, "queries": queries,
+                        "approx": sorted(approx), "reason": "the target's check cannot fail at the last step in any "
+                                                            "state (its condition is constant), so no k <= H has a path"}
+            if full:
+                break
+            lv += 1
         largest = k
     return {"verdict": "no_path", "length": None, "path": None, "largest_k": largest, "queries": queries,
             "approx": sorted(approx), "reason": f"every k <= {p.H} unsat within the rlimit {p.rlimit} (relative to R0, "

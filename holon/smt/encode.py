@@ -133,9 +133,11 @@ class Hash:
     """One E1 term: its word (a declared constant), its preimage (array, offset, length) and static bounds."""
 
     def __init__(self, fn: str, word: str, arr: str, off: str, n: str, nmax: int, nmin: int = 0, const: bytes | None = None,
-                 value: int | None = None):
+                 value: int | None = None, group: str | None = None, src_word: str | None = None):
         self.fn, self.word, self.arr, self.off, self.n = fn, word, arr, off, n
         self.nmax, self.nmin, self.const, self.value = nmax, nmin, const, value
+        self.group = group          # (step, action): terms of two actions of one step are never both evaluated
+        self.src_word = src_word    # the preimage is this 32-byte word
 
 
 class Query:
@@ -155,6 +157,7 @@ class Query:
         self.extra: dict = {}
         self.n = 0
         self.notes: list[str] = []
+        self.group: str | None = None
 
     # ---------------------------------------------------------- names
     def fresh(self, prefix: str, sort: str = BV) -> str:
@@ -190,9 +193,9 @@ class Query:
         self.terms[fn] = self.terms.get(fn, 0) + k
 
     # ---------------------------------------------------------- E1 / NZ
-    def hash_term(self, fn: str, arr: str, off: str, n: str, nmax: int, nmin: int = 0) -> str:
+    def hash_term(self, fn: str, arr: str, off: str, n: str, nmax: int, nmin: int = 0, src_word: str | None = None) -> str:
         w = self.fresh(f"h_{fn}")
-        self.hashes.append(Hash(fn, w, arr, off, n, nmax, nmin))
+        self.hashes.append(Hash(fn, w, arr, off, n, nmax, nmin, group=self.group, src_word=src_word))
         self.count(fn)
         return w
 
@@ -208,20 +211,37 @@ class Query:
         self.count(fn)
         return w
 
+    def digest(self, h: Hash) -> str:
+        """A term's content as one bit-vector of 8 * nmax bits (byte i is 0 at and past the length), defined once per
+        term: content equality of two terms is then their lengths' equality and one bit-vector equality."""
+        if getattr(h, "_digest", None):
+            return h._digest
+        if h.src_word is not None:
+            h._digest = h.src_word
+            return h._digest
+        if h.const is not None:
+            h._digest = lit(int.from_bytes(h.const, "big"), 8 * len(h.const)) if h.const else None
+            return h._digest
+        bs = []
+        for i in range(h.nmax):
+            ix = f"(bvadd {h.off} {lit(i)})" if h.off != lit(0) else lit(i)
+            sel = f"(select {h.arr} {ix})"
+            bs.append(sel if i < h.nmin else f"(ite (bvult {lit(i)} {h.n}) {sel} {lit(0, 8)})")
+        h._digest = self.define("(concat " + " ".join(bs) + ")" if len(bs) > 1 else bs[0],
+                                f"(_ BitVec {8 * h.nmax})", "dg") if bs else None
+        return h._digest
+
     def _content_eq(self, a: Hash, b: Hash) -> str:
-        top = min(a.nmax, b.nmax)
+        if a.src_word is not None and b.src_word is not None:
+            return eq(a.src_word, b.src_word)
         if a.const is not None and b.const is not None:
             return "true" if a.const == b.const else "false"
-        parts = [eq(a.n, b.n)]
-        for i in range(top):
-            ia = f"(bvadd {a.off} {lit(i)})" if a.off != lit(0) else lit(i)
-            ib = f"(bvadd {b.off} {lit(i)})" if b.off != lit(0) else lit(i)
-            sa, sb = f"(select {a.arr} {ia})", f"(select {b.arr} {ib})"
-            if i < min(a.nmin, b.nmin):
-                parts.append(eq(sa, sb))
-            else:
-                parts.append(f"(or (bvule {a.n} {lit(i)}) {eq(sa, sb)})")
-        return band(*parts)
+        lo, hi = (a, b) if a.nmax <= b.nmax else (b, a)
+        if lo.nmax == 0:
+            return band(eq(a.n, b.n))
+        dl, dh = self.digest(lo), self.digest(hi)
+        top = f"((_ extract {8 * hi.nmax - 1} {8 * (hi.nmax - lo.nmax)}) {dh})" if hi.nmax > lo.nmax else dh
+        return band(eq(a.n, b.n), eq(dl, top))
 
     def close(self) -> None:
         """E1 (ground injectivity and functionality over the query's own K terms of each function) and NZ."""
@@ -239,6 +259,9 @@ class Query:
                 for j in range(i + 1, len(hs)):
                     a, b = hs[i], hs[j]
                     cf += 1
+                    if a.group is not None and b.group is not None and a.group != b.group \
+                            and a.group.split("/")[0] == b.group.split("/")[0]:
+                        continue      # two actions of one step: never both evaluated (one action per step)
                     if a.nmax < b.nmin or b.nmax < a.nmin:
                         self.add(f"(not (= {a.word} {b.word}))")
                         continue

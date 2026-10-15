@@ -652,6 +652,23 @@ class Gate:
                                           f"and recomputed filter bins; {MODEL_ONLY}: {', '.join(model_only) or 'none'}"
                                  if not bad else "; ".join(bad))
 
+    def want_bin(self, lid: str, rec: dict, ss: dict) -> str:
+        """The bin G6 recomputes (I40): with a concretization, the final rule (holon.filter.final_bin) over the
+        replay's sides, each side an emitted test of replay/M3/refute/report.json replaced taking the test's result;
+        without one, I4's provisional rule."""
+        from . import filter as FL
+        conc = rec.get("concretization")
+        if not isinstance(conc, dict):
+            return FL.bin_of(ss)
+        gen = {}
+        p = self.root / "replay" / "M3" / "refute" / "report.json"
+        if p.is_file():
+            try:
+                gen = ((json.loads(p.read_text()).get("records") or {}).get(f"{self.m}/{lid}") or {}).get("sides") or {}
+            except ValueError:
+                gen = {}
+        return FL.final_bin({**ss, **gen}, conc)
+
     def g6_strict(self, lid: str, rec: dict, rp: dict, entry: dict, claimed: set | None, model_only: list,
                   law: dict) -> list[str]:
         """I4 (strict, after the I4 review). Every claimed side present and well-formed; each side's
@@ -743,7 +760,7 @@ class Gate:
                 bad += self.g6_traces(lid, law, witness if isinstance(witness, dict) else {}, entry)
                 if ss["solidity"].get("status") == "passed":
                     bad += self.g6_trace_agreement(lid, entry)
-        want_wp, want_bin = FL.provenance_of(ss), FL.bin_of(ss)
+        want_wp, want_bin = FL.provenance_of(ss), self.want_bin(lid, rec, ss)
         if rec.get("witness_provenance") != want_wp:
             bad.append(f"{lid}: record witness_provenance {rec.get('witness_provenance')!r} != {want_wp!r} from the report")
         if rec.get("filter_bin") != want_bin:
@@ -819,7 +836,7 @@ class Gate:
                 bad.append(f"{lid}: {side} side records no observation or command")
         if rec.get("witness_provenance") != FL.provenance_of(ss):
             bad.append(f"{lid}: record witness_provenance differs from the report's sides")
-        if rec.get("filter_bin") != FL.bin_of(ss):
+        if rec.get("filter_bin") != self.want_bin(lid, rec, ss):
             bad.append(f"{lid}: record filter_bin differs from the filter recomputed from the report")
         return bad
 

@@ -68,3 +68,38 @@ def record_fields(report: dict | None, lid: str, witness, witness_sha256) -> tup
         return {}, "pending"
     ss = sides(report["laws"][lid])
     return provenance_of(ss), bin_of(ss)
+
+
+# ------------------------------------------------------------------------------------------------ I40: the final rule
+FINAL_RULE = "holon-filter/1.0"
+FINAL_BINS = ("finding", "model_defect", "known_limitation", "pending")
+
+
+def final_bin(ss: dict[str, dict], conc: dict) -> str:
+    """The final filter F1-F4 (I40; whitepaper §9.6) over a record's sides and its concretization {"kind", "result"}:
+
+      F1 model_defect      some side failed;
+      F2 known_limitation  the kind is bmc and BMC showed no public path within its bound (result no_path);
+      F3 finding           the kind is not go_only, the concretization has a path, some public_schedule side passed and
+                           observed the obstruction, every side that is not internal_harness or emulated_storage passed
+                           and observed it, and a blocking side is present only for kind bmc (a public path supersedes
+                           the construction);
+      F4 pending           anything else.
+
+    bin_of above stays I4's provisional rule."""
+    vals = [s for s in (ss or {}).values() if isinstance(s, dict)]
+    if any(s.get("status") == "failed" for s in vals):
+        return "model_defect"
+    kind, result = (conc or {}).get("kind"), (conc or {}).get("result")
+    if kind == "bmc" and result == "no_path":
+        return "known_limitation"
+
+    def good(s):
+        return s.get("status") == "passed" and s.get("obstruction_observed") is True
+    public = [s for s in vals if s.get("provenance") == "public_schedule"]
+    nonblocking = [s for s in vals if s.get("provenance") not in BLOCKING]
+    blocking = [s for s in vals if s.get("provenance") in BLOCKING]
+    if (kind != "go_only" and result == "path" and any(good(s) for s in public) and all(good(s) for s in nonblocking)
+            and (not blocking or kind == "bmc")):
+        return "finding"
+    return "pending"

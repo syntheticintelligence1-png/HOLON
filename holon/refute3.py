@@ -304,7 +304,7 @@ def refute_record(ctx, lid: str, e: dict, old: dict, found: dict, atts: list) ->
         ok = checker["marker"] == "ALL PROOFS CHECK" and verdict == "checked"
         witnesses[entry] = {"status": "REFUTED" if ok else "UNKNOWN", "witness": wj,
                             "laws": R3.rel(lp, ctx.root) if ok else None, "proof": R3.rel(p, ctx.root) if ok else None,
-                            "checker": checker, "verdict": verdict, "stage": "BMC", "search_stage": "BMC",
+                            "checker": checker, "verdict": verdict, "stage": None, "search_stage": "BMC",
                             "bound": f"BMC: H = {len(path)} steps", "replay": {"status": "not_run", "detail": "",
                                                                                "panic_site": None}}
         if ok and primary is None:

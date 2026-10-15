@@ -92,10 +92,36 @@ class Session:
         self.solver = solver
         self.p = None
 
-    def check(self, text: str) -> str:
+    def check(self, text: str, guard_s: float | None = None, memory_mb: int | None = None) -> str:
+        """sat | unsat | unknown. guard_s and memory_mb are the build's resource guards (a wall-clock watchdog and an
+        address-space limit on the solver process): a guard that fires ends the query unknown, and self.guard says
+        which (the rlimit stays the budget the query states)."""
+        import threading
+
+        def limit():
+            if memory_mb:
+                import resource
+                resource.setrlimit(resource.RLIMIT_AS, (memory_mb << 20, memory_mb << 20))
+        self.guard = None
         self.p = subprocess.Popen([self.solver["binary"], "-in", "-smt2", "parallel.enable=false"],
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-                                  bufsize=1)
+                                  bufsize=1, preexec_fn=limit)
+        timer = None
+        if guard_s:
+            def fire(proc=self.p):
+                self.guard = f"wall-clock guard {int(guard_s)} s"
+                proc.kill()
+            timer = threading.Timer(guard_s, fire)
+            timer.start()
+        try:
+            return self._check(text)
+        except (BrokenPipeError, OSError):
+            return "unknown"
+        finally:
+            if timer is not None:
+                timer.cancel()
+
+    def _check(self, text: str) -> str:
         self.p.stdin.write(text)
         self.p.stdin.write('(echo "@@done")\n')
         self.p.stdin.flush()
@@ -109,6 +135,8 @@ class Session:
             lines.append(line.strip())
         res = [x for x in lines if x in ("sat", "unsat", "unknown")]
         errs = [x for x in lines if x.startswith("(error")]
+        if not res and self.p.poll() is not None and self.guard is None:
+            self.guard = f"the solver process ended (exit {self.p.returncode}; memory guard or crash)"
         if errs:
             self.close()
             raise RuntimeError(f"z3: {errs[0][:400]}")
@@ -139,8 +167,11 @@ class Session:
         return out
 
     def reason(self) -> str:
-        self.p.stdin.write("(get-info :reason-unknown)\n(echo \"@@done\")\n")
-        self.p.stdin.flush()
+        try:
+            self.p.stdin.write("(get-info :reason-unknown)\n(echo \"@@done\")\n")
+            self.p.stdin.flush()
+        except (BrokenPipeError, OSError):
+            return f"the solver process ended (exit {self.p.poll()})"
         buf = []
         while True:
             line = self.p.stdout.readline()
