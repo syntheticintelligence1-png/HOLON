@@ -566,17 +566,19 @@ class Gen:
                 gargs = cur[a0:e - 1]
                 if g == f:
                     used_ih[0] = True
-                motive_side = cur[:s] + "_" + cur[e:]
+                # every occurrence of this same call is rewritten at once (F32: one step per distinct instance)
+                call_txt = cur[s:e]
+                motive_side = _replace_calls(cur, call_txt, "_")
                 if driver == "new":
                     motive = f"{{{fixed} == {motive_side} : {ret}}}"
                     out.append(" " * ind + f"%{lemmas[g]}({gargs}) : {motive}")
-                    cur = cur[:s] + f"{ALIAS}.{PREFIX}{g}({gargs})" + cur[e:]
+                    cur = _replace_calls(cur, call_txt, f"{ALIAS}.{PREFIX}{g}({gargs})")
                 else:
                     gret = self.q(self.pm.new_items[g].ret, set())
                     motive = f"{{{motive_side} == {fixed} : {ret}}}"
                     out.append(" " * ind + f"%Equal.sym({gret}, {ALIAS}.{PREFIX}{g}({gargs}), {ALIAS}.{g}({gargs}), "
                                            f"{lemmas[g]}({gargs})) : {motive}")
-                    cur = cur[:s] + f"{ALIAS}.{g}({gargs})" + cur[e:]
+                    cur = _replace_calls(cur, call_txt, f"{ALIAS}.{g}({gargs})")
             else:
                 raise Unsupported("too many rewrites")
             if core and driver == "new":   # Base identities, new form -> old form (each a lemma of CORE)
@@ -790,6 +792,11 @@ class Gen:
                 body.append(f"      {ALIAS}.{cdst}{{{', '.join(out_args)}}}")
             proofs.append("\n".join(body) + "\n")
         return "\n".join(laws), "\n".join(proofs)
+
+
+def _replace_calls(text: str, call: str, new: str) -> str:
+    """text with every occurrence of the call text `call` (a whole call: not preceded by a name character) replaced."""
+    return re.sub(r"(?<![\w.$])" + re.escape(call), lambda m: new, text)
 
 
 def _product(alts: list) -> list:
@@ -1108,10 +1115,65 @@ def _write(d: Path, files: dict):
         (d / name).write_text(text)
 
 
-def _lemma_file(proven: dict, trying: dict) -> str:
-    parts = [f"import Base\nimport ./pair.bend as {ALIAS}\n", CORE]
+def _progress(msg: str) -> None:
+    """A progress line on stderr when HOLON_EQV_PROGRESS is set (long runs; nothing else reads it)."""
+    import os
+    import sys
+    if os.environ.get("HOLON_EQV_PROGRESS"):
+        print(f"[equivalence] {msg}", file=sys.stderr, flush=True)
+
+
+def _owner(loc: str, trying: dict):
+    """The lemma a failing definition belongs to: q_<f> itself or one of its helpers and lemmas q_<f>__<x>."""
+    best = None
+    for f in trying:
+        if loc == LEMMA + f or loc.startswith(LEMMA + f + "__"):
+            if best is None or len(f) > len(best):
+                best = f
+    return best
+
+
+def library_modules() -> tuple:
+    """Lemma libraries about fixed model text (holon.sorts.prelude3_lemmas): each is used only for a new model that
+    holds the definitions it is about with exactly its text (the module's applies). The Base library holon.gen.eqlib
+    is always emitted. Imported statically, so the generator closure (holon.records.generator_files) holds them."""
+    from ..sorts import prelude3_lemmas
+    return (prelude3_lemmas,)
+
+
+def libraries_for(pm: "PairModule") -> list:
+    return [m for m in library_modules() if m.applies(pm.new_items)]
+
+
+def library_text(libs) -> str:
+    from . import eqlib
+    return eqlib.text() + "".join("\n" + m.text() for m in libs)
+
+
+_LEMMA_REF = re.compile(r"(?<![\w.])" + LEMMA + r"([A-Za-z0-9_]+)\(")
+
+
+def _needed(proven: dict, texts) -> set:
+    """The proven lemmas the given texts use, directly or through other proven lemmas."""
+    need, todo = set(), [t for t in texts]
+    while todo:
+        for m in _LEMMA_REF.finditer(todo.pop()):
+            t = m.group(1)   # q_<f>, or a helper or lemma of it, q_<f>__<x>
+            for g in [t] + [t[:i] for i in range(len(t)) if t.startswith("__", i)]:
+                if g in proven and g not in need:
+                    need.add(g)
+                    todo.append(proven[g]["text"])
+    return need
+
+
+def _lemma_file(proven: dict, trying: dict, libs=()) -> str:
+    """The lemmas being tried, after the proven lemmas they use (only those: a round checks what it adds; the final
+    check holds every lemma)."""
+    parts = [f"import Base\nimport ./pair.bend as {ALIAS}\n", CORE, library_text(libs)]
+    need = _needed(proven, [t[1] for t in trying.values()])
     for f in proven:   # proof order: every lemma after the lemmas it uses
-        parts.append(proven[f]["text"])
+        if f in need:
+            parts.append(proven[f]["text"])
     for f in sorted(trying):
         parts.append(trying[f][1])
     return "\n".join(parts)
@@ -1143,6 +1205,8 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
         out["reason"] = f"the pair module is not the two models: {'; '.join(out['linkage'][:5])}"
         return out
     gen = Gen(pm)
+    libs = libraries_for(pm)
+    out["libraries"] = [m.__name__ for m in libs]
     src = lambda d: _source_name(d, pm.old_items)
     changed = sorted({src(d) for d in pm.dirty_entries
                       if pm.old_items[src(d)].kind == "def" and src(d) in pm.new_items
@@ -1181,9 +1245,47 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                 else:
                     text = r
                 out_c.append((cls, text, None))
+            out_c.append(("eqprove", (lambda f=f: engine(f)), None))   # F32: built only when reached
             return out_c
+
+        engine_state: dict = {}
+
+        def engine(f):
+            """(class, text) of the F32 proof classes (holon.gen.eqprove) for f, or raises Unsupported."""
+            from . import eqprove as EP
+            if "defs" not in engine_state:
+                from . import eqlib, eqterms as ET
+                bd, bt = eqlib.base_defs()
+                pd, pt = ET.read_source(pm.text, qualify=ALIAS)
+                engine_state["defs"], engine_state["types"] = {**bd, **pd}, {**bt, **pt}
+            callee = {f"{ALIAS}.{g}": LEMMA + g for g in proven}
+            opaque = set(callee) | {f"{ALIAS}.{PREFIX}{g}" for g in proven}
+            pv = EP.Prover(engine_state["defs"], engine_state["types"], f"{ALIAS}.{PREFIX}", opaque, callee,
+                           tag=LEMMA + f, libraries=libs)
+            params, ret = gen.sig(f)
+            ps = [(n, gen.q(t, set())) for _, n, t in params]
+            args = tuple(("var", n) for n, _ in ps)
+            try:
+                text = pv.prove_lemma(LEMMA + f, ps, ("app", f"{ALIAS}.{PREFIX}{f}", args), ("app", f"{ALIAS}.{f}", args),
+                                      gen.q(ret, set()))
+            except (EP.Fail, EP.E.TermError, RecursionError) as e:
+                raise Unsupported(f"no proof found: {str(e)[:300]}")
+            return pv.label(), "\n".join(pv.out + [text])
+
+        def materialize(f):
+            """Build the lazy candidates at the head of f's list until one has a text (or none is left)."""
+            while cands[f] and callable(cands[f][0][1]):
+                cls, mk, _ = cands[f][0]
+                try:
+                    lab, text = mk()
+                    cands[f][0] = (lab, text, None)
+                except Unsupported as e:
+                    out["lemmas"][f]["attempts"].append(f"{cls}: {e}")
+                    cands[f] = cands[f][1:]
+            return bool(cands[f])
         for _ in range(MAX_ROUNDS):
             frontier = [f for f in changed if f not in proven and f not in failed and all(g in proven for g in deps[f])]
+            _progress(f"round: {len(proven)} proven, {len(failed)} failed, frontier {len(frontier)}")
             if not frontier:
                 break
             for f in frontier:
@@ -1191,12 +1293,12 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                 failed_why = [f"{c[0]}: {c[2]}" for c in cands[f] if c[1] is None]
                 cands[f] = [c for c in cands[f] if c[1] is not None]
                 out["lemmas"][f] = {"status": "UNKNOWN", "class": None, "attempts": failed_why}
-            trying = {f: cands[f][0][:2] for f in frontier if cands[f]}
+            trying = {f: cands[f][0][:2] for f in frontier if materialize(f)}
             for f in frontier:
                 if not cands[f]:
                     failed[f] = "no class applies"
             while trying:
-                _write(tmp, {"LEMMAS.bend": _lemma_file(proven, trying)})
+                _write(tmp, {"LEMMAS.bend": _lemma_file(proven, trying, libs)})
                 r = _run(tmp, "LEMMAS.bend", cfg)
                 if r.ok:
                     for f, (cls, text) in sorted(trying.items()):
@@ -1204,10 +1306,10 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                         out["lemmas"][f].update({"status": "PROVED", "class": cls})
                     break
                 loc = r.location or ""
-                bad = loc[len(LEMMA):] if loc.startswith(LEMMA) and loc[len(LEMMA):] in trying else None
+                bad = _owner(loc, trying)
                 if bad is None:   # not attributable to one lemma: try each alone
                     for f in sorted(trying):
-                        _write(tmp, {"LEMMAS.bend": _lemma_file(proven, {f: trying[f]})})
+                        _write(tmp, {"LEMMAS.bend": _lemma_file(proven, {f: trying[f]}, libs)})
                         rr = _run(tmp, "LEMMAS.bend", cfg)
                         if not rr.ok:
                             bad, r = f, rr
@@ -1218,7 +1320,7 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                 cls = trying[bad][0]
                 out["lemmas"][bad]["attempts"].append(f"{cls}: {kernel_message(r.out)}")
                 cands[bad] = cands[bad][1:]
-                if cands[bad]:
+                if materialize(bad):
                     trying[bad] = cands[bad][0][:2]
                 else:
                     del trying[bad]
@@ -1270,6 +1372,7 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
         if expected:
             laws_text = f"import Base\nimport ./pair.bend as {ALIAS}\n\n" + "\n".join(laws)
             proof_text = (f"import Base\nimport ./pair.bend as {ALIAS}\nimport ./LAWS.bend as Laws\n\n" + CORE + "\n"
+                          + library_text(libs) + "\n"
                           + "\n".join(proven[f]["text"] for f in proven) + "\n" + "\n".join(proofs))
             _write(tmp, {"LAWS.bend": laws_text, "PROOF.bend": proof_text})
             from ..pipeline import law_names
@@ -1288,6 +1391,7 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                     info["status"] = "PROVED" if ok else "UNKNOWN"
                     info["bend_seconds"] = r.seconds
                     info["bendtt"] = None if v is None else ("accepted" if v.ok else "rejected")
+                    info["bendtt_seconds"] = None if v is None else v.seconds
                     if not ok:
                         info["reason"] = ("escape hatch: " + ", ".join(hatches) if hatches else
                                           kernel_message((v.out if (v is not None and r.ok) else r.out)))
