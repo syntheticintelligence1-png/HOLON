@@ -207,8 +207,17 @@ def bmc_stage(root: Path, side: dict, env: dict, only_ids: list | None = None, j
 
 
 def cached(root: Path, qid: str) -> dict | None:
+    """A cached BMC result; a no_path verdict is labelled with the environment it is relative to (the answer model's
+    label in refute_env.json, docs/HUMAN_ANSWERS.md Q28): never 'unreachable'."""
     p = root / GENR / "bmc" / f"{qfile(qid)}.json"
-    return load(p) if p.is_file() else None
+    if not p.is_file():
+        return None
+    r = load(p)
+    if r.get("verdict") == "no_path":
+        ep = root / "spec" / "M3" / "refute_env.json"
+        label = ((load(ep).get("environment") or {}).get("label") if ep.is_file() else None) or "this environment"
+        r = dict(r, reason=f"no path in {label}, not 'unreachable': {r['reason']}")
+    return r
 
 
 # ------------------------------------------------------------------------------------------------ records and sides
@@ -382,6 +391,11 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             else:
                 conc.update(result=r["verdict"], length=r["length"], reason=r["reason"])
                 path = r["path"] if r["verdict"] == "path" else None
+        if kind == "direct" and not final_sides:
+            # no side in the sides format (no I4 side, no emitted test): its own replay lives in its iteration's report,
+            # which this build does not read as a side, so F3 cannot hold (docs/iterations/I40.md, Questions)
+            conc["reason"] = ("the witness is a schedule of public calls, but it has no side in the sides format (no I4 "
+                              "side, no emitted test; its own replay report is not read as one): F3 cannot hold")
         fb = FL.final_bin(final_sides, conc)
         out[key] = dict(conc, path=path)
         before = (side["records"].get(key) or {}).get("filter_bin") if key in side["records"] else None
@@ -441,7 +455,8 @@ def reach_docs(root: Path, side: dict) -> dict:
             r = confirmed(root, "reach", rid, r)
         if r is None:
             reaches[rid] = {"verdict": "unknown", "length": None, "path": None, "largest_k": 0,
-                            "reason": "not run: the I40 build's time box ended before this reach's search"}
+                            "reason": "not run to completion: a time box (the I40 build's, or the review fix's rerun) "
+                                      "ended before this reach's search finished"}
         else:
             reaches[rid] = {"verdict": r["verdict"], "length": r["length"],
                             "path": with_calls(root, "reach", rid, r["path"]),
@@ -613,6 +628,9 @@ def main(a, root: Path) -> int:
             BMC.MEMORY_MB = int(os.environ["HOLON_REFUTE_MEMORY_MB"])
         bmc_stage(root, side, env, ids or None, jobs=int(os.environ.get("HOLON_REFUTE_JOBS") or 1))
     if "smt" in stages:
+        if not a.check:
+            import shutil
+            shutil.rmtree(root / GENR / "codec", ignore_errors=True)   # the stage writes every file it keeps
         cdoc, refound, ctexts = codec_stage(root, side)
         texts.update(ctexts)
         rdoc = refind_doc(side)

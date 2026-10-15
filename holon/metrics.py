@@ -155,7 +155,7 @@ def compute(milestone: str, root: Path = ROOT, results: Path | None = None) -> d
         "recall_per_rule": "needs a corpus of historical defects, each labelled with its minimal rule and analysed "
                            "at its pre-fix commit (§13 corpus; BUILD_PLAN I48, I51); this milestone has none",
         "precision": "needs adjudicated findings split into true defects, intended asymmetries and model defects "
-                     "(BUILD_PLAN I51, I53); the records' filter_bin is provisional (I4)",
+                     "(BUILD_PLAN I51, I53); the records' filter_bin is I40's final filter (holon-filter/1.0, F1-F4), not an adjudication",
         "certificate_coverage": (
             "no record has a coverage entry: every law's facts document is hand-written, so its coverage is null "
             "(holon.records.coverage_field, I19) and no certificate is about an extracted document yet (BUILD_PLAN "

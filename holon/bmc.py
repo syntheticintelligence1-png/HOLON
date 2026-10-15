@@ -1154,6 +1154,7 @@ class Sym:
                 else:
                     sort = BV if self.fam(fam).get("kind") == "scalar" else A256
                     self.post[fam] = self.q.define(ite(guard, new, old), sort, "s")
+            self._havoc_records(lp.body, guard, f"loop {lp.src} is havoc")
             ov = self.q.fresh(f"x_{self.tag}", "Bool")
             self.ok = self.q.define(band(self.ok, bor(bnot(guard), ov)), "Bool", "ok")
             self._unbind(lp)
@@ -1167,6 +1168,28 @@ class Sym:
                 self.subst[canonical(lp.sym("exit", n))] = self._fresh_like(n)
             for n, _e in lp.exits:
                 self.subst.setdefault(canonical(lp.sym("exit", n)), self._fresh_like(n))
+
+    def _havoc_records(self, body: list, cond: str, why: str) -> None:
+        """The checks, loads and stores of loop iterations the encoding does not carry (a havoc loop, or the iterations
+        past the unroll bound): each check may fail, each byte string it reads and each memory store's value is fresh,
+        all under cond and the action's state at the loop (an over-approximation; dropping them would make a target
+        inside the loop look unreachable)."""
+        for r in body:
+            if isinstance(r, Loop):
+                self._havoc_records(r.body, cond, why)
+            elif isinstance(r, Check):
+                reach = self.q.define(band(self.ok, cond, *self.bubble), "Bool", "r")
+                v = self.fresh(f"{self.action}: check {r.id} in {why}", "Bool")
+                self.fails.setdefault(r.id, []).append(self.q.define(band(reach, v), "Bool", "f"))
+                self.reached.setdefault(r.id, []).append(reach)
+                for _b in _param_bytes(r.expr):
+                    arr = self.q.fresh(f"x_{self.tag}", ARR)
+                    n = self.q.fresh(f"x_{self.tag}")
+                    self.q.add(f"(bvule {n} {lit(self.m.maxlen)})")
+                    self.loads.append((r, Bytes(arr, lit(0), n, self.m.maxlen), reach))
+            elif isinstance(r, MStore) and self.want_stores:
+                reach = self.q.define(band(self.ok, cond, *self.bubble), "Bool", "r")
+                self.stores.append((r, self.fresh(f"{self.action}: store {r.src} in {why}"), reach))
 
     def _fresh_like(self, n):
         """A fresh value for a loop name: a storage family's fresh state (a whole mapping), else a word."""
@@ -1241,6 +1264,7 @@ class Sym:
                 srt = BV if self.fam(fam).get("kind") == "scalar" else A256
                 self.post[fam] = self.q.define(ite(over, fresh, saved), srt, "s") if not isinstance(saved, dict) \
                     else {k: self.q.define(ite(over, fresh[k], saved[k]), A256, "s") for k in saved}
+            self._havoc_records(lp.body, over, f"loop {lp.src} beyond {UNROLL} iterations")
             ov = self.fresh(f"{self.action}: loop {lp.src} overflow outcome", "Bool")
             self.ok = self.q.define(band(self.ok, bor(bnot(over), ov)), "Bool", "ok")
         self.subst[canonical(lp.sym("count"))] = self._mergev(over, self.fresh("loop count past the bound"), count) \
@@ -1522,7 +1546,14 @@ class Unrolled:
         for pre in p.preimages:
             q.hash_known("keccak256", pre, int.from_bytes(_k(pre), "big"))
         self.trivial = False
-        if k > 1 and target["kind"] == "check" and self._goal_false(last, state, names):
+        self.trivial_why = None
+        if k > 1 and target.get("blob_gap"):
+            # the goal asks for a zero blob hash before a non-zero one in the last step's vector, which E3's dense
+            # prefix (asserted on the same vector) excludes: no path of any length; the one-step query states it
+            self.trivial, self.trivial_why = True, ("the target's blob-hash gap contradicts E3's dense prefix on the "
+                                                    "same vector (by E3), so no k <= H has a path")
+            k = 1
+        elif k > 1 and target["kind"] == "check" and self._goal_false(last, state, names):
             # the last step's goal is false in every state (e.g. a check whose condition is a constant): no path of any
             # length exists, and the prefix is not encoded
             self.trivial = True
@@ -1638,7 +1669,9 @@ class Unrolled:
             sym.raw_slots = self.p.raw_slots
             sym.stop = self.stop
             sym.run()
-            if self.goal({"sym": sym}) != "false":
+            if self.target["check"] not in sym.reached or self.goal({"sym": sym}) != "false":
+                # a check the evaluation never reached decides nothing: only a reached check whose every fail term is
+                # literally false is constant
                 return False
         return True
 
@@ -2033,6 +2066,13 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
                     return {"verdict": "path", "length": k, "path": path, "largest_k": k, "queries": queries,
                             "approx": sorted(approx), **seen,
                             "reason": f"sat at k = {k} (the first sat depth){'' if full else f', cone levels <= {lv}'}"}
+                if res != "unsat" and not full:
+                    # an under-approximate level that ends unknown decides nothing: widen to the next level (the full
+                    # cone last) rather than stopping
+                    if log:
+                        log(f"  {name} k={k}{tag}: unknown on an under-approximate level; widening")
+                    lv += 1
+                    continue
                 if res != "unsat":
                     why = sess.guard or sess.reason()
                     return {"verdict": "unknown", "length": None, "path": None, "largest_k": largest,
@@ -2043,8 +2083,9 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
                 sess.close()
             if u.trivial and res == "unsat":
                 return {"verdict": "no_path", "length": None, "path": None, "largest_k": p.H, "queries": queries,
-                        "approx": sorted(approx), "reason": "the target's check cannot fail at the last step in any "
-                                                            "state (its condition is constant), so no k <= H has a path"}
+                        "approx": sorted(approx), "reason": u.trivial_why or "the target's check, reached at the last step, cannot fail "
+                                                            "there in any state of the encoding (its condition is "
+                                                            "constant under the answer model), so no k <= H has a path"}
             if full:
                 break
             lv += 1
