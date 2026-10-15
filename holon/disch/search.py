@@ -5,10 +5,16 @@ the sidecar's budget.
   S1  the law's last step (S3.Synth's coordinate moves) from a state where B holds at a time t
   S2  breadth-first prefixes of at most prefix_depth successful steps (at most max_prefixes distinct states), the
       actions that write what B reads first; every state is a candidate prefix
-  S3  narrower than I30's preregistered S3 (a deviation, stated in every bound): holon.disch.run re-tries the last
-      step from the prefix states of the S1+S2 witnesses of the other external and external_none laws of the same
-      model; I30's neighbourhood search (up to neighbourhood_insertion_length_max inserted steps and
-      neighbourhood_prefixes_per_entry_point_max prefixes per entry point) is not built
+  S3  I30's neighbourhood search (holon.sorts.search3's S3, the same machinery): for a law S1+S2 left without a
+      candidate, the witnesses of the other entry points (every other DISCH law of the same model with an S1+S2
+      candidate, law id order: a law's entry points are its actions, and a witness of another law is a trace to a
+      state of the same model), each with its last step dropped; at every position, the end first, the prefix itself,
+      then one to neighbourhood_insertion_length_max successful steps inserted (successors as in S2) and the rest of
+      the prefix run again after them (the clock never decreasing); the law's last step from every such prefix where
+      B holds, until neighbourhood_prefixes_per_entry_point_max prefixes (every entry point is tried at each prefix,
+      so each has that many). A witness's neighbourhood is generated once per model, in the same order, and shared by
+      every law that searches it (Explorer.neighbour); holon run's --deadline ends the stage early, and a law it
+      leaves undecided is UNKNOWN by the time box, so recorded in its bound
 
 One exploration serves every law of a model (the prefixes are law-independent: the same distinct states in the same
 order, the actions that write what any blocked condition reads first), and each law tries its last step from the
@@ -181,6 +187,56 @@ class Explorer(S3.Refuter):
                     break
         return self.states[k] if k < len(self.states) else None
 
+    def _neighbourhood(self, steps: list, limit: int):
+        """I30's S3 neighbourhood of one witness (holon.sorts.search3.Refuter.refute's S3 loop): its last step dropped;
+        at every position, the end first, the prefix itself, then one to neighbourhood_insertion_length_max successful
+        steps inserted and the rest of the prefix run again after them. Yields (trace, g), at most limit."""
+        ins = int(self.budget.get("neighbourhood_insertion_length_max", 2))
+        base = list(steps[:-1])
+        hs = [self.m.s0()]
+        for st in base:
+            code, g, _c = self.m.run_step(hs[-1], st, save=True)
+            if code != 0:
+                return
+            hs.append(g)
+        n = 0
+        for p in range(len(base), -1, -1):
+            if p == len(base):
+                n += 1
+                yield base, hs[-1]
+                if n >= limit:
+                    return
+            level = [(base[:p], hs[p])]
+            for _k in range(ins):
+                nxt = []
+                for trace, gg in level:
+                    for t2, g2 in self.successors_b(gg, trace, limit - n):
+                        nxt.append((t2, g2))
+                        full, g3 = self._tail(g2, t2, base[p:])
+                        if full is None:
+                            continue
+                        n += 1
+                        yield full, g3
+                        if n >= limit:
+                            return
+                level = nxt
+
+    def neighbour(self, name: str, steps: list, k: int, limit: int):
+        """The k-th prefix of the neighbourhood of the witness `name` (generated once per model and shared by every
+        law, in the same order), or None past its end or the limit."""
+        if not hasattr(self, "_nbh"):
+            self._nbh = {}
+        if name not in self._nbh:
+            self._nbh[name] = ([], self._neighbourhood(steps, limit))
+        items, it = self._nbh[name]
+        while k >= len(items) and it is not None:
+            try:
+                items.append(next(it))
+            except StopIteration:
+                self._nbh[name] = (items, None)
+                it = None
+        return items[k] if k < len(items) and k < limit else None
+
     def bound(self) -> str:
         depth = int(self.budget.get("prefix_depth", 2))
         maxp = int(self.budget.get("max_prefixes", 1000))
@@ -213,7 +269,6 @@ class LawSearch:
         self.seen_states = 0
         self.capped = False
         self.validate = None            # (trace, step, t) -> bool: holon.disch.run.Run.valid
-        self.extra: list = []           # S3: the states along other laws' witnesses [(trace, g)]
 
     # ------------------------------------------------------------------ time candidates
     def times(self, state: dict, trace: list) -> list:
@@ -241,31 +296,21 @@ class LawSearch:
         return None
 
     # ------------------------------------------------------------------ the search
-    def candidates(self, s3: bool = False):
-        """(trace, g, t) of every explored state where B holds, in the exploration's order (S1+S2), or (s3) of the
-        states along other laws' witnesses."""
-        if not s3:
-            k = 0
-            while True:
-                s = self.ex.state_at(k)
-                if s is None:
-                    return
-                k += 1
-                trace, g = s
-                self.seen_states += 1
-                t = self.b_time(g, trace)
-                if t is None:
-                    continue
-                self.bstates += 1
-                yield trace, g, t
-        else:
-            for trace, g in self.extra:
-                self.seen_states += 1
-                t = self.b_time(g, trace)
-                if t is None:
-                    continue
-                self.bstates += 1
-                yield trace, g, t
+    def candidates(self):
+        """(trace, g, t) of every explored state where B holds, in the exploration's order (S1+S2)."""
+        k = 0
+        while True:
+            s = self.ex.state_at(k)
+            if s is None:
+                return
+            k += 1
+            trace, g = s
+            self.seen_states += 1
+            t = self.b_time(g, trace)
+            if t is None:
+                continue
+            self.bstates += 1
+            yield trace, g, t
 
     def synth(self, g: str, trace: list, t: int, action: str, accept):
         prev = S3.Step(trace[-1].action if trace else action, {}, {"block.timestamp": t})
@@ -274,12 +319,12 @@ class LawSearch:
         st, code = sy.synth(g, action, prev, self.ex.ts0, accept=accept)
         return st
 
-    def refute(self, s3: bool = False, max_states: int | None = None):
+    def refute(self, _s3: bool = False, max_states: int | None = None):
         """(witness steps, t) or None: the law's last step from a state where B holds, accepted when the judge finds
         the law's claim false there (a forall law) or true (an external law). At most max_states B-states are tried
         (None: every one)."""
         n = 0
-        for trace, g, t in self.candidates(s3):
+        for trace, g, t in self.candidates():
             if max_states is not None and n >= max_states:
                 self.capped = True
                 return None
@@ -304,26 +349,89 @@ class LawSearch:
         """(trace + [a step], t) of the premises: a state where B holds at t and a step of an action of the law's set
         for which the judge finds the premise true."""
         n = 0
-        for s3 in (False, True):
-            for trace, g, t in self.candidates(s3):
-                if max_states is not None and n >= max_states:
-                    return None
-                n += 1
-                for a in self.entries:
-                    self.tries += 1
+        for trace, g, t in self.candidates():
+            if max_states is not None and n >= max_states:
+                return None
+            n += 1
+            for a in self.entries:
+                self.tries += 1
 
-                    def acc(st, code, g=g, t=t):
-                        return int(st.env.get("block.timestamp") or 0) >= t and \
-                            self.judge.premise(self.m, self.law, g, st, t)
-                    st = self.synth(g, trace, t, a, acc)
-                    if st is not None:
-                        return trace + [st], t
+                def acc(st, code, g=g, t=t):
+                    return int(st.env.get("block.timestamp") or 0) >= t and \
+                        self.judge.premise(self.m, self.law, g, st, t)
+                st = self.synth(g, trace, t, a, acc)
+                if st is not None:
+                    return trace + [st], t
+        return None
+
+    def neighbourhood(self, seeds: list, deadline: float | None = None):
+        """S3 (I30's neighbourhood): (witness steps, t) or None. seeds: [(name, steps)] of the other entry points'
+        witnesses. Every prefix tried is counted against neighbourhood_prefixes_per_entry_point_max; deadline (a
+        wall-clock time) ends the stage early, recorded in the bound as a time box (never as an exhausted budget)."""
+        import time as _time
+        ins = int(self.ex.budget.get("neighbourhood_insertion_length_max", 2))
+        maxn = int(self.ex.budget.get("neighbourhood_prefixes_per_entry_point_max", 1000))
+        self.s3 = {"seeds": [n for n, _s in seeds], "prefixes": 0, "max": maxn, "insert": ins, "timebox": False}
+        m = self.m
+        g0 = m.s0()
+
+        def out_of_time():
+            if deadline is not None and _time.time() > deadline:
+                self.s3["timebox"] = True
+                return True
+            return False
+
+        def try_prefix(trace, g):
+            """The law's last step from one neighbourhood prefix; a candidate or None."""
+            self.s3["prefixes"] += 1
+            self.seen_states += 1
+            t = self.b_time(g, trace)
+            if t is None:
+                return None
+            self.bstates += 1
+            for a in self.entries:
+                self.tries += 1
+
+                def acc(st, code, g=g, t=t, trace=trace):
+                    if code != 0 or int(st.env.get("block.timestamp") or 0) < t:
+                        return False
+                    if not self.judge.decides(self.m, self.law, g, st, t):
+                        return False
+                    return self.validate is None or self.validate(trace, st, t)
+                st = self.synth(g, trace, t, a, acc)
+                if st is not None:
+                    self.log(f"  {self.law['law_id']}: an S3 candidate after {self.s3['prefixes']} neighbourhood "
+                             f"prefixes ({a})")
+                    return trace + [st], t
+            return None
+
+        for name, steps in seeds:
+            k = 0
+            while True:
+                if self.s3["prefixes"] >= maxn or out_of_time():
+                    return None
+                item = self.ex.neighbour(name, steps, k, maxn)
+                if item is None:
+                    break
+                k += 1
+                r = try_prefix(*item)
+                if r is not None:
+                    return r
         return None
 
     def bound(self) -> str:
-        s3 = (f"; S3: {len(self.extra)} states along other laws' witnesses of this model" if self.extra else
-              "; S3: no other law's witness")
-        s3 += " (not I30's neighbourhood search: no steps inserted, the neighbourhood budget unused)"
+        n3 = getattr(self, "s3", None)
+        if n3 is None:
+            s3 = "; S3: not run"
+        elif not n3["seeds"]:
+            s3 = "; S3: no other entry point's witness (no neighbourhood to search)"
+        else:
+            s3 = (f"; S3: {n3['prefixes']} neighbourhood prefixes of the witnesses of {', '.join(n3['seeds'])} (one to "
+                  f"{n3['insert']} successful steps inserted at every position; max {n3['max']} per entry point)")
+            if n3["timebox"]:
+                s3 += " (stopped by the run's time box before the budget: UNKNOWN by the time box)"
+            elif n3["prefixes"] >= n3["max"]:
+                s3 += " (budget exhausted)"
         cap = " (the last-step cap was reached)" if self.capped else ""
         return (f"{self.ex.bound().split('; S3')[0]}{s3}; B held at a candidate time in {self.bstates} of "
                 f"{self.seen_states} states; {self.tries} last-step syntheses{cap} "

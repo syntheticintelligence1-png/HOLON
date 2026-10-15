@@ -313,6 +313,7 @@ class Run:
         self.docs: dict = {}
         self.real = None
         self.s12: dict = {}             # law id -> its S1+S2 candidate (or None): S3's witnesses
+        self.deadline = None            # --deadline: a wall-clock time box on S3 (UNKNOWN by the time box)
         self.validations: dict = {}     # law id -> candidates checked against the deployment's answers
 
     def doc_of(self, e: dict) -> Doc:
@@ -466,15 +467,12 @@ class Run:
                      "external answers")
         return ok
 
-    def search(self, d: Doc, law: dict, s3_states: list, s3: bool = True):
+    def search(self, d: Doc, law: dict):
+        """S1+S2 over the shared exploration (S3 is decide_all's neighbourhood stage)."""
         ls = DS.LawSearch(d.ex, d.an, law, law_entries(d.an, law), d.judge, log=self.log)
         if self.binding():
             ls.validate = lambda trace, st, t: self.valid(d, law, trace, st, t)
         r = ls.refute(False, LAST_STEP_STATES)
-        if r is None and s3 and s3_states:
-            ls.extra = list(s3_states)
-            ls.capped = False
-            r = ls.refute(True, LAST_STEP_STATES)
         return r, ls
 
     def decide_all(self, ids: list[str]) -> dict:
@@ -497,7 +495,7 @@ class Run:
                              f"{round(time.time() - t0, 1)} s")
                     out[lid] = ("PROVED", {"attempts": attempts, "proof": att})
                     continue
-            r, ls = self.search(d, law, [])
+            r, ls = self.search(d, law)
             self.log(f"{lid}: search {'found a candidate' if r else 'found nothing'} in {round(time.time() - t0, 1)} s")
             attempts.append({"kind": "search", "stage": "S1+S2", "found": r is not None, "bound": ls.bound()})
             if r is not None:
@@ -506,60 +504,42 @@ class Run:
                                           "bound": ls.bound()})
             else:
                 pending[lid] = {"attempts": attempts, "bound": ls.bound()}
-        # S3: the states along the S1+S2 witnesses of every other external and external_none law of the same document
-        # (law id order), searched for here when this run did not decide them, so that a law's outcome does not depend
-        # on which laws a run names
+        # S3: I30's neighbourhood search around the other entry points' witnesses: the S1+S2 candidates of every
+        # other DISCH law of the same model (law id order), searched for here when this run does not decide that law,
+        # so that a law's outcome does not depend on which laws a run names
         for lid in sorted(pending):
             e = self.ctx.derivation[lid]
             d = self.doc_of(e)
             law = self.law_of(d, lid)
-            wits = []
+            seeds = []
             for other in sorted(d.an["laws"], key=lambda x: x["law_id"]):
                 k = other["law_id"]
-                if k == lid or other["subform"] not in ("external", "external_none"):
+                if k == lid:
                     continue
                 if k not in self.s12:
                     if k in found:
                         self.s12[k] = found[k]
+                    elif k in ids:
+                        self.s12[k] = None          # decided in this run without an S1+S2 candidate
                     else:
-                        r0, _ls0 = self.search(d, other, [], s3=False)
+                        r0, _ls0 = self.search(d, other)
                         self.s12[k] = r0
                 if self.s12[k] is not None:
-                    wits.append(self.s12[k])
-            states = self.witness_states(d, wits)
-            if not states:
-                out[lid] = ("UNKNOWN", pending[lid])
-                continue
+                    seeds.append((k, self.s12[k][0]))
             t0 = time.time()
-            r, ls = self.search(d, law, states)
-            self.log(f"{lid}: S3 {'found a candidate' if r else 'found nothing'} in {round(time.time() - t0, 1)} s")
+            ls = DS.LawSearch(d.ex, d.an, law, law_entries(d.an, law), d.judge, log=self.log)
+            if self.binding():
+                ls.validate = lambda trace, st, t, d=d, law=law: self.valid(d, law, trace, st, t)
+            r = ls.neighbourhood(seeds, self.deadline)
+            self.log(f"{lid}: S3 {'found a candidate' if r else 'found nothing'} in {round(time.time() - t0, 1)} s "
+                     f"({ls.s3['prefixes']} neighbourhood prefixes{', time box' if ls.s3['timebox'] else ''})")
             att = pending[lid]["attempts"] + [{"kind": "search", "stage": "S3", "found": r is not None,
-                                               "bound": ls.bound()}]
+                                               "bound": ls.bound(), "timebox": ls.s3["timebox"]}]
+            bound = pending[lid]["bound"].split("; S3")[0] + "; S3" + ls.bound().split("; S3", 1)[1].split("; B held")[0]
             if r is not None:
-                out[lid] = ("CANDIDATE", {"attempts": att, "steps": r[0], "t": r[1], "stage": "S3",
-                                          "bound": ls.bound()})
+                out[lid] = ("CANDIDATE", {"attempts": att, "steps": r[0], "t": r[1], "stage": "S3", "bound": bound})
             else:
-                out[lid] = ("UNKNOWN", {"attempts": att, "bound": ls.bound()})
-        return out
-
-    def witness_states(self, d: Doc, wits: list) -> list:
-        """(trace, g) of every prefix of the given witnesses, and their full traces, rebuilt on the shared
-        exploration's model (distinct by fingerprint and clock, in order)."""
-        m = d.ex.m
-        seen = set()
-        out = []
-        for steps, _t in wits:
-            g = m.s0()
-            for k, st in enumerate(steps):
-                code, g2, _c = m.run_step(g, st, save=True)
-                if code != 0:
-                    break
-                g = g2
-                key = (m.fingerprint(g), int(st.env.get("block.timestamp") or 0))
-                if key in seen:
-                    continue
-                seen.add(key)
-                out.append((list(steps[:k + 1]), g))
+                out[lid] = ("UNKNOWN", {"attempts": att, "bound": bound})
         return out
 
     def finish(self, lid: str, outcome: tuple) -> tuple[dict, dict | None]:
@@ -797,6 +777,9 @@ def run_disch(a) -> int:
     gen = Path(a.gen_dir).resolve() if a.gen_dir else None
     out = Path(a.out).resolve() if a.out else None
     r = Run(a.milestone, root, a.sidecar, a.disch, gen, out)
+    if getattr(a, "deadline", None):
+        from ..undo.run import parse_deadline
+        r.deadline = parse_deadline(a.deadline)
     try:
         ids = r.ids(a.laws)
         if not ids:
@@ -907,6 +890,8 @@ def main(argv: list) -> int:
     ap.add_argument("--laws")
     ap.add_argument("--out")
     ap.add_argument("--gen-dir")
+    ap.add_argument("--deadline", help="a wall-clock time box on the S3 stage (ISO 8601 UTC or epoch seconds): a law "
+                                       "S3 has not decided by then is UNKNOWN by the time box, recorded as such")
     a, _unknown = ap.parse_known_args(rest)
     base = strip_args(rest, ("--disch",))
     from ..undo import run as undo_run   # I30's laws (holon.sorts.run3) and I27's UNDO laws, as before the DISCH laws
