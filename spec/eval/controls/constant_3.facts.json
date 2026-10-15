@@ -1,0 +1,127 @@
+{
+  "abstractions": [
+    "A planted obligation of the constant family, size 3, for UNKNOWN calibration (L15); not a real target."
+  ],
+  "actions": [
+    {
+      "effects": {
+        "x": "y_1"
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "copy",
+      "principal": "anyone",
+      "src": "control: copy()"
+    },
+    {
+      "effects": {
+        "y_1": "y_2"
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "shift_1",
+      "principal": "anyone",
+      "src": "control: shift_1()"
+    },
+    {
+      "effects": {
+        "y_2": "y_3"
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "shift_2",
+      "principal": "anyone",
+      "src": "control: shift_2()"
+    },
+    {
+      "effects": {
+        "y_3": 0
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "clear",
+      "principal": "anyone",
+      "src": "control: clear()"
+    }
+  ],
+  "coverage": {
+    "debt": [],
+    "modelled": [
+      "copy",
+      "shift_1",
+      "shift_2",
+      "clear"
+    ]
+  },
+  "defs": {},
+  "extraction": {
+    "date": "2026-10-15",
+    "method": "generated from spec/M4/lib/controls_plan.json (I48 rule K2)"
+  },
+  "facts_version": "holon-facts/0.2",
+  "ghost_state": [],
+  "initial": {
+    "doc": "every register zero, flags down",
+    "log": [],
+    "x": 0,
+    "y_1": 0,
+    "y_2": 0,
+    "y_3": 0
+  },
+  "observers": {
+    "x_zero": {
+      "body": [
+        "==",
+        "x",
+        0
+      ],
+      "doc": "planted true invariant; its strengthening is field constants",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Bool"
+    }
+  },
+  "params": {},
+  "policy": "generic",
+  "principals": {},
+  "reasons": {
+    "1": "the guard does not hold"
+  },
+  "state": [
+    [
+      "x",
+      "Nat",
+      "copied from y_1"
+    ],
+    [
+      "y_1",
+      "Nat",
+      "shifted from the next y, the last one cleared"
+    ],
+    [
+      "y_2",
+      "Nat",
+      "shifted from the next y, the last one cleared"
+    ],
+    [
+      "y_3",
+      "Nat",
+      "shifted from the next y, the last one cleared"
+    ],
+    [
+      "log",
+      "List<Obs>",
+      "observations"
+    ]
+  ],
+  "target": {
+    "commit": "0000000000000000000000000000000000000000",
+    "repo": "holon/eval-controls",
+    "scope": "I48 control constant_3: registers x: Nat = 0, y_1..y_SIZE: Nat = 0; actions copy() effect x := y_1; shift_i() effect y_i := y_(i+1) for i < SIZE; clear() effect y_SIZE := 0"
+  },
+  "types": {}
+}

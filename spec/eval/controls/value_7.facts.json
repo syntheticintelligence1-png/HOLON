@@ -1,0 +1,89 @@
+{
+  "abstractions": [
+    "A planted obligation of the value family, size 7, for UNKNOWN calibration (L15); not a real target."
+  ],
+  "actions": [
+    {
+      "effects": {
+        "flag": true
+      },
+      "guards": [
+        {
+          "reason": 1,
+          "require": [
+            "==",
+            "d",
+            7
+          ]
+        }
+      ],
+      "inputs": [
+        [
+          "d",
+          "Nat"
+        ]
+      ],
+      "name": "fire",
+      "principal": "anyone",
+      "src": "control: fire(d)"
+    }
+  ],
+  "coverage": {
+    "debt": [],
+    "modelled": [
+      "fire"
+    ]
+  },
+  "defs": {},
+  "extraction": {
+    "date": "2026-10-15",
+    "method": "generated from spec/M4/lib/controls_plan.json (I48 rule K2)"
+  },
+  "facts_version": "holon-facts/0.2",
+  "ghost_state": [],
+  "initial": {
+    "doc": "every register zero, flags down",
+    "flag": false,
+    "log": []
+  },
+  "observers": {
+    "flag_down": {
+      "body": [
+        "!",
+        "flag"
+      ],
+      "doc": "planted false invariant: the flag stays down",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Bool"
+    }
+  },
+  "params": {},
+  "policy": "generic",
+  "principals": {},
+  "reasons": {
+    "1": "the guard does not hold"
+  },
+  "state": [
+    [
+      "flag",
+      "Bool",
+      "raised by fire(SIZE)"
+    ],
+    [
+      "log",
+      "List<Obs>",
+      "observations"
+    ]
+  ],
+  "target": {
+    "commit": "0000000000000000000000000000000000000000",
+    "repo": "holon/eval-controls",
+    "scope": "I48 control value_7: register flag: Bool = false; action fire(d: Nat) guard d == SIZE effect flag := true"
+  },
+  "types": {}
+}

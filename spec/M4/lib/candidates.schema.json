@@ -1,0 +1,758 @@
+{
+  "$defs": {
+    "candidate": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "eligible": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "duplicate_of": {
+                "type": "null"
+              },
+              "exclusion_note": {
+                "type": "null"
+              },
+              "files": {
+                "minItems": 1
+              },
+              "fix_commit": {
+                "type": "string"
+              },
+              "fix_date": {
+                "type": "string"
+              },
+              "frontend_lines": {
+                "type": "integer"
+              },
+              "prefix_commit": {
+                "type": "string"
+              },
+              "reason": {
+                "enum": [
+                  null,
+                  "cap_reached",
+                  "past_n"
+                ]
+              },
+              "repo": {
+                "type": "string"
+              },
+              "source_lines": {
+                "type": "integer"
+              },
+              "sources": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eligible": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "entry": {
+                "type": "null"
+              },
+              "reason": {
+                "enum": [
+                  "excluded_repo",
+                  "other_repo",
+                  "commit_not_found",
+                  "not_in_frontend_reach",
+                  "no_public_writeup",
+                  "not_functional",
+                  "duplicate"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  "no_public_writeup",
+                  "not_functional",
+                  "duplicate"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "exclusion_note": {
+                "pattern": "\\S",
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "const": "duplicate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "duplicate_of": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "const": "excluded_repo"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "excluded_by": {
+                "type": "object"
+              },
+              "files": {
+                "maxItems": 0
+              },
+              "fix_commit": {
+                "type": "null"
+              },
+              "fix_date": {
+                "type": "null"
+              },
+              "frontend_lines": {
+                "type": "null"
+              },
+              "prefix_commit": {
+                "type": "null"
+              },
+              "source_lines": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  null,
+                  "other_repo",
+                  "commit_not_found",
+                  "not_in_frontend_reach",
+                  "no_public_writeup",
+                  "not_functional",
+                  "duplicate",
+                  "cap_reached",
+                  "past_n"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "excluded_by": {
+                "type": "null"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fix_commit": {
+                "type": "null"
+              },
+              "reason": {
+                "const": "commit_not_found"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "exclusion_note": {
+                "pattern": "\\S",
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "const": "other_repo"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "files": {
+                "maxItems": 0
+              },
+              "fix_date": {
+                "type": "null"
+              },
+              "frontend_lines": {
+                "type": "null"
+              },
+              "prefix_commit": {
+                "type": "null"
+              },
+              "repo": {
+                "type": "string"
+              },
+              "source_lines": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fix_commit": {
+                "type": "string"
+              },
+              "reason": {
+                "const": "other_repo"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "repo": {
+                "pattern": "^https://github\\.com/",
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fix_commit": {
+                "type": "null"
+              },
+              "reason": {
+                "const": "other_repo"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "exclusion_note": {
+                "pattern": "\\S",
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  null,
+                  "commit_not_found",
+                  "not_in_frontend_reach",
+                  "no_public_writeup",
+                  "not_functional",
+                  "duplicate",
+                  "cap_reached",
+                  "past_n"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "repo": {
+                "pattern": "^https://github\\.com/",
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "description": {
+          "maxLength": 2000,
+          "pattern": "\\S",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "duplicate_of": {
+          "pattern": "^[a-z0-9-]+:[0-9]{3,}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "eligible": {
+          "type": "boolean"
+        },
+        "entry": {
+          "pattern": "^c[0-9]{2}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "excluded_by": {
+          "$ref": "#/$defs/excluded_by"
+        },
+        "exclusion_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "files": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "fix_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fix_date": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frontend_lines": {
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "id": {
+          "pattern": "^[a-z0-9-]+:[0-9]{3,}$",
+          "type": "string"
+        },
+        "index": {
+          "type": "string"
+        },
+        "item": {
+          "pattern": "^https://",
+          "type": "string"
+        },
+        "prefix_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "published": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "type": "string"
+        },
+        "rank": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "reason": {
+          "enum": [
+            null,
+            "excluded_repo",
+            "other_repo",
+            "commit_not_found",
+            "not_in_frontend_reach",
+            "no_public_writeup",
+            "not_functional",
+            "duplicate",
+            "cap_reached",
+            "past_n"
+          ]
+        },
+        "repo": {
+          "pattern": "^https://",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_lines": {
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "sources": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "advisory",
+                  "postmortem",
+                  "audit",
+                  "bounty",
+                  "issue"
+                ]
+              },
+              "url": {
+                "pattern": "^https://",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "url"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "system": {
+          "type": "string"
+        },
+        "title": {
+          "pattern": "\\S",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "system",
+        "rank",
+        "index",
+        "item",
+        "published",
+        "repo",
+        "title",
+        "description",
+        "sources",
+        "fix_commit",
+        "prefix_commit",
+        "fix_date",
+        "files",
+        "source_lines",
+        "frontend_lines",
+        "excluded_by",
+        "eligible",
+        "reason",
+        "exclusion_note",
+        "duplicate_of",
+        "entry"
+      ],
+      "type": "object"
+    },
+    "excluded_by": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "pattern": {
+              "pattern": "\\S",
+              "type": "string"
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "subject": {
+              "pattern": "\\S",
+              "type": "string"
+            }
+          },
+          "required": [
+            "subject"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "index": {
+      "additionalProperties": false,
+      "properties": {
+        "examined": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "index": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/item"
+          },
+          "type": "array"
+        },
+        "snapshot": {
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "commit": {
+                  "pattern": "^[0-9a-f]{40}$",
+                  "type": "string"
+                },
+                "kind": {
+                  "const": "git"
+                },
+                "path": {
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "repo": {
+                  "pattern": "^https://github\\.com/",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "repo",
+                "commit"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "page"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "url": {
+                  "pattern": "^https://",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "url",
+                "sha256"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "system": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "system",
+        "index",
+        "snapshot",
+        "items",
+        "examined"
+      ],
+      "type": "object"
+    },
+    "item": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "excluded_by": {
+              "$ref": "#/$defs/excluded_by"
+            },
+            "item": {
+              "pattern": "^https://",
+              "type": "string"
+            },
+            "published": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            },
+            "title": {
+              "pattern": "\\S",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "item",
+            "published",
+            "title",
+            "excluded_by"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "findings": {
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "item": {
+              "pattern": "^https://",
+              "type": "string"
+            },
+            "note": {
+              "pattern": "\\S",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "published": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            },
+            "title": {
+              "pattern": "\\S",
+              "type": "string"
+            }
+          },
+          "required": [
+            "item",
+            "published",
+            "title",
+            "findings",
+            "note"
+          ],
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/candidate"
+      },
+      "type": "array"
+    },
+    "candidates_version": {
+      "const": "holon-eval-candidates/0.1"
+    },
+    "collectors": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "agent": {
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "family": {
+            "enum": [
+              "same",
+              "other"
+            ]
+          },
+          "system": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "system",
+          "agent",
+          "family"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "indexes": {
+      "items": {
+        "$ref": "#/$defs/index"
+      },
+      "type": "array"
+    },
+    "protocol_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "systems": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "examined": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "id": {
+            "type": "string"
+          },
+          "stopped": {
+            "enum": [
+              "eighth_eligible",
+              "exhausted"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "examined",
+          "stopped"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "candidates_version",
+    "protocol_sha256",
+    "collectors",
+    "systems",
+    "indexes",
+    "candidates"
+  ],
+  "title": "I48 candidates (spec/eval/candidates.json): every index's snapshot and item list, and every candidate defect examined, eligible or not, in examination order per system, with the reason",
+  "type": "object"
+}

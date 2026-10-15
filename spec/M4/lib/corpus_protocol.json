@@ -1,0 +1,462 @@
+{
+  "agreement": "C6: Cohen's kappa on the primary labels over the nine categories of the rule sheet, with observed agreement p_o, chance agreement p_e from the two labellers' marginals, and Cohen's large-sample standard error and 95% interval (about +-0.2 at n = 20); reported, never an exit condition (BUILD_PLAN I48).",
+  "collection": [
+    "Collectors. Fresh agents, one per system, each given only this protocol (with git, the web, holon eval index and the instrument's commit check), collect the candidates. A collector sees no other system's candidates, no label, no prediction, no HOLON result and no count of anything but its own system's eligible candidates. Every collector is recorded in candidates.json (collectors).",
+    "Snapshots and item lists. Each git index is read at its pinned commit (snapshots), each page at one fetch recorded with its final URL and the sha256 of its bytes (index_record). For a mechanical index (ghsa, geth) the collector receives the item list of python -m holon eval index (written outside the repository, already pre-filtered: excluded_subjects) and never opens a pre-filtered item; for a folder or page index it lists the reports itself, as the index's how says.",
+    "Examination order. A collector examines its system's indexes in the listed order and, within an index, its items in the order of the index's how (newest published first); an audit item (folder or page) yields one candidate per finding, in the report's order, and records its findings count; an item of a mechanical index yields exactly one candidate. Every candidate examined is recorded, in examination order: its rank is its place in that order (1, 2, ...) and its id is <system>:<rank, zero-padded to at least three digits>; its index is the index id, its item the item's URL (which is also its first source), and its published date the item's.",
+    "Stop rule. A system's collection stops at its 8th eligible candidate (max_per_system), or when its indexes are exhausted; stopped records which, and each index record's examined says how far its items were examined (index_record).",
+    "Supplementary sources. A source of kind issue (or any other public page) may be added to a candidate's sources after its first source, never in its place: no candidate comes from anything but an index item. No source but the first (the item) holds an excluded_repos pattern.",
+    "Reading sources. github.com's web pages and API are not reachable from the build environment: a repository file linked as https://github.com/<o>/<r>/blob/<ref>/<path> is read from https://raw.githubusercontent.com/<o>/<r>/<ref>/<path>, a repository is read through git clone, and a repository advisory link (https://github.com/<o>/<r>/security/advisories/GHSA-...) is read through the advisory database's record of the same id. A URL is recorded as the source gives it (a relative page link resolved against the page's final URL). A clone that git redirects to a URL under an excluded_repos pattern is refused.",
+    "Fix commit. For a mechanical index item that names a reachable commit in one of the system's repositories, the fix commit is the index's exact rule (named_fix: the earliest named reachable commit by committer date). Otherwise: the commit the first source names in one of the system's repositories (several: the earliest by committer date); else the earliest commit by committer date on the repository's default branch that contains the fix; else the merge commit of the pull request that fixed it. The pre-fix commit is the fix commit's first parent. The fix commit must be reachable from a branch or a tag of the public repository (the instrument's commit check). A fix in another repository (other_repo) records that repository and, when it can be named, its fix commit, which must be a commit reachable from a branch or tag of that GitHub repository; when it cannot be named (or the repository is outside GitHub), fix_commit is null and an exclusion_note says what was searched. A candidate of the system's repositories whose fix commit cannot be named at all (commit_not_found) records fix_commit null and an exclusion_note saying what was searched.",
+    "Title and description. The title is the first source's own title for the defect (the advisory's summary, the geth entry's name, the finding's heading), verbatim. The description is a contiguous verbatim excerpt of the first source that describes the defect (for a mechanical item: of the advisory's details or the geth entry's description, each its summary when blank), at most 2000 characters, runs of whitespace collapsed to one space. Neither is written or edited by the collector. A pre-filtered item, and any excluded_repo candidate that was not opened (decided from its item URL or repo alone), may have neither (both null).",
+    "Duplicates. Two candidates of one system with the same root cause (a fix of the same code for the same defect, such as an advisory and the audit finding it came from, or a fix and its backport) are duplicates: the one with the earlier fix_date is kept (ties: the lower rank) and the other gets reason duplicate and duplicate_of the kept one's id.",
+    "Notes. Every candidate whose reason is not_functional, duplicate or no_public_writeup carries an exclusion_note: one or two sentences saying why, citing the source; so does a commit_not_found or other_repo candidate without a fix commit, and an audit item with findings 0 carries a note. Every excluded_repo candidate carries excluded_by: the pattern or subject that excluded it."
+  ],
+  "criteria": [
+    {
+      "id": "C2e",
+      "reason": "excluded_repo",
+      "text": "allowed repository: the fix is not in a repository under an excluded_repos pattern, the candidate's item holds no such pattern, and its title and description name no excluded subject (excluded_subjects; a pre-filtered mechanical item fails this criterion unopened)"
+    },
+    {
+      "id": "C2f",
+      "reason": "other_repo",
+      "text": "the system's repository: the fix commit is in one of the system's repos (a fix in another repository, such as a fork or a dependency like op-geth, OffchainLabs/go-ethereum, OffchainLabs/bold or cometbft/cometbft, is recorded with that repository, its fix commit when it can be named (reachable from a branch or tag of that GitHub repository: the instrument's commit check; else null with an exclusion_note), reason other_repo and no other git facts)"
+    },
+    {
+      "id": "C2b",
+      "reason": "commit_not_found",
+      "text": "public fix: a fix commit (40 hex) reachable from a branch or a tag of the system's public repository by git clone; the pre-fix commit is its first parent (a candidate whose fix commit cannot be named records fix_commit null and an exclusion_note saying what was searched)"
+    },
+    {
+      "id": "C2c",
+      "reason": "not_in_frontend_reach",
+      "text": "frontend reach: the fix changes at least one non-test, non-generated .go or .sol file that exists in the pre-fix tree, and non-test, non-generated .go and .sol files hold at least half of the fix's changed non-test, non-generated source lines (git numstat added plus deleted lines; source: a file whose extension is in source_extensions, any language)"
+    },
+    {
+      "id": "C2a",
+      "reason": "no_public_writeup",
+      "text": "public write-up: the first source, a public index item, describes the defect itself (not only the fix)"
+    },
+    {
+      "id": "C2d",
+      "reason": "not_functional",
+      "text": "functional defect: the defect makes the code compute a wrong value or state, accept or reject an input it should not, lose or lock funds or messages, diverge from another component or node, or fail liveness; gas-only, style, documentation, dependency-bump, build and test-only fixes are not defects here"
+    },
+    {
+      "id": "dup",
+      "reason": "duplicate",
+      "text": "not a duplicate of a kept candidate (collection: Duplicates)"
+    }
+  ],
+  "criteria_order": "A candidate is eligible iff every criterion holds. An ineligible candidate's reason is that of the first failing criterion in the listed order: the mechanical ones (repository, commit, reach) are decided before the judged ones (write-up, functional, duplicate), so not_in_frontend_reach is exactly the failure of C2c among candidates whose fix commit is found in the system's repository.",
+  "cutoff": "2026-10-15T00:00:00Z",
+  "doc": "I48 corpus protocol (frozen at the I48 prereg; BUILD_PLAN I48, whitepaper \u00a713 'Corpus', human answer Q20: N = 20 defects across at least 3 systems; docs/HUMAN_ANSWERS.md end-goal guidance: the corpus tests generality beyond rollups wherever the frontends reach). Rules C0-C7 of tests_m4/test_eval_corpus.py read this file; nothing in it is tuned after candidates are collected.",
+  "excluded_repos": [
+    {
+      "pattern": "github.com/scroll-tech/",
+      "why": "sealed held-out target (Q7, spec/heldout/target.json): no agent reads it before I49's prereg"
+    },
+    {
+      "pattern": "github.com/morph-l2/",
+      "why": "the development target (M0-M3): the corpus measures generality, and every Morph defect is contaminated by the case study"
+    }
+  ],
+  "excluded_subjects": {
+    "rule": "Mechanical indexes (ghsa, geth): the pre-filter (tests_m4/_i48.py::prefilter) runs before any agent sees an item: an item one of whose JSON string values holds an excluded_repos pattern (case-insensitive) or names an excluded subject (a case-insensitive whole word, dots and dashes literal) is never opened, and is recorded with reason excluded_repo, excluded_by {pattern} or {subject} (the first pattern in excluded_repos order, else the first subject in this list's order), repo, title and description null, and no git facts; an opened mechanical item can be excluded_repo only by a pattern in its repo. Any index: a candidate whose repo or item holds an excluded_repos pattern, or (an opened item) whose title or description names an excluded subject, has reason excluded_repo and excluded_by naming one of them; it is not read further. The sealed target is never read through a third party's page either.",
+    "subjects": [
+      "Scroll",
+      "scroll-tech",
+      "ScrollChain",
+      "scroll.io",
+      "Morph",
+      "morph-l2"
+    ]
+  },
+  "exclusion_reasons": [
+    "excluded_repo",
+    "other_repo",
+    "commit_not_found",
+    "not_in_frontend_reach",
+    "no_public_writeup",
+    "not_functional",
+    "duplicate",
+    "cap_reached",
+    "past_n"
+  ],
+  "frontend_extensions": {
+    "go": [
+      ".go"
+    ],
+    "solidity": [
+      ".sol"
+    ]
+  },
+  "frontend_languages": [
+    "go",
+    "solidity"
+  ],
+  "generated_dirs": [
+    "bindings",
+    "solgen",
+    "vendor",
+    "node_modules"
+  ],
+  "generated_globs": [
+    "*.pb.go",
+    "*.pb.gw.go",
+    "*.pulsar.go"
+  ],
+  "generated_go_marker": "^// Code generated .* DO NOT EDIT\\.$",
+  "index_record": "candidates.json indexes: one record per index of every system, in this file's order (systems, then their indexes): {system, index, snapshot, items, examined}. snapshot: for a git index {kind: git, repo, commit, path} with the pin's repo, commit and path (snapshots.pins; ghsa has no path); for page {kind: page, url: the final URL after redirects, sha256: the fetched bytes'}. items: every item of the index in examination order, the whole list (not only the examined prefix): for ghsa and geth exactly the instrument's list at the pin, {item, published, title, excluded_by}; for folder (every report at the pin: the snapshot is its cutoff) and page (items published before the cutoff) {item, published, title: the report's title, findings, note}: findings is the number of findings the report holds (every numbered or headed finding, whatever its severity or status) when the item was examined, else null; note says why when findings is 0 (no finding, not a report, unreachable), else null. examined: how many leading items were examined: every index before the system's stopping index fully, the stopping index up to the item holding the system's 8th eligible candidate, every later index 0; a system whose indexes are exhausted examines every index fully. An examined audit item yields exactly findings candidates, one per finding in the report's order, except the stopping item, which yields its findings up to the 8th eligible candidate.",
+  "labelling": "C5: two labellers and, for their disagreements, an adjudicator. Each prompt (one entry and one role) is read by a fresh, tool-less process run exactly as labelling_invocation says: labeller a and the adjudicator run model A, labeller b runs model B, a different model of the same family. A process reads only the prompt rendered from spec/M4/lib/labeller_prompt.md (labellers) or adjudicator_prompt.md (the adjudicator): the rule sheet spec/M4/lib/rule_sheet.json, the entry's title, the verbatim excerpt of its first source (its description), its source URLs (which it cannot open) and the fix diff (capped: tests_m4/_i48.py::cap_diff); the adjudicator's also both labels and justifications. Each label records the prompt's sha256, every attempt (the CLI's reduced output and its outcome, under the retry rule) and the last attempt's response. No labeller sees another's labels, HOLON results on the corpus (none exist before I51), or this corpus's later outcomes. Labeller family: same as the build agent's (Q9 default), recorded as such; the models are recorded only as the tags A and B.",
+  "labelling_invocation": {
+    "argv": [
+      "claude",
+      "-p",
+      "--tools",
+      "",
+      "--strict-mcp-config",
+      "--disable-slash-commands",
+      "--no-session-persistence",
+      "--setting-sources",
+      "",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "<model>",
+      "--output-format",
+      "json"
+    ],
+    "cwd": "a fresh empty directory from tempfile.mkdtemp(prefix=\"label-\", dir=\"/tmp\"), removed after the call",
+    "env": "the build's environment without env_removed (so no CLAUDE.md or other directory is read)",
+    "env_removed": [
+      "CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD",
+      "CLAUDE_ADDITIONAL_DIRECTORIES"
+    ],
+    "models": {
+      "A": "the family's most capable model available to the build",
+      "B": "a smaller model of the same family, different from A"
+    },
+    "placeholders": "<system_prompt> is system_prompt below; <model> is the model of the role's tag, named only at run time and never recorded in the repository",
+    "process": "one fresh process per prompt (an entry and a role); nothing else runs in it",
+    "recorded": "per attempt, the CLI's JSON output reduced to is_error, num_turns, result, session_id and subtype, verbatim (a key the output lacks is null; every key is null when the output is not one JSON object, such as after a timeout), and its outcome. Model names are never recorded, only the tags: the tool reads the model each call reports it used, keeps the model observed per tag outside the repository, refuses a run that contradicts it, and records its run-time checks (one_model_per_role: every call reports exactly one model and every call of a role the same one; a_differs_from_b; adjudicator_is_a).",
+    "retry": "An attempt is ok iff the CLI JSON has is_error false, num_turns 1, and its result parses (parse_response) to an object with exactly the label keys and valid values (labels.schema.json's label object); otherwise its outcome is cli_error, turns, unparsable or invalid (the first failing, in that order: tests_m4/_i48.py::attempt_outcome). A cli_error attempt does not count toward the two model-output attempts: the prompt is run again after a 60 s wait, at most 5 cli_error attempts per prompt. A counted (turns, unparsable or invalid) attempt is followed by exactly one more counted attempt. The attempts stop at the first ok one, the second counted one or the fifth cli_error one (tests_m4/_i48.py::retry_follows); every attempt is recorded. The label is the last attempt's when it is ok, else null.",
+    "roles": {
+      "a": "A",
+      "adjudicator": "A",
+      "b": "B"
+    },
+    "stdin": "the rendered prompt (tests_m4/_i48.py::render_prompt), UTF-8",
+    "system_prompt": "You label software defects for an evaluation corpus. You have no tools. Answer only with what the prompt asks for.",
+    "timeout_seconds": 600,
+    "verified": "At the prereg this invocation answered with is_error false and num_turns 1, reported one model per call, and the process saw no tools and no project instructions (it does see the date and its working directory)."
+  },
+  "max_per_system": 8,
+  "min_non_rollup_systems": 2,
+  "min_systems": 3,
+  "n": 20,
+  "protocol_version": "holon-eval-protocol/0.1",
+  "rollup_kinds": [
+    "rollup"
+  ],
+  "selection": "C4 (round robin): the eligible candidates of each system are ordered by the fix commit's committer date, newest first (then fix sha, then id). Rounds visit the systems in this file's order (arbitrum, compound, cosmos, go-ethereum, optimism, wormhole); in each round every system with fewer than max_per_system included entries includes its next candidate, until n entries are included or no system has a candidate left. An eligible candidate left out has reason cap_reached when its system holds max_per_system entries, else past_n. Round robin, fixed before any candidate was examined, spreads the corpus over the systems instead of letting the systems with the most recent fixes fill it. The selection is a function of spec/eval/candidates.json alone, and it is never re-run after labelling.",
+  "snapshots": {
+    "pins": {
+      "advisory-database": {
+        "branch": "main",
+        "commit": "b950a40c9ce07b70b943775709034132dd9614cb",
+        "committer_date": "2026-10-14T21:37:11Z",
+        "repo": "https://github.com/github/advisory-database"
+      },
+      "cosmos-sdk-audits": {
+        "branch": "main",
+        "commit": "2ad20ad7ca843fbde95c1472ab69f1d3f04e46d4",
+        "committer_date": "2026-10-06T07:19:38Z",
+        "path": "docs/audits",
+        "repo": "https://github.com/cosmos/cosmos-sdk"
+      },
+      "geth-list": {
+        "branch": "website",
+        "commit": "17538c7bbb135c95244a60c625917cc1975cdc85",
+        "committer_date": "2026-10-07T09:48:23Z",
+        "path": "public/docs/vulnerabilities/vulnerabilities.json",
+        "repo": "https://github.com/ethereum/go-ethereum",
+        "sha256": "c0d3311d521e0b619129e8318b754474511ce104ca57f90faa9f7c92fa5a7346"
+      },
+      "ibc-go-audits": {
+        "branch": "main",
+        "commit": "35cf291f836ecd324d5921150c417f79b6ebfc77",
+        "committer_date": "2026-10-14T13:35:11Z",
+        "path": "docs/audits",
+        "repo": "https://github.com/cosmos/ibc-go"
+      },
+      "optimism-security-reviews": {
+        "branch": "develop",
+        "commit": "7c2e64f60028baca88367c35e1007e568036648b",
+        "committer_date": "2026-10-14T21:43:33Z",
+        "path": "docs/security-reviews",
+        "repo": "https://github.com/ethereum-optimism/optimism"
+      },
+      "wormhole-audits": {
+        "branch": "main",
+        "commit": "bb5957f321b0a9d168f52e906699ee77baa82a28",
+        "committer_date": "2026-10-13T17:04:00Z",
+        "path": "audits",
+        "repo": "https://github.com/wormhole-foundation/wormhole"
+      }
+    },
+    "rule": "Every git index is read at one pinned commit, fixed at the prereg by the rule: the newest first-parent commit of the branch whose committer date is before the cutoff (walking first parents from the branch head, the first commit whose committer date is before 2026-10-15T00:00:00Z; tests_m4/_i48.py::snapshot_rule), computed by the lead from commit graphs only. candidates.json's git snapshots are exactly these pins; the instrument checks each pin is reachable from its branch (first parent not required at check time) and, for the geth list, that the file has the pinned sha256. Page snapshots (arbitrum, compound) are fetched at collection and recorded with the final URL and the sha256 of their bytes (gap E-G1: not re-verifiable)."
+  },
+  "source_extensions": [
+    ".go",
+    ".sol",
+    ".rs",
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".cjs",
+    ".py",
+    ".c",
+    ".h",
+    ".cc",
+    ".cpp",
+    ".cxx",
+    ".hpp",
+    ".s",
+    ".S",
+    ".asm",
+    ".yul",
+    ".vy",
+    ".huff",
+    ".move",
+    ".cairo",
+    ".java",
+    ".kt",
+    ".scala",
+    ".swift",
+    ".zig",
+    ".proto",
+    ".sh",
+    ".circom",
+    ".nr"
+  ],
+  "sources": [
+    {
+      "kind": "advisory",
+      "what": "a public security advisory (GitHub GHSA, CVE, or the project's own advisory page) that names the defect"
+    },
+    {
+      "kind": "postmortem",
+      "what": "a public incident report or postmortem by the project or a named auditor"
+    },
+    {
+      "kind": "audit",
+      "what": "a public audit report (or contest finding) whose finding the project fixed in a public commit"
+    },
+    {
+      "kind": "bounty",
+      "what": "a public bug-bounty disclosure (e.g. Immunefi report, project blog) naming the defect and its fix"
+    },
+    {
+      "kind": "issue",
+      "what": "supplementary only (collection: Supplementary sources): a public issue or pull request in the project's repository that describes the defect or links its fix"
+    }
+  ],
+  "system_kinds": [
+    "rollup",
+    "client",
+    "interop",
+    "bridge",
+    "defi",
+    "appchain",
+    "other"
+  ],
+  "systems": [
+    {
+      "id": "arbitrum",
+      "indexes": [
+        {
+          "enumeration": "ghsa",
+          "how": "Enumeration ghsa (mechanical: tests_m4/_i48.py::ghsa_items_from; the collector receives the item list of holon eval index and never opens a pre-filtered item). The GitHub Advisory Database (github.com's advisory pages and API are not reachable from the build environment; the database's git repository holds the same records) at the pinned commit (snapshots.pins.advisory-database), the same for every GHSA index: every advisory JSON under advisories/github-reviewed/ or advisories/unreviewed/ without a withdrawn field whose affected[].package.name or references[].url, lowercased, contains github.com/<owner>/<repo> (lowercased) with, before github.com, the start of the string or a character outside [A-Za-z0-9.-], and, after it, the end of the string, one of / ? # @, or .git followed by the end or one of / ? # @, for one of OffchainLabs/nitro, OffchainLabs/nitro-contracts; published: the advisory's published field (UTC; an advisory without one that parses is not an item), before the cutoff; order: published newest first, then GHSA id ascending; item and first source https://github.com/advisories/<GHSA id>; title the advisory's summary verbatim (the id when the summary holds no non-space character). Fix commit (exact for this index, M3): the commits the item names in one of the system's repos (tests_m4/_i48.py::named_commits: github.com/<owner>/<repo>/commit/<40 hex> URLs in its references[].url); when any of them is reachable from a branch or tag of its repository, the fix commit is the earliest of those by committer date (ties: the sha) and repo is its repository (named_fix), even when a source names a commit that is not the fix; otherwise the general fix-commit rule applies. Description: a verbatim excerpt of the advisory's details (its summary when the details are blank), whitespace collapsed (tests_m4/_i48.py::description_ok). One candidate per item.",
+          "id": "arbitrum-ghsa",
+          "kind": "advisory",
+          "snapshot": "advisory-database",
+          "url": "https://github.com/github/advisory-database"
+        },
+        {
+          "enumeration": "page",
+          "how": "Enumeration page: every audit report the page links (snapshot: the final URL after redirects and the sha256 of the fetched bytes); item and first source the report's link as the page gives it, a relative link resolved against the page's final URL (a report linked twice is one item: its first occurrence); published: the report's own date, else the date the page gives it (a month, quarter or year alone means its first day), else 1970-01-01 (examined last); items in order published newest first, then item; only items published before the cutoff; within a report, one candidate per finding (every numbered or headed finding, whatever its severity or status, in the report's order), the count recorded as the item's findings.",
+          "id": "arbitrum-audits",
+          "kind": "audit",
+          "url": "https://docs.arbitrum.io/audit-reports"
+        }
+      ],
+      "kind": "rollup",
+      "repos": [
+        "https://github.com/OffchainLabs/nitro",
+        "https://github.com/OffchainLabs/nitro-contracts"
+      ],
+      "why": "optimistic rollup with a Go node and Solidity contracts, upgrades in flight, public advisories and audit fixes"
+    },
+    {
+      "id": "compound",
+      "indexes": [
+        {
+          "enumeration": "ghsa",
+          "how": "Enumeration ghsa (mechanical: tests_m4/_i48.py::ghsa_items_from; the collector receives the item list of holon eval index and never opens a pre-filtered item). The GitHub Advisory Database (github.com's advisory pages and API are not reachable from the build environment; the database's git repository holds the same records) at the pinned commit (snapshots.pins.advisory-database), the same for every GHSA index: every advisory JSON under advisories/github-reviewed/ or advisories/unreviewed/ without a withdrawn field whose affected[].package.name or references[].url, lowercased, contains github.com/<owner>/<repo> (lowercased) with, before github.com, the start of the string or a character outside [A-Za-z0-9.-], and, after it, the end of the string, one of / ? # @, or .git followed by the end or one of / ? # @, for one of compound-finance/compound-protocol; published: the advisory's published field (UTC; an advisory without one that parses is not an item), before the cutoff; order: published newest first, then GHSA id ascending; item and first source https://github.com/advisories/<GHSA id>; title the advisory's summary verbatim (the id when the summary holds no non-space character). Fix commit (exact for this index, M3): the commits the item names in one of the system's repos (tests_m4/_i48.py::named_commits: github.com/<owner>/<repo>/commit/<40 hex> URLs in its references[].url); when any of them is reachable from a branch or tag of its repository, the fix commit is the earliest of those by committer date (ties: the sha) and repo is its repository (named_fix), even when a source names a commit that is not the fix; otherwise the general fix-commit rule applies. Description: a verbatim excerpt of the advisory's details (its summary when the details are blank), whitespace collapsed (tests_m4/_i48.py::description_ok). One candidate per item.",
+          "id": "compound-ghsa",
+          "kind": "advisory",
+          "snapshot": "advisory-database",
+          "url": "https://github.com/github/advisory-database"
+        },
+        {
+          "enumeration": "page",
+          "how": "Enumeration page: the URL redirects (HTTP 302) to https://docs.compound.xyz/v2/security/ (the snapshot records that final URL and the sha256 of the fetched bytes); every audit or security report the page links; a report at https://github.com/<o>/<r>/blob/<ref>/<path> is read from https://raw.githubusercontent.com/<o>/<r>/<ref>/<path> (github.com's web pages are not reachable here); item and first source the report's link as the page gives it, a relative link resolved against the page's final URL (a report linked twice is one item: its first occurrence); published: the report's own date, else the date the page gives it (a month, quarter or year alone means its first day), else 1970-01-01 (examined last); items in order published newest first, then item; only items published before the cutoff; within a report, one candidate per finding (every numbered or headed finding, whatever its severity or status, in the report's order), the count recorded as the item's findings.",
+          "id": "compound-audits",
+          "kind": "audit",
+          "url": "https://docs.compound.finance/v2/security/"
+        }
+      ],
+      "kind": "defi",
+      "repos": [
+        "https://github.com/compound-finance/compound-protocol"
+      ],
+      "why": "Solidity lending protocol with upgradeable components (Comptroller via Unitroller) and public incident reports: generality beyond rollups on the Solidity frontend"
+    },
+    {
+      "id": "cosmos",
+      "indexes": [
+        {
+          "enumeration": "ghsa",
+          "how": "Enumeration ghsa (mechanical: tests_m4/_i48.py::ghsa_items_from; the collector receives the item list of holon eval index and never opens a pre-filtered item). The GitHub Advisory Database (github.com's advisory pages and API are not reachable from the build environment; the database's git repository holds the same records) at the pinned commit (snapshots.pins.advisory-database), the same for every GHSA index: every advisory JSON under advisories/github-reviewed/ or advisories/unreviewed/ without a withdrawn field whose affected[].package.name or references[].url, lowercased, contains github.com/<owner>/<repo> (lowercased) with, before github.com, the start of the string or a character outside [A-Za-z0-9.-], and, after it, the end of the string, one of / ? # @, or .git followed by the end or one of / ? # @, for one of cosmos/cosmos-sdk, cosmos/ibc-go; published: the advisory's published field (UTC; an advisory without one that parses is not an item), before the cutoff; order: published newest first, then GHSA id ascending; item and first source https://github.com/advisories/<GHSA id>; title the advisory's summary verbatim (the id when the summary holds no non-space character). Fix commit (exact for this index, M3): the commits the item names in one of the system's repos (tests_m4/_i48.py::named_commits: github.com/<owner>/<repo>/commit/<40 hex> URLs in its references[].url); when any of them is reachable from a branch or tag of its repository, the fix commit is the earliest of those by committer date (ties: the sha) and repo is its repository (named_fix), even when a source names a commit that is not the fix; otherwise the general fix-commit rule applies. Description: a verbatim excerpt of the advisory's details (its summary when the details are blank), whitespace collapsed (tests_m4/_i48.py::description_ok). One candidate per item.",
+          "id": "cosmos-ghsa",
+          "kind": "advisory",
+          "snapshot": "advisory-database",
+          "url": "https://github.com/github/advisory-database"
+        },
+        {
+          "enumeration": "folder",
+          "how": "Enumeration folder: read through a git clone of the repository at the pinned commit (snapshots.pins, M1); every report the folder holds: every file under the folder (any depth) whose extension is .pdf or .md (case-insensitive), other than a README.md (tests_m4/_i48.py::folder_items_from); item and first source <repo>/blob/<commit>/<path> (the path percent-encoded, / kept); the snapshot is the cutoff of this index; published: the report's own date (a month, quarter or year alone means its first day), or, when the report states no date or one after the snapshot's committer date, the committer date (UTC) of the earliest commit of the snapshot's first-parent history that adds the path (no rename following); items in order published newest first, then item; within a report, one candidate per finding (every numbered or headed finding, whatever its severity or status, in the report's order), the count recorded as the item's findings.",
+          "id": "cosmos-sdk-audits",
+          "kind": "audit",
+          "snapshot": "cosmos-sdk-audits",
+          "url": "https://github.com/cosmos/cosmos-sdk/tree/main/docs/audits"
+        },
+        {
+          "enumeration": "folder",
+          "how": "Enumeration folder: read through a git clone of the repository at the pinned commit (snapshots.pins, M1); every report the folder holds: every file under the folder (any depth) whose extension is .pdf or .md (case-insensitive), other than a README.md (tests_m4/_i48.py::folder_items_from); item and first source <repo>/blob/<commit>/<path> (the path percent-encoded, / kept); the snapshot is the cutoff of this index; published: the report's own date (a month, quarter or year alone means its first day), or, when the report states no date or one after the snapshot's committer date, the committer date (UTC) of the earliest commit of the snapshot's first-parent history that adds the path (no rename following); items in order published newest first, then item; within a report, one candidate per finding (every numbered or headed finding, whatever its severity or status, in the report's order), the count recorded as the item's findings.",
+          "id": "ibc-go-audits",
+          "kind": "audit",
+          "snapshot": "ibc-go-audits",
+          "url": "https://github.com/cosmos/ibc-go/tree/main/docs/audits"
+        }
+      ],
+      "kind": "appchain",
+      "repos": [
+        "https://github.com/cosmos/cosmos-sdk",
+        "https://github.com/cosmos/ibc-go"
+      ],
+      "why": "Go application-chain framework and interoperability protocol with public security advisories: generality beyond rollups on the Go frontend"
+    },
+    {
+      "id": "go-ethereum",
+      "indexes": [
+        {
+          "enumeration": "geth",
+          "how": "Enumeration geth (mechanical: tests_m4/_i48.py::geth_items_from; the collector receives the item list of holon eval index and never opens a pre-filtered item). The list the URL serves, read from its source: public/docs/vulnerabilities/vulnerabilities.json on branch website of https://github.com/ethereum/go-ethereum at the pinned commit (snapshots.pins.geth-list; the file there has the pinned sha256, equal to the bytes the URL served at the prereg); every entry whose published field (UTC) parses and is before the cutoff, newest first, then list order; item and first source <the list's URL>#<the entry's uid, percent-encoded> when every entry of the list has a distinct uid holding a non-space character, else <the list's URL>#<the entry's 1-based position in the list>: the list entry itself, its links following as supplementary sources; title the entry's name verbatim. Fix commit (exact for this index, M3): the commits the item names in one of the system's repos (tests_m4/_i48.py::named_commits: github.com/<owner>/<repo>/commit/<40 hex> URLs in its links[]); when any of them is reachable from a branch or tag of its repository, the fix commit is the earliest of those by committer date (ties: the sha) and repo is its repository (named_fix), even when a source names a commit that is not the fix; otherwise the general fix-commit rule applies. Description: a verbatim excerpt of the entry's description (its summary when the description is blank), whitespace collapsed (tests_m4/_i48.py::description_ok). One candidate per item.",
+          "id": "geth-vulnerabilities",
+          "kind": "advisory",
+          "snapshot": "geth-list",
+          "url": "https://geth.ethereum.org/docs/vulnerabilities/vulnerabilities.json"
+        },
+        {
+          "enumeration": "ghsa",
+          "how": "Enumeration ghsa (mechanical: tests_m4/_i48.py::ghsa_items_from; the collector receives the item list of holon eval index and never opens a pre-filtered item). The GitHub Advisory Database (github.com's advisory pages and API are not reachable from the build environment; the database's git repository holds the same records) at the pinned commit (snapshots.pins.advisory-database), the same for every GHSA index: every advisory JSON under advisories/github-reviewed/ or advisories/unreviewed/ without a withdrawn field whose affected[].package.name or references[].url, lowercased, contains github.com/<owner>/<repo> (lowercased) with, before github.com, the start of the string or a character outside [A-Za-z0-9.-], and, after it, the end of the string, one of / ? # @, or .git followed by the end or one of / ? # @, for one of ethereum/go-ethereum; published: the advisory's published field (UTC; an advisory without one that parses is not an item), before the cutoff; order: published newest first, then GHSA id ascending; item and first source https://github.com/advisories/<GHSA id>; title the advisory's summary verbatim (the id when the summary holds no non-space character). Fix commit (exact for this index, M3): the commits the item names in one of the system's repos (tests_m4/_i48.py::named_commits: github.com/<owner>/<repo>/commit/<40 hex> URLs in its references[].url); when any of them is reachable from a branch or tag of its repository, the fix commit is the earliest of those by committer date (ties: the sha) and repo is its repository (named_fix), even when a source names a commit that is not the fix; otherwise the general fix-commit rule applies. Description: a verbatim excerpt of the advisory's details (its summary when the details are blank), whitespace collapsed (tests_m4/_i48.py::description_ok). One candidate per item.",
+          "id": "go-ethereum-ghsa",
+          "kind": "advisory",
+          "snapshot": "advisory-database",
+          "url": "https://github.com/github/advisory-database"
+        }
+      ],
+      "kind": "client",
+      "repos": [
+        "https://github.com/ethereum/go-ethereum"
+      ],
+      "why": "Go execution client with public consensus-bug advisories (cross-node divergence, aliasing): generality beyond rollups on the Go frontend"
+    },
+    {
+      "id": "optimism",
+      "indexes": [
+        {
+          "enumeration": "ghsa",
+          "how": "Enumeration ghsa (mechanical: tests_m4/_i48.py::ghsa_items_from; the collector receives the item list of holon eval index and never opens a pre-filtered item). The GitHub Advisory Database (github.com's advisory pages and API are not reachable from the build environment; the database's git repository holds the same records) at the pinned commit (snapshots.pins.advisory-database), the same for every GHSA index: every advisory JSON under advisories/github-reviewed/ or advisories/unreviewed/ without a withdrawn field whose affected[].package.name or references[].url, lowercased, contains github.com/<owner>/<repo> (lowercased) with, before github.com, the start of the string or a character outside [A-Za-z0-9.-], and, after it, the end of the string, one of / ? # @, or .git followed by the end or one of / ? # @, for one of ethereum-optimism/optimism; published: the advisory's published field (UTC; an advisory without one that parses is not an item), before the cutoff; order: published newest first, then GHSA id ascending; item and first source https://github.com/advisories/<GHSA id>; title the advisory's summary verbatim (the id when the summary holds no non-space character). Fix commit (exact for this index, M3): the commits the item names in one of the system's repos (tests_m4/_i48.py::named_commits: github.com/<owner>/<repo>/commit/<40 hex> URLs in its references[].url); when any of them is reachable from a branch or tag of its repository, the fix commit is the earliest of those by committer date (ties: the sha) and repo is its repository (named_fix), even when a source names a commit that is not the fix; otherwise the general fix-commit rule applies. Description: a verbatim excerpt of the advisory's details (its summary when the details are blank), whitespace collapsed (tests_m4/_i48.py::description_ok). One candidate per item.",
+          "id": "optimism-ghsa",
+          "kind": "advisory",
+          "snapshot": "advisory-database",
+          "url": "https://github.com/github/advisory-database"
+        },
+        {
+          "enumeration": "folder",
+          "how": "Enumeration folder: read through a git clone of the repository at the pinned commit (snapshots.pins, M1); every report the folder holds: every file under the folder (any depth) whose extension is .pdf or .md (case-insensitive), other than a README.md (tests_m4/_i48.py::folder_items_from); item and first source <repo>/blob/<commit>/<path> (the path percent-encoded, / kept); the snapshot is the cutoff of this index; published: the report's own date (a month, quarter or year alone means its first day), or, when the report states no date or one after the snapshot's committer date, the committer date (UTC) of the earliest commit of the snapshot's first-parent history that adds the path (no rename following); items in order published newest first, then item; within a report, one candidate per finding (every numbered or headed finding, whatever its severity or status, in the report's order), the count recorded as the item's findings.",
+          "id": "optimism-security-reviews",
+          "kind": "audit",
+          "snapshot": "optimism-security-reviews",
+          "url": "https://github.com/ethereum-optimism/optimism/tree/develop/docs/security-reviews"
+        }
+      ],
+      "kind": "rollup",
+      "repos": [
+        "https://github.com/ethereum-optimism/optimism"
+      ],
+      "why": "optimistic rollup (OP Stack) with a Go node, Solidity contracts and in-flight upgrades, public advisories and audit fixes"
+    },
+    {
+      "id": "wormhole",
+      "indexes": [
+        {
+          "enumeration": "ghsa",
+          "how": "Enumeration ghsa (mechanical: tests_m4/_i48.py::ghsa_items_from; the collector receives the item list of holon eval index and never opens a pre-filtered item). The GitHub Advisory Database (github.com's advisory pages and API are not reachable from the build environment; the database's git repository holds the same records) at the pinned commit (snapshots.pins.advisory-database), the same for every GHSA index: every advisory JSON under advisories/github-reviewed/ or advisories/unreviewed/ without a withdrawn field whose affected[].package.name or references[].url, lowercased, contains github.com/<owner>/<repo> (lowercased) with, before github.com, the start of the string or a character outside [A-Za-z0-9.-], and, after it, the end of the string, one of / ? # @, or .git followed by the end or one of / ? # @, for one of wormhole-foundation/wormhole; published: the advisory's published field (UTC; an advisory without one that parses is not an item), before the cutoff; order: published newest first, then GHSA id ascending; item and first source https://github.com/advisories/<GHSA id>; title the advisory's summary verbatim (the id when the summary holds no non-space character). Fix commit (exact for this index, M3): the commits the item names in one of the system's repos (tests_m4/_i48.py::named_commits: github.com/<owner>/<repo>/commit/<40 hex> URLs in its references[].url); when any of them is reachable from a branch or tag of its repository, the fix commit is the earliest of those by committer date (ties: the sha) and repo is its repository (named_fix), even when a source names a commit that is not the fix; otherwise the general fix-commit rule applies. Description: a verbatim excerpt of the advisory's details (its summary when the details are blank), whitespace collapsed (tests_m4/_i48.py::description_ok). One candidate per item.",
+          "id": "wormhole-ghsa",
+          "kind": "advisory",
+          "snapshot": "advisory-database",
+          "url": "https://github.com/github/advisory-database"
+        },
+        {
+          "enumeration": "folder",
+          "how": "Enumeration folder: read through a git clone of the repository at the pinned commit (snapshots.pins, M1); every report the folder holds: every file under the folder (any depth) whose extension is .pdf or .md (case-insensitive), other than a README.md (tests_m4/_i48.py::folder_items_from); item and first source <repo>/blob/<commit>/<path> (the path percent-encoded, / kept); the snapshot is the cutoff of this index; published: the report's own date (a month, quarter or year alone means its first day), or, when the report states no date or one after the snapshot's committer date, the committer date (UTC) of the earliest commit of the snapshot's first-parent history that adds the path (no rename following); items in order published newest first, then item; within a report, one candidate per finding (every numbered or headed finding, whatever its severity or status, in the report's order), the count recorded as the item's findings.",
+          "id": "wormhole-audits",
+          "kind": "audit",
+          "snapshot": "wormhole-audits",
+          "url": "https://github.com/wormhole-foundation/wormhole/tree/main/audits"
+        }
+      ],
+      "kind": "bridge",
+      "repos": [
+        "https://github.com/wormhole-foundation/wormhole"
+      ],
+      "why": "cross-chain bridge with Go guardians and Solidity contracts, public incident and bounty reports"
+    }
+  ],
+  "test_dirs": [
+    "test",
+    "tests",
+    "testing",
+    "testutil",
+    "testdata",
+    "mocks",
+    "mock",
+    "e2e",
+    "fuzz",
+    "simapp"
+  ],
+  "test_file_globs": [
+    "*_test.go",
+    "*.t.sol",
+    "*.s.sol",
+    "mock_*.go",
+    "*_mock.go"
+  ]
+}
