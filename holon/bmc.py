@@ -1816,6 +1816,27 @@ class Unrolled:
         return out
 
 
+QUERY_PLAIN_MAX = 1 << 20     # a query file larger than this is stored gzip-compressed (deterministic: no name, mtime 0)
+
+
+def write_query(f, text: str):
+    """Write a query: as .smt2, or, past QUERY_PLAIN_MAX bytes, as .smt2.gz (byte-identical across runs)."""
+    import gzip
+    from pathlib import Path
+    f = Path(f)
+    data = text.encode("utf-8")
+    gz = f.with_name(f.name + ".gz")
+    if len(data) <= QUERY_PLAIN_MAX:
+        gz.unlink(missing_ok=True)
+        f.write_bytes(data)
+        return f
+    f.unlink(missing_ok=True)
+    with open(gz, "wb") as fh:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=fh, mtime=0, compresslevel=9) as z:
+            z.write(data)
+    return gz
+
+
 GUARD_S = None          # the build's wall-clock watchdog per query (None: none); a fired guard is an unknown
 MEMORY_MB = None
 
@@ -1842,7 +1863,6 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
             if qdir is not None:
                 f = Path(qdir) / f"{name}.k{k}{tag}.smt2"
                 f.parent.mkdir(parents=True, exist_ok=True)
-                f.write_text(text, encoding="utf-8")
                 queries.append(str(f))
             sess = Session(solver)
             try:
@@ -1867,7 +1887,7 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
                 u.q.inst["cf_asserted"] = u.q.inst.get("cf", 0) - len(u.q.pending)
                 text = u.q.text()
                 if qdir is not None:
-                    Path(qdir, f"{name}.k{k}{tag}.smt2").write_text(text, encoding="utf-8")
+                    queries[-1] = str(write_query(Path(qdir, f"{name}.k{k}{tag}.smt2"), text))
                 if log:
                     log(f"  {name} k={k}{tag}: {res} ({len(text) // 1024} KiB, E1 rounds {rounds})"
                         f"{' ' + sess.guard if sess.guard else ''}")

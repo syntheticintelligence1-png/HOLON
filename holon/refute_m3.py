@@ -539,7 +539,7 @@ def main(a, root: Path) -> int:
             BMC.MEMORY_MB = int(os.environ["HOLON_REFUTE_MEMORY_MB"])
         bmc_stage(root, side, env, ids or None, jobs=int(os.environ.get("HOLON_REFUTE_JOBS") or 1))
     if "smt" in stages:
-        cdoc, refound, ctexts = codec_stage(root, side) if not a.check else (None, {}, {})
+        cdoc, refound, ctexts = codec_stage(root, side)
         texts.update(ctexts)
         rdoc = refind_doc(side)
         rdoc["classes"].update(refound)
@@ -763,12 +763,19 @@ def check_counter(law: dict, doc: dict, wit: dict, where: Path, root: Path, laws
     from .gen import linked as L
     from .sorts.run3 import check_file
     where.mkdir(parents=True, exist_ok=True)
-    mi = codec_model_import(where, root, law)
-    reg = load(root / "laws" / "M3" / "REGISTRY.json")
-    note = (reg.get("statements") or {}).get(law["law_id"], "")
     try:
-        em2 = L.emit(law, doc, mi, counter=True, note=note)
-        text = L.counter(em2, doc, mi, wit)
+        if doc.get("facts_version") == "holon-facts/0.1":
+            from . import ir
+            from .gen import laws as LG, proofs as PG
+            mi = os.path.relpath((root / law["_model"]).resolve(), where.resolve()).replace(os.sep, "/")
+            em2 = LG.emit(law, doc, mi, counter=True, header_note=ir.statement_hash(law))
+            text = PG.counter(em2, doc, mi, wit)
+        else:
+            mi = codec_model_import(where, root, law)
+            reg = load(root / "laws" / "M3" / "REGISTRY.json")
+            note = (reg.get("statements") or {}).get(law["law_id"], "")
+            em2 = L.emit(law, doc, mi, counter=True, note=note)
+            text = L.counter(em2, doc, mi, wit)
     except Exception as x:  # noqa: BLE001  (an inexpressible candidate is discarded with the reason)
         return {"counter_law": None, "checker": {"exit_code": None, "marker": f"inexpressible: {x}"},
                 "verdict": {"kernel": "BendTT", "marker": "not_run"}, "accepted": False, "reason": f"inexpressible: {x}"}
@@ -787,6 +794,18 @@ def check_counter(law: dict, doc: dict, wit: dict, where: Path, root: Path, laws
             "accepted": ok, "reason": None if ok else f"bend2 {checker.get('marker')}, BendTT {verdict}"}
 
 
+def engine(doc: dict):
+    """The solver encoding of a codec document: a linked component (holon.smt.codec) or a holon-facts/0.1 document
+    (holon.smt.facts01); None for any other."""
+    if doc.get("linked_version") is not None:
+        from .smt import codec
+        return codec
+    if doc.get("facts_version") == "holon-facts/0.1":
+        from .smt import facts01
+        return facts01
+    return None
+
+
 def codec_stage(root: Path, side: dict, log=print) -> tuple[dict, dict]:
     """Q2 over every codec law of a linked component (the M3 PAR laws), and Q1's codec and domain classes over the
     same models: (codec.json, {class id: refind row})."""
@@ -798,12 +817,13 @@ def codec_stage(root: Path, side: dict, log=print) -> tuple[dict, dict]:
         d, _, lid = x["record"].rpartition("/")
         law = law_of(root, x["record"])
         doc = load(root / law["facts"]) if law.get("facts") else {}
-        if doc.get("linked_version") is None:
+        E_ = engine(doc)
+        if E_ is None:
             laws[x["record"]] = {"status": x["status"], "solver": "unknown", "query": None, "candidate": None,
-                                 "reason": f"not run: the codec document {law.get('facts')} (holon-facts/0.1) has no "
-                                           "encoder in this build (docs/iterations/I40.md, Not done)"}
+                                 "reason": f"not run: no encoder for the document {law.get('facts')}"}
             continue
-        q, dec = C.law_query(doc, law, rl, ml)
+        law = dict(law, _model=records(root)[x["record"]]["artifacts"]["model"])
+        q, dec = E_.law_query(doc, law, rl, ml)
         qp = GENR / "smt" / "codec" / f"{lid}.smt2"
         text = q.text()
         texts[qp] = text
@@ -812,8 +832,9 @@ def codec_stage(root: Path, side: dict, log=print) -> tuple[dict, dict]:
             res = sess.check(text)
             cand = None
             if res == "sat":
-                wit = C.decode(sess, dec)
-                cand = {"witness": wit, **check_counter(law, doc, wit, root / GENR / "codec" / lid, root)}
+                wit = E_.decode(sess, dec)
+                cand = {"witness": wit, **check_counter(law, doc, wit, root / GENR / "codec" / d.replace("/", "_") /
+                                                        lid, root)}
             elif res == "unknown":
                 cand = None
         finally:
@@ -826,10 +847,12 @@ def codec_stage(root: Path, side: dict, log=print) -> tuple[dict, dict]:
             continue
         law = law_of(root, c["record"])
         doc = load(root / law["facts"]) if law.get("facts") else {}
-        if doc.get("linked_version") is None:
+        E_ = engine(doc)
+        if E_ is None:
             continue
         rec = records(root)[c["record"]]
-        q, dec = C.law_query(doc, law, rl, ml, template=c["signature"])
+        law = dict(law, _model=rec["artifacts"]["model"])
+        q, dec = E_.law_query(doc, law, rl, ml, template=c["signature"])
         qp = GENR / "smt" / "refind" / f"{c['id']}.smt2"
         text = q.text()
         texts[qp] = text
@@ -838,8 +861,8 @@ def codec_stage(root: Path, side: dict, log=print) -> tuple[dict, dict]:
         try:
             res = sess.check(text)
             if res == "sat":
-                wit = C.decode(sess, dec)
-                lhs, rhs = C.side_values(sess, dec)
+                wit = E_.decode(sess, dec)
+                lhs, rhs = E_.side_values(sess, dec)
                 if c["kind"] == "codec":
                     ba, bb = bytes.fromhex(lhs[2:]), bytes.fromhex(rhs[2:])
                     sig = {"diff_positions": [i for i in range(max(len(ba), len(bb)))
