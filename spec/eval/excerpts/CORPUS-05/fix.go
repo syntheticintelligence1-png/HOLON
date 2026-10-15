@@ -1,0 +1,1960 @@
+package services
+
+import (
+	"context"
+	"crypto/ecdsa"
+	"crypto/rsa"
+	"errors"
+	"fmt"
+	"math/big"
+	"strconv"
+	"sync"
+	"time"
+
+	"github.com/holiman/uint256"
+	"github.com/morph-l2/go-ethereum"
+	"github.com/morph-l2/go-ethereum/accounts/abi"
+	"github.com/morph-l2/go-ethereum/common"
+	"github.com/morph-l2/go-ethereum/consensus/misc/eip4844"
+	"github.com/morph-l2/go-ethereum/core"
+	ethtypes "github.com/morph-l2/go-ethereum/core/types"
+	"github.com/morph-l2/go-ethereum/crypto"
+	"github.com/morph-l2/go-ethereum/crypto/kzg4844"
+	"github.com/morph-l2/go-ethereum/eth"
+	"github.com/morph-l2/go-ethereum/log"
+	"github.com/morph-l2/go-ethereum/params"
+	"github.com/morph-l2/go-ethereum/rpc"
+
+	"morph-l2/bindings/bindings"
+	"morph-l2/common/batch"
+	"morph-l2/common/blob"
+	"morph-l2/tx-submitter/constants"
+	"morph-l2/tx-submitter/db"
+	"morph-l2/tx-submitter/iface"
+	"morph-l2/tx-submitter/l1checker"
+	"morph-l2/tx-submitter/localpool"
+	"morph-l2/tx-submitter/metrics"
+	"morph-l2/tx-submitter/types"
+	"morph-l2/tx-submitter/utils"
+)
+
+const (
+	txSlotSize           = 32 * 1024
+	txMaxSize            = 4 * txSlotSize // 128KB
+	rollupSumKey         = "rollup_sum"
+	finalizeSumKey       = "finalize_sum"
+	collectedL1FeeSumKey = "collected_l1_fee_sum"
+)
+
+type Rollup struct {
+	ctx              context.Context
+	metrics          *metrics.Metrics
+	l1RpcClient      *rpc.Client
+	L1Client         iface.Client
+	L2Clients        []iface.L2Client
+	Rollup           iface.IRollup
+	Submitter        iface.ISubmitter
+	chainId          *big.Int
+	privKey          *ecdsa.PrivateKey
+	rollupAddr       common.Address
+	abi              *abi.ABI
+	pendingTxs       *PendingTxs
+	rollupFinalizeMu sync.Mutex
+	externalRsaPriv  *rsa.PrivateKey
+	// cfg
+	cfg utils.Config
+	// signer
+	signer ethtypes.Signer
+	// leveldb
+	ldb *db.Db
+	// rollupFeeSum
+	rollupFeeSum float64
+	// finalizeFeeSum
+	finalizeFeeSum float64
+	// collectedL1FeeSum
+	collectedL1FeeSum float64
+	// batchcache
+	batchCache       *batch.BatchCache
+	batchCacheLegacy *types.BatchCacheLegacy
+	bm               *l1checker.BlockMonitor
+	reorgDetector    iface.IReorgDetector
+
+	ChainConfigMap blob.ChainBlobConfigs
+}
+
+func NewRollup(
+	ctx context.Context,
+	metrics *metrics.Metrics,
+	l1RpcClient *rpc.Client,
+	l1 iface.Client,
+	l2Clients []iface.L2Client,
+	rollup iface.IRollup,
+	submitter iface.ISubmitter,
+	chainId *big.Int,
+	priKey *ecdsa.PrivateKey,
+	rollupAddr common.Address,
+	abi *abi.ABI,
+	cfg utils.Config,
+	rsaPriv *rsa.PrivateKey,
+	ldb *db.Db,
+	bm *l1checker.BlockMonitor,
+	l2Caller *types.L2Caller,
+) *Rollup {
+	reorgDetector := NewReorgDetector(l1)
+	r := &Rollup{
+		ctx:             ctx,
+		metrics:         metrics,
+		l1RpcClient:     l1RpcClient,
+		L1Client:        l1,
+		Rollup:          rollup,
+		Submitter:       submitter,
+		L2Clients:       l2Clients,
+		privKey:         priKey,
+		chainId:         chainId,
+		rollupAddr:      rollupAddr,
+		abi:             abi,
+		cfg:             cfg,
+		signer:          ethtypes.LatestSignerForChainID(chainId),
+		externalRsaPriv: rsaPriv,
+		batchCache: batch.NewBatchCache(
+			nil,
+			func(blockTimestamp uint64) bool {
+				return cfg.BatchV2UpgradeTime > 0 && blockTimestamp >= cfg.BatchV2UpgradeTime
+			},
+			cfg.MaxBlobCount,
+			cfg.BatchBlockInterval,
+			cfg.BatchTimeout,
+			l1,
+			&iface.L2Clients{Clients: l2Clients},
+			rollup,
+			l2Caller,
+			ldb,
+		),
+		ldb:            ldb,
+		bm:             bm,
+		reorgDetector:  reorgDetector,
+		ChainConfigMap: blob.ChainConfigMap,
+	}
+	if !cfg.SealBatch {
+		fetcher := NewBatchFetcher(l2Clients)
+		r.batchCacheLegacy = types.NewBatchCacheLegacy(fetcher)
+	}
+	return r
+}
+
+func (r *Rollup) Start() error {
+
+	// init rollup service
+	if err := r.PreCheck(); err != nil {
+		return err
+	}
+
+	// journal
+	jn := localpool.New(r.cfg.JournalFilePath)
+	err := jn.Init()
+	if err != nil {
+		log.Crit("journal file init failed", "err", err)
+	}
+	// pendingtxs
+	r.pendingTxs = NewPendingTxs(jn)
+	txs, err := jn.ParseAllTxs()
+	if err != nil {
+		log.Crit("parse l1 mempool error", "error", err)
+	}
+	if err := r.pendingTxs.Recover(txs, r.abi); err != nil {
+		log.Crit("failed to recover pending transactions", "error", err)
+	}
+
+	// init fee metrics sum
+	err = r.InitFeeMetricsSum()
+	if err != nil {
+		return fmt.Errorf("init fee metrics sum failed: %w", err)
+	}
+
+	/// start services
+	// start l1 monitor
+	go r.bm.StartMonitoring()
+
+	// metrics
+	go utils.Loop(r.ctx, 10*time.Second, func() {
+		// get balance of wallet
+		balance, err := r.L1Client.BalanceAt(context.Background(), r.WalletAddr(), nil)
+		if err != nil {
+			log.Error("get wallet balance error", "error", err)
+			if utils.IsRpcErr(err) {
+				r.metrics.IncRpcErrors()
+			}
+			return
+		}
+		// balance to eth
+		balanceEth := new(big.Rat).SetFrac(balance, big.NewInt(params.Ether))
+
+		// parse float64 from string
+		balanceEthFloat, err := strconv.ParseFloat(balanceEth.FloatString(18), 64)
+		if err != nil {
+			log.Warn("parse balance to float error", "error", err)
+			return
+		}
+		r.metrics.SetWalletBalance(balanceEthFloat)
+		// last committed batch
+		lastCommittedBatch, err := r.Rollup.LastCommittedBatchIndex(nil)
+		if err != nil {
+			log.Warn("get last committed batch error", "error", err)
+			return
+		}
+		r.metrics.SetLastCommittedBatch(lastCommittedBatch.Uint64())
+		// last finalized batch
+		lastFinalizedBatch, err := r.Rollup.LastFinalizedBatchIndex(nil)
+		if err != nil {
+			log.Warn("get last finalized batch error", "error", err)
+			return
+		}
+		r.metrics.SetLastFinalizedBatch(lastFinalizedBatch.Uint64())
+
+		// has pending finalize batch (outside challenge window)
+		hasPendingFinalizeBatch := false
+		if lastCommittedBatch.Uint64() > lastFinalizedBatch.Uint64() {
+			// Check if the next batch to finalize is outside challenge window
+			nextToFinalize := new(big.Int).Add(lastFinalizedBatch, big.NewInt(1))
+			inWindow, err := r.Rollup.BatchInsideChallengeWindow(nil, nextToFinalize)
+			if err != nil {
+				log.Warn("check challenge window error", "error", err, "batch_index", nextToFinalize.Uint64())
+			} else if !inWindow {
+				// Batch is outside challenge window and ready to finalize
+				hasPendingFinalizeBatch = true
+			}
+		}
+		r.metrics.SetHasPendingFinalizeBatch(hasPendingFinalizeBatch)
+	})
+
+	if r.cfg.Finalize {
+		go utils.Loop(r.ctx, r.cfg.FinalizeInterval, func() {
+			r.rollupFinalizeMu.Lock()
+			defer r.rollupFinalizeMu.Unlock()
+
+			if err := r.finalize(); err != nil {
+				log.Error("finalize failed", "error", err)
+				if utils.IsRpcErr(err) {
+					r.metrics.IncRpcErrors()
+				}
+
+			}
+		})
+	}
+
+	var processtxMu sync.Mutex
+	go utils.Loop(r.ctx, r.cfg.TxProcessInterval, func() {
+		processtxMu.Lock()
+		defer processtxMu.Unlock()
+		if err := r.ProcessTx(); err != nil {
+			log.Error("process tx err", "error", err)
+			if utils.IsRpcErr(err) {
+				r.metrics.IncRpcErrors()
+			}
+		}
+	})
+
+	if r.cfg.SealBatch {
+		batchCacheReady := make(chan struct{})
+
+		go func() {
+			for {
+				if initErr := r.batchCache.InitAndSyncFromDatabase(); initErr != nil {
+					log.Error("init and sync from database failed, wait for the next try", "error", initErr)
+					retry := time.NewTimer(5 * time.Second)
+					select {
+					case <-r.ctx.Done():
+						retry.Stop()
+						return
+					case <-retry.C:
+					}
+					continue
+				}
+
+				// In SealBatch mode the commit loop must not exist before the
+				// migrated cache has passed transition validation. Finalization
+				// and pending-transaction processing are started independently
+				// above and remain available while initialization is retried.
+				close(batchCacheReady)
+				r.startRollupLoop()
+				return
+			}
+		}()
+
+		go func() {
+			select {
+			case <-r.ctx.Done():
+				return
+			case <-batchCacheReady:
+			}
+			utils.Loop(r.ctx, r.cfg.TxProcessInterval, func() {
+				if assembleErr := r.batchCache.AssembleCurrentBatchHeader(); assembleErr != nil {
+					log.Error("assemble current batch failed, wait for the next try", "error", assembleErr)
+					return
+				}
+				if index, err := r.batchCache.LatestBatchIndex(); err != nil {
+					log.Error("cannot get the latest batch index from batch cache", "error", err)
+					return
+				} else {
+					r.metrics.SetLastCacheBatchIndex(index)
+				}
+			})
+		}()
+	} else {
+		r.startRollupLoop()
+	}
+
+	return nil
+}
+
+func (r *Rollup) startRollupLoop() {
+	go utils.Loop(r.ctx, r.cfg.RollupInterval, func() {
+		r.rollupFinalizeMu.Lock()
+		defer r.rollupFinalizeMu.Unlock()
+		if err := r.rollup(); err != nil {
+			if utils.IsRpcErr(err) {
+				r.metrics.IncRpcErrors()
+			}
+			log.Error("rollup failed,wait for the next try", "error", err)
+		}
+	})
+}
+
+func (r *Rollup) ProcessTx() error {
+	// Check for reorgs first with exponential backoff retry
+	hasReorg, depth, err := r.detectReorgWithRetry()
+	if err != nil {
+		log.Warn("Failed to check for reorgs", "error", err)
+	}
+	if hasReorg {
+		if err := r.handleReorg(depth); err != nil {
+			log.Warn("Post-reorg handling failed", "error", err)
+		}
+	}
+
+	// Get all local transactions
+	txRecords := r.pendingTxs.GetAll()
+	if len(txRecords) == 0 {
+		return nil
+	}
+
+	// Process each transaction
+	for _, txRecord := range txRecords {
+		if err := r.processSingleTx(txRecord); err != nil {
+			log.Error("Transaction processing failed",
+				"tx_hash", txRecord.Tx.Hash().String(),
+				"error", err)
+			return fmt.Errorf("transaction processing failed: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// Helper function to detect reorgs with retry
+func (r *Rollup) detectReorgWithRetry() (bool, uint64, error) {
+	var lastErr error
+	for i := 0; i < 3; i++ { // Try up to 3 times
+		hasReorg, depth, err := r.reorgDetector.DetectReorg(r.ctx)
+		if err == nil {
+			return hasReorg, depth, nil
+		}
+		lastErr = err
+		time.Sleep(time.Duration(i+1) * time.Second) // Exponential backoff
+	}
+	return false, 0, lastErr
+}
+
+// Handle chain reorganization (metrics + pending pool; DetectReorg only detects and updates block history).
+func (r *Rollup) handleReorg(depth uint64) error {
+	r.metrics.SetReorgDepth(float64(depth))
+	r.metrics.IncReorgs()
+	if r.pendingTxs != nil {
+		r.pendingTxs.ClearConfirmedTxs()
+	}
+	return nil
+}
+
+// Process a single transaction
+func (r *Rollup) processSingleTx(txRecord *types.TxRecord) error {
+	rtx := txRecord.Tx
+	method := utils.ParseMethod(rtx, r.abi)
+
+	log.Info("Processing transaction",
+		"hash", rtx.Hash().String(),
+		"nonce", rtx.Nonce(),
+		"method", method,
+		"query_times", txRecord.QueryTimes)
+
+	// Check transaction status
+	status, err := r.getTxStatus(rtx)
+	if err != nil {
+		return fmt.Errorf("get tx status error: %w", err)
+	}
+
+	switch status.state {
+	case txStatusPending:
+		return r.handlePendingTx(txRecord, rtx, method)
+	case txStatusConfirmed:
+		// Get current block number
+		currentBlock, err := r.L1Client.BlockNumber(context.Background())
+		if err != nil {
+			return fmt.Errorf("get current block number error: %v", err)
+		}
+
+		// Check confirmation depth
+		if status.receipt != nil && currentBlock >= status.receipt.BlockNumber.Uint64()+6 {
+			// Update fee metrics before removing the transaction
+			if err := r.updateFeeMetrics(rtx, status.receipt, method); err != nil {
+				log.Error("Failed to update fee metrics",
+					"error", err,
+					"tx_hash", rtx.Hash().String())
+			}
+
+			// Transaction has 6 confirmations, remove it from tracking
+			log.Info("Removing confirmed tx from tracking after 6 blocks",
+				"tx_hash", rtx.Hash().String(),
+				"block_number", status.receipt.BlockNumber.Uint64(),
+				"current_block", currentBlock,
+				"gas_used", status.receipt.GasUsed,
+				"effective_gas_price", status.receipt.EffectiveGasPrice,
+				"method", method)
+			if err := r.pendingTxs.Remove(rtx.Hash()); err != nil {
+				log.Error("failed to remove transaction", "hash", rtx.Hash().String(), "error", err)
+			}
+			r.metrics.IncTxConfirmed(method)
+			return nil
+		}
+		return r.handleConfirmedTx(txRecord, rtx, status, currentBlock)
+	case txStatusMissing:
+		return r.handleMissingTx(txRecord, rtx, method)
+	default:
+		return fmt.Errorf("unknown transaction status: %v", status.state)
+	}
+}
+
+// updateFeeMetrics updates all fee-related metrics for a confirmed transaction
+func (r *Rollup) updateFeeMetrics(tx *ethtypes.Transaction, receipt *ethtypes.Receipt, method string) error {
+	txFeeEth := calcFee(tx, receipt)
+	txFeeFloat, _ := txFeeEth.Float64()
+
+	// Update metrics based on transaction type
+	if constants.IsCommitLikeMethod(method) {
+		r.rollupFeeSum += txFeeFloat
+		r.metrics.RollupCostSum.Add(txFeeFloat)
+		r.metrics.RollupCost.Set(txFeeFloat)
+		// Update leveldb
+		err := r.ldb.PutFloat(rollupSumKey, r.rollupFeeSum)
+		if err != nil {
+			return fmt.Errorf("failed to update rollup fee sum in leveldb: %w", err)
+		}
+	} else if method == constants.MethodFinalizeBatch {
+		r.finalizeFeeSum += txFeeFloat
+		r.metrics.FinalizeCostSum.Add(txFeeFloat)
+		r.metrics.FinalizeCost.Set(txFeeFloat)
+		// Update leveldb
+		err := r.ldb.PutFloat(finalizeSumKey, r.finalizeFeeSum)
+		if err != nil {
+			return fmt.Errorf("failed to update finalize fee sum in leveldb: %w", err)
+		}
+	}
+
+	return nil
+}
+
+type txStatus struct {
+	state   int
+	receipt *ethtypes.Receipt
+}
+
+const (
+	txStatusPending = iota
+	txStatusConfirmed
+	txStatusMissing
+)
+
+func (r *Rollup) getTxStatus(tx *ethtypes.Transaction) (*txStatus, error) {
+	receipt, err := r.L1Client.TransactionReceipt(context.Background(), tx.Hash())
+	if err == nil {
+		return &txStatus{state: txStatusConfirmed, receipt: receipt}, nil
+	}
+
+	if !utils.ErrStringMatch(err, ethereum.NotFound) {
+		return nil, fmt.Errorf("query tx receipt error: %w", err)
+	}
+
+	// Check mempool
+	_, isPending, err := r.L1Client.TransactionByHash(context.Background(), tx.Hash())
+	if err != nil {
+		if !utils.ErrStringMatch(err, ethereum.NotFound) {
+			return nil, fmt.Errorf("query tx error: %w", err)
+		}
+		return &txStatus{state: txStatusMissing}, nil
+	}
+
+	if isPending {
+		return &txStatus{state: txStatusPending}, nil
+	}
+
+	return &txStatus{state: txStatusMissing}, nil
+}
+
+func (r *Rollup) handlePendingTx(txRecord *types.TxRecord, tx *ethtypes.Transaction, method string) error {
+	// Obsolete / doomed txs: cancel before timeout handling so we do not resubmit a tx that will revert.
+	if constants.IsCommitLikeMethod(method) {
+		batchIndex := utils.ParseParentBatchIndex(tx.Data()) + 1
+		lastCommitted, err := r.Rollup.LastCommittedBatchIndex(nil)
+		if err != nil {
+			return fmt.Errorf("get last committed batch index error: %w", err)
+		}
+
+		if batchIndex <= lastCommitted.Uint64() {
+			log.Info("Batch already committed by another submitter, trying to cancel transaction",
+				"batch_index", batchIndex,
+				"last_committed", lastCommitted.Uint64(),
+				"tx_hash", tx.Hash().String())
+
+			cancelTx, err := r.CancelTx(tx)
+			if err != nil {
+				log.Error("Failed to cancel commit batch transaction",
+					"error", err,
+					"tx", tx.Hash().Hex(),
+					"nonce", tx.Nonce(),
+					"gas", tx.Gas(),
+					"gas_tip_cap", tx.GasTipCap().String(),
+					"gas_fee_cap", tx.GasFeeCap().String(),
+					"blob_fee_cap", tx.BlobGasFeeCap().String(),
+					"batch_index", batchIndex,
+					"last_committed", lastCommitted.Uint64())
+				return fmt.Errorf("cancel commit batch transaction failed: %w", err)
+			}
+
+			log.Info("Successfully sent cancel transaction for commit batch",
+				"old_tx", tx.Hash().Hex(),
+				"new_tx", cancelTx.Hash().String(),
+				"nonce", tx.Nonce())
+			if err := r.pendingTxs.Remove(tx.Hash()); err != nil {
+				log.Error("failed to remove transaction", "hash", tx.Hash().String(), "error", err)
+			}
+			// CancelTx -> SendTx already adds the cancel tx to the pool
+			return nil
+		}
+	} else if method == constants.MethodFinalizeBatch {
+		batchIndex := utils.ParseFBatchIndex(tx.Data())
+		lastFinalized, err := r.Rollup.LastFinalizedBatchIndex(nil)
+		if err != nil {
+			return fmt.Errorf("get last finalized batch index error: %w", err)
+		}
+
+		if batchIndex <= lastFinalized.Uint64() {
+			log.Info("Batch already finalized by another submitter, trying to cancel transaction",
+				"batch_index", batchIndex,
+				"last_finalized", lastFinalized.Uint64(),
+				"tx_hash", tx.Hash().String())
+
+			cancelTx, err := r.CancelTx(tx)
+			if err != nil {
+				log.Error("Failed to cancel finalize batch transaction",
+					"error", err,
+					"tx", tx.Hash().Hex(),
+					"nonce", tx.Nonce(),
+					"gas", tx.Gas(),
+					"gas_tip_cap", tx.GasTipCap().String(),
+					"gas_fee_cap", tx.GasFeeCap().String(),
+					"blob_fee_cap", tx.BlobGasFeeCap().String(),
+					"batch_index", batchIndex,
+					"last_finalized", lastFinalized.Uint64())
+				return fmt.Errorf("cancel finalize batch transaction failed: %w", err)
+			}
+
+			log.Info("Successfully sent cancel transaction for finalize batch",
+				"old_tx", tx.Hash().Hex(),
+				"new_tx", cancelTx.Hash().String(),
+				"nonce", tx.Nonce())
+			if err := r.pendingTxs.Remove(tx.Hash()); err != nil {
+				log.Error("failed to remove transaction", "hash", tx.Hash().String(), "error", err)
+			}
+			// CancelTx -> SendTx already adds the cancel tx to the pool
+			return nil
+		}
+	}
+
+	if txRecord.SendTime+uint64(r.cfg.TxTimeout.Seconds()) < uint64(time.Now().Unix()) {
+		log.Info("Transaction timed out",
+			"tx", tx.Hash().Hex(),
+			"nonce", tx.Nonce(),
+			"method", method)
+		return r.replaceTimedOutTx(tx)
+	}
+
+	return nil
+}
+
+func (r *Rollup) replaceTimedOutTx(tx *ethtypes.Transaction) error {
+	newTx, err := r.ReSubmitTx(false, tx)
+	if err != nil {
+		log.Error("Failed to resubmit transaction",
+			"error", err,
+			"tx", tx.Hash().Hex(),
+			"nonce", tx.Nonce())
+		return fmt.Errorf("resubmit tx error: %w", err)
+	}
+
+	log.Info("Successfully replaced transaction",
+		"old_tx", tx.Hash().Hex(),
+		"new_tx", newTx.Hash().String(),
+		"nonce", tx.Nonce())
+
+	if err := r.pendingTxs.Remove(tx.Hash()); err != nil {
+		log.Error("failed to remove transaction", "hash", tx.Hash().String(), "error", err)
+	}
+	// ReSubmitTx -> SendTx already adds newTx to the pool
+	return nil
+}
+
+func (r *Rollup) handleMissingTx(txRecord *types.TxRecord, tx *ethtypes.Transaction, method string) error {
+	r.pendingTxs.IncQueryTimes(tx.Hash())
+
+	// Mark transaction as unconfirmed since it's missing
+	txRecord.Confirmed = false
+
+	// Only resubmit after several retries
+	if txRecord.QueryTimes >= 5 {
+		return r.handleDiscardedTx(txRecord, tx, method)
+	}
+
+	log.Info("Transaction not found in mempool or chain",
+		"hash", tx.Hash().String(),
+		"nonce", tx.Nonce(),
+		"query_times", txRecord.QueryTimes)
+
+	return nil
+}
+
+func (r *Rollup) handleDiscardedTx(txRecord *types.TxRecord, tx *ethtypes.Transaction, method string) error {
+	log.Warn("Transaction discarded",
+		"hash", tx.Hash().String(),
+		"nonce", tx.Nonce(),
+		"query_times", txRecord.QueryTimes)
+
+	// Try to resubmit with original parameters
+	replacedTx, err := r.ReSubmitTx(true, tx)
+	if err != nil {
+		if utils.ErrStringMatch(err, core.ErrNonceTooLow) {
+			// The tx was probably confirmed in a reorg
+			log.Info("Discarded transaction removed (nonce too low)",
+				"hash", tx.Hash().String(),
+				"nonce", tx.Nonce(),
+				"method", method)
+			if err = r.pendingTxs.Remove(tx.Hash()); err != nil {
+				log.Error("failed to remove transaction", "hash", tx.Hash().String(), "error", err)
+			}
+			return nil
+		}
+
+		// If resubmit failed, try to replace it with a simple transfer transaction
+		log.Warn("Resubmit failed, attempting to replace with simple transfer transaction",
+			"hash", tx.Hash().String(),
+			"nonce", tx.Nonce(),
+			"error", err)
+
+		replacedTx, err = r.createReplacementTransferTx(tx)
+		if err != nil {
+			return fmt.Errorf("failed to create replacement transfer tx: %w", err)
+		}
+	}
+
+	if err = r.pendingTxs.Remove(tx.Hash()); err != nil {
+		log.Error("failed to remove transaction", "hash", tx.Hash().String(), "error", err)
+	}
+	log.Info("Successfully resubmitted discarded transaction",
+		"old_tx", tx.Hash().String(),
+		"new_tx", replacedTx.Hash().String(),
+		"nonce", replacedTx.Nonce())
+
+	return nil
+}
+
+// handleConfirmedTx handles a confirmed transaction.
+// status and currentBlock must come from the same processSingleTx pass as getTxStatus / BlockNumber
+// so a reorg between polls cannot leave receipt nil while we still treat the tx as confirmed-on-chain.
+func (r *Rollup) handleConfirmedTx(txRecord *types.TxRecord, tx *ethtypes.Transaction, status *txStatus, currentBlock uint64) error {
+	if status == nil || status.receipt == nil {
+		return nil
+	}
+
+	confirmations := currentBlock - status.receipt.BlockNumber.Uint64()
+	log.Info("Transaction confirmation status",
+		"hash", tx.Hash().String(),
+		"block_number", status.receipt.BlockNumber.Uint64(),
+		"current_block", currentBlock,
+		"confirmations", confirmations)
+
+	method := utils.ParseMethod(tx, r.abi)
+	if status.receipt.Status == ethtypes.ReceiptStatusFailed {
+		if constants.IsCommitLikeMethod(method) {
+			batchIndex := utils.ParseParentBatchIndex(tx.Data()) + 1
+			lastCommitted, err := r.Rollup.LastCommittedBatchIndex(nil)
+			if err != nil {
+				return fmt.Errorf("get last committed batch index error: %w", err)
+			}
+
+			if batchIndex <= lastCommitted.Uint64() {
+				// Another submitter has already committed this batch
+				log.Warn("Batch commit transaction failed but batch is already committed by another submitter", "batch_index", batchIndex, "tx_hash", tx.Hash().String())
+			} else {
+				// Contract bug detected - batch is not committed by anyone else but our transaction failed
+				log.Warn("Critical error: batch commit transaction failed and batch is not committed by anyone", "batch_index", batchIndex, "tx_hash", tx.Hash().String())
+			}
+		} else if method == constants.MethodFinalizeBatch {
+			batchIndex := utils.ParseFBatchIndex(tx.Data())
+			lastFinalized, err := r.Rollup.LastFinalizedBatchIndex(nil)
+			if err != nil {
+				return fmt.Errorf("get last finalized batch index error: %w", err)
+			}
+
+			if batchIndex <= lastFinalized.Uint64() {
+				// Another submitter has already finalized this batch
+				log.Warn("Batch finalize transaction failed but batch is already finalized by another submitter", "batch_index", batchIndex, "tx_hash", tx.Hash().String())
+			} else {
+				// Contract bug detected - batch is not finalized by anyone else but our transaction failed
+				log.Warn("Critical error: batch finalize transaction failed and batch is not finalized by anyone", "batch_index", batchIndex, "tx_hash", tx.Hash().String())
+			}
+		}
+	} else { // Transaction succeeded
+		if constants.IsCommitLikeMethod(method) {
+			batchIndex := utils.ParseParentBatchIndex(tx.Data()) + 1
+			log.Info("Successfully committed batch", "method", method, "batch_index", batchIndex, "tx_hash", tx.Hash().String(), "block_number", status.receipt.BlockNumber.Uint64(), "gas_used", status.receipt.GasUsed, "confirm", confirmations)
+		} else if method == constants.MethodFinalizeBatch {
+			batchIndex := utils.ParseFBatchIndex(tx.Data())
+			if batchIndex > 0 {
+				if r.cfg.SealBatch {
+					// Range-based cleanup: the finalize target can jump past batches
+					// finalized by other submitters, which this node never deletes.
+					// Deleting only batchIndex-1 would leave those behind and punch a
+					// hole into the persisted indices, crashing the next restart load.
+					if delErr := r.batchCache.DeleteUntil(batchIndex - 1); delErr != nil {
+						r.metrics.IncBatchCleanupFailures()
+						log.Error("failed to delete batches up to index", "batch_index", batchIndex-1, "tx_hash", tx.Hash().String(), "error", delErr)
+					}
+				} else {
+					r.batchCacheLegacy.Delete(batchIndex - 1)
+				}
+			}
+			log.Info("Successfully finalized batch", "batch_index", batchIndex, "tx_hash", tx.Hash().String(), "block_number", status.receipt.BlockNumber.Uint64(), "gas_used", status.receipt.GasUsed, "confirm", confirmations)
+		}
+	}
+
+	r.pendingTxs.MarkConfirmed(tx.Hash())
+	return nil
+}
+
+func (r *Rollup) finalize() error {
+	if err := r.ensureActiveSubmitter(); err != nil {
+		return fmt.Errorf("skip finalize: %w", err)
+	}
+	// get last finalized
+	lastFinalized, err := r.Rollup.LastFinalizedBatchIndex(nil)
+	if err != nil {
+		return fmt.Errorf("get last finalized error:%v", err)
+	}
+	// get last committed
+	lastCommitted, err := r.Rollup.LastCommittedBatchIndex(nil)
+	if err != nil {
+		return fmt.Errorf("get last committed error:%v", err)
+	}
+
+	// Contract requires consecutive finalize (lastFinalized+1). Do not advance
+	// from pfinalize: a dropped/failed finalize tx leaves pfinalize ahead and
+	// would skip the next required batch (incorrect previous state root).
+	target := new(big.Int).Add(lastFinalized, big.NewInt(1))
+
+	if target.Cmp(lastCommitted) > 0 {
+		log.Info("no need to finalize", "last_finalized", lastFinalized.Uint64(), "last_committed", lastCommitted.Uint64())
+		return nil
+	}
+
+	if pf := r.pendingTxs.GetPFinalize(); pf > lastFinalized.Uint64() {
+		log.Warn("pfinalize ahead of lastFinalized, targeting lastFinalized+1",
+			"pfinalize", pf,
+			"last_finalized", lastFinalized,
+			"finalize_index", target,
+		)
+	}
+
+	if r.pendingTxs.ExistedFinalizeIndex(target.Uint64()) {
+		log.Info("finalize tx already pending", "batch_index", target)
+		return nil
+	}
+
+	log.Info("finalize info",
+		"last_finalized", lastFinalized,
+		"last_committed", lastCommitted,
+		"finalize_index", target,
+	)
+
+	// rollupBatch exists
+	existed, err := r.Rollup.BatchExist(nil, target)
+	if err != nil {
+		log.Error("query rollupBatch exist", "err", err)
+		return err
+	}
+	if !existed {
+		log.Warn("finalized rollupBatch not existed")
+		return nil
+	}
+
+	// inside challenge window
+	inWindow, err := r.Rollup.BatchInsideChallengeWindow(nil, target)
+	if err != nil {
+		return fmt.Errorf("get rollupBatch inside challenge window error:%v", err)
+	}
+	if inWindow {
+		log.Info("rollupBatch inside challenge window, wait")
+		return nil
+	}
+	var headerBytes []byte
+	if r.cfg.SealBatch {
+		// get batch header
+		rollupBatchHeader, exist := r.batchCache.GetSealedBatchHeader(target.Uint64())
+		if !exist {
+			log.Warn("get rollupBatch by index failed, rollupBatch not found",
+				"batch_index", target.Uint64(),
+			)
+			return nil
+		}
+		if rollupBatchHeader == nil {
+			log.Info("next rollupBatch is nil,wait rollupBatch header to finalize", "batch_index", target.Uint64())
+			return nil
+		}
+		headerBytes = rollupBatchHeader.Bytes()
+	} else {
+		nextBatchIndex := target.Uint64() + 1
+		nextBatch, exist := r.batchCacheLegacy.Get(nextBatchIndex)
+		if !exist {
+			log.Warn("get next rollupBatch by index failed, rollupBatch not found",
+				"batch_index", nextBatchIndex,
+			)
+			return nil
+		}
+		headerBytes = []byte(nextBatch.ParentBatchHeader)
+	}
+
+	// calldata
+	calldata, err := r.abi.Pack("finalizeBatch", headerBytes)
+	if err != nil {
+		return fmt.Errorf("pack finalizeBatch error:%v", err)
+	}
+	tip, feecap, _, _, err := r.GetGasTipAndCap()
+	if err != nil {
+		log.Error("get gas tip and cap error", "business", "finalize")
+		return fmt.Errorf("get gas tip and cap error:%v", err)
+	}
+
+	gas, err := r.EstimateGas(r.WalletAddr(), r.rollupAddr, calldata, feecap, tip, nil, nil)
+	if err != nil {
+		log.Warn("estimate finalize tx gas error",
+			"error", err,
+		)
+
+		if r.cfg.RoughEstimateGas && !utils.IsExecutionRevertErr(err) {
+			gas = r.RoughFinalizeGasEstimate()
+			log.Info("rough estimate finalize gas", "gas", gas)
+		} else {
+			return fmt.Errorf("estimate finalize gas error:%v", err)
+		}
+	}
+
+	// gas bump
+	gas = r.BumpGas(gas)
+
+	nonce, err := r.getNextNonce()
+	if err != nil {
+		return fmt.Errorf("failed to get next nonce: %w", err)
+	}
+
+	tx := ethtypes.NewTx(&ethtypes.DynamicFeeTx{
+		ChainID:   r.chainId,
+		Nonce:     nonce,
+		GasTipCap: tip,
+		GasFeeCap: feecap,
+		Gas:       gas,
+		To:        &r.rollupAddr,
+		Data:      calldata,
+	})
+
+	if uint64(tx.Size()) > txMaxSize {
+		return core.ErrOversizedData
+	}
+
+	signedTx, err := r.Sign(tx)
+	if err != nil {
+		return fmt.Errorf("sign tx error:%v", err)
+	}
+
+	log.Info("finalize tx info",
+		"batch_index", target,
+		"last_committed", lastCommitted,
+		"last_finalized", lastFinalized,
+		"hash", signedTx.Hash().String(),
+		"type", signedTx.Type(),
+		"nonce", signedTx.Nonce(),
+		"gas", signedTx.Gas(),
+		"tip", signedTx.GasTipCap().String(),
+		"fee_cap", signedTx.GasFeeCap().String(),
+		"size", signedTx.Size(),
+	)
+
+	err = r.SendTx(signedTx)
+	if err != nil {
+		log.Error("send finalize tx to mempool", "error", err.Error())
+		if utils.ErrStringMatch(err, core.ErrNonceTooLow) {
+			// adjust nonce
+			n1, _, err := utils.ParseNonce(err.Error())
+			if err != nil {
+				return fmt.Errorf("parse nonce err: %w", err)
+			}
+			r.pendingTxs.SetNonce(n1 - 1)
+			log.Info("update pnonce", "nonce", n1-1)
+		}
+		return fmt.Errorf("send tx error:%v", err.Error())
+	} else {
+		log.Info("finalize tx sent")
+
+		r.pendingTxs.SetNonce(signedTx.Nonce())
+		r.pendingTxs.SetPFinalize(target.Uint64())
+		// SendTx already adds signedTx to the pending pool
+	}
+	return nil
+}
+
+func (r *Rollup) rollup() error {
+	if err := r.ensureActiveSubmitter(); err != nil {
+		return fmt.Errorf("skip rollup: %w", err)
+	}
+	if pendingN := r.pendingTxs.Len(); pendingN > int(r.cfg.MaxTxsInPendingPool) {
+		log.Info("Pending pool full",
+			"current_size", pendingN,
+			"max_size", r.cfg.MaxTxsInPendingPool)
+		return nil
+	}
+
+	var batchIndex uint64
+
+	cindexBig, err := r.Rollup.LastCommittedBatchIndex(nil)
+	if err != nil {
+		return fmt.Errorf("get last committed rpcRollupBatch index error:%v", err)
+	}
+	cindex := cindexBig.Uint64()
+	batchIndex = cindex + 1
+	pendingN := r.pendingTxs.Len()
+	pidx := r.pendingTxs.GetPindex()
+	if pendingN != 0 && pidx != 0 {
+		batchIndex = max(cindex, pidx) + 1
+	}
+
+	log.Debug("Batch status",
+		"last_committed", cindex,
+		"next_batch", batchIndex,
+		"current_processing", pidx)
+
+	if r.pendingTxs.ExistedIndex(batchIndex) {
+		log.Debug("Batch already committed",
+			"batch_index", batchIndex)
+		return nil
+	}
+	var rpcRollupBatch *eth.RPCRollupBatch
+	exist := true
+	if r.cfg.SealBatch {
+		rpcRollupBatch, err = r.batchCache.Get(batchIndex)
+	} else {
+		rpcRollupBatch, exist = r.batchCacheLegacy.Get(batchIndex)
+	}
+	if err != nil || !exist || rpcRollupBatch == nil {
+		log.Info("Batch not found in cache",
+			"batch_index", batchIndex)
+		return nil
+	}
+
+	rollupBatch := bindings.IRollupBatchDataInput{
+		Version:           uint8(rpcRollupBatch.Version),
+		ParentBatchHeader: rpcRollupBatch.ParentBatchHeader,
+		LastBlockNumber:   rpcRollupBatch.LastBlockNumber,
+		NumL1Messages:     rpcRollupBatch.NumL1Messages,
+		PrevStateRoot:     rpcRollupBatch.PrevStateRoot,
+		PostStateRoot:     rpcRollupBatch.PostStateRoot,
+		WithdrawalRoot:    rpcRollupBatch.WithdrawRoot,
+	}
+
+	storedBlobHash, err := r.Rollup.BatchBlobVersionedHashes(nil, big.NewInt(int64(batchIndex)))
+	if err != nil {
+		return fmt.Errorf("get batch blob versioned hash: %w", err)
+	}
+	useCommitState := storedBlobHash != [32]byte{}
+	if useCommitState {
+		if err := r.validateStoredBlobAgainstSealedHeader(storedBlobHash, batchIndex); err != nil {
+			return err
+		}
+		log.Info("Using commitState (L1 stored blob hash matches sealed header)",
+			"batch_index", batchIndex,
+			"stored_blob_hash", common.Hash(storedBlobHash).Hex())
+	}
+
+	// tip and cap
+	tip, gasFeeCap, blobFee, head, err := r.GetGasTipAndCap()
+	if err != nil {
+		return fmt.Errorf("get gas tip and cap error:%v", err)
+	}
+
+	// calldata encode — commitState reuses stored blob hash and must not carry blob data in tx
+	var calldata []byte
+	if useCommitState {
+		calldata, err = r.abi.Pack("commitState", rollupBatch)
+	} else {
+		calldata, err = r.abi.Pack("commitBatch", rollupBatch)
+	}
+	if err != nil {
+		return fmt.Errorf("pack calldata error:%v", err)
+	}
+	// Estimate gas for transaction.
+	// For blob batches (e.g. V2), include BlobHashes/BlobGasFeeCap so `blobhash(i)`
+	// is available during eth_estimateGas simulation.
+	var estimateBlobHashes []common.Hash
+	var estimateBlobFeeCap *big.Int
+	if !useCommitState && len(rpcRollupBatch.Sidecar.Blobs) > 0 {
+		estimateBlobHashes = blob.BlobHashes(rpcRollupBatch.Sidecar.Blobs, rpcRollupBatch.Sidecar.Commitments)
+		estimateBlobFeeCap = blobFee
+	}
+	gas, err := r.EstimateGas(r.WalletAddr(), r.rollupAddr, calldata, gasFeeCap, tip, estimateBlobHashes, estimateBlobFeeCap)
+	if err != nil {
+		log.Warn("Estimate gas failed", "batch_index", batchIndex, "error", err)
+		// Use estimation based on L1 message count. A revert is never guessed
+		// around: the tx would be mined only to fail, burning the blob fee.
+		if r.cfg.RoughEstimateGas && !utils.IsExecutionRevertErr(err) {
+			msgcnt := utils.ParseL1MessageCnt(rpcRollupBatch.BlockContexts)
+			gas = r.RoughRollupGasEstimate(msgcnt)
+			log.Info("Using rough gas estimation",
+				"batch_index", batchIndex,
+				"gas_limit", gas,
+				"l1_messages", msgcnt)
+		} else {
+			return nil
+		}
+	}
+
+	// Apply gas buffer
+	gas = r.BumpGas(gas)
+
+	// Get next nonce
+	nonce, err := r.getNextNonce()
+	if err != nil {
+		return fmt.Errorf("failed to get next nonce: %w", err)
+	}
+
+	// Create and sign transaction (commitState is always type-2, never blob)
+	var tx *ethtypes.Transaction
+	if useCommitState {
+		tx, err = r.createDynamicFeeTx(nonce, gas, tip, gasFeeCap, calldata)
+	} else {
+		tx, err = r.createRollupTx(rpcRollupBatch, nonce, gas, tip, gasFeeCap, blobFee, calldata, head)
+	}
+	if err != nil {
+		return fmt.Errorf("failed to create rollup tx: %w", err)
+	}
+
+	signedTx, err := r.Sign(tx)
+	if err != nil {
+		return fmt.Errorf("failed to sign tx: %w", err)
+	}
+
+	// Log transaction details before sending
+	r.logTxInfo(signedTx, batchIndex)
+
+	// Send transaction
+	if err = r.SendTx(signedTx); err != nil {
+		return fmt.Errorf("failed to send tx: %w", err)
+	}
+
+	// Update pending state
+	r.pendingTxs.SetPindex(batchIndex)
+	r.pendingTxs.SetNonce(tx.Nonce())
+	// SendTx already adds signedTx to the pending pool
+
+	return nil
+}
+
+func (r *Rollup) getNextNonce() (uint64, error) {
+	nonce, err := r.L1Client.PendingNonceAt(context.Background(), r.WalletAddr())
+	if err != nil {
+		return 0, fmt.Errorf("failed to get pending nonce: %w", err)
+	}
+	if r.pendingTxs.Len() == 0 {
+		return nonce, nil
+	}
+	pn := r.pendingTxs.GetNonce()
+	if pn+1 > nonce {
+		return pn + 1, nil
+	}
+	return nonce, nil
+}
+
+func (r *Rollup) createRollupTx(batch *eth.RPCRollupBatch, nonce, gas uint64, tip, gasFeeCap, blobFee *big.Int, calldata []byte, head *ethtypes.Header) (*ethtypes.Transaction, error) {
+	if len(batch.Sidecar.Blobs) > 0 {
+		return r.createBlobTx(batch, nonce, gas, tip, gasFeeCap, blobFee, calldata, head)
+	}
+	return r.createDynamicFeeTx(nonce, gas, tip, gasFeeCap, calldata)
+}
+
+func (r *Rollup) createBlobTx(rpcBatch *eth.RPCRollupBatch, nonce, gas uint64, tip, gasFeeCap, blobFee *big.Int, calldata []byte, head *ethtypes.Header) (*ethtypes.Transaction, error) {
+	versionedHashes := blob.BlobHashes(rpcBatch.Sidecar.Blobs, rpcBatch.Sidecar.Commitments)
+	sidecar := &ethtypes.BlobTxSidecar{
+		Blobs:       rpcBatch.Sidecar.Blobs,
+		Commitments: rpcBatch.Sidecar.Commitments,
+	}
+	switch blob.DetermineBlobVersion(head, r.chainId.Uint64()) {
+	case ethtypes.BlobSidecarVersion0:
+		sidecar.Version = ethtypes.BlobSidecarVersion0
+		proof, err := blob.MakeBlobProof(sidecar.Blobs, sidecar.Commitments)
+		if err != nil {
+			return nil, fmt.Errorf("gen blob proof failed %v", err)
+		}
+		sidecar.Proofs = proof
+	case ethtypes.BlobSidecarVersion1:
+		sidecar.Version = ethtypes.BlobSidecarVersion1
+		proof, err := blob.MakeCellProof(sidecar.Blobs)
+		if err != nil {
+			return nil, fmt.Errorf("gen cell proof failed %v", err)
+		}
+		sidecar.Proofs = proof
+	default:
+		return nil, fmt.Errorf("unsupported blob version")
+	}
+
+	return ethtypes.NewTx(&ethtypes.BlobTx{
+		ChainID:    uint256.MustFromBig(r.chainId),
+		Nonce:      nonce,
+		GasTipCap:  uint256.MustFromBig(tip),
+		GasFeeCap:  uint256.MustFromBig(gasFeeCap),
+		Gas:        gas,
+		To:         r.rollupAddr,
+		Data:       calldata,
+		BlobFeeCap: uint256.MustFromBig(blobFee),
+		BlobHashes: versionedHashes,
+		Sidecar:    sidecar,
+	}), nil
+}
+
+func (r *Rollup) createDynamicFeeTx(nonce, gas uint64, tip, gasFeeCap *big.Int, calldata []byte) (*ethtypes.Transaction, error) {
+	return ethtypes.NewTx(&ethtypes.DynamicFeeTx{
+		ChainID:   r.chainId,
+		Nonce:     nonce,
+		GasTipCap: tip,
+		GasFeeCap: gasFeeCap,
+		Gas:       gas,
+		To:        &r.rollupAddr,
+		Data:      calldata,
+	}), nil
+}
+
+// validateStoredBlobAgainstSealedHeader requires L1 stored blob hash to match the sealed
+// header blob field (offset 57). Sealed headers always carry a non-zero semantic value
+// (e.g. EmptyVersionedHash); callers must not skip validation when the field decodes to zero.
+func (r *Rollup) validateStoredBlobAgainstSealedHeader(stored [32]byte, batchIndex uint64) error {
+	if stored == ([32]byte{}) {
+		return nil
+	}
+	if !r.cfg.SealBatch || r.batchCache == nil {
+		return nil
+	}
+	header, ok := r.batchCache.GetSealedBatchHeader(batchIndex)
+	if !ok || header == nil {
+		return fmt.Errorf("commitState: sealed batch header %d not in cache", batchIndex)
+	}
+	headerBlob, err := header.BlobCommitHash()
+	if err != nil {
+		return fmt.Errorf("commitState: batch %d header blob field: %w", batchIndex, err)
+	}
+	if common.Hash(stored) != headerBlob {
+		return fmt.Errorf(
+			"commitState: L1 stored blob hash %s != sealed header %s (batch %d)",
+			common.Hash(stored).Hex(), headerBlob.Hex(), batchIndex,
+		)
+	}
+	return nil
+}
+
+// tryRebuildRollupCommitTx aligns an in-flight commit-like tx with L1 blob-hash state:
+//   - stored blob versioned hash set  -> must use commitState (no blob), upgrading commitBatch / blob txs
+//   - stored hash cleared              -> must use commitBatch (+ blob sidecar when present), downgrading stale commitState
+//
+// Returns handled=true when newTx must be used and the default ReSubmitTx copy path must be skipped.
+func (r *Rollup) tryRebuildRollupCommitTx(tx *ethtypes.Transaction, tip, gasFeeCap, blobFeeCap *big.Int, head *ethtypes.Header) (newTx *ethtypes.Transaction, handled bool, err error) {
+	method := utils.ParseMethod(tx, r.abi)
+	if !constants.IsCommitLikeMethod(method) {
+		return nil, false, nil
+	}
+	batchIndex := utils.ParseParentBatchIndex(tx.Data()) + 1
+	stored, err := r.Rollup.BatchBlobVersionedHashes(nil, big.NewInt(int64(batchIndex)))
+	if err != nil {
+		return nil, false, err
+	}
+	if err := r.validateStoredBlobAgainstSealedHeader(stored, batchIndex); err != nil {
+		return nil, true, err
+	}
+	if stored != ([32]byte{}) {
+		if method == constants.MethodCommitState && tx.Type() == ethtypes.DynamicFeeTxType {
+			return nil, false, nil
+		}
+	} else {
+		if method == constants.MethodCommitBatch {
+			return nil, false, nil
+		}
+	}
+
+	var rpcRollupBatch *eth.RPCRollupBatch
+	exist := true
+	if r.cfg.SealBatch {
+		rpcRollupBatch, err = r.batchCache.Get(batchIndex)
+	} else {
+		rpcRollupBatch, exist = r.batchCacheLegacy.Get(batchIndex)
+	}
+	if err != nil || !exist || rpcRollupBatch == nil {
+		return nil, true, fmt.Errorf("cannot rebuild rollup commit tx: batch %d not in cache (err=%v)", batchIndex, err)
+	}
+	rollupBatch := bindings.IRollupBatchDataInput{
+		Version:           uint8(rpcRollupBatch.Version),
+		ParentBatchHeader: rpcRollupBatch.ParentBatchHeader,
+		LastBlockNumber:   rpcRollupBatch.LastBlockNumber,
+		NumL1Messages:     rpcRollupBatch.NumL1Messages,
+		PrevStateRoot:     rpcRollupBatch.PrevStateRoot,
+		PostStateRoot:     rpcRollupBatch.PostStateRoot,
+		WithdrawalRoot:    rpcRollupBatch.WithdrawRoot,
+	}
+
+	if stored != ([32]byte{}) {
+		calldata, err := r.abi.Pack("commitState", rollupBatch)
+		if err != nil {
+			return nil, true, err
+		}
+		newTx, err = r.createDynamicFeeTx(tx.Nonce(), tx.Gas(), tip, gasFeeCap, calldata)
+		if err != nil {
+			return nil, true, err
+		}
+		log.Info("Rebuilt pending rollup tx as commitState (stored blob hash on L1)",
+			"batch_index", batchIndex,
+			"old_tx_type", tx.Type(),
+			"old_method", method)
+		return newTx, true, nil
+	}
+
+	calldata, err := r.abi.Pack("commitBatch", rollupBatch)
+	if err != nil {
+		return nil, true, err
+	}
+	if head == nil {
+		return nil, true, fmt.Errorf("cannot rebuild commitBatch: nil L1 head")
+	}
+	newTx, err = r.createRollupTx(rpcRollupBatch, tx.Nonce(), tx.Gas(), tip, gasFeeCap, blobFeeCap, calldata, head)
+	if err != nil {
+		return nil, true, err
+	}
+	log.Info("Rebuilt pending rollup tx as commitBatch (no stored blob hash on L1)",
+		"batch_index", batchIndex,
+		"old_tx_type", tx.Type(),
+		"old_method", method)
+	return newTx, true, nil
+}
+
+func (r *Rollup) logTxInfo(tx *ethtypes.Transaction, batchIndex uint64) {
+	log.Info("Rollup transaction created",
+		"batch_index", batchIndex,
+		"hash", tx.Hash().String(),
+		"type", tx.Type(),
+		"nonce", tx.Nonce(),
+		"gas", tx.Gas(),
+		"tip", tx.GasTipCap().String(),
+		"fee_cap", tx.GasFeeCap().String(),
+		"blob_fee_cap", tx.BlobGasFeeCap(),
+		"blob_gas", tx.BlobGas(),
+		"size", tx.Size(),
+		"blob_count", len(tx.BlobHashes()),
+	)
+}
+
+func (r *Rollup) GetGasTipAndCap() (*big.Int, *big.Int, *big.Int, *ethtypes.Header, error) {
+	head, err := r.L1Client.HeaderByNumber(context.Background(), nil)
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+	if head.BaseFee != nil {
+		log.Info("market fee info", "feecap", head.BaseFee)
+		if r.cfg.MaxBaseFee > 0 && head.BaseFee.Cmp(big.NewInt(int64(r.cfg.MaxBaseFee))) > 0 {
+			return nil, nil, nil, nil, fmt.Errorf("base fee is too high, base fee %v exceeds max %v", head.BaseFee, r.cfg.MaxBaseFee)
+		}
+	}
+
+	tip, err := r.L1Client.SuggestGasTipCap(context.Background())
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+	log.Info("market fee info", "tip", tip)
+
+	if r.cfg.TipFeeBump > 0 {
+		tip = new(big.Int).Mul(tip, big.NewInt(int64(r.cfg.TipFeeBump)))
+		tip = new(big.Int).Div(tip, big.NewInt(100))
+	}
+	if r.cfg.MaxTip > 0 && tip.Cmp(big.NewInt(int64(r.cfg.MaxTip))) > 0 {
+		return nil, nil, nil, nil, fmt.Errorf("tip is too high, tip %v exceeds max %v", tip, r.cfg.MaxTip)
+	}
+
+	var gasFeeCap *big.Int
+	if head.BaseFee != nil {
+		gasFeeCap = new(big.Int).Add(
+			tip,
+			new(big.Int).Mul(head.BaseFee, big.NewInt(2)),
+		)
+	} else {
+		gasFeeCap = new(big.Int).Set(tip)
+	}
+
+	// calc blob fee cap
+	var blobFee *big.Int
+	if head.ExcessBlobGas != nil {
+		log.Info("market blob fee info", "excess blob gas", *head.ExcessBlobGas)
+		blobConfig, exist := blob.ChainConfigMap[r.chainId.Uint64()]
+		if !exist {
+			blobConfig = blob.DefaultBlobConfig
+		}
+		blobFeeDenominator := blob.GetBlobFeeDenominator(blobConfig, head.Time)
+		blobFee = eip4844.CalcBlobFee(*head.ExcessBlobGas, blobFeeDenominator.Uint64())
+		// Set to 3x to handle blob market congestion
+		blobFee = new(big.Int).Mul(blobFee, big.NewInt(3))
+	}
+
+	log.Info("fee info after bump",
+		"tip", tip,
+		"feecap", gasFeeCap,
+		"blobfee", blobFee,
+	)
+
+	return tip, gasFeeCap, blobFee, head, nil
+}
+
+// PreCheck is run before the submitter to check whether the submitter can be started
+func (r *Rollup) PreCheck() error {
+	return r.ensureActiveSubmitter()
+}
+
+// ensureActiveSubmitter reports whether the configured wallet is an active
+// submitter right now. commitBatch / commitState / finalizeBatch all carry
+// onlyActiveSubmitter, so submitting while inactive mines a reverting tx; for a
+// blob tx the blob fee is charged even on revert. A submitter can be removed,
+// slashed, priced out by a raised minimum stake, or start withdrawing at any
+// point after startup, so every submitting loop must re-check instead of
+// trusting the one-shot startup result. Callers must treat an RPC error here as
+// "do not submit" rather than assuming the wallet is still eligible.
+func (r *Rollup) ensureActiveSubmitter() error {
+	isActive, err := r.Submitter.IsActive(nil, r.WalletAddr())
+	if err != nil {
+		return fmt.Errorf("check Submitter activity: %w", err)
+	}
+	if !isActive {
+		return fmt.Errorf("wallet %s is not an active submitter", r.WalletAddr())
+	}
+	return nil
+}
+
+func (r *Rollup) WalletAddr() common.Address {
+
+	if r.cfg.ExternalSign {
+		return common.HexToAddress(r.cfg.ExternalSignAddress)
+	} else {
+		return crypto.PubkeyToAddress(r.privKey.PublicKey)
+	}
+
+}
+
+func GetRollupBatchByIndex(index uint64, clients []iface.L2Client) (*eth.RPCRollupBatch, error) {
+	if len(clients) < 1 {
+		return nil, fmt.Errorf("no client to query")
+	}
+	for _, client := range clients {
+		batch, err := client.GetRollupBatchByIndex(context.Background(), index)
+		if err != nil {
+			log.Warn("failed to get batch", "error", err)
+			continue
+		}
+		if batch != nil {
+			return batch, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func UpdateGasLimit(tx *ethtypes.Transaction) (*ethtypes.Transaction, error) {
+	// add buffer to gas limit (*1.2)
+	newGasLimit := tx.Gas() * 12 / 10
+
+	var newTx *ethtypes.Transaction
+	if tx.Type() == ethtypes.LegacyTxType {
+
+		newTx = ethtypes.NewTx(&ethtypes.LegacyTx{
+			Nonce:    tx.Nonce(),
+			GasPrice: new(big.Int).Set(tx.GasPrice()),
+			Gas:      newGasLimit,
+			To:       tx.To(),
+			Value:    tx.Value(),
+			Data:     tx.Data(),
+		})
+	} else if tx.Type() == ethtypes.DynamicFeeTxType {
+		newTx = ethtypes.NewTx(&ethtypes.DynamicFeeTx{
+			ChainID:   tx.ChainId(),
+			Nonce:     tx.Nonce(),
+			GasTipCap: new(big.Int).Set(tx.GasTipCap()),
+			GasFeeCap: new(big.Int).Set(tx.GasFeeCap()),
+			Gas:       newGasLimit,
+			To:        tx.To(),
+			Value:     tx.Value(),
+			Data:      tx.Data(),
+		})
+	} else if tx.Type() == ethtypes.BlobTxType {
+		newTx = ethtypes.NewTx(&ethtypes.BlobTx{
+			ChainID:    uint256.MustFromBig(tx.ChainId()),
+			Nonce:      tx.Nonce(),
+			GasTipCap:  uint256.MustFromBig(tx.GasTipCap()),
+			GasFeeCap:  uint256.MustFromBig(tx.GasFeeCap()),
+			Gas:        newGasLimit,
+			To:         *tx.To(),
+			Value:      uint256.MustFromBig(tx.Value()),
+			Data:       tx.Data(),
+			BlobFeeCap: uint256.MustFromBig(tx.BlobGasFeeCap()),
+			BlobHashes: tx.BlobHashes(),
+			Sidecar:    tx.BlobTxSidecar(),
+		})
+
+	} else {
+		return nil, fmt.Errorf("unknown tx type:%v", tx.Type())
+	}
+	return newTx, nil
+}
+
+// SendTx tracks the transaction in the pending pool, then broadcasts it to L1.
+// Add runs before send so a broadcast failure never leaves an untracked in-flight nonce.
+// If send fails after Add, the tx is removed from the pool and journal.
+func (r *Rollup) SendTx(tx *ethtypes.Transaction) error {
+	if tx == nil {
+		return errors.New("nil tx")
+	}
+	if r.bm != nil && !r.bm.IsGrowth() {
+		return fmt.Errorf("block not growth in %d blocks time", r.cfg.BlockNotIncreasedThreshold)
+	}
+
+	if r.pendingTxs != nil {
+		if err := r.pendingTxs.Add(tx); err != nil {
+			return fmt.Errorf("track tx before send: %w", err)
+		}
+	}
+
+	if err := sendTx(r.L1Client, r.cfg.TxFeeLimit, tx); err != nil {
+		if r.pendingTxs != nil {
+			if remErr := r.pendingTxs.Remove(tx.Hash()); remErr != nil {
+				log.Error("failed to untrack tx after send failure",
+					"hash", tx.Hash().String(), "send_err", err, "remove_err", remErr)
+			}
+		}
+		return err
+	}
+
+	return nil
+}
+
+// send tx to l1 with business logic check
+func sendTx(client iface.Client, txFeeLimit uint64, tx *ethtypes.Transaction) error {
+	// fee limit
+	if txFeeLimit > 0 {
+		var fee uint64
+		// calc tx gas fee
+		if tx.Type() == ethtypes.BlobTxType {
+			// blob fee
+			fee = tx.BlobGasFeeCap().Uint64() * tx.BlobGas()
+			// tx fee
+			fee += tx.GasPrice().Uint64() * tx.Gas()
+		} else {
+			fee = tx.GasPrice().Uint64() * tx.Gas()
+		}
+
+		if fee > txFeeLimit {
+			return fmt.Errorf("%v:limit=%v,but got=%v", utils.ErrExceedFeeLimit, txFeeLimit, fee)
+		}
+	}
+
+	return client.SendTransaction(context.Background(), tx)
+}
+
+func (r *Rollup) ReSubmitTx(resend bool, tx *ethtypes.Transaction) (*ethtypes.Transaction, error) {
+	if tx == nil {
+		return nil, errors.New("nil tx")
+	}
+
+	method := "replaced tx"
+	if resend {
+		method = "resubmitted tx"
+	}
+
+	// replaced tx info
+	log.Info(method,
+		"hash", tx.Hash().String(),
+		"gas_fee_cap", tx.GasFeeCap().String(),
+		"gas_tip", tx.GasTipCap().String(),
+		"blob_fee_cap", tx.BlobGasFeeCap().String(),
+		"gas", tx.Gas(),
+		"nonce", tx.Nonce(),
+	)
+
+	tip, gasFeeCap, blobFeeCap, head, err := r.GetGasTipAndCap()
+	if err != nil {
+		return nil, fmt.Errorf("get gas tip and cap error:%w", err)
+	}
+	if !resend {
+		// bump tip & feeCap
+		bumpedFeeCap := calcThresholdValue(tx.GasFeeCap(), tx.Type() == ethtypes.BlobTxType)
+		bumpedTip := calcThresholdValue(tx.GasTipCap(), tx.Type() == ethtypes.BlobTxType)
+
+		// if bumpedTip > tip
+		if bumpedTip.Cmp(tip) > 0 {
+			tip = bumpedTip
+		}
+
+		if bumpedFeeCap.Cmp(gasFeeCap) > 0 {
+			gasFeeCap = bumpedFeeCap
+		}
+
+		if tx.Type() == ethtypes.BlobTxType {
+			bumpedBlobFeeCap := calcThresholdValue(tx.BlobGasFeeCap(), tx.Type() == ethtypes.BlobTxType)
+			if bumpedBlobFeeCap.Cmp(blobFeeCap) > 0 {
+				blobFeeCap = bumpedBlobFeeCap
+			}
+		}
+
+		if r.cfg.MinTip > 0 && tip.Cmp(big.NewInt(int64(r.cfg.MinTip))) < 0 {
+			log.Info("replace tip is too low, update tip to min tip ", "tip", tip, "min_tip", r.cfg.MinTip)
+			tip = big.NewInt(int64(r.cfg.MinTip))
+			var recalculatedFeecap *big.Int
+			if head.BaseFee != nil {
+				recalculatedFeecap = new(big.Int).Add(
+					tip,
+					new(big.Int).Mul(head.BaseFee, big.NewInt(2)),
+				)
+			} else {
+				recalculatedFeecap = new(big.Int).Set(tip)
+			}
+			if recalculatedFeecap.Cmp(gasFeeCap) > 0 {
+				gasFeeCap = recalculatedFeecap
+			}
+		}
+	}
+
+	var newTx *ethtypes.Transaction
+	if rebuilt, ok, err := r.tryRebuildRollupCommitTx(tx, tip, gasFeeCap, blobFeeCap, head); ok {
+		if err != nil {
+			return nil, err
+		}
+		newTx = rebuilt
+	} else if err != nil {
+		return nil, err
+	} else {
+		switch tx.Type() {
+		case ethtypes.DynamicFeeTxType:
+			newTx = ethtypes.NewTx(&ethtypes.DynamicFeeTx{
+				ChainID:   tx.ChainId(),
+				To:        tx.To(),
+				Nonce:     tx.Nonce(),
+				GasFeeCap: gasFeeCap,
+				GasTipCap: tip,
+				Gas:       tx.Gas(),
+				Value:     tx.Value(),
+				Data:      tx.Data(),
+			})
+		case ethtypes.BlobTxType:
+			sidecar := tx.BlobTxSidecar()
+			version := blob.DetermineBlobVersion(head, r.chainId.Uint64())
+			if sidecar != nil {
+				if sidecar.Version == ethtypes.BlobSidecarVersion0 && version == ethtypes.BlobSidecarVersion1 {
+					err = blob.BlobSidecarVersionToV1(sidecar)
+					if err != nil {
+						return nil, err
+					}
+				}
+			}
+
+			newTx = ethtypes.NewTx(&ethtypes.BlobTx{
+				ChainID:    uint256.MustFromBig(tx.ChainId()),
+				Nonce:      tx.Nonce(),
+				GasTipCap:  uint256.MustFromBig(tip),
+				GasFeeCap:  uint256.MustFromBig(gasFeeCap),
+				Gas:        tx.Gas(),
+				To:         *tx.To(),
+				Value:      uint256.MustFromBig(tx.Value()),
+				Data:       tx.Data(),
+				BlobFeeCap: uint256.MustFromBig(blobFeeCap),
+				BlobHashes: tx.BlobHashes(),
+				Sidecar:    sidecar,
+			})
+
+		default:
+			return nil, fmt.Errorf("replace unknown tx type:%v", tx.Type())
+
+		}
+	}
+
+	// Original tx was not a blob tx, but rebuild (e.g. commitState -> commitBatch) may produce a blob tx.
+	// In that case blobFeeCap was never bumped above (bump only ran for BlobTxType). Apply the same bump as for blob replacements.
+	if !resend && newTx != nil && newTx.Type() == ethtypes.BlobTxType && tx.Type() != ethtypes.BlobTxType {
+		embeddedCap := newTx.BlobGasFeeCap()
+		if embeddedCap != nil {
+			bumpedBlob := calcThresholdValue(embeddedCap, true)
+			if bumpedBlob.Cmp(blobFeeCap) > 0 {
+				blobFeeCap = bumpedBlob
+			}
+			sidecar := newTx.BlobTxSidecar()
+			newTx = ethtypes.NewTx(&ethtypes.BlobTx{
+				ChainID:    uint256.MustFromBig(newTx.ChainId()),
+				Nonce:      newTx.Nonce(),
+				GasTipCap:  uint256.MustFromBig(newTx.GasTipCap()),
+				GasFeeCap:  uint256.MustFromBig(newTx.GasFeeCap()),
+				Gas:        newTx.Gas(),
+				To:         *newTx.To(),
+				Value:      uint256.MustFromBig(newTx.Value()),
+				Data:       newTx.Data(),
+				BlobFeeCap: uint256.MustFromBig(blobFeeCap),
+				BlobHashes: newTx.BlobHashes(),
+				Sidecar:    sidecar,
+			})
+		}
+	}
+
+	// weiToGwei converts wei value to gwei string representation
+	weiToGwei := func(wei *big.Int) string {
+		if wei == nil {
+			return "0"
+		}
+		gwei := new(big.Float).Quo(
+			new(big.Float).SetInt(wei),
+			new(big.Float).SetInt64(1e9),
+		)
+		return gwei.Text('f', 6)
+	}
+
+	log.Info("new tx info",
+		"tx_type", newTx.Type(),
+		"gas_tip_gwei", weiToGwei(tip),
+		"gas_fee_cap_gwei", weiToGwei(gasFeeCap),
+		"blob_fee_cap_gwei", weiToGwei(blobFeeCap),
+	)
+	// sign tx
+	newTx, err = r.Sign(newTx)
+	if err != nil {
+		return nil, fmt.Errorf("sign tx error:%w", err)
+	}
+	// send tx
+	err = r.SendTx(newTx)
+	if err != nil {
+		return nil, fmt.Errorf("send tx error:%w", err)
+	}
+
+	return newTx, nil
+}
+
+func (r *Rollup) EstimateGas(
+	from, to common.Address,
+	data []byte,
+	feecap *big.Int,
+	tip *big.Int,
+	blobHashes []common.Hash,
+	blobGasFeeCap *big.Int,
+) (uint64, error) {
+
+	gas, err := r.L1Client.EstimateGas(context.Background(), ethereum.CallMsg{
+		From:          from,
+		To:            &to,
+		GasFeeCap:     feecap,
+		GasTipCap:     tip,
+		Data:          data,
+		BlobHashes:    blobHashes,
+		BlobGasFeeCap: blobGasFeeCap,
+	})
+	if err != nil {
+		return 0, fmt.Errorf("call estimate gas error:%v", err)
+	}
+	return gas, nil
+}
+
+func (r *Rollup) BumpGas(origin uint64) uint64 {
+	if r.cfg.GasLimitBuffer != 0 {
+		return origin * (100 + r.cfg.GasLimitBuffer) / 100
+	} else {
+		return origin
+	}
+}
+
+func (r *Rollup) RoughRollupGasEstimate(msgcnt uint64) uint64 {
+	return r.cfg.RollupTxGasBase + msgcnt*r.cfg.RollupTxGasPerL1Msg
+}
+
+func (r *Rollup) RoughFinalizeGasEstimate() uint64 {
+	return 500_000
+}
+
+func (r *Rollup) InitFeeMetricsSum() error {
+	// try to init rollupFeeSum & finalizeFeeSum
+	// read rollupFeeSum
+	rollupFeeSum, err := r.ldb.GetFloat(rollupSumKey)
+	if err != nil {
+		log.Warn("read rollupFeeSum from leveldb failed", "error", err)
+		if utils.ErrStringMatch(err, db.ErrKeyNotFound) {
+			err = r.ldb.PutFloat(rollupSumKey, 0)
+			if err != nil {
+				return fmt.Errorf("put rollupFeeSum to leveldb failed, key: %s, %w", rollupSumKey, err)
+			}
+		} else {
+			return fmt.Errorf("get data from leveldb faild, key: %s, %w", rollupSumKey, err)
+		}
+	}
+	log.Info(fmt.Sprintf("rollupFeeSum: %f", rollupFeeSum))
+	finalizeFeeSum, err := r.ldb.GetFloat(finalizeSumKey)
+	if err != nil {
+		log.Warn("read finalizeFeeSum from leveldb failed", "error", err)
+		if utils.ErrStringMatch(err, db.ErrKeyNotFound) {
+			err = r.ldb.PutFloat(finalizeSumKey, 0)
+			if err != nil {
+				return fmt.Errorf("put finalizeFeeSum to leveldb failed, key: %s, %w", finalizeSumKey, err)
+			}
+		} else {
+			return fmt.Errorf("get data from leveldb faild, key: %s, %w", finalizeSumKey, err)
+		}
+	}
+	log.Info(fmt.Sprintf("finalizeFeeSum: %f", finalizeFeeSum))
+	collectedL1FeeSum, err := r.ldb.GetFloat(collectedL1FeeSumKey)
+	if err != nil {
+		log.Warn("read collectedL1FeeSum from leveldb failed", "error", err)
+		if utils.ErrStringMatch(err, db.ErrKeyNotFound) {
+			err = r.ldb.PutFloat(collectedL1FeeSumKey, 0)
+			if err != nil {
+				return fmt.Errorf("put collectedL1FeeSum to leveldb failed, key: %s, %w", collectedL1FeeSumKey, err)
+			}
+		} else {
+			return fmt.Errorf("get data from leveldb faild, key: %s, %w", collectedL1FeeSumKey, err)
+		}
+	}
+	r.collectedL1FeeSum = collectedL1FeeSum
+	log.Info(fmt.Sprintf("collectedL1FeeSum: %f", collectedL1FeeSum))
+
+	r.rollupFeeSum = rollupFeeSum
+	r.finalizeFeeSum = finalizeFeeSum
+	r.collectedL1FeeSum = collectedL1FeeSum
+	// set fee sum init val
+	r.metrics.RollupCostSum.Add(r.rollupFeeSum)
+	r.metrics.FinalizeCostSum.Add(r.finalizeFeeSum)
+	r.metrics.CollectedL1FeeSum.Add(r.collectedL1FeeSum)
+	return nil
+}
+
+// CancelTx creates a new transaction with empty calldata to cancel the original transaction
+func (r *Rollup) CancelTx(tx *ethtypes.Transaction) (*ethtypes.Transaction, error) {
+	if tx == nil {
+		return nil, errors.New("nil tx")
+	}
+
+	log.Info("canceling transaction",
+		"hash", tx.Hash().String(),
+		"gas_fee_cap", tx.GasFeeCap().String(),
+		"gas_tip", tx.GasTipCap().String(),
+		"blob_fee_cap", tx.BlobGasFeeCap().String(),
+		"gas", tx.Gas(),
+		"nonce", tx.Nonce(),
+	)
+
+	tip, gasFeeCap, blobFeeCap, _, err := r.GetGasTipAndCap()
+	if err != nil {
+		return nil, fmt.Errorf("get gas tip and cap error:%w", err)
+	}
+
+	// bump tip & feeCap
+	bumpedFeeCap := calcThresholdValue(tx.GasFeeCap(), tx.Type() == ethtypes.BlobTxType)
+	bumpedTip := calcThresholdValue(tx.GasTipCap(), tx.Type() == ethtypes.BlobTxType)
+
+	// if bumpedTip > tip
+	if bumpedTip.Cmp(tip) > 0 {
+		tip = bumpedTip
+	}
+
+	if bumpedFeeCap.Cmp(gasFeeCap) > 0 {
+		gasFeeCap = bumpedFeeCap
+	}
+
+	if tx.Type() == ethtypes.BlobTxType {
+		bumpedBlobFeeCap := calcThresholdValue(tx.BlobGasFeeCap(), tx.Type() == ethtypes.BlobTxType)
+		if bumpedBlobFeeCap.Cmp(blobFeeCap) > 0 {
+			blobFeeCap = bumpedBlobFeeCap
+		}
+	}
+
+	var newTx *ethtypes.Transaction
+	switch tx.Type() {
+	case ethtypes.DynamicFeeTxType:
+		newTx = ethtypes.NewTx(&ethtypes.DynamicFeeTx{
+			ChainID:   tx.ChainId(),
+			To:        tx.To(),
+			Nonce:     tx.Nonce(),
+			GasFeeCap: gasFeeCap,
+			GasTipCap: tip,
+			Gas:       tx.Gas(),
+			Value:     tx.Value(),
+			Data:      []byte{}, // Empty calldata for cancellation
+		})
+	case ethtypes.BlobTxType:
+		// For blob transactions, we need to keep one empty blob
+		var emptyBlob kzg4844.Blob
+		emptyCommitment, err := kzg4844.BlobToCommitment(&emptyBlob)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create empty blob commitment: %w", err)
+		}
+		emptyProof, err := kzg4844.ComputeBlobProof(&emptyBlob, emptyCommitment)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create empty blob proof: %w", err)
+		}
+
+		newTx = ethtypes.NewTx(&ethtypes.BlobTx{
+			ChainID:    uint256.MustFromBig(tx.ChainId()),
+			Nonce:      tx.Nonce(),
+			GasTipCap:  uint256.MustFromBig(tip),
+			GasFeeCap:  uint256.MustFromBig(gasFeeCap),
+			Gas:        tx.Gas(),
+			To:         *tx.To(),
+			Value:      uint256.MustFromBig(tx.Value()),
+			Data:       []byte{}, // Empty calldata for cancellation
+			BlobFeeCap: uint256.MustFromBig(blobFeeCap),
+			BlobHashes: []common.Hash{kZGToVersionedHash(emptyCommitment)},
+			Sidecar: &ethtypes.BlobTxSidecar{
+				Blobs:       []kzg4844.Blob{emptyBlob},
+				Commitments: []kzg4844.Commitment{emptyCommitment},
+				Proofs:      []kzg4844.Proof{emptyProof},
+			},
+		})
+	default:
+		return nil, fmt.Errorf("cancel unknown tx type:%v", tx.Type())
+	}
+
+	log.Info("new cancel tx info",
+		"tx_type", newTx.Type(),
+		"gas_tip_gwei", utils.WeiToGwei(tip),
+		"gas_fee_cap_gwei", utils.WeiToGwei(gasFeeCap),
+		"blob_fee_cap_gwei", utils.WeiToGwei(blobFeeCap),
+	)
+
+	// sign tx
+	newTx, err = r.Sign(newTx)
+	if err != nil {
+		return nil, fmt.Errorf("sign tx error:%w", err)
+	}
+
+	// send tx
+	err = r.SendTx(newTx)
+	if err != nil {
+		return nil, fmt.Errorf("send tx error:%w", err)
+	}
+
+	return newTx, nil
+}
+
+// createReplacementTransferTx creates a simple transfer transaction with the same nonce
+// to replace the original transaction. This is used when resubmission fails.
+func (r *Rollup) createReplacementTransferTx(tx *ethtypes.Transaction) (*ethtypes.Transaction, error) {
+	if tx == nil {
+		return nil, errors.New("nil tx")
+	}
+
+	log.Info("creating replacement transfer transaction",
+		"original_hash", tx.Hash().String(),
+		"nonce", tx.Nonce(),
+	)
+
+	// Get current gas prices
+	tip, gasFeeCap, _, head, err := r.GetGasTipAndCap()
+	if err != nil {
+		return nil, fmt.Errorf("get gas tip and cap error: %w", err)
+	}
+
+	// Bump gas prices to ensure replacement
+	bumpedFeeCap := calcThresholdValue(tx.GasFeeCap(), false)
+	bumpedTip := calcThresholdValue(tx.GasTipCap(), false)
+
+	if bumpedTip.Cmp(tip) > 0 {
+		tip = bumpedTip
+	}
+	if bumpedFeeCap.Cmp(gasFeeCap) > 0 {
+		gasFeeCap = bumpedFeeCap
+	}
+
+	// Ensure minimum tip if configured
+	if r.cfg.MinTip > 0 && tip.Cmp(big.NewInt(int64(r.cfg.MinTip))) < 0 {
+		log.Info("replacement tip is too low, update tip to min tip", "tip", tip, "min_tip", r.cfg.MinTip)
+		tip = big.NewInt(int64(r.cfg.MinTip))
+		if head.BaseFee != nil {
+			recalculatedFeecap := new(big.Int).Add(
+				tip,
+				new(big.Int).Mul(head.BaseFee, big.NewInt(2)),
+			)
+			if recalculatedFeecap.Cmp(gasFeeCap) > 0 {
+				gasFeeCap = recalculatedFeecap
+			}
+		}
+	}
+
+	// Get sender address (send to self)
+	senderAddr := r.WalletAddr()
+
+	// Create a simple transfer transaction (send to self with empty calldata)
+	// Use minimum gas limit for a simple transfer (21000)
+	transferGas := uint64(21000)
+
+	newTx := ethtypes.NewTx(&ethtypes.DynamicFeeTx{
+		ChainID:   r.chainId,
+		To:        &senderAddr, // Send it to self
+		Nonce:     tx.Nonce(),  // Same nonce as original transaction
+		GasFeeCap: gasFeeCap,
+		GasTipCap: tip,
+		Gas:       transferGas,
+		Value:     big.NewInt(0), // Zero value transfer
+		Data:      []byte{},      // Empty call data
+	})
+
+	log.Info("replacement transfer tx info",
+		"tx_type", newTx.Type(),
+		"gas_tip_gwei", utils.WeiToGwei(tip),
+		"gas_fee_cap_gwei", utils.WeiToGwei(gasFeeCap),
+		"nonce", newTx.Nonce(),
+		"to", senderAddr.Hex(),
+	)
+
+	// Sign transaction
+	newTx, err = r.Sign(newTx)
+	if err != nil {
+		return nil, fmt.Errorf("sign tx error: %w", err)
+	}
+
+	// Send transaction
+	err = r.SendTx(newTx)
+	if err != nil {
+		return nil, fmt.Errorf("send tx error: %w", err)
+	}
+
+	log.Info("successfully sent replacement transfer transaction",
+		"original_hash", tx.Hash().String(),
+		"replacement_hash", newTx.Hash().String(),
+		"nonce", newTx.Nonce(),
+	)
+
+	return newTx, nil
+}

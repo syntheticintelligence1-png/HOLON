@@ -1,0 +1,34 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "rule_catalog_version": "holon-rules/0.2",
+  "law_id": "L_ctrl_02",
+  "milestone": "M4",
+  "rule": "UNDO",
+  "subform": "undo-stage-breach",
+  "maps_to": "Evaluation control CTRL-02 (FALSE_BEYOND_BOUND)",
+  "facts": "eval_ctrl_machine.facts.json",
+  "facts_sha256": "baf3910021a2131758fdcca08d7916d8eed37afd85839d36fce66a32a86083da",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "Reach"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "obsv_breach",
+          "of": {
+            "var": "s"
+          }
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "rule_catalog_version": "holon-rules/0.2",
+  "law_id": "L_ctrl_12",
+  "milestone": "M4",
+  "rule": "DISCH",
+  "subform": "disch-commute",
+  "maps_to": "Evaluation control CTRL-12 (TRUE_UNPROVED)",
+  "facts": "eval_ctrl_machine.facts.json",
+  "facts_sha256": "baf3910021a2131758fdcca08d7916d8eed37afd85839d36fce66a32a86083da",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "Reach"
+      },
+      {
+        "q": "forall",
+        "name": "x",
+        "type": "Nat"
+      },
+      {
+        "q": "forall",
+        "name": "y",
+        "type": "Nat"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "obsv_acc",
+          "of": {
+            "step": {
+              "act": "add_acc",
+              "args": {
+                "x": {
+                  "var": "y"
+                }
+              }
+            },
+            "from": {
+              "step": {
+                "act": "add_acc",
+                "args": {
+                  "x": {
+                    "var": "x"
+                  }
+                }
+              },
+              "from": {
+                "var": "s"
+              }
+            }
+          }
+        },
+        {
+          "obsv": "obsv_acc",
+          "of": {
+            "step": {
+              "act": "add_acc",
+              "args": {
+                "x": {
+                  "var": "x"
+                }
+              }
+            },
+            "from": {
+              "step": {
+                "act": "add_acc",
+                "args": {
+                  "x": {
+                    "var": "y"
+                  }
+                }
+              },
+              "from": {
+                "var": "s"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

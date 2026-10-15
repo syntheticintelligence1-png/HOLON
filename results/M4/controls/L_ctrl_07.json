@@ -1,0 +1,81 @@
+{
+  "attempts": [
+    {
+      "applied": true,
+      "generator": "refl",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "ok": false,
+      "reason": "SOME PROOFS FAIL\nError:\n- expected : Cmp.is_eq(Nat.cmp(Nat.sub(Nat.add(seq, 1n), Nat.add(mirror, 1n)), 0n))\n- observed : True{}\nContext:\n- stage     : Nat\n- seq       : Nat\n- mirror    : Nat\n- acc       : Nat\n- tier      : Nat\n- locked    : Bool\n- halted    : Bool\n- alert     : Bool\n- overflow  : Bool"
+    },
+    {
+      "applied": false,
+      "generator": "case_split_guard",
+      "kind": "proof",
+      "ok": false,
+      "reason": "guard shape does not reduce to a single guard case-split"
+    },
+    {
+      "applied": false,
+      "generator": "nat_ind",
+      "kind": "proof",
+      "ok": false,
+      "reason": "requires custom inductive lemma or composite Nat witness beyond depth-3 split"
+    },
+    {
+      "applied": false,
+      "generator": "list_ind",
+      "kind": "proof",
+      "ok": false,
+      "reason": "requires custom list/trace structural lemma"
+    },
+    {
+      "applied": false,
+      "generator": "eq_chain",
+      "kind": "proof",
+      "ok": false,
+      "reason": "claim does not close by direct premise or single-step equality chain"
+    },
+    {
+      "applied": false,
+      "generator": "evaluate",
+      "kind": "proof",
+      "ok": false,
+      "reason": "universal binders present; closed evaluation inapplicable"
+    },
+    {
+      "bound": "prefixes: BFS depth 2 over policy actions (<= 100 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": false,
+      "kind": "refute",
+      "tried": 82
+    }
+  ],
+  "bound": "prefixes: BFS depth 2 over policy actions (<= 100 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+  "category": "TRUE_UNPROVED",
+  "compiled_sha256": "43ee5d2070c3f55cf2432dc70940e6b7ccb9429ce5e09c149f0d1ede863da2c4",
+  "control_id": "CTRL-07",
+  "description": "True FACT law whose post-state sets diff_zero = (Nat.sub(1+seq, 1+mirror) == 0) under premise seq == mirror; requires inductive lemma Nat.sub(k, k) == 0 not in HOLON's unassisted tactic library.",
+  "facts_sha256": "baf3910021a2131758fdcca08d7916d8eed37afd85839d36fce66a32a86083da",
+  "ground_truth_kind": "PROOF_ACCEPTED",
+  "ground_truth_laws_file": "gen/M4/controls/ground_truth/L_ctrl_07/LAWS.bend",
+  "ground_truth_proof_file": "gen/M4/controls/ground_truth/L_ctrl_07/PROOF.bend",
+  "ground_truth_symbol": "Laws.l_ctrl_07",
+  "ground_truth_verified": true,
+  "law_id": "L_ctrl_07",
+  "limitation_class": "inductive_nat_sub_diag_lemma_absent",
+  "model_sha256": "452443f6ea3922cb4b53b3396e6d66527bf2418fdac3e78147f333cac7c0949e",
+  "rule": "FACT",
+  "schema": "holon-control-result/0.1",
+  "statement_hash": "19ab49a07ae1788af75c19fd799cd3e340fb7c9b11319594049f29027f6ff71d",
+  "status": "UNKNOWN",
+  "subform": "fact-sub-self-zero",
+  "tried_generators": [
+    "refl",
+    "case_split_guard",
+    "nat_ind",
+    "list_ind",
+    "eq_chain",
+    "evaluate"
+  ]
+}

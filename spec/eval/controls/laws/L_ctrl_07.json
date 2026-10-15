@@ -1,0 +1,54 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "rule_catalog_version": "holon-rules/0.2",
+  "law_id": "L_ctrl_07",
+  "milestone": "M4",
+  "rule": "FACT",
+  "subform": "fact-sub-self-zero",
+  "maps_to": "Evaluation control CTRL-07 (TRUE_UNPROVED)",
+  "facts": "eval_ctrl_machine.facts.json",
+  "facts_sha256": "baf3910021a2131758fdcca08d7916d8eed37afd85839d36fce66a32a86083da",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "Reach"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "obsv": "obsv_seq_eq_mirror",
+            "of": {
+              "var": "s"
+            }
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "obsv_diff_zero",
+          "of": {
+            "step": {
+              "act": "bump_both",
+              "args": {}
+            },
+            "from": {
+              "var": "s"
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  }
+}

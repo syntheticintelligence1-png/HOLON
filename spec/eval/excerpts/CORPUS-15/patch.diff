@@ -1,0 +1,15 @@
+diff --git a/op-node/rollup/sequencing/sequencer.go b/op-node/rollup/sequencing/sequencer.go
+index ed6e5f7264..597796d5a3 100644
+--- a/op-node/rollup/sequencing/sequencer.go
++++ b/op-node/rollup/sequencing/sequencer.go
+@@ -377,6 +377,10 @@ func (d *Sequencer) onPayloadSuccess(x engine.PayloadSuccessEvent) {
+ 
+ func (d *Sequencer) onSequencerAction(ev SequencerActionEvent) {
+ 	d.log.Debug("Sequencer action")
++	if !d.active.Load() {
++		d.log.Debug("Ignoring stale sequencer action while inactive")
++		return
++	}
+ 	payload := d.asyncGossip.Get()
+ 	if payload != nil {
+ 		if d.latest.Info.ID == (eth.PayloadID{}) {

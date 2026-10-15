@@ -1,0 +1,43 @@
+{
+  "ir_version": "holon-ir/0.3",
+  "rule_catalog_version": "holon-rules/0.2",
+  "law_id": "L_ctrl_09",
+  "milestone": "M4",
+  "rule": "UNDO",
+  "subform": "undo-lock-idempotent",
+  "maps_to": "Evaluation control CTRL-09 (TRUE_UNPROVED)",
+  "facts": "eval_ctrl_machine.facts.json",
+  "facts_sha256": "baf3910021a2131758fdcca08d7916d8eed37afd85839d36fce66a32a86083da",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "Reach"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "obsv_locked",
+          "of": {
+            "step": {
+              "act": "lock_restore",
+              "args": {}
+            },
+            "from": {
+              "var": "s"
+            }
+          }
+        },
+        {
+          "obsv": "obsv_locked",
+          "of": {
+            "var": "s"
+          }
+        }
+      ]
+    }
+  }
+}
