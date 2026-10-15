@@ -1,25 +1,38 @@
-"""python -m holon eval agree [--root DIR] [--check] (I48 rules C5-C6): labels, final labels and agreement.
+"""python -m holon eval agree [--root DIR] [--check] (I48 rules C5-C6): final labels and the inter-rater agreement.
 
-Reads spec/eval/labels/a.json, b.json and adjudicator.json (each validated against labels.schema.json) and
-spec/eval/corpus.json, and writes into corpus.json:
-  - per entry, labels {a, b, adjudicated} (the raw labels; adjudicated null when a and b agree) and label: a's primary
-    when a and b agree, else the adjudicated primary;
-  - agreement: Cohen's kappa over the a and b primaries and the rule sheet's nine categories: n, the observed agreement
-    p_o, the chance agreement p_e from the two marginals, kappa = (p_o - p_e) / (1 - p_e), Cohen's large-sample
-    standard error se = sqrt(p_o (1 - p_o) / n) / (1 - p_e), ci95 = kappa -+ 1.96 se, and the confusion matrix
-    (a's category -> b's category -> count, every category present); kappa, se and ci95 are null when kappa is
-    undefined (no entry, or p_e = 1);
-  - labellers: the three labellers' names, the family and the protocol's model tags (never a model name).
+Re-derived clean-room in F37 from the I48 contract (rules C5, C6 and C7 of the I48 test module's docstring), the
+protocol's "agreement" text (spec/M4/lib/corpus_protocol.json), spec/M4/lib/corpus.schema.json and the textbook
+definition of Cohen's kappa (J. Cohen, "A coefficient of agreement for nominal scales", 1960), without reading the
+test instrument or the previous bodies of this module.
 
-Refused (exit 2) when a label file is missing or invalid, when a or b does not label every entry exactly once in corpus
-order, when the adjudicator's entries are not exactly the disagreements, when the three labellers are not three, or
-when an entry lacks a label the final label needs. --check writes nothing and exits 1 when corpus.json differs.
+Inputs: spec/eval/corpus.json (written by holon eval select) and the three label files spec/eval/labels/a.json,
+b.json and adjudicator.json (written by holon eval label). Output: spec/eval/corpus.json with, per entry, its labels
+{a, b, adjudicated} (the raw labels; adjudicated null when the adjudicator did not label the entry) and its final label,
+plus the labellers record and the agreement over the a and b primary labels. With --check nothing is written and the
+exit status is 1 when the file would change.
+
+Final label of an entry: the common primary when a and b name the same primary, else the adjudicator's primary
+(None when a disagreement has no adjudicated label, or a or b has no label; the corpus schema then rejects the file).
+
+Agreement (Cohen's kappa over the categories of the rule sheet, the a labels as rows and the b labels as columns):
+  n         the number of entries with both an a and a b label;
+  confusion {row category: {column category: count}} over every pair of categories (zeros included);
+  p_o       observed agreement, the diagonal's share of n;
+  p_e       chance agreement from the two labellers' marginals, sum over categories of (row total)(column total) / n^2;
+  kappa     (p_o - p_e) / (1 - p_e), undefined (None) when n = 0 or p_e = 1;
+  se        Cohen's large-sample standard error sqrt(p_o (1 - p_o) / (n (1 - p_e)^2)), None when kappa is None;
+  ci95      [kappa - 1.96 se, kappa + 1.96 se], None when kappa is None.
+With n = 0 neither share is defined; the schema requires numbers, so p_o and p_e are then 0.0.
+Each statistic is computed exactly (fractions; 50-digit decimals for the root and the interval) and rounded once to
+the nearest float.
 """
 from __future__ import annotations
 
 import argparse
-import math
+import decimal
 import sys
+from decimal import Decimal
+from fractions import Fraction
 from pathlib import Path
 
 from . import common
@@ -28,75 +41,110 @@ from .common import Refused, dumps
 LABELS = Path("spec") / "eval" / "labels"
 CORPUS = Path("spec") / "eval" / "corpus.json"
 ROLES = ("a", "b", "adjudicator")
+Z95 = "1.96"   # the two-sided 95% normal quantile as Cohen (1960) tabulates it
 
 
 def kappa(a: list[str], b: list[str], categories: list[str]) -> dict:
+    """Cohen's kappa of two raters' paired nominal labels a[i], b[i] over the given categories."""
     if len(a) != len(b):
-        raise ValueError("the two labellings differ in length")
+        raise ValueError(f"the two label lists differ in length ({len(a)} and {len(b)})")
+    cats = list(categories)
+    if len(set(cats)) != len(cats):
+        raise ValueError("the categories repeat a name")
+    outside = sorted({x for x in list(a) + list(b) if x not in cats}, key=str)
+    if outside:
+        raise ValueError(f"labels outside the categories: {outside}")
+    table = {r: {c: 0 for c in cats} for r in cats}
+    for r, c in zip(a, b):
+        table[r][c] += 1
     n = len(a)
-    confusion = {x: {y: 0 for y in categories} for x in categories}
-    for x, y in zip(a, b):
-        confusion[x][y] += 1
+    agree_count = sum(table[k][k] for k in cats)
+    row_total = {k: sum(table[k].values()) for k in cats}
+    col_total = {k: sum(table[r][k] for r in cats) for k in cats}
     if n == 0:
-        return {"n": 0, "p_o": 0.0, "p_e": 0.0, "kappa": None, "se": None, "ci95": None, "confusion": confusion}
-    p_o = sum(confusion[c][c] for c in categories) / n
-    p_e = sum(a.count(c) * b.count(c) for c in categories) / (n * n)
-    if p_e == 1.0:
-        return {"n": n, "p_o": p_o, "p_e": p_e, "kappa": None, "se": None, "ci95": None, "confusion": confusion}
-    k = (p_o - p_e) / (1.0 - p_e)
-    se = math.sqrt(p_o * (1.0 - p_o) / n) / (1.0 - p_e)
-    return {"n": n, "p_o": p_o, "p_e": p_e, "kappa": k, "se": se, "ci95": [k - 1.96 * se, k + 1.96 * se],
-            "confusion": confusion}
+        return {"n": 0, "p_o": 0.0, "p_e": 0.0, "kappa": None, "se": None, "ci95": None, "confusion": table}
+    # Exact rational arithmetic, each reported statistic rounded once to the nearest float (the square root and
+    # the interval through 50-digit decimals), so no result depends on an evaluation order.
+    p_o = Fraction(agree_count, n)
+    p_e = Fraction(sum(row_total[k] * col_total[k] for k in cats), n * n)
+    if p_e >= 1:
+        return {"n": n, "p_o": float(p_o), "p_e": float(p_e), "kappa": None, "se": None, "ci95": None,
+                "confusion": table}
+    k = (p_o - p_e) / (1 - p_e)
+    with decimal.localcontext() as ctx:
+        ctx.prec = 50
+        var = p_o * (1 - p_o) / (n * (1 - p_e) ** 2)
+        se = (Decimal(var.numerator) / Decimal(var.denominator)).sqrt()
+        kd = Decimal(k.numerator) / Decimal(k.denominator)
+        lo, hi = kd - Decimal(Z95) * se, kd + Decimal(Z95) * se
+    return {"n": n, "p_o": float(p_o), "p_e": float(p_e), "kappa": float(k), "se": float(se),
+            "ci95": [float(lo), float(hi)], "confusion": table}
+
+
+def final_label(a: str | None, b: str | None, adjudicated: str | None) -> str | None:
+    """The entry's final primary label (rule C5): the shared one, else the adjudicator's."""
+    if a is None or b is None:
+        return None
+    return a if a == b else adjudicated
 
 
 def _read_labels(root: Path) -> dict:
-    from holon.schema import errors
-    schema = common.load_json(common.LIB / "labels.schema.json")
+    """{role: the role's label file} for a, b and the adjudicator; a missing or malformed file is refused."""
     out = {}
-    for who in ROLES:
-        p = root / LABELS / f"{who}.json"
-        if not p.exists():
-            raise Refused(f"{p.relative_to(root)} is missing")
+    for role in ROLES:
+        p = root / LABELS / f"{role}.json"
+        if not p.is_file():
+            raise Refused(f"{LABELS / (role + '.json')} is missing: run holon eval label --role {role} first")
         doc = common.load_json(p)
-        errs = errors(doc, schema)
-        if errs:
-            raise Refused(f"{p.relative_to(root)} does not validate: " + "; ".join(errs[:10]))
-        if doc["role"] != who:
-            raise Refused(f"{p.relative_to(root)} holds role {doc['role']!r}")
-        out[who] = doc
+        if not isinstance(doc, dict) or not isinstance(doc.get("labels"), list):
+            raise Refused(f"{LABELS / (role + '.json')} holds no label list")
+        if doc.get("role") != role:
+            raise Refused(f"{LABELS / (role + '.json')} names role {doc.get('role')!r}, not {role!r}")
+        out[role] = doc
     return out
 
 
+def _by_entry(doc: dict, role: str) -> dict:
+    seen: dict = {}
+    for x in doc["labels"]:
+        if x["entry"] in seen:
+            raise Refused(f"labeller {role} labels {x['entry']} twice")
+        seen[x["entry"]] = x["label"]
+    return seen
+
+
 def build(corpus: dict, raw: dict, proto: dict, categories: list[str]) -> dict:
+    """The corpus document with every entry's labels and final label, the labellers and the agreement (C5-C6)."""
     ids = [e["id"] for e in corpus["entries"]]
-    for who in ("a", "b"):
-        got = [x["entry"] for x in raw[who]["labels"]]
-        if got != ids:
-            raise Refused(f"labeller {who} does not label every entry exactly once in corpus order")
-    a = {x["entry"]: x["label"] for x in raw["a"]["labels"]}
-    b = {x["entry"]: x["label"] for x in raw["b"]["labels"]}
-    disagree = [i for i in ids if a[i] and b[i] and a[i]["primary"] != b[i]["primary"]]
-    adj_ids = [x["entry"] for x in raw["adjudicator"]["labels"]]
-    if adj_ids != disagree:
-        raise Refused("the adjudicator's entries are not exactly the disagreements of a and b, in corpus order")
-    adj = {x["entry"]: x["label"] for x in raw["adjudicator"]["labels"]}
-    names = [raw[w]["labeller"] for w in ROLES]
-    if len(set(names)) != 3:
+    lab = {role: _by_entry(raw[role], role) for role in ROLES}
+    for role in ("a", "b"):
+        order = [x["entry"] for x in raw[role]["labels"]]
+        if order != ids:
+            raise Refused(f"labeller {role} does not label every corpus entry once, in corpus order")
+    owed = [i for i in ids if lab["a"][i] is not None and lab["b"][i] is not None
+            and lab["a"][i]["primary"] != lab["b"][i]["primary"]]
+    if [x["entry"] for x in raw["adjudicator"]["labels"]] != owed:
+        raise Refused("the adjudicator does not label exactly the entries where a and b disagree, in corpus order")
+    names = [raw[role].get("labeller") for role in ROLES]
+    if len(set(names)) != len(ROLES):
         raise Refused("a, b and the adjudicator are not three different labellers")
-    missing = [i for i in ids if a[i] is None or b[i] is None or (i in adj and adj[i] is None)]
-    if missing:
-        raise Refused(f"entries without the labels the final label needs: {missing}")
-    families = {raw[w]["family"] for w in ROLES}
+    families = {raw[role].get("family") for role in ROLES}
     if len(families) != 1:
-        raise Refused("the three labellers name different families")
+        raise Refused(f"the label files name different families: {sorted(map(str, families))}")
+    out = dict(corpus)
     entries = []
     for e in corpus["entries"]:
-        i = e["id"]
-        pa, pb = a[i]["primary"], b[i]["primary"]
-        entries.append(dict(e, labels={"a": a[i], "b": b[i], "adjudicated": adj.get(i)},
-                            label=pa if pa == pb else adj[i]["primary"]))
-    out = dict(corpus, entries=entries)
-    out["agreement"] = kappa([a[i]["primary"] for i in ids], [b[i]["primary"] for i in ids], categories)
+        la, lb = lab["a"][e["id"]], lab["b"][e["id"]]
+        ladj = lab["adjudicator"].get(e["id"])
+        ent = dict(e)
+        ent["labels"] = {"a": la, "b": lb, "adjudicated": ladj}
+        ent["label"] = final_label(la["primary"] if la else None, lb["primary"] if lb else None,
+                                   ladj["primary"] if ladj else None)
+        entries.append(ent)
+    out["entries"] = entries
+    both = [(lab["a"][i]["primary"], lab["b"][i]["primary"]) for i in ids
+            if lab["a"][i] is not None and lab["b"][i] is not None]
+    out["agreement"] = kappa([p for p, _ in both], [q for _, q in both], categories)
     out["labellers"] = {"a": names[0], "b": names[1], "adjudicator": names[2], "family": families.pop(),
                         "model_tags": dict(proto["labelling_invocation"]["roles"])}
     return out
@@ -105,25 +153,24 @@ def build(corpus: dict, raw: dict, proto: dict, categories: list[str]) -> dict:
 def cli_agree(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="python -m holon eval agree")
     ap.add_argument("--root", type=Path, default=common.ROOT)
-    ap.add_argument("--check", action="store_true")
-    a = ap.parse_args(argv)
-    root = a.root.resolve()
-    if not (root / CORPUS).exists():
-        raise Refused(f"{CORPUS} is missing under {root}")
-    proto = common.protocol()
+    ap.add_argument("--check", action="store_true", help="exit 1 when spec/eval/corpus.json would change")
+    args = ap.parse_args(argv)
+    root = args.root.resolve()
+    if not (root / CORPUS).is_file():
+        raise Refused(f"{CORPUS} is missing under {root}: run holon eval select first")
+    corpus = common.load_json(root / CORPUS)
     categories = common.load_json(common.LIB / "rule_sheet.json")["categories"]
-    corpus = build(common.load_json(root / CORPUS), _read_labels(root), proto, categories)
+    doc = build(corpus, _read_labels(root), common.protocol(), categories)
     from holon.schema import errors
-    errs = errors(corpus, common.load_json(common.LIB / "corpus.schema.json"))
+    errs = errors(doc, common.load_json(common.LIB / "corpus.schema.json"))
     if errs:
-        print("corpus.json does not validate: " + "; ".join(errs[:10]), file=sys.stderr)
+        print("the corpus does not validate: " + "; ".join(errs[:10]), file=sys.stderr)
         return 1
-    differs = common.write_or_check(root / CORPUS, dumps(corpus), a.check)
-    if a.check:
-        if differs:
-            print(f"differs: {CORPUS.as_posix()}", file=sys.stderr)
+    differs = common.write_or_check(root / CORPUS, dumps(doc), args.check)
+    ag = doc["agreement"]
+    shown = "undefined" if ag["kappa"] is None else f"{ag['kappa']:.3f}"
+    if args.check:
+        print(f"{CORPUS}: {'differs from a fresh build' if differs else 'up to date'} (kappa {shown}, n {ag['n']})")
         return 1 if differs else 0
-    k = corpus["agreement"]["kappa"]
-    print(f"{'wrote' if differs else 'unchanged'}: {CORPUS.as_posix()} ({len(corpus['entries'])} entries, "
-          f"kappa {'undefined' if k is None else f'{k:.3f}'})")
+    print(f"{'wrote' if differs else 'unchanged'} {CORPUS}: kappa {shown} over n {ag['n']}")
     return 0
