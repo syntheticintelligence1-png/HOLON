@@ -28,7 +28,7 @@
       "bend_check_ok": false,
       "bend_verdict_ok": false,
       "canary_id": "canary_header_v0_unpinned",
-      "doc": "dropping the sequencerSetVerifyHash == 0 domain pin (pin_h) on dec_go(enc_sol(h)) == dec_go(enc_go_v0(h)) while rewriting with L_par_hdr_v0 must fail both Bend kernels",
+      "doc": "dropping the domain pin (pin_h) on the v0 header parallel reduction must fail both Bend kernels",
       "group": "header",
       "status": "REFUTED"
     },
@@ -36,7 +36,7 @@
       "bend_check_ok": false,
       "bend_verdict_ok": false,
       "canary_id": "canary_header_v1_missing_par",
-      "doc": "attempting to prove the v1 cycle reduction dec_go(enc_sol(PAR1.pin_h(h))) == dec_go(enc_go_v1(PAR1.pin_h(h))) using only the v0 generator L_par_hdr_v0 without L_par_hdr_v1 must fail both Bend kernels",
+      "doc": "attempting to prove the v1 cycle reduction using only the v0 parallel generator without the v1 generator must fail both Bend kernels",
       "group": "header",
       "status": "REFUTED"
     },
@@ -44,7 +44,7 @@
       "bend_check_ok": false,
       "bend_verdict_ok": false,
       "canary_id": "canary_hl_drop_cycle_gen",
-      "doc": "dropping the non-tree round-trip generator RT_BHH_V2 when reducing BatchHeaderBytes_BlobHashesHash to the spanning-tree edge BatchHeaderBytes_BlobCommitHash must fail both Bend kernels",
+      "doc": "dropping the non-tree round-trip generator when reducing the v2 non-tree decoder to the spanning-tree decoder must fail both Bend kernels",
       "group": "header_length",
       "status": "REFUTED"
     },
@@ -52,7 +52,7 @@
       "bend_check_ok": false,
       "bend_verdict_ok": false,
       "canary_id": "canary_congruence_unpinned_v0",
-      "doc": "attempting to derive L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0 without the pin_k/pin_h domain premise must fail both Bend kernels",
+      "doc": "attempting to derive a v0 cross-language round-trip law without the pin_k/pin_h domain premise must fail both Bend kernels",
       "group": "congruence",
       "status": "REFUTED"
     }
