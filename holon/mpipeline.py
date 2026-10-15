@@ -712,6 +712,13 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         if kind is not None:   # I24: a codec law (facts 0.1, or a linked codec document: rule X9), holon.codecrun
             rec, kb = CR.decide(law, kind, codec_models, milestone, ROOT, gen, cfg, kver, verdict, triage, report,
                                 layout, write_pair, accepted, relpath, scope_fields, test_milestone(milestone), log)
+            if rec["status"] == "UNKNOWN":   # I41: decided as the intake decides it (A30 review: no law file)
+                ld, pd, _ = layout(milestone, gen, lid)
+                got = intake_decision(milestone, lid, rec["statement_hash"], gen, ld, pd, None, None, cfg,
+                                      "holon run decides this codec law with holon.codecrun, which takes no agent "
+                                      "proof: the intake regenerates no law file for it")
+                if got is not None:
+                    rec["attempts"] = list(rec["attempts"]) + [intake.attempt(got[0])]
             kbound["laws"][lid] = kb
             (out_dir / f"{lid}.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
             summary[lid] = rec["status"]

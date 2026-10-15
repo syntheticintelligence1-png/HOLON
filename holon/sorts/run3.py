@@ -13,7 +13,10 @@ tests_m3/test_sort_types.py, "Proofs, refutation, non-vacuity", "Records" and "R
      law file then states the counter-law;
   3. with no witness, a proof generator of the subform (realize: coercion_guard; as_member: tag_exact; reinterpret:
      the generic generators) and, for a PROVED law, a checked reachable inhabitant of chit_<x> (G11V,
-     gen/<M>/<id>/nonvac/); otherwise UNKNOWN with what was tried;
+     gen/<M>/<id>/nonvac/); a law they leave UNKNOWN takes its submission in <root>/proofs/inbox/<id>, if any,
+     decided by the intake's checks (I41, holon.intake.decide_in_run: the run's files stand in for the regeneration;
+     an accepted proof is copied to gen/<M>/proofs/<id>/PROOF.bend and the record names the agent as its prover; a
+     refused one is an attempt); otherwise UNKNOWN with what was tried;
   4. with the sidecar's binding, every REFUTED entry is replayed on the real contract (the binding's step harness: its
      deployment, one call per step with the step's calldata, caller, msg.value, block.timestamp and blob hashes);
   5. the record results/<M>/<id>.json (v1 and v2).
@@ -118,13 +121,22 @@ class Ctx:
     def resume_dir(self, lid: str, doc_rel: str, e: dict) -> Path:
         """Where a law's searches keep their progress (holon run --resume): keyed by everything a search depends on
         (the law, its derivation entry and statement, the typed model, its initial state, the hints, the budget and
-        the generator files), outside the repo."""
+        the generator files; and, so that a change which keeps the model text never reuses a checkpoint, the facts
+        document, the sort assignment, the compiled module and the checker that compiled it), outside the repo."""
         hp = self.root / "results" / self.m / "sorts" / "refinement" / "hints.json"
+        ap = self.root / "gen" / self.m / "sorts" / "assignment.json"
+        try:
+            checker = bend.fingerprint(bend.config(self.root))["fingerprint"]
+        except Exception as ex:  # noqa: BLE001
+            checker = f"unknown: {type(ex).__name__}"
         key = hashlib.sha256(json.dumps({
             "law": lid, "entry": e, "statement": self.registry["statements"].get(lid),
             "model": sha256_file(self.model_path(doc_rel)), "init": self.models[doc_rel][1],
             "hints": sha256_file(hp) if hp.is_file() else None, "budget": self.sc.search,
-            "generator": generator_sha256(self.root)}, sort_keys=True, default=str).encode()).hexdigest()
+            "generator": generator_sha256(self.root), "facts": sha256_file(self.root / doc_rel),
+            "assignment": sha256_file(ap) if ap.is_file() else None,
+            "compiled": sha256_file(self.models[doc_rel][0].compiled()), "checker": checker},
+            sort_keys=True, default=str).encode()).hexdigest()
         return Path.home() / ".holon" / "cache" / "run3" / f"{lid}-{key[:16]}"
 
     def model_path(self, doc_rel: str) -> Path:
@@ -157,11 +169,11 @@ class Ctx:
         hp = self.root / "results" / self.m / "sorts" / "refinement" / "hints.json"
         hints = S3.Hints(json.loads(hp.read_text()) if hp.is_file() else None)
 
-        def factory(empty: bool = False):
+        def factory(empty: bool = False, native: bool = True):
             i = dict(init)
             if empty:
                 i["preimages"] = []
-            return S3.Model(ev, i, hints, self.root / doc_rel)
+            return S3.Model(ev, i, hints, self.root / doc_rel, native=native)
         self.models[doc_rel] = (ev, init, factory, mm, doc)
         return self.models[doc_rel]
 
@@ -331,14 +343,41 @@ def check_file(p: Path) -> tuple[dict, str]:
     checker = {"exit_code": r.code, "marker": "ALL PROOFS CHECK" if r.ok else "SOME PROOFS FAIL",
                "seconds": round(time.time() - t, 3)}
     if not r.ok:
+        # the definition bend2 reports the failure at (its "Location: <name>"), when it names one
+        m = re.search(r"(?m)^Location:\s*(\S+)", r.out or "")
+        checker["failing"] = m.group(1) if m else None
         return checker, "not_run"
     v = bend.check_verdict(p)
     return checker, ("checked" if v.ok else "failed")
 
 
+def diagnosis(ev, steps: list, vals: list) -> str:
+    """The evaluator's account of a counter-law's trace (S3.settle's check codes of each step, then coerce_<x> at the
+    last step): a witness needs coerce_<x> false at the last step. Never a verdict: the record stays UNKNOWN."""
+    codes, coerce = vals[:len(steps)], vals[len(steps)] if len(vals) > len(steps) else None
+
+    def at(st, c):
+        cks = ev.checks.get(st.action) or []
+        if c == S3.CALL_CODE:
+            return "an unanswered external call"
+        if c == S3.FUEL_CODE:
+            return "the loop fuel"
+        return cks[c - 1] if 0 < c <= len(cks) else f"code {c}"
+    revs = [f"step {i} ({st.action}) reverts at {at(st, c)} (code {c})" for i, (st, c) in enumerate(zip(steps, codes))
+            if c]
+    if coerce is False:
+        head = "the evaluator finds coerce false at the last step (a witness)"
+    elif len(steps) and codes and codes[-1]:
+        head = f"not a witness; last step reverts at {at(steps[-1], codes[-1])} (code {codes[-1]})"
+    else:
+        head = "not a witness; coerce holds at the last step"
+    return "; ".join([head] + [r for r in revs if not r.startswith(f"step {len(steps) - 1} ")])
+
+
 class Decider:
     def __init__(self, ctx: Ctx):
         self.ctx = ctx
+        self.last_diag = ""
 
     def paths(self, lid: str) -> dict:
         g = self.ctx.gen
@@ -356,14 +395,16 @@ class Decider:
                      note: str) -> tuple[Path, dict, str, dict]:
         x = law["law_id"][len("L_sort_"):]
         kh, sh, vals = S3.settle(model_f, steps, [f"coerce_{x}"])
+        self.last_diag = diagnosis(ev, steps, vals)
         m = model_f(empty=True)
         acts = [m.act(st) for st in steps]
+        states = S3.trace_states(model_f, steps, kh, sh)
         lp = self.paths(law["law_id"])["laws"]
         where.mkdir(parents=True, exist_ok=True)
         p = where / "PROOF.bend"
         p.write_text(P3.counter_proof(law, P3.rel_import(where, self.ctx.import_path(doc_rel)),
                                       P3.rel_import(where, lp), hashes, acts, {"keccak256": kh, "sha256": sh},
-                                      P3.Lit(ev.recs), note), encoding="utf-8")
+                                      P3.Lit(ev.recs), note, states), encoding="utf-8")
         checker, verdict = check_file(p)
         return p, checker, verdict, {"keccak256": kh, "sha256": sh}
 
@@ -447,6 +488,9 @@ class Decider:
                 if ok and primary is None:
                     primary = entry
                 if not ok:
+                    # what the evaluator already knows of the trace the counter-law states (the repaired one, with a
+                    # binding): its steps' check codes and the coercion at its last step, and where bend2 failed
+                    witnesses[entry]["diagnosis"] = ("repair: " if real is not None else "") + self.last_diag
                     shutil.rmtree(pdir / f"entry_{entry}", ignore_errors=True)
             if primary is not None:
                 status = "REFUTED"
@@ -466,11 +510,54 @@ class Decider:
                 primary_art = {"proof": att["proof"], "checker": att["checker"], "verdict": "checked"}
                 ref = S3.Refuter(model_f(), doc_json, sorts, ctx.sc.search, log=ctx.log)
                 nonvac = self.inhabit(law, doc_rel, ref, model_f, ev, hashes, fns)
+        prover = "generator"
+        if status == "UNKNOWN":
+            # I41 (holon.intake): a law the generators and the refuter left UNKNOWN takes the inbox's submission, if
+            # any, decided by the intake's checks with this run's files as the regeneration
+            agent = self.intake(lid, doc_rel, lp, witnesses)
+            if agent is not None:
+                d, proof = agent
+                from .. import intake as IN
+                attempts.append(IN.attempt(d))
+                if d["verdict"] == "accepted":
+                    pdir = self.paths(lid)["proofs"]
+                    shutil.rmtree(pdir, ignore_errors=True)
+                    pdir.mkdir(parents=True, exist_ok=True)
+                    (pdir / "PROOF.bend").write_bytes(proof)          # the inbox file, byte for byte
+                    r = d["_bend2"]
+                    status, prover = "PROVED", d["prover"]
+                    primary_art = {"proof": rel(pdir / "PROOF.bend", ctx.root),
+                                   "checker": {"exit_code": r.code, "marker": r.marker, "seconds": r.seconds},
+                                   "verdict": d["kernels"]["bendtt"]}
+                    ref = S3.Refuter(model_f(), doc_json, sorts, ctx.sc.search, log=ctx.log)
+                    nonvac = self.inhabit(law, doc_rel, ref, model_f, ev, hashes, fns)
         for k, w in witnesses.items():
             w.pop("_steps", None)
         rec = self.record(law_ir, e, status, witnesses, attempts, lp, doc_rel, primary,
-                          primary_art if status in ("REFUTED", "PROVED") else None, nonvac)
+                          primary_art if status in ("REFUTED", "PROVED") else None, nonvac, prover)
         return rec
+
+    def intake(self, lid: str, doc_rel: str, lp: Path, witnesses: dict | None = None):
+        """holon.intake.decide_in_run for a law this run left UNKNOWN: (decision, proof bytes), or None without a
+        submission in <root>/proofs/inbox/<lid>. The kernels see this run's files at their gen/<M>/ layout paths: the
+        typed model the law imports, the milestone's core library when there is one, and the law's statement."""
+        from .. import intake as IN
+        ctx = self.ctx
+        if not os.path.lexists(ctx.root / IN.INBOX / lid):
+            return None
+        gen, base = ctx.gen.resolve(), Path("gen") / ctx.m
+
+        def lay(p: Path) -> str:
+            p = Path(p)
+            return (base / (p.parent.resolve() / p.name).relative_to(gen)).as_posix()
+        model = ctx.import_path(doc_rel)
+        files = {lay(model): model.read_bytes(), lay(lp): lp.read_bytes()}
+        for n in ("LAWS.bend", "PROOF.bend"):
+            if (gen / "core" / n).is_file():
+                files[lay(gen / "core" / n)] = (gen / "core" / n).read_bytes()
+        return IN.decide_in_run(ctx.m, lid, ctx.registry["statements"][lid], files, lay(lp),
+                                lay(self.paths(lid)["proofs"] / "PROOF.bend"), None, bend.config(ctx.root), ctx.root,
+                                witnesses=witnesses)
 
     def prove(self, law: dict, doc_rel: str, mm, hashes: list, lp: Path) -> dict:
         """The proof generator of the law's subform (realize: coercion_guard; as_member: tag_exact; reinterpret:
@@ -522,12 +609,14 @@ class Decider:
         kh, shs, _vals = S3.settle(model_f, steps, [f"chit_{x}"])
         m = model_f(empty=True)
         acts = [m.act(st) for st in steps]
+        states = S3.trace_states(model_f, steps, kh, shs)
         d.mkdir(parents=True, exist_ok=True)
         lp = d / "LAWS.bend"
         lp.write_text(P3.inhabitant_law(law, sh, P3.rel_import(d, ctx.import_path(doc_rel)), hashes), encoding="utf-8")
         p = d / "PROOF.bend"
         p.write_text(P3.inhabitant_proof(law, P3.rel_import(d, ctx.import_path(doc_rel)), P3.rel_import(d, lp), hashes,
-                                         acts, {"keccak256": kh, "sha256": shs}, P3.Lit(ev.recs)), encoding="utf-8")
+                                         acts, {"keccak256": kh, "sha256": shs}, P3.Lit(ev.recs), states),
+                     encoding="utf-8")
         checker, verdict = check_file(p)
         doc = ctx.models[doc_rel][4]
         w = {"steps": [step_json(doc, st, fns) for st in steps],
@@ -552,7 +641,7 @@ class Decider:
         return out
 
     def record(self, law_ir: dict, e: dict, status: str, witnesses: dict, attempts: list, lp: Path, doc_rel: str,
-               primary: str | None, prim: dict | None, nonvac) -> dict:
+               primary: str | None, prim: dict | None, nonvac, prover: str = "generator") -> dict:
         from .. import records as R
         ctx = self.ctx
         lid = law_ir["law_id"]
@@ -584,8 +673,8 @@ class Decider:
         except R.LedgerError:
             match, assumptions = "none", []
         compiled = ev.compiled()
-        # I41: every record names its prover; run3 reads no proofs/inbox, so its records are the generators' own
-        rec.update({"record_version": R.RECORD_VERSION, "prover": "generator", "model_sha256": sha256_file(mp),
+        # I41: every record names its prover: "generator", or the agent whose inbox proof the intake accepted
+        rec.update({"record_version": R.RECORD_VERSION, "prover": prover, "model_sha256": sha256_file(mp),
                     "compiled_sha256": sha256_file(compiled), "generator_sha256": generator_sha256(ctx.root),
                     "cone": cone, "ledger_match": match, "model_assumptions": assumptions,
                     "scope_v2": R.scope_v2(law_ir, rec), "kernels": R.kernels(rec),

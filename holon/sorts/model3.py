@@ -29,6 +29,12 @@ the deployment (R0) by RStep over any action with its arguments and environment,
 chit_<x>. --untyped writes the same machine without the sort section (no nominal type, typed operation, coercion,
 companion or ghost store) plus I15's site instrumentation of the term-size ratio site (holon termsize's baseline).
 
+The kernel's evaluation shape (A30, model_version 0.2). The BendTT kernel normalizes every reusable binder's argument
+of a closed term by walking it whole, so the machine binds an action's context affinely and opens it once per leaf
+block with each field at its exact quantity (holon.sorts.affine3), and the prelude recurses on lists affinely and
+builds bytes bit by bit (holon.sorts.prelude3); the bytes of a literal word are written as a literal (fold_bytes). The
+values are the I30 model's: only how the kernel reaches them changed.
+
 Nothing here names a target: every name comes from the document, its compiler information and the assignment.
 """
 from __future__ import annotations
@@ -43,11 +49,12 @@ from .. import extracted_eval as EV
 from ..machine import Check, Event, ExtractedModel, Loop, ModelError, MStore, Write, canonical
 from ..machine_bend import bname, comment
 from . import grammar as G
+from .affine3 import affine
 from .prelude3 import FUEL, PRELUDE, SENTINEL
 
 GHOST_MARKER = "# ---- ghost: SORT coercions (holon.rules.sort)"
 SITE_MARKER = "# ---- ghost: SORT-site instrumentation (holon.sorts.sites)"
-MODEL3_VERSION = "holon-model-m3/0.1"
+MODEL3_VERSION = "holon-model-m3/0.2"
 FUEL_CODE = 4294967295       # a step whose loop ran out of fuel (more than FUEL - 1 iterations): not a check
 MASK = (1 << 256) - 1
 PANIC_SEL = bytes.fromhex("4e487b71")
@@ -679,9 +686,9 @@ class Gen:
         plus a count, a time plus a duration), else the first its pair admits."""
         if not self.typed:
             return None
-        (ac, ak), (bc, bk) = a, b
+        (ac, ak), (bcode, bk) = a, b
         ta = self.typed_operand(ac, ak, None, "")
-        tb = self.typed_operand(bc, bk, None, "")
+        tb = self.typed_operand(bcode, bk, None, "")
         if ta is not None and tb is None and _is_lit(t[2]):
             tb = self.lit_operand(op, ta[1], t[2], first=False)
         elif tb is not None and ta is None and _is_lit(t[1]):
@@ -710,13 +717,13 @@ class Gen:
         return f"{self.T(c)}{{{wlit(lit)}}}", c
 
     def arith(self, op: str, t, sc):
-        (ac, ak), (bc, bk) = self.value(t[1], sc), self.value(t[2], sc)
-        tt = self.affine_operands(op, t, (ac, ak), (bc, bk))
+        (ac, ak), (bcode, bk) = self.value(t[1], sc), self.value(t[2], sc)
+        tt = self.affine_operands(op, t, (ac, ak), (bcode, bk))
         if tt is not None:
             return self.typed_affine(op, tt[0], tt[1], sc)
         ac2, ak2 = self.unsigned_kind(ac, ak)
-        bc2, bk2 = self.unsigned_kind(bc, bk)
-        a, b = self.to_w(ac2, ak2), self.to_w(bc2, bk2)
+        bcode2, bk2 = self.unsigned_kind(bcode, bk)
+        a, b = self.to_w(ac2, ak2), self.to_w(bcode2, bk2)
         return (f"w_add({a}, {b})" if op == "+" else f"w_sub({a}, {b})"), "w"
 
     def unsigned_kind(self, c: str, k: str):
@@ -749,16 +756,16 @@ class Gen:
         return c, s
 
     def typed_affine(self, op: str, a, b, sc):
-        (ac, asort), (bc, bsort) = a, b
+        (ac, asort), (bcode, bsort) = a, b
         ac, asort = self.erase(ac, asort)
-        bc, bsort = self.erase(bc, bsort)
+        bcode, bsort = self.erase(bcode, bsort)
         r = G.affine(op, asort, bsort)
         if r is None:
             raise GenError(f"{sc.action}: {asort} {op} {bsort} is ill-sorted (no typed operation)")
         name = f"{'add' if op == '+' else 'sub'}_{sname(asort)}_{sname(bsort)}"
         self.ops[name] = {"name": name, "op": op, "args": [asort, bsort], "result": r}
         self.T(asort), self.T(bsort), self.T(r)
-        return f"{name}({ac}, {bc})", "t:" + r
+        return f"{name}({ac}, {bcode})", "t:" + r
 
     def t_mul(self, t, sc):
         a, b = self.w(t[1], sc), self.w(t[2], sc)
@@ -822,9 +829,9 @@ class Gen:
         if not (isinstance(inner, list) and len(inner) == 3 and inner[0] in ("+", "-", "*")):
             raise GenError(f"{sc.action}: fits over {canonical(inner)[:80]}")
         op = inner[0]
-        (ac, ak), (bc, bk) = self.value(inner[1], sc), self.value(inner[2], sc)
+        (ac, ak), (bcode, bk) = self.value(inner[1], sc), self.value(inner[2], sc)
         if self.typed and op == "-" and n == 256:
-            tt = self.affine_operands("-", inner, (ac, ak), (bc, bk))
+            tt = self.affine_operands("-", inner, (ac, ak), (bcode, bk))
             if tt is not None:
                 dc, dk = self.typed_affine("-", tt[0], tt[1], sc)
                 ds = dk[2:]
@@ -834,7 +841,7 @@ class Gen:
                                                              "from": ds, "to": u}
                     return f"is_some_{tname(u)}(realize_{tname(ds)}({dc}))", "bool"
         a = self.to_w(*self.unsigned_kind(ac, ak))
-        b = self.to_w(*self.unsigned_kind(bc, bk))
+        b = self.to_w(*self.unsigned_kind(bcode, bk))
         if op == "+":
             ok, val = f"w_add_ok({a}, {b})", f"w_add({a}, {b})"
         elif op == "-":
@@ -847,19 +854,19 @@ class Gen:
 
     # comparisons and logic
     def compare(self, op: str, t, sc):
-        (ac, ak), (bc, bk) = self.value(t[1], sc), self.value(t[2], sc)
+        (ac, ak), (bcode, bk) = self.value(t[1], sc), self.value(t[2], sc)
         ta = self.typed_operand(ac, ak, t[1], bk)
-        tb = self.typed_operand(bc, bk, t[2], ak)
+        tb = self.typed_operand(bcode, bk, t[2], ak)
         if ta is not None and tb is not None:
-            (ac2, asort), (bc2, bsort) = self.erase(*ta), self.erase(*tb)
+            (ac2, asort), (bcode2, bsort) = self.erase(*ta), self.erase(*tb)
             if asort == bsort:
                 name = f"{_CMP_NAMES[op]}_{sname(asort)}_{sname(bsort)}"
                 self.ops[name] = {"name": name, "op": op, "args": [asort, bsort], "result": "Bool"}
                 self.T(asort)
-                return f"{name}({ac2}, {bc2})", "bool"
+                return f"{name}({ac2}, {bcode2})", "bool"
             raise GenError(f"{sc.action}: a comparison {asort} {op} {bsort} joins two base sorts")
         a = self.to_w(*self.unsigned_kind(ac, ak))
-        b = self.to_w(*self.unsigned_kind(bc, bk))
+        b = self.to_w(*self.unsigned_kind(bcode, bk))
         return _RAW_CMP[op](a, b), "bool"
 
     def t_eq(self, t, sc):
@@ -907,24 +914,24 @@ class Gen:
 
     def t_ite(self, t, sc):
         c = self.cond(t[1], sc)
-        (ac, ak), (bc, bk) = self.value(t[2], sc), self.value(t[3], sc)
+        (ac, ak), (bcode, bk) = self.value(t[2], sc), self.value(t[3], sc)
         ac, ak = self.unsigned_kind(ac, ak)
-        bc, bk = self.unsigned_kind(bc, bk)
+        bcode, bk = self.unsigned_kind(bcode, bk)
         if ak != bk:
             if ak.startswith("t:") and bk == "w" and isinstance(t[3], int):
-                bc, bk = f"{self.T(ak[2:])}{{{bc}}}", ak
+                bcode, bk = f"{self.T(ak[2:])}{{{bcode}}}", ak
             elif bk.startswith("t:") and ak == "w" and isinstance(t[2], int):
                 ac, ak = f"{self.T(bk[2:])}{{{ac}}}", bk
             elif {ak, bk} <= {"w", "bool"} or (ak.startswith("t:") or bk.startswith("t:")) and \
                     {ak[:2], bk[:2]} <= {"t:", "w", "bo"}:
-                ac, ak, bc, bk = self.to_w(ac, ak), "w", self.to_w(bc, bk), "w"
+                ac, ak, bcode, bk = self.to_w(ac, ak), "w", self.to_w(bcode, bk), "w"
             elif {ak, bk} <= {"w", "b"}:
-                ac, ak, bc, bk = self.to_bytes(ac, ak), "b", self.to_bytes(bc, bk), "b"
+                ac, ak, bcode, bk = self.to_bytes(ac, ak), "b", self.to_bytes(bcode, bk), "b"
             elif ak.startswith("v:") and bk.startswith("v:"):
                 pass
             else:
                 raise GenError(f"{sc.action}: a conditional over {ak} and {bk}")
-        return f"ite({self.bend_type(ak)}, {c}, {ac}, {bc})", ak
+        return f"ite({self.bend_type(ak)}, {c}, {ac}, {bcode})", ak
 
     # bytes, hashes, memory
     def t_len(self, t, sc):
@@ -1211,7 +1218,7 @@ def lg_rev(xs: List<&2, HLog>, +acc: List<&2, HLog>) -> List<&2, HLog>:
     case Con{h, t}:
       lg_rev(t, Con{h, acc})
 
-def hs_get(+xs: List<&2, HKB>, +k: List<&2, U32>) -> W:
+def hs_get(xs: List<&2, HKB>, +k: List<&2, U32>) -> W:
   h_get(xs, k)
 
 def kt_id(+xs: List<&2, HKB>) -> List<&2, HKB>:
@@ -2003,12 +2010,16 @@ class Ghost:
                 cases.append(f"    case {x}{{}} {y}{{}}:\n      {'True' if x == y else 'False'}{{}}\n")
         out.append("def tg_eq(a: Tag, b: Tag) -> Bool:\n  match a b:\n" + "".join(cases))
         out.append("type GKT is Data:\n  GKT{k: W, t: Tag}\n")
-        out.append("def gk_get(+xs: List<&2, GKT>, +k: W) -> Tag:\n  match xs:\n    case Nil{}:\n      TG_bot{}\n"
-                   "    case Con{+h, +t}:\n      match h:\n        case GKT{+hk, +ht}:\n"
+        # (A30) the companion map is recursed on affinely, as the prelude's slot map (holon.sorts.prelude3)
+        out.append("def gk_get(xs: List<&2, GKT>, +k: W) -> Tag:\n  match xs:\n    case Nil{}:\n      TG_bot{}\n"
+                   "    case Con{h, t}:\n      match h:\n        case GKT{hk, ht}:\n"
                    "          ite(Tag, w_eq(hk, k), ht, gk_get(t, k))\n")
-        out.append("def gk_set(+xs: List<&2, GKT>, +k: W, +v: Tag) -> List<&2, GKT>:\n  match xs:\n    case Nil{}:\n"
-                   "      [GKT{k, v}]\n    case Con{+h, +t}:\n      match h:\n        case GKT{+hk, +ht}:\n"
-                   "          ite(List<&2, GKT>, w_eq(hk, k), Con{GKT{k, v}, t}, Con{GKT{hk, ht}, gk_set(t, k, v)})\n")
+        out.append("def gk_put(xs: List<&2, GKT>, +k: W, +v: Tag, +done: Bool) -> List<&2, GKT>:\n  match xs:\n"
+                   "    case Nil{}:\n      ite(List<&2, GKT>, done, Nil{}, [GKT{k, v}])\n    case Con{h, t}:\n"
+                   "      match h:\n        case GKT{+hk, ht}:\n          +eq = w_eq(hk, k)\n"
+                   "          Con{GKT{hk, ite(Tag, Bool.and(eq, Bool.not(done)), v, ht)}, "
+                   "gk_put(t, k, v, Bool.or(done, eq))}\n")
+        out.append("def gk_set(xs: List<&2, GKT>, +k: W, +v: Tag) -> List<&2, GKT>:\n  gk_put(xs, k, v, False{})\n")
         fs = [("st", "HSt")] + [(self.comp(f), self.comp_type(f)[0]) for f in self.regs]
         out.append("# the augmented state: the real store and the generated companion of every union register (G1)\n"
                    + _record("GSt", fs))
@@ -2127,15 +2138,15 @@ class Ghost:
                 w = e["write"]
                 R = b["read"]
                 f = e["family"]
-                bc = _branch_cond(w["value"], R)
-                if bc is None:
+                bconds = _branch_cond(w["value"], R)
+                if bconds is None:
                     raise GenError(f"{e['law_id']}: the read is not a branch of the copy write")
                 if w.get("loop") is not None:
                     raise GenError(f"{e['law_id']}: a copy write inside a loop")
                 conds = [f"Bool.not(u_nz(gx_{ba}_cd(x)))"]
                 if w.get("cond", 1) not in (1, True):
                     conds.append(mm.cond(w["cond"], sc))
-                for ct, pol in bc:
+                for ct, pol in bconds:
                     cc = mm.cond(ct, sc)
                     conds.append(cc if pol else f"Bool.not({cc})")
                 hitc = conds[-1]
@@ -2314,7 +2325,34 @@ def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init
             parts.append(SITE_MARKER + "\n")
             parts += site_section(mm, acts, site_rows)
     text = "\n".join(p.rstrip("\n") + "\n" for p in parts if p)
-    return text, mm
+    # (A30) every action context binder affine, every context read through an opened record (holon.sorts.affine3), and
+    # the bytes of a literal word written as their literal
+    return affine(fold_bytes(text)), mm
+
+
+_LIT_WORD_BYTES = re.compile(r"b_of_w\(W\{(\d+), (\d+), (\d+), (\d+), (\d+), (\d+), (\d+), (\d+)\}\)")
+
+
+def fold_bytes(text: str) -> str:
+    """(A30) b_of_w of a literal word -> its 32 bytes as a literal list, b_of_w(w_u(e)) -> b_of_u(e) (28 zero bytes,
+    then the four of e): the same values, without building and splitting words the generator already knows."""
+    def lit(m):
+        v = sum(int(x) << (32 * i) for i, x in enumerate(m.groups()))
+        return blit(v.to_bytes(32, "big"))
+    text = _LIT_WORD_BYTES.sub(lit, text)
+    out, i, key = [], 0, "b_of_w(w_u("
+    while True:
+        j = text.find(key, i)
+        if j < 0:
+            out.append(text[i:])
+            break
+        k, depth = j + len(key), 2
+        while depth:
+            depth += {"(": 1, ")": -1}.get(text[k], 0)
+            k += 1
+        out.append(text[i:j] + "b_of_u(" + text[j + len(key):k - 2] + ")")
+        i = k
+    return "".join(out)
 
 
 # ================================================================================================ generate, CLI
