@@ -1,4 +1,116 @@
 {
+  "agreement": {
+    "ci95": [
+      0.504544251569659,
+      0.9674029431498132
+    ],
+    "confusion": {
+      "DISCH": {
+        "DISCH": 2,
+        "FACT": 0,
+        "NAT": 0,
+        "OWN": 0,
+        "PAR": 1,
+        "SORT": 0,
+        "SYM": 0,
+        "UNDO": 0,
+        "none": 0
+      },
+      "FACT": {
+        "DISCH": 0,
+        "FACT": 1,
+        "NAT": 0,
+        "OWN": 0,
+        "PAR": 0,
+        "SORT": 0,
+        "SYM": 0,
+        "UNDO": 0,
+        "none": 0
+      },
+      "NAT": {
+        "DISCH": 0,
+        "FACT": 0,
+        "NAT": 1,
+        "OWN": 0,
+        "PAR": 0,
+        "SORT": 0,
+        "SYM": 0,
+        "UNDO": 0,
+        "none": 0
+      },
+      "OWN": {
+        "DISCH": 0,
+        "FACT": 0,
+        "NAT": 0,
+        "OWN": 0,
+        "PAR": 0,
+        "SORT": 0,
+        "SYM": 0,
+        "UNDO": 0,
+        "none": 0
+      },
+      "PAR": {
+        "DISCH": 0,
+        "FACT": 0,
+        "NAT": 0,
+        "OWN": 0,
+        "PAR": 5,
+        "SORT": 1,
+        "SYM": 0,
+        "UNDO": 1,
+        "none": 0
+      },
+      "SORT": {
+        "DISCH": 0,
+        "FACT": 0,
+        "NAT": 0,
+        "OWN": 0,
+        "PAR": 1,
+        "SORT": 5,
+        "SYM": 0,
+        "UNDO": 0,
+        "none": 0
+      },
+      "SYM": {
+        "DISCH": 0,
+        "FACT": 0,
+        "NAT": 0,
+        "OWN": 0,
+        "PAR": 0,
+        "SORT": 0,
+        "SYM": 0,
+        "UNDO": 0,
+        "none": 0
+      },
+      "UNDO": {
+        "DISCH": 0,
+        "FACT": 0,
+        "NAT": 0,
+        "OWN": 0,
+        "PAR": 0,
+        "SORT": 0,
+        "SYM": 0,
+        "UNDO": 0,
+        "none": 0
+      },
+      "none": {
+        "DISCH": 0,
+        "FACT": 0,
+        "NAT": 0,
+        "OWN": 0,
+        "PAR": 0,
+        "SORT": 0,
+        "SYM": 0,
+        "UNDO": 0,
+        "none": 2
+      }
+    },
+    "kappa": 0.7359735973597361,
+    "n": 20,
+    "p_e": 0.2425,
+    "p_o": 0.8,
+    "se": 0.11807619683167203
+  },
   "candidates_sha256": "4960c3438c878efac673dcb31f26b2711537494f77bf54dd764afe17673e8871",
   "corpus_version": "holon-eval-corpus/0.1",
   "entries": [
@@ -12,6 +124,27 @@
       "fix_date": "2026-04-01T13:59:25Z",
       "id": "c01",
       "kind": "rollup",
+      "label": "UNDO",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over two parallel error branches in ProduceBlockAdvanced that share one carrier, the snapshot ID `snap`, and one edge, RevertToSnapshot. In the first branch, an error inside the ApplyTransactionWithResultFilter callback reverts before Finalise, so `snap` is still valid. In the second branch, an extraPostTxFilter error reverts after Finalise has reset the journal, so `snap` is no longer valid. The two paths therefore disagree on where the revert is defined, and the witness is any transaction for which extraPostTxFilter returns an error: the first branch reverts cleanly while the second panics. The fix confirms this reading by moving the filter into the callback, which merges the two branches. UNDO (apply then revert fails to restore state) also applies but names the extra Finalise/journal-reset edge, and in any case PAR comes first in the tie order.",
+          "primary": "PAR",
+          "secondary": "UNDO",
+          "subform": "branch disagreement (domain coherence of two error-revert paths)"
+        },
+        "adjudicated": {
+          "justification": "UNDO's obligation is stated over one action/undo pair: Snapshot and apply the transaction, then RevertToSnapshot(snap). Its register is the journal's revision list, which Finalise (via clearJournalAndRefund and journal.reset()) wipes between the action and the undo. The defect's own trigger is the witness: a transaction whose extraPostTxFilter returns an error after ApplyTransactionWithResultFilter has finalised. On that trace the action-then-undo continuation panics, while the continuation without the action and undo proceeds. PAR does not fit as well, because the in-callback error branch and the post-callback error branch are taken on different inputs, so no single input shows the two paths computing different values; its statement also needs both branches plus the same Finalise edge, so it is not smaller, and the tie order applies only when the counts are equal.",
+          "primary": "UNDO",
+          "secondary": "PAR",
+          "subform": "undo on a stale snapshot: revert after Finalise reset the journal (the undo cannot restore and panics)"
+        },
+        "b": {
+          "justification": "The obligation is over the pair snapshot/RevertToSnapshot and the journal register that Finalise resets through clearJournalAndRefund and journal.reset(). The witness is a transaction whose extraPostTxFilter returns an error after ApplyTransactionWithResultFilter has already called Finalise. The revert then runs against a journal whose revision IDs were wiped, so the undo cannot restore state and panics. The fix moves the filter inside the callback, before Finalise, so the revert is valid again. PAR is only a secondary fit, because the in-callback error path and the post-callback error path disagree about snapshot validity, and UNDO's single pair is the smaller statement.",
+          "primary": "UNDO",
+          "secondary": "PAR",
+          "subform": "revert on a stale snapshot ID after the journal was reset by Finalise"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -39,6 +172,22 @@
       "fix_date": "2021-02-16T19:31:53Z",
       "id": "c02",
       "kind": "defi",
+      "label": "NAT",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over the underlying-token migration (old token contract to new token contract), the CToken's stored `underlying` address slot, and the redeem, borrow and transfer-out edges that call through that slot. The witness is the CToken's deposited balance across the migration. After the cutover the balance is credited at the new token contract, but the CToken still points at the old address, so redeem and borrow fail. A CToken created natively against the new token would succeed. No sort confusion, parallel codec or alias is involved, so SORT, PAR and OWN do not apply. DISCH also holds, because depositors are blocked from redeeming by another party's action, but its guard-closure basis is less local than NAT's migration.",
+          "primary": "NAT",
+          "secondary": "DISCH",
+          "subform": "external dependency migration leaves stale address (unmigrated pointer at cutover)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The obligation is over the underlying token's migration to a new contract and the CToken's stored `underlying` address, with the deposited balances as the objects in flight. Operating on a CToken whose underlying migrated gives a different result from operating on a CToken created natively against the new token: borrows and redemptions still call the old address and cannot be fulfilled. The witness is a depositor's redeem after the token migrates. DISCH is a weaker fit because the blocking comes from the migration mismatch rather than from a guard design. The fix (`sweepToken`) only rescues stray tokens and does not change this.",
+          "primary": "NAT",
+          "secondary": "DISCH",
+          "subform": "external token migration leaves stored underlying address stale (in-flight balances orphaned)"
+        }
+      },
       "languages": [
         "solidity"
       ],
@@ -63,6 +212,22 @@
       "fix_date": "2025-07-08T14:37:16Z",
       "id": "c03",
       "kind": "appchain",
+      "label": "SORT",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over a single site: the addition of the validator's current rewards into the historical CumulativeRewardRatio (a DecCoins carrier) when the period is incremented. It requires that the value keeps its sort, with no overflow past the 256-bit bound. The witness is the trigger itself: a deposit of near-max-supply coins into the validator rewards pool, followed by a delegation that increments the period. That addition then overflows and panics, halting the chain. SORT names one carrier and one edge, so it is smaller than DISCH, which would need the guard closure over the halted chain and the other principals.",
+          "primary": "SORT",
+          "secondary": "DISCH",
+          "subform": "integer overflow (width wrap / overflow panic)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The carriers are the validator's current rewards and the historical CumulativeRewardRatio, which are added together when the validator period is incremented. A malicious deposit of a near-max-supply amount makes the addition overflow, so the quantity leaves its width and panics, which halts the chain. The witness is the test's two deposits of max supply, with a delegation between them that increments the period. The obligation of keeping signs and widths respected names the single overflow site, so it is the smallest rule. The fix adds an overflow pre-check at deposit time, which confirms that it is a sort/width violation and not a parallel-path or guard issue.",
+          "primary": "SORT",
+          "secondary": null,
+          "subform": "integer overflow (LegacyDec addition in reward pool accumulation)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -87,6 +252,22 @@
       "fix_date": "2024-04-15T12:54:51Z",
       "id": "c04",
       "kind": "client",
+      "label": "none",
+      "labels": {
+        "a": {
+          "justification": "The pre-fix ReadHeaderRange read the freezer branch with AncientRange(..., count, 0), and maxBytes 0 means no limit. An attacker's GetBlockHeaders request with a large count makes the node allocate an unbounded amount of memory; the fix adds a 2 MiB cap. This is a pure resource-exhaustion issue: no value leaves its sort, no commitment, undo, migration, symmetry or alias is involved, and no obligated principal's guard is blocked. PAR is a weak secondary reading: the freezer branch ignores the response-size cap other serving paths respect, so for one oversized request the two branches would bound their output differently. But the branches do not compute different values for the same data, so PAR's equality obligation is not clearly falsified.",
+          "primary": "none",
+          "secondary": "PAR",
+          "subform": "unbounded resource consumption (missing response-size cap on freezer read)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "ReadHeaderRange passes maxByteSize 0 (unlimited) to AncientRange, so a crafted p2p header request makes the node load an arbitrarily large amount of freezer data into memory. The fix only adds a 2 MiB cap. No two paths compute different values, no undo or migration is involved, no commitment is under-bound, no value leaves its sort, no guard is undischargeable, and no alias is written. This is a pure resource-limit omission with no guard or carrier relation to violate, so no rule's obligation is falsified.",
+          "primary": "none",
+          "secondary": null,
+          "subform": "unbounded resource consumption (missing size cap)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -123,6 +304,27 @@
       "fix_date": "2026-08-13T11:30:32Z",
       "id": "c05",
       "kind": "rollup",
+      "label": "PAR",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over one carrier, the SUPER_PERMISSIONED initialization bond, and two edges that both judge it: the U20 configuration validator, which requires the bond to be zero, and SuperPermissionedDisputeGame.initialize, which is payable and accepts any msg.value. The witness is a nonzero bond, such as the test's setInitBond(SUPER_PERMISSIONED, 1 ether): the validator rejects it, but the pre-fix game accepts it and creates a clone holding unrecoverable ETH. DISCH also applies, because nobody can ever withdraw the trapped ETH, but its obligation needs a guard closure over the clone's whole withdrawal and distribution surface, so it names more components. SORT does not apply, because no value leaves its sort: the ETH is conserved, only stranded. The fix adds the missing zero-value check to the game itself, which brings the two acceptance paths back into agreement.",
+          "primary": "PAR",
+          "secondary": "DISCH",
+          "subform": "acceptance checks that differ between components (validator vs game initializer)"
+        },
+        "adjudicated": {
+          "justification": "The obligation is over one carrier, the SUPER_PERMISSIONED init bond that the factory forwards as msg.value, and two edges that both judge it: the U20 configuration validator, which accepts only zero, and the pre-fix payable SuperPermissionedDisputeGame.initialize, which accepts any value. The witness is the test's setInitBond(SUPER_PERMISSIONED, 1 ether): the validator rejects this bond, but the game accepts it and creates a clone holding the ETH. SORT's obligation is not falsified, even though it names fewer components: the ETH is not underflowed, truncated, mis-typed or destroyed, and it stays conserved in the clone's balance, only stranded. So the conservation reading does not apply, and the tie order is never reached. DISCH fits only secondarily: the stranded ETH has no withdrawal guard at all, so its obligation would need a closure over the clone's whole exit surface, which names more components. The fix adds the zero-value check to the game itself, which brings the two acceptance paths back into agreement.",
+          "primary": "PAR",
+          "secondary": "DISCH",
+          "subform": "acceptance checks that differ between components (config validator vs game initializer)"
+        },
+        "b": {
+          "justification": "The obligation is over one site, the payable `initialize` of SuperPermissionedDisputeGame, and the ETH quantity `msg.value` it receives. The witness is a factory configured with a nonzero init bond for SUPER_PERMISSIONED. `create{value: 1 ether}` then leaves 1 ether in the clone, with no bond accounting, distribution or withdrawal path. That breaks quantity conservation, since value enters and is never attributed or returned. The fix rejects nonzero `msg.value` at that site. PAR (validator versus implementation) and DISCH (stuck funds) both name more components or edges, and SORT wins the tie order. No guard is involved, so DISCH is only a secondary fit.",
+          "primary": "SORT",
+          "secondary": "DISCH",
+          "subform": "conservation broken: value received with no accounting or exit"
+        }
+      },
       "languages": [
         "solidity"
       ],
@@ -147,6 +349,22 @@
       "fix_date": "2023-05-05T14:13:40Z",
       "id": "c06",
       "kind": "bridge",
+      "label": "SORT",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over a single carrier, the interface{} value `data` decoded from CoinGecko's JSON response, and a single edge, the type assertion `data.(map[string]interface{})` in queryCoinGecko. The witness is a CoinGecko response whose entry for a known coinGeckoId is not a JSON object (e.g. a string, number or null). At that site the unchecked assertion reads the untagged union at the wrong member, which panics the node (DoS) rather than falling back to the configured price. This is a site-local sort violation naming one carrier and one edge. PAR, which would require exhibiting a second decoder path that accepts what this one rejects, names more components and loses to SORT on both count and tie order.",
+          "primary": "SORT",
+          "secondary": "PAR",
+          "subform": "wrong type read from an untagged union (unchecked interface type assertion)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The carrier is the decoded JSON value `data` of type interface{}, an untagged union, which is asserted to map[string]interface{} without checking the assertion. When CoinGecko returns invalid data, the value is not a map and the code reads it as one, leaving its sort (nil map or panic), and the witness is a response entry whose value is not an object. This is a single-site wrong-member read, so SORT applies and is the smallest obligation. PAR (decoder acceptance) could be argued but names more carriers, so it is secondary.",
+          "primary": "SORT",
+          "secondary": "PAR",
+          "subform": "unchecked type assertion on untagged union (interface{} read at wrong member)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -171,6 +389,22 @@
       "fix_date": "2026-03-06T14:18:57Z",
       "id": "c07",
       "kind": "rollup",
+      "label": "PAR",
+      "labels": {
+        "a": {
+          "justification": "The obligation ranges over one carrier, the ABI-encoded []WeightedResource return data, and one edge, GetMultiGasPricingConstraints ranging over the map from ResourcesWithWeights. Two validators each evaluate this edge on the same stored constraint, so they are two parallel paths that must produce the same encoded value. The witness is the test's constraint with weights {StorageAccess: 3, Computation: 1}: Go's randomised map iteration can encode it as [StorageAccess, Computation] on one node and [Computation, StorageAccess] on another, and a contract calling the precompile then diverges. SYM could also be read in (output not invariant under permuting the iteration order), but it is not an action of principals and it ranks later in the tie order. SORT does not apply because no value leaves its sort, and the obligation is not over a commitment, an undo pair or a migration.",
+          "primary": "PAR",
+          "secondary": "SYM",
+          "subform": "two instances of one encoder disagree (non-deterministic encoding across validators)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The obligation is over the parallel computations of the same ABI-encoded return value on different validators (two runs of the same precompile on the same state). Ranging over a Go map yields a different element order per run, so the encoded WeightedResource array differs between nodes for one identical input, which is the witness. SYM (reordering) is a weaker fit, since no independent actions of different principals are reordered; the defect is that two executions of one path disagree. The fix iterates kinds in fixed order to make the paths agree.",
+          "primary": "PAR",
+          "secondary": "SYM",
+          "subform": "branch/consumer disagreement: nondeterministic map iteration order across nodes"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -195,6 +429,22 @@
       "fix_date": "2025-03-12T14:51:25Z",
       "id": "c08",
       "kind": "appchain",
+      "label": "DISCH",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over the EndBlocker's tally edge (doTallyAndUpdate \u2192 Tally/policy.Allow) and the proposal/vote registers it reads. Every block, the chain's validators must get past the guard \"tally and policy.Allow return no error\". The witness is a malicious proposal, created by any group user, whose tally or Allow call errors. In the pre-fix code that error goes up through the EndBlocker and halts the chain, and no validator action or passage of time can make the guard true. The fix discharges the guard by marking the proposal REJECTED and emitting an event instead of returning the error. PAR is secondary, read as domain incoherence: the submit and vote paths accept a proposal that the end-block tally path rejects. It is not primary because the falsified obligation that exposes the halt is about liveness, not a disagreement between two computed values.",
+          "primary": "DISCH",
+          "secondary": "PAR",
+          "subform": "blocking (EndBlocker liveness held hostage by user-created proposal state)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The obligation is over the EndBlocker's tally-and-prune step for a proposal, via doTallyAndUpdate, Tally and policy.Allow. In the pre-fix code, any error from Tally or Allow is returned up the call chain. A malicious proposal that triggers such an error leaves the proposal permanently unprunable and unresolvable, so the error recurs every block and halts the chain. No principal can make the guard true, which is the blocking witness for DISCH. A smaller rule does not fit: there is no sort, aliasing or undo issue. The fix handles the error by rejecting the proposal, pruning its votes and emitting EventTallyError, so a failing proposal no longer blocks the block.",
+          "primary": "DISCH",
+          "secondary": "PAR",
+          "subform": "blocking (an error in a mandatory EndBlocker step is never discharged)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -219,6 +469,22 @@
       "fix_date": "2023-08-09T14:00:31Z",
       "id": "c09",
       "kind": "client",
+      "label": "none",
+      "labels": {
+        "a": {
+          "justification": "The pre-fix Peer.handle spawned one goroutine per received pingMsg with no bound, so a remote peer flooding pings exhausts memory; the fix funnels pongs through a bounded channel served by pingLoop. No two parallel paths disagree on a value, no carrier leaves its sort, no view is aliased, nothing is committed, undone, migrated or symmetry-split, so PAR, SORT, OWN, FACT, UNDO, SYM and NAT are not falsified. DISCH is the nearest fit, since the node's liveness can be degraded by another principal's input, but the defect involves no guard that the obligated principal is unable to make true. That makes it a pure resource-exhaustion issue with no guard, which the sheet assigns to none.",
+          "primary": "none",
+          "secondary": "DISCH",
+          "subform": "unbounded resource allocation per inbound message (goroutine-per-ping DoS)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The handler spawned one goroutine per received ping, so a flood of pings exhausts memory. The fix routes pings through a bounded channel to the existing pingLoop. No two paths compute different values, no register is left behind by an undo, nothing crosses a migration, no commitment is involved, no value leaves its sort, and no alias is written through. No obligated principal is blocked by a guard it cannot satisfy. This is a pure resource-exhaustion issue with no guard involved, so no rule's obligation is falsified.",
+          "primary": "none",
+          "secondary": null,
+          "subform": "unbounded resource consumption (goroutine per ping)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -256,6 +522,22 @@
       "fix_date": "2026-08-13T03:04:23Z",
       "id": "c10",
       "kind": "rollup",
+      "label": "PAR",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over one carrier, the AnchorStateRegistry address, reached by two parallel paths. One path goes through SystemConfig.optimismPortal().anchorStateRegistry(); this is the registry the validator uses to select super mode and the one the portal reads when finalizing withdrawals. The other path decodes the registry from each dispute game factory's encoded arguments. Before the fix, the validator checked each decoded registry only for local properties (implementation, ProxyAdmin, SystemConfig, DGF, retirement timestamp) and never required the two paths to agree. The witness is a configuration whose game args encode a second, locally valid registry that differs from the portal's (e.g. 0xbad or otherAsr in the added tests); the validator accepted it before the fix. No SORT site-level sort violation, aliasing, commitment binding, undo or migration is involved, so PAR is the most local rule that is falsified.",
+          "primary": "PAR",
+          "secondary": null,
+          "subform": "two consumers of one carrier (portal's registry vs registry decoded from game args)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The obligation is over two parallel paths to the AnchorStateRegistry: the Portal's anchorStateRegistry() used for super-mode selection and withdrawal finalization, and the registry decoded from each dispute game factory's encoded args. The validator checks each decoded registry's own consistency (implementation, ProxyAdmin, SystemConfig, DGF) but never requires it to equal the Portal's, so a second, locally valid registry passes. The witness is a game whose args name an ASR other than the Portal's. FACT is weaker here, since the issue is about two consumers disagreeing rather than an unbound commitment, and PAR names fewer components.",
+          "primary": "PAR",
+          "secondary": "FACT",
+          "subform": "two consumers of one registry carrier disagree (Portal's ASR vs ASR decoded from game args)"
+        }
+      },
       "languages": [
         "solidity"
       ],
@@ -280,6 +562,27 @@
       "fix_date": "2023-05-05T14:13:40Z",
       "id": "c11",
       "kind": "bridge",
+      "label": "DISCH",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over the watcher's Run edge and its outbound algod/indexer calls (StatusAfterBlock, SearchForTransactions, Block), with the passed-in ctx as the carrier: once the supervisor cancels ctx, Run must be able to exit. Pre-fix, these calls are given context.Background(), so the guard \"call returned, Run exits\" can only be made true by the remote algod or indexer responding. The witness is ctx canceled or timed out while algod or the indexer hangs: Run never observes the cancellation and the goroutine and its resources leak. PAR fits only loosely, as disagreement between the ctx-honoring select loop and these calls; it is not a value mismatch between two paths, and no SORT, OWN or FACT obligation is falsified. The timestamp cast removal in the diff is a behaviour-neutral cleanup.",
+          "primary": "DISCH",
+          "secondary": "PAR",
+          "subform": "blocking: cancellation not propagated, so liveness depends on an external party"
+        },
+        "adjudicated": {
+          "justification": "The obligation is over the watcher's Run edge and its outbound client calls (StatusAfterBlock, SearchForTransactions, Block), with the passed-in ctx as the carrier. The supervising node must be able to make the guard 'Run returns and its goroutine is released' true by cancelling ctx, its own action. Pre-fix, these calls receive context.Background(), so the guard can only be discharged by the remote algod or indexer responding. The witness is ctx cancelled or timed out while algod or the indexer hangs: Run never observes the cancellation and the goroutine and its resources leak. PAR is not falsified over the pre-fix code, because labeller b's 'two paths' are the pre-fix Background call and the post-fix ctx call, not two parallel paths that exist before the fix and compute the same value; no SORT, OWN, FACT or UNDO obligation is falsified, and the int64 cast removal is a behaviour-neutral cleanup.",
+          "primary": "DISCH",
+          "secondary": null,
+          "subform": "blocking: cancellation not propagated, so the watcher's exit depends on an external party (algod/indexer)"
+        },
+        "b": {
+          "justification": "The obligation is over two parallel paths to the same Algorand client calls: the call made with the passed-in ctx and the call made with context.Background(). They should behave the same under cancellation, but the background-context path ignores cancel and timeout, so the goroutine keeps running and leaks. The witness is a canceled ctx passed to Run, where StatusAfterBlock, SearchForTransactions and Block continue instead of aborting. SORT does not apply, since the same Context type is used throughout and no value leaves its sort. The unrelated int64 cast cleanup in the diff is a minor type change, not the defect described. UNDO does not fit well either, because the issue is that cancellation is never propagated, not a residue left after an undo.",
+          "primary": "PAR",
+          "secondary": null,
+          "subform": "branch/consumer disagreement: background context vs passed-in context"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -305,6 +608,27 @@
       "fix_date": "2026-01-12T14:02:44Z",
       "id": "c12",
       "kind": "rollup",
+      "label": "PAR",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over a single carrier, the sequencerMsg byte slice, and a single edge, the slicing at fixed header offsets (sequencerMsg[41:] in readerForBlobReader.recoverInternal and sequencerMsg[40:] in recoverPayloadFromBatchInternal). The obligation is that the value keeps its sort, here a message at least as long as the header. The witness is a posted sequencer message shorter than 41 (or 40) bytes. Slicing it at the header offset goes out of bounds and the node panics instead of rejecting the message. A PAR reading also holds, since the batch-posting path accepts the short message and these DA decoders crash on it. That reading needs two paths over the interface carrier and names more components, so the single-site SORT obligation is minimal and comes first in the tie order.",
+          "primary": "SORT",
+          "secondary": "PAR",
+          "subform": "width/length precondition at a slice site (out-of-bounds offset read on a short sequencer message)"
+        },
+        "adjudicated": {
+          "justification": "The obligation is over one interface carrier, the sequencer message, and its decoders: readerForBlobReader.recoverInternal (slicing at offset 41) and recoverPayloadFromBatchInternal (slicing at offset 40). Every decoder of that carrier must accept the same inputs. The witness is a message shorter than the fixed header. The path that posts or dispatches the batch lets it through, but these decoders slice past its end and crash the node instead of rejecting it, as the source says. This matches the sheet's PAR typical defect exactly ('length or version checks that differ between components'). SORT would be smaller, but its obligation covers sign or width wraps, truncations that change meaning, union-member confusion and conservation; a slice beyond the buffer that panics changes no value's sort, so SORT is not clearly falsified and is kept only as a secondary reading.",
+          "primary": "PAR",
+          "secondary": "SORT",
+          "subform": "decoder domain coherence: a length check present on one path to the sequencer-message decoders and absent on another"
+        },
+        "b": {
+          "justification": "The obligation is over the sequencer message carrier and its decoders: every decoder of the interface carrier must accept the same inputs. The sequencer message parser upstream accepts or passes along messages shorter than the header, while recoverInternal and recoverPayloadFromBatchInternal index at offset 40 or 41 without checking, so they panic on a short message the earlier path let through. The witness is a message shorter than 41 bytes (or 40 for AnyTrust), which one component accepts and the other crashes on. SORT (out-of-range slice) is a plausible alternative, but it concerns an indexing bounds check rather than a value's semantic sort, and PAR's domain-coherence obligation fits the missing length check more directly.",
+          "primary": "PAR",
+          "secondary": "SORT",
+          "subform": "length/version check differing between components (decoder domain coherence)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -329,6 +653,22 @@
       "fix_date": "2025-02-27T19:57:30Z",
       "id": "c13",
       "kind": "appchain",
+      "label": "PAR",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over one carrier, the ICS-20 packet data bytes, and two parallel paths over it inside OnRecvPacket. The paths are the received bytes themselves and their decode-then-re-encode recomputation (UnmarshalJSON then data.GetBytes()). Because JSON unmarshalling and re-marshalling were not deterministic, the bytes.Equal round-trip check, and the error acknowledgement embedding %X of the recomputed bytes, could differ between validators for the same packet. The witness is a crafted packet sent over a user-opened channel on which two nodes compute different acknowledgements, which halts the chain. SORT does not apply because no value leaves its sort at one site, and FACT does not apply because no commitment is checked against unbound input; the fault is two paths over one carrier that should agree but do not, which is the smallest PAR statement.",
+          "primary": "PAR",
+          "secondary": null,
+          "subform": "round trip / consumer disagreement (decode-then-re-encode check evaluated differently across validators)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The pre-fix OnRecvPacket decodes the packet data with ModuleCdc.UnmarshalJSON, re-encodes it with data.GetBytes(), and requires the result to equal packet.GetData(). The decoder and the encoder are parallel paths over one value, and they do not agree on every input a user can submit. A channel opener can send JSON that decodes but does not re-encode to the same bytes, which produces non-deterministic or divergent acknowledgements across nodes. The witness is that one input. The fix removes the re-encoding comparison. FACT is secondary because the acknowledgement is committed and must be determined by the packet data. That rule names more carriers than the single decode/encode pair, so PAR is the smaller rule.",
+          "primary": "PAR",
+          "secondary": "FACT",
+          "subform": "round trip (decoder vs re-encoder disagreement on the same packet bytes)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -354,6 +694,22 @@
       "fix_date": "2022-03-07T17:25:45Z",
       "id": "c14",
       "kind": "client",
+      "label": "SORT",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over one carrier, the DiscReason value decoded from the discMsg RLP payload, and one edge, its String()/log formatting site. The pre-fix code decodes it as an unbounded uint, so it is not constrained to the one-byte reason sort. The witness is a crafted discMsg whose reason is huge, for example at least 2^63. Converting it to int wraps negative, so it passes the less-than-length bounds check, and the table index then panics when high-verbosity logging formats the reason. The fix narrows the carrier to uint8. A single-site sign/width violation is the most local basis, so SORT wins on both count and tie order. PAR applies only secondarily: the lenient decoder accepts payloads that a peer encoder of a valid DiscReason would never produce.",
+          "primary": "SORT",
+          "secondary": "PAR",
+          "subform": "sign/width obligation (uint-to-int conversion wraps negative, bypasses bounds check)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The disconnect reason is decoded into a `DiscReason` of type `uint`, which can hold any 64-bit value from the peer. As I recall, `DiscReason`'s string formatting bounds-checks it with `int(d)`; I can't see that code in this diff. A huge value wraps negative, passes the check and panics on the table index when high-verbosity logging formats it. The obligation is over the single site where the value leaves its intended sort, and the fix narrows the type to `uint8` so the value stays bounded. The change of decoding from `[1]DiscReason` to a struct is a lesser decoder-shape issue, so PAR is only secondary, and SORT wins the tie order.",
+          "primary": "SORT",
+          "secondary": "PAR",
+          "subform": "width/sign wrap on a narrowing cast (uint to int) feeding an index bound check"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -391,6 +747,22 @@
       "fix_date": "2026-08-13T00:26:55Z",
       "id": "c15",
       "kind": "rollup",
+      "label": "FACT",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over one consumer (the validator's SPDG check) and the data it verifies: the factory-registered implementation address checked against the stored approved address. The validator authenticates the implementation only through the candidate's own version() string, which the candidate controls, so that string does not bind the implementation's identity. The witness is a lookalike implementation at a different address that reports 1.0.0 and keeps the canonical ASR and proposer args; the validator accepts it with an empty error string even though it is not the approved contract. PAR (two parallel identity paths, address versus version, disagreeing) also fits, but the defect is fundamentally a verifier accepting an input the check does not bind. No sort, aliasing or undo carrier is involved.",
+          "primary": "FACT",
+          "secondary": "PAR",
+          "subform": "verification that ignores part of the message (identity not bound; self-reported version used as commitment)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The validator treats the version() string as the commitment to which game implementation is registered. A different contract that returns the same version, and keeps the canonical ASR and proposer args, produces the same validator result as the approved implementation. The witness is a lookalike implementation registered in the factory, which the validator accepts with an empty error string, so the check does not bind the code. The obligation is over a single check (version equality versus address equality). PAR is a weaker fit because it needs two paths to disagree, whereas here the check is simply under-binding. The fix adds the `gameAddress == expectedImpl` comparison (the -150 error).",
+          "primary": "FACT",
+          "secondary": "PAR",
+          "subform": "identity check bound to a self-reported version string instead of the implementation address (unbound commitment)"
+        }
+      },
       "languages": [
         "solidity"
       ],
@@ -416,6 +788,22 @@
       "fix_date": "2023-05-04T18:07:07Z",
       "id": "c16",
       "kind": "bridge",
+      "label": "DISCH",
+      "labels": {
+        "a": {
+          "justification": "The obligation covers the PollSubscription carriers quit and unsubDone, and two edges: the caller's Unsubscribe and the Polygon SubscribeForBlocks goroutine. Unsubscribe writes to quit and then blocks until unsubDone is written, and only the fulfiller goroutine can write it. The witness is a live Polygon subscription on which the consumer calls Unsubscribe. The pre-fix goroutine never selects on sub.quit and never writes sub.unsubDone, so the caller's guard can never be made true by its own actions and the call hangs. PAR (Polygon diverging from the other connectors' fulfilment of the same channel protocol) also applies, but stating it needs a second connector the defect's trigger does not involve. No sort, aliasing, commitment or undo obligation is falsified.",
+          "primary": "DISCH",
+          "secondary": "PAR",
+          "subform": "blocking (Unsubscribe waits on an unsubDone signal the fulfiller never sends)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The carriers are the PollSubscription quit and unsubDone channels and the Polygon subscription goroutine. A caller of Unsubscribe writes quit and waits on unsubDone, but the Polygon loop never reads quit nor writes unsubDone, so the caller blocks forever. The caller cannot make its guard true by its own actions, since completion depends on the fulfiller goroutine. PAR (the Polygon connector diverging from the other pollers' protocol) names more components, and no value or alias is mishandled, so DISCH is the minimal rule.",
+          "primary": "DISCH",
+          "secondary": "PAR",
+          "subform": "blocking: unsubscribe handshake never completed (quit not read, unsubDone not written)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -440,6 +828,22 @@
       "fix_date": "2026-01-10T06:24:02Z",
       "id": "c17",
       "kind": "rollup",
+      "label": "PAR",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over two parallel paths over one carrier, the machine state at the ValidatePreimage opcode. One path is Nitro's machine.rs step and the other is OneStepProverHostIo.executeValidatePreimage, and both must compute the same next state on every reachable input. The witness is a preimageType in 4..255 (Rust pushes 0 and does no memory access, Solidity proceeds and pushes 1) or an invalid ptr (Rust sets status ERRORED, Solidity proves a leaf anyway). The two paths therefore diverge in where each is defined and in the result. SORT names a single site and is secondary because the preimageType>255 check concerns a u8 width, but the defect is the disagreement between the two implementations, not a meaning-changing wrap at one site.",
+          "primary": "PAR",
+          "secondary": "SORT",
+          "subform": "cross-implementation divergence (domain coherence: Rust prover vs Solidity OSP)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The obligation is over two parallel paths computing the same step: the on-chain executeValidatePreimage in OneStepProverHostIo and Nitro's machine.rs. The Rust path pushes 0 for an invalid preimage_type and sets the machine status to errored for an invalid ptr, while the Solidity path accepts both and pushes 1 or touches memory. The witness is a preimageType of 4 or more, or an invalid ptr, on which the two paths give different results. No smaller rule applies, since there is no sort violation, aliasing, or migration, and the defect is a domain mismatch between the two implementations.",
+          "primary": "PAR",
+          "secondary": null,
+          "subform": "divergence between two implementations (Solidity OSP vs Rust machine.rs) on input domain validation"
+        }
+      },
       "languages": [
         "solidity"
       ],
@@ -466,6 +870,22 @@
       "fix_date": "2025-02-20T16:14:22Z",
       "id": "c18",
       "kind": "appchain",
+      "label": "SORT",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over one edge, PercentageDecisionPolicy.Allow's yesCount.Quo(totalPowerDec), and one carrier, the group's TotalWeight string passed in as totalPower. That divisor should always be a non-zero total weight. The witness is an UpdateGroupMembers call that sets every member's weight to \"0\": TotalWeight becomes \"0\", and tallying a proposal against that group divides by zero, and the resulting error halts the chain. A PAR reading is possible, since the update path and the steady-state tally disagree about whether an empty group is valid. That reading names two paths and more edges, while SORT names a single site and also wins the tie order, so SORT is minimal.",
+          "primary": "SORT",
+          "secondary": "PAR",
+          "subform": "division by zero (zero divisor leaves positive-weight sort at the Quo site)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "UpdateGroupMembers lets all members be removed, so TotalWeight becomes 0. PercentageDecisionPolicy.Allow then divides yesCount by totalPowerDec without a zero check, and the error halts the chain. The obligation is over a single site: a quotient whose denominator leaves the nonzero sort. The witness is a group updated to zero total weight with a percentage policy and a proposal tally. A smaller rule does not apply, since no codec, undo, or migration pair is involved. PAR (the update path and the policy path disagree on what weight is valid) is the weaker alternative, so it is the secondary label.",
+          "primary": "SORT",
+          "secondary": "PAR",
+          "subform": "division by zero (zero denominator in percentage policy)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -491,6 +911,22 @@
       "fix_date": "2021-09-29T13:19:40Z",
       "id": "c19",
       "kind": "client",
+      "label": "SORT",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over a single site in the GetTrieNodes handler and one in trie.tryGetNode. At that site a value that can be the 'absent' member is read as the 'present' member: snap.Account returns nil with no error for a non-existent account, and the handler then reads account.Root. Likewise, tryGetNode reaches a nil origNode at the end of the path and treats it as a real node. The witness is a malicious GetTrieNodes request whose path set names a non-existent account, or a path that ends on an empty subtrie, which makes the node crash on a nil dereference. A PAR reading also fits, because tryGetNode's nil handling differs between the descend branch and the end-of-path branch. But PAR names two paths and the edge between them, whereas SORT names only the one site, so SORT is minimal and comes first in the tie order.",
+          "primary": "SORT",
+          "secondary": "PAR",
+          "subform": "absent/nil member of an option-like result read as present (nil dereference at one site)"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "In the snap GetTrieNodes handler, snap.Account returns (nil, nil) for a nonexistent account, and the pre-fix code then reads account.Root as if the account were present. In trie.tryGetNode, the nil node reaches the pos>=len(path) branch, where it is used as a real node, before the nil case is handled. The witness is a request for a nonexistent account or a nonexistent trie path, which leaves the value's 'absent' sort at a specific site and panics the node. The obligation names only that site, so the single-site SORT rule is minimal. SYM (a sentinel conflated with a real value) applies too, but it is secondary and loses on the tie order.",
+          "primary": "SORT",
+          "secondary": "SYM",
+          "subform": "unchecked nil/absent sentinel used as a present value (nil dereference)"
+        }
+      },
       "languages": [
         "go"
       ],
@@ -527,6 +963,22 @@
       "fix_date": "2026-08-12T23:09:58Z",
       "id": "c20",
       "kind": "rollup",
+      "label": "PAR",
+      "labels": {
+        "a": {
+          "justification": "The obligation is over one carrier, the L2 chain ID of the deployment, read along two parallel paths. The validator takes it from the caller-supplied ValidationInputDev.l2ChainID (X), while OptimismPortal2.proveWithdrawalTransaction takes it from SystemConfig.l2ChainId() (Y) to select the member root. The witness is the description's own trigger: an imported or reinitialised deployment storing Y in SystemConfig while the validator input is X, with every other checked field canonical. The validator certifies domain X and returns an empty success string, but the Portal acts on domain Y. FACT also applies, since the validator's verdict does not bind the SystemConfig chain ID the Portal later uses; its statement names about as many carriers and edges (verifier, unbound field, Portal consumer), so the tie goes to PAR, the more local basis.",
+          "primary": "PAR",
+          "secondary": "FACT",
+          "subform": "two consumers of one carrier disagree (validator's caller-supplied chain ID vs Portal's SystemConfig.l2ChainId())"
+        },
+        "adjudicated": null,
+        "b": {
+          "justification": "The obligation is over two parallel values of the same domain: the caller-supplied expected l2ChainID in the validator input and the SystemConfig.l2ChainId() the Portal later uses. The validator's super-game branch never compares them, so it returns success when they differ (X versus Y). That input is the witness, and the fix adds the equality check SYSCON-140. SORT does not apply because no value leaves its sort. FACT is only loosely related because no commitment or proof is involved, so PAR is the minimal rule, covering initialisation and consumer disagreement between components.",
+          "primary": "PAR",
+          "secondary": "FACT",
+          "subform": "missing cross-component consistency check (validator input chain ID vs SystemConfig.l2ChainId)"
+        }
+      },
       "languages": [
         "solidity"
       ],
@@ -542,6 +994,17 @@
       "title": "U20 StandardValidator does not bind the SystemConfig chain ID to the validated super-game domain"
     }
   ],
+  "labellers": {
+    "a": "labeller-a",
+    "adjudicator": "adjudicator",
+    "b": "labeller-b",
+    "family": "same",
+    "model_tags": {
+      "a": "A",
+      "adjudicator": "A",
+      "b": "B"
+    }
+  },
   "protocol_sha256": "600be4809044ae9a13b727a042aeb95960b038d0e74c0511f8910cfdd3148f05",
   "rule_sheet_sha256": "07cf70eda559bbc2d559ce920ce2a278db0efb1ad59203d691256ef6c587d253"
 }

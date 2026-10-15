@@ -1,0 +1,126 @@
+{
+  "checks": {
+    "a_differs_from_b": true,
+    "adjudicator_is_a": true,
+    "one_model_per_role": true
+  },
+  "family": "same",
+  "invocation": [
+    "claude",
+    "-p",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--no-session-persistence",
+    "--setting-sources",
+    "",
+    "--system-prompt",
+    "<system_prompt>",
+    "--model",
+    "<model>",
+    "--output-format",
+    "json"
+  ],
+  "labeller": "adjudicator",
+  "labels": [
+    {
+      "attempts": [
+        {
+          "cli": {
+            "is_error": false,
+            "num_turns": 1,
+            "result": "{\"primary\": \"UNDO\", \"secondary\": \"PAR\", \"subform\": \"undo on a stale snapshot: revert after Finalise reset the journal (the undo cannot restore and panics)\", \"justification\": \"UNDO's obligation is stated over one action/undo pair: Snapshot and apply the transaction, then RevertToSnapshot(snap). Its register is the journal's revision list, which Finalise (via clearJournalAndRefund and journal.reset()) wipes between the action and the undo. The defect's own trigger is the witness: a transaction whose extraPostTxFilter returns an error after ApplyTransactionWithResultFilter has finalised. On that trace the action-then-undo continuation panics, while the continuation without the action and undo proceeds. PAR does not fit as well, because the in-callback error branch and the post-callback error branch are taken on different inputs, so no single input shows the two paths computing different values; its statement also needs both branches plus the same Finalise edge, so it is not smaller, and the tie order applies only when the counts are equal.\"}",
+            "session_id": "36cc748b-c392-5d49-873b-8207b8fa8fb5",
+            "subtype": "success"
+          },
+          "outcome": "ok"
+        }
+      ],
+      "entry": "c01",
+      "label": {
+        "justification": "UNDO's obligation is stated over one action/undo pair: Snapshot and apply the transaction, then RevertToSnapshot(snap). Its register is the journal's revision list, which Finalise (via clearJournalAndRefund and journal.reset()) wipes between the action and the undo. The defect's own trigger is the witness: a transaction whose extraPostTxFilter returns an error after ApplyTransactionWithResultFilter has finalised. On that trace the action-then-undo continuation panics, while the continuation without the action and undo proceeds. PAR does not fit as well, because the in-callback error branch and the post-callback error branch are taken on different inputs, so no single input shows the two paths computing different values; its statement also needs both branches plus the same Finalise edge, so it is not smaller, and the tie order applies only when the counts are equal.",
+        "primary": "UNDO",
+        "secondary": "PAR",
+        "subform": "undo on a stale snapshot: revert after Finalise reset the journal (the undo cannot restore and panics)"
+      },
+      "prompt_sha256": "5a8912e1dfb24df2e31495bd0604b44a4e6926c49f0f7fe5f3b1bedb1d3ace7a",
+      "response": "{\"primary\": \"UNDO\", \"secondary\": \"PAR\", \"subform\": \"undo on a stale snapshot: revert after Finalise reset the journal (the undo cannot restore and panics)\", \"justification\": \"UNDO's obligation is stated over one action/undo pair: Snapshot and apply the transaction, then RevertToSnapshot(snap). Its register is the journal's revision list, which Finalise (via clearJournalAndRefund and journal.reset()) wipes between the action and the undo. The defect's own trigger is the witness: a transaction whose extraPostTxFilter returns an error after ApplyTransactionWithResultFilter has finalised. On that trace the action-then-undo continuation panics, while the continuation without the action and undo proceeds. PAR does not fit as well, because the in-callback error branch and the post-callback error branch are taken on different inputs, so no single input shows the two paths computing different values; its statement also needs both branches plus the same Finalise edge, so it is not smaller, and the tie order applies only when the counts are equal.\"}"
+    },
+    {
+      "attempts": [
+        {
+          "cli": {
+            "is_error": false,
+            "num_turns": 1,
+            "result": "```json\n{\"primary\": \"PAR\", \"secondary\": \"DISCH\", \"subform\": \"acceptance checks that differ between components (config validator vs game initializer)\", \"justification\": \"The obligation is over one carrier, the SUPER_PERMISSIONED init bond that the factory forwards as msg.value, and two edges that both judge it: the U20 configuration validator, which accepts only zero, and the pre-fix payable SuperPermissionedDisputeGame.initialize, which accepts any value. The witness is the test's setInitBond(SUPER_PERMISSIONED, 1 ether): the validator rejects this bond, but the game accepts it and creates a clone holding the ETH. SORT's obligation is not falsified, even though it names fewer components: the ETH is not underflowed, truncated, mis-typed or destroyed, and it stays conserved in the clone's balance, only stranded. So the conservation reading does not apply, and the tie order is never reached. DISCH fits only secondarily: the stranded ETH has no withdrawal guard at all, so its obligation would need a closure over the clone's whole exit surface, which names more components. The fix adds the zero-value check to the game itself, which brings the two acceptance paths back into agreement.\"}\n```",
+            "session_id": "36cc748b-c392-5d49-873b-8207b8fa8fb5",
+            "subtype": "success"
+          },
+          "outcome": "ok"
+        }
+      ],
+      "entry": "c05",
+      "label": {
+        "justification": "The obligation is over one carrier, the SUPER_PERMISSIONED init bond that the factory forwards as msg.value, and two edges that both judge it: the U20 configuration validator, which accepts only zero, and the pre-fix payable SuperPermissionedDisputeGame.initialize, which accepts any value. The witness is the test's setInitBond(SUPER_PERMISSIONED, 1 ether): the validator rejects this bond, but the game accepts it and creates a clone holding the ETH. SORT's obligation is not falsified, even though it names fewer components: the ETH is not underflowed, truncated, mis-typed or destroyed, and it stays conserved in the clone's balance, only stranded. So the conservation reading does not apply, and the tie order is never reached. DISCH fits only secondarily: the stranded ETH has no withdrawal guard at all, so its obligation would need a closure over the clone's whole exit surface, which names more components. The fix adds the zero-value check to the game itself, which brings the two acceptance paths back into agreement.",
+        "primary": "PAR",
+        "secondary": "DISCH",
+        "subform": "acceptance checks that differ between components (config validator vs game initializer)"
+      },
+      "prompt_sha256": "38b9f09df07fe842bdcd73f399b4a16765658187f109287d7e2c331d83ba1395",
+      "response": "```json\n{\"primary\": \"PAR\", \"secondary\": \"DISCH\", \"subform\": \"acceptance checks that differ between components (config validator vs game initializer)\", \"justification\": \"The obligation is over one carrier, the SUPER_PERMISSIONED init bond that the factory forwards as msg.value, and two edges that both judge it: the U20 configuration validator, which accepts only zero, and the pre-fix payable SuperPermissionedDisputeGame.initialize, which accepts any value. The witness is the test's setInitBond(SUPER_PERMISSIONED, 1 ether): the validator rejects this bond, but the game accepts it and creates a clone holding the ETH. SORT's obligation is not falsified, even though it names fewer components: the ETH is not underflowed, truncated, mis-typed or destroyed, and it stays conserved in the clone's balance, only stranded. So the conservation reading does not apply, and the tie order is never reached. DISCH fits only secondarily: the stranded ETH has no withdrawal guard at all, so its obligation would need a closure over the clone's whole exit surface, which names more components. The fix adds the zero-value check to the game itself, which brings the two acceptance paths back into agreement.\"}\n```"
+    },
+    {
+      "attempts": [
+        {
+          "cli": {
+            "is_error": false,
+            "num_turns": 1,
+            "result": "{\"primary\": \"DISCH\", \"secondary\": null, \"subform\": \"blocking: cancellation not propagated, so the watcher's exit depends on an external party (algod/indexer)\", \"justification\": \"The obligation is over the watcher's Run edge and its outbound client calls (StatusAfterBlock, SearchForTransactions, Block), with the passed-in ctx as the carrier. The supervising node must be able to make the guard 'Run returns and its goroutine is released' true by cancelling ctx, its own action. Pre-fix, these calls receive context.Background(), so the guard can only be discharged by the remote algod or indexer responding. The witness is ctx cancelled or timed out while algod or the indexer hangs: Run never observes the cancellation and the goroutine and its resources leak. PAR is not falsified over the pre-fix code, because labeller b's 'two paths' are the pre-fix Background call and the post-fix ctx call, not two parallel paths that exist before the fix and compute the same value; no SORT, OWN, FACT or UNDO obligation is falsified, and the int64 cast removal is a behaviour-neutral cleanup.\"}",
+            "session_id": "36cc748b-c392-5d49-873b-8207b8fa8fb5",
+            "subtype": "success"
+          },
+          "outcome": "ok"
+        }
+      ],
+      "entry": "c11",
+      "label": {
+        "justification": "The obligation is over the watcher's Run edge and its outbound client calls (StatusAfterBlock, SearchForTransactions, Block), with the passed-in ctx as the carrier. The supervising node must be able to make the guard 'Run returns and its goroutine is released' true by cancelling ctx, its own action. Pre-fix, these calls receive context.Background(), so the guard can only be discharged by the remote algod or indexer responding. The witness is ctx cancelled or timed out while algod or the indexer hangs: Run never observes the cancellation and the goroutine and its resources leak. PAR is not falsified over the pre-fix code, because labeller b's 'two paths' are the pre-fix Background call and the post-fix ctx call, not two parallel paths that exist before the fix and compute the same value; no SORT, OWN, FACT or UNDO obligation is falsified, and the int64 cast removal is a behaviour-neutral cleanup.",
+        "primary": "DISCH",
+        "secondary": null,
+        "subform": "blocking: cancellation not propagated, so the watcher's exit depends on an external party (algod/indexer)"
+      },
+      "prompt_sha256": "7c0ce808667fe618b0e301f4030f4390fb0843de4ce4e915147316f68b6a7509",
+      "response": "{\"primary\": \"DISCH\", \"secondary\": null, \"subform\": \"blocking: cancellation not propagated, so the watcher's exit depends on an external party (algod/indexer)\", \"justification\": \"The obligation is over the watcher's Run edge and its outbound client calls (StatusAfterBlock, SearchForTransactions, Block), with the passed-in ctx as the carrier. The supervising node must be able to make the guard 'Run returns and its goroutine is released' true by cancelling ctx, its own action. Pre-fix, these calls receive context.Background(), so the guard can only be discharged by the remote algod or indexer responding. The witness is ctx cancelled or timed out while algod or the indexer hangs: Run never observes the cancellation and the goroutine and its resources leak. PAR is not falsified over the pre-fix code, because labeller b's 'two paths' are the pre-fix Background call and the post-fix ctx call, not two parallel paths that exist before the fix and compute the same value; no SORT, OWN, FACT or UNDO obligation is falsified, and the int64 cast removal is a behaviour-neutral cleanup.\"}"
+    },
+    {
+      "attempts": [
+        {
+          "cli": {
+            "is_error": false,
+            "num_turns": 1,
+            "result": "```json\n{\"primary\": \"PAR\", \"secondary\": \"SORT\", \"subform\": \"decoder domain coherence: a length check present on one path to the sequencer-message decoders and absent on another\", \"justification\": \"The obligation is over one interface carrier, the sequencer message, and its decoders: readerForBlobReader.recoverInternal (slicing at offset 41) and recoverPayloadFromBatchInternal (slicing at offset 40). Every decoder of that carrier must accept the same inputs. The witness is a message shorter than the fixed header. The path that posts or dispatches the batch lets it through, but these decoders slice past its end and crash the node instead of rejecting it, as the source says. This matches the sheet's PAR typical defect exactly ('length or version checks that differ between components'). SORT would be smaller, but its obligation covers sign or width wraps, truncations that change meaning, union-member confusion and conservation; a slice beyond the buffer that panics changes no value's sort, so SORT is not clearly falsified and is kept only as a secondary reading.\"}\n```",
+            "session_id": "36cc748b-c392-5d49-873b-8207b8fa8fb5",
+            "subtype": "success"
+          },
+          "outcome": "ok"
+        }
+      ],
+      "entry": "c12",
+      "label": {
+        "justification": "The obligation is over one interface carrier, the sequencer message, and its decoders: readerForBlobReader.recoverInternal (slicing at offset 41) and recoverPayloadFromBatchInternal (slicing at offset 40). Every decoder of that carrier must accept the same inputs. The witness is a message shorter than the fixed header. The path that posts or dispatches the batch lets it through, but these decoders slice past its end and crash the node instead of rejecting it, as the source says. This matches the sheet's PAR typical defect exactly ('length or version checks that differ between components'). SORT would be smaller, but its obligation covers sign or width wraps, truncations that change meaning, union-member confusion and conservation; a slice beyond the buffer that panics changes no value's sort, so SORT is not clearly falsified and is kept only as a secondary reading.",
+        "primary": "PAR",
+        "secondary": "SORT",
+        "subform": "decoder domain coherence: a length check present on one path to the sequencer-message decoders and absent on another"
+      },
+      "prompt_sha256": "e76f7d147e797eb15304d0ac739a68f776de827acf28dad15f607b2d35e43c2a",
+      "response": "```json\n{\"primary\": \"PAR\", \"secondary\": \"SORT\", \"subform\": \"decoder domain coherence: a length check present on one path to the sequencer-message decoders and absent on another\", \"justification\": \"The obligation is over one interface carrier, the sequencer message, and its decoders: readerForBlobReader.recoverInternal (slicing at offset 41) and recoverPayloadFromBatchInternal (slicing at offset 40). Every decoder of that carrier must accept the same inputs. The witness is a message shorter than the fixed header. The path that posts or dispatches the batch lets it through, but these decoders slice past its end and crash the node instead of rejecting it, as the source says. This matches the sheet's PAR typical defect exactly ('length or version checks that differ between components'). SORT would be smaller, but its obligation covers sign or width wraps, truncations that change meaning, union-member confusion and conservation; a slice beyond the buffer that panics changes no value's sort, so SORT is not clearly falsified and is kept only as a secondary reading.\"}\n```"
+    }
+  ],
+  "model_tag": "A",
+  "prompt_template_sha256": "507ab305557c7b506af607a11b961ae2bde0d428591f3f7585a75d9474f8f395",
+  "role": "adjudicator",
+  "rule_sheet_sha256": "07cf70eda559bbc2d559ce920ce2a278db0efb1ad59203d691256ef6c587d253",
+  "system_prompt_sha256": "55e53d0dcad97e7c00bcf0dd7f8622210ac8fd2a978b9410f7c51e1819dc4c05",
+  "tools": "none"
+}
