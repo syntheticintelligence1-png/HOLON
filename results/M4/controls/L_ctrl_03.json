@@ -1,0 +1,81 @@
+{
+  "attempts": [
+    {
+      "applied": true,
+      "generator": "refl",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "ok": false,
+      "reason": "SOME PROOFS FAIL\nError:\n- expected : Cmp.is_eq(Nat.cmp(x, 7n))\n- observed : False{}\nContext:\n- stage     : Nat\n- seq       : Nat\n- mirror    : Nat\n- acc       : Nat\n- tier      : Nat\n- locked    : Bool\n- halted    : Bool\n- alert     : Bool\n- overflow  : Bool"
+    },
+    {
+      "applied": false,
+      "generator": "case_split_guard",
+      "kind": "proof",
+      "ok": false,
+      "reason": "guard shape does not reduce to a single guard case-split"
+    },
+    {
+      "applied": false,
+      "generator": "nat_ind",
+      "kind": "proof",
+      "ok": false,
+      "reason": "requires custom inductive lemma or composite Nat witness beyond depth-3 split"
+    },
+    {
+      "applied": false,
+      "generator": "list_ind",
+      "kind": "proof",
+      "ok": false,
+      "reason": "requires custom list/trace structural lemma"
+    },
+    {
+      "applied": false,
+      "generator": "eq_chain",
+      "kind": "proof",
+      "ok": false,
+      "reason": "claim does not close by direct premise or single-step equality chain"
+    },
+    {
+      "applied": false,
+      "generator": "evaluate",
+      "kind": "proof",
+      "ok": false,
+      "reason": "universal binders present; closed evaluation inapplicable"
+    },
+    {
+      "bound": "prefixes: BFS depth 2 over policy actions (<= 100 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": false,
+      "kind": "refute",
+      "tried": 132
+    }
+  ],
+  "bound": "prefixes: BFS depth 2 over policy actions (<= 100 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+  "category": "FALSE_BEYOND_BOUND",
+  "compiled_sha256": "43ee5d2070c3f55cf2432dc70940e6b7ccb9429ce5e09c149f0d1ede863da2c4",
+  "control_id": "CTRL-03",
+  "description": "False NAT step law that holds for all Nat inputs 0..5 under evaluation budget natMax=5, but fails at x=7 where check_cap sets overflow=true.",
+  "facts_sha256": "baf3910021a2131758fdcca08d7916d8eed37afd85839d36fce66a32a86083da",
+  "ground_truth_kind": "COUNTER_LAW_ACCEPTED",
+  "ground_truth_laws_file": "gen/M4/controls/ground_truth/L_ctrl_03/LAWS.bend",
+  "ground_truth_proof_file": "gen/M4/controls/ground_truth/L_ctrl_03/PROOF.bend",
+  "ground_truth_symbol": "Laws.cl_l_ctrl_03",
+  "ground_truth_verified": true,
+  "law_id": "L_ctrl_03",
+  "limitation_class": "nat_input_7_exceeds_budget_5",
+  "model_sha256": "452443f6ea3922cb4b53b3396e6d66527bf2418fdac3e78147f333cac7c0949e",
+  "rule": "NAT",
+  "schema": "holon-control-result/0.1",
+  "statement_hash": "31f1f5d51eb9a25bed7cc5f81e5115697eb9d394f0e36d9d73051e8ec24baebe",
+  "status": "UNKNOWN",
+  "subform": "nat-cap-overflow",
+  "tried_generators": [
+    "refl",
+    "case_split_guard",
+    "nat_ind",
+    "list_ind",
+    "eq_chain",
+    "evaluate"
+  ]
+}

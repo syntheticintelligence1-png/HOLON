@@ -1,0 +1,246 @@
+{
+  "schema": "holon-controls-manifest/0.1",
+  "iteration": "I48",
+  "milestone": "M4",
+  "total_count": 12,
+  "total_controls": 12,
+  "false_beyond_bound_count": 6,
+  "true_unproved_count": 6,
+  "evaluation_budget": {
+    "prefixDepth": 2,
+    "maxPrefixes": 100,
+    "natMax": 5
+  },
+  "facts_file": "spec/eval/controls/eval_ctrl_machine.facts.json",
+  "control_facts_file": "eval_ctrl_machine.facts.json",
+  "control_facts_sha256": "baf3910021a2131758fdcca08d7916d8eed37afd85839d36fce66a32a86083da",
+  "controls": [
+    {
+      "control_id": "CTRL-01",
+      "law_id": "L_ctrl_01",
+      "category": "FALSE_BEYOND_BOUND",
+      "rule": "PAR",
+      "subform": "par-stage-alert",
+      "limitation_class": "prefix_depth_3_exceeds_budget_2",
+      "description": "False PAR observer law that holds at prefix depths 0..2 (stage 0..2) under evaluation budget prefixDepth=2, but fails at prefix depth 3 after three advance_stage transitions.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "COUNTER_LAW_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_01.json",
+      "ground_truth_witness": {
+        "s": {
+          "run": [
+            {
+              "op": "advance_stage"
+            },
+            {
+              "op": "advance_stage"
+            },
+            {
+              "op": "advance_stage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "control_id": "CTRL-02",
+      "law_id": "L_ctrl_02",
+      "category": "FALSE_BEYOND_BOUND",
+      "rule": "UNDO",
+      "subform": "undo-stage-breach",
+      "limitation_class": "prefix_depth_4_exceeds_budget_2",
+      "description": "False UNDO observer law that holds at prefix depths 0..3 under evaluation budget prefixDepth=2, but fails at prefix depth 4 after four advance_stage transitions.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "COUNTER_LAW_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_02.json",
+      "ground_truth_witness": {
+        "s": {
+          "run": [
+            {
+              "op": "advance_stage"
+            },
+            {
+              "op": "advance_stage"
+            },
+            {
+              "op": "advance_stage"
+            },
+            {
+              "op": "advance_stage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "control_id": "CTRL-03",
+      "law_id": "L_ctrl_03",
+      "category": "FALSE_BEYOND_BOUND",
+      "rule": "NAT",
+      "subform": "nat-cap-overflow",
+      "limitation_class": "nat_input_7_exceeds_budget_5",
+      "description": "False NAT step law that holds for all Nat inputs 0..5 under evaluation budget natMax=5, but fails at x=7 where check_cap sets overflow=true.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "COUNTER_LAW_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_03.json",
+      "ground_truth_witness": {
+        "s": {
+          "run": []
+        },
+        "x": 7
+      }
+    },
+    {
+      "control_id": "CTRL-04",
+      "law_id": "L_ctrl_04",
+      "category": "FALSE_BEYOND_BOUND",
+      "rule": "SORT",
+      "subform": "sort-window-halted",
+      "limitation_class": "nat_pair_6_6_exceeds_budget_5",
+      "description": "False SORT two-input step law that holds on the 0..5 grid under evaluation budget natMax=5, but fails at (x=6, y=6) where check_window sets halted=true.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "COUNTER_LAW_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_04.json",
+      "ground_truth_witness": {
+        "s": {
+          "run": []
+        },
+        "x": 6,
+        "y": 6
+      }
+    },
+    {
+      "control_id": "CTRL-05",
+      "law_id": "L_ctrl_05",
+      "category": "FALSE_BEYOND_BOUND",
+      "rule": "OWN",
+      "subform": "own-tier-preservation",
+      "limitation_class": "prefix_depth_3_and_nat_6_exceed_budget",
+      "description": "False OWN tier-preservation law that holds for prefix depths 0..2 and Nat inputs 0..5, but fails when stage=3 (depth 3) and x=6 where promote_tier mutates tier from 1 to 2.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "COUNTER_LAW_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_05.json",
+      "ground_truth_witness": {
+        "s": {
+          "run": [
+            {
+              "op": "advance_stage"
+            },
+            {
+              "op": "advance_stage"
+            },
+            {
+              "op": "advance_stage"
+            }
+          ]
+        },
+        "x": 6
+      }
+    },
+    {
+      "control_id": "CTRL-06",
+      "law_id": "L_ctrl_06",
+      "category": "FALSE_BEYOND_BOUND",
+      "rule": "DISCH",
+      "subform": "disch-two-step-breach",
+      "limitation_class": "prefix_depth_3_step_exceeds_budget_2",
+      "description": "False DISCH two-step law asserting bump_both followed by advance_stage never raises obsv_breach; holds from prefixes of depth <= 2 under evaluation budget prefixDepth=2, fails from prefix depth 3 (stage=3) where stepping bump_both then advance_stage sets breach=true.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "COUNTER_LAW_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_06.json",
+      "ground_truth_witness": {
+        "s": {
+          "run": [
+            {
+              "op": "advance_stage"
+            },
+            {
+              "op": "advance_stage"
+            },
+            {
+              "op": "advance_stage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "control_id": "CTRL-07",
+      "law_id": "L_ctrl_07",
+      "category": "TRUE_UNPROVED",
+      "rule": "FACT",
+      "subform": "fact-sub-self-zero",
+      "limitation_class": "inductive_nat_sub_diag_lemma_absent",
+      "description": "True FACT law whose post-state sets diff_zero = (Nat.sub(1+seq, 1+mirror) == 0) under premise seq == mirror; requires inductive lemma Nat.sub(k, k) == 0 not in HOLON's unassisted tactic library.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "PROOF_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_07.json",
+      "ground_truth_proof": "import Base\nimport ../../model/eval_ctrl_machine.bend as M\nimport ./LAWS.bend as Laws\n\ndef efq(-P: Type, x: Empty) -> P:\n  match x:\n\ndef core_false_ne_true(e: {False{} == True{} : Bool}) -> Empty:\n  (%Equal.sym(Bool, False{}, True{}, e) : M.is_true(_)\n  Unit{})\n\ndef sub_diag_zero(a: Nat, b: Nat, eq: {Nat.is_eq(a, b) == True{} : Bool}) -> {Nat.is_eq(Nat.sub(Nat.add(a, 1n), Nat.add(b, 1n)), 0n) == True{} : Bool}:\n  match a b eq:\n    case 0n 0n eq:\n      {==}\n    case 0n 1n+bp eq:\n      efq({Nat.is_eq(Nat.sub(Nat.add(0n, 1n), Nat.add(1n+bp, 1n)), 0n) == True{} : Bool}, core_false_ne_true(eq))\n    case 1n+ap 0n eq:\n      efq({Nat.is_eq(Nat.sub(Nat.add(1n+ap, 1n), Nat.add(0n, 1n)), 0n) == True{} : Bool}, core_false_ne_true(eq))\n    case 1n+ap 1n+bp eq:\n      sub_diag_zero(ap, bp, eq)\n\ndef Laws.l_ctrl_07(s, r_s, h0):\n  match s h0:\n    case M.HSt{stage, seq, mirror, acc, tier, locked, halted, alert, overflow, breach, diff_zero, parity, log} h0:\n      sub_diag_zero(seq, mirror, h0)\n"
+    },
+    {
+      "control_id": "CTRL-08",
+      "law_id": "L_ctrl_08",
+      "category": "TRUE_UNPROVED",
+      "rule": "SYM",
+      "subform": "sym-double-negation",
+      "limitation_class": "bool_case_analysis_on_state_field_absent",
+      "description": "True SYM involution law where flip_twice updates parity := not(not(parity)); requires case-splitting on the Bool state field parity, whereas unassisted tactics only case-split on guard booleans.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "PROOF_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_08.json",
+      "ground_truth_proof": "import Base\nimport ../../model/eval_ctrl_machine.bend as M\nimport ./LAWS.bend as Laws\n\ndef bool_not_not(b: Bool) -> {Bool.not(Bool.not(b)) == b : Bool}:\n  match b:\n    case False{}:\n      {==}\n    case True{}:\n      {==}\n\ndef Laws.l_ctrl_08(s, r_s):\n  match s:\n    case M.HSt{stage, seq, mirror, acc, tier, locked, halted, alert, overflow, breach, diff_zero, parity, log}:\n      bool_not_not(parity)\n"
+    },
+    {
+      "control_id": "CTRL-09",
+      "law_id": "L_ctrl_09",
+      "category": "TRUE_UNPROVED",
+      "rule": "UNDO",
+      "subform": "undo-lock-idempotent",
+      "limitation_class": "guard_effect_joint_bool_case_split_absent",
+      "description": "True UNDO law where lock_restore guards on not(locked) and sets locked := and(locked, true); holds for both Bool values of locked by case analysis, which unassisted tactics do not perform on state fields.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "PROOF_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_09.json",
+      "ground_truth_proof": "import Base\nimport ../../model/eval_ctrl_machine.bend as M\nimport ./LAWS.bend as Laws\n\ndef lock_idemp_full(stage: Nat, seq: Nat, mirror: Nat, acc: Nat, tier: Nat, b: Bool, halted: Bool, alert: Bool, overflow: Bool, breach: Bool, diff_zero: Bool, parity: Bool, log: List<&2, M.HObs>) -> {M.obsv_locked(M.step_lock_restore(M.HSt{stage, seq, mirror, acc, tier, b, halted, alert, overflow, breach, diff_zero, parity, log})) == b : Bool}:\n  match b:\n    case False{}:\n      {==}\n    case True{}:\n      {==}\n\ndef Laws.l_ctrl_09(s, r_s):\n  match s:\n    case M.HSt{stage, seq, mirror, acc, tier, locked, halted, alert, overflow, breach, diff_zero, parity, log}:\n      lock_idemp_full(stage, seq, mirror, acc, tier, locked, halted, alert, overflow, breach, diff_zero, parity, log)\n"
+    },
+    {
+      "control_id": "CTRL-10",
+      "law_id": "L_ctrl_10",
+      "category": "TRUE_UNPROVED",
+      "rule": "NAT",
+      "subform": "nat-add-sub-cancel",
+      "limitation_class": "two_variable_nat_add_sub_induction_absent",
+      "description": "True NAT cancellation law where add_sub_cancel sets acc := (acc + x) - x; requires nested induction on both acc and x (since Nat.add recurses on the first argument), beyond single-variable nat_ind.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "PROOF_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_10.json",
+      "ground_truth_proof": "import Base\nimport ../../model/eval_ctrl_machine.bend as M\nimport ./LAWS.bend as Laws\n\ndef sub_zero_right(a: Nat) -> {Nat.sub(a, 0n) == a : Nat}:\n  match a:\n    case 0n:\n      {==}\n    case 1n+ap:\n      {==}\n\ndef add_succ_right(a: Nat, +b: Nat) -> {Nat.add(a, 1n+b) == 1n+Nat.add(a, b) : Nat}:\n  match a:\n    case 0n:\n      {==}\n    case 1n+p:\n      (%add_succ_right(p, b) : {1n+Nat.add(p, 1n+b) == 1n+_ : Nat}\n      {==})\n\ndef add_zero_right(k: Nat) -> {Nat.add(k, 0n) == k : Nat}:\n  match k:\n    case 0n:\n      {==}\n    case 1n+p:\n      (%add_zero_right(p) : {1n+Nat.add(p, 0n) == 1n+_ : Nat}\n      {==})\n\ndef add_sub_id(+a: Nat, +x: Nat) -> {Nat.sub(Nat.add(a, x), x) == a : Nat}:\n  match x:\n    case 0n:\n      Equal.trans(Nat, Nat.sub(Nat.add(a, 0n), 0n), Nat.sub(a, 0n), a,\n        (%add_zero_right(a) : {Nat.sub(Nat.add(a, 0n), 0n) == Nat.sub(_, 0n) : Nat}; {==}),\n        sub_zero_right(a))\n    case 1n+xp:\n      Equal.trans(Nat, Nat.sub(Nat.add(a, 1n+xp), 1n+xp), Nat.sub(1n+Nat.add(a, xp), 1n+xp), a,\n        (%add_succ_right(a, xp) : {Nat.sub(Nat.add(a, 1n+xp), 1n+xp) == Nat.sub(_, 1n+xp) : Nat}; {==}),\n        add_sub_id(a, xp))\n\ndef Laws.l_ctrl_10(s, r_s, x):\n  match s:\n    case M.HSt{stage, seq, mirror, acc, tier, locked, halted, alert, overflow, breach, diff_zero, parity, log}:\n      add_sub_id(acc, x)\n"
+    },
+    {
+      "control_id": "CTRL-11",
+      "law_id": "L_ctrl_11",
+      "category": "TRUE_UNPROVED",
+      "rule": "PAR",
+      "subform": "par-seq-mirror-commute",
+      "limitation_class": "nat_add_commutativity_lemma_absent",
+      "description": "True PAR observer agreement law where step_mirror sets seq := seq + x and mirror := x + seq; requires Nat.add commutativity (seq + x == x + seq), which is not in HOLON's unassisted tactic library.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "PROOF_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_11.json",
+      "ground_truth_proof": "import Base\nimport ../../model/eval_ctrl_machine.bend as M\nimport ./LAWS.bend as Laws\n\ndef add_zero_right(k: Nat) -> {Nat.add(k, 0n) == k : Nat}:\n  match k:\n    case 0n:\n      {==}\n    case 1n+p:\n      (%add_zero_right(p) : {1n+Nat.add(p, 0n) == 1n+_ : Nat}\n      {==})\n\ndef add_succ_right(a: Nat, +b: Nat) -> {Nat.add(a, 1n+b) == 1n+Nat.add(a, b) : Nat}:\n  match a:\n    case 0n:\n      {==}\n    case 1n+p:\n      (%add_succ_right(p, b) : {1n+Nat.add(p, 1n+b) == 1n+_ : Nat}\n      {==})\n\ndef add_comm(+a: Nat, +b: Nat) -> {Nat.add(a, b) == Nat.add(b, a) : Nat}:\n  match a:\n    case 0n:\n      Equal.sym(Nat, Nat.add(b, 0n), b, add_zero_right(b))\n    case 1n+p:\n      Equal.trans(Nat, 1n+Nat.add(p, b), 1n+Nat.add(b, p), Nat.add(b, 1n+p),\n        (%add_comm(p, b) : {1n+Nat.add(p, b) == 1n+_ : Nat}; {==}),\n        Equal.sym(Nat, Nat.add(b, 1n+p), 1n+Nat.add(b, p), add_succ_right(b, p)))\n\ndef Laws.l_ctrl_11(s, r_s, x):\n  match s:\n    case M.HSt{stage, seq, mirror, acc, tier, locked, halted, alert, overflow, breach, diff_zero, parity, log}:\n      add_comm(seq, x)\n"
+    },
+    {
+      "control_id": "CTRL-12",
+      "law_id": "L_ctrl_12",
+      "category": "TRUE_UNPROVED",
+      "rule": "DISCH",
+      "subform": "disch-commute",
+      "limitation_class": "two_step_nat_add_right_commutativity_absent",
+      "description": "True DISCH two-step action-commutativity law asserting add_acc(x) followed by add_acc(y) yields the same obsv_acc as add_acc(y) followed by add_acc(x); requires (acc + x) + y == (acc + y) + x.",
+      "expected_status": "UNKNOWN",
+      "ground_truth_kind": "PROOF_ACCEPTED",
+      "law_file": "spec/eval/controls/laws/L_ctrl_12.json",
+      "ground_truth_proof": "import Base\nimport ../../model/eval_ctrl_machine.bend as M\nimport ./LAWS.bend as Laws\n\ndef add_zero_right(k: Nat) -> {Nat.add(k, 0n) == k : Nat}:\n  match k:\n    case 0n:\n      {==}\n    case 1n+p:\n      (%add_zero_right(p) : {1n+Nat.add(p, 0n) == 1n+_ : Nat}\n      {==})\n\ndef add_succ_right(a: Nat, +b: Nat) -> {Nat.add(a, 1n+b) == 1n+Nat.add(a, b) : Nat}:\n  match a:\n    case 0n:\n      {==}\n    case 1n+p:\n      (%add_succ_right(p, b) : {1n+Nat.add(p, 1n+b) == 1n+_ : Nat}\n      {==})\n\ndef add_comm(+x: Nat, +y: Nat) -> {Nat.add(x, y) == Nat.add(y, x) : Nat}:\n  match x:\n    case 0n:\n      Equal.sym(Nat, Nat.add(y, 0n), y, add_zero_right(y))\n    case 1n+p:\n      Equal.trans(Nat, 1n+Nat.add(p, y), 1n+Nat.add(y, p), Nat.add(y, 1n+p),\n        (%add_comm(p, y) : {1n+Nat.add(p, y) == 1n+_ : Nat}; {==}),\n        Equal.sym(Nat, Nat.add(y, 1n+p), 1n+Nat.add(y, p), add_succ_right(y, p)))\n\ndef add_right_comm(a: Nat, +x: Nat, +y: Nat) -> {Nat.add(Nat.add(a, x), y) == Nat.add(Nat.add(a, y), x) : Nat}:\n  match a:\n    case 0n:\n      add_comm(x, y)\n    case 1n+p:\n      (%add_right_comm(p, x, y) : {1n+Nat.add(Nat.add(p, x), y) == 1n+_ : Nat}\n      {==})\n\ndef Laws.l_ctrl_12(s, r_s, x, y):\n  match s:\n    case M.HSt{stage, seq, mirror, acc, tier, locked, halted, alert, overflow, breach, diff_zero, parity, log}:\n      add_right_comm(acc, x, y)\n"
+    }
+  ]
+}

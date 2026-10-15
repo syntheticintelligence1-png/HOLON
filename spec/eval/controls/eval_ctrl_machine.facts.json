@@ -1,0 +1,374 @@
+{
+  "schema": "holon-facts/0.2",
+  "model": "eval_ctrl_machine",
+  "target": {
+    "repo": "eval-control",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "types": {},
+  "state": [
+    [
+      "stage",
+      "Nat"
+    ],
+    [
+      "seq",
+      "Nat"
+    ],
+    [
+      "mirror",
+      "Nat"
+    ],
+    [
+      "acc",
+      "Nat"
+    ],
+    [
+      "tier",
+      "Nat"
+    ],
+    [
+      "locked",
+      "Bool"
+    ],
+    [
+      "halted",
+      "Bool"
+    ],
+    [
+      "alert",
+      "Bool"
+    ],
+    [
+      "overflow",
+      "Bool"
+    ],
+    [
+      "breach",
+      "Bool"
+    ],
+    [
+      "diff_zero",
+      "Bool"
+    ],
+    [
+      "parity",
+      "Bool"
+    ],
+    [
+      "log",
+      "List<Obs>"
+    ]
+  ],
+  "initial": {
+    "stage": 0,
+    "seq": 0,
+    "mirror": 0,
+    "acc": 0,
+    "tier": 1,
+    "locked": false,
+    "halted": false,
+    "alert": false,
+    "overflow": false,
+    "breach": false,
+    "diff_zero": true,
+    "parity": false,
+    "log": []
+  },
+  "actions": [
+    {
+      "name": "advance_stage",
+      "principal": "any",
+      "inputs": [],
+      "guards": [],
+      "effects": {
+        "stage": [
+          "+",
+          "stage",
+          1
+        ],
+        "alert": [
+          "==",
+          "stage",
+          2
+        ],
+        "breach": [
+          "==",
+          "stage",
+          3
+        ]
+      }
+    },
+    {
+      "name": "bump_both",
+      "principal": "any",
+      "inputs": [],
+      "guards": [],
+      "effects": {
+        "seq": [
+          "+",
+          "seq",
+          1
+        ],
+        "mirror": [
+          "+",
+          "mirror",
+          1
+        ],
+        "diff_zero": [
+          "==",
+          [
+            "-",
+            [
+              "+",
+              "seq",
+              1
+            ],
+            [
+              "+",
+              "mirror",
+              1
+            ]
+          ],
+          0
+        ]
+      }
+    },
+    {
+      "name": "flip_twice",
+      "principal": "any",
+      "inputs": [],
+      "guards": [],
+      "effects": {
+        "parity": [
+          "!",
+          [
+            "!",
+            "parity"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "lock_restore",
+      "principal": "any",
+      "inputs": [],
+      "guards": [
+        {
+          "require": [
+            "!",
+            "locked"
+          ],
+          "reason": 1
+        }
+      ],
+      "effects": {
+        "locked": [
+          "&&",
+          "locked",
+          true
+        ]
+      }
+    },
+    {
+      "name": "add_sub_cancel",
+      "principal": "any",
+      "inputs": [
+        [
+          "x",
+          "Nat"
+        ]
+      ],
+      "guards": [],
+      "effects": {
+        "acc": [
+          "-",
+          [
+            "+",
+            "acc",
+            "x"
+          ],
+          "x"
+        ]
+      }
+    },
+    {
+      "name": "step_mirror",
+      "principal": "any",
+      "inputs": [
+        [
+          "x",
+          "Nat"
+        ]
+      ],
+      "guards": [],
+      "effects": {
+        "seq": [
+          "+",
+          "seq",
+          "x"
+        ],
+        "mirror": [
+          "+",
+          "x",
+          "seq"
+        ]
+      }
+    },
+    {
+      "name": "add_acc",
+      "principal": "any",
+      "inputs": [
+        [
+          "x",
+          "Nat"
+        ]
+      ],
+      "guards": [],
+      "effects": {
+        "acc": [
+          "+",
+          "acc",
+          "x"
+        ]
+      }
+    },
+    {
+      "name": "check_cap",
+      "principal": "any",
+      "inputs": [
+        [
+          "x",
+          "Nat"
+        ]
+      ],
+      "guards": [],
+      "effects": {
+        "overflow": [
+          "==",
+          "x",
+          7
+        ]
+      }
+    },
+    {
+      "name": "check_window",
+      "principal": "any",
+      "inputs": [
+        [
+          "x",
+          "Nat"
+        ],
+        [
+          "y",
+          "Nat"
+        ]
+      ],
+      "guards": [],
+      "effects": {
+        "halted": [
+          "&&",
+          [
+            "==",
+            "x",
+            6
+          ],
+          [
+            "==",
+            "y",
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "name": "promote_tier",
+      "principal": "any",
+      "inputs": [
+        [
+          "x",
+          "Nat"
+        ]
+      ],
+      "guards": [],
+      "effects": {
+        "tier": [
+          "?",
+          [
+            "&&",
+            [
+              "==",
+              "stage",
+              3
+            ],
+            [
+              "==",
+              "x",
+              6
+            ]
+          ],
+          2,
+          "tier"
+        ]
+      }
+    }
+  ],
+  "observers": {
+    "obsv_stage": {
+      "type": "Nat",
+      "body": "stage"
+    },
+    "obsv_seq": {
+      "type": "Nat",
+      "body": "seq"
+    },
+    "obsv_mirror": {
+      "type": "Nat",
+      "body": "mirror"
+    },
+    "obsv_acc": {
+      "type": "Nat",
+      "body": "acc"
+    },
+    "obsv_tier": {
+      "type": "Nat",
+      "body": "tier"
+    },
+    "obsv_locked": {
+      "type": "Bool",
+      "body": "locked"
+    },
+    "obsv_halted": {
+      "type": "Bool",
+      "body": "halted"
+    },
+    "obsv_alert": {
+      "type": "Bool",
+      "body": "alert"
+    },
+    "obsv_overflow": {
+      "type": "Bool",
+      "body": "overflow"
+    },
+    "obsv_breach": {
+      "type": "Bool",
+      "body": "breach"
+    },
+    "obsv_diff_zero": {
+      "type": "Bool",
+      "body": "diff_zero"
+    },
+    "obsv_parity": {
+      "type": "Bool",
+      "body": "parity"
+    },
+    "obsv_seq_eq_mirror": {
+      "type": "Bool",
+      "body": [
+        "==",
+        "seq",
+        "mirror"
+      ]
+    }
+  }
+}
