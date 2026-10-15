@@ -908,7 +908,10 @@ def main_theorem(law_id: str, status: str) -> str:
 
 
 def _attempted(status: str | None, kind: str) -> bool:
-    return status == "PROVED" or (status == "REFUTED" and kind in LC.KINDS)
+    """Rule L0: a PROVED or REFUTED law over a model some Lean emitter reads (LC.KINDS). A law whose facts no emitter
+    reads (kind other: I30's typed, I27's UNDO and I31's DISCH laws) is not attempted, PROVED or REFUTED, and its
+    record carries no lean4 entry (the human's answer at the move of the I43 prereg onto be95d6d)."""
+    return status in ("PROVED", "REFUTED") and kind in LC.KINDS
 
 
 def _stem(facts_path: Path, facts: dict, kind: str) -> str:
