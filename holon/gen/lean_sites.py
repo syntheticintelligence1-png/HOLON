@@ -491,21 +491,6 @@ def _join(parts: list, hit: bool):
     return out
 
 
-def _conds(n, out: list) -> list:
-    """The condition texts of a chain (every cond node), in pre-order."""
-    if n[0] == "cond":
-        out.append(n[1])
-        _conds(n[2], out)
-        _conds(n[3], out)
-    elif n[0] in ("and", "or"):
-        _conds(n[1], out)
-        _conds(n[2], out)
-    elif n[0] == "let":
-        out.append(n[2])
-        _conds(n[3], out)
-    return out
-
-
 class _Site:
     """The declarations of one site over a compiled document, and the chains its proofs mirror."""
 
@@ -790,9 +775,28 @@ def _fn_type(t: str) -> tuple[str, str] | None:
     return m.group(1), m.group(2)
 
 
+def _template(ctx: Ctx, tmpl: str, arg: str) -> str | None:
+    """A one-argument twin template with $0 the argument and ${param:<name>:<default>} the facts parameter (else
+    the default); None for any other placeholder."""
+    out = []
+    pos = 0
+    for m in re.finditer(r"\$\{param:(\w+):([^{}]*)\}|\$(\w+)", tmpl):
+        out.append(tmpl[pos:m.start()])
+        pos = m.end()
+        if m.group(1):
+            v = (ctx.facts.get("params") or {}).get(m.group(1), m.group(2))
+            if isinstance(v, bool) or not re.fullmatch(r"\d+", str(v)):
+                return None
+            out.append(str(v))
+        elif m.group(3) == "0":
+            out.append(arg)
+        else:
+            return None
+    return "".join(out) + tmpl[pos:]
+
+
 def _instances(ctx: Ctx) -> list[str]:
-    """wi_<p> for each modelled oracle parameter p that names a one-argument builtin of the library twin ($0 its
-    argument)."""
+    """wi_<p> for each modelled oracle parameter p that names a one-argument builtin of the library twin."""
     out = []
     builtins = (ctx.lib or {}).get("builtins") or {}
     lt = {"Nat": "Nat", "Bool": "Bool", "List<Nat>": "List Nat"}
@@ -800,9 +804,10 @@ def _instances(ctx: Ctx) -> list[str]:
         b = builtins.get(p)
         tmpl = b.get("lean") if isinstance(b, dict) else None
         ft = _fn_type(ty)
-        if not isinstance(tmpl, str) or ft is None or "$0" not in tmpl or re.search(r"\$(?!0)", tmpl):
+        body = _template(ctx, tmpl, "x_0") if isinstance(tmpl, str) and b.get("arity") in (1, None) else None
+        if body is None or ft is None:
             continue
-        out.append(f"def {ident('wi_', p)} : {lt[ft[0]]} → {lt[ft[1]]} :=\n  fun x_0 => {tmpl.replace('$0', 'x_0')}")
+        out.append(f"def {ident('wi_', p)} : {lt[ft[0]]} → {lt[ft[1]]} :=\n  fun x_0 => {body}")
     return out
 
 
@@ -860,11 +865,14 @@ _HELPERS = {
     "and": ("theorem holon_cg_and (x y : Bool) (hx : x = true) (hy : y = true) : (x && y) = true := by\n"
             "  cases x\n  · exact hx\n  · exact hy"),
 }
-# Bool to Prop (Lean core lemmas), each used when its trigger occurs in the conditions a leaf has passed
-_PROP_LEMMAS = (("Nat.ble_eq", "Nat.ble"), ("Nat.blt_eq", "Nat.blt"), ("Nat.beq_eq", "Nat.beq"),
-                ("Bool.and_eq_true", "&&"), ("Bool.or_eq_true", "||"), ("Bool.not_eq_true'", "!"),
-                ("Bool.and_eq_false_iff", "&&"), ("Bool.or_eq_false_iff", "||"), ("Bool.eq_false_iff", "bif"),
-                ("ne_eq", "bif"), ("beq_iff_eq", "=="), ("bne_iff_ne", "!="), ("decide_eq_true_eq", "decide"))
+# Bool to Prop (Lean core lemmas), each used when all its triggers occur in what a leaf has passed ("¬": a
+# condition that failed, whose equation is c = false)
+_NEG = "¬"
+_PROP_LEMMAS = (("Nat.ble_eq", ("Nat.ble",)), ("Nat.blt_eq", ("Nat.blt",)), ("Nat.beq_eq", ("Nat.beq",)),
+                ("Bool.and_eq_true", ("&&",)), ("Bool.or_eq_true", ("||",)), ("Bool.not_eq_true'", ("!",)),
+                ("Bool.and_eq_false_iff", ("&&", _NEG)), ("Bool.or_eq_false_iff", ("||", _NEG)),
+                ("Bool.eq_false_iff", (_NEG,)), ("ne_eq", (_NEG,)), ("beq_iff_eq", ("==",)), ("bne_iff_ne", ("!=",)),
+                ("decide_eq_true_eq", ("decide",)))
 
 
 class _Proof:
@@ -874,7 +882,7 @@ class _Proof:
     unfolded)."""
 
     def __init__(self, s: _Site, bool_defs: dict[str, str]):
-        self.s, self.bool_defs = s, bool_defs     # Lean name -> the body text the unfolding exposes
+        self.s, self.bool_defs = s, bool_defs     # Lean name -> the body the unfolding exposes
         self.used: set = set()
 
     def leaf(self, conds: list[str]) -> list[str]:
@@ -885,9 +893,9 @@ class _Proof:
             if n not in unfold:
                 unfold.append(n)
                 todo += [m for m in self.bool_defs if re.search(rf"\b{re.escape(m)}\b", self.bool_defs[n])]
-        text += " Nat.ble bif " + " ".join(self.bool_defs[n] for n in unfold)
+        text += " Nat.ble " + " ".join(self.bool_defs[n] for n in unfold)
         lemmas = [f"Model.{self.s.ro()}"] + [f"Model.{n}" for n in sorted(unfold)] + \
-            [lm for lm, trig in _PROP_LEMMAS if trig in text]
+            [lm for lm, trig in _PROP_LEMMAS if all(t in text for t in trig)]
         return [f"(simp only [{', '.join(lemmas)}] at *) <;> omega"]
 
     def tac(self, n, conds: list[str], d: int) -> list[str]:
@@ -905,10 +913,10 @@ class _Proof:
                 return [f"refine holon_cg_ct _ _ (fun h{d} => ?_)"] + self.tac(n[2], c, d + 1)
             if n[2] == ("lit", True):
                 self.used.add("cf")
-                return [f"refine holon_cg_cf _ _ (fun h{d} => ?_)"] + self.tac(n[3], c, d + 1)
+                return [f"refine holon_cg_cf _ _ (fun h{d} => ?_)"] + self.tac(n[3], c + [_NEG], d + 1)
             self.used.add("cb")
             return ([f"refine holon_cg_cb _ _ _ (fun h{d} => ?_) (fun h{d} => ?_)"]
-                    + self.focus(self.tac(n[2], c, d + 1)) + self.focus(self.tac(n[3], c, d + 1)))
+                    + self.focus(self.tac(n[2], c, d + 1)) + self.focus(self.tac(n[3], c + [_NEG], d + 1)))
         if k == "and":
             self.used.add("and")
             return ["refine holon_cg_and _ _ ?_ ?_"] + self.focus(self.tac(n[1], conds, d)) + \
@@ -960,12 +968,12 @@ def _qual_type(records: dict):
 
 
 def _bool_defs(ctx: Ctx) -> dict[str, str]:
-    """The document's Bool definitions: Lean name -> the Lean names its body calls (what unfolding it exposes)."""
-    defs = _defs(ctx.facts)
+    """The document's Bool definitions: Lean name -> its body as the model reads it (what unfolding it exposes)."""
     out = {}
-    for n, d in sorted(defs.items()):
+    for n, d in sorted(_defs(ctx.facts).items()):
         if d.get("type") == "Bool":
-            out[ctx.def_name(n)] = " ".join(ctx.def_name(c) for c in sorted(_calls(d.get("body"), set(defs), set())))
+            env = {p: (ident("l_", p), t) for p, t in d.get("params") or []}
+            out[ctx.def_name(n)] = ctx.expr(d.get("body"), env)[0]
     return out
 
 
@@ -1090,8 +1098,8 @@ def _counter(law: dict, record: dict, ctx: Ctx, stmts: list[tuple[str, str]]) ->
     parts = pv + [state, reach, _act(ctx, w.get(bs[1]["name"]))]
     counter = Theorem(names[0], stmts[0][1], "⟨" + ", ".join(parts) + ", by decide⟩")
     ws = [f"w_{i}" for i in range(len(parts) + 1)]
-    refuted = Theorem(names[1], stmts[1][1],
-                      f"fun h_all => match {names[0]} with\n  | ⟨{', '.join(ws)}⟩ => {ws[-1]} (h_all {' '.join(ws[:-1])})")
+    refuted = Theorem(names[1], stmts[1][1], f"fun h_all => match {names[0]} with\n"
+                                             f"  | ⟨{', '.join(ws)}⟩ => {ws[-1]} (h_all {' '.join(ws[:-1])})")
     return counter, refuted
 
 
