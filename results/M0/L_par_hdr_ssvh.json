@@ -46,6 +46,33 @@
     "seconds": 0.476
   },
   "compiled_sha256": "22cced9693768ccb489a503ae87d2b9b8ad6c1b763da6936878bc00a1cc4243a",
+  "concretization": {
+    "bound": {
+      "H": 8,
+      "rlimit": 200000000
+    },
+    "kind": "commit_class",
+    "length": 1,
+    "reason": "a commit at version 1 from R0 (rule K3, the M0 commit-path rule): sat at k = 1 (the first sat depth); unrealistic clock (> 2^64): block.timestamp up to 57896044618658097711785492504343953926634992332820282019728792003956564819968",
+    "result": "path",
+    "sides": {
+      "go": {
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      },
+      "solidity": {
+        "obstruction_observed": true,
+        "provenance": "public_schedule",
+        "status": "passed"
+      }
+    },
+    "target": null,
+    "tests": [
+      "gen/M3/tests/foundry/M0/L_par_hdr_ssvh.t.sol",
+      "gen/M3/tests/go/M0/L_par_hdr_ssvh_test.go"
+    ]
+  },
   "cone": [
     "Hdr",
     "enc_go_v1",

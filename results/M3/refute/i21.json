@@ -1,0 +1,49 @@
+{
+  "document": "i21",
+  "findings": {
+    "F-M2-42": {
+      "evm": {
+        "clock": null,
+        "largest_k": 8,
+        "length": null,
+        "path": null,
+        "reason": "no path in I40's environment (queue empty), not 'unreachable': the target's blob-hash gap contradicts E3's dense prefix on the same vector (by E3), so no k <= H has a path",
+        "verdict": "no_path"
+      }
+    },
+    "T1": {
+      "evm": {
+        "clock": null,
+        "largest_k": 0,
+        "length": null,
+        "path": null,
+        "reason": "solver unknown at k = 1 (memory_max_size 4096 MB (z3's own allocation count, registered in config/holon.json z3)); rlimit 200000000",
+        "verdict": "unknown"
+      },
+      "go": {
+        "reason": "out_of_scope: the node's derivation (Go) stopping at such a parent is node-side reachability; it needs I39's Go derivation and product machine, which does not exist yet",
+        "verdict": "out_of_scope"
+      }
+    },
+    "T2": {
+      "evm": {
+        "clock": null,
+        "largest_k": 0,
+        "length": null,
+        "path": null,
+        "reason": "solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
+        "verdict": "unknown"
+      },
+      "go": {
+        "reason": "out_of_scope: ParseBatch on the zero blob is the Go codec (I38) and derivation (I39)",
+        "verdict": "out_of_scope"
+      }
+    }
+  },
+  "out_of_scope": {
+    "F-M2-38": "the frozen enc_sol of facts/morph_header.json (a frozen-file question for the human, I11 Q1)",
+    "F-M2-39": "the Go frontend's infeasible path (a frontend defect, I38)",
+    "F-M2-40": "Hyp-ISubmitter (the Submitter registry is not extracted, I36)",
+    "F-M2-41": "HypZ (the Go compression codec, I38)"
+  }
+}
