@@ -166,10 +166,10 @@ def copy_tree(src: Path, dest: Path, parts=None) -> Path:
 
 
 def env_tools() -> dict:
-    """The environment every child tool runs in: Bend without telemetry, Go offline at the pinned toolchain."""
+    """The environment every child tool runs in: Bend without telemetry, Go at the pinned local toolchain with
+    read-only module files (modules come from the cache or the go.sum-verified proxy)."""
     e = dict(os.environ)
     e["BEND_NO_TELEMETRY"] = "1"
     e.setdefault("GOTOOLCHAIN", "local")
     e.setdefault("GOFLAGS", "-mod=readonly")
-    e.setdefault("GOPROXY", "off")
     return e

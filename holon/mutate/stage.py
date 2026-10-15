@@ -31,12 +31,13 @@ def _sol_deps_root(nm: Path) -> Path:
 def source_tree(unit: dict, dest: Path, checkout: Path, sol_deps: Path) -> tuple[Path, Path]:
     """Step 1: a scratch copy of the pinned checkout's tree parts, and the sol_deps node_modules to use (a scratch
     copy only when the unit mutates a unit of it), with the unit's edit applied. Returns (tree, node_modules)."""
-    tree = C.copy_tree(checkout, Path(dest) / "src")
+    dest = Path(dest).resolve()
+    tree = C.copy_tree(checkout, dest / "src")
     nm = Path(sol_deps)
     m = unit.get("mutant")
     if m is not None:
         if m["root"] == "sol_deps":
-            nm = Path(dest) / "sol_deps" / "node_modules"
+            nm = dest / "sol_deps" / "node_modules"
             shutil.copytree(sol_deps, nm, symlinks=False, ignore=shutil.ignore_patterns(".git"))
             target = nm / m["file"]
         else:
@@ -55,7 +56,8 @@ def holon_tree(root: Path, commit: str, dest: Path, tree: Path, nm: Path) -> Pat
     """Step 3's scratch HOLON tree: the tree of `commit` (git archive; gen/M3 left out) whose config names the scratch
     source tree (extract.sources, replay.morph) and sol_deps (replay.sol_deps and, for a scratch copy, its tree hash),
     with the Solidity sidecars' target.commit null (the frontends' marker for a tree that is not a pinned checkout)."""
-    dest = Path(dest)
+    dest = Path(dest).resolve()
+    tree, nm = Path(tree).resolve(), Path(nm).resolve()
     dest.mkdir(parents=True, exist_ok=True)
     spec = [f":(exclude){x}" for x in EXCLUDE]
     p = subprocess.run(["git", "-C", str(root), "archive", "--format=tar", commit, "--", ".", *spec],
@@ -86,6 +88,7 @@ def holon_tree(root: Path, commit: str, dest: Path, tree: Path, nm: Path) -> Pat
 
 def holon(htree: Path, args: list, timeout: int = 7200) -> subprocess.CompletedProcess:
     """`python -m holon <args>` inside a scratch HOLON tree (its own code and ROOT)."""
+    htree = Path(htree).resolve()
     env = C.env_tools()
     env["PYTHONPATH"] = str(htree)
     env.pop("HOLON_BUILD_DIR", None)
@@ -107,7 +110,7 @@ def extract(htree: Path, tree: Path, out: Path, log=None) -> tuple[dict, dict, d
     `holon extract go` with the Go config. Documents go to `out` and then replace the scratch HOLON tree's
     spec/M2/facts/*.extracted.json; a document whose extraction fails twice is removed there (no later step reads a
     stale document) and reported. Returns ({rel: text}, {rel: error}, {step: seconds})."""
-    out = Path(out)
+    htree, tree, out = Path(htree).resolve(), Path(tree).resolve(), Path(out).resolve()
     out.mkdir(parents=True, exist_ok=True)
     texts, errors, secs = {}, {}, {}
     facts = htree / C.FACTS2
