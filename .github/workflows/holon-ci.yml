@@ -1,0 +1,166 @@
+# HOLON merge checks (docs/handoff/DEVIN.md §6) in parallel on GitHub-hosted runners.
+# The toolchain is installed once, at the pins in config/holon.json (.github/ci/install_toolchain.sh,
+# every download sha256-checked), cached, and restored by each check job. No secrets are used.
+name: holon-ci
+
+on:
+  push:
+    branches: [claude/holon-v2-bend2-c6z3cd, 'claude/ci-**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: holon-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  NODE_VERSION: '22.22.0'
+  GO_VERSION: '1.24.7'
+  PYTHONHASHSEED: '0'
+  BEND_NO_TELEMETRY: '1'
+
+jobs:
+  toolchain:
+    name: toolchain (install + verify pins)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      key: ${{ steps.key.outputs.key }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Cache key from the pins
+        id: key
+        run: echo "key=holon-toolchain-v1-${{ hashFiles('config/holon.json', 'tools/install_bend.sh', '.github/ci/install_toolchain.sh') }}" >> "$GITHUB_OUTPUT"
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        id: restore
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Install the pinned toolchain
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: bash .github/ci/install_toolchain.sh
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: steps.restore.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+
+  check:
+    name: ${{ matrix.name }}
+    needs: toolchain
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ matrix.timeout }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: prereg-M2
+            timeout: 30
+            run: python -m holon audit prereg --milestone M2
+          - name: prereg-M3
+            timeout: 30
+            run: python -m holon audit prereg --milestone M3
+          - name: freeze-check
+            timeout: 15
+            run: python tools/freeze.py check
+          - name: frozen-suite
+            timeout: 120
+            run: HOLON_REPLAY=1 python -m unittest discover -s tests -t . -v
+          - name: gate-M0
+            timeout: 90
+            run: python -m holon gate --milestone M0
+            report: results/M0/gate_report.json
+          - name: gate-M1
+            timeout: 90
+            run: python -m holon gate --milestone M1
+            report: results/M1/gate_report.json
+          - name: gate-M2
+            timeout: 120
+            run: python -m holon gate --milestone M2
+            report: results/M2/gate_report.json
+          - name: gate-M3-partial
+            timeout: 120
+            run: python -m holon gate --milestone M3 --checks G3,G5,G8,G9,G11,G11V,GEVID --report "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
+            report: "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0  # prereg audit and G2 read the history
+          persist-credentials: false  # the checks run repository code; they need no token
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q -r requirements-dev.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: ${{ needs.toolchain.outputs.key }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: ${{ matrix.name }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/ci-out"
+          set -o pipefail
+          ${{ matrix.run }} 2>&1 | tee "$RUNNER_TEMP/ci-out/${{ matrix.name }}.log"
+      - name: Test summary
+        if: always() && matrix.name == 'frozen-suite'
+        run: |
+          grep -E '^(Ran [0-9]+ tests|OK|FAILED)' "$RUNNER_TEMP/ci-out/frozen-suite.log" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Gate summary
+        if: always() && matrix.report
+        run: python .github/ci/gate_summary.py "${{ matrix.report }}"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: ${{ matrix.name }}
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/ci-out/
+            results/*/gate_report*.json
+            results/*/gate_timing.json
