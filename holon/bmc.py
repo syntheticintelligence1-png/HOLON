@@ -1781,6 +1781,33 @@ class Unrolled:
         return out
 
     # ---------------------------------------------------------- decoding a model
+    def preimages(self, sess, spec: dict) -> list[str]:
+        """The contents the model gives the hash terms of a function (spec: {"fn", "byte0"?, "lengths"?}), as hex,
+        sorted: what the path hashed (e.g. the bytes whose hash it stores)."""
+        hs = [h for h in self.q.hashes if h.fn == spec.get("fn") and h.const is None and h.src_word is None]
+        if not hs:
+            return []
+        for h in hs:
+            self.q.digest(h)
+        nd = getattr(self, "sent_defs", None)
+        if nd is not None and len(self.q.defs) > nd:
+            sess.send("".join(f"(define-fun {n} () {srt} {e})\n" for n, srt, e in self.q.defs[nd:]))
+            self.sent_defs = len(self.q.defs)
+        ns = sess.values(sorted({h.n for h in hs}))
+        out = set()
+        for h in hs:
+            n = ns[h.n]
+            if spec.get("lengths") and n not in spec["lengths"]:
+                continue
+            d = self.q.digest(h)
+            if not d:
+                continue
+            raw = sess.values([d])[d].to_bytes(h.nmax, "big")[:n]
+            if "byte0" in spec and (not raw or raw[0] != int(spec["byte0"])):
+                continue
+            out.add("0x" + raw.hex())
+        return sorted(out)
+
     def decode(self, sess) -> list[dict]:
         out = []
         for i, st in enumerate(self.steps):
@@ -1893,8 +1920,9 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
                         f"{' ' + sess.guard if sess.guard else ''}")
                 if res == "sat":
                     path = u.decode(sess)
+                    seen = {"observed": u.preimages(sess, target["observe"])} if target.get("observe") else {}
                     return {"verdict": "path", "length": k, "path": path, "largest_k": k, "queries": queries,
-                            "approx": sorted(approx),
+                            "approx": sorted(approx), **seen,
                             "reason": f"sat at k = {k} (the first sat depth){'' if full else f', cone levels <= {lv}'}"}
                 if res != "unsat":
                     why = sess.guard or sess.reason()

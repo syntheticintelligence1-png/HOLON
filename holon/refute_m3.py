@@ -112,7 +112,60 @@ def questions(root: Path, side: dict, env: dict) -> list[dict]:
                                                                "width": int(b["width"])}})
     for rid in side["unfalsified_reaches"]:
         qs.append({"id": f"reach:{rid}", "target": {"kind": "check", "action": rid.split("#")[0], "check": rid}})
+    for v, t in sorted(cc_targets(root, env).items()):
+        qs.append({"id": f"cc:v{v}", "target": t})
     return qs
+
+
+def cc_plans(root: Path, env: dict) -> list[dict]:
+    """Rule K3's records (a codec witness whose claim calls the Solidity encoder env["commit_class"] names): per record
+    the witness's version, the cells where the two sides differ, and the Solidity side's bytes there."""
+    cc = env.get("commit_class")
+    if not cc:
+        return []
+    sides = i4_sides(root)
+    out = []
+    for key, rec in sorted(records(root).items()):
+        if rec.get("status") != "REFUTED" or witness_kind(rec) != "codec":
+            continue
+        law = law_of(root, key)
+        ss = dict(sides.get(key) or {})
+        if kind_of(rec, law, ss) != "commit_class":
+            continue
+        claim = ((law.get("statement") or {}).get("claim") or {}).get("eq") or []
+        i = next((j for j, c in enumerate(claim) if isinstance(c, dict) and c.get("call") == cc["encoder"]["function"]),
+                 None)
+        if i is None:
+            continue
+        var = ((claim[i].get("args") or [{}])[0] or {}).get("var")
+        w = (rec.get("witness") or {}).get(var) or {}
+        if cc["witness_field"] not in w:
+            continue
+        v = int(str(w[cc["witness_field"]]), 0)
+        a = bytes.fromhex(rec["difference"]["lhs"][2:])
+        b = bytes.fromhex(rec["difference"]["rhs"][2:])
+        sol = a if i == 0 else b
+        cells = [j for j in range(max(len(a), len(b))) if j >= len(a) or j >= len(b) or a[j] != b[j]]
+        out.append({"record": key, "version": v, "cells": cells, "sol": "0x" + sol.hex()})
+    return out
+
+
+def cc_targets(root: Path, env: dict) -> dict:
+    """{version: the BMC step target of a commit at that version from R0, observing the encoder's sink}."""
+    cc = env.get("commit_class")
+    plans = cc_plans(root, env)
+    if not plans:
+        return {}
+    enc = load(root / cc["encoder"]["document"])["functions"][cc["encoder"]["function"]]
+    out = {}
+    for v in sorted({p["version"] for p in plans}):
+        lay = (enc.get("layouts") or {}).get(str(v))
+        observe = {"fn": (enc.get("sink") or {}).get("op"), "byte0": v}
+        if lay is not None:
+            observe["lengths"] = [len(lay)]
+        out[v] = {"kind": "step", "actions": list(cc["actions"]), "cond": ["==", cc["version_param"], v],
+                  "observe": observe}
+    return out
 
 
 def qfile(qid: str) -> str:
@@ -273,6 +326,7 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
     rep_p = root / "replay" / "M3" / "refute" / "report.json"
     rep = load(rep_p) if rep_p.is_file() else {"records": {}}
     H, rl = int(side["bmc"]["H"]), int(side["solver"]["rlimit_per_query"])
+    cc_version = {pl["record"]: pl["version"] for pl in cc_plans(root, env)}
     out, filt = {}, {}
     for key, rec in sorted(recs.items()):
         if rec.get("status") != "REFUTED":
@@ -293,8 +347,18 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
         if kind == "go_only":
             conc["reason"] = "node-level public path needs I39"
         elif kind == "commit_class":
-            conc.update(result="path", length=1, reason="a commit of the witness's version from R0 (the M0 commit-path "
-                                                          "rule): the replay's public_schedule side, when there is one")
+            v = cc_version.get(key)
+            r = cached(root, f"cc:v{v}") if v is not None else None
+            if r is not None:
+                r = confirmed(root, "cc", f"v{v}", r)
+            conc.update(bound={"H": H, "rlimit": rl})
+            if r is None:
+                conc.update(result="unknown", reason="BMC on the witness's commit was not run within the I40 build's "
+                                                      "time box")
+            else:
+                conc.update(result=r["verdict"], length=r["length"],
+                            reason=f"a commit at version {v} from R0 (rule K3, the M0 commit-path rule): {r['reason']}")
+                path = r["path"] if r["verdict"] == "path" else None
         elif kind == "direct":
             conc.update(result="path", length=trace_length(rec),
                         reason="the witness is a schedule of public calls (its replay is the record's side)")
@@ -328,7 +392,7 @@ def with_calls(root: Path, kind: str, ident: str, path):
     rp = root / REPLAY
     if not path or not rp.is_file():
         return path
-    e = (load(rp).get({"reach": "reaches", "i21": "i21", "target": "targets"}[kind]) or {}).get(ident)
+    e = (load(rp).get({"reach": "reaches", "i21": "i21", "target": "targets", "cc": "commit_class"}[kind]) or {}).get(ident)
     if not e or len(e.get("calls") or []) != len(path):
         return path
     out = []
@@ -346,7 +410,7 @@ def confirmed(root: Path, kind: str, ident: str, r: dict) -> dict:
     if r["verdict"] != "path":
         return r
     rp = root / REPLAY
-    e = (load(rp).get({"reach": "reaches", "i21": "i21", "target": "targets"}[kind]) or {}).get(ident) \
+    e = (load(rp).get({"reach": "reaches", "i21": "i21", "target": "targets", "cc": "commit_class"}[kind]) or {}).get(ident) \
         if rp.is_file() else None
     if e is None:
         return dict(r, verdict="unknown", length=None, path=None,
@@ -678,8 +742,31 @@ def bmc_paths(root: Path, side: dict, env: dict) -> list[tuple[str, dict, dict]]
     out = []
     for q in questions(root, side, env):
         r = cached(root, q["id"])
-        if r is not None and r["verdict"] == "path" and r.get("path"):
+        if r is not None and r["verdict"] == "path" and r.get("path") and not q["id"].startswith("cc:"):
             out.append((q["id"], q, r))
+    return out
+
+
+def cc_items(root: Path, env: dict) -> list[dict]:
+    """Rule K3's emitted Foundry tests: per commit_class record with a BMC commit path at its version, the path and
+    the model's stored headers that show the obstruction (the Solidity side's bytes at every cell where the sides
+    differ); the test asserts the commit succeeds and stores the hash of one of them."""
+    out = []
+    for pl in cc_plans(root, env):
+        qid = f"cc:v{pl['version']}"
+        r = cached(root, qid)
+        if r is None or r["verdict"] != "path" or not r.get("path"):
+            continue
+        sol = bytes.fromhex(pl["sol"][2:])
+        cands = []
+        for h in r.get("observed") or []:
+            b = bytes.fromhex(h[2:])
+            if len(b) == len(sol) and all(b[j] == sol[j] for j in pl["cells"]):
+                cands.append(h)
+        d, _, lid = pl["record"].rpartition("/")
+        from .gen.foundry import sanitize
+        out.append(dict(pl, qid=qid, path=r["path"], stored=cands, name=sanitize(f"{d}_{lid}"),
+                        test=str(TESTS / "foundry" / d.replace("/", "_") / f"{lid}.t.sol")))
     return out
 
 
@@ -709,9 +796,136 @@ def emit_tests(root: Path, side: dict, env: dict) -> dict:
         files[rel] = FG.test_text(name, r["path"], exp, deploy, note=f"BMC path of {qid}")
         manifest.append({"path": str(rel), "kind": "foundry", "record": qid, "side": "solidity",
                          "steps": len(r["path"])})
+    for it in cc_items(root, env):
+        files[Path(it["test"])] = FG.test_text(it["name"], it["path"], ["ok"] * len(it["path"]), deploy,
+                                               note=f"rule K3 for {it['record']}: a commit at version {it['version']} "
+                                                    f"from R0 ({it['qid']})", stored=it["stored"])
+        manifest.append({"path": it["test"], "kind": "foundry", "record": it["record"], "side": "solidity",
+                         "steps": len(it["path"])})
+    import argparse
+    from .replay import morph_path
+    plans = go_plans(root)
+    for rp, text in go_texts(root, plans, morph_path(argparse.Namespace(), root)).items():
+        files[Path(rp)] = text
+    for pl in plans:
+        manifest.append({"path": pl["path"], "kind": "go", "record": pl["record"], "side": "go", "steps": 1})
     manifest.sort(key=lambda x: x["path"])
     files[TESTS / "manifest.json"] = dumps({"tests": manifest})
     return files
+
+
+def _go_target(root: Path, doc: dict, fn: dict, checkout: Path | None = None):
+    """(package dir, receiver type, method, {witness field: Go field path}) of a Go encoder of a codec document, or
+    None when the extraction names no method of the witness's record type (a free function, or a method of another
+    type taking the record otherwise)."""
+    import re
+    from .gen import gotest as GT
+    if "carriers" in doc:                      # a linked component: the Go document names the method
+        mo = GT.method_of(fn.get("source") or "")
+        car = (doc.get("carriers") or {}).get(fn.get("from")) or {}
+        if mo is None or car.get("type") != f"{mo[0]}.{mo[1]}" or car.get("kind") != "record":
+            return None
+        gdoc = load(root / fn["document"])
+        pk = next((p for p in (gdoc.get("go") or {}).get("packages") or [] if p.get("path") == mo[0]), None)
+        if pk is None:
+            return None
+        return pk["dir"], mo[1], mo[2], None
+    src = fn.get("source") or []
+    if len(src) != 1 or not re.fullmatch(r"\w+\.\w+", str(src[0].get("fn") or "")):
+        return None
+    t, mname = src[0]["fn"].split(".")
+    ty = (doc.get("types") or {}).get(fn.get("from")) or {}
+    fmap = {}
+    for f in ty.get("fields") or []:
+        g = str(f.get("go") or "").split(" ")[0]
+        if re.fullmatch(r"[A-Z]\w*", g):
+            fmap[f["name"]] = g
+    return str(Path(src[0]["file"]).parent), t, mname, fmap
+
+
+def go_plans(root: Path) -> list[dict]:
+    """A Go test per Go library side of a REFUTED codec record whose Go encoder is a method of the witness's record:
+    the record built from the witness, the method called, its bytes asserted equal to the model's Go side
+    (the record's difference: lhs for the claim's first argument)."""
+    from .gen import gotest as GT
+    out = []
+    for key, rec in sorted(records(root).items()):
+        if rec.get("status") != "REFUTED" or witness_kind(rec) != "codec":
+            continue
+        law = law_of(root, key)
+        claim = ((law.get("statement") or {}).get("claim") or {}).get("eq")
+        if not (isinstance(claim, list) and len(claim) == 2) or not law.get("facts"):
+            continue
+        doc = load(root / law["facts"])
+        for i, c in enumerate(claim):
+            if not isinstance(c, dict) or "call" not in c or len(c.get("args") or []) != 1:
+                continue
+            fn = (doc.get("functions") or {}).get(c["call"]) or {}
+            if not str(fn.get("lang") or "").startswith("go"):
+                continue
+            tgt = _go_target(root, doc, fn)
+            var = (c["args"][0] or {}).get("var")
+            w = (rec.get("witness") or {}).get(var)
+            if tgt is None or not isinstance(w, dict):
+                continue
+            pdir, recv, meth, fmap = tgt
+            fields = {(fmap or {}).get(k, k if fmap is None else None): v for k, v in w.items()}
+            fields = {k: v for k, v in fields.items() if k}
+            fields = {k: fields[k] for k in sorted(fields)}
+            d, _, lid = key.rpartition("/")
+            name = GT.sanitize(f"{d}_{lid}")
+            out.append({"record": key, "law_id": lid, "name": name, "pkg_dir": pdir, "recv": recv, "method": meth,
+                        "fields": fields, "want": rec["difference"]["lhs" if i == 0 else "rhs"],
+                        "other": rec["difference"]["rhs" if i == 0 else "lhs"],
+                        "path": str(TESTS / "go" / d.replace("/", "_") / f"{lid}_test.go")})
+    return out
+
+
+def go_texts(root: Path, plans: list[dict], checkout: Path) -> dict:
+    from .gen import gotest as GT
+    out = {}
+    for p in plans:
+        out[p["path"]] = GT.test_text(GT.package_name(checkout, p["pkg_dir"]), p["name"], p["recv"], p["method"],
+                                      p["fields"], p["want"],
+                                      note=f"{p['record']}: the Go side of the witness ({p['recv']}.{p['method']})")
+    return out
+
+
+def go_sides(root: Path) -> dict:
+    """Run every emitted Go test in a scratch workspace of the pinned checkout: {record: {"go": side}}."""
+    import argparse
+    import shutil
+    import tempfile
+    from .gen import gotest as GT
+    from .replay import morph_path
+    checkout = morph_path(argparse.Namespace(), root)
+    plans = go_plans(root)
+    if not plans:
+        return {}
+    texts = go_texts(root, plans, checkout)
+    go = shutil.which("go") or "/usr/local/go/bin/go"
+    work = Path(tempfile.mkdtemp(prefix="holon-refute-go-"))
+    out = {}
+    try:
+        for pdir in sorted({p["pkg_dir"] for p in plans}):
+            ws = work / "ws"
+            mod = GT.workspace(checkout, ws, pdir)
+            mine = [p for p in plans if p["pkg_dir"] == pdir]
+            for p in mine:
+                (ws / pdir / f"holon_{p['name']}_test.go").write_text(texts[p["path"]])
+            rel = str(Path(pdir).relative_to(mod))
+            for p in mine:
+                r = GT.run(go, ws, mod, rel, p["name"])
+                passed = bool(r["passed"])
+                out.setdefault(p["record"], {})["go"] = {
+                    "status": "passed" if passed else "failed", "provenance": "library_api",
+                    "obstruction_observed": passed and (r["out"] or "").lower() != str(p["other"]).lower(),
+                    "test": p["path"], "outcomes": [r["out"]], "calls_agree": passed, "command": r["command"],
+                    "observed": f"{p['recv']}.{p['method']}() = {r['out']}" if r["out"] else r["tail"][-300:]}
+            shutil.rmtree(ws, ignore_errors=True)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+    return out
 
 
 def replay_stage(root: Path, side: dict, env: dict) -> dict:
@@ -720,24 +934,43 @@ def replay_stage(root: Path, side: dict, env: dict) -> dict:
     every step with the answers the real dependencies gave; see docs/iterations/I40.md)."""
     m = BMC.Machine(load(root / side["documents"][0]), side["smt"]["byte_length_max"])
     items = bmc_paths(root, side, env)
+    ccs = cc_items(root, env)
     rep = {"toolchain": None, "morph_commit": (load(root / side["documents"][0]).get("target") or {}).get("commit"),
-           "records": {}, "reaches": {}, "i21": {}, "targets": {}, "toys": {}}
-    if not items:
+           "records": {}, "reaches": {}, "i21": {}, "targets": {}, "commit_class": {}, "toys": {}}
+    for key, ss in sorted(go_sides(root).items()):
+        rep["records"].setdefault(key, {"sides": {}})["sides"].update(ss)
+    if not items and not ccs:
         return rep
     rr = RealRollup(root, side)
     try:
-        res = rr.run([r["path"] for _qid, _q, r in items])
+        res = rr.run([r["path"] for _qid, _q, r in items] + [it["path"] for it in ccs])
         rep["toolchain"] = {"forge": rr.tc.get("forge"), "solc": rr.tc.get("solc")}
         # the emitted tests, run in the same project (their outcome is the test's own assertion)
         from .refute3 import run_tests
         emitted = {}
+        names = {str(it["test"]): it["name"] for it in ccs}
         for rp, text in emit_tests(root, side, env).items():
             if str(rp).endswith(".t.sol"):
-                emitted[Path(rp).name[:-len(".t.sol")]] = text
+                emitted[names.get(str(rp), Path(rp).name[:-len(".t.sol")])] = text
         tests_out = run_tests(rr.proj, rr.tc, emitted) if emitted else {}
     finally:
         rr.close()
-    for (qid, q, r), x in zip(items, res):
+    for it, x in zip(ccs, res[len(items):]):
+        t = tests_out.get(it["name"]) or {}
+        agree = x["outcomes"] == ["ok"] * len(it["path"])
+        passed = bool(t.get("passed")) and agree
+        rep["commit_class"][f"v{it['version']}"] = {"status": "passed" if agree else "failed",
+                                                    "outcomes": x["outcomes"], "expected": ["ok"] * len(it["path"]),
+                                                    "calls": x["calls"], "calls_agree": agree}
+        rep["records"].setdefault(it["record"], {"sides": {}})["sides"]["solidity"] = {
+            "status": "passed" if passed else "failed", "provenance": "public_schedule",
+            "obstruction_observed": passed and bool(it["stored"]), "test": it["test"], "outcomes": x["outcomes"],
+            "calls_agree": agree, "emitted_test_passed": bool(t.get("passed")),
+            "observed": (f"a commit at version {it['version']} from R0: {' / '.join(x['outcomes'])}; the model's header "
+                         f"with the Solidity side's bytes at cells {it['cells'][0]}..{it['cells'][-1]} "
+                         f"({len(it['stored'])} candidate(s)) is "
+                         f"{'stored' if t.get('passed') else 'not stored (or the test failed)'} on the real contract")}
+    for (qid, q, r), x in zip(items, res[:len(items)]):
         exp = expected_outcomes(m, q, r["path"])
         agree = x["outcomes"] == exp
         t = tests_out.get(test_name(qid)) or {}
