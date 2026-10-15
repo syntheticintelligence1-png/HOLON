@@ -39,6 +39,10 @@ The declarations (inside namespace Model), for a site with x = site_name(site id
 
 A site's name comes from its site id (rule R7: site_<where>_<x8>), never from a law id.
 
+Use: entries, sidecar = inputs(root, milestone, facts_rel) (laws/<M>/DERIVATION.json and the sort sites sidecar);
+section(ctx, entries, sidecar) gives lean_machine.model its site declarations; a site law's file takes
+theorems(cls, law, status, record, ctx, statements, site_entry(entries, law_id)).
+
 Classes: coercion_guard (a PROVED site law: every entry point's chain mirrored step by step, each hit's obligation
 from the conditions the evaluation has passed, by omega; Reach is never used) and counter_decide (a REFUTED site
 law: the record's witness, its oracle instance as a Lean function, its state as a run from s0 with an explicit
@@ -852,6 +856,14 @@ def inputs(root: Path, milestone: str, facts_rel: str) -> tuple[list[dict], dict
     sp = root / "spec" / milestone / "lib" / "sort_sites.json"
     sp = sp if sp.is_file() else root / "spec" / "M2" / "lib" / "sort_sites.json"
     return entries, json.loads(sp.read_text(encoding="utf-8"))
+
+
+def site_entry(entries: list[dict], law_id: str) -> dict:
+    """The derivation entry of a site law among a document's entries (inputs()[0]): theorems' entry argument."""
+    es = [e for e in entries if e.get("law_id") == law_id]
+    if len(es) != 1:
+        raise Unsupported(f"{len(es)} derivation entries for {law_id}")
+    return es[0]
 
 
 # ------------------------------------------------------------------------------------------------ coercion_guard
