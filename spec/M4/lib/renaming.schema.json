@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidates": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "entry": {
+      "pattern": "^c[0-9]{2}$",
+      "type": "string"
+    },
+    "files": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "language": {
+            "enum": [
+              "go",
+              "solidity"
+            ]
+          },
+          "path": {
+            "type": "string"
+          },
+          "renamed_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "language",
+          "sha256",
+          "renamed_sha256"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "files_by_ast": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "files_by_tokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "isomorphic": {
+      "const": true
+    },
+    "map_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "on_changed_lines": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "renamed": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "roundtrip": {
+      "const": true
+    },
+    "seed": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "entry",
+    "seed",
+    "files",
+    "renamed",
+    "candidates",
+    "on_changed_lines",
+    "files_by_ast",
+    "files_by_tokens",
+    "roundtrip",
+    "isomorphic",
+    "map_sha256"
+  ],
+  "title": "I48 renaming record of one corpus entry (gen/eval/renaming/<entry>.json); the map itself is not committed",
+  "type": "object"
+}

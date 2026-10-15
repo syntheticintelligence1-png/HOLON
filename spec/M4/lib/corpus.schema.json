@@ -1,0 +1,413 @@
+{
+  "$defs": {
+    "entry": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate": {
+          "pattern": "^[a-z0-9-]+:[0-9]{3,}$",
+          "type": "string"
+        },
+        "description": {
+          "pattern": "\\S",
+          "type": "string"
+        },
+        "files": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "fix_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        },
+        "fix_date": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^c[0-9]{2}$",
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "label": {
+          "enum": [
+            "PAR",
+            "UNDO",
+            "NAT",
+            "SYM",
+            "FACT",
+            "SORT",
+            "DISCH",
+            "OWN",
+            "none"
+          ]
+        },
+        "labels": {
+          "additionalProperties": false,
+          "properties": {
+            "a": {
+              "additionalProperties": false,
+              "properties": {
+                "justification": {
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "primary": {
+                  "enum": [
+                    "PAR",
+                    "UNDO",
+                    "NAT",
+                    "SYM",
+                    "FACT",
+                    "SORT",
+                    "DISCH",
+                    "OWN",
+                    "none"
+                  ]
+                },
+                "secondary": {
+                  "enum": [
+                    "PAR",
+                    "UNDO",
+                    "NAT",
+                    "SYM",
+                    "FACT",
+                    "SORT",
+                    "DISCH",
+                    "OWN",
+                    "none",
+                    null
+                  ]
+                },
+                "subform": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "primary",
+                "secondary",
+                "subform",
+                "justification"
+              ],
+              "type": "object"
+            },
+            "adjudicated": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "justification": {
+                      "pattern": "\\S",
+                      "type": "string"
+                    },
+                    "primary": {
+                      "enum": [
+                        "PAR",
+                        "UNDO",
+                        "NAT",
+                        "SYM",
+                        "FACT",
+                        "SORT",
+                        "DISCH",
+                        "OWN",
+                        "none"
+                      ]
+                    },
+                    "secondary": {
+                      "enum": [
+                        "PAR",
+                        "UNDO",
+                        "NAT",
+                        "SYM",
+                        "FACT",
+                        "SORT",
+                        "DISCH",
+                        "OWN",
+                        "none",
+                        null
+                      ]
+                    },
+                    "subform": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "primary",
+                    "secondary",
+                    "subform",
+                    "justification"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "b": {
+              "additionalProperties": false,
+              "properties": {
+                "justification": {
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "primary": {
+                  "enum": [
+                    "PAR",
+                    "UNDO",
+                    "NAT",
+                    "SYM",
+                    "FACT",
+                    "SORT",
+                    "DISCH",
+                    "OWN",
+                    "none"
+                  ]
+                },
+                "secondary": {
+                  "enum": [
+                    "PAR",
+                    "UNDO",
+                    "NAT",
+                    "SYM",
+                    "FACT",
+                    "SORT",
+                    "DISCH",
+                    "OWN",
+                    "none",
+                    null
+                  ]
+                },
+                "subform": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "primary",
+                "secondary",
+                "subform",
+                "justification"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "a",
+            "b",
+            "adjudicated"
+          ],
+          "type": "object"
+        },
+        "languages": {
+          "items": {
+            "enum": [
+              "go",
+              "solidity"
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "prefix_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        },
+        "repo": {
+          "pattern": "^https://github\\.com/",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "advisory",
+                  "postmortem",
+                  "audit",
+                  "bounty",
+                  "issue"
+                ]
+              },
+              "url": {
+                "pattern": "^https://",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "url"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "system": {
+          "type": "string"
+        },
+        "title": {
+          "pattern": "\\S",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "candidate",
+        "system",
+        "kind",
+        "repo",
+        "title",
+        "description",
+        "sources",
+        "fix_commit",
+        "prefix_commit",
+        "fix_date",
+        "files",
+        "languages",
+        "labels",
+        "label"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "agreement": {
+      "additionalProperties": false,
+      "properties": {
+        "ci95": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "confusion": {
+          "type": "object"
+        },
+        "kappa": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "n": {
+          "type": "integer"
+        },
+        "p_e": {
+          "type": "number"
+        },
+        "p_o": {
+          "type": "number"
+        },
+        "se": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "n",
+        "p_o",
+        "p_e",
+        "kappa",
+        "se",
+        "ci95",
+        "confusion"
+      ],
+      "type": "object"
+    },
+    "candidates_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "corpus_version": {
+      "const": "holon-eval-corpus/0.1"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/entry"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "labellers": {
+      "additionalProperties": false,
+      "properties": {
+        "a": {
+          "type": "string"
+        },
+        "adjudicator": {
+          "type": "string"
+        },
+        "b": {
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "same",
+            "other"
+          ]
+        },
+        "model_tags": {
+          "additionalProperties": false,
+          "properties": {
+            "a": {
+              "const": "A"
+            },
+            "adjudicator": {
+              "const": "A"
+            },
+            "b": {
+              "const": "B"
+            }
+          },
+          "required": [
+            "a",
+            "b",
+            "adjudicator"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "adjudicator",
+        "family",
+        "model_tags"
+      ],
+      "type": "object"
+    },
+    "protocol_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "rule_sheet_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "corpus_version",
+    "protocol_sha256",
+    "rule_sheet_sha256",
+    "candidates_sha256",
+    "entries",
+    "agreement",
+    "labellers"
+  ],
+  "title": "I48 corpus (spec/eval/corpus.json): the selected defects with their two labels, the adjudicated label and the agreement",
+  "type": "object"
+}
