@@ -118,6 +118,83 @@ CATALOG = [
      _LE % ("1n", "Nat.sub(a, b)"), "nat2"),
 ]
 
+# ---- I42 (Theory core I: 2-categorical whiskering, horizontal/vertical pasting, domain-localized naturality,
+# and spanning-tree cycle-basis reduction). Emitted into M3+ core libraries alongside CATALOG.
+THEORY_CORE_I: list[tuple[str, list[tuple[str, str, str]], list[tuple[str, str]], str, str]] = [
+    ("core_whisker_pre",
+     [("-", "X", "Type"), ("-", "A", "Type"), ("-", "B", "Type"),
+      ("", "r", "X -> A"), ("-", "p", "A -> B"), ("-", "q", "A -> B")],
+     [("e", "@a:A -> {p(a) == q(a) : B}")],
+     "@x:X -> {p(r(x)) == q(r(x)) : B}", "core_whisker"),
+    ("core_whisker_post",
+     [("-", "A", "Type"), ("-", "B", "Type"), ("-", "Y", "Type"),
+      ("-", "p", "A -> B"), ("-", "q", "A -> B"), ("-", "l", "B -> Y")],
+     [("e", "@a:A -> {p(a) == q(a) : B}")],
+     "@a:A -> {l(p(a)) == l(q(a)) : Y}", "core_whisker"),
+    ("core_whisker_both",
+     [("-", "X", "Type"), ("-", "A", "Type"), ("-", "B", "Type"), ("-", "Y", "Type"),
+      ("", "r", "X -> A"), ("-", "p", "A -> B"), ("-", "q", "A -> B"), ("-", "l", "B -> Y")],
+     [("e", "@a:A -> {p(a) == q(a) : B}")],
+     "@x:X -> {l(p(r(x))) == l(q(r(x))) : Y}", "core_whisker"),
+    ("core_walk_2",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"),
+      ("-", "f1", "A -> B"), ("-", "f2", "A -> B"), ("-", "g1", "B -> C"), ("-", "g2", "B -> C")],
+     [("e1", "@a:A -> {f1(a) == f2(a) : B}"),
+      ("e2", "@a:A -> {g1(f2(a)) == g2(f2(a)) : C}")],
+     "@+a:A -> {g1(f1(a)) == g2(f2(a)) : C}", "core_paste"),
+    ("core_walk_3",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"), ("-", "D", "Type"),
+      ("-", "f1", "A -> B"), ("-", "f2", "A -> B"), ("-", "g1", "B -> C"), ("-", "g2", "B -> C"),
+      ("-", "h1", "C -> D"), ("-", "h2", "C -> D")],
+     [("e1", "@a:A -> {f1(a) == f2(a) : B}"),
+      ("e2", "@a:A -> {g1(f2(a)) == g2(f2(a)) : C}"),
+      ("e3", "@a:A -> {h1(g2(f2(a))) == h2(g2(f2(a))) : D}")],
+     "@+a:A -> {h1(g1(f1(a))) == h2(g2(f2(a))) : D}", "core_paste"),
+    ("core_square_paste_h",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"),
+      ("", "f1", "A -> B"), ("-", "f2", "A -> B"), ("-", "g1", "B -> C"), ("-", "g2", "B -> C")],
+     [("e1", "@a:A -> {f1(a) == f2(a) : B}"),
+      ("e2", "@b:B -> {g1(b) == g2(b) : C}")],
+     "@+a:A -> {g1(f1(a)) == g2(f2(a)) : C}", "core_paste"),
+    ("core_square_paste_v",
+     [("-", "A", "Data"), ("-", "B", "Type"),
+      ("-", "p", "A -> B"), ("-", "q", "A -> B"), ("-", "s", "A -> B")],
+     [("e1", "@a:A -> {p(a) == q(a) : B}"),
+      ("e2", "@a:A -> {q(a) == s(a) : B}")],
+     "@+a:A -> {p(a) == s(a) : B}", "core_paste"),
+    ("core_domain_local_pre",
+     [("-", "Z", "Type"), ("-", "X", "Type"), ("-", "A", "Type"), ("-", "B", "Type"),
+      ("", "u", "Z -> X"), ("-", "r", "X -> A"), ("-", "p", "A -> B"), ("-", "q", "A -> B")],
+     [("e", "@x:X -> {p(r(x)) == q(r(x)) : B}")],
+     "@z:Z -> {p(r(u(z))) == q(r(u(z))) : B}", "core_domain_local"),
+    ("core_domain_local_post",
+     [("-", "X", "Type"), ("-", "A", "Type"), ("-", "B", "Type"), ("-", "Y", "Type"),
+      ("-", "r", "X -> A"), ("-", "p", "A -> B"), ("-", "q", "A -> B"), ("-", "l", "B -> Y")],
+     [("e", "@x:X -> {p(r(x)) == q(r(x)) : B}")],
+     "@x:X -> {l(p(r(x))) == l(q(r(x))) : Y}", "core_domain_local"),
+    ("core_domain_local_paste",
+     [("-", "X", "Data"), ("-", "A", "Type"), ("-", "B", "Type"),
+      ("-", "r", "X -> A"), ("-", "p", "A -> B"), ("-", "q", "A -> B"), ("-", "s", "A -> B")],
+     [("e1", "@x:X -> {p(r(x)) == q(r(x)) : B}"),
+      ("e2", "@x:X -> {q(r(x)) == s(r(x)) : B}")],
+     "@+x:X -> {p(r(x)) == s(r(x)) : B}", "core_domain_local"),
+    ("core_tree_unique_2",
+     [("-", "A", "Data"), ("-", "B", "Type"), ("-", "C", "Type"),
+      ("-", "f", "A -> B"), ("-", "g1", "B -> C"), ("-", "g2", "B -> C"), ("-", "t", "A -> C")],
+     [("e1", "@a:A -> {g1(f(a)) == t(a) : C}"),
+      ("e2", "@a:A -> {g2(f(a)) == t(a) : C}")],
+     "@+a:A -> {g1(f(a)) == g2(f(a)) : C}", "core_basis"),
+    ("core_cycle_basis_2",
+     [("-", "X", "Data"), ("-", "A", "Type"), ("-", "B", "Type"), ("-", "Y", "Type"),
+      ("", "r", "X -> A"), ("-", "t", "A -> B"), ("-", "e", "A -> B"),
+      ("-", "l", "B -> Y"), ("-", "obs", "X -> Y")],
+     [("cyc", "@a:A -> {t(a) == e(a) : B}"),
+      ("tree_law", "@x:X -> {l(t(r(x))) == obs(x) : Y}")],
+     "@+x:X -> {l(e(r(x))) == obs(x) : Y}", "core_basis"),
+]
+
+_THEORY_CORE_I_CLASSES = ("core_whisker", "core_paste", "core_domain_local", "core_basis")
+
 HELPERS = ["def core_efq(-P: Type, x: Empty) -> P:", "  match x:", "",
            "def core_is_true(b: Bool) -> Type:", "  match b:", "    case True{}:", "      Unit", "    case False{}:", "      Empty", ""]
 
@@ -127,7 +204,8 @@ _CASES = {"nat1": [list(c) for c in itertools.product(*_NATC[:1])],
           "nat2": [list(c) for c in itertools.product(*_NATC[:2])],
           "nat3": [list(c) for c in itertools.product(*_NATC[:3])],
           "bool1": [["True{}"], ["False{}"]],
-          "compose": [[]], "absurd": [[]]}
+          "compose": [[]], "absurd": [[]],
+          "core_whisker": [[]], "core_paste": [[]], "core_domain_local": [[]], "core_basis": [[]]}
 _PRED = {"1n+p": "p", "1n+q": "q", "1n+r": "r"}
 MAX_COMPOSE = 12   # composition candidates per case
 
@@ -410,13 +488,17 @@ def compositions(goal: str, sources: list, lemmas: list, prefix: str, depth: int
     return out
 
 
-def laws_text() -> str:
+def laws_text(include_theory_core_i: bool = False) -> str:
     out = ["# GENERATED by holon.gen.core: the core library's statements (Q14a: proofs come from per-class",
            "# generators, never by hand). Import core/PROOF.bend, never this file alone.", "import Base", ""]
-    for name, bs, hs, claim, _ in CATALOG:
+    entries = CATALOG + (THEORY_CORE_I if include_theory_core_i else [])
+    for name, bs, hs, claim, _ in entries:
         out.append(f"law {name}:")
         out += [f"  for {mo}{n}: {t}" for mo, n, t in bs] + [f"  for {n}: {t}" for n, t in hs] + [f"  {claim}", ""]
     return "\n".join(out).rstrip() + "\n"
+
+
+_PI_EQ_CLAIM = re.compile(r"^@(\+?)(\w+):(\S+)\s*->\s*\{(.+)\s*==\s*(.+)\s*:\s*(.+)\}$")
 
 
 class _Lemma:
@@ -428,7 +510,7 @@ class _Lemma:
         self._cands: dict = {}
         k = _SCRUT.get(self.cls, 0)
         taken = {n for _, n, _ in self.bs[k:]} | {n for n, _ in self.hs}
-        if taken & set(_PRED.values()):
+        if k and (taken & set(_PRED.values())):
             raise ValueError(f"core: {self.name} binds a predecessor name {sorted(taken & set(_PRED.values()))}")
 
     def candidates(self, case: list) -> list[str]:
@@ -437,7 +519,57 @@ class _Lemma:
             self._cands[key] = self._candidates(case)
         return self._cands[key]
 
+    def _theory_core_i_candidates(self) -> list[str]:
+        m = _PI_EQ_CLAIM.fullmatch(self.claim.strip())
+        if not m:
+            raise ValueError(f"core: unsupported Theory core I claim shape: {self.claim!r}")
+        v_mod, v, _v_ty, lhs, rhs, ret_ty = m.groups()
+        unerased = [n for mo, n, _ in self.bs if mo == ""]
+        if self.cls == "core_whisker":
+            hn = self.hs[0][0]
+            last_fn = self.bs[-1][1]
+            if lhs.startswith(f"{last_fn}("):
+                arg = f"{unerased[0]}({v})" if unerased else v
+                return [f"{v} => (%{hn}({arg}) : {{{lhs} == {last_fn}(_) : {ret_ty}}}; {{==}})"]
+            return [f"{v} => {hn}({unerased[0]}({v}))"]
+        if self.cls == "core_paste":
+            if len(self.hs) == 3:
+                e1, e2, e3 = (h[0] for h in self.hs)
+                g1, h1 = self.bs[6][1], self.bs[8][1]
+                return [f"{v_mod}{v} => (%{e3}({v}) : {{{lhs} == _ : {ret_ty}}}; "
+                        f"(%{e2}({v}) : {{{lhs} == {h1}(_) : {ret_ty}}}; "
+                        f"(%{e1}({v}) : {{{lhs} == {h1}({g1}(_)) : {ret_ty}}}; {{==}})))"]
+            e1, e2 = (h[0] for h in self.hs)
+            if len(self.bs) == 5:
+                return [f"{v_mod}{v} => (%{e2}({v}) : {{{lhs} == _ : {ret_ty}}}; {e1}({v}))"]
+            if unerased:
+                f1, g2 = unerased[0], self.bs[-1][1]
+                return [f"{v_mod}{v} => (%{e1}({v}) : {{{lhs} == {g2}(_) : {ret_ty}}}; {e2}({f1}({v})))"]
+            g1 = self.bs[-2][1]
+            return [f"{v_mod}{v} => (%{e2}({v}) : {{{lhs} == _ : {ret_ty}}}; "
+                    f"(%{e1}({v}) : {{{lhs} == {g1}(_) : {ret_ty}}}; {{==}}))"]
+        if self.cls == "core_domain_local":
+            if len(self.hs) == 2:
+                e1, e2 = (h[0] for h in self.hs)
+                return [f"{v_mod}{v} => (%{e2}({v}) : {{{lhs} == _ : {ret_ty}}}; {e1}({v}))"]
+            hn = self.hs[0][0]
+            if unerased:
+                return [f"{v} => {hn}({unerased[0]}({v}))"]
+            last_fn = self.bs[-1][1]
+            return [f"{v} => (%{hn}({v}) : {{{lhs} == {last_fn}(_) : {ret_ty}}}; {{==}})"]
+        if self.cls == "core_basis":
+            e1, e2 = (h[0] for h in self.hs)
+            if unerased:
+                r_fn, l_fn = unerased[0], self.bs[-2][1]
+                return [f"{v_mod}{v} => (%{e1}({r_fn}({v})) : {{{l_fn}(_) == {rhs} : {ret_ty}}}; {e2}({v}))"]
+            t_fn = self.bs[-1][1]
+            return [f"{v_mod}{v} => (%{{(%{e2}({v}) : {{_ == {rhs} : {ret_ty}}}; {{==}}) : "
+                    f"{{{t_fn}({v}) == {rhs} : {ret_ty}}}}} : {{{lhs} == _ : {ret_ty}}}; {e1}({v}))"]
+        raise ValueError(f"core: unknown Theory core I class: {self.cls!r}")
+
     def _candidates(self, case: list) -> list[str]:
+        if self.cls in _THEORY_CORE_I_CLASSES:
+            return self._theory_core_i_candidates()
         if self.cls == "absurd":
             return ["(%Equal.sym(Bool, False{}, True{}, e) : core_is_true(_); Unit{})"]
         k = len(case)
@@ -479,7 +611,7 @@ class _Lemma:
 
     def body(self, choice: list[int], indent: str = "  ") -> tuple[list[str], list[int]]:
         """Lines of the body and, per case, the index of the line holding its chosen term."""
-        if self.cls in ("absurd", "compose"):
+        if self.cls in ("absurd", "compose", *_THEORY_CORE_I_CLASSES):
             return [indent + self.candidates([])[choice[0]]], [0]
         k = len(self.cases[0])
         scrut = " ".join(n for _, n, _ in self.bs[:k])
@@ -497,8 +629,9 @@ class _Lemma:
         return len(self.candidates(self.cases[i]))
 
 
-def lemmas(prefix: str) -> list[_Lemma]:
-    return [_Lemma(e, prefix, CATALOG[:i]) for i, e in enumerate(CATALOG)]
+def lemmas(prefix: str, include_theory_core_i: bool = False) -> list[_Lemma]:
+    entries = CATALOG + (THEORY_CORE_I if include_theory_core_i else [])
+    return [_Lemma(e, prefix, entries[:i]) for i, e in enumerate(entries)]
 
 
 def _proof_text(lems: list, choices: dict, omit: str | None = None) -> tuple[str, dict]:
@@ -559,16 +692,23 @@ def solve(work: Path, cfg: dict | None = None, max_tries: int = 600) -> dict:
     raise RuntimeError("core: search budget exhausted")
 
 
-def emit(gen_dir: Path, omit: str | None = None, cfg: dict | None = None) -> list[str]:
+def emit(gen_dir: Path, omit: str | None = None, cfg: dict | None = None,
+         include_theory_core_i: bool | None = None) -> list[str]:
     """Write <gen_dir>/core/{LAWS.bend, PROOF.bend}; `omit` leaves that law unproved (the G4 canary)."""
     gen_dir = Path(gen_dir)
-    choices = solve(gen_dir, cfg)
+    if include_theory_core_i is None:
+        include_theory_core_i = any(re.fullmatch(r"M([3-9]|\d\d+)", part) for part in gen_dir.parts)
+    choices = dict(solve(gen_dir, cfg))
+    if include_theory_core_i:
+        for name, *_ in THEORY_CORE_I:
+            choices[name] = [0]
     d = gen_dir / "core"
     d.mkdir(parents=True, exist_ok=True)
-    (d / "LAWS.bend").write_text(laws_text())
-    text, _ = _proof_text(lemmas("Laws."), choices, omit)
+    (d / "LAWS.bend").write_text(laws_text(include_theory_core_i=include_theory_core_i))
+    text, _ = _proof_text(lemmas("Laws.", include_theory_core_i=include_theory_core_i), choices, omit)
     (d / "PROOF.bend").write_text(text)
-    return [e[0] for e in CATALOG]
+    entries = CATALOG + (THEORY_CORE_I if include_theory_core_i else [])
+    return [e[0] for e in entries]
 
 
 def paste_text(gen_dir: Path, cfg: dict | None = None) -> str:

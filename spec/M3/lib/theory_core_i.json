@@ -1,0 +1,1638 @@
+{
+  "doc": "I42 prereg sidecar (BUILD_PLAN I42 'Theory core I: whiskering, domain locality, spanning-tree basis sufficiency' and whitepaper section 6.1-6.2). Computed at prereg by tests_m3/_i42.py::theory_core_i_doc independently of holon/ from the frozen inputs listed with their sha256. Records: (1) the 12 polymorphic Bend 2 laws in THEORY_CORE_I (3 whiskering, 4 2-cell walk/square pasting, 3 domain-locality lifting, 2 spanning-tree cycle-basis reduction); (2) the spanning-tree cycle-basis sufficiency specifications for the M2 morph_header diagram (E = 4, V = 3, kappa = 1, rank = 2; 3 laws) and the M3 header_length diagram (E = 20, V = 17, kappa = 1, rank = 4; 5 laws); (3) the 34 congruence-derived round-trip laws (2 M0 + 32 M3) proved via core_whisker_post without record unpacking, and their line-count reduction against the open_refl baseline; (4) the 7 negative canaries across all 4 theorem groups, all predicted REFUTED under both bend and bend --verdict. The build never reads this file; the tests recompute and compare against it.",
+  "theory_core_i_version": "holon-i42-theory-core-i/0.1",
+  "inputs": [
+    {
+      "path": "gen/M0/L_par_hdr_v0/LAWS.bend",
+      "sha256": "37d3102541821c18a397667a783fc6d9b65387e7c20f716af75aecbf3d365bb6"
+    },
+    {
+      "path": "gen/M0/L_par_hdr_v1/LAWS.bend",
+      "sha256": "a12f2cfab78eaedaa0449b2a9b3339b6b2bea064d28da3ff7ff74d25c1083f4f"
+    },
+    {
+      "path": "gen/M0/L_rt_go_v0/LAWS.bend",
+      "sha256": "09b318930ac14579dac22ee63c56e4601554f242ebbf995d7ded30242d61d86c"
+    },
+    {
+      "path": "gen/M0/L_rt_go_v1/LAWS.bend",
+      "sha256": "bc483a021abb36cdc1204022ee63dc56ed0c5f3d8611ba56579e189f4209da71"
+    },
+    {
+      "path": "gen/M0/model/morph_header.bend",
+      "sha256": "a4c3fef09dd69d202ebffe8cdea675a715c22a9cb21012e3ed49c500f69ac5b7"
+    },
+    {
+      "path": "gen/M2/diagram/morph_header.json",
+      "sha256": "09328ea201531f9ca64af30d0af1e0513e16d931d09d5758a85cc7a76ad4110b"
+    },
+    {
+      "path": "gen/M3/diagram/header_length.json",
+      "sha256": "b9b8cb0b6d42face2309af7bb25556e052844587f82301e6a6ded3c370faba23"
+    },
+    {
+      "path": "gen/M3/model/header_length.bend",
+      "sha256": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492"
+    },
+    {
+      "path": "spec/M3/lib/par_basis.json",
+      "sha256": "66284258cc23f6d7f8c37938fab0f45d131dc080b0185fe67108d7ede8f3f64f"
+    },
+    {
+      "path": "spec/M3/lib/par_lossy.json",
+      "sha256": "461c61568690ae818c8f284dd68647e6c073e66e7db1253dd1d16f6220885155"
+    }
+  ],
+  "theory_core_i": {
+    "count": 12,
+    "groups": {
+      "whisker": [
+        "core_whisker_pre",
+        "core_whisker_post",
+        "core_whisker_both"
+      ],
+      "pasting": [
+        "core_walk_2",
+        "core_walk_3",
+        "core_square_paste_h",
+        "core_square_paste_v"
+      ],
+      "domain_locality": [
+        "core_domain_local_pre",
+        "core_domain_local_post",
+        "core_domain_local_paste"
+      ],
+      "basis_sufficiency": [
+        "core_tree_unique_2",
+        "core_cycle_basis_2"
+      ]
+    },
+    "laws": [
+      {
+        "law_id": "core_whisker_pre",
+        "group": "whisker",
+        "proof_class": "core_whisker",
+        "predicted_status": "PROVED",
+        "doc": "pre-whiskering: if p(a) == q(a) for all a:A, then p(r(x)) == q(r(x)) for all x:X",
+        "binders": [
+          [
+            "-X",
+            "Type"
+          ],
+          [
+            "-A",
+            "Type"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "r",
+            "X -> A"
+          ],
+          [
+            "-p",
+            "A -> B"
+          ],
+          [
+            "-q",
+            "A -> B"
+          ]
+        ],
+        "hyps": [
+          [
+            "e",
+            "@a:A -> {p(a) == q(a) : B}"
+          ]
+        ],
+        "claim": "@x:X -> {p(r(x)) == q(r(x)) : B}",
+        "proof": "x => e(r(x))"
+      },
+      {
+        "law_id": "core_whisker_post",
+        "group": "whisker",
+        "proof_class": "core_whisker",
+        "predicted_status": "PROVED",
+        "doc": "post-whiskering: if p(a) == q(a) for all a:A, then l(p(a)) == l(q(a)) for all a:A",
+        "binders": [
+          [
+            "-A",
+            "Type"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-Y",
+            "Type"
+          ],
+          [
+            "-p",
+            "A -> B"
+          ],
+          [
+            "-q",
+            "A -> B"
+          ],
+          [
+            "-l",
+            "B -> Y"
+          ]
+        ],
+        "hyps": [
+          [
+            "e",
+            "@a:A -> {p(a) == q(a) : B}"
+          ]
+        ],
+        "claim": "@a:A -> {l(p(a)) == l(q(a)) : Y}",
+        "proof": "a => (%e(a) : {l(p(a)) == l(_) : Y}; {==})"
+      },
+      {
+        "law_id": "core_whisker_both",
+        "group": "whisker",
+        "proof_class": "core_whisker",
+        "predicted_status": "PROVED",
+        "doc": "two-sided whiskering: if p(a) == q(a) for all a:A, then l(p(r(x))) == l(q(r(x))) for all x:X",
+        "binders": [
+          [
+            "-X",
+            "Type"
+          ],
+          [
+            "-A",
+            "Type"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-Y",
+            "Type"
+          ],
+          [
+            "r",
+            "X -> A"
+          ],
+          [
+            "-p",
+            "A -> B"
+          ],
+          [
+            "-q",
+            "A -> B"
+          ],
+          [
+            "-l",
+            "B -> Y"
+          ]
+        ],
+        "hyps": [
+          [
+            "e",
+            "@a:A -> {p(a) == q(a) : B}"
+          ]
+        ],
+        "claim": "@x:X -> {l(p(r(x))) == l(q(r(x))) : Y}",
+        "proof": "x => (%e(r(x)) : {l(p(r(x))) == l(_) : Y}; {==})"
+      },
+      {
+        "law_id": "core_walk_2",
+        "group": "pasting",
+        "proof_class": "core_paste",
+        "predicted_status": "PROVED",
+        "doc": "2-step walk pasting: step 2-cells f1(a) == f2(a) and g1(f2(a)) == g2(f2(a)) along a 2-step walk compose to g1(f1(a)) == g2(f2(a))",
+        "binders": [
+          [
+            "-A",
+            "Data"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-C",
+            "Type"
+          ],
+          [
+            "-f1",
+            "A -> B"
+          ],
+          [
+            "-f2",
+            "A -> B"
+          ],
+          [
+            "-g1",
+            "B -> C"
+          ],
+          [
+            "-g2",
+            "B -> C"
+          ]
+        ],
+        "hyps": [
+          [
+            "e1",
+            "@a:A -> {f1(a) == f2(a) : B}"
+          ],
+          [
+            "e2",
+            "@a:A -> {g1(f2(a)) == g2(f2(a)) : C}"
+          ]
+        ],
+        "claim": "@+a:A -> {g1(f1(a)) == g2(f2(a)) : C}",
+        "proof": "+a => (%e2(a) : {g1(f1(a)) == _ : C}; (%e1(a) : {g1(f1(a)) == g1(_) : C}; {==}))"
+      },
+      {
+        "law_id": "core_walk_3",
+        "group": "pasting",
+        "proof_class": "core_paste",
+        "predicted_status": "PROVED",
+        "doc": "3-step walk pasting: step 2-cells along a 3-step walk compose to h1(g1(f1(a))) == h2(g2(f2(a)))",
+        "binders": [
+          [
+            "-A",
+            "Data"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-C",
+            "Type"
+          ],
+          [
+            "-D",
+            "Type"
+          ],
+          [
+            "-f1",
+            "A -> B"
+          ],
+          [
+            "-f2",
+            "A -> B"
+          ],
+          [
+            "-g1",
+            "B -> C"
+          ],
+          [
+            "-g2",
+            "B -> C"
+          ],
+          [
+            "-h1",
+            "C -> D"
+          ],
+          [
+            "-h2",
+            "C -> D"
+          ]
+        ],
+        "hyps": [
+          [
+            "e1",
+            "@a:A -> {f1(a) == f2(a) : B}"
+          ],
+          [
+            "e2",
+            "@a:A -> {g1(f2(a)) == g2(f2(a)) : C}"
+          ],
+          [
+            "e3",
+            "@a:A -> {h1(g2(f2(a))) == h2(g2(f2(a))) : D}"
+          ]
+        ],
+        "claim": "@+a:A -> {h1(g1(f1(a))) == h2(g2(f2(a))) : D}",
+        "proof": "+a => (%e3(a) : {h1(g1(f1(a))) == _ : D}; (%e2(a) : {h1(g1(f1(a))) == h1(_) : D}; (%e1(a) : {h1(g1(f1(a))) == h1(g1(_)) : D}; {==})))"
+      },
+      {
+        "law_id": "core_square_paste_h",
+        "group": "pasting",
+        "proof_class": "core_paste",
+        "predicted_status": "PROVED",
+        "doc": "horizontal 2-cell pasting: if f1 == f2 on A and g1 == g2 on B, then g1(f1(a)) == g2(f2(a))",
+        "binders": [
+          [
+            "-A",
+            "Data"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-C",
+            "Type"
+          ],
+          [
+            "f1",
+            "A -> B"
+          ],
+          [
+            "-f2",
+            "A -> B"
+          ],
+          [
+            "-g1",
+            "B -> C"
+          ],
+          [
+            "-g2",
+            "B -> C"
+          ]
+        ],
+        "hyps": [
+          [
+            "e1",
+            "@a:A -> {f1(a) == f2(a) : B}"
+          ],
+          [
+            "e2",
+            "@b:B -> {g1(b) == g2(b) : C}"
+          ]
+        ],
+        "claim": "@+a:A -> {g1(f1(a)) == g2(f2(a)) : C}",
+        "proof": "+a => (%e1(a) : {g1(f1(a)) == g2(_) : C}; e2(f1(a)))"
+      },
+      {
+        "law_id": "core_square_paste_v",
+        "group": "pasting",
+        "proof_class": "core_paste",
+        "predicted_status": "PROVED",
+        "doc": "vertical 2-cell pasting (transitivity of parallel walks): if p == q and q == s on A, then p == s on A",
+        "binders": [
+          [
+            "-A",
+            "Data"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-p",
+            "A -> B"
+          ],
+          [
+            "-q",
+            "A -> B"
+          ],
+          [
+            "-s",
+            "A -> B"
+          ]
+        ],
+        "hyps": [
+          [
+            "e1",
+            "@a:A -> {p(a) == q(a) : B}"
+          ],
+          [
+            "e2",
+            "@a:A -> {q(a) == s(a) : B}"
+          ]
+        ],
+        "claim": "@+a:A -> {p(a) == s(a) : B}",
+        "proof": "+a => (%e2(a) : {p(a) == _ : B}; e1(a))"
+      },
+      {
+        "law_id": "core_domain_local_pre",
+        "group": "domain_locality",
+        "proof_class": "core_domain_local",
+        "predicted_status": "PROVED",
+        "doc": "domain-local pre-restriction: a law on domain r(x) lifts along any refinement u: Z -> X",
+        "binders": [
+          [
+            "-Z",
+            "Type"
+          ],
+          [
+            "-X",
+            "Type"
+          ],
+          [
+            "-A",
+            "Type"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "u",
+            "Z -> X"
+          ],
+          [
+            "-r",
+            "X -> A"
+          ],
+          [
+            "-p",
+            "A -> B"
+          ],
+          [
+            "-q",
+            "A -> B"
+          ]
+        ],
+        "hyps": [
+          [
+            "e",
+            "@x:X -> {p(r(x)) == q(r(x)) : B}"
+          ]
+        ],
+        "claim": "@z:Z -> {p(r(u(z))) == q(r(u(z))) : B}",
+        "proof": "z => e(u(z))"
+      },
+      {
+        "law_id": "core_domain_local_post",
+        "group": "domain_locality",
+        "proof_class": "core_domain_local",
+        "predicted_status": "PROVED",
+        "doc": "domain-local post-whiskering: if p(r(x)) == q(r(x)) on domain r, then l(p(r(x))) == l(q(r(x))) on domain r",
+        "binders": [
+          [
+            "-X",
+            "Type"
+          ],
+          [
+            "-A",
+            "Type"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-Y",
+            "Type"
+          ],
+          [
+            "-r",
+            "X -> A"
+          ],
+          [
+            "-p",
+            "A -> B"
+          ],
+          [
+            "-q",
+            "A -> B"
+          ],
+          [
+            "-l",
+            "B -> Y"
+          ]
+        ],
+        "hyps": [
+          [
+            "e",
+            "@x:X -> {p(r(x)) == q(r(x)) : B}"
+          ]
+        ],
+        "claim": "@x:X -> {l(p(r(x))) == l(q(r(x))) : Y}",
+        "proof": "x => (%e(x) : {l(p(r(x))) == l(_) : Y}; {==})"
+      },
+      {
+        "law_id": "core_domain_local_paste",
+        "group": "domain_locality",
+        "proof_class": "core_domain_local",
+        "predicted_status": "PROVED",
+        "doc": "domain-local vertical pasting: two parallel laws on the same domain r compose on r",
+        "binders": [
+          [
+            "-X",
+            "Data"
+          ],
+          [
+            "-A",
+            "Type"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-r",
+            "X -> A"
+          ],
+          [
+            "-p",
+            "A -> B"
+          ],
+          [
+            "-q",
+            "A -> B"
+          ],
+          [
+            "-s",
+            "A -> B"
+          ]
+        ],
+        "hyps": [
+          [
+            "e1",
+            "@x:X -> {p(r(x)) == q(r(x)) : B}"
+          ],
+          [
+            "e2",
+            "@x:X -> {q(r(x)) == s(r(x)) : B}"
+          ]
+        ],
+        "claim": "@+x:X -> {p(r(x)) == s(r(x)) : B}",
+        "proof": "+x => (%e2(x) : {p(r(x)) == _ : B}; e1(x))"
+      },
+      {
+        "law_id": "core_tree_unique_2",
+        "group": "basis_sufficiency",
+        "proof_class": "core_basis",
+        "predicted_status": "PROVED",
+        "doc": "spanning-tree path reduction: two edges g1, g2 reducing to the same tree path t on f(a) are equal on f(a)",
+        "binders": [
+          [
+            "-A",
+            "Data"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-C",
+            "Type"
+          ],
+          [
+            "-f",
+            "A -> B"
+          ],
+          [
+            "-g1",
+            "B -> C"
+          ],
+          [
+            "-g2",
+            "B -> C"
+          ],
+          [
+            "-t",
+            "A -> C"
+          ]
+        ],
+        "hyps": [
+          [
+            "e1",
+            "@a:A -> {g1(f(a)) == t(a) : C}"
+          ],
+          [
+            "e2",
+            "@a:A -> {g2(f(a)) == t(a) : C}"
+          ]
+        ],
+        "claim": "@+a:A -> {g1(f(a)) == g2(f(a)) : C}",
+        "proof": "+a => (%{(%e2(a) : {_ == g2(f(a)) : C}; {==}) : {t(a) == g2(f(a)) : C}} : {g1(f(a)) == _ : C}; e1(a))"
+      },
+      {
+        "law_id": "core_cycle_basis_2",
+        "group": "basis_sufficiency",
+        "proof_class": "core_basis",
+        "predicted_status": "PROVED",
+        "doc": "fundamental-cycle basis sufficiency: a non-tree edge e with cycle generator t == e and tree round-trip law l(t(r(x))) == obs(x) satisfies l(e(r(x))) == obs(x)",
+        "binders": [
+          [
+            "-X",
+            "Data"
+          ],
+          [
+            "-A",
+            "Type"
+          ],
+          [
+            "-B",
+            "Type"
+          ],
+          [
+            "-Y",
+            "Type"
+          ],
+          [
+            "r",
+            "X -> A"
+          ],
+          [
+            "-t",
+            "A -> B"
+          ],
+          [
+            "-e",
+            "A -> B"
+          ],
+          [
+            "-l",
+            "B -> Y"
+          ],
+          [
+            "-obs",
+            "X -> Y"
+          ]
+        ],
+        "hyps": [
+          [
+            "cyc",
+            "@a:A -> {t(a) == e(a) : B}"
+          ],
+          [
+            "tree_law",
+            "@x:X -> {l(t(r(x))) == obs(x) : Y}"
+          ]
+        ],
+        "claim": "@+x:X -> {l(e(r(x))) == obs(x) : Y}",
+        "proof": "+x => (%cyc(r(x)) : {l(_) == obs(x) : Y}; tree_law(x))"
+      }
+    ]
+  },
+  "basis_families": {
+    "header": {
+      "diagram": {
+        "diagram_path": "gen/M2/diagram/morph_header.json",
+        "E": 4,
+        "V": 3,
+        "kappa": 1,
+        "rank": 2,
+        "tree_edges": [
+          "CODEC.dec_go",
+          "CODEC.enc_go_v0"
+        ],
+        "non_tree_edges": [
+          "CODEC.enc_go_v1",
+          "CODEC.enc_sol"
+        ],
+        "fundamental_cycles": [
+          {
+            "edge": "CODEC.enc_go_v1",
+            "src": "Header",
+            "dst": "Bytes",
+            "tree_path": [
+              "CODEC.enc_go_v0"
+            ],
+            "cycle_length": 2
+          },
+          {
+            "edge": "CODEC.enc_sol",
+            "src": "Header",
+            "dst": "Bytes",
+            "tree_path": [
+              "CODEC.enc_go_v0"
+            ],
+            "cycle_length": 2
+          }
+        ]
+      },
+      "basis_generators": [
+        "L_par_hdr_v0",
+        "L_par_hdr_v1",
+        "L_rt_go_v0"
+      ],
+      "laws": [
+        {
+          "law_id": "basis_sufficient_header_v0",
+          "family": "header",
+          "predicted_status": "PROVED",
+          "core_lemma": "core_whisker_post",
+          "basis_generators": [
+            "L_par_hdr_v0"
+          ],
+          "doc": "non-tree walk dec_go(enc_sol(pin_h(h))) reduces to spanning-tree walk dec_go(enc_go_v0(pin_h(h))) via L_par_hdr_v0 and core_whisker_post"
+        },
+        {
+          "law_id": "basis_sufficient_header_v1",
+          "family": "header",
+          "predicted_status": "PROVED",
+          "core_lemma": "core_whisker_post",
+          "basis_generators": [
+            "L_par_hdr_v1"
+          ],
+          "doc": "parallel walk dec_go(enc_sol(pin_h(h))) reduces to dec_go(enc_go_v1(pin_h(h))) via L_par_hdr_v1 and core_whisker_post"
+        },
+        {
+          "law_id": "basis_sufficient_header",
+          "family": "header",
+          "predicted_status": "PROVED",
+          "core_lemma": "core_cycle_basis_2",
+          "basis_generators": [
+            "L_par_hdr_v0",
+            "L_par_hdr_v1",
+            "L_rt_go_v0"
+          ],
+          "doc": "any parallel encoder walk enc_alt in the M2 header diagram reduces along the unique spanning-tree path dec_go o enc_tree to the cycle-basis generator par_gen and tree round-trip law rt_gen"
+        }
+      ]
+    },
+    "header_length": {
+      "diagram": {
+        "diagram_path": "gen/M3/diagram/header_length.json",
+        "E": 20,
+        "V": 17,
+        "kappa": 1,
+        "rank": 4,
+        "tree_edges": [
+          "CODEC.BatchHeaderV0_Bytes",
+          "CODEC.BatchCache_createBatchHeaderWithSequencerSetHash",
+          "CODEC.BatchHeaderBytes_BatchIndex",
+          "CODEC.BatchHeaderBytes_BlobCommitHash",
+          "CODEC.BatchHeaderBytes_DataHash",
+          "CODEC.BatchHeaderBytes_L1MessagePopped",
+          "CODEC.BatchHeaderBytes_LastBlockNumber",
+          "CODEC.BatchHeaderBytes_ParentBatchHash",
+          "CODEC.BatchHeaderBytes_PostStateRoot",
+          "CODEC.BatchHeaderBytes_PrevStateRoot",
+          "CODEC.BatchHeaderBytes_SequencerSetVerifyHash",
+          "CODEC.BatchHeaderBytes_TotalL1MessagePopped",
+          "CODEC.BatchHeaderBytes_Version",
+          "CODEC.BatchHeaderBytes_WithdrawalRoot",
+          "CODEC.enc_sol",
+          "HASH.keccak256"
+        ],
+        "non_tree_edges": [
+          "CODEC.BatchHeaderBytes_BlobHashesHash",
+          "CODEC.BatchHeaderBytes_BlobVersionedHash",
+          "CODEC.BatchHeaderV1_Bytes",
+          "CODEC.load_sol"
+        ],
+        "fundamental_cycles": [
+          {
+            "edge": "CODEC.BatchHeaderBytes_BlobHashesHash",
+            "src": "Bytes",
+            "dst": "Bytes@57+32",
+            "tree_path": [
+              "CODEC.BatchHeaderBytes_BlobCommitHash"
+            ],
+            "cycle_length": 2
+          },
+          {
+            "edge": "CODEC.BatchHeaderBytes_BlobVersionedHash",
+            "src": "Bytes",
+            "dst": "Bytes@57+32",
+            "tree_path": [
+              "CODEC.BatchHeaderBytes_BlobCommitHash"
+            ],
+            "cycle_length": 2
+          },
+          {
+            "edge": "CODEC.BatchHeaderV1_Bytes",
+            "src": "BatchHeaderV1",
+            "dst": "Bytes",
+            "tree_path": [
+              "CODEC.BatchCache_createBatchHeaderWithSequencerSetHash"
+            ],
+            "cycle_length": 2
+          },
+          {
+            "edge": "CODEC.load_sol",
+            "src": "Bytes",
+            "dst": "Bytes",
+            "tree_path": [],
+            "cycle_length": 1
+          }
+        ]
+      },
+      "basis_generators": [
+        "CODEC.BatchHeaderBytes_BlobHashesHash",
+        "CODEC.BatchHeaderBytes_BlobVersionedHash",
+        "CODEC.BatchHeaderV1_Bytes",
+        "CODEC.load_sol"
+      ],
+      "laws": [
+        {
+          "law_id": "basis_hl_gen_blob_hashes_hash",
+          "family": "header_length",
+          "non_tree_edge": "CODEC.BatchHeaderBytes_BlobHashesHash",
+          "tree_path": [
+            "CODEC.BatchHeaderBytes_BlobCommitHash"
+          ],
+          "cycle_length": 2,
+          "predicted_status": "PROVED",
+          "core_lemma": "core_tree_unique_2",
+          "basis_generators": [
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2"
+          ],
+          "doc": "non-tree edge CODEC.BatchHeaderBytes_BlobHashesHash reduces on the v2 domain to tree edge CODEC.BatchHeaderBytes_BlobCommitHash via core_tree_unique_2"
+        },
+        {
+          "law_id": "basis_hl_gen_blob_versioned_hash",
+          "family": "header_length",
+          "non_tree_edge": "CODEC.BatchHeaderBytes_BlobVersionedHash",
+          "tree_path": [
+            "CODEC.BatchHeaderBytes_BlobCommitHash"
+          ],
+          "cycle_length": 2,
+          "predicted_status": "PROVED",
+          "core_lemma": "core_tree_unique_2",
+          "basis_generators": [
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0"
+          ],
+          "doc": "non-tree edge CODEC.BatchHeaderBytes_BlobVersionedHash reduces on the v0 domain to tree edge CODEC.BatchHeaderBytes_BlobCommitHash via core_tree_unique_2"
+        },
+        {
+          "law_id": "basis_hl_gen_batch_header_v1_bytes",
+          "family": "header_length",
+          "non_tree_edge": "CODEC.BatchHeaderV1_Bytes",
+          "tree_path": [
+            "CODEC.BatchCache_createBatchHeaderWithSequencerSetHash"
+          ],
+          "cycle_length": 2,
+          "predicted_status": "PROVED",
+          "core_lemma": "core_whisker_post",
+          "basis_generators": [
+            "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+          ],
+          "doc": "non-tree edge CODEC.BatchHeaderV1_Bytes post-whiskers with downstream decoders on the pinned v1 domain via core_whisker_post"
+        },
+        {
+          "law_id": "basis_hl_gen_load_sol",
+          "family": "header_length",
+          "non_tree_edge": "CODEC.load_sol",
+          "tree_path": [],
+          "cycle_length": 1,
+          "predicted_status": "PROVED",
+          "core_lemma": "core_whisker_post",
+          "basis_generators": [
+            "load_sol_id"
+          ],
+          "doc": "self-loop non-tree edge CODEC.load_sol (tree_path = []) reduces under any downstream decoder via core_whisker_post when load_sol acts as identity on the domain"
+        },
+        {
+          "law_id": "basis_sufficient_header_length",
+          "family": "header_length",
+          "non_tree_edge": "*",
+          "tree_path": [
+            "*"
+          ],
+          "cycle_length": 2,
+          "predicted_status": "PROVED",
+          "core_lemma": "core_cycle_basis_2",
+          "basis_generators": [
+            "CODEC.BatchHeaderBytes_BlobHashesHash",
+            "CODEC.BatchHeaderBytes_BlobVersionedHash",
+            "CODEC.BatchHeaderV1_Bytes",
+            "CODEC.load_sol"
+          ],
+          "doc": "spanning-tree cycle-basis sufficiency for the M3 header_length diagram: any walk through a non-tree edge reduces to the unique spanning-tree path plus the 4 fundamental-cycle generators via core_cycle_basis_2"
+        }
+      ]
+    }
+  },
+  "congruence": {
+    "total": 34,
+    "m0_count": 2,
+    "m3_count": 32,
+    "baseline_total_lines": 340,
+    "baseline_nonblank_lines": 238,
+    "baseline_def_lines": 136,
+    "congruence_file_lines": 215,
+    "congruence_nonblank_lines": 180,
+    "congruence_def_lines": 100,
+    "congruence_laws_file_lines": 177,
+    "laws": [
+      {
+        "law_id": "cong_l_rt_go_v0",
+        "source_law_id": "L_rt_go_v0",
+        "milestone": "M0",
+        "version": "v0",
+        "decoder": "dec_go",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "enc_go_v0",
+        "parallel_generator": "L_par_hdr_v0",
+        "tree_rt_generator": null,
+        "getter": null,
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M0/L_rt_go_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 2
+      },
+      {
+        "law_id": "cong_l_rt_go_v1",
+        "source_law_id": "L_rt_go_v1",
+        "milestone": "M0",
+        "version": "v1",
+        "decoder": "dec_go",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "enc_go_v1",
+        "parallel_generator": "L_par_hdr_v1",
+        "tree_rt_generator": null,
+        "getter": null,
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M0/L_rt_go_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 2
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_batchindex_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_BatchIndex",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+        "getter": "get_BatchHeaderV0__BatchIndex",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_batchindex_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_BatchIndex",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__BatchIndex",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_batchindex_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_BatchIndex",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__BatchIndex",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobcommithash_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_BlobCommitHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+        "getter": "get_BatchHeaderV0__BlobVersionedHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobcommithash_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_BlobCommitHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__BlobVersionedHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobcommithash_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_BlobCommitHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__BlobVersionedHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobhasheshash_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_BlobHashesHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__BlobVersionedHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobversionedhash_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_BlobVersionedHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+        "getter": "get_BatchHeaderV0__BlobVersionedHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_blobversionedhash_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_BlobVersionedHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__BlobVersionedHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_datahash_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_DataHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+        "getter": "get_BatchHeaderV0__DataHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_datahash_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_DataHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__DataHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_datahash_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_DataHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__DataHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_l1messagepopped_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_L1MessagePopped",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+        "getter": "get_BatchHeaderV0__L1MessagePopped",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_l1messagepopped_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_L1MessagePopped",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__L1MessagePopped",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_l1messagepopped_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_L1MessagePopped",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__L1MessagePopped",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_lastblocknumber_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_LastBlockNumber",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+        "getter": "get_BatchHeaderV1__LastBlockNumber",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_lastblocknumber_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_LastBlockNumber",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+        "getter": "get_BatchHeaderV1__LastBlockNumber",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_parentbatchhash_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_ParentBatchHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+        "getter": "get_BatchHeaderV0__ParentBatchHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_parentbatchhash_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_ParentBatchHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__ParentBatchHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_parentbatchhash_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_ParentBatchHash",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__ParentBatchHash",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_poststateroot_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_PostStateRoot",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+        "getter": "get_BatchHeaderV0__PostStateRoot",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_poststateroot_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_PostStateRoot",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__PostStateRoot",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_poststateroot_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_PostStateRoot",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__PostStateRoot",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_prevstateroot_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_PrevStateRoot",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+        "getter": "get_BatchHeaderV0__PrevStateRoot",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_prevstateroot_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_PrevStateRoot",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__PrevStateRoot",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_prevstateroot_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_PrevStateRoot",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__PrevStateRoot",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_totall1messagepopped_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_TotalL1MessagePopped",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+        "getter": "get_BatchHeaderV0__TotalL1MessagePopped",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_totall1messagepopped_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_TotalL1MessagePopped",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__TotalL1MessagePopped",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_totall1messagepopped_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_TotalL1MessagePopped",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__TotalL1MessagePopped",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_withdrawalroot_v0",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
+        "milestone": "M3",
+        "version": "v0",
+        "decoder": "BatchHeaderBytes_WithdrawalRoot",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV0_Bytes",
+        "go_carrier": "R_BatchHeaderV0",
+        "parallel_generator": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+        "getter": "get_BatchHeaderV0__WithdrawalRoot",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_withdrawalroot_v1",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
+        "milestone": "M3",
+        "version": "v1",
+        "decoder": "BatchHeaderBytes_WithdrawalRoot",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchHeaderV1_Bytes",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+        "tree_rt_generator": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__WithdrawalRoot",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      },
+      {
+        "law_id": "cong_l_par_rt_enc_sol_batchheaderbytes_withdrawalroot_v2",
+        "source_law_id": "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
+        "milestone": "M3",
+        "version": "v2",
+        "decoder": "BatchHeaderBytes_WithdrawalRoot",
+        "encoder_sol": "enc_sol",
+        "encoder_go": "BatchCache_createBatchHeaderWithSequencerSetHash",
+        "go_carrier": "R_BatchHeaderV1",
+        "parallel_generator": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+        "tree_rt_generator": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+        "getter": "get_BatchHeaderV1__BatchHeaderV0__WithdrawalRoot",
+        "core_lemma": "core_whisker_post",
+        "predicted_status": "PROVED",
+        "baseline_proof_path": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2/PROOF.bend",
+        "baseline_total_lines": 10,
+        "baseline_nonblank_lines": 7,
+        "baseline_def_lines": 4,
+        "congruence_def_lines": 3
+      }
+    ]
+  },
+  "canaries": [
+    {
+      "canary_id": "canary_whisker_direction_mismatch",
+      "group": "theory_core_i",
+      "predicted_status": "REFUTED",
+      "doc": "swapping post-whisker observers l1 != l2 without an equality hypothesis between l1 and l2 must fail both Bend kernels"
+    },
+    {
+      "canary_id": "canary_domain_local_without_premise",
+      "group": "theory_core_i",
+      "predicted_status": "REFUTED",
+      "doc": "claiming full-carrier equality @a:A -> {p(a) == q(a)} from a domain-restricted hypothesis @x:X -> {p(r(x)) == q(r(x))} must fail both Bend kernels"
+    },
+    {
+      "canary_id": "canary_basis_missing_generator",
+      "group": "theory_core_i",
+      "predicted_status": "REFUTED",
+      "doc": "attempting to reduce a non-tree walk l(e(r(x))) == obs(x) from the tree law l(t(r(x))) == obs(x) without the cycle-basis generator t == e must fail both Bend kernels"
+    },
+    {
+      "canary_id": "canary_header_v0_unpinned",
+      "group": "header",
+      "predicted_status": "REFUTED",
+      "doc": "dropping the sequencerSetVerifyHash == 0 domain pin (pin_h) on dec_go(enc_sol(h)) == dec_go(enc_go_v0(h)) while rewriting with L_par_hdr_v0 must fail both Bend kernels"
+    },
+    {
+      "canary_id": "canary_header_v1_missing_par",
+      "group": "header",
+      "predicted_status": "REFUTED",
+      "doc": "attempting to prove the v1 cycle reduction dec_go(enc_sol(PAR1.pin_h(h))) == dec_go(enc_go_v1(PAR1.pin_h(h))) using only the v0 generator L_par_hdr_v0 without L_par_hdr_v1 must fail both Bend kernels"
+    },
+    {
+      "canary_id": "canary_hl_drop_cycle_gen",
+      "group": "header_length",
+      "predicted_status": "REFUTED",
+      "doc": "dropping the non-tree round-trip generator RT_BHH_V2 when reducing BatchHeaderBytes_BlobHashesHash to the spanning-tree edge BatchHeaderBytes_BlobCommitHash must fail both Bend kernels"
+    },
+    {
+      "canary_id": "canary_congruence_unpinned_v0",
+      "group": "congruence",
+      "predicted_status": "REFUTED",
+      "doc": "attempting to derive L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0 without the pin_k/pin_h domain premise must fail both Bend kernels"
+    }
+  ],
+  "summary": {
+    "theory_core_i_laws": 12,
+    "header_basis_laws": 3,
+    "header_length_basis_laws": 5,
+    "congruence_laws": 34,
+    "total_proved_laws": 54,
+    "canaries_refuted": 7
+  }
+}

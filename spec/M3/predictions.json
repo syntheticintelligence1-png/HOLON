@@ -1396,6 +1396,70 @@
           "pending"
         ]
       }
+    },
+    "I42": {
+      "title": "Theory core I: whiskering, domain locality, spanning-tree basis sufficiency",
+      "plan": "docs/BUILD_PLAN.md#i42",
+      "prompt": "prompts/I42_theory_core_i.md",
+      "predictions": [
+        {
+          "id": "I42-P1",
+          "claim": "THEORY_CORE_I adds 12 polymorphic Bend 2 laws (3 whiskering: core_whisker_pre, core_whisker_post, core_whisker_both; 4 walk/square pasting: core_walk_2, core_walk_3, core_square_paste_h, core_square_paste_v; 3 domain-locality lifting: core_domain_local_pre, core_domain_local_post, core_domain_local_paste; 2 spanning-tree cycle-basis reduction: core_tree_unique_2, core_cycle_basis_2) to holon.gen.core and emits them into gen/M3/core/{LAWS,PROOF}.bend alongside the 20 existing core lemmas, where all 12 laws check under both bend and bend --verdict (ALL PROOFS CHECK) with zero escape hatches.",
+          "check": "tests_m3/test_theory_core_i.py::TestTheoryCoreIBuild::test_theory_core_i_registered_in_holon_gen_core and tests_m3/test_theory_core_i.py::TestTheoryCoreIBuild::test_m3_core_includes_theory_core_i_and_m2_core_untouched"
+        },
+        {
+          "id": "I42-P2",
+          "claim": "Spanning-tree cycle-basis sufficiency holds in Bend 2 for the M2 morph_header diagram (E=4, V=3, kappa=1, rank=2, non-tree edges CODEC.enc_go_v1 and CODEC.enc_sol): gen/M3/basis/header/{LAWS,PROOF}.bend proves basis_sufficient_header_v0, basis_sufficient_header_v1, and basis_sufficient_header via core_whisker_post and core_cycle_basis_2 from the basis generators L_par_hdr_v0, L_par_hdr_v1, and L_rt_go_v0, passing both bend and bend --verdict.",
+          "check": "tests_m3/test_theory_core_i.py::TestBasisSufficiency::test_header_basis_sufficiency"
+        },
+        {
+          "id": "I42-P3",
+          "claim": "Spanning-tree cycle-basis sufficiency holds in Bend 2 for the M3 header_length diagram (E=20, V=17, kappa=1, rank=4, non-tree edges CODEC.BatchHeaderBytes_BlobHashesHash, CODEC.BatchHeaderBytes_BlobVersionedHash, CODEC.BatchHeaderV1_Bytes, CODEC.load_sol): gen/M3/basis/header_length/{LAWS,PROOF}.bend proves the 4 fundamental-cycle generator reductions and basis_sufficient_header_length via core_tree_unique_2, core_whisker_post, and core_cycle_basis_2, passing both bend and bend --verdict.",
+          "check": "tests_m3/test_theory_core_i.py::TestBasisSufficiency::test_header_length_basis_sufficiency"
+        },
+        {
+          "id": "I42-P4",
+          "claim": "Congruence-first proof emission (gen/M3/basis/congruence/{LAWS,PROOF}.bend) proves all 34 cross-language round-trip obligations (2 M0: L_rt_go_v0, L_rt_go_v1; 32 M3: all non-Version L_par_rt_enc_sol_BatchHeaderBytes_<Field>_v{0,1,2} laws) by post-whiskering the parallel encoder law with the decoder via core_whisker_post without match or record unpacking, passing both bend and bend --verdict in 100 def+body lines (215 total lines) versus 136 def+body lines (340 total lines) across the 34 baseline open_refl proofs.",
+          "check": "tests_m3/test_theory_core_i.py::TestCongruenceProofs::test_congruence_proofs_check_and_beat_open_refl_line_count"
+        },
+        {
+          "id": "I42-P5",
+          "claim": "All 7 negative canaries across the 4 groups (canary_whisker_direction_mismatch, canary_domain_local_without_premise, canary_basis_missing_generator, canary_header_v0_unpinned, canary_header_v1_missing_par, canary_hl_drop_cycle_gen, canary_congruence_unpinned_v0) are rejected by both bend and bend --verdict with semantic expected/observed type mismatches, and results/M3/basis.json deterministically records all 54 PROVED laws, 7 REFUTED canaries, and the congruence line-count reduction.",
+          "check": "tests_m3/test_theory_core_i.py::TestNegativeCanaries::test_negative_canaries_rejected_under_basis_dir and tests_m3/test_theory_core_i.py::TestResultsSidecar::test_results_basis_json"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I42-R1",
+          "claim": "Extending holon.gen.core with THEORY_CORE_I preserves all existing core lemmas in gen/M3/core/{LAWS,PROOF}.bend, leaves gen/M2/core/{LAWS,PROOF}.bend untouched (AGENTS.md: never edit gen/M0-M2), and all existing M0, M1, M2, and M3 proof files continue to check under bend and bend --verdict without modifying any frozen files.",
+          "check": "tests_m3/test_theory_core_i.py::TestTheoryCoreIBuild::test_m3_core_includes_theory_core_i_and_m2_core_untouched"
+        },
+        {
+          "id": "I42-R2",
+          "claim": "Preregistration sidecar spec/M3/lib/theory_core_i.json is deterministically reproduced byte-for-byte from tests_m3._i42.theory_core_i_doc(ROOT) over the frozen input hashes.",
+          "check": "tests_m3/test_theory_core_i.py::TestPreregInstruments::test_spec_sidecar_matches_independent_instrument and tests_m3/test_theory_core_i.py::TestPreregInstruments::test_inputs_sha256_match"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/basis/",
+        "results/M3/basis.json"
+      ],
+      "tests": [
+        "tests_m3/test_theory_core_i.py"
+      ],
+      "thresholds": {
+        "sidecar": "spec/M3/lib/theory_core_i.json",
+        "theory_core_i_laws": 12,
+        "header_basis_laws": 3,
+        "header_length_basis_laws": 5,
+        "congruence_laws": 34,
+        "total_proved_laws": 54,
+        "canaries_refuted": 7,
+        "baseline_def_lines": 136,
+        "congruence_def_lines": 100,
+        "baseline_total_lines": 340,
+        "congruence_proof_lines": 215
+      }
     }
   }
 }

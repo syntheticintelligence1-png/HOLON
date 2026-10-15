@@ -194,3 +194,147 @@ law core_one_le_sub_of_not_le:
   for b: Nat
   for e: {Nat.is_le(a, b) == False{} : Bool}
   {Nat.is_le(1n, Nat.sub(a, b)) == True{} : Bool}
+
+law core_whisker_pre:
+  for -X: Type
+  for -A: Type
+  for -B: Type
+  for r: X -> A
+  for -p: A -> B
+  for -q: A -> B
+  for e: @a:A -> {p(a) == q(a) : B}
+  @x:X -> {p(r(x)) == q(r(x)) : B}
+
+law core_whisker_post:
+  for -A: Type
+  for -B: Type
+  for -Y: Type
+  for -p: A -> B
+  for -q: A -> B
+  for -l: B -> Y
+  for e: @a:A -> {p(a) == q(a) : B}
+  @a:A -> {l(p(a)) == l(q(a)) : Y}
+
+law core_whisker_both:
+  for -X: Type
+  for -A: Type
+  for -B: Type
+  for -Y: Type
+  for r: X -> A
+  for -p: A -> B
+  for -q: A -> B
+  for -l: B -> Y
+  for e: @a:A -> {p(a) == q(a) : B}
+  @x:X -> {l(p(r(x))) == l(q(r(x))) : Y}
+
+law core_walk_2:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for -f1: A -> B
+  for -f2: A -> B
+  for -g1: B -> C
+  for -g2: B -> C
+  for e1: @a:A -> {f1(a) == f2(a) : B}
+  for e2: @a:A -> {g1(f2(a)) == g2(f2(a)) : C}
+  @+a:A -> {g1(f1(a)) == g2(f2(a)) : C}
+
+law core_walk_3:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for -D: Type
+  for -f1: A -> B
+  for -f2: A -> B
+  for -g1: B -> C
+  for -g2: B -> C
+  for -h1: C -> D
+  for -h2: C -> D
+  for e1: @a:A -> {f1(a) == f2(a) : B}
+  for e2: @a:A -> {g1(f2(a)) == g2(f2(a)) : C}
+  for e3: @a:A -> {h1(g2(f2(a))) == h2(g2(f2(a))) : D}
+  @+a:A -> {h1(g1(f1(a))) == h2(g2(f2(a))) : D}
+
+law core_square_paste_h:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for f1: A -> B
+  for -f2: A -> B
+  for -g1: B -> C
+  for -g2: B -> C
+  for e1: @a:A -> {f1(a) == f2(a) : B}
+  for e2: @b:B -> {g1(b) == g2(b) : C}
+  @+a:A -> {g1(f1(a)) == g2(f2(a)) : C}
+
+law core_square_paste_v:
+  for -A: Data
+  for -B: Type
+  for -p: A -> B
+  for -q: A -> B
+  for -s: A -> B
+  for e1: @a:A -> {p(a) == q(a) : B}
+  for e2: @a:A -> {q(a) == s(a) : B}
+  @+a:A -> {p(a) == s(a) : B}
+
+law core_domain_local_pre:
+  for -Z: Type
+  for -X: Type
+  for -A: Type
+  for -B: Type
+  for u: Z -> X
+  for -r: X -> A
+  for -p: A -> B
+  for -q: A -> B
+  for e: @x:X -> {p(r(x)) == q(r(x)) : B}
+  @z:Z -> {p(r(u(z))) == q(r(u(z))) : B}
+
+law core_domain_local_post:
+  for -X: Type
+  for -A: Type
+  for -B: Type
+  for -Y: Type
+  for -r: X -> A
+  for -p: A -> B
+  for -q: A -> B
+  for -l: B -> Y
+  for e: @x:X -> {p(r(x)) == q(r(x)) : B}
+  @x:X -> {l(p(r(x))) == l(q(r(x))) : Y}
+
+law core_domain_local_paste:
+  for -X: Data
+  for -A: Type
+  for -B: Type
+  for -r: X -> A
+  for -p: A -> B
+  for -q: A -> B
+  for -s: A -> B
+  for e1: @x:X -> {p(r(x)) == q(r(x)) : B}
+  for e2: @x:X -> {q(r(x)) == s(r(x)) : B}
+  @+x:X -> {p(r(x)) == s(r(x)) : B}
+
+law core_tree_unique_2:
+  for -A: Data
+  for -B: Type
+  for -C: Type
+  for -f: A -> B
+  for -g1: B -> C
+  for -g2: B -> C
+  for -t: A -> C
+  for e1: @a:A -> {g1(f(a)) == t(a) : C}
+  for e2: @a:A -> {g2(f(a)) == t(a) : C}
+  @+a:A -> {g1(f(a)) == g2(f(a)) : C}
+
+law core_cycle_basis_2:
+  for -X: Data
+  for -A: Type
+  for -B: Type
+  for -Y: Type
+  for r: X -> A
+  for -t: A -> B
+  for -e: A -> B
+  for -l: B -> Y
+  for -obs: X -> Y
+  for cyc: @a:A -> {t(a) == e(a) : B}
+  for tree_law: @x:X -> {l(t(r(x))) == obs(x) : Y}
+  @+x:X -> {l(e(r(x))) == obs(x) : Y}
