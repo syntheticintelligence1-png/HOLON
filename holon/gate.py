@@ -1339,10 +1339,7 @@ class Gate:
         # Lean G3 (I9): the generated Lean files, comments removed, hold none of holon.lean.FORBIDDEN
         from . import lean
         lean_files = sorted(lean.lean_dir(self.m, self.root).glob("*.lean"))
-        for f in lean_files:
-            hits = lean.forbidden(f.read_text(encoding="utf-8"))
-            if hits:
-                bad.append(f"{f.relative_to(self.root)}: {hits}")
+        bad += lean.g3_violations(lean_files, self.root)   # decoded from bytes, lexed as Lean does (F36)
         extra = f"; {len(lean_files)} Lean files free of forbidden tactics and commands" if lean_files else ""
         self.checks["G3"] = _res(not bad, "no escape hatches" + extra if not bad else "; ".join(bad))
 

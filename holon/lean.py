@@ -7,7 +7,8 @@ IR statement hash, and a proof re-checking the Bend verdict recorded in results/
 law for PROVED, the counter-law at the recorded witness for REFUTED), check it in a fresh temporary lake
 project (Lean 4.34.0, no Mathlib, no dependencies, nothing reused from an earlier build), and audit it:
 
-  * Lean G3: the file, comments removed, holds none of FORBIDDEN;
+  * Lean G3: the file, comments removed, holds none of FORBIDDEN (the comments located by a lexer that mirrors
+    Lean 4.34.0's tokenizer, F36; a file it cannot classify exactly is refused);
   * `#print axioms` for every theorem the file declares (appended by the runner, whatever the file says)
     lists only ALLOWED_AXIOMS;
   * the theorem carrying the verdict is among them; each file checks within lean.budget_s_per_file.
@@ -47,10 +48,12 @@ ALLOWED_AXIOMS = frozenset({"propext", "Quot.sound"})
 FORBIDDEN = re.compile(r"\b(sorry|admit|native_decide|bv_decide|decide\s*\+\s*native|axiom|unsafe|implemented_by|"
                        r"extern|ofReduceBool|ofReduceNat|opaque|partial|macro|macro_rules|syntax|elab|notation|"
                        r"infix|infixl|infixr|prefix|postfix|import|run_cmd|run_tac|run_elab|initialize|"
-                       r"builtin_initialize|debug\.skipKernelTC|Lean\.Elab|Lean\.Meta)\b")
+                       r"builtin_initialize|debug\.skipKernelTC|Lean\.Elab|Lean\.Meta|"
+                       # F36: sorry by its constant, and the commands that add tokens (a token may hold `--`)
+                       r"sorryAx|binder_predicate|declare_syntax_cat|declare_simp_like_tactic)\b")
 # commands that run code or cut elaboration short (#eval runs IO during the lake build; #exit stops checking the rest
 # of the file): forbidden like the tactics above (audit F-M2-32)
-FORBIDDEN_CMD = re.compile(r"(?m)^[ \t]*#(eval|exit)\b")
+FORBIDDEN_CMD = re.compile(r"#\s*(eval|exit)\b")   # anywhere: a command may start mid-line (F36)
 # A canary counts as rejected only for a semantic reason (audit F-M2-32): the kernel decided the flipped claim false,
 # or found the two sides not definitionally equal. A parse, name or goal-shape error rejects it vacuously, and
 # "unsolved goals" alone is not enough (a syntax error can surface first as an empty tactic block's unsolved goal).
@@ -159,40 +162,290 @@ def pinned_version_ok(cfg: dict | None = None) -> tuple[bool, str]:
 
 
 # ------------------------------------------------------------------ source audit
-_LIT = re.compile(r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)\'', re.S)
+# The G3 scan must see exactly the code Lean compiles (F36). A regex comment stripper does not: Lean starts a comment
+# only at a token boundary, and a «…» identifier, a raw string, a char literal or a multi-character token can hold
+# `--` or `/-` without starting one. So the audit lexes the file the way Lean 4.34.0's tokenizer does
+# (src/lean/Lean/Parser/Basic.lean: whitespace, finishCommentBlock, strLitFnAux, charLitFnAux, rawStrLitFnAux,
+# numberFnAux, identFnAux, tokenFnAux), and refuses (LeanLexError) whatever it cannot classify the same way Lean
+# would: the conservative direction, so a file the scan cannot read is a G3 failure, never a silent strip.
+
+
+class LeanLexError(ValueError):
+    """The source holds a lexical form the G3 audit cannot classify exactly as Lean does: refuse the file."""
+
+
+def _letter_like(c: str) -> bool:   # Init/Meta/Defs.lean isLetterLike
+    v = ord(c)
+    return ((0x3b1 <= v <= 0x3c9 and v != 0x3bb) or (0x391 <= v <= 0x3a9 and v not in (0x3a0, 0x3a3))
+            or 0x3ca <= v <= 0x3fb or 0x1f00 <= v <= 0x1ffe or 0x2100 <= v <= 0x214f or 0x1d49c <= v <= 0x1d59f
+            or (0xc0 <= v <= 0xff and v not in (0xd7, 0xf7)) or 0x100 <= v <= 0x17f)
+
+
+def _subscript(c: str) -> bool:     # isSubScriptAlnum
+    v = ord(c)
+    return 0x2080 <= v <= 0x2089 or 0x2090 <= v <= 0x209c or 0x1d62 <= v <= 0x1d6a or v == 0x2c7c
+
+
+def _ascii_alpha(c: str) -> bool:
+    return "a" <= c <= "z" or "A" <= c <= "Z"
+
+
+def _id_first(c: str) -> bool:      # isIdFirst (Char.isAlpha is ASCII only)
+    return _ascii_alpha(c) or c == "_" or _letter_like(c)
+
+
+def _id_rest(c: str) -> bool:       # isIdRest
+    return _ascii_alpha(c) or "0" <= c <= "9" or c in "_'!?" or _letter_like(c) or _subscript(c)
+
+
+# From the token table of Lean 4.34.0 with `import Lean` (a superset of what a file without imports sees), plus the
+# scoped tokens Init declares: the characters c for which some token holds c followed by '-' (resp. '/'), so that a
+# `--` (resp. `/-`) right after c may be the inside of a token rather than a comment (`<-` then `-x`; `//` then
+# `-x`; `\/` then `-x`). The scan refuses such a spot instead of guessing.
+_TOKEN_BEFORE_DASH = frozenset("<-/")
+_TOKEN_BEFORE_SLASH = frozenset("/=\\")
+# Tokens that end in a quote ("]'", "⊕'", "Σ'", "×'"): a ' right after one of these characters is the token's last
+# character, not the start of a char literal. The scoped token "#'" is active only in some namespaces: refused.
+_TICK_TOKEN_BEFORE = frozenset("]⊕Σ×")
+_TICK_REFUSE_BEFORE = frozenset("#")
+_RAW_START = re.compile(r'r(#*)"')   # isRawStrLitStart, at a token start
+_QUOTABLE = frozenset("\\\"'rnt")
+_HEX = frozenset("0123456789abcdefABCDEF")
+
+
+def _escape(src: str, i: int, in_string: bool) -> int:
+    """End of the escape sequence whose backslash is at i (quotedCharCoreFn)."""
+    n = len(src)
+    if i + 1 >= n:
+        raise LeanLexError(f"offset {i}: unterminated escape")
+    c = src[i + 1]
+    if c in _QUOTABLE:
+        return i + 2
+    if c == "x" and i + 3 < n and src[i + 2] in _HEX and src[i + 3] in _HEX:
+        return i + 4
+    if c == "u" and i + 5 < n and all(ch in _HEX for ch in src[i + 2:i + 6]):
+        return i + 6
+    if in_string and c == "\n":   # a string gap (stringGapFn): whitespace holding exactly this one newline
+        j = i + 2
+        while j < n and src[j] in " \t\r\n":
+            if src[j] == "\n":
+                raise LeanLexError(f"offset {i}: string gap with two newlines")
+            j += 1
+        return j
+    raise LeanLexError(f"offset {i}: escape sequence the audit does not classify")
+
+
+def _number(src: str, i: int) -> int:
+    """End of the numeric literal starting at the digit at i (numberFnAux, decimalNumberFn)."""
+    n = len(src)
+
+    def digits(j, ok, need):
+        start, seen_digit = j, False
+        while j < n and (src[j] == "_" or ok(src[j])):
+            seen_digit = seen_digit or src[j] != "_"
+            j += 1
+        if need and not seen_digit or (j > start and src[j - 1] == "_"):
+            raise LeanLexError(f"offset {start}: malformed numeric literal")
+        return j
+
+    if src[i] == "0" and i + 1 < n and src[i + 1] in "bBoOxX":
+        ok = {"b": lambda c: c in "01", "o": lambda c: "0" <= c <= "7", "x": lambda c: c in _HEX}[src[i + 1].lower()]
+        return digits(i + 2, ok, True)
+    j = digits(i, lambda c: "0" <= c <= "9", True)   # Char.isDigit is ASCII only
+    if src.startswith("..", j):
+        return j
+    if j < n and src[j] in ".eE":
+        if src[j] == ".":
+            j += 1
+            if j < n and "0" <= src[j] <= "9":
+                j = digits(j, lambda c: "0" <= c <= "9", False)
+            elif j < n and src[j] not in "eE" and (_id_first(src[j]) or src[j] == "«"):
+                raise LeanLexError(f"offset {j}: identifier after a decimal point")
+        if j < n and src[j] in "eE":
+            j += 1
+            if j < n and src[j] in "+-":
+                j += 1
+            if not (j < n and "0" <= src[j] <= "9"):
+                raise LeanLexError(f"offset {j}: missing exponent digits")
+            j = digits(j, lambda c: "0" <= c <= "9", False)
+    return j
+
+
+def lex(src: str) -> list[tuple[str, str]]:
+    """[(kind, text)] covering src exactly, kind in ws, comment, ident, string, char, number, symbol. Raises
+    LeanLexError on anything the audit cannot classify exactly as Lean 4.34.0 would."""
+    out, i, n = [], 0, len(src)
+    if "\r" in src.replace("\r\n", ""):
+        raise LeanLexError("a carriage return outside a CRLF pair (Lean does not end a line comment there)")
+
+    def block(j: int) -> int:   # finishCommentBlock from j at nesting 1; returns the end
+        depth = 1
+        while j < n:
+            if src.startswith("-/", j):
+                depth -= 1
+                j += 2
+                if depth == 0:
+                    return j
+            elif src.startswith("/-", j):
+                depth += 1
+                j += 2
+            else:
+                j += 1
+        raise LeanLexError("unterminated comment")
+
+    while i < n:
+        c = src[i]
+        prev = out[-1][1][-1] if out and out[-1][0] == "symbol" else ""   # the last character of a code token
+        if c in " \t\n\r":
+            j = i
+            while j < n and src[j] in " \t\n\r":
+                j += 1
+            out.append(("ws", src[i:j]))
+            i = j
+        elif src.startswith("--", i):
+            if prev in _TOKEN_BEFORE_DASH:
+                raise LeanLexError(f"offset {i}: `--` right after {prev!r} may be inside a token")
+            j = src.find("\n", i)
+            j = n if j < 0 else j
+            out.append(("comment", src[i:j]))
+            i = j
+        elif src.startswith("/-", i):
+            if prev in _TOKEN_BEFORE_SLASH:
+                raise LeanLexError(f"offset {i}: `/-` right after {prev!r} may be inside a token")
+            # `/--` and `/-!` are tokens followed by a comment body; after a plain `/-`, whitespace skips the third
+            # character too (so `/-/-` opens one level, not two): either way the body is scanned from i + 3
+            j = block(i + 3)
+            out.append(("comment", src[i:j]))
+            i = j
+        elif c == '"':
+            j = i + 1
+            while True:
+                if j >= n:
+                    raise LeanLexError(f"offset {i}: unterminated string literal")
+                if src[j] == '"':
+                    break
+                if src[j] == "{":
+                    raise LeanLexError(f"offset {j}: `{{` in a string literal (an interpolated string runs code)")
+                j = _escape(src, j, True) if src[j] == "\\" else j + 1
+            out.append(("string", src[i:j + 1]))
+            i = j + 1
+        elif c == "'":
+            if prev in _TICK_REFUSE_BEFORE:
+                raise LeanLexError(f"offset {i}: a quote right after {prev!r} may be a scoped token")
+            if prev in _TICK_TOKEN_BEFORE:
+                out.append(("symbol", c))
+                i += 1
+                continue
+            if i + 1 >= n or src[i + 1] == "'":
+                raise LeanLexError(f"offset {i}: a quote that starts no char literal")
+            j = _escape(src, i + 1, False) if src[i + 1] == "\\" else i + 2
+            if j >= n or src[j] != "'":
+                raise LeanLexError(f"offset {i}: missing end of character literal")
+            out.append(("char", src[i:j + 1]))
+            i = j + 1
+        elif "0" <= c <= "9":
+            if prev == ".":   # a projection `x.1` (fieldIdxFn): digits only
+                j = i
+                while j < n and "0" <= src[j] <= "9":
+                    j += 1
+            else:
+                j = _number(src, i)
+            out.append(("number", src[i:j]))
+            i = j
+        elif c == "r" and _RAW_START.match(src, i):
+            hashes = len(_RAW_START.match(src, i).group(1))
+            close = '"' + "#" * hashes
+            j = src.find(close, i + 2 + hashes)
+            if j < 0:
+                raise LeanLexError(f"offset {i}: unterminated raw string literal")
+            out.append(("string", src[i:j + len(close)]))
+            i = j + len(close)
+        elif _id_first(c) or c == "«":
+            j = i
+            while True:
+                if src[j] == "«":
+                    k = src.find("»", j + 1)
+                    if k < 0:
+                        raise LeanLexError(f"offset {j}: unterminated identifier escape")
+                    j = k + 1
+                else:
+                    j += 1
+                    while j < n and _id_rest(src[j]):
+                        j += 1
+                if j + 1 < n and src[j] == "." and (_id_first(src[j + 1]) or src[j + 1] == "«"):
+                    j += 1
+                    continue
+                break
+            out.append(("ident", src[i:j]))
+            i = j
+        else:
+            out.append(("symbol", c))
+            i += 1
+    return out
+
+
+def ident_name(text: str) -> str:
+    """An identifier as Lean names it: the escapes «…» dropped, components joined by '.'."""
+    parts = re.findall(r"«([^»]*)»|([^.«]+)", text)
+    return ".".join(a or b for a, b in parts)
 
 
 def strip_comments(src: str) -> str:
-    """Lean source without comments (line comments, and block comments, which nest in Lean). String and char
-    literals are kept whole, so a `--` or `/-` inside one never hides the code after it."""
-    out, i, depth, n = [], 0, 0, len(src)
-    while i < n:
-        m = _LIT.match(src, i) if depth == 0 and src[i] in "\"'" else None
-        if m:
-            out.append(m.group(0))
-            i = m.end()
-        elif depth == 0 and src.startswith("--", i):
-            j = src.find("\n", i)
-            i = n if j < 0 else j
-        elif src.startswith("/-", i):
-            depth += 1
-            i += 2
-        elif depth and src.startswith("-/", i):
-            depth -= 1
-            i += 2
-        elif depth:
-            i += 1
+    """Lean source without comments (line, block and doc comments, located as Lean's tokenizer locates them);
+    everything else is kept verbatim. Raises LeanLexError when the source cannot be classified exactly."""
+    return "".join(t for k, t in lex(src) if k != "comment")
+
+
+def scan_text(src: str) -> str:
+    """What the G3 scan reads: the code tokens, comments dropped, each identifier by its Lean name between spaces
+    (so `«sorry»` reads as sorry, and no neighbouring symbol hides a word boundary), string and char literals
+    emptied (lexed exactly, and none interpolated). Raises LeanLexError like lex."""
+    out = []
+    for k, t in lex(src):
+        if k == "comment":
+            out.append(" ")
+        elif k == "ident":
+            out.append(" " + ident_name(t) + " ")
+        elif k == "string":
+            out.append(' "" ')
+        elif k == "char":
+            out.append(" '' ")
+        elif k == "number":
+            out.append(" " + t + " ")
         else:
-            out.append(src[i])
-            i += 1
+            out.append(t)
     return "".join(out)
 
 
 def forbidden(src: str) -> list[str]:
-    code = strip_comments(src)
-    code = re.sub(r'"(?:[^"\\]|\\.)*"', '""', code)
+    """The FORBIDDEN words and commands in the code Lean compiles; a file the audit cannot lex exactly yields
+    ['unlexable: <reason>'] (refused, never silently passed)."""
+    try:
+        code = scan_text(src)
+    except LeanLexError as e:
+        return [f"unlexable: {e}"]
     return sorted(set(m.group(0) for m in FORBIDDEN.finditer(code))
                   | {"#" + m.group(1) for m in FORBIDDEN_CMD.finditer(code)})
+
+
+def g3_violations(files, root: Path | str = ROOT) -> list[str]:
+    """Lean G3 over committed files: '<path>: <hits>' for each file whose code holds a FORBIDDEN word or command, or
+    that the audit cannot lex. Each file is decoded from its bytes, never read in text mode: universal newlines
+    would turn a lone carriage return (which does not end a Lean line comment) into a line end (F36)."""
+    bad = []
+    for f in files:
+        f = Path(f)
+        try:
+            hits = forbidden(f.read_bytes().decode("utf-8"))
+        except UnicodeDecodeError as e:
+            hits = [f"unlexable: not UTF-8 ({e})"]
+        if hits:
+            try:
+                name = f.resolve().relative_to(Path(root).resolve()).as_posix()
+            except ValueError:
+                name = f.as_posix()
+            bad.append(f"{name}: {hits}")
+    return bad
 
 
 def first_error_block(out: str) -> str:
@@ -243,11 +496,11 @@ def check_text(src: str, tmpdir, expect: list[str] | None = None, cfg: dict | No
     every `expect`ed theorem present) | rejected | forbidden | bad_axioms | missing_theorem | timeout |
     unavailable. Also returns axioms (union over the theorems), per-theorem axioms, seconds and out."""
     cfg = cfg or config()
-    names = theorems(src)
     base = {"result": "rejected", "axioms": [], "theorems": {}, "seconds": 0.0, "out": ""}
-    bad = forbidden(src)
+    bad = forbidden(src)   # first: theorems() lexes the source, and a source the audit cannot lex is refused here
     if bad:
         return {**base, "result": "forbidden", "out": f"forbidden in the source: {bad}"}
+    names = theorems(src)
     try:
         b = toolchain_bin(cfg)
     except LeanUnavailable as e:
