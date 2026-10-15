@@ -786,8 +786,31 @@ class TestUnknowns(unittest.TestCase):
         self.assertFalse(r.get("witness"))
         old = strip_seconds(json.loads(git("show", f"{prereg_commit()}:{record_path(key).relative_to(ROOT)}")))
         new = strip_seconds(r)
-        self.assertEqual(sorted(k for k in set(old) | set(new) if old.get(k) != new.get(k) and k != "generator_sha256"),
-                         [], "an UNKNOWN record I40 leaves UNKNOWN keeps its prereg content")
+        moved = sorted(k for k in set(old) | set(new) if old.get(k) != new.get(k) and k != "generator_sha256")
+        # amendment (spec/M3/amendments.jsonl, I40 round 2): a statement-lifecycle change another key logged in
+        # laws/STATEMENT_DIFF.jsonl (a catalog re-derivation or a binding change) may move statement_hash, and with it
+        # non_vacuity's parent_statement_hash, only along a chain of logged entries for this law from the prereg's hash
+        # to HEAD's; every other field must still be the prereg's
+        if old.get("statement_hash") != new.get("statement_hash"):
+            lid = key.rpartition("/")[2]
+            edges = {}
+            for ln in (ROOT / "laws" / "STATEMENT_DIFF.jsonl").read_text().splitlines():
+                e = json.loads(ln) if ln.strip() else {}
+                if e.get("law_id") == lid and e.get("old_hash") and e.get("new_hash"):
+                    edges.setdefault(e["old_hash"], set()).add(e["new_hash"])
+            seen, todo = {old.get("statement_hash")}, [old.get("statement_hash")]
+            while todo:
+                for nxt in edges.get(todo.pop(), ()):
+                    if nxt not in seen:
+                        seen.add(nxt)
+                        todo.append(nxt)
+            self.assertIn(new.get("statement_hash"), seen, "a moved statement hash with no logged lifecycle chain")
+            moved = [k for k in moved if k != "statement_hash"]
+            ov, nv = dict(old.get("non_vacuity") or {}), dict(new.get("non_vacuity") or {})
+            if "non_vacuity" in moved and ov.pop("parent_statement_hash", None) == old.get("statement_hash") and \
+                    nv.pop("parent_statement_hash", None) == new.get("statement_hash") and ov == nv:
+                moved = [k for k in moved if k != "non_vacuity"]
+        self.assertEqual(moved, [], "an UNKNOWN record I40 leaves UNKNOWN keeps its prereg content")
 
     def test_the_i15_site_laws_stay_unknown(self):
         """I40-P4: L_sort_site_def_lci_356891e4 ((lfi + len(win)) - 1 needs lfi + len(win) >= 1: the window always holds
