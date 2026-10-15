@@ -48,6 +48,9 @@
                                                         spec/<M>/evidence_review.jsonl; I25)
   python -m holon eval <command> ...                   (I48: the evaluation corpus, the renaming tool and the
                                                         controls; holon.eval.cli lists the commands)
+  python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
+                                                        (the theory core and basis sufficiency by application:
+                                                        gen/<M>/theory/; I42)
   python -m holon types|termsize|model|run|replay --milestone M3 ...   (typed milestones, M3+ and T30+: I30's
                                                         holon.sorts; `run --laws` naming only laws outside I30's typed
                                                         SORT subforms, I24's PAR laws on M3, runs holon.pipeline)
@@ -160,6 +163,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["lossy"]:  # likewise for holon.rules.par_lossy (PAR-lossy and injective pushing, I25)
         from .rules import par_lossy
         return par_lossy.main(argv[1:])
+    if argv[:1] == ["basis"]:  # likewise for holon.gen.basis (the theory core and basis sufficiency, I42)
+        from .gen import basis
+        return basis.main(argv[1:])
     if argv[:1] == ["undo"]:  # likewise for holon.rules.undo (I27: undo pairs, residues, static deadness)
         from .rules import undo
         return undo.main(argv[1:])
