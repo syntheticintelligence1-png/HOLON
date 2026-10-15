@@ -62,6 +62,7 @@ import hashlib
 import json
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import sys
@@ -576,13 +577,17 @@ def parse_axioms(out: str) -> dict[str, list[str]]:
 
 
 # ------------------------------------------------------------------ checking one text
-def _project(d: Path, src: str, names: list[str], cfg: dict) -> None:
+SENTINEL_PREFIX = "holon_audit_sentinel_"
+
+
+def _project(d: Path, src: str, names: list[str], cfg: dict, sentinel: str) -> None:
     d.mkdir(parents=True)
     (d / "lean-toolchain").write_text(cfg["toolchain"] + "\n")
     (d / "lakefile.toml").write_text(f'name = "holoncheck"\ndefaultTargets = ["{MODULE}"]\n\n'
                                      f'[[lean_lib]]\nname = "{MODULE}"\n')
-    audit = "".join(f"\n#print axioms {t}" for t in names)
-    (d / f"{MODULE}.lean").write_text(src.rstrip("\n") + "\n\n-- appended by holon.lean (axiom audit)" + audit + "\n")
+    audit = "".join(f"\n#print axioms {t}" for t in [*names, sentinel])
+    (d / f"{MODULE}.lean").write_text(src.rstrip("\n") + "\n\n-- appended by holon.lean (axiom audit)\n"
+                                      f"theorem {sentinel} : True := trivial" + audit + "\n")
 
 
 def check_text(src: str, tmpdir, expect: list[str] | None = None, cfg: dict | None = None,
@@ -592,7 +597,10 @@ def check_text(src: str, tmpdir, expect: list[str] | None = None, cfg: dict | No
     result: checked (Lean accepts it, every declared theorem is audited, axioms within ALLOWED_AXIOMS and
     every `expect`ed theorem present) | rejected | forbidden | bad_axioms | missing_theorem | timeout |
     unavailable. Also returns axioms (union over the theorems), per-theorem axioms, seconds and out.
-    names: the theorems to audit (default: every `theorem` the source declares, by its bare name)."""
+    names: the theorems to audit (default: every `theorem` the source declares, by its bare name). The runner appends
+    a theorem with a fresh random name (the sentinel) after the file and audits it last: the output's audit lines must
+    end with exactly the audited theorems and then the sentinel, in order, and only those lines count. So a file that
+    stops early (#exit) or prints audit lines of its own cannot pass, whatever the scan sees (I43 build review, M1)."""
     cfg = cfg or config()
     base = {"result": "rejected", "axioms": [], "theorems": {}, "seconds": 0.0, "out": ""}
     bad = forbidden(src)   # first: theorems() lexes the source, and a source the audit cannot lex is refused here
@@ -606,7 +614,8 @@ def check_text(src: str, tmpdir, expect: list[str] | None = None, cfg: dict | No
     d = Path(tmpdir) / f"proj-{hashlib.sha256(src.encode()).hexdigest()[:12]}"
     if d.exists():
         shutil.rmtree(d)  # never reuse a build
-    _project(d, src, names, cfg)
+    sentinel = SENTINEL_PREFIX + secrets.token_hex(8)
+    _project(d, src, names, cfg, sentinel)
     t0 = time.monotonic()
     try:
         p = subprocess.run([str(b / "lake"), "build", "--no-cache", "--log-level=info"], cwd=d, env=_env(b),
@@ -617,11 +626,18 @@ def check_text(src: str, tmpdir, expect: list[str] | None = None, cfg: dict | No
                 "out": f"timeout after {timeout or cfg['timeout_s']} s\n{out[-4000:]}"}
     secs = round(time.monotonic() - t0, 3)
     out = p.stdout + p.stderr
-    ax = parse_axioms(out)
+    lines = [(m.group(1), sorted(a.strip() for a in (m.group(3) or "").replace("\n", " ").split(",") if a.strip()))
+             for m in _AX.finditer(out)]
+    tail = lines[-(len(names) + 1):]
+    ordered = [n for n, _ in tail] == [*names, sentinel]
+    ax = dict(tail) if ordered else {}
     union = sorted({a for t in names for a in ax.get(t, [])})
     res = {**base, "axioms": union, "theorems": {t: ax.get(t) for t in names}, "seconds": secs, "out": out}
     if p.returncode != 0 or re.search(r"(^|\n)error:|: error:", out):
         return {**res, "result": "rejected"}
+    if not ordered:
+        return {**res, "result": "missing_theorem",
+                "out": out + "\n[holon.lean] the axiom audit does not end with the audited theorems and the sentinel"}
     if not names or any(ax.get(t) is None for t in names) or any(t not in names for t in (expect or [])):
         return {**res, "result": "missing_theorem"}
     if not set(union) <= ALLOWED_AXIOMS:

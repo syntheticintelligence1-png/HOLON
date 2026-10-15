@@ -1601,6 +1601,7 @@ class Gate:
         lcfg = lean.config(self.root)
         budget = float(lcfg["budget_s_per_file"])
         bad, todo, coverage, notrun = [], [], [], {}
+        proved_of: dict = {}   # directory key -> [its PROVED laws' re-check ids, or None when not checked], in order
         cands: list = []   # (dir, item, LawFile) of every attempted item with an emitted file, dirs in order
         for d in dirs:
             items = lean.items(d, self.root)
@@ -1610,7 +1611,8 @@ class Gate:
                 bad.append(f"{d.key}: the Lean emitters cannot regenerate the directory: {type(e).__name__}: {e}")
                 files, models = {}, {}
             ldir = self.root / d.lean
-            proved = checked = 0
+            proved = 0
+            mine = proved_of.setdefault(d.key, [])
             for it in items:
                 lid, rec = it.law_id, it.record
                 ks = [k for k in rec.get("kernels") or [] if k.get("name") == "lean4"]
@@ -1639,13 +1641,15 @@ class Gate:
                 elif res == "not_run":
                     reason = k.get("reason")
                     allowed = LC.REFUTED_REASONS if it.status == "REFUTED" else LC.ALLOWED_REASONS
-                    if reason not in allowed:
+                    if reason in ("no_report", "toolchain_unavailable"):   # build states, never committed (L8, Q7)
+                        bad.append(f"{d.key}:{lid}: lean4 not_run with reason {reason!r}, a build state that is never "
+                                   f"committed")
+                    elif reason not in allowed:
                         bad.append(f"{d.key}:{lid}: lean4 not_run with reason {reason!r} (allowed for a "
                                    f"{it.status} law: {', '.join(allowed)})")
                     else:
                         notrun[reason] = notrun.get(reason, 0) + 1
                 elif res == "checked":
-                    checked += it.status == "PROVED"
                     if not isinstance(lf, LC.LawFile):
                         bad.append(f"{d.key}:{lid}: the Lean emitters cannot regenerate the checked file: {lf}")
                         continue
@@ -1661,15 +1665,19 @@ class Gate:
                     if not f.is_file() or f.read_bytes() != text.encode("utf-8"):
                         bad.append(f"{f.relative_to(self.root).as_posix()} differs from its regeneration")
                     todo.append((f"{d.key}:{lid}", text, [want]))
+                    if it.status == "PROVED":
+                        mine.append(f"{d.key}:{lid}")
                 else:
                     bad.append(f"{d.key}:{lid}: lean4 result {res!r} (checked, not_run or failed expected)")
             for stem, mdl in sorted(models.items()):
                 f = ldir / "models" / f"{stem}.lean"
                 if not f.is_file() or f.read_bytes() != mdl.text().encode("utf-8"):
                     bad.append(f"{f.relative_to(self.root).as_posix()} differs from its regeneration")
-            coverage.append(f"cross-kernel coverage {d.key}: {checked}/{proved}")
+            proved_of[d.key] = (mine, proved)
         ok_v, version = lean.toolchain_ok(lcfg)
         if not ok_v:
+            coverage = [f"cross-kernel coverage {k}: {len(m)}/{n} claimed by the records, none re-checked"
+                        for k, (m, n) in proved_of.items()]
             return False, (f"Lean: single-kernel: the pinned Lean toolchain is unavailable ({version}); the "
                            f"{self.irv} laws of {', '.join(d.key for d in dirs)} have no second-independent kernel "
                            f"(a labelled failure, not a pass); {'; '.join(coverage)}"
@@ -1686,7 +1694,7 @@ class Gate:
                                                                 expect=w[2], cfg=lcfg), work))
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
-        timing, can_out, rechecked = {}, [], 0
+        timing, can_out, rechecked, passed = {}, [], 0, set()
         cids = {c[0] for c in canaries}
         for (wid, _, _), r in zip(work, results):
             timing[wid] = r["seconds"]
@@ -1709,6 +1717,9 @@ class Gate:
                 bad.append(f"{wid}: axioms {r['axioms']} outside {sorted(lean.ALLOWED_AXIOMS)}")
             else:
                 rechecked += 1
+                passed.add(wid)
+        # coverage from the re-checks, not from what the records claim (I43 build review, minor 2)
+        coverage = [f"cross-kernel coverage {k}: {sum(w in passed for w in m)}/{n}" for k, (m, n) in proved_of.items()]
         self.timings = {**(self.timings or {}), "G7_lean": dict(sorted(timing.items()))}
         slowest = max((timing[w[0]] for w in todo), default=0)
         fp = lean.fingerprint(lcfg)["fingerprint"]
