@@ -393,7 +393,7 @@ def i21_doc(root: Path, side: dict) -> dict:
     return {"document": "i21", "findings": f, "out_of_scope": side["i21"]["out_of_scope"]}
 
 
-def unknowns_doc(root: Path, side: dict) -> dict:
+def unknowns_doc(root: Path, side: dict, codec: dict | None = None, fuzzed: dict | None = None) -> dict:
     rl = int(side["solver"]["rlimit_per_query"])
     fz = side["fuzz"]
     laws = {}
@@ -422,9 +422,20 @@ def unknowns_doc(root: Path, side: dict) -> dict:
         else:
             bound = {"steps": int(side["smt"]["hand_trace_bound"])} if u["facts"].startswith("spec/") \
                 else {"byte_length_max": int(side["smt"]["byte_length_max"])}
-            atts.append({"engine": "smt", "bound": bound, "budget": {"rlimit": rl}, "result": "not_run",
-                         "candidates": 0, "accepted": 0, "discarded": [], "reason": NOT_BUILT})
-            atts.append({"engine": "fuzz", "bound": {"candidates": int(fz["candidates_per_law"]), "seed": int(fz["seed"])},
+            cx = ((codec or {}).get("laws") or {}).get(u["record"])
+            if cx is not None and cx.get("solver") in ("sat", "unsat", "unknown") and cx.get("query"):
+                cand = cx.get("candidate")
+                atts.append({"engine": "smt", "bound": bound, "budget": {"rlimit": rl}, "result": cx["solver"],
+                             "candidates": 1 if cand else 0, "accepted": 1 if cand and cand["accepted"] else 0,
+                             "discarded": [] if not cand or cand["accepted"] else
+                             [{"witness": cand["witness"], "checker": cand["checker"]}],
+                             "reason": f"the law's negation over its component model ({cx['query']}): {cx['solver']}"})
+            else:
+                atts.append({"engine": "smt", "bound": bound, "budget": {"rlimit": rl}, "result": "not_run",
+                             "candidates": 0, "accepted": 0, "discarded": [], "reason": NOT_BUILT})
+            fa = (fuzzed or {}).get(u["record"])
+            atts.append(fa if fa is not None else
+                        {"engine": "fuzz", "bound": {"candidates": int(fz["candidates_per_law"]), "seed": int(fz["seed"])},
                          "budget": {"candidates": int(fz["candidates_per_law"])}, "result": "not_run", "candidates": 0,
                          "accepted": 0, "discarded": [], "reason": NOT_BUILT})
         laws[u["record"]] = {"status": rec.get("status"), "attempts": atts}
@@ -448,6 +459,48 @@ def codec_doc(side: dict) -> dict:
 
 def fuzz_doc(side: dict) -> dict:
     return {"document": "fuzz", "seed": side["fuzz"]["seed"], "laws": {}}
+
+
+def fuzz_stage(root: Path, side: dict, log=print) -> dict:
+    """E-FUZZ on every UNKNOWN record whose law is over a linked codec component (the compiled component model is
+    the evaluator; holon.fuzz): per record the attempt as unknowns.json states it; a candidate counts only through
+    its counter-law (Bend and BendTT)."""
+    import hashlib
+    from . import bend, fuzz as FZ
+    from .gen import linked as L
+    fz = side["fuzz"]
+    n, seed = int(fz["candidates_per_law"]), int(fz["seed"])
+    out = {}
+    cms = {}
+    for u in side["unknowns"]:
+        law = law_of(root, u["record"])
+        if not law.get("facts"):
+            continue
+        raw = (root / law["facts"]).read_bytes()
+        doc = json.loads(raw)
+        if doc.get("linked_version") is None:
+            continue
+        if law["facts"] not in cms:
+            cms[law["facts"]] = L.CompiledModel.build(doc, hashlib.sha256(raw).hexdigest(), doc["role"], bend.config(root))
+        r = FZ.linked_fuzz(cms[law["facts"]], law, n, seed, int(side["smt"]["byte_length_max"]))
+        acc, disc = 0, []
+        for i, w in enumerate(r["found"]):
+            if i >= 8:
+                disc.append({"witness": w, "checker": {"exit_code": None, "marker": "not checked: beyond the first 8 "
+                                                                               "candidates of the law"}})
+                continue
+            chk = check_counter(law, doc, w, root / GENR / "fuzz" / law["law_id"] / f"c{i}", root)
+            if chk["accepted"]:
+                acc += 1
+            else:
+                disc.append({"witness": w, "checker": chk["checker"]})
+        out[u["record"]] = {"engine": "fuzz", "bound": {"candidates": n, "seed": seed}, "budget": {"candidates": n},
+                            "result": "found" if acc else "none", "candidates": acc + len(disc), "accepted": acc,
+                            "discarded": disc,
+                            "reason": (f"{r['tried']} candidates evaluated on the compiled component model: "
+                                       f"{len(r['found'])} separate the claim's sides")}
+        log(f"fuzz {u['record']}: {out[u['record']]['result']} ({len(r['found'])} of {r['tried']})")
+    return out
 
 
 def main(a, root: Path) -> int:
@@ -492,8 +545,13 @@ def main(a, root: Path) -> int:
         rdoc["classes"].update(refound)
         files["refind.json"] = rdoc
         files["codec.json"] = cdoc if cdoc is not None else codec_doc(side)
+    fuzzed = None
     if "fuzz" in stages:
-        files["fuzz.json"] = fuzz_doc(side)
+        fuzzed = fuzz_stage(root, side)
+        fd = fuzz_doc(side)
+        fd["laws"] = {k: {"tried": int(side["fuzz"]["candidates_per_law"]), "accepted": v["accepted"]}
+                      for k, v in sorted(fuzzed.items())}
+        files["fuzz.json"] = fd
     if "emit" in stages:
         for rp, text in emit_tests(root, side, env).items():
             texts[rp] = text
@@ -507,7 +565,15 @@ def main(a, root: Path) -> int:
     if "bmc" in stages:
         files["reaches.json"] = reach_docs(root, side)
         files["i21.json"] = i21_doc(root, side)
-        files["unknowns.json"] = unknowns_doc(root, side)
+    if {"bmc", "smt", "fuzz"} & set(stages):
+        cpath = root / REFUTE / "codec.json"
+        codec_now = files.get("codec.json") or (load(cpath) if cpath.is_file() else None)
+        if fuzzed is None:
+            up = root / REFUTE / "unknowns.json"
+            prev = load(up)["laws"] if up.is_file() else {}
+            fuzzed = {k: a for k, v in prev.items() for a in v["attempts"] if a["engine"] == "fuzz"
+                      and a["result"] != "not_run"}
+        files["unknowns.json"] = unknowns_doc(root, side, codec_now, fuzzed)
     if "filter" in stages:
         docs = concretize(root, side, env, write=not a.check)
         files["concretization.json"] = docs["concretization"]
