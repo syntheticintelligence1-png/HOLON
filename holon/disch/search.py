@@ -377,14 +377,17 @@ class LawSearch:
                     return trace + [st], t
         return None
 
-    def neighbourhood(self, seeds: list, deadline: float | None = None):
+    def neighbourhood(self, seeds: list, deadline: float | None = None, inhabit: bool = False):
         """S3 (I30's neighbourhood): (witness steps, t) or None. seeds: [(name, steps)] of the other entry points'
         witnesses. Every prefix tried is counted against neighbourhood_prefixes_per_entry_point_max; deadline (a
-        wall-clock time) ends the stage early, recorded in the bound as a time box (never as an exhausted budget)."""
+        wall-clock time) ends the stage early, recorded in the bound as a time box (never as an exhausted budget).
+        inhabit: the same prefixes searched for an inhabitant of the premises (inhabit's acceptance) instead of a
+        witness of the law."""
         import time as _time
         ins = int(self.ex.budget.get("neighbourhood_insertion_length_max", 2))
         maxn = int(self.ex.budget.get("neighbourhood_prefixes_per_entry_point_max", 1000))
-        self.s3 = {"seeds": [n for n, _s in seeds], "prefixes": 0, "max": maxn, "insert": ins, "timebox": False}
+        self.s3 = {"seeds": [n for n, _s in seeds], "prefixes": 0, "max": maxn, "insert": ins, "timebox": False,
+                   "bstates": 0, "tries": 0}
         m = self.m
         g0 = m.s0()
 
@@ -402,10 +405,15 @@ class LawSearch:
             if t is None:
                 return None
             self.bstates += 1
+            self.s3["bstates"] += 1
             for a in self.entries:
                 self.tries += 1
+                self.s3["tries"] += 1
 
                 def acc(st, code, g=g, t=t, trace=trace):
+                    if inhabit:
+                        return int(st.env.get("block.timestamp") or 0) >= t and \
+                            self.judge.premise(self.m, self.law, g, st, t)
                     if code != 0 or int(st.env.get("block.timestamp") or 0) < t:
                         return False
                     if not self.judge.decides(self.m, self.law, g, st, t):
@@ -413,8 +421,8 @@ class LawSearch:
                     return self.validate is None or self.validate(trace, st, t)
                 st = self.synth(g, trace, t, a, acc)
                 if st is not None:
-                    self.log(f"  {self.law['law_id']}: an S3 candidate after {self.s3['prefixes']} neighbourhood "
-                             f"prefixes ({a})")
+                    self.log(f"  {self.law['law_id']}: an S3 {'inhabitant' if inhabit else 'candidate'} after "
+                             f"{self.s3['prefixes']} neighbourhood prefixes ({a})")
                     return trace + [st], t
             return None
 
@@ -440,7 +448,9 @@ class LawSearch:
             s3 = "; S3: no other entry point's witness (no neighbourhood to search)"
         else:
             s3 = (f"; S3: {n3['prefixes']} neighbourhood prefixes of the witnesses of {', '.join(n3['seeds'])} (one to "
-                  f"{n3['insert']} successful steps inserted at every position; max {n3['max']} per entry point)")
+                  f"{n3['insert']} successful steps inserted at every position; max {n3['max']} per entry point); "
+                  f"B held at a candidate time in {n3['bstates']} of {n3['prefixes']} neighbourhood states; "
+                  f"{n3['tries']} S3 last-step syntheses")
             if n3["timebox"]:
                 s3 += " (stopped by the run's time box before the budget: UNKNOWN by the time box)"
             elif n3["prefixes"] >= n3["max"]:

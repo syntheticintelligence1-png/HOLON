@@ -481,11 +481,33 @@ class Run:
         r = ls.refute(False, LAST_STEP_STATES)
         return r, ls
 
+    def seeds(self, d: Doc, lid: str, ids: list[str], found: dict) -> list:
+        """S3's witnesses for the law lid: [(law id, steps)] of the S1+S2 candidates of every other DISCH law of the
+        same model (law id order); a law this run does not decide is searched for here, so that a law's outcome does
+        not depend on which laws a run names."""
+        seeds = []
+        for other in sorted(d.an["laws"], key=lambda x: x["law_id"]):
+            k = other["law_id"]
+            if k == lid:
+                continue
+            if k not in self.s12:
+                if k in found:
+                    self.s12[k] = found[k]
+                elif k in ids:
+                    self.s12[k] = None          # decided in this run without an S1+S2 candidate
+                else:
+                    r0, _ls0 = self.search(d, other)
+                    self.s12[k] = r0
+            if self.s12[k] is not None:
+                seeds.append((k, self.s12[k][0]))
+        return seeds
+
     def decide_all(self, ids: list[str]) -> dict:
         """{law_id: (record, replay entry or None)}."""
         out: dict = {}
         pending: dict = {}
         found: dict = {}
+        self.decided = (list(ids), found)
         for lid in ids:
             e = self.ctx.derivation[lid]
             d = self.doc_of(e)
@@ -517,21 +539,7 @@ class Run:
             e = self.ctx.derivation[lid]
             d = self.doc_of(e)
             law = self.law_of(d, lid)
-            seeds = []
-            for other in sorted(d.an["laws"], key=lambda x: x["law_id"]):
-                k = other["law_id"]
-                if k == lid:
-                    continue
-                if k not in self.s12:
-                    if k in found:
-                        self.s12[k] = found[k]
-                    elif k in ids:
-                        self.s12[k] = None          # decided in this run without an S1+S2 candidate
-                    else:
-                        r0, _ls0 = self.search(d, other)
-                        self.s12[k] = r0
-                if self.s12[k] is not None:
-                    seeds.append((k, self.s12[k][0]))
+            seeds = self.seeds(d, lid, ids, found)
             t0 = time.time()
             ls = DS.LawSearch(d.ex, d.an, law, law_entries(d.an, law), d.judge, log=self.log)
             if self.binding():
@@ -544,7 +552,9 @@ class Run:
                      f"({ls.s3['prefixes']} neighbourhood prefixes{', time box' if ls.s3['timebox'] else ''})")
             att = pending[lid]["attempts"] + [{"kind": "search", "stage": "S3", "found": r is not None,
                                                "bound": ls.bound(), "timebox": ls.s3["timebox"]}]
-            s3 = ls.bound().split("; S3", 1)[1].split("; B held")[0]
+            # the S3 segment of the S3 search's bound, with its own counts of B-states and syntheses (the trailing
+            # counts of the record's bound are S1+S2's)
+            s3 = ls.bound().split("; S3", 1)[1].rsplit("; B held", 1)[0]
             bound = pending[lid]["bound"].replace("; S3: not run", "; S3" + s3)
             if r is not None:
                 out[lid] = ("CANDIDATE", {"attempts": att, "steps": r[0], "t": r[1], "stage": "S3", "bound": bound})
@@ -625,7 +635,20 @@ class Run:
             ls.deadline = time.time() + self.law_box
         r = ls.inhabit(LAST_STEP_STATES)
         if r is None:
-            return {**base, "bound": f"no reachable state where the premises hold: {ls.bound()}"}
+            # S3's neighbourhood prefixes (the same seeds and budget as decide_all's S3), searched for an inhabitant
+            ids, found = getattr(self, "decided", ([lid], {}))
+            seeds = self.seeds(d, lid, ids, found)
+            dl = self.deadline
+            if self.law_box:
+                dl = min(x for x in (dl, time.time() + self.law_box) if x is not None)
+            ls3 = DS.LawSearch(d.ex, d.an, law, law_entries(d.an, law), d.judge, log=self.log)
+            r = ls3.neighbourhood(seeds, dl, inhabit=True)
+            s3 = ls3.bound().split("; S3", 1)[1].rsplit("; B held", 1)[0]
+            self.log(f"{lid}: inhabitant S3 {'found one' if r else 'found nothing'} "
+                     f"({ls3.s3['prefixes']} neighbourhood prefixes{', time box' if ls3.s3['timebox'] else ''})")
+            if r is None:
+                return {**base, "bound": "no reachable state where the premises hold: "
+                                         + ls.bound().replace("; S3: not run", "; S3" + s3)}
         steps, t = r
         nd.mkdir(parents=True, exist_ok=True)
         lpn = nd / "LAWS.bend"
