@@ -439,7 +439,7 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             conc["reason"] = ("the witness is a schedule of public calls, but it has no side in the sides format (no I4 "
                               "side, no emitted test; its own replay report is not read as one): F3 cannot hold")
         fb = FL.final_bin(final_sides, conc)
-        out[key] = dict(conc, path=path)
+        out[key] = dict(conc, path=path, clock=clock(path))
         before = (side["records"].get(key) or {}).get("filter_bin") if key in side["records"] else None
         filt[key] = {"before": before, "after": fb, "kind": kind, "result": conc["result"]}
         if write:
@@ -581,6 +581,18 @@ def confirmed(root: Path, kind: str, ident: str, r: dict) -> dict:
     return r
 
 
+CLOCK_REALISTIC = 1 << 64     # R7: a path whose block.timestamp exceeds this is labelled (the sidecar has no bound)
+
+
+def clock(path) -> dict | None:
+    """The largest block.timestamp a path needs, and a label when no realistic chain reaches it (the sidecar's
+    environment has no clock bound; the label changes no verdict and no bin)."""
+    if not path:
+        return None
+    t = max(int(str(st["env"]["block.timestamp"]), 0) for st in path)
+    return {"max_timestamp": t, "label": "unrealistic clock (> 2^64)" if t > CLOCK_REALISTIC else None}
+
+
 def reach_docs(root: Path, side: dict) -> dict:
     H = int(side["bmc"]["H"])
     reaches = {}
@@ -590,12 +602,12 @@ def reach_docs(root: Path, side: dict) -> dict:
             r = confirmed(root, "reach", rid, r)
         if r is None:
             reaches[rid] = {"verdict": "unknown", "length": None, "path": None, "largest_k": 0,
-                            "reason": "not run to completion: a time box (the I40 build's, or the review fix's rerun) "
-                                      "ended before this reach's search finished"}
+                            "reason": "not run: no verdict recorded (the search did not run to completion in this "
+                                      "build); not a conclusion"}
         else:
             reaches[rid] = {"verdict": r["verdict"], "length": r["length"],
                             "path": with_calls(root, "reach", rid, r["path"]),
-                            "largest_k": r["largest_k"], "reason": r["reason"]}
+                            "largest_k": r["largest_k"], "reason": r["reason"], "clock": clock(r["path"])}
     return {"document": "reaches", "source": "results/M2/refinement/extracted.json", "H": H, "reaches": reaches}
 
 
@@ -606,9 +618,9 @@ def i21_doc(root: Path, side: dict) -> dict:
         if r is not None:
             r = confirmed(root, "i21", fid, r)
         evm = ({"verdict": "unknown", "length": None, "path": None, "largest_k": 0,
-                "reason": "not run: the I40 build's time box"} if r is None else
+                "reason": "not run: no verdict recorded (the search did not run to completion in this build)"} if r is None else
                {"verdict": r["verdict"], "length": r["length"], "path": with_calls(root, "i21", fid, r["path"]),
-                "largest_k": r["largest_k"], "reason": r["reason"]})
+                "largest_k": r["largest_k"], "reason": r["reason"], "clock": clock(r["path"])})
         x = {"evm": evm}
         if side["i21"][fid].get("go"):
             x["go"] = {"verdict": "out_of_scope", "reason": side["i21"][fid]["go"]}
@@ -630,7 +642,8 @@ def unknowns_doc(root: Path, side: dict, codec: dict | None = None, fuzzed: dict
             if r is None:
                 atts.append({"engine": "bmc", "bound": {"H": int(side["bmc"]["H"])}, "budget": {"rlimit": rl},
                              "result": "not_run", "candidates": 0, "accepted": 0, "discarded": [],
-                             "reason": "not run: the I40 build's time box", "length": None, "largest_k": 0})
+                             "reason": "not run: no verdict recorded (the search did not run to completion in this build)",
+                             "length": None, "largest_k": 0})
             else:
                 atts.append({"engine": "bmc", "bound": {"H": int(side["bmc"]["H"])}, "budget": {"rlimit": rl},
                              "result": r["verdict"], "candidates": 0 if r["verdict"] != "path" else 1, "accepted": 0,
