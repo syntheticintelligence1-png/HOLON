@@ -18,20 +18,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.278
+      "seconds": 0.489
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.468
+      "seconds": 0.727
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.278
+    "seconds": 0.489
   },
   "compiled_sha256": "f1055fa88774a53f0d65d40caa73ede396f7f578515ac13f362c7f1328507dc1",
   "concretization": {
@@ -237,8 +237,8 @@
   "evidence_triage": "finding",
   "facts_sha256": "2de8ab0d421dfb9d2fbcf027d5fb3d3b7f69df84580b4d0e8bb289a062d94b9d",
   "filter_bin": "finding",
-  "generator_sha256": "0aa5644f52722678d5069e3b717660db3fa51ba04f9d12eda37a72cd39e31391",
-  "independence_class": "I1-shared",
+  "generator_sha256": "d1882dd70f9658fd353bfa77b18630f193e996ca17f04a47e1c6a66616b93457",
+  "independence_class": "I2",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -258,6 +258,17 @@
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
+    },
+    {
+      "axioms": [],
+      "name": "lean4",
+      "reading": "Lean reads the holon-facts/0.2 document itself (holon.gen.lean_machine), the target library through its Lean twin (hand-written target input, like the Bend library: common mode, I9 Question 4); Nat, Bool and lists as in Bend; premises are hypotheses as in Bend; the statement is the frozen Lean text of the same IR",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M2/extracted/m1/lean/L_sort_remaining.lean",
+      "source_sha256": "ef079f3496654ff7c22efcc15bd485fa3d936dece764c8a7da70b6f0c1346720",
+      "theorem": "L_sort_remaining_counter",
+      "version": "4.34.0"
     }
   ],
   "law_id": "L_sort_remaining",
@@ -287,6 +298,7 @@
     "witness": null
   },
   "premises": [],
+  "prover": "generator",
   "record_version": "holon-record/0.2",
   "refinement_refs": [
     "replay/M1/report.json#/refinement/per_action/challengeState",

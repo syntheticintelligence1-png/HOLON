@@ -12,7 +12,8 @@ holon.refinement.classify reads; and
 from_scratch_gate_s is the wall time the last full `holon gate` run recorded there.
 
 Computed: laws, unknown_rate, witness_replay_rate, canary_acceptance, refinement {compared,
-disagreements, unexplained}, refinement_disagreement_rate, cross_kernel_agreement, where the milestone has
+disagreements, unexplained}, refinement_disagreement_rate, cross_kernel_agreement, where the milestone has Lean
+directories (I43: M1, M2 with the view's results/M2/extracted_m1, M3) cross_kernel_coverage, where the milestone has
 PAR-lossy documents (gen/<M>/par_lossy/*.json, I25) evidenced_pair_coverage, and, where the
 milestone's predictions were preregistered, prediction_accuracy. Every other §13 metric is listed under
 not_applicable with the reason it cannot be measured yet. G1 regenerates metrics.json and compares it
@@ -117,6 +118,43 @@ def cross_kernel(recs: dict[str, dict]) -> dict:
             "independent_rate": _rate(sum(e["agree"] for e in indep), sum(e["ran"] for e in indep)) if indep else None}
 
 
+def lean_coverage(recs: dict[str, dict]) -> dict:
+    """One Lean directory's cross-kernel coverage (I43 rule L10) from its records: the PROVED records, those of them
+    whose lean4 entry is checked and the rate (None without a PROVED record), the lean4 entries not run by reason
+    (only reasons that occur, as a list: a reason is never a key, so no key reads like a timing) and the failed ones
+    (a failed entry is a cross-kernel finding)."""
+    def lean4(r: dict) -> dict | None:
+        ks = [k for k in r.get("kernels") or [] if k.get("name") == "lean4"]
+        return ks[0] if len(ks) == 1 else None
+    proved = [r for r in recs.values() if r.get("status") == "PROVED"]
+    checked = sum(1 for r in proved if (lean4(r) or {}).get("result") == "checked")
+    entries = [lean4(r) for r in recs.values() if r.get("status") in ("PROVED", "REFUTED")]
+    entries = [k for k in entries if k is not None]
+    reasons: dict[str, int] = {}
+    for k in entries:
+        if k.get("result") == "not_run":
+            reasons[str(k.get("reason"))] = reasons.get(str(k.get("reason")), 0) + 1
+    return {"proved": len(proved), "lean4_checked": checked, "rate": _rate(checked, len(proved)),
+            "not_run_by_reason": [{"reason": r, "count": n} for r, n in sorted(reasons.items())],
+            "failed": sum(1 for k in entries if k.get("result") == "failed")}
+
+
+def cross_kernel_coverage(milestone: str, root: Path, recs: dict[str, dict]) -> dict | None:
+    """cross_kernel_coverage (I43 rule L10) for a milestone with Lean directories (holon.lean.lean_dirs: M1, M2, M3):
+    the milestone's own directory from recs (the records being measured, so G1's regeneration from a scratch results
+    directory measures its own), and every other directory of the milestone (M2: results/M2/extracted_m1, as
+    "extracted_m1") from the committed records under root. None for every other milestone (M0 keeps its metrics)."""
+    from . import lean
+    dirs = lean.lean_dirs(milestone, root)
+    if not dirs:
+        return None
+    out = lean_coverage(recs)
+    for d in dirs:
+        if d.key != milestone:
+            out[d.key.split("/", 1)[-1]] = lean_coverage(records(d.milestone, Path(root) / d.records))
+    return out
+
+
 def prediction_accuracy(milestone: str, recs: dict[str, dict], root: Path) -> dict | None:
     rel = PREREGISTERED.get(milestone)
     if rel is None or not (Path(root) / rel).exists():
@@ -174,6 +212,9 @@ def compute(milestone: str, root: Path = ROOT, results: Path | None = None) -> d
     epc = lossy_metric(milestone, root)
     if epc is not None:
         doc["evidenced_pair_coverage"] = epc
+    ckc = cross_kernel_coverage(milestone, root, recs)
+    if ckc is not None:
+        doc["cross_kernel_coverage"] = ckc
     pa = prediction_accuracy(milestone, recs, root)
     if pa is not None:
         doc["prediction_accuracy"] = pa

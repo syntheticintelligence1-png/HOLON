@@ -11,20 +11,20 @@
       "generator": "noninterference",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.31
+      "seconds": 0.471
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.449
+      "seconds": 0.846
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.31
+    "seconds": 0.471
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -221,8 +221,8 @@
   "evidence_triage": "none",
   "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
   "filter_bin": null,
-  "generator_sha256": "df55ffcbf487a0fe32ea27c5229f607f6da9d00b489487e9e26f805580524557",
-  "independence_class": "I1-shared",
+  "generator_sha256": "d1882dd70f9658fd353bfa77b18630f193e996ca17f04a47e1c6a66616b93457",
+  "independence_class": "I2",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -242,6 +242,19 @@
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
+    },
+    {
+      "axioms": [
+        "propext"
+      ],
+      "name": "lean4",
+      "reading": "Lean reads the holon-facts/0.2 document itself (holon.gen.lean_machine), the target library through its Lean twin (hand-written target input, like the Bend library: common mode, I9 Question 4); Nat, Bool and lists as in Bend; premises are hypotheses as in Bend; the statement is the frozen Lean text of the same IR",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M1/lean/L_undo_CSR.lean",
+      "source_sha256": "97d758258e0e481f5c67aa4ff8a6bec4cbd1db7b952cc45a2561386d6643db93",
+      "theorem": "L_undo_CSR",
+      "version": "4.34.0"
     }
   ],
   "law_id": "L_undo_CSR",

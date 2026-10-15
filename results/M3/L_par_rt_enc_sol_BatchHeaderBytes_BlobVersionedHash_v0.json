@@ -11,20 +11,20 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.079
+      "seconds": 0.82
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 2.159
+      "seconds": 1.297
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.079
+    "seconds": 0.82
   },
   "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
   "cone": [
@@ -49,8 +49,8 @@
   "evidence_triage": "none",
   "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
   "filter_bin": null,
-  "generator_sha256": "ad3e93622aac800e34b5b3d3fe0ef57ce586deeb7e301c15a5bd49641162af5e",
-  "independence_class": "I1-shared",
+  "generator_sha256": "6edb096526c01d13473f23697310d9bdf093dfa5f0d036bc953dc67620f709c3",
+  "independence_class": "I2",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -70,6 +70,19 @@
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
+    },
+    {
+      "axioms": [
+        "propext"
+      ],
+      "name": "lean4",
+      "reading": "Lean cells are Option (BitVec 8): a record's byte is a BitVec 8 where Bend's is a U32, so Lean's theorems cover byte-valued records only (a narrower domain than Bend's, I9 Surprise 5); an undefined cell (Bend 57005) is none, and the decoders' orderings compare it as 57005; every premise is a hypothesis where Bend pins a field to a constant or to another record's field (an equivalent statement)",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M3/lean/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0.lean",
+      "source_sha256": "fe141d1c201827cd0efd8552663c1d2945e8709177f6dbc709eb6f2f4d2b0b4a",
+      "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+      "version": "4.34.0"
     }
   ],
   "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
@@ -95,7 +108,7 @@
     "bound": "the premise classes at zeros (pins and correspondences applied)",
     "degenerate": null,
     "law": "gen/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0/nonvac/LAWS.bend",
-    "parent_statement_hash": "sha256:c64580027f622f6a33b3f786683916dd59627d4e30585514ada3add03d7dce50",
+    "parent_statement_hash": "sha256:d100c000e85fd61f893287bb22f31f8d1fa13c02d963bcb245f0d848c32fd0a2",
     "reachable": null,
     "status": "inhabited",
     "witness": {
@@ -132,7 +145,7 @@
     "kind": "unbounded"
   },
   "statement": "\u2200 h: Header. h.version == 0x00 \u21d2 BatchHeaderBytes_BlobVersionedHash(enc_sol(h)) == Some(h.blobVersionedHash)",
-  "statement_hash": "sha256:c64580027f622f6a33b3f786683916dd59627d4e30585514ada3add03d7dce50",
+  "statement_hash": "sha256:d100c000e85fd61f893287bb22f31f8d1fa13c02d963bcb245f0d848c32fd0a2",
   "statement_scope": {
     "kind": "unbounded"
   },

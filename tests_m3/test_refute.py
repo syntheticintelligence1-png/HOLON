@@ -1195,7 +1195,12 @@ class TestRecordsAndShared(unittest.TestCase):
 
     def test_earlier_records_change_only_in_the_filter_fields(self):
         """I40-R2: every M0-M2 record file at the prereg differs at HEAD only in filter_bin, concretization,
-        generator_sha256 and keys named seconds; at least one of them changed (needs .git: a failure, never a skip)."""
+        generator_sha256 and keys named seconds, and in what I43 adds by design (Q8's promotion to Lean; amended at the
+        I43 prereg): kernels may gain exactly one lean4 entry, every earlier entry unchanged and in order, and
+        independence_class may change only from I1-shared to I2, exactly when that entry's result is checked; a decided
+        (PROVED or REFUTED) record of results/M2/extracted_m1, last written at I20 before I41 added the field, may also
+        gain "prover": "generator" when I43 regenerates it (amended at the I43 build); at least one of them changed
+        (needs .git: a failure, never a skip)."""
         c = prereg_commit()
         allowed = {"filter_bin", "concretization", "generator_sha256"}
         changed = 0
@@ -1206,8 +1211,21 @@ class TestRecordsAndShared(unittest.TestCase):
                 old = strip_seconds(json.loads(git("show", f"{c}:results/{d}/{n}")))
                 new = strip_seconds(load_json(ROOT / "results" / d / n))
                 diff = sorted(k for k in set(old) | set(new) if old.get(k) != new.get(k))
+                prover = {"prover"} if (d == "M2/extracted_m1" and old.get("status") in ("PROVED", "REFUTED")
+                                        and "prover" not in old and new.get("prover") == "generator") else set()
                 with self.subTest(record=f"{d}/{n}"):
-                    self.assertLessEqual(set(diff), allowed, diff)
+                    self.assertLessEqual(set(diff) - {"kernels", "independence_class"} - prover, allowed, diff)
+                    gained = [k for k in new.get("kernels") or [] if k.get("name") == "lean4"]
+                    if "kernels" in diff:
+                        self.assertEqual([k for k in old.get("kernels") or [] if k.get("name") == "lean4"], [], diff)
+                        self.assertEqual(len(gained), 1, diff)
+                        self.assertEqual([k for k in new["kernels"] if k.get("name") != "lean4"], old.get("kernels"))
+                    checked = "kernels" in diff and gained[0].get("result") == "checked"
+                    if checked:
+                        self.assertEqual((old.get("independence_class"), new.get("independence_class")),
+                                         ("I1-shared", "I2"))
+                    else:
+                        self.assertNotIn("independence_class", diff)
                 changed += bool(set(diff) & {"filter_bin", "concretization"})
         self.assertGreater(changed, 0, "no M0-M2 record carries a recomputed bin yet")
 

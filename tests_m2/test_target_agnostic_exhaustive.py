@@ -58,6 +58,8 @@ ALLOWLIST: dict[str, list[str]] = {
     # the whitepaper's component count kappa (|E| - |V| + kappa), I42's basis document key, as already for
     # holon/rules/par.py and holon/gen/mproofs.py
     "holon/gen/basis.py": ["kappa"],
+    # I43's frozen theory core II texts (emitted verbatim) name Thm 6.7's natural transformation eta2, not the migration
+    "holon/gen/theory2.py": ["eta2"],
 }
 TARGET_NAMES = {"Rollup", "Morph", "morph", "batchdata"}
 
