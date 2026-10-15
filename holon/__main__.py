@@ -46,6 +46,8 @@
   python -m holon lossy --milestone M3 [--root DIR] [--out DIR] [--review PATH] [--records DIR] [--codec PATH ...]
                         [--gen-dir DIR] [--check]       (PAR-lossy and injective pushing: gen/<M>/par_lossy/,
                                                         spec/<M>/evidence_review.jsonl; I25)
+  python -m holon eval <command> ...                   (I48: the evaluation corpus, the renaming tool and the
+                                                        controls; holon.eval.cli lists the commands)
   python -m holon types|termsize|model|run|replay --milestone M3 ...   (typed milestones, M3+ and T30+: I30's
                                                         holon.sorts; `run --laws` naming only laws outside I30's typed
                                                         SORT subforms, I24's PAR laws on M3, runs holon.pipeline)
@@ -106,6 +108,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["checker-upgrade"]:  # its flags go to holon.checker_upgrade unparsed
         from . import checker_upgrade
         return checker_upgrade.main(argv[1:])
+    if argv[:1] == ["eval"]:  # likewise for holon.eval.cli (I48)
+        from .eval import cli as eval_cli
+        return eval_cli.main(argv[1:])
     if argv[:1] == ["lean"]:  # likewise for holon.lean
         from . import lean
         return lean.main(argv[1:])
