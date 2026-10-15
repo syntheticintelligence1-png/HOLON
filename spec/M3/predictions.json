@@ -1396,6 +1396,248 @@
           "pending"
         ]
       }
+    },
+    "I43": {
+      "title": "Theory core II and Lean for the promoted set: Thm 6.6 (symmetries: identity, composition, inverses, the submonoid of partial actions, words of generators, powers, traces) and Thm 6.7 (naturality: pasting, vertical composition, traces, up to an observation) kernel-checked in Lean in textbook form and in Bend in the per-step form an instance applies; and every PROVED law of M1, M2 (with the extracted view) and M3 re-checked by an independent Lean 4 kernel against frozen Lean statements, frozen model interfaces, differential samples of the compiled Bend models and mutation canaries, judged by the instrument's own Lean check, with records gaining I2 and every Lean failure labelled or blocking",
+      "plan": "docs/BUILD_PLAN.md#i43",
+      "prompt": "prompts/I43_theory_core2_lean.md",
+      "predictions": [
+        {
+          "id": "I43-P1",
+          "claim": "Every PROVED law of results/M3 (73 PAR laws over the linked codec component header_length: 70 round trips and 3 pinned cross-component laws) is checked in Lean: its record lists one lean4 entry, result checked, role second-independent, with the frozen reading, and is I2; its file <lean dir>/<law id>.lean obeys rule L4 (tests_m3/_i43.py::file_violations: no # anywhere, no banned word, no indented command, the layout), declares the law's theorem (named by its law id) once with exactly the frozen statement of spec/M3/lib/lean_promoted.json (rule L3) and the frozen elaborated type over the frozen model interface (rule L5), contains the frozen declarations verbatim, is consistent with its model file, and passes the instrument's Lean check here (Lean 4.34.0 and its fingerprint frozen in the instrument; a random sentinel; no sorry; axioms within {propext, Quot.sound}) within 120 s; the committed report says checked for that exact text. Disclosed: the design survey checked five of the 73 (four round trips and one pinned cross-component law) in throwaway files under informal names that cannot be matched to law ids reliably, so the claim is scored on all 73.",
+          "check": "tests_m3/test_lean_promoted.py::TestPromoted::test_m3_promoted_laws_check_in_lean",
+          "expected": {
+            "M3": 73,
+            "probed_by_survey": 5,
+            "independence_class": "I2",
+            "budget_s": 120
+          }
+        },
+        {
+          "id": "I43-P2",
+          "claim": "The PROVED SORT-site laws of results/M2 (Bend class coercion_guard, over the instrumented model with the oracle parameter agg) are checked in Lean (I2) under the same conditions as I43-P1, with the site predicates read by Lean's own implementation of rules R8-R10 (holon/gen/lean_sites.py), each site predicate reaching its raw obligation ro_<x> in the file (rule L4), and each site passes its mutation canary (rule L11): in a copy of the tree whose facts document carries the site's frozen mutation (the site's protection kept under constant guards, sidecar models.M2:morph_rollup.site_canaries), holon lean --milestone M2 --emit-only re-emits the Lean model, whose site predicate is false, and hit predicate true, at the sample where holon's mutated Bend model makes the site predicate false. Scored on the sites the samples and the canary pin (sidecar site_laws_scored: hit and raw obligation taking both values, and a site canary): all 6 at the prereg (L_sort_site_def_bvh_at_6126d1f1, L_sort_site_def_bvh_at_e064679d, L_sort_site_def_w_b4cd5068, L_sort_site_rollup_441_b4cd5068, L_sort_site_rollup_485_495_b4cd5068, L_sort_site_rollup_644_660_e68daf06), none excluded. Unprobed: no Lean reading of the site semantics existed before this prereg.",
+          "check": "tests_m3/test_lean_promoted.py::TestPromoted::test_m2_site_laws_check_in_lean",
+          "expected": {
+            "M2": 6,
+            "scored": [
+              "L_sort_site_def_bvh_at_6126d1f1",
+              "L_sort_site_def_bvh_at_e064679d",
+              "L_sort_site_def_w_b4cd5068",
+              "L_sort_site_rollup_441_b4cd5068",
+              "L_sort_site_rollup_485_495_b4cd5068",
+              "L_sort_site_rollup_644_660_e68daf06"
+            ],
+            "excluded": {},
+            "independence_class": "I2",
+            "mutation_canary": "site predicate false, hit predicate true, at the sidecar's sample of each site",
+            "budget_s": 120
+          }
+        },
+        {
+          "id": "I43-P3",
+          "claim": "Zero cross-kernel disagreements: each of the 115 attempted laws (the 94 PROVED and the 21 REFUTED records over the machine, machine_oracle and linked kinds) has exactly one lean4 entry and none is failed (Lean rejected no Bend verdict for a non-resource reason; no forbidden word, bad axiom or missing theorem); each of the 21 REFUTED is checked, or not_run with reason timeout, recursion_depth or heartbeats only (every counter-law is rendered, so never unsupported_form; no_report and toolchain_unavailable are never a committed state), and each such resource claim reproduces when the instrument reruns the committed file within the 120 s budget (timeout: no verdict; recursion_depth and heartbeats: Lean's own error for that limit); every REFUTED record whose lean4 entry is checked states its frozen counter-law and refutation (rules L3-L5) and passes the instrument's Lean check. The test prints the counts by status, result and reason on every run, and the build reports them. Disclosed: the design survey probed one of the 21 (the view's L_disch_delay_nofree counter-law at n = 1).",
+          "check": "tests_m3/test_lean_promoted.py::TestAgreement::test_no_cross_kernel_disagreement",
+          "expected": {
+            "attempted": 115,
+            "failed": 0,
+            "refuted": 21,
+            "refuted_final": [
+              "checked",
+              "not_run timeout",
+              "not_run recursion_depth",
+              "not_run heartbeats"
+            ],
+            "resource_claims": "reproduce within 120 s"
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I43-R1",
+          "claim": "Statuses unchanged and Bend untouched: every record of results/M1, results/M2, results/M2/extracted_m1 and results/M3 keeps its status; every .bend file under gen/M0-M3 at the prereg is byte-identical except that a law file's statement_hash value may change, and then only to laws/<M>/REGISTRY.json's; every M3 PAR record carries its registry statement hash (all 80 are stale on fbd14d3, from I27's holon-rules/1.3 re-derivation, and I43's regeneration brings them to it). I30's 3 typed and I27's 8 UNDO M3 records are not regenerated (gap LP-G9: that needs the full replay toolchain) and keep their status, statement hash, generator hash, witnesses and kernels exactly as at the prereg, although their statement hashes (the typed) and generator hashes (all 11) are stale. Records other than the attempted laws gain no lean4 entry.",
+          "check": "tests_m3/test_lean_promoted.py::TestRegressions::test_statuses_and_bend_files_are_unchanged"
+        },
+        {
+          "id": "I43-R2",
+          "claim": "Construction: spec/M3/lib/theory_core2.json is tests_m3/_i43.py::theory2_doc and spec/M3/lib/lean_promoted.json is tests_m3/_i43.py::promoted_doc over unchanged inputs (files by sha256, records by status, witness, non-vacuity witness and per-entry witnesses; differential values, perturb-canary evidence and site canaries recomputed by bend, the mutated models by holon's own Bend side); the frozen statements are well-typed (Bend core II: 15 open laws and no other error; Lean core II: 14 placeholder warnings, no error, the instrument's check with placeholders allowed; the 136 frozen Lean law statements, 94 PROVED and 2 x 21 REFUTED, elaborate over the frozen interfaces); the scope counts are 8/6/7/73 PROVED and 21 REFUTED attempted; every PROVED law is rendered by rule L3 with no fallback; the differential samples (M1:morph_batchdata 28, M1:morph_rollup 1290, M2/extracted_m1:m1_view 1105, M2:morph_rollup 4241, M3:header_length 711) are well-typed over the interfaces, cover every interface function, step every action constructor from every sample state, every action constructor succeeds in some sample, and every hit predicate and raw obligation takes both values; the perturb canaries are evidenced on the compiled Bend models; every PROVED M2 site has a site canary whose mutation keeps every original expression under a constant guard and touches no permission; the instrument rejects every cheat file of the first review and accepts a clean file, and the frozen texts obey the file rules; its semantic reading matches Lean 4.34.0's messages for every allowed proof style and rejects the non-semantic ones, and its resource-limit reading matches Lean's heartbeat and recursion-depth errors; the import reader flags each import bypass the reviews found.",
+          "check": "tests_m3/test_theory_core2.py::TestPreregInstruments::test_sidecar_is_the_computation and tests_m3/test_theory_core2.py::TestPreregInstruments::test_core2_statements_are_well_typed_open_laws and tests_m3/test_theory_core2.py::TestPreregInstruments::test_lean2_statements_are_well_typed and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_sidecar_is_the_computation and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_scope_counts and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_every_promoted_law_is_rendered and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_statements_elaborate_against_the_interfaces and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_differential_samples_are_well_typed_and_not_trivial and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_perturb_canaries_are_evidenced and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_site_canaries_are_evidenced and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_the_instrument_rejects_the_review_cheats and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_the_instrument_reads_lean_rejections and tests_m3/test_lean_promoted.py::TestPreregInstruments::test_the_import_reader_sees_the_review_bypasses"
+        },
+        {
+          "id": "I43-R3",
+          "claim": "Construction: holon theory2 --milestone M3 is deterministic (two runs byte-identical and equal to the committed gen/M3/theory2/ but report.json), leaves foreign files alone, --check passes on the committed tree and exits 1 on an edited file; its report binds both files' sha256 to every kernel result (rule C4); holon lean --milestone M --check exits 0 for M1, M2 and M3, twice, and each Lean directory holds exactly the attempted laws' files, the model files and report.json; in a copy without the two sidecars and without tests_m3/, holon lean --check (M1, M2, M3) and holon theory2 --check still exit 0 (the outputs never need the frozen statements, the samples or the instrument).",
+          "check": "tests_m3/test_theory_core2.py::TestCLI::test_two_runs_are_byte_identical_and_equal_the_committed_files and tests_m3/test_theory_core2.py::TestCLI::test_check_detects_an_edited_file and tests_m3/test_theory_core2.py::TestReport::test_report_binds_every_kernel_result and tests_m3/test_lean_promoted.py::TestCode::test_lean_check_is_deterministic_on_the_committed_tree and tests_m3/test_lean_promoted.py::TestCode::test_the_outputs_never_need_the_sidecars"
+        },
+        {
+          "id": "I43-R4",
+          "claim": "Construction: the Lean emitters (holon/gen/lean_machine.py, lean_mlaws.py, lean_mproofs.py, lean_sites.py, lean_linked.py) are independent of the Bend side: no file of the transitive import closure of the emitters and holon/lean.py (tests_m3/_i43.py::import_closure: every import statement at any depth, relative imports at any level, submodules named by from-imports, attribute chains from imported names, helper modules followed) imports holon/gen/{machine,mlaws,mproofs,linked,coercion,core,refs,model,laws,proofs,oracles}.py, holon/sorts/* or an instrument, and none uses a dynamic import or reflection (importlib, __import__, import_module, exec, eval, runpy, sys.modules, getattr, vars, globals, __dict__); the emitters, holon/lean.py and every other holon/gen/lean_*.py module of that closure are generic (no compound target name of the M1/M2 fact documents and libraries or of the M3 linked components, no quoted target name but the formats' own words Bool, Bytes, log, who, version and the reason timeout, plus M0's own Header and Fields in I9's M0 emitters, no law id, no target source file; tests_m2/_i15.py, whose vocabulary this reads, pinned by sha256); no file under holon/ names spec/M3/lib/lean_promoted.json, theory_core2.json or the instrument (a textual check; a name split across string pieces is a stated residual, LP-G10); holon/gen/theory2.py is generic and enters no generator closure.",
+          "check": "tests_m3/test_lean_promoted.py::TestCode::test_emitters_are_independent_and_generic and tests_m3/test_lean_promoted.py::TestCode::test_holon_never_names_the_sidecars and tests_m3/test_theory_core2.py::TestHonesty::test_generic_code"
+        },
+        {
+          "id": "I43-R5",
+          "claim": "Construction: records are honest (rule L8): every attempted law's record has exactly one lean4 entry with version 4.34.0, role second-independent and the frozen reading, I2 exactly when it is checked, a reason in {timeout, recursion_depth, heartbeats, unsupported_form, no_report, toolchain_unavailable} and a detail when not_run; every record of results/M1, results/M2 and results/M3 validates against spec/schemas/result_record_v2.schema.json, whose kernel entries declare reason, detail and reading; the records of results/M2/extracted_m1 are exempt from the whole-record validation (their ledger_match is 'derived' by design and tests_m2/test_ledger.py asserts a derived record fails v2), and each attempted one's kernels[] and independence_class validate against the schema's definitions of those properties; results/<M>/metrics.json of M1, M2 and M3 carries cross_kernel_coverage (M2's with an extracted_m1 entry).",
+          "check": "tests_m3/test_lean_promoted.py::TestRegressions::test_records_are_honest_and_schema_valid and tests_m3/test_lean_promoted.py::TestGates::test_metrics_report_cross_kernel_coverage"
+        },
+        {
+          "id": "I43-R6",
+          "claim": "Gates: on a copy of the built tree, holon gate --checks G3,G7 passes for M0, M1 and M2 and --checks G3,G5,G7,G11V,GEVID for M3 (the partial M3 gate's checks that pass at the prereg, measured on copies of fbd14d3 and, before it, a0bcdc3, where G11 and G9 failed for reasons outside I43, Q33), G7's detail reporting the cross-kernel coverage of every Lean directory of M1, M2 (results and the view) and M3 (rule L9); Lean G3 scans every .lean file of every Lean directory, models/ included (a theorem proved by sorry planted in one model file per directory fails G3 for M1, M2 and M3, the detail naming each planted file); the full gates of M0, M1 and M2 pass (G1 needs the replay toolchain at config/holon.json's paths, replay.solc and replay.forge: CI has it; this environment lacks solc, so the test fails here naming it, never skips); holon.lean.strip_comments reads an escaped identifier whole, so Lean G3 finds a forbidden word after a guillemet-escaped comment opener (I42 Question 5).",
+          "check": "tests_m3/test_lean_promoted.py::TestGates::test_partial_gates_pass_with_lean and tests_m3/test_lean_promoted.py::TestGates::test_lean_g3_scans_every_lean_directory and tests_m3/test_lean_promoted.py::TestGates::test_full_gates_m0_m1_m2_pass and tests_m3/test_lean_promoted.py::TestRegressions::test_strip_comments_reads_escaped_identifiers_whole"
+        },
+        {
+          "id": "I43-R7",
+          "claim": "M0's Lean files and report (gen/M0/lean/, I9) are byte-identical after the build.",
+          "check": "tests_m3/test_lean_promoted.py::TestRegressions::test_m0_lean_files_are_unchanged"
+        },
+        {
+          "id": "I43-R8",
+          "claim": "I42's outputs are untouched: no I43 commit that writes gen/M3/theory2/, gen/<M>/lean/ for M1-M3, holon/gen/theory2.py or holon/gen/lean_*.py changes a file under gen/M3/theory/ (owned by holon basis; rule C5). The base fbd14d3 does not hold I42 (an open PR): until the integration line holds I42, this says only that no I43 commit creates a file there.",
+          "check": "tests_m3/test_theory_core2.py::TestHonesty::test_i42_outputs_are_untouched"
+        },
+        {
+          "id": "I43-R9",
+          "claim": "The Lean models agree with the compiled Bend models on every frozen differential sample (rule L7: 28 for M1:morph_batchdata, 1290 for M1:morph_rollup, 1105 for M2/extracted_m1:m1_view, 4241 for M2:morph_rollup, 711 for M3:header_length), each sample a theorem Lean proves by decide on the committed model file, the whole accepted by the instrument's Lean check (sentinel, no sorry, allowed axioms); every model file obeys rule L4 (no #, no banned word, no indented command), holds the frozen declarations and declares every site predicate, each reaching its raw obligation; every .lean file of every Lean directory, models/ included, is an attempted law's file or a model file and obeys the file rules of its kind; every law file's model section is its model file's (checked per law with I43-P1 to P3 and R11).",
+          "check": "tests_m3/test_lean_promoted.py::TestDifferential::test_lean_models_compute_the_bend_values and tests_m3/test_lean_promoted.py::TestDifferential::test_every_emitted_lean_file_obeys_the_file_rules"
+        },
+        {
+          "id": "I43-R10",
+          "claim": "Semantic canaries per milestone: for M1, M2 and M3, G7 reports a flip:<law> canary (a checked REFUTED counter-law with its claim's relation flipped) and the sidecar's perturb:<law> canary (M1: L_disch_delay_pay; M2: L_disch_delay_pay; M3: L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2), each rejected by Lean for a semantic reason. The perturbation is frozen in the sidecar: for an evaluate law, the right-hand constant k of its claim's first Nat equation becomes k + 1, and the compiled Bend model evaluates the left side to k at the record's witness (so the perturbed claim is false at that witness, which the kept proof fixes); for a PAR round trip without premise, the first two cells of its right side are swapped, and the Bend model's left side on a seeded record is the unswapped, differing cells. The test builds each canary itself from the committed law file (which must obey the file rules): its frozen statement replaced in the raw source by the perturbed one, the proof and everything else kept; the instrument's Lean check must reject it after elaborating to the end, with a first error read as semantic.",
+          "check": "tests_m3/test_lean_promoted.py::TestGates::test_semantic_canaries_per_milestone and tests_m3/test_lean_promoted.py::TestCanaries::test_perturb_canaries_are_rejected_by_lean"
+        },
+        {
+          "id": "I43-R11",
+          "claim": "Construction (what the design survey probed before the prereg, still tested): every PROVED law of results/M1 (8) and of results/M2/extracted_m1 (7, the window view) is checked in Lean (I2) under the same conditions as I43-P1.",
+          "check": "tests_m3/test_lean_promoted.py::TestPromoted::test_m1_promoted_laws_check_in_lean and tests_m3/test_lean_promoted.py::TestPromoted::test_extracted_m1_promoted_laws_check_in_lean"
+        },
+        {
+          "id": "I43-R12",
+          "claim": "Construction (part A: every statement was proved before the prereg, by the two reviews and the drafter): the Bend theory core II is PROVED (gen/M3/theory2/core/LAWS.bend is exactly the 15 frozen statements; its PROOF.bend, hand-written once and emitted as fixed text by holon.gen.theory2, imports only Base and ./LAWS.bend, fills every law with no escape hatch, and is accepted by bend and by bend --verdict, each within 120 s), and the Lean theory core II checks (gen/M3/theory2/lean/TheoryII.lean keeps the frozen definitions, declares each of the 14 frozen theorems once with its frozen statement and elaborated type, obeys rule C2's reading, and passes the instrument's Lean check within 120 s with axioms within {propext, Quot.sound}).",
+          "check": "tests_m3/test_theory_core2.py::TestCore::test_core_laws_are_the_frozen_text and tests_m3/test_theory_core2.py::TestCore::test_core_proof_fills_every_law and tests_m3/test_theory_core2.py::TestCore::test_core_checks_under_bend_within_budget and tests_m3/test_theory_core2.py::TestCore::test_core_checks_under_verdict_within_budget and tests_m3/test_theory_core2.py::TestLean::test_lean_definitions_and_statements_are_frozen and tests_m3/test_theory_core2.py::TestLean::test_lean_elaborated_types_are_the_frozen_ones and tests_m3/test_theory_core2.py::TestLean::test_lean_core_checks"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/theory2/",
+        "gen/M1/lean/",
+        "gen/M2/lean/",
+        "gen/M2/extracted/m1/lean/",
+        "gen/M3/lean/",
+        "gen/M3/laws/",
+        "gen/M3/proofs/",
+        "results/M1/",
+        "results/M2/",
+        "results/M3/",
+        "spec/schemas/result_record_v2.schema.json"
+      ],
+      "tests": [
+        "tests_m3/test_theory_core2.py",
+        "tests_m3/test_lean_promoted.py"
+      ],
+      "thresholds": {
+        "theory2_version": "holon-theory2/0.1",
+        "promoted_version": "holon-lean-promoted/0.1",
+        "sidecars": [
+          "spec/M3/lib/theory_core2.json",
+          "spec/M3/lib/lean_promoted.json"
+        ],
+        "instrument": "tests_m3/_i43.py",
+        "base": "fbd14d3 (the integration line after F33; the first drafts sat on a0bcdc3)",
+        "lean_check": "tests_m3/_i43.py::lean_check: the pinned toolchain resolved by the instrument (leanprover/lean4:v4.34.0 under ~/.elan, lean --version 4.34.0, sha256 over bin/lean, bin/lake, lib/lean/libleanshared.so and lib/lean/libLake_shared.so = sha256:01f7cb356f975fddb682edbdcad59f1dfd14a7acce12ca9b76e1fa35c8f345e0, all frozen in the instrument); the text, a sentinel theorem with a fresh random name and #print axioms for the checked theorems and the sentinel; accepted iff exit 0, no error, no sorry warning, the audit ends with exactly the checked theorems and the sentinel, axioms within allowed_axioms",
+        "banned_words": "tests_m3/_i43.py::LEAN_BANNED (whole words, comment- and string-free), no # anywhere in the code, and no indented command keyword (INDENTED_COMMAND), in every Lean file a test checks",
+        "semantic_rejection": "tests_m3/_i43.py::SEMANTIC_REJECTION in the first error (decide proved the proposition false; Not a definitional equality; the rfl tactic failed; a type mismatch in any case) and no NON_SEMANTIC error (case-insensitive); pinned by SEMANTIC_PROBES",
+        "budget_s_per_file": 120,
+        "budget_clock": "wall clock, measured by the tests, on an otherwise idle machine (law files: one lean process each, at most 4 in parallel)",
+        "budget_source": "config/holon.json bend.budget_s_per_file and lean.budget_s_per_file",
+        "allowed_axioms": [
+          "Quot.sound",
+          "propext"
+        ],
+        "core2_laws": 15,
+        "lean2_theorems": 14,
+        "promoted": {
+          "M1": 8,
+          "M2": 6,
+          "M2/extracted_m1": 7,
+          "M3": 73,
+          "total": 94
+        },
+        "refuted_attempted": {
+          "M1": 8,
+          "M2": 2,
+          "M2/extracted_m1": 7,
+          "M3": 4,
+          "total": 21
+        },
+        "refuted_not_attempted": [
+          "L_sort_realize_rollup_363_4a64383b",
+          "L_sort_tag_rollup_279_e01ea84a",
+          "L_undo_pair_Rollup_commitBatch_revertBatch",
+          "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes",
+          "L_undo_res_Rollup_revertBatch_batchDataStore"
+        ],
+        "allowed_not_run_reasons": [
+          "timeout",
+          "recursion_depth",
+          "heartbeats",
+          "unsupported_form",
+          "no_report",
+          "toolchain_unavailable"
+        ],
+        "refuted_final_not_run_reasons": [
+          "timeout",
+          "recursion_depth",
+          "heartbeats"
+        ],
+        "site_laws_scored": [
+          "L_sort_site_def_bvh_at_6126d1f1",
+          "L_sort_site_def_bvh_at_e064679d",
+          "L_sort_site_def_w_b4cd5068",
+          "L_sort_site_rollup_441_b4cd5068",
+          "L_sort_site_rollup_485_495_b4cd5068",
+          "L_sort_site_rollup_644_660_e68daf06"
+        ],
+        "unregenerated_records": [
+          "results/M3/L_sort_realize_rollup_363_4a64383b.json",
+          "results/M3/L_sort_tag_rollup_279_e01ea84a.json",
+          "results/M3/L_sort_tag_rollup_406_e01ea84a.json",
+          "results/M3/L_undo_pair_Rollup_addChallenger_removeChallenger.json",
+          "results/M3/L_undo_pair_Rollup_commitBatchWithProof_revertBatch.json",
+          "results/M3/L_undo_pair_Rollup_commitBatch_revertBatch.json",
+          "results/M3/L_undo_pair_Rollup_commitState_revertBatch.json",
+          "results/M3/L_undo_pair_Rollup_removeChallenger_addChallenger.json",
+          "results/M3/L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes.json",
+          "results/M3/L_undo_res_Rollup_revertBatch_batchDataStore.json",
+          "results/M3/L_undo_res_Rollup_revertBatch_committedStateRoots.json"
+        ],
+        "perturb_canaries": {
+          "M1": "L_disch_delay_pay",
+          "M2": "L_disch_delay_pay",
+          "M3": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2"
+        },
+        "lean_dirs": {
+          "M1": "gen/M1/lean",
+          "M2": "gen/M2/lean",
+          "M2/extracted_m1": "gen/M2/extracted/m1/lean",
+          "M3": "gen/M3/lean"
+        },
+        "differential_samples": {
+          "M1:morph_batchdata": 28,
+          "M1:morph_rollup": 1290,
+          "M2/extracted_m1:m1_view": 1105,
+          "M2:morph_rollup": 4241,
+          "M3:header_length": 711
+        },
+        "partial_gates": {
+          "M0": "G3,G7",
+          "M1": "G3,G7",
+          "M2": "G3,G7",
+          "M3": "G3,G5,G7,G11V,GEVID"
+        },
+        "i15_sha256": "d6912d047d4ed6ad2a170e57c07bccd3d3bcac08296d6e19f0042a1fa00dbea4",
+        "naming": "spec/M3/lib/lean_promoted.json naming: namespace Model; theorem <law id>, <law id>_counter, <law id>_refuted at top level after the marker -- holon:theorems; facts names under fixed prefixes (T_, f_, a_, i_, ob_, mig_, fn_, site_, hit_, ro_, R_, c_, c_ok_, V_, view_, v_, p_); never an escaped identifier",
+        "placement": "gen/M3/theory2/ (never gen/M3/theory/, which holon basis owns; never holon.gen.core's catalog); holon/gen/theory2.py outside every generator closure; the Lean emitters inside the 0.2/0.3 closures through holon/lean.py (generator_sha256 changes, gap LP-G7; holon/lean.py is also in run3's GEN3 closure and the UNDO closure, whose records I43 does not regenerate, gap LP-G9); the target library's Lean twin under spec/M1/lib/ in a file not matching *.lib.json",
+        "hand_proofs": "gap TC-G2: the Lean and Bend core II proofs are hand-written once and emitted as fixed text by holon.gen.theory2 (Q14b names Thm 6.6 and 6.7 in Lean; the Bend per-step forms by I42's reading)",
+        "amended_at_prereg": "tests_m3/test_refute.py::TestRecordsAndShared.test_earlier_records_change_only_in_the_filter_fields (I40-R2) narrowed in this prereg commit with its line in spec/M3/amendments.jsonl (gap LP-G6): kernels may gain exactly one lean4 entry, independence_class I1-shared to I2 exactly when it is checked; the build edits no test",
+        "renumbering": "first draft P1-P6; first fold P1 (Bend core II), P2 (Lean core II), P3 (M3), P4 (M2 sites), P5 (agreement), R11 (M1, the view); second fold: the core II became construction check R12 (both reviews proved every statement), so P1 is M3, P2 the M2 sites (with the mutation canary) and P3 no disagreement",
+        "disclosure": "a read-only design survey before this prereg (nothing committed) probed core II's six survey-form Bend laws and eleven Lean theorems, M1's 8 laws, the view's 7 laws, the view's L_disch_delay_nofree counter-law and five M3 laws in Lean: M1 and the view are regression I43-R11; P1's five M3 laws cannot be matched to law ids, so P1 is scored on all 73. Every core II statement was proved before this commit (the first draft's review, the drafter for the three statements added at the first fold, the second review), so part A is construction check I43-R12. The first review ran the survey's models on the M1 and M3 differential samples."
+      }
     }
   }
 }
