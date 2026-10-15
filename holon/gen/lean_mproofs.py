@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from .lean_common import Theorem, Unsupported, ident
 from .lean_machine import Ctx, cone, decl_names, model, paren, qualify
-from .lean_mlaws import Render, strip, value
+from .lean_mlaws import strip, value
 
 CLASSES = ("evaluate", "nat_split", "noninterference", "deadline", "chain_revert", "counter_decide")
 
@@ -92,14 +92,6 @@ def _props(law: dict) -> tuple[int, list[dict]]:
     return len(st.get("assume", [])), (list(claim["all"]) if set(claim) == {"all"} else [claim])
 
 
-def _mentions(x, key: str) -> bool:
-    if isinstance(x, dict):
-        return key in x or any(_mentions(v, key) for v in x.values())
-    if isinstance(x, list):
-        return any(_mentions(v, key) for v in x)
-    return False
-
-
 # ---------------------------------------------------------------------- evaluate
 def _evaluate(law: dict, record: dict, ctx: Ctx, stmts: dict) -> tuple[Theorem, ...]:
     lid = law["law_id"]
@@ -116,7 +108,7 @@ def _evaluate(law: dict, record: dict, ctx: Ctx, stmts: dict) -> tuple[Theorem, 
 def _counter(law: dict, record: dict, ctx: Ctx, stmts: dict) -> tuple[Theorem, ...]:
     lid = law["law_id"]
     bs = _binders(law, "forall")
-    nprem, props = _props(law)
+    nprem, _ = _props(law)
     claim = law["statement"]["claim"]
     ws = [strip(w) for w in _witness(law, record, ctx)]
     parts = ws + ["by decide"] * (nprem + 1)
@@ -169,7 +161,8 @@ def _noninterference(law: dict, record: dict, ctx: Ctx, stmts: dict) -> tuple[Th
     tr, s1, s2 = (b["name"] for b in bs)
     pre, post = _view_eq(st["assume"][0]), _view_eq(st["claim"])
     if not pre or not post or pre[0] != post[0] or pre[1] != {"var": s1} or pre[2] != {"var": s2} or \
-            post[1] != {"run": {"var": tr}, "from": {"var": s1}} or post[2] != {"run": {"var": tr}, "from": {"var": s2}}:
+            post[1] != {"run": {"var": tr}, "from": {"var": s1}} or \
+            post[2] != {"run": {"var": tr}, "from": {"var": s2}}:
         raise Unsupported("noninterference needs proj(s1) == proj(s2) => proj(run(tr, s1)) == proj(run(tr, s2))")
     fields = pre[0]
     v = "__".join(ident("", f) for f in fields)
@@ -192,8 +185,8 @@ def _noninterference(law: dict, record: dict, ctx: Ctx, stmts: dict) -> tuple[Th
 
 # ---------------------------------------------------------------------- deadline and chain_revert
 def _kappa(ctx: Ctx, name: str) -> dict | None:
-    """The deadline observer: b && (x + get(nth(xs, i), f)) < t over state fields, nth a twin list accessor with a default element
-    (kind nth_default); the pieces, or None."""
+    """The deadline observer: b && (x + get(nth(xs, i), f)) < t over state fields, nth a twin list accessor with a
+    default element (kind nth_default); the pieces, or None."""
     o = ctx.observers.get(name)
     if not o:
         return None
@@ -357,9 +350,7 @@ def _chain_revert(law: dict, record: dict, ctx: Ctx, stmts: dict) -> tuple[Theor
     act = ctx.actions[an]
     lets = {gd["let"]: gd["expr"] for gd in act["guards"] if "let" in gd}
     target = ["||", ["!", k["b"]], ["<=", k["t"], k["deadline"]]]
-    site = next((i for i, gd in enumerate(act["guards"]) if "require" in gd and _inline(gd["require"], lets) == target),
-                None)
-    if site is None:
+    if not any("require" in gd and _inline(gd["require"], lets) == target for gd in act["guards"]):
         raise Unsupported(f"chain_revert: no require of {an} is falsified by {kname}")
     Q = _Q(ctx)
     info = ctx.action(an)
@@ -369,7 +360,8 @@ def _chain_revert(law: dict, record: dict, ctx: Ctx, stmts: dict) -> tuple[Theor
     hb = f"hs.{ident('f_', k['b'])}"
     hj = strip(Q.expr(["<=", k["t"], k["deadline"]], senv))
     car = " ".join("_" for _ in info["carried"])
-    is_rev = (f"def hcr_rev_{lid} : {dc} → Bool\n  | {dc}.rev _ => true\n  | {dc}.ok{' ' + car if car else ''} => false")
+    is_rev = (f"def hcr_rev_{lid} : {dc} → Bool\n  | {dc}.rev _ => true\n"
+              f"  | {dc}.ok{' ' + car if car else ''} => false")
     cond = (f"theorem hcr_cond_{lid} (hc : Bool) (hx hy : {dc}) : hcr_rev_{lid} (bif hc then hx else hy) = "
             f"(bif hc then hcr_rev_{lid} hx else hcr_rev_{lid} hy) := by\n  cases hc <;> rfl")
     rr = f"theorem hcr_rr_{lid} (hc : Nat) : hcr_rev_{lid} ({dc}.rev hc) = true := rfl"
@@ -396,5 +388,4 @@ def _chain_revert(law: dict, record: dict, ctx: Ctx, stmts: dict) -> tuple[Theor
         else:
             bodies[b] = f"    simp [Model.fn_is_{A}] at hp"
     proof = "by\n  intro hs ha hk hp\n  cases ha with\n" + _cases(ctx, bodies)
-    del site
     return (Theorem(lid, stmts[lid], proof, before=(is_rev, cond, rr, dec, exe)),)

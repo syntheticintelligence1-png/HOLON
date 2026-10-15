@@ -79,7 +79,8 @@ class Render:
         if len({b["q"] for b in bs}) > 1:
             raise Unsupported("mixed quantifiers")
         params = self.ctx.params
-        first = [b for b in bs if b["name"] in params and b["type"].replace(" ", "") == params[b["name"]].replace(" ", "")]
+        first = [b for b in bs
+                 if b["name"] in params and b["type"].replace(" ", "") == params[b["name"]].replace(" ", "")]
         env: dict = {}
         out = []
         for b in first + [b for b in bs if b not in first]:

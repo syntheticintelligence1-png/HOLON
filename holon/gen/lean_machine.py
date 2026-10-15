@@ -411,8 +411,10 @@ class Ctx:
         if name in self.builtins:
             return self._builtin(name, txt)
         fixed = {"eq_nats": (["List<Nat>", "List<Nat>"], "Bool", "hl_eqNats"),
-                 "nth": (["List<Nat>", "Nat"], "Nat", None), "set_nat": (["List<Nat>", "Nat", "Nat"], "List<Nat>", None),
-                 "mem": (["Nat", "List<Nat>"], "Bool", "hl_mem"), "remove": (["Nat", "List<Nat>"], "List<Nat>", "hl_remove"),
+                 "nth": (["List<Nat>", "Nat"], "Nat", None),
+                 "set_nat": (["List<Nat>", "Nat", "Nat"], "List<Nat>", None),
+                 "mem": (["Nat", "List<Nat>"], "Bool", "hl_mem"),
+                 "remove": (["Nat", "List<Nat>"], "List<Nat>", "hl_remove"),
                  "zeros_like": (["List<Nat>"], "List<Nat>", "hl_zeros")}
         for sf, fld in self.shadow.items():
             fixed[f"es_{fld}"] = ([f"List<{self.shadow_record()}>"], self.stypes[sf], ident("hs_", fld))
