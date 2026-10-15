@@ -60,6 +60,7 @@ import hashlib
 import json
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import sys
@@ -80,8 +81,10 @@ FORBIDDEN = re.compile(r"\b(sorry|admit|native_decide|bv_decide|decide\s*\+\s*na
                        r"infix|infixl|infixr|prefix|postfix|import|run_cmd|run_tac|run_elab|initialize|"
                        r"builtin_initialize|debug\.skipKernelTC|Lean\.Elab|Lean\.Meta)\b")
 # commands that run code or cut elaboration short (#eval runs IO during the lake build; #exit stops checking the rest
-# of the file): forbidden like the tactics above (audit F-M2-32)
-FORBIDDEN_CMD = re.compile(r"(?m)^[ \t]*#(eval|exit)\b")
+# of the file): forbidden like the tactics above (audit F-M2-32). Every # command but #print axioms (which I9's M0
+# files carry), anywhere in the code: Lean runs a command that follows a declaration on the same line, so a mid-line
+# #eval could print forged audit lines and a mid-line #exit hide the rest of the file (I43 build review, M1)
+FORBIDDEN_CMD = re.compile(r"#(?!print\s+axioms\b)([A-Za-z_][A-Za-z0-9_]*)")
 # A canary counts as rejected only for a semantic reason (audit F-M2-32): the kernel decided the flipped claim false,
 # or found the two sides not definitionally equal. A parse, name or goal-shape error rejects it vacuously, and
 # "unsolved goals" alone is not enough (a syntax error can surface first as an empty tactic block's unsolved goal).
@@ -241,15 +244,17 @@ def strip_comments(src: str) -> str:
 _CHAR_OPEN = re.compile(r"(?<![\w'!?])'")
 
 
-def forbidden(src: str) -> list[str]:
+def forbidden(src: str, strict: bool = False) -> list[str]:
     """The forbidden words and commands of a Lean source, comments removed, plus "string literal" or "char literal"
     for any literal outside a comment. No generated Lean file holds one, and Lean lexes literals in ways a comment
     stripper misreads (Q35's priority fix, after the escaped identifier of I42 Question 5): a raw string r"\\" ends
     at its second quote, an interpolated string s!"{..}" holds code in its braces, and a char literal '"' holds the
-    quote a string blanker would open. Each could hide the code after it from this scan."""
+    quote a string blanker would open. Each could hide the code after it from this scan. strict (the I43 Lean
+    directories, whose files carry no # at all): any # outside a comment is reported too."""
     code = strip_comments(src)
     lits = {"string literal"} if '"' in code else set()
     lits |= {"char literal"} if _CHAR_OPEN.search(code) else set()
+    lits |= {"#"} if strict and "#" in code else set()
     code = re.sub(r'"(?:[^"\\]|\\.)*"', '""', code)
     return sorted(set(m.group(0) for m in FORBIDDEN.finditer(code))
                   | {"#" + m.group(1) for m in FORBIDDEN_CMD.finditer(code)} | lits)
@@ -287,27 +292,34 @@ def parse_axioms(out: str) -> dict[str, list[str]]:
 
 
 # ------------------------------------------------------------------ checking one text
-def _project(d: Path, src: str, names: list[str], cfg: dict) -> None:
+SENTINEL_PREFIX = "holon_audit_sentinel_"
+
+
+def _project(d: Path, src: str, names: list[str], cfg: dict, sentinel: str) -> None:
     d.mkdir(parents=True)
     (d / "lean-toolchain").write_text(cfg["toolchain"] + "\n")
     (d / "lakefile.toml").write_text(f'name = "holoncheck"\ndefaultTargets = ["{MODULE}"]\n\n'
                                      f'[[lean_lib]]\nname = "{MODULE}"\n')
-    audit = "".join(f"\n#print axioms {t}" for t in names)
-    (d / f"{MODULE}.lean").write_text(src.rstrip("\n") + "\n\n-- appended by holon.lean (axiom audit)" + audit + "\n")
+    audit = "".join(f"\n#print axioms {t}" for t in [*names, sentinel])
+    (d / f"{MODULE}.lean").write_text(src.rstrip("\n") + "\n\n-- appended by holon.lean (axiom audit)\n"
+                                      f"theorem {sentinel} : True := trivial" + audit + "\n")
 
 
 def check_text(src: str, tmpdir, expect: list[str] | None = None, cfg: dict | None = None,
-               timeout: float | None = None, names: list[str] | None = None) -> dict:
+               timeout: float | None = None, names: list[str] | None = None, strict: bool = False) -> dict:
     """Check one Lean source in a fresh lake project under tmpdir.
 
     result: checked (Lean accepts it, every declared theorem is audited, axioms within ALLOWED_AXIOMS and
     every `expect`ed theorem present) | rejected | forbidden | bad_axioms | missing_theorem | timeout |
     unavailable. Also returns axioms (union over the theorems), per-theorem axioms, seconds and out.
-    names: the theorems to audit (default: every `theorem` the source declares, by its bare name)."""
+    names: the theorems to audit (default: every `theorem` the source declares, by its bare name). The runner appends
+    a theorem with a fresh random name (the sentinel) after the file and audits it last: the output's audit lines must
+    end with exactly the audited theorems and then the sentinel, in order, and only those lines count. So a file that
+    stops early (#exit) or prints audit lines of its own cannot pass (I43 build review, M1). strict: forbidden(strict)."""
     cfg = cfg or config()
     names = theorems(src) if names is None else list(names)
     base = {"result": "rejected", "axioms": [], "theorems": {}, "seconds": 0.0, "out": ""}
-    bad = forbidden(src)
+    bad = forbidden(src, strict)
     if bad:
         return {**base, "result": "forbidden", "out": f"forbidden in the source: {bad}"}
     try:
@@ -317,7 +329,8 @@ def check_text(src: str, tmpdir, expect: list[str] | None = None, cfg: dict | No
     d = Path(tmpdir) / f"proj-{hashlib.sha256(src.encode()).hexdigest()[:12]}"
     if d.exists():
         shutil.rmtree(d)  # never reuse a build
-    _project(d, src, names, cfg)
+    sentinel = SENTINEL_PREFIX + secrets.token_hex(8)
+    _project(d, src, names, cfg, sentinel)
     t0 = time.monotonic()
     try:
         p = subprocess.run([str(b / "lake"), "build", "--no-cache", "--log-level=info"], cwd=d, env=_env(b),
@@ -328,11 +341,18 @@ def check_text(src: str, tmpdir, expect: list[str] | None = None, cfg: dict | No
                 "out": f"timeout after {timeout or cfg['timeout_s']} s\n{out[-4000:]}"}
     secs = round(time.monotonic() - t0, 3)
     out = p.stdout + p.stderr
-    ax = parse_axioms(out)
+    lines = [(m.group(1), sorted(a.strip() for a in (m.group(3) or "").replace("\n", " ").split(",") if a.strip()))
+             for m in _AX.finditer(out)]
+    tail = lines[-(len(names) + 1):]
+    ordered = [n for n, _ in tail] == [*names, sentinel]
+    ax = dict(tail) if ordered else {}
     union = sorted({a for t in names for a in ax.get(t, [])})
     res = {**base, "axioms": union, "theorems": {t: ax.get(t) for t in names}, "seconds": secs, "out": out}
     if p.returncode != 0 or re.search(r"(^|\n)error:|: error:", out):
         return {**res, "result": "rejected"}
+    if not ordered:
+        return {**res, "result": "missing_theorem",
+                "out": out + "\n[holon.lean] the axiom audit does not end with the audited theorems and the sentinel"}
     if not names or any(ax.get(t) is None for t in names) or any(t not in names for t in (expect or [])):
         return {**res, "result": "missing_theorem"}
     if not set(union) <= ALLOWED_AXIOMS:
@@ -993,7 +1013,7 @@ def check_law(text: str, tmpdir, main: str, cfg: dict | None = None) -> dict:
     budget: check_text's result ("timeout" when over the budget), axioms, theorems, seconds and out, plus
     kernel_result, reason and detail as classify reads them."""
     cfg = cfg or config()
-    r = check_text(text, tmpdir, expect=[main], cfg=cfg, names=declared_theorems(text))
+    r = check_text(text, tmpdir, expect=[main], cfg=cfg, names=declared_theorems(text), strict=True)
     r = _within_budget(r, cfg)
     return _checked({**r, "main": main, "audit_from": _audit_from(text)})
 
@@ -1003,7 +1023,7 @@ def check_model(text: str, tmpdir, cfg: dict | None = None) -> dict:
     theorem; any it declares is audited)."""
     cfg = cfg or config()
     names = declared_theorems(text)
-    r = check_text(text, tmpdir, cfg=cfg, names=names)
+    r = check_text(text, tmpdir, cfg=cfg, names=names, strict=True)
     if r["result"] == "missing_theorem" and not names:
         r = {**r, "result": "checked"}
     r = _within_budget(r, cfg)
