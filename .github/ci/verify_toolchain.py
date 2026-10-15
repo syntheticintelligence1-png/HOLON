@@ -5,6 +5,8 @@ fingerprint functions (holon.bend, holon.lean, holon.replay), so a PASS here is 
 compare; it changes no pin and no checker. Run from the repository root: python .github/ci/verify_toolchain.py
 """
 import json
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -47,8 +49,15 @@ def check_bend():
 
 
 def check_lean():
-    ok, detail = lean.toolchain_ok(lean.config(ROOT))
+    lcfg = lean.config(ROOT)
+    ok, detail = lean.toolchain_ok(lcfg)
     pin("lean", ok, detail)
+    # the `lean` HOLON finds on PATH + ~/.elan/bin (bend.verdict_available decides by it whether the second
+    # kernel runs) must be the pinned toolchain's own executable
+    found = shutil.which("lean", path=bend._env()["PATH"])
+    want = Path(os.path.realpath(lean.toolchain_bin(lcfg) / "lean"))
+    got = Path(os.path.realpath(found)) if found else None
+    pin("lean_on_path", got == want and bend.verdict_available(), f"`lean` -> {found} ({got}) want {want}")
 
 
 def check_replay():

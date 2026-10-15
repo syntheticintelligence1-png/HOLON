@@ -42,9 +42,12 @@ sha_ok "$HOME/.bun/bin/bun" "$BUN_BIN_SHA"
 # 2. Bend at the pinned commit (finds ~/.bun/bin/bun, so it installs no other bun)
 "$REPO/tools/install_bend.sh" "$HOME/.holon"
 
-# 3. Lean, the exact release tarball (sha256-checked), extracted with the runner's zstd. elan is not
-#    installed: holon/lean.py and the BendTT kernel build resolve ~/.elan/toolchains/<toolchain>/bin
-#    directly, which is all `elan toolchain link` would have created.
+# 3. Lean, the exact release tarball (sha256-checked), extracted with the runner's zstd. elan itself is
+#    not installed. What it would have provided is made by hand from the checked tarball:
+#    - ~/.elan/toolchains/<toolchain>: holon/lean.py and the BendTT kernel build resolve its bin directly;
+#    - ~/.elan/bin/<tool>: holon.bend.verdict_available() looks `lean` up on PATH + ~/.elan/bin to decide
+#      whether the second kernel runs. elan puts its dispatching proxies there; these are plain links
+#      to the pinned toolchain's own executables.
 LEAN_V="$(cfg lean.pinned_version)"
 [ "$LEAN_V" = 4.34.0 ] || { echo "config lean.pinned_version is $LEAN_V; LEAN_TAR_SHA pins 4.34.0" >&2; exit 1; }
 fetch "$TMP/lean.tar.zst" "https://github.com/leanprover/lean4/releases/download/v$LEAN_V/lean-$LEAN_V-linux.tar.zst"
@@ -53,6 +56,9 @@ tar --use-compress-program=unzstd -xf "$TMP/lean.tar.zst" -C "$HOME/.holon"
 LEAN_TC="$HOME/.elan/toolchains/leanprover--lean4---v$LEAN_V"
 mkdir -p "$HOME/.elan/toolchains"
 ln -sfn "$HOME/.holon/lean-$LEAN_V-linux" "$LEAN_TC"
+mkdir -p "$HOME/.elan/bin"
+for t in "$LEAN_TC"/bin/*; do ln -sfn "$t" "$HOME/.elan/bin/$(basename "$t")"; done
+ls -l "$HOME/.elan/bin"
 "$LEAN_TC/bin/lean" --version
 
 # 4. the BendTT kernel: bend --verdict builds and caches it on first use
