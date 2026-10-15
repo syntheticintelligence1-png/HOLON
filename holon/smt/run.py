@@ -121,6 +121,24 @@ class Session:
             if timer is not None:
                 timer.cancel()
 
+    def send(self, text: str) -> None:
+        """Declarations or definitions on the open query (no check)."""
+        self.p.stdin.write(text + '(echo "@@done")\n')
+        self.p.stdin.flush()
+        while True:
+            line = self.p.stdout.readline()
+            if not line or line.strip() == "@@done":
+                break
+            if line.startswith("(error"):
+                raise RuntimeError(f"z3: {line.strip()[:300]}")
+
+    def more(self, text: str) -> str:
+        """Further declarations and assertions on the open query, then (check-sat) again (incremental)."""
+        try:
+            return self._check(text + "(check-sat)\n")
+        except (BrokenPipeError, OSError):
+            return "unknown"
+
     def _check(self, text: str) -> str:
         self.p.stdin.write(text)
         self.p.stdin.write('(echo "@@done")\n')
@@ -137,6 +155,9 @@ class Session:
         errs = [x for x in lines if x.startswith("(error")]
         if not res and self.p.poll() is not None and self.guard is None:
             self.guard = f"the solver process ended (exit {self.p.returncode}; memory guard or crash)"
+        if errs and "out of memory" in errs[0]:
+            self.guard = "memory guard (the solver ran out of the address space it was given)"
+            return "unknown"
         if errs:
             self.close()
             raise RuntimeError(f"z3: {errs[0][:400]}")

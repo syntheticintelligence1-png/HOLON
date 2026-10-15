@@ -80,6 +80,9 @@ def problem(root: Path, side: dict, env: dict):
                     int(side["solver"]["rlimit_per_query"]), int(side["blob_count_max"]),
                     answers=env.get("answers") or {}, immutables=imm, this=_int(init["target"]))
     p.gas_limit = int(side.get("gas_limit") or 30000000)
+    p.preimages = [bytes.fromhex(x[2:]) for x in init.get("preimages") or [] if len(x) > 2 + 128]
+    st = {_int(k): _int(v) for k, v in (init.get("storage") or {}).items()}
+    p.raw_slots = {_int(x): st[_int(x)] for x in info["unknown_slots"]}
     return p, info
 
 
@@ -299,6 +302,8 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             tid = target_of(env, key, rec, law)
             conc.update(target=tid, bound={"H": H, "rlimit": rl})
             r = cached(root, f"target:{tid}") if tid else None
+            if r is not None:
+                r = confirmed(root, "target", tid, r)
             if r is None:
                 conc.update(result="unknown", reason="BMC on the target was not run within the I40 build's time box")
             else:
@@ -317,16 +322,56 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             "filter": {"document": "filter", "rule": FL.FINAL_RULE, "records": filt}}
 
 
+def with_calls(root: Path, kind: str, ident: str, path):
+    """A path with each step's env.calls the real deployment's answers (the replay's), as I30's witness format holds
+    them; unchanged when the path has not been replayed."""
+    rp = root / REPLAY
+    if not path or not rp.is_file():
+        return path
+    e = (load(rp).get({"reach": "reaches", "i21": "i21", "target": "targets"}[kind]) or {}).get(ident)
+    if not e or len(e.get("calls") or []) != len(path):
+        return path
+    out = []
+    for st, cs in zip(path, e["calls"]):
+        env = dict(st["env"], calls=[{"fn": None, "to": c["to"], "data": c["data"], "ok": c["ok"], "ret": c["ret"]}
+                                     for c in cs])
+        out.append(dict(st, env=env))
+    return out
+
+
+def confirmed(root: Path, kind: str, ident: str, r: dict) -> dict:
+    """A cached BMC result with its replay applied: a path the real contract does not reproduce (outcomes differing
+    from the model's) is a candidate of the encoding's over-approximation, and the verdict is unknown with that
+    reason (never path, never no_path); a path not yet replayed stays a candidate (unknown)."""
+    if r["verdict"] != "path":
+        return r
+    rp = root / REPLAY
+    e = (load(rp).get({"reach": "reaches", "i21": "i21", "target": "targets"}[kind]) or {}).get(ident) \
+        if rp.is_file() else None
+    if e is None:
+        return dict(r, verdict="unknown", length=None, path=None,
+                    reason=f"a candidate path of length {r['length']} (k = {r['largest_k']}) not replayed yet")
+    if e.get("status") != "passed":
+        return dict(r, verdict="unknown", length=None, path=None, largest_k=max(0, r["largest_k"] - 1),
+                    reason=f"spurious candidate: the encoding's path of length {r['length']} (over-approximations: "
+                           f"{len(r.get('approx') or [])}) replays as {' / '.join(e.get('outcomes') or [])} on the real "
+                           f"contract, not {' / '.join(e.get('expected') or [])}; k <= {r['largest_k'] - 1} decided")
+    return r
+
+
 def reach_docs(root: Path, side: dict) -> dict:
     H = int(side["bmc"]["H"])
     reaches = {}
     for rid in side["unfalsified_reaches"]:
         r = cached(root, f"reach:{rid}")
+        if r is not None:
+            r = confirmed(root, "reach", rid, r)
         if r is None:
             reaches[rid] = {"verdict": "unknown", "length": None, "path": None, "largest_k": 0,
                             "reason": "not run: the I40 build's time box ended before this reach's search"}
         else:
-            reaches[rid] = {"verdict": r["verdict"], "length": r["length"], "path": r["path"],
+            reaches[rid] = {"verdict": r["verdict"], "length": r["length"],
+                            "path": with_calls(root, "reach", rid, r["path"]),
                             "largest_k": r["largest_k"], "reason": r["reason"]}
     return {"document": "reaches", "source": "results/M2/refinement/extracted.json", "H": H, "reaches": reaches}
 
@@ -335,10 +380,12 @@ def i21_doc(root: Path, side: dict) -> dict:
     f = {}
     for fid in sorted(k for k in side["i21"] if k not in ("doc", "out_of_scope")):
         r = cached(root, f"i21:{fid}")
+        if r is not None:
+            r = confirmed(root, "i21", fid, r)
         evm = ({"verdict": "unknown", "length": None, "path": None, "largest_k": 0,
                 "reason": "not run: the I40 build's time box"} if r is None else
-               {"verdict": r["verdict"], "length": r["length"], "path": r["path"], "largest_k": r["largest_k"],
-                "reason": r["reason"]})
+               {"verdict": r["verdict"], "length": r["length"], "path": with_calls(root, "i21", fid, r["path"]),
+                "largest_k": r["largest_k"], "reason": r["reason"]})
         x = {"evm": evm}
         if side["i21"][fid].get("go"):
             x["go"] = {"verdict": "out_of_scope", "reason": side["i21"][fid]["go"]}
@@ -438,13 +485,13 @@ def main(a, root: Path) -> int:
         if os.environ.get("HOLON_REFUTE_MEMORY_MB"):
             BMC.MEMORY_MB = int(os.environ["HOLON_REFUTE_MEMORY_MB"])
         bmc_stage(root, side, env, ids or None, jobs=int(os.environ.get("HOLON_REFUTE_JOBS") or 1))
-    if "bmc" in stages:
-        files["reaches.json"] = reach_docs(root, side)
-        files["i21.json"] = i21_doc(root, side)
-        files["unknowns.json"] = unknowns_doc(root, side)
     if "smt" in stages:
-        files["refind.json"] = refind_doc(side)
-        files["codec.json"] = codec_doc(side)
+        cdoc, refound, ctexts = codec_stage(root, side) if not a.check else (None, {}, {})
+        texts.update(ctexts)
+        rdoc = refind_doc(side)
+        rdoc["classes"].update(refound)
+        files["refind.json"] = rdoc
+        files["codec.json"] = cdoc if cdoc is not None else codec_doc(side)
     if "fuzz" in stages:
         files["fuzz.json"] = fuzz_doc(side)
     if "emit" in stages:
@@ -457,6 +504,10 @@ def main(a, root: Path) -> int:
         rep = replay_stage(root, side, env)
         (root / REPLAY).parent.mkdir(parents=True, exist_ok=True)
         (root / REPLAY).write_text(dumps(rep), encoding="utf-8")
+    if "bmc" in stages:
+        files["reaches.json"] = reach_docs(root, side)
+        files["i21.json"] = i21_doc(root, side)
+        files["unknowns.json"] = unknowns_doc(root, side)
     if "filter" in stages:
         docs = concretize(root, side, env, write=not a.check)
         files["concretization.json"] = docs["concretization"]
@@ -611,14 +662,133 @@ def replay_stage(root: Path, side: dict, env: dict) -> dict:
     try:
         res = rr.run([r["path"] for _qid, _q, r in items])
         rep["toolchain"] = {"forge": rr.tc.get("forge"), "solc": rr.tc.get("solc")}
+        # the emitted tests, run in the same project (their outcome is the test's own assertion)
+        from .refute3 import run_tests
+        emitted = {}
+        for rp, text in emit_tests(root, side, env).items():
+            if str(rp).endswith(".t.sol"):
+                emitted[Path(rp).name[:-len(".t.sol")]] = text
+        tests_out = run_tests(rr.proj, rr.tc, emitted) if emitted else {}
     finally:
         rr.close()
     for (qid, q, r), x in zip(items, res):
         exp = expected_outcomes(m, q, r["path"])
         agree = x["outcomes"] == exp
+        t = tests_out.get(test_name(qid)) or {}
         entry = {"status": "passed" if agree else "failed", "outcomes": x["outcomes"], "expected": exp,
-                 "calls": x["calls"], "calls_agree": agree,
+                 "calls": x["calls"], "calls_agree": agree, "emitted_test_passed": bool(t.get("passed")),
                  "test": str(TESTS / "foundry" / qid.split(":", 1)[0] / f"{test_name(qid)}.t.sol")}
         kind, _, ident = qid.partition(":")
         {"reach": rep["reaches"], "i21": rep["i21"], "target": rep["targets"], "width": rep["targets"]}[kind][ident] = entry
     return rep
+
+
+# ------------------------------------------------------------------------------------------------ Q2 and Q1 (codec)
+def codec_model_import(where: Path, root: Path, law: dict) -> str:
+    import os
+    return os.path.relpath((root / "gen" / "M3" / "model" / f"{Path(law['facts']).stem}.bend").resolve(),
+                           where.resolve()).replace(os.sep, "/")
+
+
+def check_counter(law: dict, doc: dict, wit: dict, where: Path, root: Path, laws_file: Path | None = None) -> dict:
+    """A codec candidate's counter-law (holon.gen.linked's generator at the witness), checked by Bend and BendTT:
+    {"counter_law", "checker", "verdict", "accepted", "reason"}."""
+    import os
+    from .gen import linked as L
+    from .sorts.run3 import check_file
+    where.mkdir(parents=True, exist_ok=True)
+    mi = codec_model_import(where, root, law)
+    reg = load(root / "laws" / "M3" / "REGISTRY.json")
+    note = (reg.get("statements") or {}).get(law["law_id"], "")
+    try:
+        em2 = L.emit(law, doc, mi, counter=True, note=note)
+        text = L.counter(em2, doc, mi, wit)
+    except Exception as x:  # noqa: BLE001  (an inexpressible candidate is discarded with the reason)
+        return {"counter_law": None, "checker": {"exit_code": None, "marker": f"inexpressible: {x}"},
+                "verdict": {"kernel": "BendTT", "marker": "not_run"}, "accepted": False, "reason": f"inexpressible: {x}"}
+    if laws_file is None:
+        (where / "LAWS.bend").write_text(em2.text, encoding="utf-8")
+    else:
+        rel = os.path.relpath(laws_file.resolve(), where.resolve()).replace(os.sep, "/")
+        text = text.replace("import ./LAWS.bend as Laws", f"import {rel} as Laws")
+    p = where / "PROOF.bend"
+    p.write_text(text, encoding="utf-8")
+    checker, verdict = check_file(p)
+    checker = {k: v for k, v in checker.items() if k != "seconds"}
+    ok = checker.get("marker") == "ALL PROOFS CHECK" and verdict == "checked"
+    return {"counter_law": str(p.relative_to(root)), "checker": checker,
+            "verdict": {"kernel": "BendTT", "marker": "ALL PROOFS CHECK" if verdict == "checked" else verdict},
+            "accepted": ok, "reason": None if ok else f"bend2 {checker.get('marker')}, BendTT {verdict}"}
+
+
+def codec_stage(root: Path, side: dict, log=print) -> tuple[dict, dict]:
+    """Q2 over every codec law of a linked component (the M3 PAR laws), and Q1's codec and domain classes over the
+    same models: (codec.json, {class id: refind row})."""
+    from .smt import codec as C
+    rl = int(side["solver"]["rlimit_per_query"])
+    ml = int(side["smt"]["byte_length_max"])
+    laws, texts = {}, {}
+    for x in side["codec_laws"]:
+        d, _, lid = x["record"].rpartition("/")
+        law = law_of(root, x["record"])
+        doc = load(root / law["facts"]) if law.get("facts") else {}
+        if doc.get("linked_version") is None:
+            laws[x["record"]] = {"status": x["status"], "solver": "unknown", "query": None, "candidate": None,
+                                 "reason": f"not run: the codec document {law.get('facts')} (holon-facts/0.1) has no "
+                                           "encoder in this build (docs/iterations/I40.md, Not done)"}
+            continue
+        q, dec = C.law_query(doc, law, rl, ml)
+        qp = GENR / "smt" / "codec" / f"{lid}.smt2"
+        text = q.text()
+        texts[qp] = text
+        sess = SR.Session(side["solver"])
+        try:
+            res = sess.check(text)
+            cand = None
+            if res == "sat":
+                wit = C.decode(sess, dec)
+                cand = {"witness": wit, **check_counter(law, doc, wit, root / GENR / "codec" / lid, root)}
+            elif res == "unknown":
+                cand = None
+        finally:
+            sess.close()
+        laws[x["record"]] = {"status": x["status"], "solver": res, "query": str(qp), "candidate": cand}
+        log(f"codec {lid}: {res}{'' if not cand else ' accepted' if cand['accepted'] else ' discarded'}")
+    refind = {}
+    for c in side["classes"]:
+        if c["kind"] not in ("codec", "domain"):
+            continue
+        law = law_of(root, c["record"])
+        doc = load(root / law["facts"]) if law.get("facts") else {}
+        if doc.get("linked_version") is None:
+            continue
+        rec = records(root)[c["record"]]
+        q, dec = C.law_query(doc, law, rl, ml, template=c["signature"])
+        qp = GENR / "smt" / "refind" / f"{c['id']}.smt2"
+        text = q.text()
+        texts[qp] = text
+        sess = SR.Session(side["solver"])
+        cands = []
+        try:
+            res = sess.check(text)
+            if res == "sat":
+                wit = C.decode(sess, dec)
+                lhs, rhs = C.side_values(sess, dec)
+                if c["kind"] == "codec":
+                    ba, bb = bytes.fromhex(lhs[2:]), bytes.fromhex(rhs[2:])
+                    sig = {"diff_positions": [i for i in range(max(len(ba), len(bb)))
+                                              if i >= len(ba) or i >= len(bb) or ba[i] != bb[i]],
+                           "lengths": [len(ba), len(bb)]}
+                else:
+                    bb = bytes.fromhex(next(v for v in wit.values() if isinstance(v, str))[2:])
+                    sig = {"version_byte": bb[0] if bb else None, "length": len(bb), "lhs": lhs, "rhs": rhs}
+                laws_file = root / rec["artifacts"]["laws"]
+                chk = check_counter(law, doc, wit, root / GENR / "refind" / c["id"], root, laws_file=laws_file)
+                cands.append({"witness": wit, "signature": sig, **chk})
+        finally:
+            sess.close()
+        refind[c["id"]] = {"record": c["record"], "law_id": c["law_id"], "entry": c["entry"], "kind": c["kind"],
+                           "query": str(qp), "result": res, "bound": {"byte_length_max": ml},
+                           "candidates": cands, "refound": bool(cands and cands[0]["accepted"])}
+        log(f"refind {c['id']} {c['record']}: {res}, refound {refind[c['id']]['refound']}")
+    return {"document": "codec", "laws": laws}, refind, texts

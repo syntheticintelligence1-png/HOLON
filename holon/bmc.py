@@ -210,6 +210,7 @@ class Sym:
         self.stores: list = []         # (write record, value, condition)
         self.ghost_writes: list = []
         self.extra_fams: dict = {}
+        self.raw_slots: dict = {}
         self.pre = dict(pre)
         self.needed = None            # the families whose writes matter (None: all)
         self.stop = None              # a check id after which nothing matters (the target of the last step)
@@ -417,6 +418,7 @@ class Sym:
         return self.q.define(out)
 
     def t_code(self, t):
+        """The code of an address, as its length (the only use the document makes of it: ["len", ["code", a]])."""
         a = self.word(self.ev(t[1]))
         spec = self.answers.get("code length")
         if spec is not None:
@@ -450,6 +452,10 @@ class Sym:
         return self.fresh(f"unknown term {canonical(t)[:60]}")
 
     def t_sload(self, t):
+        """A raw storage read at a constant slot that no family of the document holds: the deployment's word there
+        (R0), since only family writes change storage; any other read is fresh (an over-approximation)."""
+        if isinstance(t[1], int) and t[1] in self.raw_slots:
+            return lit(self.raw_slots[t[1]])
         return self.fresh("raw sload")
 
     def t_ptr(self, t):
@@ -506,6 +512,8 @@ class Sym:
         raise Unsup("an index into a value")
 
     def t_len(self, t):
+        if isinstance(t[1], list) and t[1][:1] == ["code"]:
+            return self.t_code(t[1])
         x = self.ev(t[1])
         if isinstance(x, Bytes):
             return x.n
@@ -575,6 +583,8 @@ class Sym:
                          max(a.nmax, b.nmax), min(a.nmin, b.nmin))
         if isinstance(a, dict) or isinstance(b, dict):
             return self._merge(c, self.value(a), self.value(b))
+        if isinstance(a, Ref) and isinstance(b, Ref) and a.fam == b.fam and a.path == b.path:
+            return self._mergev(c, a, b)
         if isinstance(a, Ref) or isinstance(b, Ref):
             a, b = self.value(a), self.value(b)
             if isinstance(a, Ref) or isinstance(b, Ref):
@@ -697,7 +707,7 @@ class Sym:
             if lit_val(a) is not None or lit_val(b) is not None:
                 c, y = (lit_val(a), b) if lit_val(a) is not None else (lit_val(b), a)
                 return B("true" if c in (0, 1) else f"(bvule {y} {lit(MASK // c)})")
-            return B(f"(bvumul_noovfl {a} {b})")
+            return B(f"(not (bvumulo {a} {b}))")
         kind, r = self._exact(t[2], None)
         if kind is None:          # neg: the exact value is -x
             return B(eq(r, lit(0)))
@@ -1228,9 +1238,9 @@ class Sym:
                 saved = self.post[fam]
                 self._havoc(fam, f"{self.action}: loop {lp.src} overflow writes {fam}")
                 fresh = self.post[fam]
-                self.post[fam] = self._mergev(over, fresh, saved) if not isinstance(saved, dict) else \
-                    {k: self.q.define(ite(over, fresh[k], saved[k]), "(Array (_ BitVec 256) (_ BitVec 256))", "s")
-                     for k in saved}
+                srt = BV if self.fam(fam).get("kind") == "scalar" else A256
+                self.post[fam] = self.q.define(ite(over, fresh, saved), srt, "s") if not isinstance(saved, dict) \
+                    else {k: self.q.define(ite(over, fresh[k], saved[k]), A256, "s") for k in saved}
             ov = self.fresh(f"{self.action}: loop {lp.src} overflow outcome", "Bool")
             self.ok = self.q.define(band(self.ok, bor(bnot(over), ov)), "Bool", "ok")
         self.subst[canonical(lp.sym("count"))] = self._mergev(over, self.fresh("loop count past the bound"), count) \
@@ -1267,8 +1277,14 @@ class Sym:
             return Bytes(self.q.define(ite(c, a.arr, b.arr), ARR), ite(c, a.off, b.off), ite(c, a.n, b.n),
                          max(a.nmax, b.nmax), min(a.nmin, b.nmin))
         if isinstance(a, Ref) and isinstance(b, Ref) and a.fam == b.fam and a.path == b.path:
-            return Ref(a.fam, a.path, tuple((p, v, band(oc, bnot(c))) for p, v, oc in b.overlays) +
-                       tuple((p, v, band(oc, c)) for p, v, oc in a.overlays))
+            n = 0          # the overlays both share (a store chain extended on one branch keeps its prefix once)
+            while n < min(len(a.overlays), len(b.overlays)) and a.overlays[n] is b.overlays[n]:
+                n += 1
+            if len(a.overlays) + len(b.overlays) - n > 64:
+                raise Unsup("a conditional store chain longer than 64")
+            return Ref(a.fam, a.path, a.overlays[:n] +
+                       tuple((p, v, band(oc, bnot(c))) for p, v, oc in b.overlays[n:]) +
+                       tuple((p, v, band(oc, c)) for p, v, oc in a.overlays[n:]))
         if isinstance(a, (dict, Ref)) or isinstance(b, (dict, Ref)):
             return self._merge(c, self.value(a), self.value(b))
         return self.q.define(ite(c, self.word(a), self.word(b)))
@@ -1358,6 +1374,8 @@ class Problem:
                 for g in spec.get("ghost") or []:
                     self.ghosts.setdefault(g["name"], {})
         self.consts = doc_consts or {}
+        self.preimages: list[bytes] = []     # the byte strings the deployment hashed (E1: K of each is its word)
+        self.raw_slots: dict = {}            # slot -> word of the deployment's storage outside every family
 
     def cone(self, last_reads: set, last: list[str]) -> tuple[list[str], set]:
         """(the non-view actions that can write a family the target reads, the cone's families): the families the
@@ -1500,6 +1518,9 @@ class Unrolled:
             self.cone_fams |= fams
         state = r0_symbolic(q, p)
         names = {n: lit(a) for n, a in p.principals}
+        from .keccak import keccak256 as _k
+        for pre in p.preimages:
+            q.hash_known("keccak256", pre, int.from_bytes(_k(pre), "big"))
         self.trivial = False
         if k > 1 and target["kind"] == "check" and self._goal_false(last, state, names):
             # the last step's goal is false in every state (e.g. a check whose condition is a constant): no path of any
@@ -1543,6 +1564,7 @@ class Unrolled:
                     inp[prm["name"]] = param_value(q, prm, tag, m.maxlen, decode, (prm["name"],))
                 q.group = f"{i}/{a}"
                 sym = Sym(q, m, a, state, inp, env, p.answers, tag, p.immutables, p.consts)
+                sym.raw_slots = p.raw_slots
                 sym.needed = None if (final and target["kind"] in ("state", "step")) else self.cone_fams
                 sym.stop = self.stop if final else None
                 sym.want_stores = final and target["kind"] == "store"
@@ -1578,7 +1600,11 @@ class Unrolled:
             else:
                 q.add(bor(*[band(x["sel"], self.goal(x)) for x in per]))
         E.time_chain(q, tss, p.deployed_at)
-        q.close()
+        q.close(lazy=True)
+        self.group_sel = {}
+        for i, st in enumerate(self.steps):
+            for j, x in enumerate(st["acts"]):
+                self.group_sel[f"{i}/{x['action']}"] = (st["sel"], j)
         notes = sorted({n for st in self.steps for x in st["acts"] for n in x["sym"].notes})
         q.notes = [f"target: {canonical(target)}", f"actions before the last step: {', '.join(self.cone)}"
                    + (f" (cone levels 0..{level} of {len(self.levels)}: an under-approximation)"
@@ -1609,6 +1635,7 @@ class Unrolled:
             inp = {prm["name"]: param_value(q2, prm, "g", self.p.m.maxlen, {}, (prm["name"],))
                    for prm in self.p.m.params(a)}
             sym = Sym(q2, self.p.m, a, free, inp, env, self.p.answers, "g", self.p.immutables, self.p.consts)
+            sym.raw_slots = self.p.raw_slots
             sym.stop = self.stop
             sym.run()
             if self.goal({"sym": sym}) != "false":
@@ -1701,6 +1728,58 @@ class Unrolled:
             return band(*cc)
         return "false"
 
+    # ---------------------------------------------------------- lazy E1
+    def violations(self, sess) -> list:
+        """The pending E1 pairs a model violates among the hash terms its selected actions evaluate: equal words over
+        different contents, or equal contents under different words."""
+        live = []
+        groups = {}
+        for h in self.q.hashes:
+            if h.group is None:
+                live.append(h)
+                continue
+            groups.setdefault(h.group, []).append(h)
+        sels = sess.values(sorted({self.group_sel[g][0] for g in groups if g in self.group_sel}))
+        for g, hs in groups.items():
+            sv, j = self.group_sel.get(g, (None, None))
+            if sv is None or sels.get(sv) == j:
+                live += hs
+        ids = {id(h) for h in live}
+        pend = [(a, b) for a, b in self.q.pending if id(a) in ids and id(b) in ids]
+        if not pend:
+            return []
+        terms = set()
+        for a, b in pend:
+            for h in (a, b):
+                terms.add(h.word)
+                if h.const is None and h.src_word is None:
+                    terms.add(h.n)
+                    d = self.q.digest(h)
+                    if d:
+                        terms.add(d)
+                elif h.src_word is not None:
+                    terms.add(h.src_word)
+        nd = getattr(self, "sent_defs", None)
+        if nd is not None and len(self.q.defs) > nd:
+            sess.send("".join(f"(define-fun {n} () {srt} {e})\n" for n, srt, e in self.q.defs[nd:]))
+            self.sent_defs = len(self.q.defs)
+        vals = sess.values(sorted(terms))
+
+        def content(h):
+            if h.const is not None:
+                return h.const
+            if h.src_word is not None:
+                return vals[h.src_word].to_bytes(32, "big")
+            n = vals[h.n]
+            d = self.q.digest(h)
+            raw = vals[d].to_bytes(h.nmax, "big") if d else b""
+            return raw[:n]
+        out = []
+        for a, b in pend:
+            if (vals[a.word] == vals[b.word]) != (content(a) == content(b)):
+                out.append((a, b))
+        return out
+
     # ---------------------------------------------------------- decoding a model
     def decode(self, sess) -> list[dict]:
         out = []
@@ -1768,8 +1847,30 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
             sess = Session(solver)
             try:
                 res = sess.check(text, GUARD_S, MEMORY_MB)
+                u.sent_defs = len(u.q.defs)
+                rounds = 0
+                while res == "sat" and rounds < 64:
+                    viol = u.violations(sess)
+                    if not viol:
+                        break
+                    rounds += 1
+                    nd, na = u.sent_defs, len(u.q.asserts)
+                    for a, b in viol:
+                        u.q.pending.remove((a, b))
+                        u.q.assert_pair(a, b)
+                    res = sess.more("".join(f"(define-fun {n} () {srt} {e})\n" for n, srt, e in u.q.defs[nd:]) +
+                                    "".join(f"(assert {x})\n" for x in u.q.asserts[na:]))
+                    u.sent_defs = len(u.q.defs)
+                if res == "sat" and rounds >= 64:
+                    res = "unknown"
+                    sess.guard = "E1 instantiation did not converge in 64 rounds"
+                u.q.inst["cf_asserted"] = u.q.inst.get("cf", 0) - len(u.q.pending)
+                text = u.q.text()
+                if qdir is not None:
+                    Path(qdir, f"{name}.k{k}{tag}.smt2").write_text(text, encoding="utf-8")
                 if log:
-                    log(f"  {name} k={k}{tag}: {res} ({len(text) // 1024} KiB){' ' + sess.guard if sess.guard else ''}")
+                    log(f"  {name} k={k}{tag}: {res} ({len(text) // 1024} KiB, E1 rounds {rounds})"
+                        f"{' ' + sess.guard if sess.guard else ''}")
                 if res == "sat":
                     path = u.decode(sess)
                     return {"verdict": "path", "length": k, "path": path, "largest_k": k, "queries": queries,

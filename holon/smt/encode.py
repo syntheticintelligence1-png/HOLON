@@ -243,9 +243,13 @@ class Query:
         top = f"((_ extract {8 * hi.nmax - 1} {8 * (hi.nmax - lo.nmax)}) {dh})" if hi.nmax > lo.nmax else dh
         return band(eq(a.n, b.n), eq(dl, top))
 
-    def close(self) -> None:
-        """E1 (ground injectivity and functionality over the query's own K terms of each function) and NZ."""
+    def close(self, lazy: bool = False) -> None:
+        """E1 (ground injectivity and functionality over the query's own K terms of each function) and NZ. lazy: the
+        pair instances are kept aside (self.pending) and asserted only when a model violates them (holon.bmc.search:
+        counterexample-guided instantiation; a query without some instances over-approximates the one with all, so
+        its unsat is the full query's, and a model that satisfies every instance is a model of the full query)."""
         cf = nz = 0
+        self.pending = []
         for fn in HASH_FNS:
             hs = [h for h in self.hashes if h.fn == fn]
             nz += len(hs)
@@ -267,11 +271,19 @@ class Query:
                         continue
                     if a.const is not None and b.const is not None:
                         continue      # two concrete words: their equality is the words'
-                    c = self.define(self._content_eq(a, b), "Bool", "ceq")
-                    self.add(f"(= (= {a.word} {b.word}) {c})")
+                    if lazy:
+                        self.pending.append((a, b))
+                    else:
+                        self.assert_pair(a, b)
         if nz:
             self.inst["cf"] = cf
             self.inst["nz"] = nz
+
+    def assert_pair(self, a: Hash, b: Hash) -> str:
+        c = self.define(self._content_eq(a, b), "Bool", "ceq")
+        e = f"(= (= {a.word} {b.word}) {c})"
+        self.add(e)
+        return e
 
     # ---------------------------------------------------------- text
     def header(self) -> dict:
@@ -311,6 +323,7 @@ def blob_vector(q: Query, names: list[str], top_one: bool = True) -> None:
         if top_one:
             q.add(f"(or (= {n} {lit(0)}) (= ((_ extract 255 248) {n}) {lit(1, 8)}))")
     q.count("blobhash", len(names))
+    q.inst["dense"] = q.inst.get("dense", 0) + max(0, len(names) - 1)
 
 
 def time_chain(q: Query, names: list[str], deployed_at: int) -> None:

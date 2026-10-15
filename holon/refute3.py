@@ -86,8 +86,7 @@ def run_tests(proj: Path, tc: dict, tests: dict) -> dict:
         f = proj / "test" / f"{name}.t.sol"
         f.write_text(text, encoding="utf-8")
     p = subprocess.run(["nice", "-n", "10", tc["forge"], "test", "--offline", "--use", tc["solc"], "-vv",
-                        "--match-path", "test/HolonWitness*.t.sol" if False else "test/*.t.sol",
-                        "--match-contract", "^HolonWitness_"], cwd=proj, capture_output=True, text=True,
+                        "--match-contract", "^HolonWitness_", "--match-test", r"^test_witness\(\)$"], cwd=proj, capture_output=True, text=True,
                        timeout=7200)
     text = p.stdout + p.stderr
     cur = None

@@ -652,6 +652,29 @@ class Gate:
                                           f"and recomputed filter bins; {MODEL_ONLY}: {', '.join(model_only) or 'none'}"
                                  if not bad else "; ".join(bad))
 
+    def final_overlay(self, committed: dict, regen: dict) -> dict:
+        """I40: a REFUTED record's concretization is holon refute's (checked by `holon refute --check`), and its bin the
+        final rule over it. A regenerated record takes the committed record's concretization, and its filter_bin is
+        recomputed by the final rule from the regenerated record's replay sides (the committed replay report): what
+        the pipeline would write after `holon refute --only filter`."""
+        from . import filter as FL
+        from .replay import load_report
+        try:
+            rep = load_report(self.m, self.root) or {}
+        except Exception:  # noqa: BLE001
+            rep = {}
+        out = dict(regen)
+        for k, r in regen.items():
+            c = (committed.get(k) or {}).get("concretization")
+            if not isinstance(c, dict) or not isinstance(r, dict) or r.get("status") != "REFUTED":
+                continue
+            entry = (rep.get("laws") or {}).get(k)
+            ss = FL.sides(entry) if isinstance(entry, dict) else {}
+            r2 = dict(r, concretization=c)
+            r2["filter_bin"] = self.want_bin(k, r2, ss)
+            out[k] = r2
+        return out
+
     def want_bin(self, lid: str, rec: dict, ss: dict) -> str:
         """The bin G6 recomputes (I40): with a concretization, the final rule (holon.filter.final_bin) over the
         replay's sides, each side an emitted test of replay/M3/refute/report.json replaced taking the test's result;
@@ -1220,7 +1243,7 @@ class Gate:
                     if f not in G1_EXCLUDED}
             same_summary = all(same.values())
             ra = self.norm_records(self.results, self.gen)
-            rb = self.norm_records(tmp / "results", tmp / "gen")
+            rb = self.final_overlay(ra, self.norm_records(tmp / "results", tmp / "gen"))
             # canonical bytes, not ==: 1, 1.0 and true must not compare equal
             rdiff = sorted(k for k in set(ra) | set(rb)
                            if (k in ra) != (k in rb) or ir.canonical_json(ra[k]) != ir.canonical_json(rb[k]))
