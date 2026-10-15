@@ -18,13 +18,16 @@ invalid. Retry rule: a cli_error attempt is run again after 60 s and does not co
 attempt that fails is followed by one more counted attempt; the attempts stop at the first ok one, the second counted
 one or the fifth cli_error one. The label is the last attempt's when it is ok, else null.
 
-Model checks. The model each call used is read from the keys of the CLI JSON's modelUsage. The model observed per tag
-(A, B) is kept in ~/.holon/eval/labellers.json, never in the repository, and no model name is printed. A run is refused
-(nothing written for the prompt in flight) when a call that answered reports other than exactly one model, when a call
-reports a model other than the one observed for its tag, when B's model would equal A's, or when the adjudicator's
-model is not A's (the adjudicator runs after a, so A is known). The label file records these checks
-(one_model_per_role, a_differs_from_b, adjudicator_is_a) as true: the run passed them against everything observed so
-far, and every later run that would contradict them is refused.
+Model checks (strict: both models are known before any labelling). The model a call used is read from the keys of
+the CLI JSON's modelUsage. `python -m holon eval label --observe --tag A|B --model NAME` makes exactly one call of the
+frozen invocation with a fixed synthetic prompt (no corpus entry) and records the single model it reports for the tag
+in ~/.holon/eval/labellers.json, never in the repository (no model name is printed); it refuses when the call reports
+zero or several models, when the tag already holds a different model, or when A and B would be the same model. A
+labelling run (--role) refuses to start unless both tags are recorded and differ; every call is then checked against
+its role's tag (a and the adjudicator against A, b against B), and the run is refused (nothing written for the prompt
+in flight) when a call that answered reports other than exactly one model or a model other than its tag's. The label
+file records the checks (one_model_per_role, a_differs_from_b, adjudicator_is_a) as true because both models were
+recorded, and differ, before the run, and every call of the run matched its tag.
 
 Order and resumption. a and b label every entry of spec/eval/corpus.json in corpus order; the adjudicator labels exactly
 the entries whose a and b labels are both non-null with different primaries (a.json and b.json complete). The label
@@ -203,52 +206,90 @@ def call(inv: dict, model: str, prompt: str) -> str | None:
 
 # ---------------------------------------------------------------------------------------------- model checks
 class Models:
-    """The model observed per tag, kept outside the repository (STORE). Names never leave this object."""
+    """The model recorded per tag, kept outside the repository (STORE). Names never leave this object."""
 
-    def __init__(self, path: Path, role: str, tag: str, roles: dict):
-        self.path, self.role, self.tag = path, role, tag
-        self.other = next(t for r, t in sorted(roles.items()) if t != tag) if len(set(roles.values())) > 1 else None
-        self.a_tag = roles["a"]
+    def __init__(self, path: Path):
+        self.path = path
         try:
             self.seen = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
         except ValueError:
             raise Refused(f"{path} is not JSON") from None
         if not isinstance(self.seen, dict):
             raise Refused(f"{path} is not a JSON object")
-        if role == "adjudicator" and self.a_tag not in self.seen:
-            raise Refused("the adjudicator runs after labeller a: no model is recorded for a's tag yet")
 
-    def observe(self, raw: dict | None) -> None:
-        """Check one call's reported model against the store (recording a tag's first observation)."""
+    @staticmethod
+    def reported(raw: dict | None) -> list[str]:
         usage = raw.get("modelUsage") if isinstance(raw, dict) else None
-        names = sorted(usage) if isinstance(usage, dict) else []
-        answered = isinstance(raw, dict) and raw.get("is_error") is False
-        if not names and not answered:
-            return   # a call that failed without reporting a model (cli_error): nothing to check
+        return sorted(usage) if isinstance(usage, dict) else []
+
+    def record(self, tag: str, raw: dict | None) -> None:
+        """--observe: record the one model the call reports for the tag."""
+        names = self.reported(raw)
         if len(names) != 1:
-            raise Refused(f"one_model_per_role: a call reported {len(names)} models, not exactly one")
+            raise Refused(f"the observation call reported {len(names)} models, not exactly one")
         name = names[0]
-        if self.tag in self.seen and self.seen[self.tag] != name:
-            raise Refused(f"one_model_per_role: a call of role {self.role} reported a model other than the one "
-                          f"recorded for tag {self.tag}")
-        if self.other and self.seen.get(self.other) == name:
-            raise Refused(f"a_differs_from_b: tag {self.tag} reported the model recorded for tag {self.other}")
-        if self.role == "adjudicator" and self.seen.get(self.a_tag) != name:
-            raise Refused("adjudicator_is_a: the adjudicator reported a model other than labeller a's")
-        if self.tag not in self.seen:
-            self.seen[self.tag] = name
+        if tag in self.seen and self.seen[tag] != name:
+            raise Refused(f"tag {tag} already holds a different model")
+        if any(t != tag and m == name for t, m in self.seen.items()):
+            raise Refused(f"a_differs_from_b: tag {tag} would hold the model of another tag")
+        if self.seen.get(tag) != name:
+            self.seen[tag] = name
             self.path.parent.mkdir(parents=True, exist_ok=True)
             tmp = self.path.with_name(self.path.name + ".tmp")
             tmp.write_text(dumps(self.seen), encoding="utf-8")
             tmp.replace(self.path)
 
+    def require(self, tags) -> None:
+        """A labelling run starts only when every tag is recorded and the tags' models differ."""
+        missing = sorted(t for t in set(tags) if t not in self.seen)
+        if missing:
+            raise Refused(f"no model recorded for tag(s) {missing}: run holon eval label --observe --tag T --model NAME "
+                          "for each tag first")
+        if len({self.seen[t] for t in set(tags)}) != len(set(tags)):
+            raise Refused("a_differs_from_b: the recorded tags hold the same model")
+
+    def check(self, role: str, tag: str, raw: dict | None) -> None:
+        """One labelling call against its role's tag."""
+        names = self.reported(raw)
+        answered = isinstance(raw, dict) and raw.get("is_error") is False
+        if not names and not answered:
+            return   # a call that failed without reporting a model (cli_error): nothing to check
+        if len(names) != 1:
+            raise Refused(f"one_model_per_role: a call reported {len(names)} models, not exactly one")
+        if names[0] != self.seen[tag]:
+            raise Refused(f"one_model_per_role: a call of role {role} reported a model other than tag {tag}'s")
+
+
+OBSERVE_PROMPT = ('This is a synthetic check of the labelling invocation, not a corpus entry. Answer with exactly '
+                  'this JSON object and nothing else: {"primary": "none", "secondary": null, "subform": "observe", '
+                  '"justification": "A synthetic observation call."}')
+
+
+def observe(tag: str, model: str) -> int:
+    inv = invocation()
+    if tag not in set(inv["roles"].values()):
+        raise Refused(f"unknown tag {tag!r}")
+    models = Models(STORE)
+    cli, raw = reduce_output(call(inv, model, OBSERVE_PROMPT))
+    print(f"is_error: {json.dumps(cli['is_error'])}, num_turns: {json.dumps(cli['num_turns'])}")
+    models.record(tag, raw)
+    tags = sorted(set(inv["roles"].values()))
+    known = [t for t in tags if t in models.seen]
+    if len(known) == len(tags):
+        print(f"recorded tag {tag}; all tags recorded, models differ: "
+              f"{len({models.seen[t] for t in tags}) == len(tags)}")
+    else:
+        print(f"recorded tag {tag}; still unrecorded: {sorted(set(tags) - set(known))}")
+    return 0
+
 
 # ---------------------------------------------------------------------------------------------- one prompt
-def attempts_for(prompt: str, inv: dict, model: str, models: Models, categories: list[str]) -> list[dict]:
+def attempts_for(prompt: str, inv: dict, model: str, models: Models, role: str,
+                 categories: list[str]) -> list[dict]:
     out, cli_errors, counted = [], 0, 0
     while True:
         cli, raw = reduce_output(call(inv, model, prompt))
-        models.observe(raw)
+        models.check(role, inv["roles"][role], raw)
         o = outcome(cli, categories)
         out.append({"cli": cli, "outcome": o})
         if o == "ok":
@@ -293,13 +334,21 @@ def header(role: str, inv: dict) -> dict:
 
 def cli_label(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="python -m holon eval label")
-    ap.add_argument("--role", choices=ROLES, required=True)
+    ap.add_argument("--role", choices=ROLES)
+    ap.add_argument("--observe", action="store_true", help="record the model one call reports for --tag")
+    ap.add_argument("--tag")
     ap.add_argument("--model", required=True)
     ap.add_argument("--root", type=Path, default=common.ROOT)
     a = ap.parse_args(argv)
-    root, role = a.root.resolve(), a.role
     if not a.model.strip():
         raise Refused("--model is empty")
+    if a.observe:
+        if a.role or not a.tag:
+            raise Refused("--observe takes --tag and --model, not --role")
+        return observe(a.tag, a.model)
+    if not a.role or a.tag:
+        raise Refused("a labelling run takes --role and --model (and no --tag)")
+    root, role = a.root.resolve(), a.role
     if not (root / CORPUS).exists():
         raise Refused(f"{CORPUS} is missing under {root}: run holon eval select first")
     inv = invocation()
@@ -326,7 +375,8 @@ def cli_label(argv: list[str]) -> int:
             print(f"{out_path.relative_to(root)}: every entry is labelled already (a label is never re-run)")
             return 0
         doc["labels"] = old["labels"]
-    models = Models(STORE, role, inv["roles"][role], inv["roles"])
+    models = Models(STORE)
+    models.require(inv["roles"].values())
     diffs: dict[str, str] = {}
     for i, e in enumerate(todo):
         if e["id"] not in diffs:
@@ -336,7 +386,7 @@ def cli_label(argv: list[str]) -> int:
             if doc["labels"][i]["prompt_sha256"] != sha256_text(prompt):
                 raise Refused(f"{e['id']}: the recorded prompt_sha256 is not the prompt's (inputs changed)")
             continue
-        attempts = attempts_for(prompt, inv, a.model, models, categories)
+        attempts = attempts_for(prompt, inv, a.model, models, role, categories)
         doc["labels"].append(label_record(e["id"], prompt, attempts))
         common.write_or_check(out_path, dumps(doc), False)
         print(f"{role} {e['id']}: {' '.join(t['outcome'] for t in attempts)}")
