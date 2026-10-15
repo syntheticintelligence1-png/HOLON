@@ -946,11 +946,17 @@ class Gen:
             return None
         idx = [n for _, n, _ in it_n.params]
         changed = {n for n in self.pm.renamed if self.pm.new_items.get(n) and self.pm.new_items[n].kind == "def"}
+        # F35: an index that every recursive field passes on unchanged (Reach<kh, p> of Reach<-kh, -s>) may be read by
+        # the proof (a lemma's argument in an equality field's rewrite), so the law binds it reusable (for +kh); it
+        # stays fixed along the induction, so the self-call still decreases. Any other index is erased, as before.
+        recs = [split_top(m.group(1)) for _, fs in it_n.ctors for _, fty in fs
+                for m in [re.match(re.escape(t) + r"<(.*)>$", fty.strip())] if m]
+        fixed_idx = {n for j, n in enumerate(idx) if recs and all(len(a) == len(idx) and a[j].strip() == n for a in recs)}
         laws, proofs = [], []
         for direction in ("to", "from"):
             src, dst = (PREFIX + t, t) if direction == "to" else (t, PREFIX + t)
             law = f"{direction}_{t}"
-            ib = "".join(f"  for -{n}: {self.q(ty, set())}\n" for _, n, ty in it_n.params)
+            ib = "".join(f"  for {'+' if n in fixed_idx else '-'}{n}: {self.q(ty, set())}\n" for _, n, ty in it_n.params)
             laws.append(f"law {law}:\n{ib}  for r: {ALIAS}.{src}<{', '.join(idx)}>\n  {ALIAS}.{dst}<{', '.join(idx)}>\n")
             body = [f"def Laws.{law}({', '.join(idx + ['r'])}):", "  match r:"]
             for c, fs in it_n.ctors:

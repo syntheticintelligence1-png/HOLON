@@ -18,6 +18,9 @@ Contract:
               unchecked, never cached, decided by the final whole-proof check alone (a wrong one is refused there and
               searched again); with every batch check timing out, the planted chain is still PROVED by the final check
               and the planted difference never is.
+  family      a family index that every recursive field passes on unchanged (Reach<kh, p> of Reach<-kh, -s>) is
+              bound reusable by the transport laws (the proof passes it to a lemma), the others erased; such a
+              family over a changed step is PROVED in both kernels.
   Q34         equivalence.timeout_s (900) bounds only the final whole-proof check and G2's re-check, each kernel; a
               check that hits it is UNKNOWN; a checker crash is retried and logged, never acceptance.
 """
@@ -219,6 +222,44 @@ class TestQ34Bound(unittest.TestCase):
         w = [i for i in r["roots"] if i["root"] == "w"][0]
         self.assertEqual(w["status"], "UNKNOWN")
         self.assertIn("equivalence.timeout_s", w["reason"])
+
+
+FAM_OLD = """import Base
+
+def step(p: Bool, k: Bool) -> Bool:
+  Bool.not(Bool.xor(p, k))
+
+def s0() -> Bool:
+  True{}
+
+type R<-k: Bool, -s: Bool> is Type:
+  R0{e: {s == s0() : Bool}}
+  RS{p: Bool, r: R<k, p>, e: {s == step(p, k) : Bool}}
+"""
+
+FAM_NEW = FAM_OLD.replace("""def step(p: Bool, k: Bool) -> Bool:
+  Bool.not(Bool.xor(p, k))""", """def step(p: Bool, k: Bool) -> Bool:
+  match p:
+    case True{}:
+      k
+    case False{}:
+      Bool.not(k)""")
+
+FAM_STATEMENT = """law l_r:
+  for +k: Bool
+  for +s: Bool
+  for r: M.R<k, s>
+  {M.s0() == M.s0() : Bool}
+"""
+
+
+class TestFamilyWithAFixedIndex(unittest.TestCase):
+    def test_proved_in_both_kernels(self):
+        r = E.prove(FAM_OLD, FAM_NEW, FAM_STATEMENT, counter_tries=0, cache=ES.LemmaCache(None))
+        self.assertEqual(r["status"], "PROVED", r["reason"])
+        if bend.verdict_enabled():
+            self.assertIn("BendTT", r["kernels"])
+        self.assertIn("  for +k: Bool\n  for -s: Bool\n", r["laws"])
 
 
 class TestDeferral(unittest.TestCase):
