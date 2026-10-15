@@ -1,0 +1,863 @@
+{
+  "H": 8,
+  "document": "concretization",
+  "records": {
+    "M0/L_dom_hdr": {
+      "bound": {
+        "H": 8,
+        "rlimit": 200000000
+      },
+      "clock": null,
+      "kind": "bmc",
+      "length": null,
+      "path": null,
+      "reason": "solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
+      "result": "unknown",
+      "sides": {
+        "go": {
+          "obstruction_observed": true,
+          "provenance": "library_api",
+          "status": "passed"
+        },
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "internal_harness",
+          "status": "passed"
+        }
+      },
+      "target": "dom_v0_long",
+      "tests": []
+    },
+    "M0/L_par_hdr_ssvh": {
+      "bound": {
+        "H": 8,
+        "rlimit": 200000000
+      },
+      "clock": {
+        "label": "unrealistic clock (> 2^64)",
+        "max_timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819968
+      },
+      "kind": "commit_class",
+      "length": 1,
+      "path": [
+        {
+          "action": "commitBatch",
+          "args": {
+            "batchDataInput": {
+              "lastBlockNumber": 72340174977138816,
+              "numL1Messages": 0,
+              "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "postStateRoot": "0x0000010001010101010101010101010101000001010101010101010101010101",
+              "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+              "version": 1,
+              "withdrawalRoot": "0x0101010101010101010101010101010101010101010101010101010101010101"
+            }
+          },
+          "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000101010180808080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000010001010101010101010101010101000001010101010101010101010101010101010101010101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "env": {
+            "blobhash": [
+              "0x01000000000080000000002080008000000000000020000220a0000000000000"
+            ],
+            "block.timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819968,
+            "caller": "0x0000000000000000000000000000000000001003",
+            "calls": [],
+            "msg.value": 0
+          }
+        }
+      ],
+      "reason": "a commit at version 1 from R0 (rule K3, the M0 commit-path rule): sat at k = 1 (the first sat depth); unrealistic clock (> 2^64): block.timestamp up to 57896044618658097711785492504343953926634992332820282019728792003956564819968",
+      "result": "path",
+      "sides": {
+        "go": {
+          "obstruction_observed": true,
+          "provenance": "library_api",
+          "status": "passed"
+        },
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M0/L_par_hdr_ssvh.t.sol",
+        "gen/M3/tests/go/M0/L_par_hdr_ssvh_test.go"
+      ]
+    },
+    "M0/L_par_hdr_v2": {
+      "bound": {
+        "H": 8,
+        "rlimit": 200000000
+      },
+      "clock": null,
+      "kind": "commit_class",
+      "length": 1,
+      "path": null,
+      "reason": "a commit at version 2 from R0 by the M0 commit-path rule (its I4 side solidity, holon.mreplay.m0_commit_sides); BMC: solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
+      "result": "path",
+      "sides": {
+        "go": {
+          "obstruction_observed": true,
+          "provenance": "library_api",
+          "status": "passed"
+        },
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/go/M0/L_par_hdr_v2_test.go"
+      ]
+    },
+    "M1/L_fact_Z": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": null,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "go_consumer": {
+          "obstruction_observed": false,
+          "provenance": "library_api",
+          "status": "passed"
+        },
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M1/L_nat_eta2": {
+      "bound": {
+        "H": 8,
+        "rlimit": 200000000
+      },
+      "clock": null,
+      "kind": "bmc",
+      "length": null,
+      "path": null,
+      "reason": "solver unknown at k = 3 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
+      "result": "unknown",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "emulated_storage",
+          "status": "passed"
+        }
+      },
+      "target": "eta2_state",
+      "tests": []
+    },
+    "M1/L_own_txspayload": {
+      "bound": null,
+      "clock": null,
+      "kind": "go_only",
+      "length": null,
+      "path": null,
+      "reason": "node-level public path needs I39",
+      "result": null,
+      "sides": {
+        "go": {
+          "obstruction_observed": true,
+          "provenance": "library_api",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M1/L_sort_remaining": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 4,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M1/L_sym_omega": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 2,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M1/L_tag_BVH": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "go_consumer": {
+          "obstruction_observed": true,
+          "provenance": "library_api",
+          "status": "passed"
+        },
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M1/L_undo_BVH": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 1,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M1/L_undo_cancel": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M2/L_sort_site_rollup_363_1fc7f88a": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M2/L_sort_site_rollup_636_e68daf06": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": null,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M2/extracted_m1/L_disch_delay_nofree": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": null,
+      "path": null,
+      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "result": "path",
+      "sides": {},
+      "target": null,
+      "tests": []
+    },
+    "M2/extracted_m1/L_fact_Z": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": null,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "go_consumer": {
+          "obstruction_observed": false,
+          "provenance": "library_api",
+          "status": "passed"
+        },
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M2/extracted_m1/L_nat_eta2": {
+      "bound": {
+        "H": 8,
+        "rlimit": 200000000
+      },
+      "clock": null,
+      "kind": "bmc",
+      "length": null,
+      "path": null,
+      "reason": "solver unknown at k = 3 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
+      "result": "unknown",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "emulated_storage",
+          "status": "passed"
+        }
+      },
+      "target": "eta2_state",
+      "tests": []
+    },
+    "M2/extracted_m1/L_sort_remaining": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 4,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M2/extracted_m1/L_sym_omega": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 2,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M2/extracted_m1/L_undo_BVH": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 1,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M2/extracted_m1/L_undo_cancel": {
+      "bound": null,
+      "clock": null,
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls (its replay is the record's side)",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": []
+    },
+    "M3/L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000021
+      },
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter.t.sol"
+      ]
+    },
+    "M3/L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000010
+      },
+      "kind": "direct",
+      "length": 2,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner.t.sol"
+      ]
+    },
+    "M3/L_disch_noext_rollup_132_d953872f_onlyOwner": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000021
+      },
+      "kind": "direct",
+      "length": 4,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_132_d953872f_onlyOwner.t.sol"
+      ]
+    },
+    "M3/L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000020
+      },
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter.t.sol"
+      ]
+    },
+    "M3/L_disch_noext_rollup_213_f2e7faf8_onlyOwner": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000010
+      },
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_213_f2e7faf8_onlyOwner.t.sol"
+      ]
+    },
+    "M3/L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000021
+      },
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter.t.sol"
+      ]
+    },
+    "M3/L_disch_noext_rollup_363_e11d8bb2_onlyOwner": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000021
+      },
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_363_e11d8bb2_onlyOwner.t.sol"
+      ]
+    },
+    "M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": {
+      "bound": {
+        "H": 8,
+        "rlimit": 200000000
+      },
+      "clock": null,
+      "kind": "commit_class",
+      "length": null,
+      "path": null,
+      "reason": "a commit at version 2 from R0 (rule K3, the M0 commit-path rule): solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
+      "result": "unknown",
+      "sides": {},
+      "target": null,
+      "tests": []
+    },
+    "M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0": {
+      "bound": {
+        "H": 8,
+        "rlimit": 200000000
+      },
+      "clock": {
+        "label": "unrealistic clock (> 2^64)",
+        "max_timestamp": 68754308293964614497325394576238816644664092751891569308604359083597582303224
+      },
+      "kind": "commit_class",
+      "length": 1,
+      "path": [
+        {
+          "action": "commitBatch",
+          "args": {
+            "batchDataInput": {
+              "lastBlockNumber": 316659348799490,
+              "numL1Messages": 0,
+              "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "postStateRoot": "0x1002800801800002028040010002010808010420800140808001080480020210",
+              "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+              "version": 0,
+              "withdrawalRoot": "0x8004010480010800010100400810200101081001010201040802011001100101"
+            }
+          },
+          "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000001200000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000641002800801800002028040010002010808010420800140808001080480020210800401048001080001010040081020010108100101020104080201100110010100000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "env": {
+            "blobhash": [
+              "0x0101020400020040082000040002100000400100000000204004020802012020"
+            ],
+            "block.timestamp": 68754308293964614497325394576238816644664092751891569308604359083597582303224,
+            "caller": "0x0000000000000000000000000000000000001002",
+            "calls": [],
+            "msg.value": 69210112
+          }
+        }
+      ],
+      "reason": "a commit at version 0 from R0 (rule K3, the M0 commit-path rule): sat at k = 1 (the first sat depth); unrealistic clock (> 2^64): block.timestamp up to 68754308293964614497325394576238816644664092751891569308604359083597582303224",
+      "result": "path",
+      "sides": {
+        "go": {
+          "obstruction_observed": true,
+          "provenance": "library_api",
+          "status": "passed"
+        },
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.t.sol",
+        "gen/M3/tests/go/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_test.go"
+      ]
+    },
+    "M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": {
+      "bound": {
+        "H": 8,
+        "rlimit": 200000000
+      },
+      "clock": {
+        "label": "unrealistic clock (> 2^64)",
+        "max_timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819968
+      },
+      "kind": "commit_class",
+      "length": 1,
+      "path": [
+        {
+          "action": "commitBatch",
+          "args": {
+            "batchDataInput": {
+              "lastBlockNumber": 72340174977138816,
+              "numL1Messages": 0,
+              "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "postStateRoot": "0x0000010001010101010101010101010101000001010101010101010101010101",
+              "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+              "version": 1,
+              "withdrawalRoot": "0x0101010101010101010101010101010101010101010101010101010101010101"
+            }
+          },
+          "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000101010180808080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000010001010101010101010101010101000001010101010101010101010101010101010101010101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "env": {
+            "blobhash": [
+              "0x01000000000080000000002080008000000000000020000220a0000000000000"
+            ],
+            "block.timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819968,
+            "caller": "0x0000000000000000000000000000000000001003",
+            "calls": [],
+            "msg.value": 0
+          }
+        }
+      ],
+      "reason": "a commit at version 1 from R0 (rule K3, the M0 commit-path rule): sat at k = 1 (the first sat depth); unrealistic clock (> 2^64): block.timestamp up to 57896044618658097711785492504343953926634992332820282019728792003956564819968",
+      "result": "path",
+      "sides": {
+        "go": {
+          "obstruction_observed": true,
+          "provenance": "library_api",
+          "status": "passed"
+        },
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.t.sol",
+        "gen/M3/tests/go/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_test.go"
+      ]
+    },
+    "M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol": {
+      "bound": {
+        "H": 8,
+        "rlimit": 200000000
+      },
+      "clock": null,
+      "kind": "bmc",
+      "length": null,
+      "path": null,
+      "reason": "solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
+      "result": "unknown",
+      "sides": {},
+      "target": "dom_v0_long",
+      "tests": []
+    },
+    "M3/L_sort_realize_rollup_363_4a64383b": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000021
+      },
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_sort_realize_rollup_363_4a64383b__commitBatch.t.sol",
+        "gen/M3/tests/foundry/M3/L_sort_realize_rollup_363_4a64383b__commitBatchWithProof.t.sol",
+        "gen/M3/tests/foundry/M3/L_sort_realize_rollup_363_4a64383b__commitState.t.sol"
+      ]
+    },
+    "M3/L_sort_tag_rollup_279_e01ea84a": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000010
+      },
+      "kind": "direct",
+      "length": 3,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": false,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_sort_tag_rollup_279_e01ea84a__commitState.t.sol"
+      ]
+    },
+    "M3/L_undo_pair_Rollup_commitBatch_revertBatch": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000010
+      },
+      "kind": "direct",
+      "length": 1,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_undo_pair_Rollup_commitBatch_revertBatch__with.t.sol",
+        "gen/M3/tests/foundry/M3/L_undo_pair_Rollup_commitBatch_revertBatch__without.t.sol"
+      ]
+    },
+    "M3/L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000010
+      },
+      "kind": "direct",
+      "length": 1,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes__with.t.sol",
+        "gen/M3/tests/foundry/M3/L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes__without.t.sol"
+      ]
+    },
+    "M3/L_undo_res_Rollup_revertBatch_batchDataStore": {
+      "bound": null,
+      "clock": {
+        "label": null,
+        "max_timestamp": 1700000010
+      },
+      "kind": "direct",
+      "length": 1,
+      "path": null,
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
+      "result": "path",
+      "sides": {
+        "solidity": {
+          "obstruction_observed": false,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
+      "target": null,
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_undo_res_Rollup_revertBatch_batchDataStore__with.t.sol",
+        "gen/M3/tests/foundry/M3/L_undo_res_Rollup_revertBatch_batchDataStore__without.t.sol"
+      ]
+    }
+  }
+}
