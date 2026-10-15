@@ -5,8 +5,10 @@ the sidecar's budget.
   S1  the law's last step (S3.Synth's coordinate moves) from a state where B holds at a time t
   S2  breadth-first prefixes of at most prefix_depth successful steps (at most max_prefixes distinct states), the
       actions that write what B reads first; every state is a candidate prefix
-  S3  I30's neighbourhood of another entry point's witness: for a DISCH law one witness decides it, so S3 has nothing
-      to add (stated in every bound)
+  S3  narrower than I30's preregistered S3 (a deviation, stated in every bound): holon.disch.run re-tries the last
+      step from the prefix states of the S1+S2 witnesses of the other external and external_none laws of the same
+      model; I30's neighbourhood search (up to neighbourhood_insertion_length_max inserted steps and
+      neighbourhood_prefixes_per_entry_point_max prefixes per entry point) is not built
 
 One exploration serves every law of a model (the prefixes are law-independent: the same distinct states in the same
 order, the actions that write what any blocked condition reads first), and each law tries its last step from the
@@ -321,6 +323,7 @@ class LawSearch:
     def bound(self) -> str:
         s3 = (f"; S3: {len(self.extra)} states along other laws' witnesses of this model" if self.extra else
               "; S3: no other law's witness")
+        s3 += " (not I30's neighbourhood search: no steps inserted, the neighbourhood budget unused)"
         cap = " (the last-step cap was reached)" if self.capped else ""
         return (f"{self.ex.bound().split('; S3')[0]}{s3}; B held at a candidate time in {self.bstates} of "
                 f"{self.seen_states} states; {self.tries} last-step syntheses{cap} "

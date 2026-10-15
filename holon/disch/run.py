@@ -47,10 +47,71 @@ SUBFORMS = ("blocking", "revert", "external", "external_none")
 # S3 (each with I30's synthesis of every action of the law's set); None: no cap beyond the preregistered budget (a cap
 # here would search fewer prefixes than the sidecar's budget names)
 LAST_STEP_STATES = None
-# with a binding, the candidates of one law re-evaluated with the deployment's external answers (one harness run each)
-MAX_VALIDATIONS = 12
+# the modules that decide a DISCH law, beside I30's (their source is in the records' generator_sha256)
+GEN_DISCH = ["holon/disch/run.py", "holon/disch/search.py"]
 dumps = R3.dumps
 rel = R3.rel
+
+
+def generator_sha256(root: Path) -> str:
+    """I30's generator closure (holon.sorts.run3.GEN3) and the DISCH deciding modules with their holon imports."""
+    from ..records import _holon_imports
+    seen, todo = set(), list(R3.GEN3) + GEN_DISCH
+    while todo:
+        r = todo.pop()
+        if r in seen or not (root / r).is_file():
+            continue
+        seen.add(r)
+        if r.endswith(".py"):
+            todo.extend(sorted(_holon_imports(r, root) - seen))
+    h = hashlib.sha256()
+    for r in sorted(seen):
+        h.update(r.encode() + b"\0" + (root / r).read_bytes() + b"\0")
+    return h.hexdigest()
+
+
+def _tail(out: str, n: int = 2000) -> str:
+    return (out or "")[-n:]
+
+
+def check_file(p: Path) -> tuple[dict, str]:
+    """(checker, verdict) of a Bend file: bend2, then BendTT (--verdict) when bend2 accepts it. A time box or BendTT's
+    fuel running out is a budget exhaustion, recorded as such (checker["budget_exhausted"], with the seconds), never a
+    rejection (Q22); a BendTT rejection of a file bend2 accepts is a cross-kernel disagreement (Q8: blocking), named in
+    checker["disagreement"]. BendTT's output is kept (its tail)."""
+    from .. import bend
+    t = time.time()
+    r = bend.check(p)
+    checker = {"exit_code": r.code, "marker": "ALL PROOFS CHECK" if r.ok else "SOME PROOFS FAIL",
+               "seconds": round(time.time() - t, 3)}
+    if not r.ok:
+        if r.code is None:
+            checker["budget_exhausted"] = f"bend2 time box ({r.seconds} s)"
+        m = re.search(r"(?m)^Location:\s*(\S+)", r.out or "")
+        checker["failing"] = m.group(1) if m else None
+        return checker, "not_run"
+    v = bend.check_verdict(p)
+    checker["bendtt"] = {"exit_code": v.code, "seconds": v.seconds, "output_tail": _tail(v.out)}
+    if v.ok:
+        return checker, "checked"
+    if v.code is None:
+        checker["budget_exhausted"] = f"BendTT time box ({v.seconds} s)"
+        return checker, "budget_exhausted"
+    if re.search(r"(?i)out of fuel", v.out or ""):
+        checker["budget_exhausted"] = f"BendTT out of fuel ({v.seconds} s)"
+        return checker, "budget_exhausted"
+    checker["disagreement"] = "bend2 accepts the file and BendTT rejects it: a cross-kernel disagreement (Q8, Q22)"
+    return checker, "failed"
+
+
+def _why(checker: dict, verdict: str) -> str:
+    if checker.get("budget_exhausted"):
+        return f"budget exhausted: {checker['budget_exhausted']}"
+    if checker["marker"] != "ALL PROOFS CHECK":
+        return "bend2 rejected the proof"
+    if checker.get("disagreement"):
+        return "BendTT rejected the proof that bend2 accepts: " + checker["disagreement"]
+    return f"BendTT {verdict}"
 
 
 def W(t: int) -> dict:
@@ -309,12 +370,11 @@ class Run:
         pdir.mkdir(parents=True, exist_ok=True)
         p = pdir / "PROOF.bend"
         p.write_text(text, encoding="utf-8")
-        checker, verdict = R3.check_file(p)
+        checker, verdict = check_file(p)
         att.update({"routes": routes, "marker": checker["marker"], "verdict": verdict, "checker": checker,
                     "proof": rel(p, self.ctx.root)})
         if checker["marker"] != "ALL PROOFS CHECK" or verdict != "checked":
-            att["error"] = "bend2 rejected the proof" if checker["marker"] != "ALL PROOFS CHECK" else \
-                "BendTT rejected the proof"
+            att["error"] = _why(checker, verdict)
             shutil.rmtree(pdir, ignore_errors=True)
             att.pop("proof", None)
         return att
@@ -358,7 +418,7 @@ class Run:
         p = where / "PROOF.bend"
         p.write_text(trace_proof(law["law_id"], d, rel_import(where, d.ip), rel_import(where, d.simp),
                                  rel_import(where, laws_path), acts, tables, states, t, kind, note), encoding="utf-8")
-        checker, verdict = R3.check_file(p)
+        checker, verdict = check_file(p)
         return p, checker, verdict, tables, val
 
     def witness_json(self, d: Doc, steps: list, t: int, tables: dict) -> dict:
@@ -388,10 +448,7 @@ class Run:
         """A candidate's last step with the deployment's answers to its external calls (the real run's, as the witness
         will state them): every step still succeeds on the model and the step still decides the law. A candidate
         found with the hints' answers that the deployment answers otherwise is not taken."""
-        n = self.validations.get(law["law_id"], 0)
-        if n >= MAX_VALIDATIONS:
-            return False
-        self.validations[law["law_id"]] = n + 1
+        self.validations[law["law_id"]] = self.validations.get(law["law_id"], 0) + 1
         steps = self.repair(d, list(trace) + [st])
         m = d.factory()
         g = m.s0()
@@ -533,7 +590,7 @@ class Run:
             witness = self.witness_json(d, steps, t, tables)
             ok = checker["marker"] == "ALL PROOFS CHECK" and verdict == "checked"
             attempts.append({"kind": "witness", "stage": info["stage"], "marker": checker["marker"],
-                             "verdict": verdict, "claim_at_witness": val})
+                             "verdict": verdict, "claim_at_witness": val, "checker": checker})
             if ok and self.binding():
                 rep = self.replay_one(d, law, witness)
                 attempts[-1]["replay"] = rep["status"]
@@ -555,7 +612,7 @@ class Run:
                 # the candidate is not kept: the law stays UNKNOWN, its statement file the forall (or existential) law
                 shutil.rmtree(pdir, ignore_errors=True)
                 lp = self.write_laws(d, lid, "exists" if sf == "external" else "forall")
-                why = (f"a candidate witness did not check ({checker['marker']}, BendTT {verdict}; bend2 fails at {checker.get('failing')})"
+                why = (f"a candidate witness did not check ({checker['marker']}, BendTT {verdict}; bend2 fails at {checker.get('failing')}; {_why(checker, verdict)})"
                        if checker["marker"] != "ALL PROOFS CHECK" or verdict != "checked" else
                        "a candidate witness checked but did not replay on the real contract")
                 bound = f"{info['bound']}; {why}"
@@ -586,7 +643,7 @@ class Run:
         w = self.witness_json(d, steps, t, tables)
         if checker["marker"] != "ALL PROOFS CHECK" or verdict != "checked":
             shutil.rmtree(nd, ignore_errors=True)
-            return {**base, "witness": w, "bound": f"the inhabitant does not check ({checker['marker']}, {verdict}; bend2 fails at {checker.get('failing')})"}
+            return {**base, "witness": w, "bound": f"the inhabitant does not check ({checker['marker']}, {verdict}; bend2 fails at {checker.get('failing')}; {_why(checker, verdict)})"}
         return {**base, "status": "inhabited", "law": rel(lpn, self.ctx.root), "witness": w, "reachable": True,
                 "degenerate": False,
                 "bound": f"a reachable state of {len(steps) - 1} steps where B holds at t, and {steps[-1].action}"}
@@ -628,7 +685,7 @@ class Run:
         except R.LedgerError:
             match, assumptions = "none", []
         rec.update({"record_version": R.RECORD_VERSION, "prover": "generator", "model_sha256": R3.sha256_file(mp),
-                    "compiled_sha256": R3.sha256_file(d.ev.compiled()), "generator_sha256": R3.generator_sha256(ctx.root),
+                    "compiled_sha256": R3.sha256_file(d.ev.compiled()), "generator_sha256": generator_sha256(ctx.root),
                     "cone": cone, "ledger_match": match, "model_assumptions": assumptions,
                     "scope_v2": R.scope_v2(law_ir, rec), "kernels": R.kernels(rec),
                     "independence_class": R.independence_class(rec), "refinement_refs": [],
