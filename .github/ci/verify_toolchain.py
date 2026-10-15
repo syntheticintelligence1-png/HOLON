@@ -15,6 +15,9 @@ sys.path.insert(0, str(ROOT))
 from holon import bend, lean, replay  # noqa: E402
 
 cfg = json.loads((ROOT / "config" / "holon.json").read_text())
+# the morph commit is not in config/holon.json; it must equal MORPH_COMMIT in install_toolchain.sh
+MORPH_COMMIT = next(line.split("=", 1)[1].strip() for line in (ROOT / ".github" / "ci" / "install_toolchain.sh")
+                    .read_text().splitlines() if line.startswith("MORPH_COMMIT="))
 results = []
 
 
@@ -36,7 +39,7 @@ def check_bend():
     pin("bend_fingerprint", fp["fingerprint"] == want,
         f"got {fp['fingerprint']} want {want} (head {fp['head']}, bun {fp['bun']} sha256 {fp['bun_sha256']})")
     v = subprocess.run(["bend", "version"], capture_output=True, text=True).stdout.strip()
-    pin("bend_version", cfg["bend"]["pinned_version"] in v, f"`bend version` -> {v!r}")
+    pin("bend_version", v.split()[-1:] == [cfg["bend"]["pinned_version"]], f"`bend version` -> {v!r}")
     k = bend.verdict_kernel_path(Path(fp["checkout"]))
     got = bend.file_sha256(k) if k.is_file() else "missing"
     pin("bendtt_kernel", got == cfg["bend"]["pinned_kernel_sha256"],
@@ -59,7 +62,11 @@ def check_replay():
     got = replay.go_version()
     pin("go_version", got == r["go_version"], f"got {got!r} want {r['go_version']!r}")
     m = subprocess.run(["git", "-C", r["morph"], "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
-    pin("morph_commit", m.startswith("3e44e795586af3e11285b603ab642c67823add51"), f"{r['morph']} HEAD {m}")
+    pin("morph_commit", m == MORPH_COMMIT, f"{r['morph']} HEAD {m} want {MORPH_COMMIT}")
+    st = subprocess.run(["git", "-C", r["morph"], "status", "--porcelain", "--untracked-files=all"],
+                        capture_output=True, text=True)
+    pin("morph_clean", st.returncode == 0 and st.stdout == "",
+        f"{r['morph']} git status: {'clean' if st.returncode == 0 and not st.stdout else (st.stdout or st.stderr)[:300]!r}")
 
 
 def check_hevm():

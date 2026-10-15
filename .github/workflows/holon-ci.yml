@@ -6,6 +6,8 @@ name: holon-ci
 on:
   push:
     branches: [claude/holon-v2-bend2-c6z3cd, 'claude/ci-**']
+  pull_request:
+    branches: [claude/holon-v2-bend2-c6z3cd]
   workflow_dispatch:
 
 permissions:
@@ -13,13 +15,13 @@ permissions:
 
 concurrency:
   group: holon-ci-${{ github.ref }}
-  cancel-in-progress: true
+  # every push to the integration branch keeps its own verdict; other refs cancel superseded runs
+  cancel-in-progress: ${{ github.ref != 'refs/heads/claude/holon-v2-bend2-c6z3cd' }}
 
 env:
   PYTHON_VERSION: '3.13.16'
   NODE_VERSION: '22.22.0'
   GO_VERSION: '1.24.7'
-  PYTHONHASHSEED: '0'
   BEND_NO_TELEMETRY: '1'
 
 jobs:
@@ -83,6 +85,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: prereg-M5
+            timeout: 30
+            run: python -m holon audit prereg --milestone M5
           - name: prereg-M2
             timeout: 30
             run: python -m holon audit prereg --milestone M2
@@ -97,16 +102,16 @@ jobs:
             run: HOLON_REPLAY=1 python -m unittest discover -s tests -t . -v
           - name: gate-M0
             timeout: 90
-            run: python -m holon gate --milestone M0
-            report: results/M0/gate_report.json
+            run: python -m holon gate --milestone M0 --report "$RUNNER_TEMP/ci-out/gate_report_M0.json"
+            report: "$RUNNER_TEMP/ci-out/gate_report_M0.json"
           - name: gate-M1
             timeout: 90
-            run: python -m holon gate --milestone M1
-            report: results/M1/gate_report.json
+            run: python -m holon gate --milestone M1 --report "$RUNNER_TEMP/ci-out/gate_report_M1.json"
+            report: "$RUNNER_TEMP/ci-out/gate_report_M1.json"
           - name: gate-M2
             timeout: 120
-            run: python -m holon gate --milestone M2
-            report: results/M2/gate_report.json
+            run: python -m holon gate --milestone M2 --report "$RUNNER_TEMP/ci-out/gate_report_M2.json"
+            report: "$RUNNER_TEMP/ci-out/gate_report_M2.json"
           - name: gate-M3-partial
             timeout: 120
             run: python -m holon gate --milestone M3 --checks G3,G5,G8,G9,G11,G11V,GEVID --report "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
@@ -127,7 +132,7 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: false
       - name: Python requirements
-        run: python -m pip install -q -r requirements-dev.txt
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
       - name: Link the config's absolute paths
         run: bash .github/ci/link_paths.sh
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
@@ -153,6 +158,8 @@ jobs:
           grep -E '^(Ran [0-9]+ tests|OK|FAILED)' "$RUNNER_TEMP/ci-out/frozen-suite.log" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Gate summary
         if: always() && matrix.report
+        # the report is written by this run only (never the committed results/<m>/gate_report.json), so a
+        # gate that crashed before writing it leaves the summary unreadable instead of showing a stale verdict
         run: python .github/ci/gate_summary.py "${{ matrix.report }}"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         if: always()
@@ -162,5 +169,3 @@ jobs:
           retention-days: 14
           path: |
             ${{ runner.temp }}/ci-out/
-            results/*/gate_report*.json
-            results/*/gate_timing.json

@@ -4,7 +4,9 @@
 # never changed here (the gates' GENV / G7 / replay checks compare against them).
 #   bun 1.4.2 (binary sha256 below)      -> ~/.bun/bin/bun
 #   Bend 2.0.36 @ 2343aec (install_bend)  -> ~/.holon/bend, wrapper ~/.holon/bin/bend
-#   Lean 4.34.0 via elan (setup_env.sh)   -> ~/.elan, ~/.holon/lean-4.34.0-linux
+#   Lean 4.34.0 release tarball (sha256) -> ~/.holon/lean-4.34.0-linux, linked as the toolchain
+#     directory ~/.elan/toolchains/leanprover--lean4---v4.34.0 (no elan binary: HOLON and the kernel
+#     build both resolve that directory directly)
 #   BendTT kernel (built by bend --verdict from the pinned sources) -> ~/.bend/bendtt/<h>/bendtt
 #   forge (foundry stable), solc 0.8.24, morph @ 3e44e79      -> ~/holon-work (linked as /root/work)
 #   sol_deps (holon.replay.ensure_sol_deps), hevm 0.55.1, cvc5 1.2.0 -> ~/.holon/tools
@@ -13,6 +15,7 @@ REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 BUN_VERSION=1.4.2
 BUN_ZIP_SHA=36368faef7527875d5ffa52e53cd48021741f2a83eb6208a8dd64068d422a913
 BUN_BIN_SHA=a83d263767d839e4d2649ca8e35d07159c7afc99afdc96d731ced29e056dda0c
+LEAN_TAR_SHA=caaa98356098c85dc0fcbbd28e1ec66f39eb6551829972b752ff20e1286b646b  # lean-4.34.0-linux.tar.zst
 MORPH_COMMIT=3e44e795586af3e11285b603ab642c67823add51
 WORK="$HOME/holon-work"
 TMP="$(mktemp -d)"
@@ -39,23 +42,21 @@ sha_ok "$HOME/.bun/bin/bun" "$BUN_BIN_SHA"
 # 2. Bend at the pinned commit (finds ~/.bun/bin/bun, so it installs no other bun)
 "$REPO/tools/install_bend.sh" "$HOME/.holon"
 
-# 3. Lean 4.34.0 exactly as tools/setup_env.sh does it (elan + GitHub release tarball)
+# 3. Lean, the exact release tarball (sha256-checked), extracted with the runner's zstd. elan is not
+#    installed: holon/lean.py and the BendTT kernel build resolve ~/.elan/toolchains/<toolchain>/bin
+#    directly, which is all `elan toolchain link` would have created.
 LEAN_V="$(cfg lean.pinned_version)"
-curl -sSfL --retry 5 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o "$TMP/elan-init.sh"
-sh "$TMP/elan-init.sh" -y --default-toolchain none --no-modify-path
+[ "$LEAN_V" = 4.34.0 ] || { echo "config lean.pinned_version is $LEAN_V; LEAN_TAR_SHA pins 4.34.0" >&2; exit 1; }
 fetch "$TMP/lean.tar.zst" "https://github.com/leanprover/lean4/releases/download/v$LEAN_V/lean-$LEAN_V-linux.tar.zst"
-python3 -m pip install -q zstandard
-python3 - "$TMP/lean.tar.zst" "$HOME/.holon" <<'PY'
-import sys, tarfile, zstandard
-with open(sys.argv[1], "rb") as f:
-    tarfile.open(fileobj=zstandard.ZstdDecompressor().stream_reader(f), mode="r|").extractall(sys.argv[2])
-PY
-"$HOME/.elan/bin/elan" toolchain link "leanprover/lean4:v$LEAN_V" "$HOME/.holon/lean-$LEAN_V-linux"
-"$HOME/.elan/bin/elan" default "leanprover/lean4:v$LEAN_V"
-"$HOME/.elan/bin/lean" --version
+sha_ok "$TMP/lean.tar.zst" "$LEAN_TAR_SHA"
+tar --use-compress-program=unzstd -xf "$TMP/lean.tar.zst" -C "$HOME/.holon"
+LEAN_TC="$HOME/.elan/toolchains/leanprover--lean4---v$LEAN_V"
+mkdir -p "$HOME/.elan/toolchains"
+ln -sfn "$HOME/.holon/lean-$LEAN_V-linux" "$LEAN_TC"
+"$LEAN_TC/bin/lean" --version
 
 # 4. the BendTT kernel: bend --verdict builds and caches it on first use
-( cd "$REPO/bend/probes" && PATH="$PATH:$HOME/.elan/bin" "$HOME/.holon/bin/bend" p01_law_refl.bend --verdict )
+( cd "$REPO/bend/probes" && "$HOME/.holon/bin/bend" p01_law_refl.bend --verdict )
 
 # 5. replay / extraction toolchain at the config's absolute paths (/root/work -> ~/holon-work, /root/.holon -> ~/.holon)
 mkdir -p "$WORK/foundry"
