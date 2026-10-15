@@ -225,6 +225,7 @@ class Search:
         self.attempts: dict = {f: [] for f in changed}
         self.full_pair = False
         self.last_seconds = 0.0
+        self.overflow_streak = 0
         self.jobs = 0
         self.stats = {"checks": 0, "check_seconds": 0.0, "cache_hits": 0, "cache_failed_skips": 0, "candidates": 0,
                       "failed_candidates": 0, "timeouts": 0, "slice_misses": 0, "by_class": {}}
@@ -329,12 +330,13 @@ class Search:
             return self.cur[f]
         return None
 
-    def _reject_current(self, f: str, message: str):
+    def _reject_current(self, f: str, message: str, persist: bool = True):
         i, label, text = self.cur.pop(f)
         msg = clean_message(message)
         self.attempts[f].append(f"{label}: {msg}")
         self.stats["failed_candidates"] += 1
-        self.cache.mark_failed(self.key(f), CLASSES[i], text, msg)
+        if persist:   # a kernel rejection with a location is deterministic; a crash named by bisection is not
+            self.cache.mark_failed(self.key(f), CLASSES[i], text, msg)
 
     def _prove(self, f: str, label: str, text: str, cached: bool = False):
         self.proven[f] = {"class": label, "text": text}
@@ -353,16 +355,16 @@ class Search:
                     best = f
         return best
 
-    def reject(self, f: str, message: str):
+    def reject(self, f: str, message: str, persist: bool = True):
         """The final check refused f's lemma (a cached text, or a check that disagreed): evict it and search again."""
         p = self.proven.pop(f, None)
         if p is None:
             return
-        self.cache.evict(self.key(f))
         msg = clean_message(message)
-        # find which class the text came from, so the same candidate is not tried again
-        for i, cls in enumerate(CLASSES):
-            self.cache.mark_failed(self.key(f), cls, p["text"], msg)
+        if persist:   # the text is refused (with a location): never use or try it again
+            self.cache.evict(self.key(f))
+            for i, cls in enumerate(CLASSES):
+                self.cache.mark_failed(self.key(f), cls, p["text"], msg)
         # start f's classes again (a cached text skipped them); candidates refused before are skipped by the cache
         self.attempts[f] = [f"{p['class']}: refused by the final check: {msg}"]
         self.next_cls[f] = 0
@@ -446,6 +448,8 @@ class Search:
         self.stats["checks"] += 1
         self.stats["check_seconds"] += r.seconds
         self.last_seconds = r.seconds
+        if r.ok or r.location:
+            self.overflow_streak = 0
         if r.ok:
             for f, text, kind in blocks:
                 if kind != "proven" and f not in self.proven and f in self.cur and self.cur[f][2] == text:
@@ -461,11 +465,31 @@ class Search:
                 self.full_pair = True
                 self.progress("a pair-module slice missed a name: checking against the whole pair module from here")
                 return None
-            j = self._bisect(blocks)   # no location (a stack overflow): the shortest failing prefix names the block
+            if "stack overflowed" in r.out and self.overflow_streak < 5:
+                # bend2's stack overflow is not a verdict and not deterministic (the same file overflowed and
+                # passed in two runs, F33): check the same batch again before blaming any lemma
+                self.overflow_streak += 1
+                self.stats["overflow_retries"] = self.stats.get("overflow_retries", 0) + 1
+                self.progress("bend2 overflowed its stack without a location: checking the same batch again")
+                return None
+            self.overflow_streak = 0
+            j = self._bisect(blocks)   # no location, again and again: the shortest failing prefix names the block
             if j is None:
                 from .equivalence import kernel_message
                 return f"lemma check failed outside the lemmas: {kernel_message(r.out)}"
             self.progress(f"a check failed without a location; bisection names {blocks[j][0]} ({blocks[j][2]})")
+            f, text, kind = blocks[j]
+            for g, t, k in blocks[:j]:
+                if k != "proven" and g not in self.proven and g in self.cur and self.cur[g][2] == t:
+                    self._prove(g, self.cur[g][1], t)
+            if kind == "proven":   # not persisted: the crash may not recur (bend2's overflows are not deterministic)
+                self.proven.pop(f, None)
+                self.attempts[f].append(f"{self.cur.get(f, (0, 'cached', ''))[1]}: crashed in a larger file: "
+                                        f"{clean_message(r.out)}")
+                self.next_cls[f] = 0
+            elif f in self.cur and self.cur[f][2] == text and f not in self.proven:
+                self._reject_current(f, r.out, persist=False)
+            return None
         for f, text, kind in blocks[:j]:   # bend2 checks in order: everything before the failure passed
             if kind != "proven" and f not in self.proven and f in self.cur and self.cur[f][2] == text:
                 self._prove(f, self.cur[f][1], text)
