@@ -7,10 +7,11 @@
         "H": 8,
         "rlimit": 200000000
       },
+      "clock": null,
       "kind": "bmc",
       "length": null,
       "path": null,
-      "reason": "solver unknown at k = 1 (wall-clock guard 900 s); rlimit 200000000",
+      "reason": "solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
       "result": "unknown",
       "sides": {
         "go": {
@@ -32,6 +33,10 @@
         "H": 8,
         "rlimit": 200000000
       },
+      "clock": {
+        "label": "unrealistic clock (> 2^64)",
+        "max_timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819968
+      },
       "kind": "commit_class",
       "length": 1,
       "path": [
@@ -39,19 +44,19 @@
           "action": "commitBatch",
           "args": {
             "batchDataInput": {
-              "lastBlockNumber": 72058853008638016,
+              "lastBlockNumber": 72340174977138816,
               "numL1Messages": 0,
               "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-              "postStateRoot": "0x0101000001010101010101010101010101010101010101010101010101010101",
+              "postStateRoot": "0x0000010001010101010101010101010101000001010101010101010101010101",
               "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
               "version": 1,
               "withdrawalRoot": "0x0101010101010101010101010101010101010101010101010101010101010101"
             }
           },
-          "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000100012520808040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640101000001010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000101010180808080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000010001010101010101010101010101000001010101010101010101010101010101010101010101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "env": {
             "blobhash": [
-              "0x0104200000040108020880000040000000000100000002000000000008000000"
+              "0x01000000000080000000002080008000000000000020000220a0000000000000"
             ],
             "block.timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819968,
             "caller": "0x0000000000000000000000000000000000001003",
@@ -85,10 +90,11 @@
         "H": 8,
         "rlimit": 200000000
       },
+      "clock": null,
       "kind": "commit_class",
       "length": 1,
       "path": null,
-      "reason": "a commit at version 2 from R0 by the M0 commit-path rule (its I4 side solidity, holon.mreplay.m0_commit_sides); BMC: solver unknown at k = 1 (wall-clock guard 2400 s); rlimit 200000000",
+      "reason": "a commit at version 2 from R0 by the M0 commit-path rule (its I4 side solidity, holon.mreplay.m0_commit_sides); BMC: solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
       "result": "path",
       "sides": {
         "go": {
@@ -109,6 +115,7 @@
     },
     "M1/L_fact_Z": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": null,
       "path": null,
@@ -134,10 +141,11 @@
         "H": 8,
         "rlimit": 200000000
       },
+      "clock": null,
       "kind": "bmc",
       "length": null,
       "path": null,
-      "reason": "solver unknown at k = 4 ((:reason-unknown \"canceled\")); rlimit 200000000",
+      "reason": "solver unknown at k = 3 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
       "result": "unknown",
       "sides": {
         "solidity": {
@@ -151,6 +159,7 @@
     },
     "M1/L_own_txspayload": {
       "bound": null,
+      "clock": null,
       "kind": "go_only",
       "length": null,
       "path": null,
@@ -168,6 +177,7 @@
     },
     "M1/L_sort_remaining": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 4,
       "path": null,
@@ -185,6 +195,7 @@
     },
     "M1/L_sym_omega": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 2,
       "path": null,
@@ -202,6 +213,7 @@
     },
     "M1/L_tag_BVH": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
@@ -224,6 +236,7 @@
     },
     "M1/L_undo_BVH": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 1,
       "path": null,
@@ -241,6 +254,7 @@
     },
     "M1/L_undo_cancel": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
@@ -258,6 +272,7 @@
     },
     "M2/L_sort_site_rollup_363_1fc7f88a": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
@@ -275,6 +290,7 @@
     },
     "M2/L_sort_site_rollup_636_e68daf06": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": null,
       "path": null,
@@ -292,6 +308,7 @@
     },
     "M2/extracted_m1/L_disch_delay_nofree": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": null,
       "path": null,
@@ -303,6 +320,7 @@
     },
     "M2/extracted_m1/L_fact_Z": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": null,
       "path": null,
@@ -328,10 +346,11 @@
         "H": 8,
         "rlimit": 200000000
       },
+      "clock": null,
       "kind": "bmc",
       "length": null,
       "path": null,
-      "reason": "solver unknown at k = 4 ((:reason-unknown \"canceled\")); rlimit 200000000",
+      "reason": "solver unknown at k = 3 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
       "result": "unknown",
       "sides": {
         "solidity": {
@@ -345,6 +364,7 @@
     },
     "M2/extracted_m1/L_sort_remaining": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 4,
       "path": null,
@@ -362,6 +382,7 @@
     },
     "M2/extracted_m1/L_sym_omega": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 2,
       "path": null,
@@ -379,6 +400,7 @@
     },
     "M2/extracted_m1/L_undo_BVH": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 1,
       "path": null,
@@ -396,6 +418,7 @@
     },
     "M2/extracted_m1/L_undo_cancel": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
@@ -413,90 +436,154 @@
     },
     "M3/L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter.t.sol"
+      ]
     },
     "M3/L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 2,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner.t.sol"
+      ]
     },
     "M3/L_disch_noext_rollup_132_d953872f_onlyOwner": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 4,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_132_d953872f_onlyOwner.t.sol"
+      ]
     },
     "M3/L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter.t.sol"
+      ]
     },
     "M3/L_disch_noext_rollup_213_f2e7faf8_onlyOwner": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_213_f2e7faf8_onlyOwner.t.sol"
+      ]
     },
     "M3/L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter.t.sol"
+      ]
     },
     "M3/L_disch_noext_rollup_363_e11d8bb2_onlyOwner": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_disch_noext_rollup_363_e11d8bb2_onlyOwner.t.sol"
+      ]
     },
     "M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": {
       "bound": {
         "H": 8,
         "rlimit": 200000000
       },
+      "clock": null,
       "kind": "commit_class",
       "length": null,
       "path": null,
-      "reason": "a commit at version 2 from R0 (rule K3, the M0 commit-path rule): solver unknown at k = 1 (wall-clock guard 2400 s); rlimit 200000000",
+      "reason": "a commit at version 2 from R0 (rule K3, the M0 commit-path rule): solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
       "result": "unknown",
       "sides": {},
       "target": null,
@@ -507,6 +594,10 @@
         "H": 8,
         "rlimit": 200000000
       },
+      "clock": {
+        "label": "unrealistic clock (> 2^64)",
+        "max_timestamp": 68754308293964614497325394576238816644664092751891569308604359083597582303224
+      },
       "kind": "commit_class",
       "length": 1,
       "path": [
@@ -514,22 +605,24 @@
           "action": "commitBatch",
           "args": {
             "batchDataInput": {
-              "lastBlockNumber": 1153486670763397120,
+              "lastBlockNumber": 316659348799490,
               "numL1Messages": 0,
               "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-              "postStateRoot": "0x2001040402808004024040804010400000084004802002802004010102021008",
+              "postStateRoot": "0x1002800801800002028040010002010808010420800140808001080480020210",
               "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
               "version": 0,
-              "withdrawalRoot": "0x0401044002400804048000400800080102400002040401400820010240100220"
+              "withdrawalRoot": "0x8004010480010800010100400810200101081001010201040802011001100101"
             }
           },
-          "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000001002020400001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000642001040402808004024040804010400000084004802002802004010102021008040104400240080404800040080008010240000204040140082001024010022000000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000001200000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000641002800801800002028040010002010808010420800140808001080480020210800401048001080001010040081020010108100101020104080201100110010100000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "env": {
-            "blobhash": [],
-            "block.timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819952,
+            "blobhash": [
+              "0x0101020400020040082000040002100000400100000000204004020802012020"
+            ],
+            "block.timestamp": 68754308293964614497325394576238816644664092751891569308604359083597582303224,
             "caller": "0x0000000000000000000000000000000000001002",
             "calls": [],
-            "msg.value": 27942493923002286088
+            "msg.value": 69210112
           }
         }
       ],
@@ -558,6 +651,10 @@
         "H": 8,
         "rlimit": 200000000
       },
+      "clock": {
+        "label": "unrealistic clock (> 2^64)",
+        "max_timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819968
+      },
       "kind": "commit_class",
       "length": 1,
       "path": [
@@ -565,19 +662,19 @@
           "action": "commitBatch",
           "args": {
             "batchDataInput": {
-              "lastBlockNumber": 72058853008638016,
+              "lastBlockNumber": 72340174977138816,
               "numL1Messages": 0,
               "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-              "postStateRoot": "0x0101000001010101010101010101010101010101010101010101010101010101",
+              "postStateRoot": "0x0000010001010101010101010101010101000001010101010101010101010101",
               "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
               "version": 1,
               "withdrawalRoot": "0x0101010101010101010101010101010101010101010101010101010101010101"
             }
           },
-          "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000100012520808040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640101000001010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000101010180808080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000010001010101010101010101010101000001010101010101010101010101010101010101010101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "env": {
             "blobhash": [
-              "0x0104200000040108020880000040000000000100000002000000000008000000"
+              "0x01000000000080000000002080008000000000000020000220a0000000000000"
             ],
             "block.timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819968,
             "caller": "0x0000000000000000000000000000000000001003",
@@ -611,10 +708,11 @@
         "H": 8,
         "rlimit": 200000000
       },
+      "clock": null,
       "kind": "bmc",
       "length": null,
       "path": null,
-      "reason": "solver unknown at k = 1 (wall-clock guard 900 s); rlimit 200000000",
+      "reason": "solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
       "result": "unknown",
       "sides": {},
       "target": "dom_v0_long",
@@ -622,58 +720,108 @@
     },
     "M3/L_sort_realize_rollup_363_4a64383b": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_sort_realize_rollup_363_4a64383b__commitBatch.t.sol",
+        "gen/M3/tests/foundry/M3/L_sort_realize_rollup_363_4a64383b__commitBatchWithProof.t.sol",
+        "gen/M3/tests/foundry/M3/L_sort_realize_rollup_363_4a64383b__commitState.t.sol"
+      ]
     },
     "M3/L_sort_tag_rollup_279_e01ea84a": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 3,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": false,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_sort_tag_rollup_279_e01ea84a__commitState.t.sol"
+      ]
     },
     "M3/L_undo_pair_Rollup_commitBatch_revertBatch": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 1,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_undo_pair_Rollup_commitBatch_revertBatch__with.t.sol",
+        "gen/M3/tests/foundry/M3/L_undo_pair_Rollup_commitBatch_revertBatch__without.t.sol"
+      ]
     },
     "M3/L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 1,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": true,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes__with.t.sol",
+        "gen/M3/tests/foundry/M3/L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes__without.t.sol"
+      ]
     },
     "M3/L_undo_res_Rollup_revertBatch_batchDataStore": {
       "bound": null,
+      "clock": null,
       "kind": "direct",
       "length": 1,
       "path": null,
-      "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+      "reason": "the witness is a schedule of public calls; its emitted tests are its side",
       "result": "path",
-      "sides": {},
+      "sides": {
+        "solidity": {
+          "obstruction_observed": false,
+          "provenance": "public_schedule",
+          "status": "passed"
+        }
+      },
       "target": null,
-      "tests": []
+      "tests": [
+        "gen/M3/tests/foundry/M3/L_undo_res_Rollup_revertBatch_batchDataStore__with.t.sol",
+        "gen/M3/tests/foundry/M3/L_undo_res_Rollup_revertBatch_batchDataStore__without.t.sol"
+      ]
     }
   }
 }

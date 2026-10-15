@@ -56,11 +56,19 @@
     "bound": null,
     "kind": "direct",
     "length": 3,
-    "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+    "reason": "the witness is a schedule of public calls; its emitted tests are its side",
     "result": "path",
-    "sides": {},
+    "sides": {
+      "solidity": {
+        "obstruction_observed": false,
+        "provenance": "public_schedule",
+        "status": "passed"
+      }
+    },
     "target": null,
-    "tests": []
+    "tests": [
+      "gen/M3/tests/foundry/M3/L_sort_tag_rollup_279_e01ea84a__commitState.t.sol"
+    ]
   },
   "cone": [
     "AR_addChallenger",

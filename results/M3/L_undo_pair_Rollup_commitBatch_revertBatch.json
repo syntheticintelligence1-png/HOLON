@@ -41,11 +41,20 @@
     "bound": null,
     "kind": "direct",
     "length": 1,
-    "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+    "reason": "the witness is a schedule of public calls; its emitted tests are its side",
     "result": "path",
-    "sides": {},
+    "sides": {
+      "solidity": {
+        "obstruction_observed": true,
+        "provenance": "public_schedule",
+        "status": "passed"
+      }
+    },
     "target": null,
-    "tests": []
+    "tests": [
+      "gen/M3/tests/foundry/M3/L_undo_pair_Rollup_commitBatch_revertBatch__with.t.sol",
+      "gen/M3/tests/foundry/M3/L_undo_pair_Rollup_commitBatch_revertBatch__without.t.sol"
+    ]
   },
   "cone": [
     "AR_addChallenger",
@@ -2070,7 +2079,7 @@
   "evidence_override": null,
   "evidence_triage": "finding",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
-  "filter_bin": "pending",
+  "filter_bin": "finding",
   "generator_sha256": "03ffc19885a720352537b2fca5a2e57442aa25ee341a7729f6a21a11b04a677a",
   "independence_class": "I1-shared",
   "kernel": {
