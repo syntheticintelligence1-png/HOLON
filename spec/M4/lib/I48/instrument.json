@@ -1,0 +1,109 @@
+{
+  "instrument_version": "holon-i48/1",
+  "iteration": "I48",
+  "corpus_rules": {
+    "min_defects": 20,
+    "min_systems": 3,
+    "require_non_rollup_system": true,
+    "allowed_languages": ["go", "solidity"],
+    "external_clone_cache_dir": "/home/factory-user/.holon/corpus_m4/clones",
+    "candidate_systems": [
+      {"system_id": "morph-l2/morph", "repo_url": "https://github.com/morph-l2/morph", "local_reference": "/home/factory-user/.holon/morph", "is_non_rollup": false, "languages": ["go", "solidity"]},
+      {"system_id": "ethereum/go-ethereum", "repo_url": "https://github.com/ethereum/go-ethereum", "is_non_rollup": true, "languages": ["go"]},
+      {"system_id": "Vectorized/solady", "repo_url": "https://github.com/Vectorized/solady", "is_non_rollup": true, "languages": ["solidity"]},
+      {"system_id": "OpenZeppelin/openzeppelin-contracts", "repo_url": "https://github.com/OpenZeppelin/openzeppelin-contracts", "is_non_rollup": true, "languages": ["solidity"]}
+    ],
+    "sampling_and_stopping_rule": "Traverse each pinned repository history in deterministic topological reverse-chronological order; evaluate and log every candidate until each per-system quota is met or its history is exhausted. Verify git cat-file -e, git rev-parse <fix_sha>^1, non-comment code diff and parseable pre-fix/fix bundles in gen/M4/I48/bundles/<defect_id>/. Never replace a failed candidate silently; record disqualification and shortfall.",
+    "min_non_rollup_systems": 2,
+    "min_non_rollup_defects": 12,
+    "distinctness_key": ["repo_url", "fix_sha", "primary_file"],
+    "pair_distinctness": "All entries have distinct (repo_url, fix_sha) pairs and distinct defect_id values.",
+    "required_entry_fields": ["defect_id", "system", "repo_url", "is_non_rollup", "language", "pre_fix_sha", "fix_sha", "primary_file", "source_files", "public_evidence", "source_bundle", "renamed_bundle_dir", "defect_summary"]
+  },
+  "corpus_protocol": {
+    "deterministic_selection": {
+      "target_count": 20,
+      "target_languages": ["go", "solidity"],
+      "system_quotas": {"morph-l2/morph": 8, "ethereum/go-ethereum": 6, "Vectorized/solady": 3, "OpenZeppelin/openzeppelin-contracts": 3},
+      "min_non_rollup_systems": 2,
+      "min_non_rollup_defects": 12,
+      "head_policy": "Record the full pinned head SHA or release ref and resolved SHA for each repository in corpus_verification.json before traversal; alternatively record the full deterministic commit list and audit it against the clone's git log.",
+      "traversal": "For each system in candidate_systems order, git log --topo-order --date-order from the pinned head (reverse chronological); evaluate matching commits in that order through the quota-reaching commit, or to history exhaustion. Record every evaluated commit, including rejects. Sort accepted manifest entries by (system, defect_id).",
+      "defect_fix_regex": "\\b(fix|bug|overflow|underflow|revert|check|bound|validate|panic|crash|corrupt|leak|wrong|missing|invalid|mismatch| vulnerability|security)\\b",
+      "pre_fix_sha": "Exactly git rev-parse <fix_sha>^1, not an arbitrary ancestor; reject root commits.",
+      "source_filter": "At least one non-test .go or .sol file changed; exclude *_test.go, *Test.sol, *.t.sol, and paths or basenames containing mock (case-insensitive).",
+      "code_diff": "git diff pre_fix_sha fix_sha -- source_files must contain a non-comment, non-whitespace added or removed source line; diff headers do not count.",
+      "bundle": "One primary file or a bounded 1-3 source-file bundle, same repository-relative paths at both revisions. Verify each file byte-for-byte against git show; Go with gofmt -e and Solidity with solc-0.8.24 --stop-after parsing or verified AST tokenization and balanced declarations.",
+      "distinctness": "Reject repeated defect site and repeated (repo_url, fix_sha); preserve source_files and primary_file.",
+      "verification_path": "results/M4/I48/corpus_verification.json",
+      "evaluated_candidates": "Log every evaluated candidate through the stopping point in traversal order with system, fix_sha, pre_fix_sha, accepted boolean; rejects have exactly one explicit disqualification_reason from disqualification_reasons.",
+      "disqualification_reasons": ["non_parent_sha", "test_only_change", "comment_only_diff", "unsupported_bundle_construct", "parse_failure", "duplicate_defect_site"],
+      "shortfall": "If a system quota is unmet, log pinned head, number traversed, accepted count, and verified repository exhaustion. A shortfall cannot waive target_count while 20 or more qualifying commits exist in the pinned histories."
+    }
+  },
+  "blind_labeling_rules": {
+    "allowed_labels": ["PAR", "SORT", "UND", "FACT", "DISCH", "OUT_OF_SCOPE"],
+    "confidence_levels": ["high", "medium", "low"],
+    "rubric": {
+      "PAR": "Parallel representations or codec round trips disagree.",
+      "SORT": "A refined domain, width, index, tag or boundary is violated.",
+      "UND": "Rollback or undo fails to restore all dependent state.",
+      "FACT": "A cross-step or cross-component factor/commitment invariant fails.",
+      "DISCH": "An obligation, authorization or guard is not discharged.",
+      "OUT_OF_SCOPE": "No minimal HOLON rule above describes the defect."
+    },
+    "packet_dir": "spec/eval/I48/packets/",
+    "packet_fields_only": ["defect_metadata", "commit_message", "pre_fix_source_excerpt", "fix_diff", "neutral_classification_rubric"],
+    "neutral_packet_rubric": "Assess which smallest observable obligation fails, using only the pre-fix source and actual fix diff. Do not infer a preferred outcome from provenance.",
+    "packet_exclusions": ["author_predictions", "preferred_labels", "pipeline_outcomes"],
+    "forbidden_packet_tokens": ["primary_rule", "secondary_rules", "adjudicated", "rater_a", "rater_b", "DISCH", "UNDO", "INJ", "PAR", "SORT", "OBS"],
+    "packet_manifest_sha256": "SHA256 of concatenated lexicographically sorted per-packet SHA256 hex digests (UTF-8, no separators).",
+    "session_metadata_fields": ["rater_id", "isolation_mode", "packet_manifest_sha256", "completed_defect_count"],
+    "rater_sessions": ["rater_a", "rater_b"],
+    "session_contract": "Two fresh independent read-only sessions classify every packet without seeing each other's labels, author predictions or outcomes. Preserve original raw outputs unmodified.",
+    "raw_paths": ["results/M4/I48/raters/rater_a_raw.json", "results/M4/I48/raters/rater_b_raw.json"],
+    "raw_session_fields": ["session_id", "model", "reasoning_effort", "provider_family", "same_family_limitation_disclosed"],
+    "adjudication_path": "results/M4/I48/adjudication.json",
+    "adjudication_rule": "Record per-defect rater A and B labels, confidence, agreement status, primary_rule, final_label (equal to primary_rule) and adjudication_rationale. On disagreement with low confidence set primary_rule UNCERTAIN; if both confidences are high/medium, choose one rater's primary rule or cite a named labeling_rubric.tie_break_clauses key. Compute exact raw agreement count / N and Cohen's kappa from original categorical outputs, including OUT_OF_SCOPE; when chance agreement is 1, kappa is 1 only for perfect agreement.",
+    "descriptive_agreement_target": 0.70
+  },
+  "labeling_rubric": {
+    "tie_break_clauses": {
+      "minimal_rule": "Choose the minimal rule that directly captures the failing obligation.",
+      "parallel_over_domain": "Prefer PAR only when two representations disagree on the same admitted input; otherwise choose the domain rule.",
+      "out_of_scope": "Choose OUT_OF_SCOPE only when no named rule captures the observed defect."
+    }
+  },
+  "renaming_rules": {
+    "module": "holon/eval/renaming.py",
+    "languages": ["go", "solidity"],
+    "domain_words": ["amount", "batchIndex", "header", "rollup", "commitment", "sequencer", "withdrawal", "deposit", "bridge", "validator"],
+    "algorithm": "Deterministic injective scope/binding-aware identifier renaming across each source bundle, consistently rewriting bound uses; do not use raw-text regex substitution.",
+    "inverse": "restore_bundle(rename_bundle(bundle)) == bundle byte for byte",
+    "preserve": ["keywords", "primitive types", "literals", "operators", "AST structure", "token-binding structure"],
+    "verification_report": "results/M4/I48/renaming_report.json",
+    "coverage": "Every corpus bundle and synthetic Go/Solidity shadowing, selector, import, comment and string-literal edge cases; 100 percent must pass."
+  },
+  "control_rules": {
+    "manifest": "spec/eval/controls.json",
+    "generated_dir": "gen/M4/I48/controls/",
+    "verification_report": "results/M4/I48/controls_report.json",
+    "families": ["par_codec_width", "sort_list_depth", "undo_journal_steps"],
+    "pairs": [
+      {"true_id": "C01_known_true_01", "false_id": "C07_known_false_01", "family": "par_codec_width", "standard_budget": 8, "control_scale": 16, "seed": 4801, "witness_scale": 12},
+      {"true_id": "C02_known_true_02", "false_id": "C08_known_false_02", "family": "par_codec_width", "standard_budget": 8, "control_scale": 24, "seed": 4802, "witness_scale": 19},
+      {"true_id": "C03_known_true_03", "false_id": "C09_known_false_03", "family": "sort_list_depth", "standard_budget": 4, "control_scale": 10, "seed": 4803, "witness_scale": 7},
+      {"true_id": "C04_known_true_04", "false_id": "C10_known_false_04", "family": "sort_list_depth", "standard_budget": 4, "control_scale": 14, "seed": 4804, "witness_scale": 11},
+      {"true_id": "C05_known_true_05", "false_id": "C11_known_false_05", "family": "undo_journal_steps", "standard_budget": 3, "control_scale": 8, "seed": 4805, "witness_scale": 6},
+      {"true_id": "C06_known_true_06", "false_id": "C12_known_false_06", "family": "undo_journal_steps", "standard_budget": 3, "control_scale": 12, "seed": 4806, "witness_scale": 9}
+    ],
+    "true_requirement": "Each known_true control has an explicit algebraic or structural invariant justification and a Bend/Python verification artifact in gen/M4/I48/controls/ recorded in results/M4/I48/controls_report.json.",
+    "false_requirement": "Each known_false control has a concrete witness with witness_scale > standard_budget, passes for all inputs <= standard_budget, and violates the property at witness_scale; record checked evidence.",
+    "isolation": "All .py and .bend files under holon/ outside holon/eval/ and gen/M0 through gen/M3 must not reference spec/eval, results/M4, holon.eval, C01_known_true, or C07_known_false.",
+    "control_specs": "spec/eval/controls/<control_id>.json",
+    "control_artifacts": "gen/eval/controls/<control_id>/",
+    "evaluation_api": "holon.eval.controls.evaluate_control(control_id, budget_scale)",
+    "model_sides_api": "holon.eval.controls.evaluate_sides(control_id, witness) computes (lhs, rhs) on the generated model, independently of the reported verdict.",
+    "bend_check": "Every true proof and false concrete counter-law must contain the expected named law and be accepted by bend with ALL PROOFS CHECK; do not treat vacuous checker output as evidence."
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "milestone": "M4",
+  "iterations": {
+    "I48": {
+      "title": "Verified evaluation corpus, blind rule classification, binding-aware renaming and matched scale controls",
+      "prompt": "prompts/I48_corpus.md",
+      "instrument": "spec/M4/lib/I48/instrument.json",
+      "tests": [
+        "tests_m4/test_eval_corpus.py",
+        "tests_m4/test_eval_renaming.py",
+        "tests_m4/test_eval_controls.py"
+      ],
+      "outcome_paths": [
+        "spec/eval/corpus.json",
+        "spec/eval/controls.json",
+        "spec/eval/I48/",
+        "gen/M4/I48/",
+        "results/M4/I48/",
+        "holon/eval/",
+        "docs/iterations/I48.md"
+      ],
+      "scope": "Instrument delivery only. I51 runs HOLON on the corpus, I52 runs baselines, and I53 calibrates the solver.",
+      "predictions": [
+        {
+          "id": "I48-P1",
+          "claim": "At least 20 distinct historical Go/Solidity bug fixes, with system quotas 8/6/3/3 and at least 12 defects in two or more non-rollup systems, follow the frozen traversal and first-parent selection rules, have substantive code diffs, and have parseable source bundles.",
+          "check": "tests_m4.test_eval_corpus.TestCorpusOutcome.test_verified_corpus"
+        },
+        {
+          "id": "I48-P2",
+          "claim": "Every corpus item has a provenance-verified label-free blind packet; two independent sessions attest to the same packet digest, preserve raw outputs, and constrained adjudication reports agreement and Cohen's kappa.",
+          "check": "tests_m4.test_eval_corpus.TestCorpusOutcome.test_blind_classification"
+        },
+        {
+          "id": "I48-P3",
+          "claim": "Go and Solidity bundle renaming is independently checked for lexical binding preservation, shadowing, parser validity, literal/comment preservation and exact inverse restoration across every source file.",
+          "check": "tests_m4.test_eval_renaming.TestRenamingOutcome.test_renaming and tests_m4.test_eval_renaming.TestRenamingOutcome.test_report"
+        },
+        {
+          "id": "I48-P4",
+          "claim": "All twelve executable controls are evaluated live; true proofs and false concrete counter-laws pass Bend, while false controls pass at every standard-budget scale and refute at witness scale; solver inputs stay isolated.",
+          "check": "tests_m4.test_eval_controls.TestControlsOutcome.test_controls and tests_m4.test_eval_controls.TestControlsOutcome.test_verification"
+        }
+      ]
+    }
+  }
+}
