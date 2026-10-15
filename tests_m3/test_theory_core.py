@@ -540,7 +540,9 @@ class TestLean(unittest.TestCase):
         elaborates; and each frozen theorem is declared once, with exactly its frozen statement."""
         src = need(OUT / "lean" / "Theory.lean").read_text()
         self.assertTrue(src.startswith(T.lean_definitions()), "Theory.lean must start with the frozen definitions")
+        self.assertNotIn("\u00ab", src[len(T.lean_definitions()):], "no escaped identifier after the marker")
         rest = T.lean_code(src[len(T.lean_definitions()):])
+        self.assertEqual(sorted(set(m.group(0) for m in holon_module("holon.lean").FORBIDDEN.finditer(rest))), [])
         self.assertNotIn("@[", rest)
         self.assertNotIn('"', rest)
         bad = LEAN_WORDS.search(rest)
@@ -553,6 +555,37 @@ class TestLean(unittest.TestCase):
                 got = T.lean_statement(src, name)
                 self.assertIsNotNone(got, f"theorem {name} is not declared exactly once")
                 self.assertEqual(got, T.lean_statement(side()["lean"]["text"], name))
+
+    def test_lean_elaborated_types_are_the_frozen_ones(self):
+        """Construction (rule T2; added after the build review, not preregistered): each frozen theorem's elaborated
+        type in Theory.lean (`#check @<name>` under pp.all) equals its type elaborated from the frozen statements, so
+        nothing after the marker changes what a statement means."""
+        lean = holon_module("holon.lean")
+        b = lean.toolchain_bin()
+
+        def types(text: str) -> dict[str, str]:
+            tmp = Path(tempfile.mkdtemp(prefix="i42_types_"))
+            try:
+                (tmp / "T.lean").write_text(text.rstrip("\n") + "\n\nset_option pp.all true\n"
+                                            + "".join(f"#check @{n}\n" for n in T.LEAN_THEOREMS))
+                p = subprocess.run([str(b / "lean"), "T.lean"], cwd=tmp, capture_output=True, text=True,
+                                   timeout=600, env={**os.environ, "PATH": f"{b}:{os.environ.get('PATH', '')}"})
+                out = p.stdout + p.stderr
+            finally:
+                shutil.rmtree(tmp, ignore_errors=True)
+            self.assertNotRegex(out, r"(^|\n)[^\n]*error", out[-3000:])
+            got = {}
+            for n in T.LEAN_THEOREMS:
+                m = re.search(rf"(?ms)^@{re.escape(n)} :(.*?)(?=^@\w+ :|^\S+:\d+:\d+: |\Z)", out)
+                self.assertIsNotNone(m, f"#check @{n}: {out[-2000:]}")
+                got[n] = " ".join(m.group(1).split())
+            return got
+
+        want = types(side()["lean"]["text"])
+        have = types(need(OUT / "lean" / "Theory.lean").read_text())
+        for n in T.LEAN_THEOREMS:
+            with self.subTest(theorem=n):
+                self.assertEqual(have[n], want[n])
 
     def test_lean_core_checks(self):
         """I42-P2: holon.lean.check_text accepts Theory.lean under the pinned toolchain: result checked, every frozen
@@ -624,11 +657,18 @@ class TestInstances(unittest.TestCase):
                 for c in inst["certificates"]:
                     self.assertIn(f"{alias}.{inst['name']}(", ds[f"{alias}.{c['name']}"][1], c["name"])
                 no_escape(self, pt, inst["name"])
+                self.assertNotIn('"', pt, "no string literal: a # in one would hide code from these checks")
+                self.assertNotIn("'", pt, "no char literal")
                 for name, (sig, bod) in ds.items():
                     if RECORD.search(sig + "\n" + bod):
                         self.assertTrue(name.startswith("bridge_"), f"a model record is written in {name}")
                     if name.startswith("bridge_"):
                         self.assertTrue(bridge_ok(sig), f"{name}: not a pin or getter equation: {sig[:300]}")
+                        lines = [ln.strip() for ln in bod.splitlines() if ln.strip()]
+                        self.assertEqual(len(lines), 3, f"{name}: open h, then reflexivity")
+                        self.assertEqual(lines[0], "match h:", name)
+                        self.assertRegex(lines[1], r"^case \w+\.R_\w+\{[^}]*\}:$", name)
+                        self.assertEqual(lines[2], "{==}", name)
                 outside = [ln for ln in pt.splitlines() if RECORD.search(re.sub(r"#.*$", "", ln))
                            and not ln.startswith((" ", "\t", "def bridge_"))]
                 self.assertEqual(outside, [])
@@ -681,6 +721,8 @@ class TestSemanticCanary(unittest.TestCase):
                 self.assertIn(f"{alias}.{inst['canary_law']}", ds)
                 self.assertEqual(law_blocks(pt), {})
                 no_escape(self, pt, inst["name"] + " canary")
+                self.assertNotIn('"', pt, "no string literal")
+                self.assertNotIn("'", pt, "no char literal")
                 for name, (sig, bod) in ds.items():
                     if RECORD.search(sig + "\n" + bod):
                         self.assertTrue(name.startswith("witness_"), f"a model record is written in {name}")

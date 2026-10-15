@@ -1044,4 +1044,39 @@ theorem cor_6_5_flat {α : Type} (G : List Edge) (n r : Nat) (act : Step → α 
     (hends : ∀ (e : Nat) (d : Edge), G[e]? = some d → d.src < n ∧ d.tgt < n) :
     ClosedIdentity G n act R := by
   exact flat_core G n r act R hbij phi hcons hreach honto hends
+
+/-- The form every basis-sufficiency instance applies (Thm 6.4 (ii) in potential form over forward walks; Cor 6.5
+(<=) with no inverse): a potential that every edge's forward map respects is carried along every valid forward walk to
+the potential of its last vertex. Added by the build (not a frozen statement): Bend's core_transport and
+core_parallel_agree state it over per-step bundles. -/
+theorem forward_transport {α : Type} (G : List Edge) (act : Step → α → α) (phi : Nat → α)
+    (hcons : ∀ (e : Nat) (d : Edge), G[e]? = some d → act (.fwd e) (phi d.src) = phi d.tgt) :
+    ∀ w u, (∀ s, s ∈ w → ∃ e, s = .fwd e) → walkOk G u w = true → run act w (phi u) = phi (walkLast G u w) := by
+  intro w
+  induction w with
+  | nil => intro u _ _; rfl
+  | cons s t ih =>
+    intro u hf hok
+    obtain ⟨e, rfl⟩ := hf s (List.mem_cons_self ..)
+    simp only [walkOk, Bool.and_eq_true] at hok
+    obtain ⟨h1, h2⟩ := hok
+    cases hd : G[e]? with
+    | none => simp [stepOk, hd] at h1
+    | some d =>
+      simp only [stepOk, hd, beq_iff_eq] at h1
+      have hnext : nextV G u (.fwd e) = d.tgt := by simp [nextV, hd]
+      have hstep : act (.fwd e) (phi u) = phi d.tgt := by rw [← h1]; exact hcons e d hd
+      show run act t (act (.fwd e) (phi u)) = phi (walkLast G (nextV G u (.fwd e)) t)
+      rw [hstep, hnext]
+      have := ih d.tgt (fun s hs => hf s (List.mem_cons_of_mem _ hs)) (by rw [hnext] at h2; exact h2)
+      exact this
+
+/-- Parallel forward walks agree on the potentials (the instance law's form). -/
+theorem forward_potential_parallel {α : Type} (G : List Edge) (act : Step → α → α) (phi : Nat → α)
+    (hcons : ∀ (e : Nat) (d : Edge), G[e]? = some d → act (.fwd e) (phi d.src) = phi d.tgt) :
+    ∀ p q u, (∀ s, s ∈ p → ∃ e, s = .fwd e) → (∀ s, s ∈ q → ∃ e, s = .fwd e) →
+      walkOk G u p = true → walkOk G u q = true → walkLast G u p = walkLast G u q →
+      run act p (phi u) = run act q (phi u) := by
+  intro p q u hp hq okp okq hl
+  rw [forward_transport G act phi hcons p u hp okp, forward_transport G act phi hcons q u hq okq, hl]
 '''

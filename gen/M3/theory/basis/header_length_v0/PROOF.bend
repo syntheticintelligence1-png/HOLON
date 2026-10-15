@@ -306,7 +306,7 @@ def avail_22(+h: M.R_BatchHeaderV0) -> {Laws.run([C.Fwd{0n}, C.Fwd{2n}, C.Fwd{14
   %bridge_avail_22(h) : {Laws.K3{M.BatchHeaderBytes_WithdrawalRoot(M.enc_sol(_))} == Laws.K3{Some{M.get_Header__withdrawRootHash(_)}} : Laws.Car}
   Equal.cong(Maybe<&2, List<&2, U32>>, Laws.Car, x => Laws.K3{x}, M.BatchHeaderBytes_WithdrawalRoot(M.enc_sol(A22.pin_h(Laws.sigma(A0.pin_h(h))))), Some{M.get_Header__withdrawRootHash(A22.pin_h(Laws.sigma(A0.pin_h(h))))}, A22.l_par_rt_enc_sol_batchheaderbytes_withdrawalroot_v0(Laws.sigma(A0.pin_h(h))))
 
-# ---------------------------------------------------------------- the per-edge facts (Cor 6.5's potentials)
+# ---------------------------------------------------------------- the per-edge facts (the potentials of Cor 6.5)
 
 def edge_0(+h: M.R_BatchHeaderV0) -> {Laws.act(C.Fwd{0n}, phi(h, 0n)) == phi(h, 1n) : Laws.Car}:
   {==}
