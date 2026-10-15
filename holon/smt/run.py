@@ -284,4 +284,7 @@ class Session:
                 self.p.wait(timeout=10)
             except subprocess.TimeoutExpired:
                 self.p.kill()
+                self.p.wait()
+            if self.p.stdout is not None:
+                self.p.stdout.close()
             self.p = None

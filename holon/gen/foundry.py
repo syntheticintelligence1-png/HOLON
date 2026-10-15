@@ -87,8 +87,12 @@ def test_text(name: str, steps: list[dict], expected: list[str], deploy: dict, s
             lines.append("            all = all && ok;")
         else:
             key = want[4:] if want.startswith("rev ") else want
-            data = revert_data(key)
-            lines.append(f"            all = all && !ok && keccak256(ret) == keccak256(hex\"{data}\");")
+            if re.fullmatch(r"0x[0-9a-fA-F]{8}", key):
+                # a custom error named by its selector only: the revert data starts with it
+                lines.append(f"            all = all && !ok && ret.length >= 4 && bytes4(ret) == bytes4(hex\"{key[2:]}\");")
+            else:
+                data = revert_data(key)
+                lines.append(f"            all = all && !ok && keccak256(ret) == keccak256(hex\"{data}\");")
         lines.append("        }")
     for slot, word in slots or []:
         lines.append(f"        all = all && vm.load(t, bytes32(uint256({int(slot)}))) == bytes32(uint256({int(word)}));")
