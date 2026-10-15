@@ -293,7 +293,7 @@ class Regeneration:
         self.law_paths: dict[str, str] = {}         # law id -> the repo-relative path of its law file (layout)
         self.proof_paths: dict[str, str] = {}       # law id -> the repo-relative path of its proof (layout)
         self.generated: list[str] = []              # the model and core paths, sorted
-        self.unregenerated: set[str] = set()        # law ids whose files the intake does not regenerate (codec laws)
+        self.unregenerated: set[str] = set()        # law ids whose files the intake does not regenerate (codec, UNDO laws)
         if ir.ir_version_of(m, self.root) == "holon-ir/0.1":
             self._regen_01()
         else:
@@ -352,6 +352,14 @@ class Regeneration:
             up = self._layout(lid)
             if lid in typed:
                 self._regen_typed(law, typed[lid])
+                continue
+            if law.get("rule") == "UNDO":
+                # I27's UNDO laws (holon.undo.run): their law files import the trace section holon.undo.trace writes
+                # over the typed model, which the intake does not regenerate; holon run takes no agent proof for them
+                # (it runs its own proof generators), so G1 leaves them out, as it does the codec laws
+                self.no_statement[lid] = ("holon run decides this UNDO law with holon.undo.run, which takes no agent "
+                                          "proof: the intake regenerates no trace section and no law file for it")
+                self.unregenerated.add(lid)
                 continue
             if CR.codec_kind(law, self.root) is not None:
                 # I24's codec laws (holon.codecrun): holon run takes no agent proof for them (no law file to check one

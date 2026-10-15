@@ -1,0 +1,71 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes",
+  "milestone": "M3",
+  "notes": "with the context of the residue batchBlobVersionedHashes after revertBatch at key k (every cursor below k, every cleared marker zero at k), setting the register to any value v changes no observation of any trace t (Thm 6.9(i): index-relative noninterference); undo morph_rollup.extracted:residue:revertBatch:batchBlobVersionedHashes",
+  "rule": "UNDO",
+  "rule_catalog_version": "holon-rules/1.3",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "k",
+        "q": "forall",
+        "type": "Word"
+      },
+      {
+        "name": "v",
+        "q": "forall",
+        "type": "Val[batchBlobVersionedHashes]"
+      },
+      {
+        "name": "t",
+        "q": "forall",
+        "type": "Trace"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "k"
+            },
+            {
+              "var": "v"
+            },
+            {
+              "var": "t"
+            },
+            {
+              "var": "keccak256"
+            }
+          ],
+          "undo": "morph_rollup.extracted:residue:revertBatch:batchBlobVersionedHashes"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "residue"
+}

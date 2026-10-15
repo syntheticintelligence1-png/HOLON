@@ -1,0 +1,41 @@
+{
+  "against": "M1",
+  "document": "undo_backtest",
+  "gaps": [
+    "L_undo_cancel"
+  ],
+  "rows": [
+    {
+      "analogue": "L_undo_res_Rollup_revertBatch_batchDataStore",
+      "analogue_status": "REFUTED",
+      "m1_law": "L_undo_BD",
+      "m1_status": "PROVED",
+      "reason": "L_undo_res_Rollup_revertBatch_batchDataStore decides the residue basis of the extracted document (static class live); REFUTED where M1 recorded PROVED",
+      "same_status": false
+    },
+    {
+      "analogue": "L_undo_pair_Rollup_commitBatch_revertBatch",
+      "analogue_status": "REFUTED",
+      "m1_law": "L_undo_BVH",
+      "m1_status": "REFUTED",
+      "reason": "L_undo_pair_Rollup_commitBatch_revertBatch decides the pair basis of the extracted document (static class live); the same status as M1",
+      "same_status": true
+    },
+    {
+      "analogue": "L_undo_res_Rollup_revertBatch_committedStateRoots",
+      "analogue_status": "UNKNOWN",
+      "m1_law": "L_undo_CSR",
+      "m1_status": "PROVED",
+      "reason": "L_undo_res_Rollup_revertBatch_committedStateRoots decides the residue basis of the extracted document (static class dead); UNKNOWN where M1 recorded PROVED",
+      "same_status": false
+    },
+    {
+      "analogue": null,
+      "analogue_status": null,
+      "m1_law": "L_undo_cancel",
+      "m1_status": "REFUTED",
+      "reason": "(challengeState, setPause) is not an undo pair of the extracted document (no restore with a criterion: U3, U4): a back-test miss, an open rule gap",
+      "same_status": false
+    }
+  ]
+}

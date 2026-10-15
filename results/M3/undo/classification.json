@@ -1,0 +1,84 @@
+{
+  "disagreements": [
+    "L_undo_pair_Rollup_addChallenger_removeChallenger",
+    "L_undo_pair_Rollup_commitBatchWithProof_revertBatch",
+    "L_undo_pair_Rollup_commitState_revertBatch",
+    "L_undo_pair_Rollup_removeChallenger_addChallenger",
+    "L_undo_res_Rollup_revertBatch_committedStateRoots"
+  ],
+  "document": "undo_classification",
+  "laws": {
+    "L_undo_pair_Rollup_addChallenger_removeChallenger": {
+      "agree": false,
+      "blocks": [
+        "shadow",
+        "window"
+      ],
+      "kernel": "unknown",
+      "static": "dead",
+      "subform": "pair"
+    },
+    "L_undo_pair_Rollup_commitBatchWithProof_revertBatch": {
+      "agree": false,
+      "blocks": [
+        "shadow",
+        "window"
+      ],
+      "kernel": "unknown",
+      "static": "live",
+      "subform": "pair"
+    },
+    "L_undo_pair_Rollup_commitBatch_revertBatch": {
+      "agree": true,
+      "blocks": [],
+      "kernel": "live",
+      "static": "live",
+      "subform": "pair"
+    },
+    "L_undo_pair_Rollup_commitState_revertBatch": {
+      "agree": false,
+      "blocks": [
+        "shadow",
+        "window"
+      ],
+      "kernel": "unknown",
+      "static": "live",
+      "subform": "pair"
+    },
+    "L_undo_pair_Rollup_removeChallenger_addChallenger": {
+      "agree": false,
+      "blocks": [
+        "shadow",
+        "window"
+      ],
+      "kernel": "unknown",
+      "static": "dead",
+      "subform": "pair"
+    },
+    "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": {
+      "agree": true,
+      "blocks": [],
+      "kernel": "live",
+      "static": "live",
+      "subform": "residue"
+    },
+    "L_undo_res_Rollup_revertBatch_batchDataStore": {
+      "agree": true,
+      "blocks": [],
+      "kernel": "live",
+      "static": "live",
+      "subform": "residue"
+    },
+    "L_undo_res_Rollup_revertBatch_committedStateRoots": {
+      "agree": false,
+      "blocks": [
+        "shadow",
+        "window"
+      ],
+      "kernel": "unknown",
+      "static": "dead",
+      "subform": "residue"
+    }
+  },
+  "milestone": "M3"
+}

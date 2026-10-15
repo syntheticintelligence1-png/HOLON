@@ -97,8 +97,9 @@ def _untyped_laws(argv: list) -> bool:
         return False
     entries = {e.get("law_id"): e for e in dv.get("laws") or [] if isinstance(e, dict)}
     typed_subforms = ("as_member", "realize", "reinterpret")
+    # rule UNDO (I27) is decided on the typed model too (holon.undo.run)
     return all(i in entries and not (entries[i].get("rule") == "SORT" and entries[i].get("subform") in typed_subforms)
-               for i in ids)
+               and entries[i].get("rule") != "UNDO" for i in ids)
 
 
 def main(argv=None) -> int:
@@ -154,6 +155,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["lossy"]:  # likewise for holon.rules.par_lossy (PAR-lossy and injective pushing, I25)
         from .rules import par_lossy
         return par_lossy.main(argv[1:])
+    if argv[:1] == ["undo"]:  # likewise for holon.rules.undo (I27: undo pairs, residues, static deadness)
+        from .rules import undo
+        return undo.main(argv[1:])
     if argv[:1] == ["types"]:  # likewise for holon.sorts.types3 (I30: nominal types and the ghost-taint check)
         from .sorts import types3
         return types3.main(argv[1:])
@@ -164,8 +168,9 @@ def main(argv=None) -> int:
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
     if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv) and not _untyped_laws(argv):
-        from .sorts import run3     # the I30 laws of a typed milestone (I30): run, replay
-        return run3.main(argv)
+        # the I30 laws of a typed milestone (holon.sorts.run3) and its UNDO laws (I27, holon.undo.run): run, replay
+        from .undo import run as undo_run
+        return undo_run.main(argv)
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
@@ -187,6 +192,8 @@ def main(argv=None) -> int:
     bd.add_argument("--milestone", default="M0")
     bd.add_argument("--root")
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
+    bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
+                                   "(or stays unbound)")
     orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
                                         "(the oracle sidecar's hypotheses, I12); both write results/M2/hypotheses.json")
     orc.add_argument("which", choices=["zero-blob", "check"])
