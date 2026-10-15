@@ -16,20 +16,20 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.387
+      "seconds": 0.412
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.598
+      "seconds": 0.786
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.387
+    "seconds": 0.412
   },
   "compiled_sha256": "19ab1d9ed505bf450443f3c779e3b0ec5ba626fc91b9a1e32b6977afcca39ca9",
   "cone": [
@@ -235,8 +235,8 @@
   "evidence_triage": "none",
   "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
   "filter_bin": null,
-  "generator_sha256": "a4fb5bac631a2ddc85d8e89a80e27adfbccfc34a4459cd93df47b79ffd7545f0",
-  "independence_class": "I1-shared",
+  "generator_sha256": "6898f1a0b4be66087a6b3e91348280ad2681a7e60acfabe34dae2102da23a834",
+  "independence_class": "I2",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -256,6 +256,17 @@
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
+    },
+    {
+      "axioms": [],
+      "name": "lean4",
+      "reading": "Lean reads the holon-facts/0.2 document itself (holon.gen.lean_machine), the target library through its Lean twin (hand-written target input, like the Bend library: common mode, I9 Question 4); Nat, Bool and lists as in Bend; premises are hypotheses as in Bend; the statement is the frozen Lean text of the same IR",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M1/lean/L_disch_delay_wait.lean",
+      "source_sha256": "af8ddc3ba6efa8c71f2e8cf0f9a77e29c781c56f39f1450f0d192aa3a9f6f047",
+      "theorem": "L_disch_delay_wait",
+      "version": "4.34.0"
     }
   ],
   "law_id": "L_disch_delay_wait",

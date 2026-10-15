@@ -11,20 +11,20 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.039
+      "seconds": 0.86
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.568
+      "seconds": 1.372
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.039
+    "seconds": 0.86
   },
   "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
   "cone": [
@@ -47,8 +47,8 @@
   "evidence_triage": "none",
   "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
   "filter_bin": null,
-  "generator_sha256": "ad3e93622aac800e34b5b3d3fe0ef57ce586deeb7e301c15a5bd49641162af5e",
-  "independence_class": "I1-shared",
+  "generator_sha256": "34fb29021ee14b02e0486f6cc59738ae1a51d060077ca9e8eb281c2683237b77",
+  "independence_class": "I2",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -68,6 +68,17 @@
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
+    },
+    {
+      "axioms": [],
+      "name": "lean4",
+      "reading": "Lean cells are Option (BitVec 8): a record's byte is a BitVec 8 where Bend's is a U32, so Lean's theorems cover byte-valued records only (a narrower domain than Bend's, I9 Surprise 5); an undefined cell (Bend 57005) is none, and the decoders' orderings compare it as 57005; every premise is a hypothesis where Bend pins a field to a constant or to another record's field (an equivalent statement)",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M3/lean/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2.lean",
+      "source_sha256": "4fc2d8370398c9201f83959e34481e9a82fdf0cfd6eb960fcf91a32b959cadb3",
+      "theorem": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+      "version": "4.34.0"
     }
   ],
   "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
@@ -89,7 +100,7 @@
     "bound": null,
     "degenerate": null,
     "law": null,
-    "parent_statement_hash": "sha256:401e42ffe802f67af6da6747d5ef5938e32abf78118429afa89b9fef43603684",
+    "parent_statement_hash": "sha256:8512b6c8bb6fe15f5810e57b496f89a2f335d1badd41f18bb274500784fe0c3a",
     "reachable": null,
     "status": "no_premises",
     "witness": null
@@ -110,7 +121,7 @@
     "kind": "unbounded"
   },
   "statement": "\u2200 h: BatchHeaderV1. BatchHeaderBytes_L1MessagePopped(BatchCache_createBatchHeaderWithSequencerSetHash(h)) == Some(h.BatchHeaderV0.L1MessagePopped)",
-  "statement_hash": "sha256:401e42ffe802f67af6da6747d5ef5938e32abf78118429afa89b9fef43603684",
+  "statement_hash": "sha256:8512b6c8bb6fe15f5810e57b496f89a2f335d1badd41f18bb274500784fe0c3a",
   "statement_scope": {
     "kind": "unbounded"
   },

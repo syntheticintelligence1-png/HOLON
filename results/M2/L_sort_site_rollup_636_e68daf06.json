@@ -22,7 +22,7 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.167,
+      "seconds": 1.227,
       "stage": "S2"
     },
     {
@@ -31,7 +31,7 @@
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.591
+      "seconds": 1.651
     },
     {
       "engine": "SORT-site search (S1 boundary variants, S2 prefixes)",
@@ -49,20 +49,20 @@
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
       "primary": true,
-      "seconds": 1.021
+      "seconds": 1.067
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.783
+      "seconds": 1.527
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.021
+    "seconds": 1.067
   },
   "compiled_sha256": "f26fd644c4021e45fe858dd6fb4d0a0d2ec1bd203d1ff808b2f9ff3663d44f69",
   "cone": [
@@ -272,8 +272,8 @@
   "evidence_triage": "finding",
   "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
   "filter_bin": "finding",
-  "generator_sha256": "5b72798f0c0a4d1de6192eb5f2f880076d7cee2102f84a57ecda7edbc44f70d5",
-  "independence_class": "I1-shared",
+  "generator_sha256": "34fb29021ee14b02e0486f6cc59738ae1a51d060077ca9e8eb281c2683237b77",
+  "independence_class": "I2",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -293,6 +293,17 @@
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
+    },
+    {
+      "axioms": [],
+      "name": "lean4",
+      "reading": "as machine, and: the Fn<List<Nat>,Nat> oracle parameter is a Lean function (List Nat -> Nat) where Bend ranges over finite tables (first matching entry, else 0), each of which is such a function, so the Lean theorem implies the Bend one; Reach is the same inductive set; the site predicate is Lean's own reading of rules R8-R10 (holon.gen.lean_sites) over the site's raw obligation ro_<x>; on every PROVED site the site predicate is constantly true (coercion_guard never uses Reach), so rule L7 pins where a site is hit (hit_<x>) and the raw obligation (ro_<x>), each taking both values on the samples, and rule L4 requires site_<x> to reach ro_<x>",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M2/lean/L_sort_site_rollup_636_e68daf06.lean",
+      "source_sha256": "ba899770e18b0ee72e4a847f9ac6ce14466bab515abb6585370267400ea4e2ea",
+      "theorem": "L_sort_site_rollup_636_e68daf06_counter",
+      "version": "4.34.0"
     }
   ],
   "law_id": "L_sort_site_rollup_636_e68daf06",
