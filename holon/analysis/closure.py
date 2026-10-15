@@ -41,31 +41,10 @@ VERSION = "holon-disch/0.1"
 SUBFORMS = ("blocking", "revert", "external", "external_none")
 LAW_PREFIX = {"blocking": "L_disch_blk_", "revert": "L_disch_rev_", "external": "L_disch_ext_",
               "external_none": "L_disch_noext_"}
-WORD = 1 << 256
-SET_MAX = 16
 ANYONE = "anyone"
-
-
-class _Top:
-    """The abstract value "any word"."""
-
-    def __repr__(self):
-        return "T"
-
-
-class _NonZero:
-    """The abstract value "a non-zero word" (E-self: the length of the executing contract's code)."""
-
-    def __repr__(self):
-        return "NZ"
-
-
-TOP = _Top()
-NZ = _NonZero()
-TIME_TERM = ["env", "block.timestamp"]
-INPUT_HEADS = ("param", "caller", "blobhash")
-LOOP_HEADS = frozenset({"iter", "count", "carried", "exit", "returned", "sum"})
-OTHER_COMPONENT_HEADS = frozenset({"call", "callok", "caught", "sload", "balance", "codehash", "revertdata"})
+MOD = 2 ** 256          # D3: + - * are taken modulo 2^256
+WIDE = 16               # D3: an arithmetic result with more values than this is TOP
+CLOCK = ["env", "block.timestamp"]
 
 
 class Refused(ValueError):
@@ -77,6 +56,7 @@ class ClassError(ValueError):
 
 
 def canon(o) -> str:
+    """canonical(o) of the contract: sorted keys, no spaces, UTF-8 text."""
     return json.dumps(o, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
@@ -89,654 +69,597 @@ def dumps(o) -> str:
 
 
 def slug(span: str) -> str:
-    """The stem of a span's file, lower-cased, runs of other characters than [a-z0-9] as "_", then "_" and the line
-    ("a-b" as "a_b")."""
-    path, line = span.rsplit(":", 1)
-    stem = path.rsplit("/", 1)[-1].split(".")[0].lower()
-    return re.sub(r"[^a-z0-9]+", "_", stem) + "_" + line.replace("-", "_")
+    """D2's slug(span): the file name's stem, lower-cased, every run of characters outside [a-z0-9] replaced by "_",
+    then "_" and the line ("a-b" gives "a_b")."""
+    file_part, _, line = span.rpartition(":")
+    stem = file_part.split("/")[-1].split(".", 1)[0].lower()
+    return "_".join([re.sub("[^a-z0-9]+", "_", stem), line.replace("-", "_")])
 
 
 def model_name(doc_rel: str) -> str:
     name = Path(doc_rel).name
-    return name[:-len(".json")] if name.endswith(".json") else name
+    return name[:-5] if name.endswith(".json") else name
+
+
+def _head(t):
+    return t[0] if isinstance(t, list) and t and isinstance(t[0], str) else None
+
+
+def _subterms(t):
+    """Every subterm of t, t first, depth first (a list whose first element is not a string is a plain list)."""
+    yield t
+    if isinstance(t, list):
+        for x in (t[1:] if _head(t) is not None else t):
+            yield from _subterms(x)
 
 
 # ================================================================================================ D1 checks
 def checks(action: dict) -> list[dict]:
-    """Every check of an action in walk (seq) order, with holon.machine's id: a guard's reaches take the guard's
-    span, every other record its own; k counts the checks of a span in walk order."""
-    recs = []
+    """D1: every check of an action, in walk (seq) order: each reach of each guard (its span the guard's src), each
+    panic, each implicit check and each call whose expr is not 1 (its span its own src); id "<action>#<span>#<k>"
+    with k the number of earlier checks (walk order) on that span."""
+    found = []
     for g in action.get("guards") or []:
-        for r in g["reaches"]:
-            recs.append(("guards", r, g))
-    for section in ("panics", "checks"):
-        for r in action.get(section) or []:
-            recs.append((section, r, r))
-    for r in action.get("calls") or []:
-        if "expr" in r and r["expr"] != 1:
-            recs.append(("calls", r, r))
-    recs.sort(key=lambda x: x[1]["seq"])
-    per_span: dict = {}
-    out = []
-    for section, r, owner in recs:
-        span = owner.get("src") or section
-        k = per_span.get(span, 0)
-        per_span[span] = k + 1
-        out.append({"id": f"{action['name']}#{span}#{k}", "section": section, "span": span, "seq": r["seq"],
-                    "expr": r.get("expr", owner.get("expr")),
-                    "op": r.get("op") if section == "panics" else None,
-                    "code": r.get("code") if section == "panics" else None,
-                    "loop": r.get("loop")})
-    return out
+        for r in g.get("reaches") or []:
+            found.append({"seq": r["seq"], "span": g.get("src"), "expr": r.get("expr"), "section": "guards"})
+    for p in action.get("panics") or []:
+        found.append({"seq": p["seq"], "span": p.get("src"), "expr": p.get("expr"), "section": "panics",
+                      "code": p.get("code"), "op": p.get("op"), "loop": p.get("loop")})
+    for c in action.get("checks") or []:
+        found.append({"seq": c["seq"], "span": c.get("src"), "expr": c.get("expr"), "section": "checks",
+                      "loop": c.get("loop")})
+    for c in action.get("calls") or []:
+        if "expr" in c and c["expr"] != 1:
+            found.append({"seq": c["seq"], "span": c.get("src"), "expr": c["expr"], "section": "calls",
+                          "loop": c.get("loop")})
+    found.sort(key=lambda r: r["seq"])
+    used: dict = {}
+    for r in found:
+        k = used.get(r["span"], 0)
+        used[r["span"]] = k + 1
+        r["id"] = "#".join([action["name"], str(r["span"]), str(k)])
+    return found
 
 
-# ================================================================================================ what a term reads
-class Reads:
-    """The leaves a term reads: storage families, other components' terms, time, inputs, the executing contract's
-    code, loop terms."""
-
-    def __init__(self, t):
-        self.families: set = set()
-        self.external: set = set()
-        self.time = False
-        self.inputs: set = set()
-        self.self_code = False
-        self.loop: set = set()
-        self._walk(t)
-
-    def _walk(self, t) -> None:
-        if not isinstance(t, list) or not t:
-            return
-        head = t[0]
-        if not isinstance(head, str):
-            for x in t:
-                self._walk(x)
-            return
-        if head == "storage":
-            self.families.add(t[1])
-            return
-        if head == "env":
-            if t[1] == TIME_TERM[1]:
-                self.time = True
-            else:
-                self.inputs.add("env:" + t[1])
-            return
-        if head == "caller":
-            self.inputs.add("caller")
-            return
-        if head == "param":
-            self.inputs.add("param:" + str(t[1]))
-            return
-        if head == "blobhash":
-            self.inputs.add("blobhash")
-        elif head == "code":
-            if t[1:] == [["this"]]:
-                self.self_code = True
-                return
-            self.external.add("code")
-        elif head in ("call", "callok"):
-            self.external.add(t[1])
-        elif head in OTHER_COMPONENT_HEADS:
-            self.external.add(head)
-        elif head in LOOP_HEADS:
-            self.loop.add(head)
-        for x in t[1:]:
-            self._walk(x)
+# ================================================================================================ D3 register paths
+def register_path(t) -> str | None:
+    """The register path a storage read reads: "family", or "family.member" for a struct member; keys ignored."""
+    h = _head(t)
+    if h == "storage":
+        return t[1]
+    if h in ("map", "index"):
+        return register_path(t[1])
+    if h == "member":
+        inner = register_path(t[1])
+        return None if inner is None else inner + "." + t[2]
+    return None
 
 
-# ================================================================================================ D2 principal classes
-def _permission_check(action: dict, cks: list[dict]) -> str | None:
-    guards = sorted(action.get("guards") or [], key=lambda g: g["reaches"][0]["seq"])
-    if action.get("principal"):
-        want = canon(action["principal"]["predicate"])
-        chosen = next((g for g in guards if canon(g["reaches"][0]["expr"]) == want), None)
-        if chosen is None:
-            raise ClassError(f"{action['name']}: its principal predicate is the expr of no guard")
-    else:
-        chosen = next((g for g in guards if "caller" in Reads(g["reaches"][0]["expr"]).inputs), None)
-    if chosen is None:
-        return None
-    seq = chosen["reaches"][0]["seq"]
-    return next(c["id"] for c in cks if c["seq"] == seq)
-
-
-class Classes:
-    """D2 over the actions with at least one write record: of[action] = class id, members[class], predicate[class],
-    permission[action] = the permission check id or None."""
+class Layout:
+    """The document's storage declarations: struct families and their members, bool paths, scalar families."""
 
     def __init__(self, doc: dict):
-        self.of: dict = {}
-        self.members: dict = {}
-        self.predicate: dict = {}
-        self.permission: dict = {}
-        by_name = {a["name"]: a for a in doc["actions"]}
-        for name in sorted(by_name):
-            a = by_name[name]
-            if not a.get("writes"):
+        decls = list(doc.get("storage") or []) + list(doc.get("inherited_storage") or [])
+        self.members = {d["name"]: [f["name"] for f in d["fields"]] for d in decls if d.get("fields")}
+        self.paths = set()
+        self.bools = set()
+        self.scalars = set()
+        for d in decls:
+            if d["name"] == "__gap":
                 continue
-            cks = checks(a)
-            pid = _permission_check(a, cks)
+            if d.get("fields"):
+                for f in d["fields"]:
+                    self.paths.add(d["name"] + "." + f["name"])
+                    if f.get("type") == "bool":
+                        self.bools.add(d["name"] + "." + f["name"])
+            else:
+                self.paths.add(d["name"])
+                if d.get("value") == "bool":
+                    self.bools.add(d["name"])
+                if d.get("kind") == "scalar":
+                    self.scalars.add(d["name"])
+
+    def written(self, w: dict) -> list[tuple[str, object]]:
+        """D3: (path, contribution) of a write record: a literal integer contributes itself, a struct literal each
+        member's literal (TOP for a member that is not one), a delete (0) of a struct path 0 to every member, any
+        other value TOP."""
+        fam, val = w["family"], w.get("value")
+        member = None
+        for step in w.get("path") or []:
+            if step and step[0] == "member":
+                member = step[1]
+        lit = lambda v: v if type(v) is int else TOP   # noqa: E731
+        if member is not None:
+            return [(fam + "." + member, lit(val))]
+        if fam not in self.members:
+            return [(fam, lit(val))]
+        if _head(val) == "struct":
+            given = dict((m, v) for m, v in val[2])
+            return [(fam + "." + m, lit(given[m]) if m in given else TOP) for m in self.members[fam]]
+        return [(fam + "." + m, 0 if val == 0 else TOP) for m in self.members[fam]]
+
+
+# ================================================================================================ D3 abstract values
+class _Abs:
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return self.name
+
+
+TOP = _Abs("T")     # any word
+NZ = _Abs("NZ")     # some non-zero word (E-self: the executing contract's code is not empty)
+UNKNOWN = frozenset({0, 1})
+
+
+def _store(doc: dict, layout: Layout, r0: dict | None, actions) -> dict:
+    """V: R0 (the sidecar's r0 "values", "T" for TOP; {0} for every other path) joined with the contributions of the
+    write records of `actions`."""
+    given = (r0 or {}).get("values") or {}
+    unknown = sorted(p for p in given if p not in layout.paths)
+    if unknown:
+        raise Refused(f"r0 names paths the document does not declare: {unknown}")
+    V = {p: set(TOP if x == "T" else x for x in given[p]) if p in given else {0} for p in layout.paths}
+    acts = {a["name"]: a for a in doc["actions"]}
+    for n in sorted(actions):
+        for w in acts[n].get("writes") or []:
+            for p, x in layout.written(w):
+                V.setdefault(p, {0}).add(x)
+    return V
+
+
+def deployment_values(doc: dict, r0: dict | None) -> dict:
+    return _store(doc, Layout(doc), r0, ())
+
+
+def _truth(v) -> frozenset:
+    """The truth values an abstract value can take."""
+    if v is TOP:
+        return UNKNOWN
+    if v is NZ:
+        return frozenset({1})
+    return frozenset(int(x != 0) for x in v)
+
+
+def _bool_set(ts: frozenset) -> frozenset:
+    return frozenset(ts)
+
+
+_REL = {"==": lambda a, b: a == b, "!=": lambda a, b: a != b, "<": lambda a, b: a < b, "<=": lambda a, b: a <= b,
+        ">": lambda a, b: a > b, ">=": lambda a, b: a >= b}
+_OPS = {"+": lambda a, b: a + b, "-": lambda a, b: a - b, "*": lambda a, b: a * b}
+
+
+def ev(t, V: dict):
+    """D3's ev(t, V): a frozenset of words, TOP or NZ."""
+    if type(t) is bool:
+        return frozenset({int(t)})
+    if type(t) is int:
+        return frozenset({t % MOD})
+    h = _head(t)
+    if h is None:
+        return TOP
+    p = register_path(t)
+    if p is not None:
+        vals = V.get(p, {0})
+        return TOP if any(x is TOP for x in vals) else frozenset(vals)
+    if h == "len" and len(t) == 2 and t[1] == ["code", ["this"]]:
+        return NZ
+    if h == "!":
+        return frozenset(1 - x for x in _truth(ev(t[1], V)))
+    if h == "&&":
+        ts = [_truth(ev(x, V)) for x in t[1:]]
+        if any(x == {0} for x in ts):
+            return frozenset({0})
+        return frozenset({1}) if all(x == {1} for x in ts) else UNKNOWN
+    if h == "||":
+        ts = [_truth(ev(x, V)) for x in t[1:]]
+        if any(x == {1} for x in ts):
+            return frozenset({1})
+        return frozenset({0}) if all(x == {0} for x in ts) else UNKNOWN
+    if h == "?":
+        c = _truth(ev(t[1], V))
+        if c == {1}:
+            return ev(t[2], V)
+        if c == {0}:
+            return ev(t[3], V)
+        a, b = ev(t[2], V), ev(t[3], V)
+        if isinstance(a, frozenset) and isinstance(b, frozenset):
+            return a | b
+        return TOP
+    if h in _REL:
+        a, b = ev(t[1], V), ev(t[2], V)
+        if isinstance(a, frozenset) and isinstance(b, frozenset):
+            return frozenset(int(_REL[h](x, y)) for x in a for y in b)
+        if a is NZ and b == {0}:          # a non-zero word against 0
+            return frozenset({int(_REL[h](1, 0))})
+        if b is NZ and a == {0}:
+            return frozenset({int(_REL[h](0, 1))})
+        return UNKNOWN
+    if h in _OPS:
+        a, b = ev(t[1], V), ev(t[2], V)
+        if not (isinstance(a, frozenset) and isinstance(b, frozenset)):
+            return TOP
+        out = frozenset(_OPS[h](x, y) % MOD for x in a for y in b)
+        return out if len(out) <= WIDE else TOP
+    if h == "fits":
+        e = t[2]
+        if _head(e) in _OPS:
+            a, b = ev(e[1], V), ev(e[2], V)
+            if isinstance(a, frozenset) and isinstance(b, frozenset):
+                return frozenset(int(0 <= _OPS[e[0]](x, y) < 2 ** t[1]) for x in a for y in b)
+        return UNKNOWN
+    return TOP
+
+
+def definitely_false(t, V: dict) -> bool:
+    """D3: the expr evaluates to {0}."""
+    v = ev(t, V)
+    return isinstance(v, frozenset) and v == {0}
+
+
+# ================================================================================================ D6 what a check reads
+OTHER_COMPONENT = ("call", "callok", "caught", "sload", "balance", "codehash", "revertdata")
+INPUT_LEAVES = ("param", "caller", "blobhash")
+LOOP_LEAVES = ("iter", "count", "carried", "exit", "returned", "sum")
+
+
+def external_terms(t) -> list[str]:
+    """The other components' terms t reads: a call's function (call, callok), the head of caught, sload, balance,
+    codehash and revertdata, and "code" for the code of an address that is not this contract."""
+    out = set()
+    for s in _subterms(t):
+        h = _head(s)
+        if h in ("call", "callok"):
+            out.add(s[1])
+        elif h in OTHER_COMPONENT:
+            out.add(h)
+        elif h == "code" and s[1:] != [["this"]]:
+            out.add("code")
+    return sorted(out)
+
+
+def _reads_input(t) -> bool:
+    for s in _subterms(t):
+        h = _head(s)
+        if h in INPUT_LEAVES or (h == "env" and s[1] != CLOCK[1]):
+            return True
+    return False
+
+
+def _reads_loop(t) -> bool:
+    return any(_head(s) in LOOP_LEAVES for s in _subterms(t))
+
+
+def component(term: str) -> str:
+    """D6: a function's interface (the text before "."), else the head itself."""
+    return term.split(".", 1)[0] if "." in term else term
+
+
+# ================================================================================================ D7 blocked conditions
+def neg(x):
+    return x[1] if _head(x) == "!" else ["!", x]
+
+
+def kappa_rho(e):
+    """D7: ["||", ["!", K], R..] gives (K, R, or ["||", R..] for several); anything else (1, e)."""
+    if _head(e) == "||" and len(e) > 2 and _head(e[1]) == "!":
+        rs = e[2:]
+        return e[1][1], rs[0] if len(rs) == 1 else ["||", *rs]
+    return 1, e
+
+
+def blocked_atoms(e) -> list:
+    """D7: atoms(B_c)."""
+    kappa, rho = kappa_rho(e)
+    atoms = []
+
+    def conj(x):
+        if _head(x) == "&&":
+            for y in x[1:]:
+                conj(y)
+        elif x != 1:
+            atoms.append(x)
+    conj(kappa)
+    for d in (rho[1:] if _head(rho) == "||" else [rho]):
+        atoms.append(neg(d))
+    seen = []
+    for s in _subterms(rho):
+        if _head(s) == "+" and len(s) == 3 and s not in seen:
+            seen.append(s)
+    atoms += [["fits", 256, s] for s in seen]
+    return atoms
+
+
+def blocked_term(atoms: list):
+    return atoms[0] if len(atoms) == 1 else ["&&", *atoms]
+
+
+# ================================================================================================ D9 signs
+def _combine(signs) -> str:
+    moving = [s for s in signs if s != "0"]
+    if not moving:
+        return "0"
+    return moving[0] if moving[0] != "?" and all(s == moving[0] for s in moving) else "?"
+
+
+def _opp(s: str) -> str:
+    return "-" if s == "+" else "+" if s == "-" else s
+
+
+def _reads(t, target: str) -> bool:
+    for s in _subterms(t):
+        if target == "time" and s == CLOCK:
+            return True
+        if target != "time" and _head(s) in ("storage", "map", "index", "member") and register_path(s) == target:
+            return True
+    return False
+
+
+def sign(t, target: str) -> str:
+    """D9's sign(t, p) (p a register path, or "time"): +, -, 0 or ?."""
+    if not _reads(t, target):
+        return "0"
+    if target == "time" and t == CLOCK:
+        return "+"
+    if target != "time" and register_path(t) == target:
+        node = t   # a read of p: + unless a key on its path reads p
+        while _head(node) in ("map", "index", "member"):
+            if _head(node) != "member" and _reads(node[2], target):
+                return "?"
+            node = node[1]
+        return "+"
+    h = _head(t)
+    if h == "!":
+        return _opp(sign(t[1], target))
+    if h in ("&&", "||", "+"):
+        return _combine([sign(x, target) for x in t[1:]])
+    if h in ("<", "<="):
+        return _combine([_opp(sign(t[1], target)), sign(t[2], target)])
+    if h in (">", ">="):
+        return _combine([sign(t[1], target), _opp(sign(t[2], target))])
+    if h == "-":
+        return _combine([sign(t[1], target), _opp(sign(t[2], target))])
+    if h == "fits" and _head(t[2]) == "-":       # as a >= b
+        return _combine([sign(t[2][1], target), _opp(sign(t[2][2], target))])
+    if h == "fits" and _head(t[2]) == "+":       # as a + b < 2^n
+        return _opp(_combine([sign(t[2][1], target), sign(t[2][2], target)]))
+    return "?"
+
+
+def read_paths(t) -> set:
+    return {register_path(s) for s in _subterms(t) if register_path(s) is not None}
+
+
+# ================================================================================================ the analysis
+class Analysis:
+    """Rules D1-D10 over one transitions document and the deployment's abstraction r0."""
+
+    def __init__(self, doc: dict, r0: dict | None, model: str):
+        self.doc, self.r0, self.model = doc, r0, model
+        self.layout = Layout(doc)
+        self.acts = {a["name"]: a for a in doc["actions"]}
+        self.cks = {n: checks(a) for n, a in self.acts.items()}
+        self._classes()
+        self.V_all = _store(doc, self.layout, r0, list(self.cls_of))
+        self.dead = {}
+        for n in sorted(self.cls_of):                                    # D4
+            hit = next((c for c in self.cks[n] if definitely_false(c["expr"], self.V_all)), None)
+            if hit is not None:
+                self.dead[n] = hit["id"]
+
+    # ---------------------------------------------------------------------------------------- D2
+    def _permission(self, a: dict) -> str | None:
+        guards = sorted((g for g in a.get("guards") or [] if g.get("reaches")), key=lambda g: g["reaches"][0]["seq"])
+        pr = a.get("principal")
+        if pr:
+            pick = [g for g in guards if canon(g["reaches"][0]["expr"]) == canon(pr["predicate"])]
+            if not pick:
+                raise ClassError(f"{a['name']}: no guard's first reach is its principal predicate")
+        else:
+            pick = [g for g in guards if any(_head(s) == "caller" for s in _subterms(g["reaches"][0]["expr"]))]
+        if not pick:
+            return None
+        first = pick[0]["reaches"][0]["seq"]
+        return next(c["id"] for c in self.cks[a["name"]] if c["seq"] == first)
+
+    def _classes(self) -> None:
+        self.cls_of, self.perm, self.pred, self.members = {}, {}, {}, {}
+        for n in sorted(self.acts):
+            a = self.acts[n]
+            if not a.get("writes"):
+                continue        # views and receive belong to no class
+            pid = self._permission(a)
+            expr = None if pid is None else next(c["expr"] for c in self.cks[n] if c["id"] == pid)
             if a.get("principal"):
                 cid = a["principal"]["modifier"]
             elif pid is not None:
                 cid = "caller_" + slug(pid.split("#")[1])
             else:
                 cid = ANYONE
-            pred = next(c["expr"] for c in cks if c["id"] == pid) if pid is not None else None
-            if cid in self.predicate and canon(self.predicate[cid]) != canon(pred):
-                raise ClassError(f"class {cid}: two predicates")
-            self.predicate.setdefault(cid, pred)
-            self.members.setdefault(cid, []).append(name)
-            self.of[name] = cid
-            self.permission[name] = pid
-        seen: dict = {}
-        for cid in self.members:
-            k = canon(self.predicate[cid])
-            if k in seen:
-                raise ClassError(f"classes {seen[k]} and {cid} share one predicate")
-            seen[k] = cid
+            if cid in self.pred and canon(self.pred[cid]) != canon(expr):
+                raise ClassError(f"class {cid} has two predicates")
+            self.pred[cid] = expr
+            self.members.setdefault(cid, []).append(n)
+            self.cls_of[n] = cid
+            self.perm[n] = pid
+        by_pred: dict = {}
+        for cid in sorted(self.members):
+            k = canon(self.pred[cid])
+            if k in by_pred:
+                raise ClassError(f"one predicate for two classes: {by_pred[k]} and {cid}")
+            by_pred[k] = cid
 
     def callable(self, cid: str) -> list[str]:
-        """Callable_X: the class's actions and anyone's."""
-        return sorted(set(self.members[cid]) | set(self.members.get(ANYONE, [])))
+        return sorted(set(self.members.get(cid, [])) | set(self.members.get(ANYONE, [])))
 
-
-# ================================================================================================ D3 abstract values
-def _storage_decls(doc: dict) -> list[dict]:
-    return list(doc.get("storage") or []) + list(doc.get("inherited_storage") or [])
-
-
-def struct_members(doc: dict) -> dict:
-    return {s["name"]: [f["name"] for f in s["fields"]] for s in doc.get("storage") or [] if s.get("fields")}
-
-
-def bool_paths(doc: dict) -> set:
-    out = set()
-    for s in _storage_decls(doc):
-        if s.get("fields"):
-            out |= {f"{s['name']}.{f['name']}" for f in s["fields"] if f.get("type") == "bool"}
-        elif s.get("value") == "bool":
-            out.add(s["name"])
-    return out
-
-
-def all_paths(doc: dict) -> list[str]:
-    members = struct_members(doc)
-    out = set()
-    for s in _storage_decls(doc):
-        if s["name"] == "__gap":
-            continue
-        if s["name"] in members:
-            out |= {f"{s['name']}.{m}" for m in members[s["name"]]}
-        else:
-            out.add(s["name"])
-    return sorted(out)
-
-
-def path_of(t) -> str | None:
-    """The register path a read term reads ("family" or "family.member"; keys ignored), None for another term."""
-    if not isinstance(t, list) or not t:
-        return None
-    if t[0] == "storage":
-        return t[1]
-    if t[0] in ("map", "index"):
-        return path_of(t[1])
-    if t[0] == "member":
-        base = path_of(t[1])
-        return None if base is None else f"{base}.{t[2]}"
-    return None
-
-
-def _word_or_top(v):
-    return v if isinstance(v, int) and not isinstance(v, bool) else TOP
-
-
-def write_contributions(doc: dict, w: dict, members: dict | None = None) -> list[tuple]:
-    """D3: (path, abstract value) for each path one write record writes."""
-    members = struct_members(doc) if members is None else members
-    fam, value = w["family"], w.get("value")
-    named = [p[1] for p in (w.get("path") or []) if p[0] == "member"]
-    if named:
-        return [(f"{fam}.{named[-1]}", _word_or_top(value))]
-    if fam in members:
-        if isinstance(value, list) and value and value[0] == "struct":
-            lit = {m: x for m, x in value[2]}
-            return [(f"{fam}.{m}", _word_or_top(lit.get(m, 0))) for m in members[fam]]
-        return [(f"{fam}.{m}", 0 if value == 0 else TOP) for m in members[fam]]
-    return [(fam, _word_or_top(value))]
-
-
-def deployment_values(doc: dict, r0: dict | None) -> dict:
-    """R0: the sidecar's r0 "values" ("T" is TOP); every other path {0}."""
-    given = (r0 or {}).get("values") or {}
-    paths = all_paths(doc)
-    stray = sorted(set(given) - set(paths))
-    if stray:
-        raise Refused(f"r0 names paths the document does not declare: {stray}")
-    return {p: {TOP if x == "T" else x for x in given.get(p, [0])} for p in paths}
-
-
-class Values:
-    """The abstract store: R0 plus the writes of a set of actions."""
-
-    def __init__(self, doc: dict, r0: dict | None, actions):
-        self.v = deployment_values(doc, r0)
-        members = struct_members(doc)
-        by_name = {a["name"]: a for a in doc["actions"]}
-        for n in sorted(actions):
-            for w in by_name[n].get("writes") or []:
-                for p, x in write_contributions(doc, w, members):
-                    self.v.setdefault(p, {0}).add(x)
-
-
-def _truths(x) -> set:
-    if x is TOP:
-        return {0, 1}
-    if x is NZ:
-        return {1}
-    return {int(v != 0) for v in x}
-
-
-_CMP = {"==": lambda a, b: a == b, "!=": lambda a, b: a != b, "<": lambda a, b: a < b, "<=": lambda a, b: a <= b,
-        ">": lambda a, b: a > b, ">=": lambda a, b: a >= b}
-_ARITH = {"+": lambda a, b: a + b, "-": lambda a, b: a - b, "*": lambda a, b: a * b}
-
-
-def abstract(t, V: dict):
-    """D3: the abstract value of a term over the store V (a finite set of words, TOP or NZ)."""
-    if isinstance(t, bool):
-        return {int(t)}
-    if isinstance(t, int):
-        return {t % WORD}
-    if not isinstance(t, list) or not t:
-        return TOP
-    head = t[0]
-    p = path_of(t)
-    if p is not None:
-        vals = V.get(p, {0})
-        return TOP if TOP in vals else set(vals)
-    if head == "len" and t[1:] == [["code", ["this"]]]:
-        return NZ
-    if head == "!":
-        x = abstract(t[1], V)
-        if x is TOP:
-            return TOP
-        if x is NZ:
-            return {0}
-        return {int(v == 0) for v in x}
-    if head in ("&&", "||"):
-        parts = [_truths(abstract(x, V)) for x in t[1:]]
-        if head == "&&":
-            if any(v == {0} for v in parts):
-                return {0}
-            return {1} if all(v == {1} for v in parts) else {0, 1}
-        if any(v == {1} for v in parts):
-            return {1}
-        return {0} if all(v == {0} for v in parts) else {0, 1}
-    if head == "?":
-        c = _truths(abstract(t[1], V))
-        a, b = abstract(t[2], V), abstract(t[3], V)
-        if c == {1}:
-            return a
-        if c == {0}:
-            return b
-        if not isinstance(a, set) or not isinstance(b, set):
-            return TOP
-        u = a | b
-        return u if len(u) <= SET_MAX else TOP
-    if head in _CMP:
-        a, b = abstract(t[1], V), abstract(t[2], V)
-        if a is NZ and b == {0}:
-            return {1} if head in ("!=", ">", ">=") else {0}
-        if b is NZ and a == {0}:
-            return {1} if head in ("!=", "<", "<=") else {0}
-        if not isinstance(a, set) or not isinstance(b, set):
-            return {0, 1}
-        f = _CMP[head]
-        return {int(f(x, y)) for x in a for y in b}
-    if head in _ARITH:
-        a, b = abstract(t[1], V), abstract(t[2], V)
-        if not isinstance(a, set) or not isinstance(b, set):
-            return TOP
-        f = _ARITH[head]
-        u = {f(x, y) % WORD for x in a for y in b}
-        return u if len(u) <= SET_MAX else TOP
-    if head == "fits":
-        n, e = t[1], t[2]
-        if isinstance(e, list) and e and e[0] in _ARITH:
-            a, b = abstract(e[1], V), abstract(e[2], V)
-            if not isinstance(a, set) or not isinstance(b, set):
-                return {0, 1}
-            f = _ARITH[e[0]]
-            return {int(0 <= f(x, y) < (1 << n)) for x in a for y in b}
-        return {0, 1}
-    return TOP
-
-
-def definitely_false(t, V: dict) -> bool:
-    return _truths(abstract(t, V)) == {0}
-
-
-# ================================================================================================ D4, D5
-def effects(action: dict, doc: dict) -> set:
-    """The paths an action's write records write and "call:<fn>" for each call that is not view or pure."""
-    members = struct_members(doc)
-    out = set()
-    for w in action.get("writes") or []:
-        out |= {p for p, _x in write_contributions(doc, w, members)}
-    for c in action.get("calls") or []:
-        if c.get("mutability") not in ("view", "pure"):
-            out.add("call:" + c["fn"])
-    return out
-
-
-# ================================================================================================ D7 blocked conditions
-def neg(x):
-    if isinstance(x, list) and x and x[0] == "!":
-        return x[1]
-    return ["!", x]
-
-
-def kappa_rho(e):
-    """(kappa, rho): ["||", ["!", K], R..] gives (K, R, or ["||", R..] for several); anything else (1, e)."""
-    if isinstance(e, list) and len(e) >= 3 and e[0] == "||" and isinstance(e[1], list) and e[1][:1] == ["!"]:
-        rest = e[2:]
-        return e[1][1], (rest[0] if len(rest) == 1 else ["||"] + rest)
-    return 1, e
-
-
-def _conjuncts(x) -> list:
-    if isinstance(x, list) and x and x[0] == "&&":
-        return [y for z in x[1:] for y in _conjuncts(z)]
-    return [] if x == 1 else [x]
-
-
-def _sums(t, acc: list) -> list:
-    """The distinct ["+", a, b] subterms of t in depth-first first-occurrence order."""
-    if isinstance(t, list) and t:
-        if t[0] == "+" and len(t) == 3 and canon(t) not in {canon(x) for x in acc}:
-            acc.append(t)
-        for x in t[1:]:
-            _sums(x, acc)
-    return acc
-
-
-def blocked_atoms(e) -> list:
-    """D7: the conjuncts of kappa, then neg(d) for every disjunct d of rho, then ["fits", 256, s] for every sum s in rho
-    (B reads its sums exactly)."""
-    k, r = kappa_rho(e)
-    out = _conjuncts(k)
-    disj = r[1:] if isinstance(r, list) and r and r[0] == "||" else [r]
-    out += [neg(d) for d in disj]
-    out += [["fits", 256, s] for s in _sums(r, [])]
-    return out
-
-
-def blocked_term(atoms: list):
-    return atoms[0] if len(atoms) == 1 else ["&&"] + atoms
-
-
-# ================================================================================================ D9 signs
-def _reads_target(t, target: str) -> bool:
-    if target == "time":
-        if canon(t) == canon(TIME_TERM):
-            return True
-    elif path_of(t) == target:
-        return True
-    return isinstance(t, list) and any(_reads_target(x, target) for x in t[1:])
-
-
-def _join(*signs) -> str:
-    live = [s for s in signs if s != "0"]
-    if not live:
-        return "0"
-    if "?" in live:
-        return "?"
-    return live[0] if all(s == live[0] for s in live) else "?"
-
-
-def _flip(s: str) -> str:
-    return {"+": "-", "-": "+"}.get(s, s)
-
-
-def sign(t, target: str) -> str:
-    """D9: the monotonicity of t's truth in a register path (or "time"): +, -, 0 (not read) or ?."""
-    if not _reads_target(t, target):
-        return "0"
-    if target == "time" and canon(t) == canon(TIME_TERM):
-        return "+"
-    if target != "time" and path_of(t) == target:
-        k = t
-        while isinstance(k, list) and k and k[0] in ("member", "map", "index"):
-            if k[0] in ("map", "index") and _reads_target(k[2], target):
-                return "?"
-            k = k[1]
-        return "+"
-    if not isinstance(t, list) or not t:
-        return "0"
-    head = t[0]
-    if head == "!":
-        return _flip(sign(t[1], target))
-    if head in ("&&", "||"):
-        return _join(*[sign(x, target) for x in t[1:]])
-    if head in ("<", "<="):
-        return _join(_flip(sign(t[1], target)), sign(t[2], target))
-    if head in (">", ">="):
-        return _join(sign(t[1], target), _flip(sign(t[2], target)))
-    if head == "+":
-        return _join(sign(t[1], target), sign(t[2], target))
-    if head == "-":
-        return _join(sign(t[1], target), _flip(sign(t[2], target)))
-    if head == "fits":
-        e = t[2]
-        if isinstance(e, list) and e and e[0] == "-":
-            return _join(sign(e[1], target), _flip(sign(e[2], target)))
-        if isinstance(e, list) and e and e[0] == "+":
-            return _flip(_join(sign(e[1], target), sign(e[2], target)))
-        return "?"
-    return "?"
-
-
-def read_paths(t, acc: set | None = None) -> set:
-    acc = set() if acc is None else acc
-    p = path_of(t)
-    if p is not None:
-        acc.add(p)
-    if isinstance(t, list):
-        for x in t[1:]:
-            read_paths(x, acc)
-    return acc
-
-
-# ================================================================================================ the analysis
-class Analysis:
-    """Rules D1-D10 on one document with the deployment's abstraction r0."""
-
-    def __init__(self, doc: dict, r0: dict | None, model: str):
-        self.doc = doc
-        self.r0 = r0
-        self.model = model
-        self.actions = {a["name"]: a for a in doc["actions"]}
-        self.cl = Classes(doc)
-        self._checks = {n: checks(a) for n, a in self.actions.items()}
-        self.V_all = Values(doc, r0, self.cl.of).v
-        self.bools = bool_paths(doc)
-        self.dead = self._dead()
-
-    # D4
-    def _dead(self) -> dict:
-        out = {}
-        for n in sorted(self.cl.of):
-            for c in self._checks[n]:
-                if definitely_false(c["expr"], self.V_all):
-                    out[n] = c["id"]
-                    break
-        return out
-
-    # D5
+    # ---------------------------------------------------------------------------------------- D5
     def closure(self, cid: str) -> dict:
-        cands = [n for n in self.cl.callable(cid) if n not in self.dead]
-        act: set = set()
-        rounds = 0
+        live = [n for n in self.callable(cid) if n not in self.dead]
 
-        def blocked_by(n, V):
-            return next((c["id"] for c in self._checks[n]
-                         if c["id"] != self.cl.permission[n] and definitely_false(c["expr"], V)), None)
+        def stopped(n, V):
+            return any(c["id"] != self.perm[n] and definitely_false(c["expr"], V) for c in self.cks[n])
+        act, rounds = frozenset(), 0
         while True:
-            V = Values(self.doc, self.r0, act).v
-            new = {n for n in cands if blocked_by(n, V) is None}
             rounds += 1
-            if new == act:
+            V = _store(self.doc, self.layout, self.r0, act)
+            nxt = frozenset(n for n in live if not stopped(n, V))
+            if nxt == act:
                 break
-            act = new
-        V = Values(self.doc, self.r0, act).v
-        excluded = {n: blocked_by(n, V) for n in cands if n not in act}
+            act = nxt
+        V = _store(self.doc, self.layout, self.r0, act)
+        excluded = {}
+        for n in live:
+            if n in act:
+                continue
+            excluded[n] = next(c["id"] for c in self.cks[n] if definitely_false(c["expr"], V))
         wc = set()
         for n in act:
-            wc |= effects(self.actions[n], self.doc)
-        return {"actions": sorted(act), "excluded": dict(sorted(excluded.items())), "write_closure": sorted(wc),
-                "rounds": rounds}
+            for w in self.acts[n].get("writes") or []:
+                wc.update(p for p, _x in self.layout.written(w))
+            for c in self.acts[n].get("calls") or []:
+                if c.get("mutability") not in ("view", "pure"):
+                    wc.add("call:" + c["fn"])
+        return {"actions": sorted(act), "excluded": {k: excluded[k] for k in sorted(excluded)},
+                "write_closure": sorted(wc), "rounds": rounds}
 
-    # D6
-    def kind(self, c: dict, perm: str | None) -> str:
-        if c["id"] == perm:
+    # ---------------------------------------------------------------------------------------- D6
+    def kind(self, n: str, c: dict) -> str:
+        e = c["expr"]
+        if c["id"] == self.perm[n]:
             return "permission"
-        rd = Reads(c["expr"])
-        if rd.external:
+        if external_terms(e):
             return "external"
-        if rd.inputs:
+        if _reads_input(e):
             return "input"
-        if rd.loop or c.get("loop") is not None:
+        if _reads_loop(e) or c.get("loop") is not None:
             return "loop"
-        if c["section"] == "panics" and not (c["code"] == 17 and c["op"] == "-"):
-            return "panic"
-        if c["section"] not in ("guards", "panics"):
+        if c["section"] == "panics":
+            if not (c.get("code") == 17 and c.get("op") == "-"):
+                return "panic"
+        elif c["section"] != "guards":
             return "input"
-        B = blocked_term(blocked_atoms(c["expr"]))
+        B = blocked_term(blocked_atoms(e))
         if definitely_false(B, self.V_all):
             return "never"
-        if sign(B, "time") not in ("+", "0"):
+        if sign(B, "time") in ("-", "?"):
             return "time"
         return "state"
 
-    # D9
-    def unsafe(self, n: str, B, rd: set) -> set:
-        a = self.actions[n]
-        post = {p: v for p, v in (a.get("post") or {}).items() if isinstance(v, int) and not isinstance(v, bool)}
-        moved = set()
-        members = struct_members(self.doc)
+    # ---------------------------------------------------------------------------------------- D9
+    def unsafe_paths(self, n: str, B, reads: set) -> list[str]:
+        a = self.acts[n]
+        bad = []
         for w in a.get("writes") or []:
-            for p, v in write_contributions(self.doc, w, members):
-                if p not in rd:
+            for p, v in self.layout.written(w):
+                if p not in reads or p in bad:
                     continue
                 s = sign(B, p)
-                if s == "0" or (s == "-" and v == 0) or (s == "+" and v == 1 and p in self.bools):
+                if s == "0" or (s == "-" and v == 0) or (s == "+" and v == 1 and p in self.layout.bools):
                     continue
-                moved.add(p)
-        if moved and all(p in post for p in moved):
-            Vp = {p: ({0, 1} if p in self.bools else {TOP}) for p in rd}
-            for p in moved:
-                Vp[p] = {post[p]}
-            if _truths(abstract(B, Vp)) == {1}:
-                return set()
-        return moved
+                bad.append(p)
+        if not bad:
+            return []
+        post = a.get("post") or {}
+        if all(p in self.layout.scalars and type(post.get(p)) is int for p in bad):
+            V = {p: ({0, 1} if p in self.layout.bools else {TOP}) for p in reads}
+            V.update({p: {post[p]} for p in bad})
+            if ev(B, V) == {1}:
+                return []     # the post-state keeps B whenever the action succeeds
+        return sorted(bad)
 
+    # ---------------------------------------------------------------------------------------- D6-D10
     def run(self) -> dict:
-        cl = self.cl
-        closures = {cid: self.closure(cid) for cid in sorted(cl.members)}
-        rows = []
-        for n in sorted(cl.of):
+        rows = []          # (check row, check)
+        for n in sorted(self.cls_of):
             if n in self.dead:
                 continue
-            for c in self._checks[n]:
-                k = self.kind(c, cl.permission[n])
-                row = {"id": c["id"], "action": n, "class": cl.of[n], "kind": k, "span": c["span"]}
+            for c in self.cks[n]:
+                k = self.kind(n, c)
+                row = {"id": c["id"], "action": n, "class": self.cls_of[n], "kind": k, "span": c["span"]}
                 if k == "external":
-                    row["external"] = sorted(Reads(c["expr"]).external)
+                    row["external"] = external_terms(c["expr"])
                 rows.append((row, c))
-        groups: dict = {}
-        for row, c in rows:
-            if row["kind"] != "state":
-                continue
-            atoms = blocked_atoms(c["expr"])
-            B = blocked_term(atoms)
-            groups.setdefault(canon(B), {"B": B, "atoms": atoms, "checks": []})["checks"].append((row, c))
-        basis, laws = [], []
-        order = sorted(groups, key=lambda k: min((slug(r["span"]), r["id"]) for r, _c in groups[k]["checks"]))
-        for key in order:
-            g = groups[key]
-            B, atoms = g["B"], g["atoms"]
-            rep_row, rep = min(g["checks"], key=lambda rc: (rc[0]["span"], rc[0]["id"]))
-            tag = f"{slug(rep_row['span'])}_{x8(B)}"
-            atom_keys = {canon(x) for x in atoms}
-            excl = {}
-            for n in sorted(cl.of):
-                if n in self.dead:
-                    continue
-                for c in self._checks[n]:
-                    if canon(c["expr"]) == canon(rep["expr"]) or canon(neg(c["expr"])) in atom_keys:
-                        excl[n] = c["id"]
-                        break
-            rd = read_paths(B)
-            in_classes = sorted({cl.of[r["action"]] for r, _c in g["checks"]})
-            per_x = {}
-            for X in in_classes:
-                cx = [n for n in cl.callable(X) if n not in self.dead and n not in excl]
-                uns = {}
-                for n in cx:
-                    u = self.unsafe(n, B, rd)
-                    if u:
-                        uns[n] = sorted(u)
-                status = "self" if uns else "blocked"
-                named = {}
-                if status == "blocked":
-                    own = set(cl.callable(X))
-                    for Y in sorted(cl.members):
-                        if Y == X:
-                            continue
-                        ys = [n for n in cl.callable(Y) if n not in own and n not in self.dead and n not in excl]
-                        writers = sorted(n for n in ys if self.unsafe(n, B, rd))
-                        if writers:
-                            named[Y] = writers
-                per_x[X] = {"closure": cx, "unsafe": uns, "status": status, "named": named,
-                            "checks": sorted(r["id"] for r, _c in g["checks"] if r["class"] == X)}
-            basis.append({"tag": tag, "blocked": B, "check": rep_row["id"], "check_expr": rep["expr"],
-                          "checks": sorted(r["id"] for r, _c in g["checks"]), "excluded": excl, "classes": per_x,
-                          "time": sign(B, "time")})
-            for X in in_classes:
-                laws.append({"law_id": f"{LAW_PREFIX['blocking']}{tag}_{X}", "subform": "blocking", "tag": tag,
-                             "class": X, "closure": per_x[X]["closure"], "status": per_x[X]["status"]})
-            laws.append({"law_id": f"{LAW_PREFIX['revert']}{tag}", "subform": "revert", "tag": tag, "class": None,
-                         "excluded": sorted(excl)})
-            for Y in sorted({Y for X in in_classes for Y in per_x[X]["named"]}):
-                blocked_for = sorted(X for X in in_classes if Y in per_x[X]["named"])
-                writers = sorted({n for X in blocked_for for n in per_x[X]["named"][Y]})
-                ycl = [n for n in cl.callable(Y) if n not in self.dead and n not in excl]
-                for sf in ("external", "external_none"):
-                    laws.append({"law_id": f"{LAW_PREFIX[sf]}{tag}_{Y}", "subform": sf, "tag": tag, "class": Y,
-                                 "blocked_for": blocked_for, "writers": writers, "closure": ycl})
-        laws.sort(key=lambda x: x["law_id"])
-        ext: dict = {}
-        for row, _c in rows:
-            for fn in row.get("external", []):
-                comp = fn.split(".")[0] if "." in fn else fn
-                e = ext.setdefault(comp, {"checks": set(), "actions": set(), "classes": set(), "functions": set()})
-                e["checks"].add(row["id"])
-                e["actions"].add(row["action"])
-                e["classes"].add(row["class"])
-                e["functions"].add(fn)
-        ext = {k: {f: sorted(v[f]) for f in ("checks", "actions", "classes", "functions")}
-               for k, v in sorted(ext.items())}
         kinds: dict = {}
         for row, _c in rows:
             kinds[row["kind"]] = kinds.get(row["kind"], 0) + 1
+        comps: dict = {}
+        for row, _c in rows:
+            for term in row.get("external") or []:
+                e = comps.setdefault(component(term), {"checks": set(), "actions": set(), "classes": set(),
+                                                        "functions": set()})
+                e["checks"].add(row["id"])
+                e["actions"].add(row["action"])
+                e["classes"].add(row["class"])
+                e["functions"].add(term)
+        external = {k: {f: sorted(v[f]) for f in v} for k, v in sorted(comps.items())}
+        # D7: group the state checks by their blocked condition
+        by_B: dict = {}
+        for row, c in rows:
+            if row["kind"] == "state":
+                atoms = blocked_atoms(c["expr"])
+                by_B.setdefault(canon(blocked_term(atoms)), (blocked_term(atoms), atoms, []))[2].append((row, c))
+        groups = sorted(by_B.values(), key=lambda g: min((slug(r["span"]), r["id"]) for r, _c in g[2]))
+        basis, laws = [], []
+        for B, atoms, members in groups:
+            rrow, rc = min(members, key=lambda m: (m[0]["span"], m[0]["id"]))     # B's representative c
+            tag = slug(rrow["span"]) + "_" + x8(B)
+            atom_set = {canon(x) for x in atoms}
+            excl = {}                                                               # D8
+            for n in sorted(self.cls_of):
+                if n in self.dead:
+                    continue
+                for c in self.cks[n]:
+                    if canon(c["expr"]) == canon(rc["expr"]) or canon(neg(c["expr"])) in atom_set:
+                        excl[n] = c["id"]
+                        break
+            reads = read_paths(B)
+            classes = sorted({r["class"] for r, _c in members})
+            per = {}
+            for X in classes:                                                       # D9
+                xcl = [n for n in self.callable(X) if n not in self.dead and n not in excl]
+                uns = {n: u for n in xcl for u in [self.unsafe_paths(n, B, reads)] if u}
+                named = {}
+                if not uns:
+                    mine = set(self.callable(X))
+                    for Y in sorted(self.members):
+                        if Y == X:
+                            continue
+                        ws = [n for n in self.callable(Y) if n not in mine and n not in self.dead and n not in excl
+                              and self.unsafe_paths(n, B, reads)]
+                        if ws:
+                            named[Y] = sorted(ws)
+                per[X] = {"closure": xcl, "unsafe": uns, "status": "self" if uns else "blocked", "named": named,
+                          "checks": sorted(r["id"] for r, _c in members if r["class"] == X)}
+            basis.append({"tag": tag, "blocked": B, "check": rrow["id"], "check_expr": rc["expr"],
+                          "checks": sorted(r["id"] for r, _c in members), "excluded": excl, "classes": per,
+                          "time": sign(B, "time")})
+            for X in classes:                                                       # D10
+                laws.append({"law_id": LAW_PREFIX["blocking"] + tag + "_" + X, "subform": "blocking", "tag": tag,
+                             "class": X, "closure": per[X]["closure"], "status": per[X]["status"]})
+            laws.append({"law_id": LAW_PREFIX["revert"] + tag, "subform": "revert", "tag": tag, "class": None,
+                         "excluded": sorted(excl)})
+            namers: dict = {}
+            for X in classes:
+                for Y, ws in per[X]["named"].items():
+                    namers.setdefault(Y, ([], set()))
+                    namers[Y][0].append(X)
+                    namers[Y][1].update(ws)
+            for Y in sorted(namers):
+                ycl = [n for n in self.callable(Y) if n not in self.dead and n not in excl]
+                for sf in ("external", "external_none"):
+                    laws.append({"law_id": LAW_PREFIX[sf] + tag + "_" + Y, "subform": sf, "tag": tag, "class": Y,
+                                 "blocked_for": sorted(namers[Y][0]), "writers": sorted(namers[Y][1]),
+                                 "closure": ycl})
+        laws.sort(key=lambda lw: lw["law_id"])
         return {"model": self.model,
-                "classes": {cid: {"predicate": cl.predicate[cid], "actions": sorted(cl.members[cid]),
-                                  "external": (sorted(Reads(cl.predicate[cid]).external)
-                                               if cl.predicate[cid] is not None else [])}
-                            for cid in sorted(cl.members)},
-                "permission": dict(sorted(cl.permission.items())), "dead": self.dead, "closure": closures,
-                "kinds": dict(sorted(kinds.items())), "checks": [r for r, _c in rows], "external": ext,
+                "classes": {cid: {"predicate": self.pred[cid], "actions": sorted(self.members[cid]),
+                                  "external": external_terms(self.pred[cid]) if self.pred[cid] is not None else []}
+                            for cid in sorted(self.members)},
+                "permission": {n: self.perm[n] for n in sorted(self.perm)}, "dead": self.dead,
+                "closure": {cid: self.closure(cid) for cid in sorted(self.members)},
+                "kinds": {k: kinds[k] for k in sorted(kinds)}, "checks": [r for r, _c in rows], "external": external,
                 "basis": basis, "laws": laws}
 
 
@@ -745,54 +668,51 @@ def analysis(doc: dict, r0: dict | None, model: str) -> dict:
 
 
 def attach_hypotheses(an: dict, hypotheses: dict | None, verdicts: dict | None) -> dict:
-    """Each external component's M2 hypothesis (the sidecar's component -> name map) with I21's record of it
-    (verdict, result, finding), or null."""
-    recs = (verdicts or {}).get("hypotheses") or {}
-    for comp, e in an["external"].items():
+    """The contract's with_hypotheses: for each external component, the sidecar's hypothesis name with I21's verdict,
+    result and finding for it; null for a component no hypothesis stands for."""
+    table = (verdicts or {}).get("hypotheses") or {}
+    for comp in an["external"]:
         name = (hypotheses or {}).get(comp)
-        if name is None:
-            e["hypothesis"] = None
-            continue
-        r = recs.get(name) or {}
-        e["hypothesis"] = {"name": name, "verdict": r.get("verdict"), "result": r.get("result"),
-                           "finding": r.get("finding")}
+        rec = table.get(name) or {} if name is not None else None
+        an["external"][comp]["hypothesis"] = None if name is None else {
+            "name": name, "verdict": rec.get("verdict"), "result": rec.get("result"), "finding": rec.get("finding")}
     return an
 
 
 # ================================================================================================ derivation views
 def entries(an: dict) -> dict:
-    """D12: the statement-independent part of every DISCH DERIVATION entry, by law id."""
-    basis = {b["tag"]: b for b in an["basis"]}
+    """D12: each DISCH DERIVATION entry without "facts" and "statement_hash", by law id."""
+    tags = {b["tag"]: b for b in an["basis"]}
     out = {}
-    for law in an["laws"]:
-        b = basis[law["tag"]]
-        sf = law["subform"]
-        ent = {"law_id": law["law_id"], "rule": "DISCH", "subform": sf,
-               "basis": {"kind": "guard_conjunct", "model": an["model"], "tag": b["tag"], "check": b["check"],
-                         "checks": b["checks"], "blocked": b["blocked"], "class": law["class"]}}
-        if sf == "blocking":
-            ent.update(status=law["status"], closure=law["closure"], excluded=[], entry_points=law["closure"])
-        elif sf == "revert":
-            ent.update(closure=[], excluded=law["excluded"], entry_points=law["excluded"])
+    for lw in an["laws"]:
+        b, sf = tags[lw["tag"]], lw["subform"]
+        e = {"law_id": lw["law_id"], "rule": "DISCH", "subform": sf,
+             "basis": {"kind": "guard_conjunct", "model": an["model"], "tag": b["tag"], "check": b["check"],
+                       "checks": b["checks"], "blocked": b["blocked"], "class": lw["class"]}}
+        if sf == "revert":
+            e["closure"], e["excluded"], e["entry_points"] = [], lw["excluded"], lw["excluded"]
         else:
-            ent.update(closure=law["closure"], excluded=[], entry_points=law["closure"],
-                       blocked_for=law["blocked_for"], writers=law["writers"])
-        out[law["law_id"]] = ent
+            e["closure"], e["excluded"], e["entry_points"] = lw["closure"], [], lw["closure"]
+            if sf == "blocking":
+                e["status"] = lw["status"]
+            else:
+                e["blocked_for"], e["writers"] = lw["blocked_for"], lw["writers"]
+        out[lw["law_id"]] = e
     return out
 
 
 def disch_id(model: str, law: dict) -> str:
     """D11: "<model>:<subform>:<tag>:<class>" (class "all" for revert)."""
-    return f"{model}:{law['subform']}:{law['tag']}:{law['class'] or 'all'}"
+    return ":".join([model, law["subform"], law["tag"], law["class"] or "all"])
 
 
 def ref_doc(an: dict, law: dict) -> dict:
     """D11: the document whose sha256 is the ref "disch:<ID>"."""
     b = next(x for x in an["basis"] if x["tag"] == law["tag"])
-    ent = entries(an)[law["law_id"]]
-    return {"template": f"holon.rules.disch/{law['subform']}", "template_version": 1, "subform": law["subform"],
+    e = entries(an)[law["law_id"]]
+    return {"template": "holon.rules.disch/" + law["subform"], "template_version": 1, "subform": law["subform"],
             "model": an["model"], "blocked": b["blocked"], "check": b["check"], "check_expr": b["check_expr"],
-            "class": law["class"], "closure": ent["closure"], "excluded": ent["excluded"]}
+            "class": law["class"], "closure": e["closure"], "excluded": e["excluded"]}
 
 
 # ================================================================================================ the sidecar
