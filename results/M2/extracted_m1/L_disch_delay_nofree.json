@@ -12,7 +12,7 @@
       "generator": "nat_split",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.278
+      "seconds": 0.386
     },
     {
       "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
@@ -26,20 +26,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.318
+      "seconds": 0.498
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.421
+      "seconds": 0.904
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.318
+    "seconds": 0.498
   },
   "compiled_sha256": "f1055fa88774a53f0d65d40caa73ede396f7f578515ac13f362c7f1328507dc1",
   "cone": [
@@ -228,8 +228,8 @@
   "evidence_triage": "finding",
   "facts_sha256": "2de8ab0d421dfb9d2fbcf027d5fb3d3b7f69df84580b4d0e8bb289a062d94b9d",
   "filter_bin": "pending",
-  "generator_sha256": "0aa5644f52722678d5069e3b717660db3fa51ba04f9d12eda37a72cd39e31391",
-  "independence_class": "I1-shared",
+  "generator_sha256": "d1882dd70f9658fd353bfa77b18630f193e996ca17f04a47e1c6a66616b93457",
+  "independence_class": "I2",
   "kernel": {
     "name": "bend",
     "verdict": "checked",
@@ -249,6 +249,19 @@
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
+    },
+    {
+      "axioms": [
+        "propext"
+      ],
+      "name": "lean4",
+      "reading": "Lean reads the holon-facts/0.2 document itself (holon.gen.lean_machine), the target library through its Lean twin (hand-written target input, like the Bend library: common mode, I9 Question 4); Nat, Bool and lists as in Bend; premises are hypotheses as in Bend; the statement is the frozen Lean text of the same IR",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M2/extracted/m1/lean/L_disch_delay_nofree.lean",
+      "source_sha256": "fdb95bc07c7968e6ea8ac4367dd5429c9adc705d8b6375e6a7c72f54e1be8c87",
+      "theorem": "L_disch_delay_nofree_counter",
+      "version": "4.34.0"
     }
   ],
   "law_id": "L_disch_delay_nofree",
@@ -278,6 +291,7 @@
     "witness": null
   },
   "premises": [],
+  "prover": "generator",
   "record_version": "holon-record/0.2",
   "refinement_refs": [
     "replay/M1/report.json#/refinement/per_action/challengeState",
