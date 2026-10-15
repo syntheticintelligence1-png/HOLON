@@ -1,0 +1,103 @@
+{
+  "approx": [
+    "commitBatch: check commitBatch#contracts/contracts/l1/rollup/Rollup.sol:937#0 in loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 overflow outcome",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatchWithProof: check commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:937#0 in loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 overflow outcome",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatchWithProof: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitBatchWithProof: memory loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatchWithProof: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitState: check commitState#contracts/contracts/l1/rollup/Rollup.sol:937#0 in loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations",
+    "commitState: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitState: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitState: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "finalizeBatch: check finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:749#0 in loop contracts/contracts/l1/rollup/Rollup.sol:744-751 beyond 7 iterations",
+    "finalizeBatch: loop contracts/contracts/l1/rollup/Rollup.sol:744-751 beyond 7 iterations is havoc",
+    "finalizeBatch: loop contracts/contracts/l1/rollup/Rollup.sol:744-751 overflow outcome",
+    "loop count past the bound",
+    "loop exit value past the bound",
+    "memory pointer",
+    "revertBatch: check revertBatch#contracts/contracts/l1/rollup/Rollup.sol:450#0 in loop contracts/contracts/l1/rollup/Rollup.sol:444-467 beyond 7 iterations",
+    "revertBatch: check revertBatch#contracts/contracts/l1/rollup/Rollup.sol:450#0 in loop contracts/contracts/l1/rollup/Rollup.sol:444-467 is havoc",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 beyond 7 iterations is havoc",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 is havoc (batchChallengeReward: a mapping read without a key)",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow outcome",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes batchChallengeReward",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes challenges",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes committedBatches",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes inChallenge",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 overflow writes revertReqIndex",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes batchChallengeReward",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes challenges",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes committedBatches",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes inChallenge",
+    "revertBatch: loop contracts/contracts/l1/rollup/Rollup.sol:444-467 writes revertReqIndex"
+  ],
+  "id": "reach:commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:389#0",
+  "largest_k": 2,
+  "length": 2,
+  "path": [
+    {
+      "action": "initialize3",
+      "args": {
+        "_rollupDelayPeriod": 115792089237316195423570985008687907853269984665640564039457584007912055898134
+      },
+      "calldata": "0xcf9a6745ffffffffffffffffffffffffffffffffffffffffffffffffffffffffc0000016",
+      "env": {
+        "blobhash": [
+          "0x0100000000000000000000000000000000000000000000000000000000000000",
+          "0x0100000000000000000000000000000000000000000000000000000000000000",
+          "0x0100000000000000000000000000000000000000000000000000000000000000",
+          "0x0100000000000000000000000000000000000000000000000000000000000000",
+          "0x0100000000000000000000000000000000000000000000000000000000000000"
+        ],
+        "block.timestamp": 1461501637330902918203684832716283019656486207503,
+        "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496",
+        "calls": [],
+        "msg.value": 0
+      }
+    },
+    {
+      "action": "commitBatchWithProof",
+      "args": {
+        "_batchHeader": "0x00",
+        "_batchProof": "0x00",
+        "batchDataInput": {
+          "lastBlockNumber": 0,
+          "numL1Messages": 0,
+          "parentBatchHeader": "0x00",
+          "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "version": 0,
+          "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "calldata": "0x1544ba3a0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000001c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
+      "env": {
+        "blobhash": [],
+        "block.timestamp": 57896044618658097711785492504343953926634992332820282019728792003956564819968,
+        "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496",
+        "calls": [],
+        "msg.value": 0
+      }
+    }
+  ],
+  "queries": [
+    "gen/M3/refute/smt/bmc/ca2fd73ee41f223c.k1.smt2",
+    "gen/M3/refute/smt/bmc/ca2fd73ee41f223c.k2.l0.smt2.gz"
+  ],
+  "reason": "sat at k = 2 (the first sat depth), cone levels <= 0",
+  "target": {
+    "action": "commitBatchWithProof",
+    "check": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:389#0",
+    "kind": "check"
+  },
+  "verdict": "path"
+}

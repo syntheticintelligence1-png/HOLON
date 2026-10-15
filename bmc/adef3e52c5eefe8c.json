@@ -1,0 +1,43 @@
+{
+  "approx": [
+    "commitBatch: check commitBatch#contracts/contracts/l1/rollup/Rollup.sol:937#0 in loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:901-908 overflow outcome",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "commitBatch: loop contracts/contracts/l1/rollup/Rollup.sol:936-943 overflow outcome",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:901-908 beyond 7 iterations is havoc",
+    "commitBatch: memory loop contracts/contracts/l1/rollup/Rollup.sol:936-943 beyond 7 iterations is havoc",
+    "loop count past the bound",
+    "loop exit value past the bound",
+    "memory pointer"
+  ],
+  "id": "i21:F-M2-42",
+  "largest_k": 8,
+  "length": null,
+  "path": null,
+  "queries": [
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k1.smt2",
+    "gen/M3/refute/smt/bmc/adef3e52c5eefe8c.k2.l0.smt2"
+  ],
+  "reason": "the target's blob-hash gap contradicts E3's dense prefix on the same vector (by E3), so no k <= H has a path",
+  "target": {
+    "actions": [
+      "commitBatch"
+    ],
+    "blob_gap": true,
+    "cond": [
+      "==",
+      [
+        "member",
+        [
+          "param",
+          "batchDataInput"
+        ],
+        "version"
+      ],
+      2
+    ],
+    "kind": "step"
+  },
+  "verdict": "no_path"
+}
