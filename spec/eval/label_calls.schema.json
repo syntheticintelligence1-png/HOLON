@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "calls": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "entry": {
+            "pattern": "^c[0-9]{2}$",
+            "type": "string"
+          },
+          "labeller": {
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "model_tag": {
+            "enum": [
+              "A",
+              "B"
+            ]
+          },
+          "models_reported": {
+            "items": {
+              "pattern": "\\S",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "outcome": {
+            "enum": [
+              "ok",
+              "cli_error",
+              "turns",
+              "unparsable",
+              "invalid"
+            ]
+          },
+          "role": {
+            "enum": [
+              "a",
+              "b",
+              "adjudicator"
+            ]
+          },
+          "session_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "entry",
+          "attempt",
+          "role",
+          "labeller",
+          "model_tag",
+          "models_reported",
+          "session_id",
+          "outcome"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "calls_version": {
+      "const": "holon-eval-label-calls/0.1"
+    },
+    "labeller": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "model_tag": {
+      "enum": [
+        "A",
+        "B"
+      ]
+    },
+    "role": {
+      "enum": [
+        "a",
+        "b",
+        "adjudicator"
+      ]
+    }
+  },
+  "required": [
+    "calls_version",
+    "role",
+    "labeller",
+    "model_tag",
+    "calls"
+  ],
+  "title": "F37 per-call labelling records (spec/eval/labels/<role>.calls.json): the role and the models each call reported",
+  "type": "object"
+}

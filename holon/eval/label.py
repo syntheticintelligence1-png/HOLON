@@ -29,6 +29,13 @@ in flight) when a call that answered reports other than exactly one model or a m
 file records the checks (one_model_per_role, a_differs_from_b, adjudicator_is_a) as true because both models were
 recorded, and differ, before the run, and every call of the run matched its tag.
 
+Per-call records (F37, after the I48 lead review; spec/M4/amendments.jsonl). From F37 on, every call of a labelling
+run is also recorded in spec/eval/labels/<role>.calls.json (schema spec/eval/label_calls.schema.json): the entry, the
+attempt's index, the role, its labeller and tag, the session id and outcome, and the models the call itself reported
+(models_reported: the keys of its CLI JSON's modelUsage, as the runtime returned them, not the --model it was given).
+The preregistered labels.schema.json admits no further field in the label file, hence the separate file. The 44 calls
+of I48's run predate it and have no such record; none is reconstructed for them.
+
 Order and resumption. a and b label every entry of spec/eval/corpus.json in corpus order; the adjudicator labels exactly
 the entries whose a and b labels are both non-null with different primaries (a.json and b.json complete). The label
 file is written after every prompt; a run over a partly written file keeps its recorded labels verbatim (their prompts
@@ -54,6 +61,8 @@ from .common import Refused, dumps
 LABELS = Path("spec") / "eval" / "labels"
 CORPUS = Path("spec") / "eval" / "corpus.json"
 STORE = common.HOME / "labellers.json"
+CALLS_VERSION = "holon-eval-label-calls/0.1"
+CALLS_SCHEMA = common.EVAL / "label_calls.schema.json"
 DIFF_CAP = 60000
 CLI_KEYS = ("is_error", "num_turns", "result", "session_id", "subtype")
 LABEL_KEYS = ("justification", "primary", "secondary", "subform")
@@ -126,16 +135,17 @@ def entry_diff(entry: dict) -> str:
 
 # ---------------------------------------------------------------------------------------------- responses
 def parse_response(text: str) -> dict:
-    """The JSON object of the whole response (surrounding whitespace aside), or of the text between a first line ```
-    (or ```json) and a last line ```."""
-    body = text.strip()
-    lines = body.split("\n")
-    if len(lines) >= 2 and lines[0].strip() in ("```", "```json") and lines[-1].strip() == "```":
-        body = "\n".join(lines[1:-1])
-    obj = json.loads(body)
-    if not isinstance(obj, dict):
-        raise ValueError("not a JSON object")
-    return obj
+    """The labeller's answer (rule C5; F37, re-derived from the prompt templates and labels.schema.json without the
+    test instrument): the prompt asks for "exactly one JSON object and nothing else", so the response is read as one
+    JSON document (RFC 8259; surrounding whitespace allowed, nothing else around it: no code fence, no prose; NaN and
+    Infinity are not JSON). Raises ValueError when it is not one JSON document; whether the value is a valid label
+    (an object with exactly the label keys and valid values) is is_label's question, not this function's."""
+    if not isinstance(text, str):
+        raise ValueError("the response is not text")
+
+    def no_constant(name):
+        raise ValueError(f"{name} is not JSON")
+    return json.loads(text, parse_constant=no_constant)
 
 
 def is_label(obj, categories: list[str]) -> bool:
@@ -284,13 +294,23 @@ def observe(tag: str, model: str) -> int:
 
 
 # ---------------------------------------------------------------------------------------------- one prompt
+def call_record(entry_id: str, attempt: int, role: str, tag: str, cli: dict, raw: dict | None, o: str) -> dict:
+    """F37: one labelling call as it ran: the entry, the attempt's index, the role, its labeller and tag, and the
+    models the call itself reported (the keys of the CLI JSON's modelUsage, sorted; empty when it reported none),
+    never the model the run was configured with."""
+    return {"entry": entry_id, "attempt": attempt, "role": role, "labeller": LABELLER[role], "model_tag": tag,
+            "models_reported": Models.reported(raw), "session_id": cli["session_id"], "outcome": o}
+
+
 def attempts_for(prompt: str, inv: dict, model: str, models: Models, role: str,
-                 categories: list[str]) -> list[dict]:
+                 categories: list[str], calls: list[dict] | None = None, entry_id: str | None = None) -> list[dict]:
     out, cli_errors, counted = [], 0, 0
     while True:
         cli, raw = reduce_output(call(inv, model, prompt))
         models.check(role, inv["roles"][role], raw)
         o = outcome(cli, categories)
+        if calls is not None:
+            calls.append(call_record(entry_id, len(out), role, inv["roles"][role], cli, raw, o))
         out.append({"cli": cli, "outcome": o})
         if o == "ok":
             return out
@@ -321,6 +341,13 @@ def _labels_of(root: Path, who: str, ids: list[str]) -> dict:
     if got != ids:
         raise Refused(f"{p.relative_to(root)} does not label every entry in corpus order")
     return {x["entry"]: x["label"] for x in common.load_json(p)["labels"]}
+
+
+def calls_header(role: str, inv: dict) -> dict:
+    """F37: the per-call record file spec/eval/labels/<role>.calls.json (schema spec/eval/label_calls.schema.json),
+    kept beside the label file because the preregistered labels.schema.json admits no further field."""
+    return {"calls_version": CALLS_VERSION, "role": role, "labeller": LABELLER[role], "model_tag": inv["roles"][role],
+            "calls": []}
 
 
 def header(role: str, inv: dict) -> dict:
@@ -377,6 +404,11 @@ def cli_label(argv: list[str]) -> int:
         doc["labels"] = old["labels"]
     models = Models(STORE)
     models.require(inv["roles"].values())
+    calls_path = root / LABELS / f"{role}.calls.json"
+    calls_doc = common.load_json(calls_path) if calls_path.exists() else calls_header(role, inv)
+    if {k: v for k, v in calls_doc.items() if k != "calls"} != {k: v for k, v in calls_header(role, inv).items()
+                                                                 if k != "calls"}:
+        raise Refused(f"{calls_path.relative_to(root)} was recorded for another role, labeller or tag")
     diffs: dict[str, str] = {}
     for i, e in enumerate(todo):
         if e["id"] not in diffs:
@@ -386,12 +418,15 @@ def cli_label(argv: list[str]) -> int:
             if doc["labels"][i]["prompt_sha256"] != sha256_text(prompt):
                 raise Refused(f"{e['id']}: the recorded prompt_sha256 is not the prompt's (inputs changed)")
             continue
-        attempts = attempts_for(prompt, inv, a.model, models, role, categories)
+        attempts = attempts_for(prompt, inv, a.model, models, role, categories, calls_doc["calls"], e["id"])
         doc["labels"].append(label_record(e["id"], prompt, attempts))
+        common.write_or_check(calls_path, dumps(calls_doc), False)
         common.write_or_check(out_path, dumps(doc), False)
         print(f"{role} {e['id']}: {' '.join(t['outcome'] for t in attempts)}")
     from holon.schema import errors
     errs = errors(doc, common.load_json(common.LIB / "labels.schema.json"))
+    if calls_path.exists():
+        errs += errors(calls_doc, common.load_json(CALLS_SCHEMA))
     if errs:
         print("the label file does not validate: " + "; ".join(errs[:10]), file=sys.stderr)
         return 1
