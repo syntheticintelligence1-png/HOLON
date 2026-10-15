@@ -164,6 +164,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
         from .sorts import termsize
         return termsize.main(argv[1:])
+    if argv[:1] == ["basis"]:  # likewise for holon.gen.basis (I42: Theory core I)
+        from .gen import basis
+        return basis.main(argv[1:])
     if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
@@ -248,7 +251,12 @@ def main(argv=None) -> int:
     mt = sub.add_parser("metrics", help="write results/<M>/metrics.json and metrics_timing.json (I16)")
     mt.add_argument("--milestone", default="M0")
     mt.add_argument("--root")
+    bs = sub.add_parser("basis", help="emit Theory core I basis and congruence proofs (I42)")
+    bs.add_argument("rest", nargs=argparse.REMAINDER)
     a = ap.parse_args(argv)
+    if a.cmd == "basis":
+        from .gen import basis
+        return basis.main(a.rest)
     if a.cmd == "run":
         from .pipeline import main_run
         return main_run(a)

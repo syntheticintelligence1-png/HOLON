@@ -1129,3 +1129,49 @@ class ReachProof:
         text = "\n".join(_imports(self.imp) + lines) + "\n"
         off = len(_imports(self.imp))
         return text, {k + off: s for k, s in slot_at.items()}
+
+
+# ---------------------------------------------------------------- I42: congruence-first & cycle-basis proofs
+def whisker_post_call(dom_ty: str, mid_ty: str, cod_ty: str, p_fn: str, q_fn: str, l_fn: str,
+                      eq_law: str, arg: str | None = None, core_alias: str = "C") -> str:
+    """Format a `C.core_whisker_post` application (optionally applied to `arg`)."""
+    call = f"{core_alias}.core_whisker_post({dom_ty}, {mid_ty}, {cod_ty}, {p_fn}, {q_fn}, {l_fn}, {eq_law})"
+    return f"{call}({arg})" if arg is not None else call
+
+
+def tree_unique_2_call(dom_ty: str, mid_ty: str, cod_ty: str, f_fn: str, g1_fn: str, g2_fn: str, t_fn: str,
+                       e1_law: str, e2_law: str, arg: str | None = None, core_alias: str = "C") -> str:
+    """Format a `C.core_tree_unique_2` application reducing a 2-path fundamental cycle to two tree laws."""
+    call = (f"{core_alias}.core_tree_unique_2({dom_ty}, {mid_ty}, {cod_ty}, "
+            f"{f_fn}, {g1_fn}, {g2_fn}, {t_fn}, {e1_law}, {e2_law})")
+    return f"{call}({arg})" if arg is not None else call
+
+
+def cycle_basis_2_call(x_ty: str, a_ty: str, b_ty: str, y_ty: str, r_fn: str, t_fn: str, e_fn: str,
+                       l_fn: str, obs_fn: str, cyc_law: str, tree_law: str,
+                       arg: str | None = None, core_alias: str = "C") -> str:
+    """Format a `C.core_cycle_basis_2` application reducing a non-tree path law to a cycle generator + tree law."""
+    call = (f"{core_alias}.core_cycle_basis_2({x_ty}, {a_ty}, {b_ty}, {y_ty}, "
+            f"{r_fn}, {t_fn}, {e_fn}, {l_fn}, {obs_fn}, {cyc_law}, {tree_law})")
+    return f"{call}({arg})" if arg is not None else call
+
+
+def congruence_roundtrip_proof(law_id: str, binders: str, arg: str, dom_ty: str, mid_ty: str, cod_ty: str,
+                               p_fn: str, q_fn: str, l_fn: str, par_law: str,
+                               rt_law: str | None = None, rhs_expr: str | None = None,
+                               laws_alias: str = "Laws", core_alias: str = "C") -> list[str]:
+    """Emit a 2- or 3-line congruence-first round-trip proof using `core_whisker_post` without `match`."""
+    step = whisker_post_call(dom_ty, mid_ty, cod_ty, p_fn, q_fn, l_fn, par_law, arg=arg, core_alias=core_alias)
+    if rt_law is None:
+        return [
+            f"def {laws_alias}.{law_id}({binders}):",
+            f"  {step}",
+            "",
+        ]
+    return [
+        f"def {laws_alias}.{law_id}({binders}):",
+        f"  %{step} : {{_ == {rhs_expr} : {cod_ty}}}",
+        f"  {rt_law}",
+        "",
+    ]
+
