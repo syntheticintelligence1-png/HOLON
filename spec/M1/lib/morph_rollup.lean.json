@@ -1,0 +1,227 @@
+{
+  "builtins": {
+    "agg": {
+      "arity": 1,
+      "lean": "(${param:AGG_BASE:1000} + hl_enc $0)",
+      "type": "Nat"
+    },
+    "any_open": {
+      "arity": 3,
+      "lean": "(tw_anyGo $0 0 $1 $2)",
+      "type": "Bool"
+    },
+    "blob_count": {
+      "arity": 1,
+      "lean": "(tw_blobCount $0)",
+      "type": "Nat"
+    },
+    "bump_f": {
+      "arity": 3,
+      "lean": "(tw_bumpGo $0 0 $1 $2)",
+      "type": "List<Entry>"
+    },
+    "clear_chs": {
+      "arity": 3,
+      "lean": "(tw_clearGo $0 0 $1 $2)",
+      "type": "List<Ch>"
+    },
+    "empty_ch": {
+      "arity": 0,
+      "kind": "default",
+      "lean": "hz_Ch",
+      "type": "Ch"
+    },
+    "empty_entry": {
+      "arity": 0,
+      "kind": "default",
+      "lean": "hz_Entry",
+      "type": "Entry"
+    },
+    "go_append_heap": {
+      "arity": 4,
+      "lean": "(tw_goAppendHeap $0 $1 $2 $3)",
+      "type": "List<Arr>"
+    },
+    "go_append_slice": {
+      "arity": 4,
+      "lean": "(tw_goAppendSlice $0 $1 $2 $3)",
+      "type": "Sl"
+    },
+    "go_read": {
+      "arity": 2,
+      "lean": "(tw_goRead $0 $1)",
+      "type": "List<Nat>"
+    },
+    "hdr_of": {
+      "arity": 1,
+      "lean": "(tw_hdrOf $0)",
+      "type": "List<Nat>"
+    },
+    "nth_ch": {
+      "arity": 2,
+      "default": "empty_ch",
+      "kind": "nth_default",
+      "lean": "(hl_nthD $0 $1 hz_Ch)",
+      "type": "Ch"
+    },
+    "set_ch": {
+      "arity": 3,
+      "default": "empty_ch",
+      "kind": "set_default",
+      "lean": "(hl_setD $0 $1 $2 hz_Ch)",
+      "type": "List<Ch>"
+    },
+    "set_last_csr": {
+      "arity": 2,
+      "lean": "(tw_setLastCsr $0 $1)",
+      "type": "List<Entry>"
+    },
+    "tags_exact": {
+      "arity": 1,
+      "lean": "(tw_tagsExact $0)",
+      "type": "Bool"
+    },
+    "win_at": {
+      "arity": 2,
+      "default": "empty_entry",
+      "kind": "nth_default",
+      "lean": "(hl_nthD $0 $1 hz_Entry)",
+      "type": "Entry"
+    },
+    "win_last": {
+      "arity": 1,
+      "lean": "(hl_lastD $0 hz_Entry)",
+      "type": "Entry"
+    },
+    "zero_csr": {
+      "arity": 1,
+      "lean": "(tw_zeroCsr $0)",
+      "type": "List<Entry>"
+    }
+  },
+  "decls": [
+    {
+      "lean": "def tw_blobCount : List Nat → Nat\n  | [] => 0\n  | h :: t => bif Nat.beq h 0 then 0 else 1 + tw_blobCount t",
+      "when_types": []
+    },
+    {
+      "lean": "def tw_bumpGo : List T_Entry → Nat → Nat → Nat → List T_Entry\n  | [], _, _, _ => []\n  | e :: t, pos, skip, w => (bif (Nat.blt 0 pos && !(Nat.beq pos skip)) then { e with f_bdf := e.f_bdf + w } else e) :: tw_bumpGo t (pos + 1) skip w",
+      "when_types": [
+        "Entry"
+      ]
+    },
+    {
+      "lean": "def tw_anyGo : List T_Ch → Nat → Nat → Nat → Bool\n  | [], _, _, _ => false\n  | c :: t, i, lo, hi => (((Nat.ble lo i) && (Nat.ble i hi)) && ((!(Nat.beq c.f_c 0)) && (!c.f_f))) || tw_anyGo t (i + 1) lo hi",
+      "when_types": [
+        "Entry",
+        "Ch"
+      ]
+    },
+    {
+      "lean": "def tw_clearGo : List T_Ch → Nat → Nat → Nat → List T_Ch\n  | [], _, _, _ => []\n  | c :: t, i, lo, hi => (bif ((Nat.ble lo i) && (Nat.ble i hi)) then hz_Ch else c) :: tw_clearGo t (i + 1) lo hi",
+      "when_types": [
+        "Entry",
+        "Ch"
+      ]
+    },
+    {
+      "lean": "def tw_zeroCsr : List T_Entry → List T_Entry\n  | [] => []\n  | e :: t => { e with f_csr := 0 } :: tw_zeroCsr t",
+      "when_types": [
+        "Entry"
+      ]
+    },
+    {
+      "lean": "def tw_setLastCsr : List T_Entry → Nat → List T_Entry\n  | [], _ => []\n  | [e], r => [{ e with f_csr := r }]\n  | e :: t, r => e :: tw_setLastCsr t r",
+      "when_types": [
+        "Entry"
+      ]
+    },
+    {
+      "lean": "def tw_tagsExact : List T_Entry → Bool\n  | [] => true\n  | e :: t => (bif Nat.beq e.f_ver 2 then Nat.beq e.f_tag 2 else !(Nat.beq e.f_tag 2)) && tw_tagsExact t",
+      "when_types": [
+        "Entry"
+      ]
+    },
+    {
+      "lean": "def tw_hdrOf (e : T_Entry) : List Nat := [e.f_ver, e.f_tot, e.f_n, e.f_hb, e.f_prev, e.f_post, e.f_lbn]",
+      "when_types": [
+        "Entry"
+      ]
+    },
+    {
+      "lean": "def tw_goLoop : Nat → Bool → Nat → Nat → Nat\n  | 0, _, nc, _ => nc\n  | _ + 1, true, nc, _ => nc\n  | p + 1, false, nc, nl => tw_goLoop p (Nat.ble nl (nc + (nc + 768) / 4)) (nc + (nc + 768) / 4) nl",
+      "when_types": [
+        "Sl",
+        "Arr"
+      ]
+    },
+    {
+      "lean": "def tw_goNextcap (nl oc : Nat) : Nat :=\n  bif Nat.blt (oc + oc) nl then nl else bif Nat.blt oc 256 then oc + oc else tw_goLoop nl false oc nl",
+      "when_types": [
+        "Sl",
+        "Arr"
+      ]
+    },
+    {
+      "lean": "def tw_firstGe : List Nat → Nat → Nat\n  | [], n => n\n  | h :: t, n => bif Nat.ble n h then h else tw_firstGe t n",
+      "when_types": [
+        "Sl",
+        "Arr"
+      ]
+    },
+    {
+      "lean": "def tw_overlay : List Nat → List Nat → List Nat\n  | [], _ => []\n  | h :: t, [] => h :: t\n  | _ :: t, b :: r => b :: tw_overlay t r",
+      "when_types": [
+        "Sl",
+        "Arr"
+      ]
+    },
+    {
+      "lean": "def tw_put : List Nat → Nat → List Nat → List Nat\n  | [], _, _ => []\n  | h :: t, 0, bs => tw_overlay (h :: t) bs\n  | h :: t, p + 1, bs => h :: tw_put t p bs",
+      "when_types": [
+        "Sl",
+        "Arr"
+      ]
+    },
+    {
+      "lean": "def tw_zeros : Nat → List Nat\n  | 0 => []\n  | p + 1 => 0 :: tw_zeros p",
+      "when_types": [
+        "Sl",
+        "Arr"
+      ]
+    },
+    {
+      "lean": "def tw_goRead (hp : List T_Arr) (sl : T_Sl) : List Nat :=\n  List.take sl.f_len (List.drop sl.f_off (hl_nthD hp sl.f_b hz_Arr).f_cells)",
+      "when_types": [
+        "Sl",
+        "Arr"
+      ]
+    },
+    {
+      "lean": "def tw_goAppendSlice (hp : List T_Arr) (sl : T_Sl) (xs : List Nat) (cls : List Nat) : T_Sl :=\n  bif Nat.ble (sl.f_len + xs.length) sl.f_cap then { sl with f_len := sl.f_len + xs.length }\n  else { f_b := hp.length, f_off := 0, f_len := sl.f_len + xs.length, f_cap := tw_firstGe cls (tw_goNextcap (sl.f_len + xs.length) sl.f_cap) }",
+      "when_types": [
+        "Sl",
+        "Arr"
+      ]
+    },
+    {
+      "lean": "def tw_goAppendHeap (hp : List T_Arr) (sl : T_Sl) (xs : List Nat) (cls : List Nat) : List T_Arr :=\n  bif Nat.ble (sl.f_len + xs.length) sl.f_cap then hl_setD hp sl.f_b { f_cells := tw_put (hl_nthD hp sl.f_b hz_Arr).f_cells (sl.f_off + sl.f_len) xs } hz_Arr\n  else hp ++ [{ f_cells := (tw_goRead hp sl ++ xs) ++ tw_zeros (tw_firstGe cls (tw_goNextcap (sl.f_len + xs.length) sl.f_cap) - (sl.f_len + xs.length)) }]",
+      "when_types": [
+        "Sl",
+        "Arr"
+      ]
+    }
+  ],
+  "doc": "Lean twin of the target libraries the M1 fact documents use (spec/M1/lib/morph_rollup.lib.json and spec/lib/go_slices.lib.json), hand-written target input for holon.gen.lean_machine (I43 rule L1; gap LP-G2: common mode, like the Bend library). It is not a *.lib.json file, so it stays outside the generator closures' library glob. builtins: DSL function name -> {arity, lean: a Lean term template ($0..$9 the compiled arguments, $args all of them space-separated, ${param:NAME:DEFAULT} a facts parameter), type: the DSL type, kind and default as in the Bend library}. decls: Lean declarations emitted inside namespace Model after the generic helpers (hl_*) and the zero records (hz_<record>), in order, when the facts declare every type of when_types. shadow: the record the shadow projections read and, per shadowed field, the Lean term of a projected element ($0 the element; default: its field). Each declaration is the Bend library's definition read again: structural recursion, Bool conditions through Nat.beq/Nat.ble/Nat.blt.",
+  "lean_lib_version": "holon-lean-lib/0.1",
+  "name": "morph_rollup",
+  "shadow": {
+    "record": "Entry",
+    "values": {
+      "bd": "({ f_o := $0.f_bdo, f_f := $0.f_bdf, f_n := $0.f_bdn, f_s := $0.f_bds } : T_BD)"
+    },
+    "when_types": [
+      "Entry"
+    ]
+  }
+}
