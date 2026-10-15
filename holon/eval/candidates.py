@@ -15,7 +15,8 @@ that disagrees with them is an error naming the candidate (exit 1, nothing writt
 (no_public_writeup, not_functional, duplicate) are the collector's. A mechanical index's item list must be the one
 holon eval index derives at the pin, and a mechanical candidate's fix commit and description its item's. entry is null
 (the selection, holon eval select, fills it). The document is validated against candidates.schema.json before it is
-written.
+written. --check writes nothing and passes when the file is the fresh assembly, or the fresh assembly with holon eval
+select's selection applied.
 """
 from __future__ import annotations
 
@@ -228,6 +229,12 @@ def cli_candidates(argv: list[str]) -> int:
         return 1
     target = Path(a.root) / "spec" / "eval" / "candidates.json"
     differs = common.write_or_check(target, common.dumps(doc), a.check)
+    if a.check and differs:
+        # After holon eval select the file holds the selection (entry, and reason past_n or cap_reached for the
+        # eligible candidates left out): compare with the fresh assembly with select's own selection applied.
+        from .select import build
+        selected, _ = build(doc, common.protocol())
+        differs = common.write_or_check(target, common.dumps(selected), True)
     if a.check and differs:
         print(f"holon eval candidates: {target} differs from a fresh assembly", file=sys.stderr)
         return 1
