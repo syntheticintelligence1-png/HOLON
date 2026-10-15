@@ -60,7 +60,11 @@
                             "description": "lean4 (I9): sha256 of the Lean text emitted for this law, facts, status and witness; checked only if gen/<m>/lean/report.json checked exactly this text"},
           "theorem": {"type": "string", "description": "lean4 (I9): the theorem carrying the verdict (the law, or its counter-law)"},
           "axioms": {"type": "array", "items": {"enum": ["propext", "Quot.sound"]},
-                     "description": "lean4 (I9): `#print axioms` of the checked theorems; only propext and Quot.sound are allowed"}
+                     "description": "lean4 (I9): `#print axioms` of the checked theorems; only propext and Quot.sound are allowed"},
+          "reason": {"enum": ["timeout", "recursion_depth", "heartbeats", "unsupported_form", "no_report", "toolchain_unavailable"],
+                     "description": "lean4 (I43, rule L8), with result not_run: over the budget (timeout), Lean's maximum recursion depth (recursion_depth) or heartbeat limit (heartbeats), a form the Lean emitters cannot express (unsupported_form), no or a stale Lean report for the text emitted now (no_report), no pinned Lean toolchain (toolchain_unavailable)"},
+          "detail": {"type": "string", "description": "lean4 (I43): what was tried and what happened (not_run: the reason's evidence; failed: Lean's first error)"},
+          "reading": {"type": "string", "description": "lean4 (I43, gap LP-G1): how the Lean model reads the facts of this model kind (machine, machine_oracle or linked), the same text for every entry of the kind"}
         }
       }
     },
