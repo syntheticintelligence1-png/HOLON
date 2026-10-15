@@ -138,10 +138,10 @@ def compute(milestone: str, root: Path) -> dict:
     if site is not None and typed is not None:
         tl = gen / "laws" / typed["law_id"] / "LAWS.bend"
         _mp, bl = baseline(milestone, root, tl, site)
-        tc, bc = cone_chars(tl), cone_chars(bl)
+        tc, base_chars = cone_chars(tl), cone_chars(bl)
         ratio = {"site": sid, "typed_law": typed["law_id"], "typed_laws_file": tl.relative_to(root).as_posix(),
                  "baseline_laws_file": bl.relative_to(root).as_posix(), "typed_cone_chars": tc,
-                 "baseline_cone_chars": bc, "value": round(tc / bc, 4) if bc else None}
+                 "baseline_cone_chars": base_chars, "value": round(tc / base_chars, 4) if base_chars else None}
     return {"document": "term_size", "milestone": milestone,
             "sidecar_sha256": hashlib.sha256(side_p.read_bytes()).hexdigest(), "laws": laws, "ratio": ratio}
 

@@ -3,9 +3,9 @@
 import Base
 import ../../sorts/models/morph_rollup_extracted.bend as M
 
-law l_sort_realize_rollup_363_4a64383b:
-  for +kh: List<&2, M.HKB>
-  for +s: M.GSt
-  for r_s: M.Reach<kh, s>
-  for +a: M.HAct
-  {M.coerce_realize_rollup_363_4a64383b(a, s, kh) == True{} : Bool}
+law cl_l_sort_realize_rollup_363_4a64383b:
+  exs kh: List<&2, M.HKB>
+  exs s: M.GSt
+  exs r_s: M.Reach<kh, s>
+  exs a: M.HAct
+  {M.coerce_realize_rollup_363_4a64383b(a, s, kh) != True{} : Bool}
