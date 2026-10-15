@@ -14,15 +14,14 @@ For every index of the system, in the protocol's order, one record:
 
 FILE must lie outside the repository. The advisory database is read at its pin only: holon's commit-graph clone
 (--filter=tree:0) proves the pin reachable from the pinned branch, and only then is the pin fetched by sha, depth 1,
-into a separate bare repository; its advisory files are scanned once and the matches of every system cached under
-~/.holon/eval/index/ (pre-filtered advisories without their text).
+into a separate bare repository; every advisory file there is parsed once and the matches of every system cached
+under ~/.holon/eval/index/ (pre-filtered advisories without their text).
 """
 from __future__ import annotations
 
 import argparse
 import json
 import re
-import shutil
 import subprocess
 import sys
 import threading
@@ -183,6 +182,25 @@ def excerpt_source(doc: dict, enumeration: str) -> str:
 
 
 # ---------------------------------------------------------------------------------------------- the enumerations
+def _package_names(doc: dict) -> list[str]:
+    """affected[].package.name of an advisory (the string ones)."""
+    out = []
+    for a in _strs(doc.get("affected")):
+        pkg = a.get("package") if isinstance(a, dict) else None
+        if isinstance(pkg, dict) and isinstance(pkg.get("name"), str):
+            out.append(pkg["name"])
+    return out
+
+
+def _names_one_of(doc, slugs: list[str]) -> bool:
+    """The protocol's GHSA match: an advisory object without a withdrawn field one of whose affected[].package.name
+    or references[].url names one of the repository slugs (names_repo)."""
+    if not isinstance(doc, dict) or "withdrawn" in doc:
+        return False
+    texts = _package_names(doc) + _ref_urls(doc)
+    return any(names_repo(t, s) for s in slugs for t in texts)
+
+
 def ghsa_items(advisories, repos: list[str], proto: dict) -> list[tuple[dict, dict]]:
     """The GHSA index of a system from (path, advisory JSON) pairs: advisory files under advisories/github-reviewed/
     or advisories/unreviewed/ without a withdrawn field whose affected[].package.name or references[].url names one of
@@ -193,11 +211,7 @@ def ghsa_items(advisories, repos: list[str], proto: dict) -> list[tuple[dict, di
     for path, doc in advisories:
         if not path.endswith(".json") or not any(path.startswith(d + "/") for d in ADVISORY_DIRS):
             continue
-        if not isinstance(doc, dict) or "withdrawn" in doc:
-            continue
-        names = [a["package"]["name"] for a in _strs(doc.get("affected")) if isinstance(a, dict)
-                 and isinstance(a.get("package"), dict) and isinstance(a["package"].get("name"), str)]
-        if not any(names_repo(t, s) for t in names + _ref_urls(doc) for s in slugs):
+        if not _names_one_of(doc, slugs):
             continue
         t = published_utc(doc.get("published"))
         if t is None or not t < cut:
@@ -269,13 +283,15 @@ def on_branch(d: Path, sha: str, branch: str) -> bool:
     return False
 
 
+PIN_REF = "refs/holon/advisory-pin"
+
+
 def _bare_clone(url: str, d: Path, filt: str) -> Path:
     if common.excluded(url):
         raise common.Refused(f"{url} is an excluded repository: never cloned")
     if not (d / "HEAD").exists():
         d.parent.mkdir(parents=True, exist_ok=True)
-        tmp = d.with_name(d.name + ".partial")
-        shutil.rmtree(tmp, ignore_errors=True)
+        tmp = common.staging(d)
         p = subprocess.run(["git", "clone", "--bare", f"--filter={filt}", "--no-progress", url, str(tmp)],
                            capture_output=True, text=True, timeout=7200, env=common.git_env())
         common._no_excluded_redirect(p.stderr)
@@ -288,16 +304,15 @@ def _bare_clone(url: str, d: Path, filt: str) -> Path:
 def advisory_repo(pin: dict) -> Path:
     """A bare repository holding the advisory database's pinned commit: the pin is first shown reachable from its
     branch on holon's commit-graph clone (--filter=tree:0); only then is it fetched by sha, depth 1, into a separate
-    bare repository (refs/snapshots/<commit>)."""
+    bare repository (under the ref PIN_REF)."""
     commit = pin["commit"]
     graph = _bare_clone(pin["repo"], common.REPOS / "github__advisory-database.graph.git", "tree:0")
     if not on_branch(graph, commit, pin["branch"]):
         raise common.Refused(f"{commit} is not reachable from branch {pin['branch']} of {pin['repo']}")
-    d = common.REPOS / "github__advisory-database.snapshot.git"
+    d = common.REPOS / "github__advisory-database.at-pin.git"
     if not (d / "HEAD").exists():
         d.parent.mkdir(parents=True, exist_ok=True)
-        tmp = d.with_name(d.name + ".partial")
-        shutil.rmtree(tmp, ignore_errors=True)
+        tmp = common.staging(d)
         subprocess.run(["git", "init", "--bare", "--quiet", str(tmp)], check=True, capture_output=True,
                        env=common.git_env())
         tmp.rename(d)
@@ -305,7 +320,7 @@ def advisory_repo(pin: dict) -> Path:
                           env=common.git_env())
     if have.returncode != 0:
         common.git(d, "fetch", "--no-progress", "--depth", "1", "--no-tags", pin["repo"],
-                   f"+{commit}:refs/snapshots/{commit}", timeout=7200)
+                   f"+{commit}:{PIN_REF}", timeout=7200)
     return d
 
 
@@ -346,29 +361,33 @@ def _advisory_files(d: Path, commit: str):
 
 def ghsa_scan(proto: dict) -> dict[str, list[dict]]:
     """Every system's GHSA rows at the advisory-database pin: {system: [{"item": item record, "doc": the advisory, or
-    None when pre-filtered}]}. One scan of every advisory file; cached under ~/.holon/eval/index/ by pin and protocol
-    digest (a pre-filtered advisory's text is never stored). A file is parsed only when its bytes, lowercased, hold a
-    repository slug of the protocol or a JSON escape that could spell one (\\/ or \\u)."""
+    None when pre-filtered}]}. Every .json file under the advisory folders at the pin is parsed (a file that is not
+    JSON is no advisory), and the advisories that name a repository of any system (_names_one_of) are kept; each
+    system's index is then ghsa_items over them. The result is cached under ~/.holon/eval/index/ by pin and protocol
+    digest (a pre-filtered advisory's text is never stored)."""
     pin = proto["snapshots"]["pins"]["advisory-database"]
     digest = common.sha256_bytes(common.dumps(proto).encode("utf-8"))
-    cache = common.HOME / "index" / f"ghsa-{pin['commit']}-{digest[:16]}.json"
+    cache = common.HOME / "index" / f"advisories-{pin['commit']}-{digest[:16]}.json"
     if cache.exists():
         return common.load_json(cache)
     d = advisory_repo(pin)
-    slugs = sorted({slug(r).encode() for s in proto["systems"] for r in s["repos"]})
-    matched = []
+    slugs = sorted({slug(r) for s in proto["systems"] for r in s["repos"]})
+    kept = []
     for path, data in _advisory_files(d, pin["commit"]):
-        low = data.lower()
-        if any(s in low for s in slugs) or b"\\/" in data or b"\\u" in low:
-            matched.append((path, json.loads(data)))
+        try:
+            doc = json.loads(data)
+        except ValueError:
+            continue
+        if _names_one_of(doc, slugs):
+            kept.append((path, doc))
     out = {}
     for s in proto["systems"]:
         out[s["id"]] = [{"item": rec, "doc": None if rec["excluded_by"] else doc}
-                        for rec, doc in ghsa_items(matched, s["repos"], proto)]
+                        for rec, doc in ghsa_items(kept, s["repos"], proto)]
     cache.parent.mkdir(parents=True, exist_ok=True)
-    tmp = cache.with_name(cache.name + ".tmp")
-    tmp.write_text(json.dumps(out, sort_keys=True), encoding="utf-8")
-    tmp.rename(cache)
+    part = cache.with_name(f".{cache.name}.writing")
+    part.write_text(json.dumps(out, sort_keys=True), encoding="utf-8")
+    part.rename(cache)
     return out
 
 

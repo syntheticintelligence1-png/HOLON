@@ -100,6 +100,13 @@ def gh_slug(url: str) -> tuple[str, str]:
     return m.group(1), m.group(2)
 
 
+def staging(d: Path) -> Path:
+    """A fresh, empty sibling path where the directory d is built before it is renamed into place."""
+    tmp = d.parent / f".incomplete-{d.name}"
+    shutil.rmtree(tmp, ignore_errors=True)
+    return tmp
+
+
 def repo_cache(url: str, root: Path | None = None) -> Path:
     """holon's partial bare clone of a public GitHub repository (blobs fetched on demand), created when missing.
     Every branch and tag is fetched; nothing is ever fetched by sha here."""
@@ -109,8 +116,7 @@ def repo_cache(url: str, root: Path | None = None) -> Path:
     d = (root or REPOS) / f"{owner}__{name}.git"
     if not (d / "HEAD").exists():
         d.parent.mkdir(parents=True, exist_ok=True)
-        tmp = d.with_name(d.name + ".partial")
-        shutil.rmtree(tmp, ignore_errors=True)
+        tmp = staging(d)
         p = subprocess.run(["git", "clone", "--bare", "--filter=blob:none", "--no-progress", url, str(tmp)],
                            capture_output=True, text=True, timeout=7200, env=git_env())
         _no_excluded_redirect(p.stderr)
