@@ -1729,6 +1729,88 @@ class Unrolled:
         return "false"
 
     # ---------------------------------------------------------- lazy E1
+    def real_hashes(self, sess) -> list[str]:
+        """Hash concretization (a path that a replay hashes for real): the assertions "this content hashes to its real
+        digest" for every live hash term whose model word is not the real hash of the content the model gives it
+        (keccak256 and sha256; the words are otherwise free under E1, so this narrows the model to one the real
+        functions agree with, or makes the query unsat: then no path with these contents exists in the encoding)."""
+        import hashlib
+        from .keccak import keccak256
+        real = {"keccak256": lambda b: keccak256(b), "sha256": lambda b: hashlib.sha256(b).digest()}
+        live = [h for h in self._live(sess) if h.fn in real and h.const is None]
+        if not live:
+            return []
+        for h in live:
+            if h.src_word is None:
+                self.q.digest(h)
+        nd = getattr(self, "sent_defs", None)
+        if nd is not None and len(self.q.defs) > nd:
+            sess.send("".join(f"(define-fun {n} () {srt} {e})\n" for n, srt, e in self.q.defs[nd:]))
+            self.sent_defs = len(self.q.defs)
+        terms = set()
+        for h in live:
+            terms.add(h.word)
+            if h.src_word is not None:
+                terms.add(h.src_word)
+            else:
+                terms.add(h.n)
+                d = self.q.digest(h)
+                if d:
+                    terms.add(d)
+        vals = sess.values(sorted(terms))
+        out = []
+        for h in live:
+            if h.src_word is not None:
+                content = vals[h.src_word].to_bytes(32, "big")
+                cond = eq(h.src_word, lit(vals[h.src_word]))
+            else:
+                n = vals[h.n]
+                d = self.q.digest(h)
+                content = (vals[d].to_bytes(h.nmax, "big") if d else b"")[:n]
+                cond = band(eq(h.n, lit(n)), *([eq(d, "#x" + vals[d].to_bytes(h.nmax, "big").hex())] if d else []))
+            want = int.from_bytes(real[h.fn](content), "big")
+            if vals[h.word] != want:
+                out.append(f"(=> {cond} {eq(h.word, lit(want))})")
+        return out
+
+    def pin_inputs(self, sess) -> list[str]:
+        """Assertions fixing every step's selected action, its decoded parameters and its environment to the model's
+        values (hash concretization then only follows the hashes those inputs determine)."""
+        out = []
+        for st in self.steps:
+            sel = sess.values([st["sel"]])[st["sel"]]
+            out.append(eq(st["sel"], lit(sel)))
+            x = st["acts"][sel]
+            env = st["env"]
+            names = [env["caller"], env["block.timestamp"], env["msg.value"]] + list(env["blobhash"])
+            for path, (kind, a, b) in sorted(x["decode"].items()):
+                if kind == "word":
+                    names.append(a)
+                elif kind == "bytes":
+                    n = sess.values([b])[b]
+                    out.append(eq(b, lit(n)))
+                    sels = [f"(select {a} {lit(j)})" for j in range(n)]
+                    bv = sess.values(sels) if sels else {}
+                    out += [eq(t, lit(bv[t], 8)) for t in sels]
+            vals = sess.values(sorted(set(names)))
+            out += [eq(t, lit(v)) for t, v in sorted(vals.items())]
+        return out
+
+    def _live(self, sess) -> list:
+        live = []
+        groups = {}
+        for h in self.q.hashes:
+            if h.group is None:
+                live.append(h)
+                continue
+            groups.setdefault(h.group, []).append(h)
+        sels = sess.values(sorted({self.group_sel[g][0] for g in groups if g in self.group_sel}))
+        for g, hs in groups.items():
+            sv, j = self.group_sel.get(g, (None, None))
+            if sv is None or sels.get(sv) == j:
+                live += hs
+        return live
+
     def violations(self, sess) -> list:
         """The pending E1 pairs a model violates among the hash terms its selected actions evaluate: equal words over
         different contents, or equal contents under different words."""
@@ -1911,6 +1993,33 @@ def search(p: Problem, target: dict, solver: dict, qdir=None, name: str = "q", l
                 if res == "sat" and rounds >= 64:
                     res = "unknown"
                     sess.guard = "E1 instantiation did not converge in 64 rounds"
+                hrounds = 0
+                if res == "sat" and target.get("observe"):
+                    na = len(u.q.asserts)
+                    for a in u.pin_inputs(sess):
+                        u.q.add(a)
+                    res = sess.more("".join(f"(assert {x})\n" for x in u.q.asserts[na:]))
+                while res == "sat" and target.get("observe") and hrounds < 32:
+                    # the observed contents must hash for real: concretize the hash words (and re-close E1)
+                    na = len(u.q.asserts)
+                    for a in u.real_hashes(sess):
+                        u.q.add(a)
+                    for a, b in u.violations(sess):
+                        u.q.pending.remove((a, b))
+                        u.q.assert_pair(a, b)
+                    if len(u.q.asserts) == na:
+                        break
+                    hrounds += 1
+                    nd = u.sent_defs
+                    res = sess.more("".join(f"(define-fun {n} () {srt} {e})\n" for n, srt, e in u.q.defs[nd:]) +
+                                    "".join(f"(assert {x})\n" for x in u.q.asserts[na:]))
+                    u.sent_defs = len(u.q.defs)
+                if res == "sat" and hrounds >= 32:
+                    res = "unknown"
+                    sess.guard = "hash concretization did not converge in 32 rounds"
+                if hrounds and res == "unsat":
+                    res = "unknown"
+                    sess.guard = "no model with real hash values for the contents tried (hash concretization)"
                 u.q.inst["cf_asserted"] = u.q.inst.get("cf", 0) - len(u.q.pending)
                 text = u.q.text()
                 if qdir is not None:

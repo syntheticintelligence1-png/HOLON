@@ -495,13 +495,14 @@ def unknowns_doc(root: Path, side: dict, codec: dict | None = None, fuzzed: dict
                              [{"witness": cand["witness"], "checker": cand["checker"]}],
                              "reason": f"the law's negation over its component model ({cx['query']}): {cx['solver']}"})
             else:
-                atts.append({"engine": "smt", "bound": bound, "budget": {"rlimit": rl}, "result": "not_run",
+                # an engine this build does not have for the law's model: no attempt of that engine (engine none,
+                # naming the engine the contract plans)
+                atts.append({"engine": "none", "planned": "smt", "bound": None, "budget": None, "result": "not_run",
                              "candidates": 0, "accepted": 0, "discarded": [], "reason": NOT_BUILT})
             fa = (fuzzed or {}).get(u["record"])
             atts.append(fa if fa is not None else
-                        {"engine": "fuzz", "bound": {"candidates": int(fz["candidates_per_law"]), "seed": int(fz["seed"])},
-                         "budget": {"candidates": int(fz["candidates_per_law"])}, "result": "not_run", "candidates": 0,
-                         "accepted": 0, "discarded": [], "reason": NOT_BUILT})
+                        {"engine": "none", "planned": "fuzz", "bound": None, "budget": None, "result": "not_run",
+                         "candidates": 0, "accepted": 0, "discarded": [], "reason": NOT_BUILT})
         laws[u["record"]] = {"status": rec.get("status"), "attempts": atts}
     return {"document": "unknowns", "laws": laws}
 
