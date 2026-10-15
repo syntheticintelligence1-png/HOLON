@@ -2,16 +2,28 @@
 random_seed 0, one thread, z3's deterministic rlimit per query, counted cumulatively over the query's check-sats, and
 z3's own memory_max_size (registered in config). Nothing answers by wall-clock time: the crash watchdog aborts.
 
-  pin_check(solver) -> None | reason      the binary's and the library's sha256 and the version line
+z3 accounts memory_max_size in bytes as glibc's malloc reports them (malloc_usable_size), so the cap is a function of
+the query alone only on the registered glibc (config/holon.json z3 "glibc"), with no malloc tunables or preloads (z3
+runs with the fixed environment Z3_ENV) and with nothing else able to fail an allocation first: no address-space or
+data rlimit, no strict overcommit (environment_check, part of pin_check and of every session start). An allocation
+the kernel refuses in any other way ends z3 without an answer (the OOM killer): SolverCrash, nothing recorded.
+
+  pin_check(solver) -> None | reason      the binary's and the library's sha256, the version line, environment_check
+  environment_check() -> None | reason    the registered glibc; no address-space or data rlimit; no strict overcommit
   Session(solver).check(text) -> "sat" | "unsat" | "unknown"
   Session.values([terms]) -> {term: int}  values of a sat query's terms (bit-vectors as ints, Bools as 0/1)
 """
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import subprocess
 from pathlib import Path
+
+# z3's whole environment: no GLIBC_TUNABLES, MALLOC_*, LD_PRELOAD or LD_LIBRARY_PATH reaches the solver (its memory
+# accounting follows glibc's malloc; the binary links nothing but the system C and C++ runtimes)
+Z3_ENV = {"LC_ALL": "C"}
 
 
 class SolverPinError(RuntimeError):
@@ -37,7 +49,47 @@ def pin_check(solver: dict) -> str | None:
         return f"{b}: {e}"
     if f"Z3 version {solver['version']}" not in v:
         return f"{b}: version line {v.strip()!r}, pinned {solver['version']}"
-    return None
+    return environment_check()
+
+
+_ENV_CHECKED: list = []
+
+
+def environment_check(root: Path | None = None) -> str | None:
+    """None when this machine runs z3 as the registered memory cap assumes, else the reason it does not: the
+    registered glibc (z3 accounts memory_max_size with glibc's malloc_usable_size), no address-space or data rlimit
+    and no strict overcommit (either makes an allocation fail before z3's own cap, and z3 then prints the cap's
+    message)."""
+    import json
+    import resource
+    if _ENV_CHECKED and root is None:
+        return _ENV_CHECKED[0]
+    root = Path(root) if root else Path(__file__).resolve().parents[2]
+    z = (json.loads((root / "config" / "holon.json").read_text(encoding="utf-8")).get("z3") or {})
+    why = None
+    try:
+        libc = os.confstr("CS_GNU_LIBC_VERSION")
+    except (ValueError, OSError):
+        libc = None
+    if libc != z.get("glibc"):
+        why = f"C library {libc!r}, registered {z.get('glibc')!r} (z3's memory accounting follows glibc's malloc)"
+    for name in ("RLIMIT_AS", "RLIMIT_DATA"):
+        soft, _hard = resource.getrlimit(getattr(resource, name))
+        if why is None and soft != resource.RLIM_INFINITY:
+            why = f"{name} is {soft} bytes: an allocation could fail before z3's registered memory_max_size"
+    try:
+        oc = Path("/proc/sys/vm/overcommit_memory").read_text().strip()
+    except OSError as e:
+        oc = f"unreadable ({e})"
+    if why is None and oc not in ("0", "1"):
+        why = f"vm.overcommit_memory is {oc}: an allocation could fail before z3's registered memory_max_size"
+    if root == Path(__file__).resolve().parents[2]:
+        _ENV_CHECKED[:] = [why]
+    return why
+
+
+class SolverEnvironment(RuntimeError):
+    """This machine cannot run z3 as registered (environment_check): no query is run and nothing is recorded."""
 
 
 _VAL = re.compile(r"\(\((.*)\)\)\s*$", re.S)
@@ -91,7 +143,8 @@ class WatchdogAbort(RuntimeError):
 
 
 class SolverCrash(RuntimeError):
-    """z3 ended without an answer (a crash, or killed from outside): never a verdict; nothing is recorded."""
+    """z3 ended without an answer (a crash, killed from outside, or its pipe closed): never a verdict; nothing is
+    recorded."""
 
 
 def registered_limits(root: Path | None = None) -> dict:
@@ -126,11 +179,38 @@ class Session:
         self.used = 0
 
     def _start(self):
+        why = environment_check()
+        if why:
+            raise SolverEnvironment(f"z3 not started: {why}")
         args = [self.solver["binary"], "-in", "-smt2", "parallel.enable=false"]
         if self.memory_mb:
             args.append(f"memory_max_size={int(self.memory_mb)}")
         self.p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                  text=True, bufsize=1)
+                                  text=True, bufsize=1, env=dict(Z3_ENV))
+
+    def _crash(self, where: str):
+        rc = self.p.poll() if self.p is not None else None
+        self.close()
+        raise SolverCrash(f"z3 ended without an answer during {where} (exit {rc}): a crash is never a verdict")
+
+    def _write(self, text: str, where: str) -> None:
+        if self.p is None:
+            raise SolverCrash(f"z3 is not running ({where}): a crash is never a verdict")
+        try:
+            self.p.stdin.write(text)
+            self.p.stdin.flush()
+        except (BrokenPipeError, OSError):
+            self._crash(where)
+
+    def _read_until_done(self, where: str) -> list:
+        buf = []
+        while True:
+            line = self.p.stdout.readline()
+            if not line:
+                self._crash(where)
+            if line.strip() == "@@done":
+                return buf
+            buf.append(line)
 
     def _timed(self, fn):
         import threading
@@ -146,6 +226,7 @@ class Session:
             out = fn()
         except (BrokenPipeError, OSError, RuntimeError):
             if fired:
+                self.close()
                 raise WatchdogAbort(f"the crash watchdog ({int(self.watchdog_s)} s) fired: no verdict") from None
             raise
         finally:
@@ -157,14 +238,8 @@ class Session:
 
     def count(self) -> int:
         """z3's cumulative resource count of this session."""
-        self.p.stdin.write("(get-info :rlimit)\n(echo \"@@done\")\n")
-        self.p.stdin.flush()
-        buf = []
-        while True:
-            line = self.p.stdout.readline()
-            if not line or line.strip() == "@@done":
-                break
-            buf.append(line.strip())
+        self._write("(get-info :rlimit)\n(echo \"@@done\")\n", "get-info :rlimit")
+        buf = [x.strip() for x in self._read_until_done("get-info :rlimit")]
         m = re.search(r":rlimit\s+(\d+)", " ".join(buf))
         if not m:
             raise RuntimeError(f"z3 get-info :rlimit: {' '.join(buf)[:200]}")
@@ -199,23 +274,24 @@ class Session:
 
     def send(self, text: str) -> None:
         """Declarations or definitions on the open query (no check)."""
-        self.p.stdin.write(text + '(echo "@@done")\n')
-        self.p.stdin.flush()
-        while True:
-            line = self.p.stdout.readline()
-            if not line or line.strip() == "@@done":
-                break
+        self._write(text + '(echo "@@done")\n', "a declaration")
+        for line in self._read_until_done("a declaration"):
             if line.startswith("(error"):
                 raise RuntimeError(f"z3: {line.strip()[:300]}")
 
     def _check(self, text: str) -> str:
-        self.p.stdin.write(text)
-        self.p.stdin.write('(echo "@@done")\n')
-        self.p.stdin.flush()
+        try:
+            self.p.stdin.write(text)
+            self.p.stdin.write('(echo "@@done")\n')
+            self.p.stdin.flush()
+        except (BrokenPipeError, OSError):
+            self._crash("a check-sat")
         lines = []
+        eof = False
         while True:
             line = self.p.stdout.readline()
             if not line:
+                eof = True
                 break
             if line.strip() == "@@done":
                 break
@@ -223,14 +299,14 @@ class Session:
         res = [x for x in lines if x in ("sat", "unsat", "unknown")]
         errs = [x for x in lines if x.startswith("(error")]
         if errs and "out of memory" in errs[0]:
+            # the registered cap (environment_check rules out every other way an allocation fails with this message)
             self.guard = (f"memory_max_size {self.memory_mb} MB (z3's own allocation count, registered in "
                           f"config/holon.json z3)")
             self.close()
             return "unknown"
-        if not res and self.p.poll() is not None and self.guard is None:
-            rc = self.p.returncode
-            self.close()
-            raise SolverCrash(f"z3 ended without an answer (exit {rc}): a crash is never a verdict")
+        if eof:
+            # the output ended before the session's end marker: whatever z3 printed, a crash is never a verdict
+            self._crash("a check-sat")
         if errs:
             self.close()
             raise RuntimeError(f"z3: {errs[0][:400]}")
@@ -240,15 +316,8 @@ class Session:
         out = {}
         for i in range(0, len(terms), chunk):
             part = terms[i:i + chunk]
-            self.p.stdin.write("(get-value (" + " ".join(part) + "))\n(echo \"@@done\")\n")
-            self.p.stdin.flush()
-            buf = []
-            while True:
-                line = self.p.stdout.readline()
-                if not line or line.strip() == "@@done":
-                    break
-                buf.append(line)
-            text = "".join(buf).strip()
+            self._write("(get-value (" + " ".join(part) + "))\n(echo \"@@done\")\n", "get-value")
+            text = "".join(self._read_until_done("get-value")).strip()
             if text.startswith("(error"):
                 raise RuntimeError(f"z3 get-value: {text[:300]}")
             inner = text[1:-1]
@@ -261,18 +330,8 @@ class Session:
         return out
 
     def reason(self) -> str:
-        try:
-            self.p.stdin.write("(get-info :reason-unknown)\n(echo \"@@done\")\n")
-            self.p.stdin.flush()
-        except (BrokenPipeError, OSError):
-            return f"the solver process ended (exit {self.p.poll()})"
-        buf = []
-        while True:
-            line = self.p.stdout.readline()
-            if not line or line.strip() == "@@done":
-                break
-            buf.append(line.strip())
-        return " ".join(buf)
+        self._write("(get-info :reason-unknown)\n(echo \"@@done\")\n", "get-info :reason-unknown")
+        return " ".join(x.strip() for x in self._read_until_done("get-info :reason-unknown"))
 
     def close(self):
         if self.p is not None:

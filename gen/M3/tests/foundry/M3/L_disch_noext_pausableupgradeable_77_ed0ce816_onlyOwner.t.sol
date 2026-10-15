@@ -35,11 +35,13 @@ contract HolonWitness_M3_L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner
             (ok, ret) = holonStep(t, 0, address(uint160(728815563385977040452943777879061427756277306518)), 0, 1700000010, bh, hex"bedb86fb0000000000000000000000000000000000000000000000000000000000000001");
             all = all && ok;
         }
+        all = all && vm.load(t, bytes32(uint256(101))) == bytes32(uint256(1));
         { // step 1: setPause
             bytes32[] memory bh = new bytes32[](0);
             (ok, ret) = holonStep(t, 1, address(uint160(728815563385977040452943777879061427756277306518)), 0, 1700000010, bh, hex"bedb86fb0000000000000000000000000000000000000000000000000000000000000000");
             all = all && ok;
         }
+        all = all && vm.load(t, bytes32(uint256(101))) == bytes32(uint256(0));
         assertTrue(all, "the witness's outcomes");
     }
 }

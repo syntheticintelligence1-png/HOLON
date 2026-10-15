@@ -240,11 +240,31 @@ def bmc_check(root: Path, side: dict, env: dict, only_ids: list | None = None, j
                 diff.append(f"bmc/{name} ({qid}): result differs")
                 continue
             for qf in r.get("queries") or []:
-                if not (root / qf).is_file() or (root / qf).read_bytes() != (tmp / qf).read_bytes():
+                if not same_query(root / qf, tmp / qf):
                     diff.append(f"{qf}: query file differs")
+        if not only_ids:
+            named = {f"{qfile(q['id'])}.json" for q in questions(root, side, env)}
+            for f in sorted((root / GENR / "bmc").glob("*")):
+                if f.name not in named:
+                    diff.append(f"bmc/{f.name}: no question has this result")
+            want = {str(Path(qf)) for qid in got for qf in (cached(root, qid) or {}).get("queries") or []}
+            for f in sorted((root / GENR / "smt" / "bmc").rglob("*")):
+                if f.is_file() and str(f.relative_to(root)) not in want:
+                    diff.append(f"{f.relative_to(root)}: no committed result names this query file")
         return diff
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def same_query(a: Path, b: Path) -> bool:
+    """Two query files hold the same query: equal bytes, or for .gz equal decompressed text (gzip's bytes depend on
+    the zlib build, the query does not)."""
+    if not a.is_file() or not b.is_file():
+        return False
+    if a.suffix == ".gz":
+        import gzip
+        return gzip.decompress(a.read_bytes()) == gzip.decompress(b.read_bytes())
+    return a.read_bytes() == b.read_bytes()
 
 
 def cached(root: Path, qid: str) -> dict | None:
@@ -377,7 +397,7 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
     rep = load(rep_p) if rep_p.is_file() else {"records": {}}
     H, rl = int(side["bmc"]["H"]), int(side["solver"]["rlimit_per_query"])
     cc_version = {pl["record"]: pl["version"] for pl in cc_plans(root, env)}
-    out, filt = {}, {}
+    out, filt, stale = {}, {}, []
     for key, rec in sorted(recs.items()):
         if rec.get("status") != "REFUTED":
             continue
@@ -438,17 +458,21 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             # which this build does not read as a side, so F3 cannot hold (docs/iterations/I40.md, Questions)
             conc["reason"] = ("the witness is a schedule of public calls, but it has no side in the sides format (no I4 "
                               "side, no emitted test; its own replay report is not read as one): F3 cannot hold")
+        ck = clock(path, rec)
+        if ck and ck["label"]:
+            conc["reason"] = f"{conc['reason']}; {ck['label']}: block.timestamp up to {ck['max_timestamp']}"
         fb = FL.final_bin(final_sides, conc)
-        out[key] = dict(conc, path=path, clock=clock(path))
+        out[key] = dict(conc, path=path, clock=ck)
         before = (side["records"].get(key) or {}).get("filter_bin") if key in side["records"] else None
         filt[key] = {"before": before, "after": fb, "kind": kind, "result": conc["result"]}
-        if write:
-            new = dict(rec, filter_bin=fb, concretization=conc)
-            if new != rec:
+        new = dict(rec, filter_bin=fb, concretization=conc)
+        if new != rec:
+            stale.append(key)
+            if write:
                 d, _, lid = key.rpartition("/")
                 write_record(root / "results" / d / f"{lid}.json", new)
     return {"concretization": {"document": "concretization", "H": H, "records": out},
-            "filter": {"document": "filter", "rule": FL.FINAL_RULE, "records": filt}}
+            "filter": {"document": "filter", "rule": FL.FINAL_RULE, "records": filt}, "stale": stale}
 
 
 def with_calls(root: Path, kind: str, ident: str, path):
@@ -468,21 +492,46 @@ def with_calls(root: Path, kind: str, ident: str, path):
     return out
 
 
+_SELECTORS: dict = {}
+
+
+def selectors(root: Path, side: dict) -> dict:
+    """selector (0x + 8 hex) -> (function name, its ABI), over the extracted document's member ABIs."""
+    from .machine import load_extracted
+    k = (str(root), side["documents"][0])
+    if k not in _SELECTORS:
+        members = load_extracted(side["documents"][0], root).info.get("members") or {}
+        by_sel = {}
+        for fn, abis in sorted(members.items()):
+            for abi in abis or []:
+                if abi.get("selector"):
+                    by_sel.setdefault(abi["selector"].lower(), (fn, abi))
+        _SELECTORS[k] = by_sel
+    return _SELECTORS[k]
+
+
+def call_failed(root: Path, side: dict, calls: list, fn: str) -> bool:
+    """Whether a step's real external calls include a call to fn (named by its selector) that failed."""
+    by_sel = selectors(root, side)
+    for c in calls or []:
+        data = c["data"][2:] if c["data"].startswith("0x") else c["data"]
+        hit = by_sel.get("0x" + data[:8].lower())
+        if hit is not None and hit[0] == fn and not c["ok"]:
+            return True
+    return False
+
+
 def answer_mismatch(root: Path, side: dict, env: dict, path: list[dict], real_calls: list) -> str | None:
     """env_mismatch (the contract's E-BMC): None when every external call the real contract made along a BMC path
     answers as the answer table (spec/M3/refute_env.json "answers") says, else the first call that does not, named.
     The table is evaluated concretely: a call is named by its selector in the extracted document's member ABIs and
     its arguments decoded from its calldata; a call with no answer in the table is BMC's free choice (a fresh answer)
-    and agrees with any real answer; a ghost written by a call (its "ghost" entries) is read by later calls."""
+    and agrees with any real answer; a ghost written by a call (its "ghost" entries) is read by the later steps' calls
+    (BMC applies a step's ghost writes at the step's end). Only a return's first word is compared (the table answers
+    one word), and the table's code-length answers are not compared (the harness records calls, not extcodesize)."""
     from .extracted_eval import abi_decode
-    from .machine import load_extracted
     answers = env.get("answers") or {}
-    members = load_extracted(side["documents"][0], root).info.get("members") or {}
-    by_sel = {}
-    for fn, abis in sorted(members.items()):
-        for abi in abis or []:
-            if abi.get("selector"):
-                by_sel.setdefault(abi["selector"].lower(), (fn, abi))
+    by_sel = selectors(root, side)
     ghost: dict = {}
 
     def word(x) -> int:
@@ -522,6 +571,7 @@ def answer_mismatch(root: Path, side: dict, env: dict, path: list[dict], real_ca
 
     for i, (st, calls) in enumerate(zip(path, real_calls)):
         stenv = {"block.timestamp": int(str(st["env"]["block.timestamp"]), 0)}
+        writes = []
         for c in calls or []:
             data = bytes.fromhex(c["data"][2:]) if c["data"].startswith("0x") else bytes.fromhex(c["data"])
             to = int(c["to"], 16)
@@ -554,7 +604,9 @@ def answer_mismatch(root: Path, side: dict, env: dict, path: list[dict], real_ca
                     return f"step {i} {st['action']}: {fn} returned {got}, the answer table says {want}"
             if want_ok:
                 for g in spec.get("ghost") or []:
-                    ghost[(g["name"], ev(g["key"], ctx))] = ev(g["value"], ctx)
+                    writes.append(((g["name"], ev(g["key"], ctx)), ev(g["value"], ctx)))
+        for k, v in writes:
+            ghost[k] = v
     return None
 
 
@@ -584,12 +636,26 @@ def confirmed(root: Path, kind: str, ident: str, r: dict) -> dict:
 CLOCK_REALISTIC = 1 << 64     # R7: a path whose block.timestamp exceeds this is labelled (the sidecar has no bound)
 
 
-def clock(path) -> dict | None:
-    """The largest block.timestamp a path needs, and a label when no realistic chain reaches it (the sidecar's
-    environment has no clock bound; the label changes no verdict and no bin)."""
-    if not path:
+def clock(path, rec: dict | None = None) -> dict | None:
+    """The largest block.timestamp a path needs, or a record's witness sets (any "block.timestamp" in it), and a label
+    when no realistic chain reaches it (the sidecar's environment has no clock bound; the label changes no verdict
+    and no bin)."""
+    ts = [int(str(st["env"]["block.timestamp"]), 0) for st in path or []]
+
+    def walk(x):
+        if isinstance(x, dict):
+            for k, v in sorted(x.items()):
+                if k == "block.timestamp" and isinstance(v, (int, str)) and not isinstance(v, bool):
+                    ts.append(int(str(v), 0))
+                else:
+                    walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk((rec or {}).get("witness"))
+    if not ts:
         return None
-    t = max(int(str(st["env"]["block.timestamp"]), 0) for st in path)
+    t = max(ts)
     return {"max_timestamp": t, "label": "unrealistic clock (> 2^64)" if t > CLOCK_REALISTIC else None}
 
 
@@ -768,6 +834,12 @@ def main(a, root: Path) -> int:
         files["layouts.json"] = {"document": "layouts", "source": "spec/M2/facts/morph_header.extracted.json",
                                  "functions": res}
     ids = [x for x in (getattr(a, "questions", None) or "").split("|") if x] or None
+    if ids:
+        known = {q["id"] for q in questions(root, side, env)}
+        bad = [x for x in ids if x not in known]
+        if bad:
+            print(f"holon refute: no such question: {' | '.join(bad)}")
+            return 2
     jobs = int(getattr(a, "jobs", None) or 1)
     diff = []
     if "bmc" in stages and not a.check:
@@ -821,6 +893,8 @@ def main(a, root: Path) -> int:
         docs = concretize(root, side, env, write=not a.check)
         files["concretization.json"] = docs["concretization"]
         files["filter.json"] = docs["filter"]
+        if a.check:
+            diff += [f"{k}: the record's concretization or filter_bin is not the recomputed one" for k in docs["stale"]]
     for rp, text in sorted(texts.items()):
         p = root / rp
         if a.check:
@@ -895,15 +969,32 @@ class RealRollup:
             self.work = None
 
 
+def call_check(m: BMC.Machine, q: dict) -> str | None:
+    """The external function a check target bubbles (a "call" check: the revert of a failed call), else None."""
+    t = q["target"]
+    if t["kind"] != "check":
+        return None
+    c = next(x for x in m.progs[t["action"]].checks() if x.id == t["check"])
+    return ((c.entry or {}).get("fn") or c.reason) if c.kind == "call" else None
+
+
+def outcomes_agree(got: list, exp: list) -> bool:
+    """The real outcomes are the model's: equal, where "rev *" (a bubbled call's revert) is any revert."""
+    return len(got) == len(exp) and all(g == e or (e == "rev *" and g.startswith("rev ")) for g, e in zip(got, exp))
+
+
 def expected_outcomes(m: BMC.Machine, q: dict, path: list[dict]) -> list[str]:
     """What the BMC model claims of a path: every step ok but the last; a check target's last step reverts with that
-    check's revert key (its reason, or its Panic code)."""
+    check's revert key (its reason, or its Panic code); a call check's revert data is the callee's own ("rev *", any
+    revert; the replay also requires that the step's recorded call to that function failed)."""
     t = q["target"]
     if t["kind"] != "check":
         return ["ok"] * len(path)
     prog = m.progs[t["action"]]
     c = next(x for x in prog.checks() if x.id == t["check"])
-    if c.kind == "panic" and c.code is not None:
+    if c.kind == "call":
+        key = "*"
+    elif c.kind == "panic" and c.code is not None:
         key = f"panic:0x{int(c.code):02x}"
     else:
         key = c.reason if isinstance(c.reason, str) else str(c.reason)
@@ -1008,7 +1099,78 @@ def direct_items(root: Path) -> list[dict]:
                 stem = lid if part is None else f"{lid}__{part}"
                 out.append({"record": key, "rule": rule, "part": part, "trace": trace, "expected": exp,
                             "stem": stem, "name": sanitize(f"M3_{stem}"),
-                            "test": str(TESTS / "foundry" / "M3" / f"{stem}.t.sol"), "replay": e})
+                            "test": str(TESTS / "foundry" / "M3" / f"{stem}.t.sol"), "replay": e, "slots_at": None})
+    dw = disch_words(root, [it["record"] for it in out if it["rule"] == "disch"])
+    for it in out:
+        if it["rule"] == "disch":
+            it["slots_at"] = dw.get(it["record"])
+    return out
+
+
+_DISCH_WORDS: dict = {}
+
+
+def disch_words(root: Path, keys: list[str]) -> dict:
+    """For direct DISCH records: the storage words the law's B and c read, on the model's states before and after the
+    witness's last step: {record: {-1 or step index: [(slot, word)]}}. The slots are the ones holon.disch.run's
+    replay_one dumps from the real contract to evaluate B and c (the same reading, done here on the model's states
+    only, never on the real run's); the emitted test asserts the real contract's words equal the model's there, so the
+    obstruction (B held before the last step, then c discharged, as the counter-law evaluates on these words) is in
+    what the test asserts."""
+    keys = sorted(keys)
+    ck = (str(root), tuple(keys))
+    if ck in _DISCH_WORDS:
+        return _DISCH_WORDS[ck]
+    out = {}
+    if keys:
+        from . import extracted_eval as EV
+        from .disch import run as DR
+        from .sorts import run3 as R3
+        recs = records(root)
+        r = DR.Run("M3", root, None, None, None, None, log=lambda *a, **k: None)
+        try:
+            for key in keys:
+                lid = key.rpartition("/")[2]
+                d = r.doc_of(r.ctx.derivation[lid])
+                law = r.law_of(d, lid)
+                w = recs[key]["witness"]
+                steps = [R3.step_of_json(x) for x in w["steps"]]
+                t = int(w["t"])
+                b = next(x for x in d.an["basis"] if x["tag"] == law["tag"])
+                scope = b["check"].split("#")[0]
+                mm = d.model_f()
+                g = mm.s0()
+                states = [mm.state(g)]
+                for st in steps:
+                    _c, g, _calls = mm.run_step(g, st, save=True)
+                    states.append(mm.state(g))
+                now = int(steps[-1].env.get("block.timestamp") or 0)
+
+                def reads(state, term, ts):
+                    class Rec(dict):
+                        def get(self, k, default=None):
+                            self.seen.add(k)
+                            return super().get(k, default)
+                    rr = Rec(state)
+                    rr.seen = set()
+                    try:
+                        e = EV.Eval(d.doc, {}, scope, {}, {"block.timestamp": ts})
+                        e.state = rr
+                        e.truth(term)
+                    except Exception:  # noqa: BLE001  (a term the evaluator cannot read names no slot)
+                        pass
+                    return rr.seen
+                slots = sorted(reads(states[-2], b["blocked"], t) | reads(states[-1], b["blocked"], now)
+                               | reads(states[-1], b["check_expr"], now))
+
+                def word(x) -> int:
+                    return int(str(x), 0) if x is not None else 0
+                n = len(steps)
+                out[key] = {n - 2: [(int(sl), word(states[-2].get(sl))) for sl in slots],
+                            n - 1: [(int(sl), word(states[-1].get(sl))) for sl in slots]}
+        finally:
+            r.close()
+    _DISCH_WORDS[ck] = out
     return out
 
 
@@ -1027,9 +1189,12 @@ def direct_side(items: list[dict], tests_out: dict) -> dict:
                  "replay's panic_site (replay/M3/sorts/report.json)" if obs else
                  "the obstruction is not in what the tests assert (a ghost tag, or the rule replay did not observe it)")
     elif rule == "disch":
-        obs = passed and rule_ok and e.get("blocked_before") is True and e.get("discharged_after") is True
-        basis = ("the emitted test reproduces every step's outcome; B and c were evaluated on the real storage of the "
-                 "same deployment and calls by the rule's replay (replay/M3/disch/report.json)")
+        obs = (passed and rule_ok and e.get("blocked_before") is True and e.get("discharged_after") is True
+               and all(any((it.get("slots_at") or {}).values()) for it in items))
+        basis = ("the emitted test asserts every step's outcome and, before and after the last step, the real "
+                 "contract's words at every slot B and c read equal the model's, on which B held before and c after "
+                 "(the counter-law's evaluation); the rule's replay evaluated B and c on the real words of the same "
+                 "deployment and calls (replay/M3/disch/report.json)")
     else:
         w = [it for it in items if it["part"] == "with"][0]["expected"]
         wo = [it for it in items if it["part"] == "without"][0]["expected"]
@@ -1078,6 +1243,7 @@ def emit_tests(root: Path, side: dict, env: dict) -> dict:
                          "steps": len(it["path"])})
     for it in direct_items(root):
         files[Path(it["test"])] = FG.test_text(it["name"], it["trace"], it["expected"], deploy,
+                                               slots_at=it["slots_at"],
                                                note=f"rule K4 for {it['record']}"
                                                     f"{'' if it['part'] is None else ' (' + it['part'] + ')'}: the "
                                                     f"schedule its rule replayed, the model's outcomes")
@@ -1226,7 +1392,7 @@ def replay_stage(root: Path, side: dict, env: dict) -> dict:
     rr = RealRollup(root, side)
     try:
         res = rr.run([r["path"] for _qid, _q, r in items] + [it["path"] for it in ccs]) if (items or ccs) else []
-        rep["toolchain"] = {"forge": rr.tc.get("forge"), "solc": rr.tc.get("solc")}
+        rep["toolchain"] = {k: Path(str(rr.tc[k])).name if rr.tc.get(k) else None for k in ("forge", "solc")}
         # the emitted tests, run in the same project (their outcome is the test's own assertion)
         from .refute3 import run_tests
         emitted = {}
@@ -1247,12 +1413,14 @@ def replay_stage(root: Path, side: dict, env: dict) -> dict:
         mism = answer_mismatch(root, side, env, it["path"], x["calls"])
         agree = x["outcomes"] == ["ok"] * len(it["path"])
         passed = bool(t.get("passed")) and agree and mism is None
+        # an env_mismatch discards the commit path (the contract's E-BMC): no side, never a failed one
+        sstat = "not_run" if mism is not None else "passed" if passed else "failed"
         rep["commit_class"][f"v{it['version']}"] = {"status": "passed" if agree else "failed",
                                                     "outcomes": x["outcomes"], "expected": ["ok"] * len(it["path"]),
                                                     "calls": x["calls"], "calls_agree": mism is None,
                                                     "env_mismatch": mism}
         rep["records"].setdefault(it["record"], {"sides": {}})["sides"]["solidity"] = {
-            "status": "passed" if passed else "failed", "provenance": "public_schedule",
+            "status": sstat, "provenance": "public_schedule",
             "obstruction_observed": passed and bool(it["stored"]), "test": it["test"], "outcomes": x["outcomes"],
             "calls_agree": mism is None, "emitted_test_passed": bool(t.get("passed")),
             "observed": (f"a commit at version {it['version']} from R0: {' / '.join(x['outcomes'])}; the model's header "
@@ -1261,7 +1429,10 @@ def replay_stage(root: Path, side: dict, env: dict) -> dict:
                          f"{'stored' if t.get('passed') else 'not stored (or the test failed)'} on the real contract")}
     for (qid, q, r), x in zip(items, res[:len(items)]):
         exp = expected_outcomes(m, q, r["path"])
-        agree = x["outcomes"] == exp
+        agree = outcomes_agree(x["outcomes"], exp)
+        fn = call_check(m, q)
+        if agree and fn is not None:
+            agree = call_failed(root, side, (x["calls"] or [[]])[-1], fn)
         mism = answer_mismatch(root, side, env, r["path"], x["calls"])
         t = tests_out.get(test_name(qid)) or {}
         entry = {"status": "passed" if agree else "failed", "outcomes": x["outcomes"], "expected": exp,

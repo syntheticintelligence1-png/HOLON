@@ -59,9 +59,10 @@
     "random_seed": 0,
     "rlimit_per_query": 200000000,
     "memory_max_size_mb": 4096,
+    "glibc": "glibc 2.39",
     "watchdog_s": 14400,
     "e1_rounds_max": 64,
     "hash_rounds_max": 32,
-    "limits_doc": "I40 round 2 (lead ruling, docs/HUMAN_ANSWERS.md): the only search budget is the sidecar's rlimit per query, counted cumulatively over every check-sat of the query's session (holon.smt.run.Session). Registered beside it: memory_max_size_mb, z3's own allocation limit (deterministic for this pinned single-threaded binary; an overrun ends the query unknown, named in its reason); e1_rounds_max and hash_rounds_max, BMC's deterministic round caps for lazy E1 and hash concretization (a cap reached ends the query unknown, named in its reason); watchdog_s, a crash guard only: when it fires the run aborts, nothing is recorded and the question stays not run. No answer depends on wall-clock time, load or an environment variable."
+    "limits_doc": "I40 round 2 (lead ruling, docs/HUMAN_ANSWERS.md): the only search budget is the sidecar's rlimit per query, counted cumulatively over every check-sat of the query's session from the first check-sat on (holon.smt.run.Session). Registered beside it: memory_max_size_mb, z3's own accounting of the bytes it has allocated, which z3 reads from glibc's malloc (malloc_usable_size), so it is deterministic for this pinned single-threaded binary on the registered glibc, with z3 run in a fixed environment (no malloc tunables or preloads) and with no address-space or data rlimit and no strict overcommit (holon.smt.run.environment_check refuses to run otherwise); an overrun ends the query unknown, named in its reason. e1_rounds_max and hash_rounds_max, BMC's deterministic round caps for lazy E1 and hash concretization (a cap reached ends the query unknown, named in its reason); watchdog_s, a crash guard only: when it fires the run aborts, nothing is recorded and the question stays not run. A solver that ends without an answer is a crash too. No answer depends on wall-clock time, load or an environment variable."
   }
 }
