@@ -194,6 +194,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["disch"]:  # likewise for holon.analysis.closure (I31: DISCH I, the enableable write closure)
         from .analysis import closure
         return closure.main(argv[1:])
+    if argv[:1] == ["fact"]:  # likewise for holon.rules.fact (I26: commitments, consumers, pins, F(m, c))
+        from .rules import fact
+        return fact.main(argv[1:])
     if argv[:1] == ["undo"]:  # likewise for holon.rules.undo (I27: undo pairs, residues, static deadness)
         from .rules import undo
         return undo.main(argv[1:])
