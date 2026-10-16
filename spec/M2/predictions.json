@@ -2809,6 +2809,157 @@
           "C4"
         ]
       }
+    },
+    "I62": {
+      "title": "A1 mutation adequacy on real code, the rerun of I61's catalog with I61's defects fixed",
+      "plan": "docs/BUILD_PLAN.md#i22 (kill criterion, threshold and exit, as I61); I61's rule for a defect in its tools (tests_m2/test_mutation_adequacy_i61.py, Rules): a rerun of every mutant from scratch, the first run reported",
+      "prompt": "prompts/I62_mutation_rerun.md",
+      "predictions": [
+        {
+          "id": "I62-P1",
+          "claim": "Baseline. The null mutant, re-extracted from scratch and projected, decides M0 exactly as results/M0 does (L_par_hdr_v0, L_par_hdr_v1, L_rt_go_v0, L_rt_go_v1, L_rt_go_v2 PROVED; L_par_hdr_v2, L_par_hdr_ssvh, L_dom_hdr REFUTED), M1x as results/M2/differential.json 'extracted' (7 PROVED, 7 REFUTED, L_tag_BVH UNKNOWN) and M2 as results/M2 (6 PROVED, 4 UNKNOWN, 2 REFUTED); its documents, projection, law statuses, own inputs and flags are I61's baseline's, and its i20_step corpus file is byte-identical to I61's (the deployment probe of D2 changes nothing on the original code).",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestPredictions::test_the_baseline_reproduces_every_committed_status"
+        },
+        {
+          "id": "I62-P2",
+          "claim": "Totals and M2 exit (b). Stratum A: 96 of 192 killed (79 with a K1 law), 12 equivalent, 0 in error, rate_non_equivalent 96/180 = 0.533 < 0.80 (exit (b) not met), its non-error rates equal to the plain ones (I61: 7 errors). Stratum B: 0 of 50 killed, 5 equivalent, 0 in error.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestPredictions::test_stratum_totals_and_exit_b"
+        },
+        {
+          "id": "I62-P3",
+          "claim": "Nothing but the fixes moves: every catalog record equals I61's in outcome, class, kill (laws and how), obstruction lists, flags and per-law baseline, mutant status, how, witness and prediction, except the fixes' effects: D1 on A001 and A058, D2 on A076, A098, A100, A101 and A104, D3 and D4 on A027, A031, A116 and A120.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestPredictions::test_every_record_is_the_first_runs_but_for_the_fixes"
+        },
+        {
+          "id": "I62-P4",
+          "claim": "D1. A001's L_rt_go_v0, L_rt_go_v1, L_rt_go_v2 and A058's L_rt_go_v1 satisfy K1 (each witness I61's recorded one, every hit replaying on the mutant and none on the original), so A001 is killed by five laws and A058 by two; no record has a replay disagreement; the extraction defects are I61's 19 less A001 (18).",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestPredictions::test_none_values_are_decided_by_their_replay"
+        },
+        {
+          "id": "I62-P5",
+          "claim": "D2. A076, A098, A100, A101 and A104 complete their i20_step run with every trace's deployment reverted (steps 0, no new disagreement, all 3013 baseline corpus steps differing), are corpus_detected with no extraction defect, and survive, filed rule_gap (law_unmoved); A076 keeps its masked obstruction on L_dom_hdr. corpus_detected is I61's 82 mutants plus these five (87).",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestPredictions::test_undeployable_mutants_complete_their_channel"
+        },
+        {
+          "id": "I62-P6",
+          "claim": "D3 and D4. The two SORT-width laws of A027, A031, A116 and A120 are decided UNKNOWN by a run with no error; A116 and A120 survive, filed rule_gap (law_unmoved); A027 and A031 stay killed; no record holds an error.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestPredictions::test_the_header_width_laws_are_decided"
+        },
+        {
+          "id": "I62-P7",
+          "claim": "The harness gate passes at its first attempt: on the original code the harness reproduces I16's outputs of all six edges, agrees with the baseline model wherever the model is defined, falsifies no PROVED M0 law and replays every REFUTED M0 law's witness; C1 and C2 are killed by K1 through L_par_hdr_v0, C3 by K1 through L_par_hdr_v1, L_rt_go_v1 and L_rt_go_v2 (I61: L_par_hdr_v1 only, the other two replay disagreements), C4 by K2 with partiality witnesses through L_rt_go_v1 and L_rt_go_v2; no control has a replay disagreement or a replay error.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestPredictions::test_the_gate_passes_at_its_first_attempt"
+        },
+        {
+          "id": "I62-P8",
+          "claim": "Rates. Per operator, family, language and site, stratum A's counts are I61's with every error count 0, and the PAR-round-trip family kills 56 mutants (I61: 54; A001 and A058 join it); the structural agreement is I61's with the 7 former errors filed rule_gap/law_unmoved; the unpredicted, recomputed-only, masked and proof-lost lists and the K1-only, plan-literal, new-law, model-tie, detection, dedup, B-codec and contradiction rates are I61's.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestPredictions::test_the_rates_are_the_first_runs_but_for_the_fixes"
+        },
+        {
+          "id": "I62-P9",
+          "claim": "D6. No record, control record or gate detail holds a duration, an absolute path of the run's machine or a Python traceback frame.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestPredictions::test_no_message_holds_a_timing_a_path_or_a_frame"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I62-R1",
+          "claim": "Gates M0, M1 and M2 pass at the iteration's last commit. I62 changes no law, statement, facts document, extracted document or record status outside its outcome paths: the M1 and M2 records differ from the parent's only in generator_sha256 (holon/records.py is in the generator closure, D3) and timings; the gate's regenerated results/M2/metrics.json changes only its mutation_adequacy entry (I62's summary); I62 never writes to the pinned checkout, sol_deps or spec/M2/disagreements.json, and leaves the extractors, the M0 pipeline, holon differential, holon derive, holon fragments and the I16, I20 and I15 harnesses unchanged (D2 runs copies).",
+          "check": "gate and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_the_pinned_checkout_and_sol_deps_are_untouched"
+        },
+        {
+          "id": "I62-R2",
+          "claim": "Construction: the frozen instrument is I61's but for the fields the defects touch (the 242 mutants, the controls, the scope, the predicted sets, the structural classes and the diff sheet byte for byte); every I61 construction check holds for it (threshold and its consequence, seed, counts, controls outside the catalog, in-scope bytes, operator rewrites, the sheet's rendering, pins, tce); holon.mutate.operators enumerates exactly the 242 mutants; apply checks the original text; holon/mutate names nothing of the target; mutate sheet --check reproduces the sheet; run --dry-run refuses every missing or failing precondition and accepts a complete set.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_the_instrument_is_the_frozen_one and tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_the_catalog_and_sheet_are_i61s and tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_threshold_seed_strata_and_counts and tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_the_threshold_consequence_is_the_arithmetic and tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_the_planted_controls_are_outside_the_catalog and tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_in_scope_files_are_the_pinned_bytes_the_extractions_read and tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_each_mutant_is_its_operators_rewrite and tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_the_diff_sheet_is_the_rendering_of_the_catalog and tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_the_pins_hold_at_the_pinned_commit and tests_m2/test_mutation_adequacy_i62.py::TestInstrument::test_the_tce_mutants_leave_rollup_bytecode_unchanged and tests_m2/test_mutation_adequacy_i62.py::TestOperators::test_operators_enumerate_exactly_the_catalog and tests_m2/test_mutation_adequacy_i62.py::TestOperators::test_apply_checks_the_original_text and tests_m2/test_mutation_adequacy_i62.py::TestOperators::test_the_sheet_cli_reproduces_the_frozen_sheet and tests_m2/test_mutation_adequacy_i62.py::TestOperators::test_mutate_code_holds_no_target_vocabulary and tests_m2/test_mutation_adequacy_i62.py::TestOperators::test_run_refuses_without_the_preconditions"
+        },
+        {
+          "id": "I62-R3",
+          "claim": "Construction: the scope, sites, actions, edges, predicted sets, structural classes, duplicate candidates and premise-limited mutants recompute from the pinned checkout as in I61.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestScope::test_the_solidity_scope_is_the_walkers_reached_set and tests_m2/test_mutation_adequacy_i62.py::TestScope::test_actions_are_the_per_action_closures and tests_m2/test_mutation_adequacy_i62.py::TestScope::test_the_go_strata_follow_the_diagram_and_the_codecs and tests_m2/test_mutation_adequacy_i62.py::TestScope::test_the_sites_are_recomputed_from_the_pinned_checkout and tests_m2/test_mutation_adequacy_i62.py::TestScope::test_edges_and_predicted_sets_follow_the_rules and tests_m2/test_mutation_adequacy_i62.py::TestScope::test_structural_classes_follow_the_rule and tests_m2/test_mutation_adequacy_i62.py::TestScope::test_duplicate_candidates_follow_the_widened_rule and tests_m2/test_mutation_adequacy_i62.py::TestScope::test_premise_limited_mutants_are_reachable_and_read_only_by_masked_laws"
+        },
+        {
+          "id": "I62-R4",
+          "claim": "Construction: the projection of the committed documents equals the frozen header facts where I17 and I18 compared them, and gen/M2/mutation_i62/header.projected.json is reproduced.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestProjection::test_the_projection_of_the_pinned_code_equals_the_frozen_facts and tests_m2/test_mutation_adequacy_i62.py::TestProjection::test_the_committed_projection_is_reproduced"
+        },
+        {
+          "id": "I62-R5",
+          "claim": "Construction: the replay harness reproduces I16's real outputs on the original code, binds enc_sol's stores at the Header widths, executes planted changes and follows the declared meanings for claims and trace witnesses; a model that does not check alone is told apart.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestReplayHarness::test_the_harness_reproduces_i16s_real_outputs_on_the_original_code and tests_m2/test_mutation_adequacy_i62.py::TestReplayHarness::test_enc_sol_binds_store_values_at_the_header_widths and tests_m2/test_mutation_adequacy_i62.py::TestReplayHarness::test_planted_changes_are_executed and tests_m2/test_mutation_adequacy_i62.py::TestReplayHarness::test_values_follow_the_declared_meanings and tests_m2/test_mutation_adequacy_i62.py::TestReplayHarness::test_trace_witnesses_follow_the_declared_meanings and tests_m2/test_mutation_adequacy_i62.py::TestProofChecks::test_a_model_that_does_not_check_alone_is_told_apart"
+        },
+        {
+          "id": "I62-R6",
+          "claim": "Order (delegated steps): the delta review docs/iterations/I62_catalog_review.json signed off this instrument against I61's review; spec/M2/equivalent_mutants_i62.json carries I61's verdicts verdict for verdict, committed alone after the review; the run started after the adjudication and after I21's exit.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestReviewAndAdjudication::test_the_catalog_review_signed_off_this_instrument and tests_m2/test_mutation_adequacy_i62.py::TestReviewAndAdjudication::test_every_mutant_keeps_its_panel_verdict and tests_m2/test_mutation_adequacy_i62.py::TestReviewAndAdjudication::test_the_review_and_the_adjudication_came_in_order and tests_m2/test_mutation_adequacy_i62.py::TestReviewAndAdjudication::test_the_run_started_after_i21s_exit"
+        },
+        {
+          "id": "I62-R7",
+          "claim": "Construction: the summary names its inputs (the gate included); the baseline reproduces the pinned statuses, every committed document and the projection; every record covers the baseline law set, compares its documents and own inputs with the baseline's, follows the predicted-set, localization, proof-loss, kill, error-scope, channel and survivor-class rules; the rates and the summary's lists are recomputed from the records.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestResults::test_summary_names_its_inputs and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_the_baseline_reproduces_the_pinned_statuses_and_documents and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_every_record_covers_the_baseline_law_set and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_own_inputs_and_documents_are_compared_with_the_baseline and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_predicted_sets_follow_the_rule and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_new_laws_are_localized_to_the_mutated_function and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_proof_losses_are_completed_rejections_of_the_baseline_generator and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_kill_decisions_follow_the_criterion and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_errors_are_scoped_to_laws and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_every_record_holds_exactly_its_channel_runs and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_survivors_are_classified_mechanically and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_the_rates_are_recomputed and tests_m2/test_mutation_adequacy_i62.py::TestResults::test_the_summary_lists_are_the_records"
+        },
+        {
+          "id": "I62-R8",
+          "claim": "Exit (BUILD_PLAN I22, M2 exit (b), Q6): rate_non_equivalent of stratum A >= 0.80, recomputed by test. I62-P2 and the instrument's threshold.consequence forecast that it fails; it stays as the exit check.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestResults::test_m2_exit_b_the_rate_meets_the_threshold"
+        },
+        {
+          "id": "I62-R9",
+          "claim": "Whitepaper §13 metric 'mutation adequacy' and §12.1 'Sensitivity': results/M2/metrics.json reports mutation_adequacy {source results/M2/mutation_i62/summary.json, threshold 0.8, rate_all, rate_non_equivalent, meets_threshold} of stratum A, superseding I61's source.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestResults::test_metrics_report_mutation_adequacy"
+        },
+        {
+          "id": "I62-R10",
+          "claim": "I61's run stays as written and is reported as the first run: its key unchanged, its records, summary, gate, report, review, adjudication and panel record unchanged since this prereg; its tests read I61's files through HOLON_MUTATE_KEY=I61 by two amendment lines (run_holon, the metrics test), nothing skipped; holon/mutate serves both keys, I62 by default.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestI61FirstRun::test_the_i61_key_and_its_outputs_stay and tests_m2/test_mutation_adequacy_i62.py::TestI61FirstRun::test_i61s_tests_read_i61s_files_by_amendment and tests_m2/test_mutation_adequacy_i62.py::TestI61FirstRun::test_the_package_serves_both_keys"
+        },
+        {
+          "id": "I62-R11",
+          "claim": "The harness gate: results/M2/mutation_i62/gate.json names this instrument, keeps every attempt at its own pipeline commit (each descending from this prereg), passed at the records' pipeline commit before any catalog record, its controls killed as preregistered with no replay disagreement and no replay error (D7), and it reproduces.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestHarnessGate::test_the_gate_passed_on_the_pinned_code and tests_m2/test_mutation_adequacy_i62.py::TestHarnessGate::test_the_controls_are_killed_as_preregistered and tests_m2/test_mutation_adequacy_i62.py::TestHarnessGate::test_the_gate_came_before_any_catalog_record and tests_m2/test_mutation_adequacy_i62.py::TestHarnessGate::test_the_gate_reproduces"
+        },
+        {
+          "id": "I62-R12",
+          "claim": "Construction of the fixes: the harness copies are the originals plus a deployment probe, and the channel and trace replay run them (D2); the header document's ledger bundle and the coverage rule (D3); the scrub (D6); the channel retry (D5); none kept as a value by the replay's evaluator (D1).",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestFixes::test_the_harness_copies_are_the_originals_plus_a_deployment_probe and tests_m2/test_mutation_adequacy_i62.py::TestFixes::test_the_channel_and_the_trace_replay_run_the_copies and tests_m2/test_mutation_adequacy_i62.py::TestFixes::test_the_header_document_has_its_ledger_bundle and tests_m2/test_mutation_adequacy_i62.py::TestFixes::test_a_layout_document_has_no_coverage_entry and tests_m2/test_mutation_adequacy_i62.py::TestFixes::test_messages_are_scrubbed_before_they_are_cut and tests_m2/test_mutation_adequacy_i62.py::TestFixes::test_channel_runs_are_retried_once and tests_m2/test_mutation_adequacy_i62.py::TestFixes::test_the_replay_keeps_none_as_a_value"
+        },
+        {
+          "id": "I62-R13",
+          "claim": "Determinism (AGENTS.md rule 7, D6): the baseline and a sample of mutants, two of I61's error mutants among them, rerun at the records' pipeline commit reproduce their records byte for byte.",
+          "check": "tests_m2/test_mutation_adequacy_i62.py::TestDeterminism::test_a_sample_reruns_identically_at_the_pipeline_commit"
+        }
+      ],
+      "outcome_paths": [
+        "results/M2/mutation_i62/",
+        "gen/M2/mutation_i62/",
+        "replay/M2/mutation_i62/",
+        "spec/M2/equivalent_mutants_i62.json",
+        "docs/iterations/I62_catalog_review.json",
+        "docs/iterations/I62.md"
+      ],
+      "tests": [
+        "tests_m2/test_mutation_adequacy_i62.py"
+      ],
+      "thresholds": {
+        "kill_rate_non_equivalent": 0.8,
+        "stratum": "A",
+        "meets": "5 * killed_non_equivalent_A >= 4 * non_equivalent_A",
+        "seed": 20261061,
+        "mutants": {
+          "A": 192,
+          "B": 50
+        },
+        "replay_candidates": 16,
+        "instrument": "spec/M2/lib/mutation_catalog_i62.json",
+        "i20_step_min_steps": 2432,
+        "harness_gate": "results/M2/mutation_i62/gate.json, passed at its first attempt with no earlier run of its checks, first committed before any catalog mutant's record",
+        "controls": [
+          "C1",
+          "C2",
+          "C3",
+          "C4"
+        ],
+        "first_run": "results/M2/mutation_i61/ (pipeline commit a233867f989a97a4b0cbed2799863abe0a74a915)"
+      }
     }
   }
 }
