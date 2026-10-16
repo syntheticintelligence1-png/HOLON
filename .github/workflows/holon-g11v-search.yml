@@ -1,0 +1,76 @@
+# G11V for L_disch_rev_initializable_120_d9a34b48 (Q36): the full-budget inhabitant search, on a dedicated runner
+# (a job may run 6 hours). Started by pushing claude/g11v-search-<n>; the regenerated outputs are pushed, one commit
+# over HEAD, to claude/g11v-search-<n>-results. The toolchain is the cached one of holon-ci.yml.
+name: holon-g11v-search
+
+on:
+  push:
+    branches: ['claude/g11v-search-*', '!claude/g11v-search-*-results']
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  NODE_VERSION: '22.22.0'
+  GO_VERSION: '1.24.7'
+  BEND_NO_TELEMETRY: '1'
+
+jobs:
+  search:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: holon-toolchain-v1-${{ hashFiles('config/holon.json', 'tools/install_bend.sh', '.github/ci/install_toolchain.sh') }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: The full-budget search
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          set -o pipefail
+          ( time python -m holon run --milestone M3 --laws L_disch_rev_initializable_120_d9a34b48 ) 2>&1 \
+            | tee "$RUNNER_TEMP/out/search.log"
+      - name: Push the regenerated outputs to <branch>-results
+        if: always()
+        run: |
+          cp "$RUNNER_TEMP/out/search.log" ci_g11v_search.log || true
+          git config user.name "holon-g11v-search"
+          git config user.email "holon-g11v-search@users.noreply.github.com"
+          git add -A results gen ci_g11v_search.log
+          git commit -q -m "G11V search outputs (run ${{ github.run_id }})" || true
+          git push -f origin "HEAD:refs/heads/${GITHUB_REF_NAME}-results"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: g11v-search
+          if-no-files-found: ignore
+          retention-days: 14
+          path: ${{ runner.temp }}/out/
