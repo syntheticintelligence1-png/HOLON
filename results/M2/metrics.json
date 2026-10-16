@@ -43,9 +43,23 @@
   },
   "metrics_version": "holon-metrics/0.1",
   "milestone": "M2",
+  "mutation_adequacy": {
+    "meets_threshold": false,
+    "rate_all": {
+      "den": 192,
+      "num": 96,
+      "value": 0.5
+    },
+    "rate_non_equivalent": {
+      "den": 180,
+      "num": 96,
+      "value": 0.5333333333333333
+    },
+    "source": "results/M2/mutation_i61/summary.json",
+    "threshold": 0.8
+  },
   "not_applicable": {
     "certificate_coverage": "2 records carry a coverage entry (gen/<M>/coverage.json); the share of covered code elements is not computed yet",
-    "mutation_adequacy": "A1 mutation adequacy on real code is BUILD_PLAN I22 (blocked by Q6); the M0/M1 mutations edit the facts, not the code (BUILD_PLAN V14)",
     "precision": "needs adjudicated findings split into true defects, intended asymmetries and model defects (BUILD_PLAN I51, I53); the records' filter_bin is I40's final filter (holon-filter/1.0, F1-F4), not an adjudication",
     "prediction_accuracy": "no preregistered \u00a711.8 prediction file for this milestone",
     "recall_per_rule": "needs a corpus of historical defects, each labelled with its minimal rule and analysed at its pre-fix commit (\u00a713 corpus; BUILD_PLAN I48, I51); this milestone has none",
