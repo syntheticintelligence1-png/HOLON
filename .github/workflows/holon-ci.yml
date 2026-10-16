@@ -115,6 +115,12 @@ jobs:
             timeout: 120
             run: python -m holon gate --milestone M3 --checks G3,G5,G8,G9,G11,G11V,GEVID --report "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
             report: "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
+          - name: gate-M3-G2
+            # F38: each gate re-runs only its own milestone's binding_change proofs in the two kernels, so M3's are
+            # re-run here, once per CI run, in a job of their own (gate-M3-partial is red until G11V passes, Q36)
+            timeout: 90
+            run: python -m holon gate --milestone M3 --checks G2 --report "$RUNNER_TEMP/ci-out/gate_report_M3_G2.json"
+            report: "$RUNNER_TEMP/ci-out/gate_report_M3_G2.json"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:

@@ -127,9 +127,9 @@ class TestBindingTamper(unittest.TestCase):
 
 def signed_binding_change(repo: Path, lid: str, defs: list) -> int:
     """Append to the copy's laws/STATEMENT_DIFF.jsonl a binding_change entry for law lid (statement unchanged)
-    naming defs, signed with a key made for the test in a throwaway GNUPGHOME and exported to the copy's keys/
-    (holon.statement_diff.append checks it). Returns its line number. A signature is a human act: this key lives
-    only in the throwaway copy."""
+    naming defs, signed with a key made for the test in a throwaway GNUPGHOME, exported to the copy's keys/ and frozen
+    there (holon.statement_diff.append checks it against frozen keys only, F38). Returns its line number. A signature
+    is a human act: this key lives only in the throwaway copy."""
     import json
     import os
     import subprocess
@@ -151,7 +151,17 @@ def signed_binding_change(repo: Path, lid: str, defs: list) -> int:
             return r.stdout
         gpg("--quick-gen-key", "holon test <test@holon.invalid>", "ed25519", "sign", "never")
         (repo / "keys").mkdir(exist_ok=True)
-        (repo / "keys" / "test.asc").write_bytes(gpg("--armor", "--export", "test@holon.invalid"))
+        key = gpg("--armor", "--export", "test@holon.invalid")
+        (repo / "keys" / "test.asc").write_bytes(key)
+        # F38 (Q39): a signature counts only against a key the human froze. The human's stand-in freezes this one, in
+        # the throwaway copy only: keys/ under the copy's freeze, the key listed in its FROZEN.sha256
+        import hashlib
+        tool = repo / "tools" / "freeze.py"
+        src = tool.read_text()
+        assert "FROZEN_ROOTS = [\n" in src, "tools/freeze.py names its FROZEN_ROOTS list"
+        tool.write_text(src.replace("FROZEN_ROOTS = [\n", 'FROZEN_ROOTS = [\n    "keys",\n', 1))
+        with open(repo / "FROZEN.sha256", "a") as f:
+            f.write(f"{hashlib.sha256(key).hexdigest()}  keys/test.asc\n")
         (home / "payload").write_bytes(SD.signed_payload(entry))
         gpg("--armor", "--detach-sign", "--local-user", "test@holon.invalid", "-o", str(home / "sig.asc"),
             str(home / "payload"))
