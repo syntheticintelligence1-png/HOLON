@@ -1134,6 +1134,9 @@ def run_unit(ctx: Ctx, ud: dict, keep: bool = False) -> tuple[dict, Unit]:
         u.close()
     rec["errors"] = sorted(u.errors, key=lambda x: (x["step"], x["laws"], x["message"]))
     rec["laws"] = {k: rec["laws"][k] for k in sorted(rec["laws"])}
+    if u.is_base:      # the baseline is its own reference: its statuses fill every record's "baseline"
+        for e in rec["laws"].values():
+            e["baseline"] = e["mutant"]
     eq = None
     if u.kind == "mutant":
         v = (ctx.equivalent or {}).get(u.id)
