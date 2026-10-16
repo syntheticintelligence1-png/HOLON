@@ -136,15 +136,21 @@ def _frozen_listing(data: bytes | None) -> dict[str, str]:
 
 
 def _freeze_roots(data: bytes | None) -> list[str]:
-    """FROZEN_ROOTS of a tools/freeze.py text, read as a literal (never executed)."""
+    """FROZEN_ROOTS of a tools/freeze.py text, read as a literal (never executed; anything else reads as none), each
+    without a trailing slash."""
     import ast
     try:
         for node in ast.parse((data or b"").decode("utf-8", "replace")).body:
-            if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "FROZEN_ROOTS"
-                                                    for t in node.targets):
+            if isinstance(node, ast.Assign):
+                targets = node.targets
+            elif isinstance(node, ast.AnnAssign) and node.value is not None:
+                targets = [node.target]
+            else:
+                continue
+            if any(isinstance(t, ast.Name) and t.id == "FROZEN_ROOTS" for t in targets):
                 roots = ast.literal_eval(node.value)
-                return [r for r in roots if isinstance(r, str)]
-    except (SyntaxError, ValueError):
+                return [r.rstrip("/") for r in roots if isinstance(r, str)]
+    except (SyntaxError, ValueError, TypeError):
         pass
     return []
 
@@ -1040,6 +1046,8 @@ def _verify_committed(e, acc, commit: str, root: Path, recheck: bool = True) -> 
         return "its acceptance record names no checked implication"
     if e.get("kind") == "weakening" and not signed:
         return "its acceptance record names no verified signature"
+    if e.get("kind") == "weakening" and not e.get("review"):
+        return "a signed weakening also needs an auditor review (\"review\"), as check_entry requires"
     if e.get("kind") == "binding_change" and not signed:
         why = _verify_equivalence(e, acc.get("equivalence"), commit, root, kernels=recheck)   # F31
         if why:
