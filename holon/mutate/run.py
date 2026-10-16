@@ -1,5 +1,5 @@
-"""`python -m holon mutate run | gate | rate` (I61; the contract is the docstring of
-tests_m2/test_mutation_adequacy_i61.py, "The pipeline", "Kill criterion", "Outputs"; the rules are the instrument's).
+"""`python -m holon mutate run | gate | rate` (I61, I62: holon.mutate.common.KEY; the contract is the docstring of
+tests_m2/test_mutation_adequacy_<key>.py, "The pipeline", "Kill criterion", "Outputs"; the rules are the instrument's).
 
     python -m holon mutate run --milestone M2 [--only A001,...] [--control C1,...] [--baseline-only] [--work DIR]
                                [--jobs N] [--no-carry] [--dry-run] [--check]
@@ -272,6 +272,10 @@ class Ctx:
         self.log = log
         self.checkout = C.checkout(root)
         self.sol_deps = C.sol_deps(root)
+        C.PLACES.clear()
+        C.PLACES.update({"work": self.work, "root": self.root.resolve(), "checkout": self.checkout,
+                         "sol_deps": self.sol_deps, "python": sys.prefix, "base_python": sys.base_prefix,
+                         "home": Path.home()})
         self.null_doc = json.loads((self.root / C.FACTS2 / "morph_header.extracted.json").read_text())
         self.base = None
         self.inputs = None
@@ -328,7 +332,7 @@ class Unit:
         return "solidity" if self.m["file"].endswith(".sol") else "go"
 
     def error(self, step: str, laws: list, message: str) -> None:
-        self.errors.append({"step": step, "laws": sorted(laws), "message": message[-1500:]})
+        self.errors.append({"step": step, "laws": sorted(laws), "message": C.scrub(message)[-1500:]})
 
     def mut_harness(self):
         """The replay harness of this unit's tree (the original's for the baseline)."""
@@ -409,7 +413,7 @@ def projection(ctx: Ctx, u: Unit, rec: dict, errs: dict) -> None:
     try:
         proj = _retry(project_root, u.H)
     except Exception as e:  # noqa: BLE001
-        rec["projection"] = {"normalized_sha256": None, "changed": None, "error": f"{type(e).__name__}: {e}"[:1500]}
+        rec["projection"] = {"normalized_sha256": None, "changed": None, "error": C.scrub(f"{type(e).__name__}: {e}")[:1500]}
         return
     u.proj = proj
     u.proj_path = u.dir / "m0" / "morph_header.json"
@@ -538,7 +542,7 @@ def decide_m0(ctx: Ctx, u: Unit, rec: dict, pred: set) -> None:
         if p.returncode != 0:
             msg = f"holon run --milestone M0 (exit {p.returncode}): {S._tail(p)}"
             for e in entries.values():
-                e["mutant"], e["error"] = "error", msg[:500]
+                e["mutant"], e["error"] = "error", C.scrub(msg)[:500]
             u.error("M0", list(entries), msg)
             return
         recs = {lid: json.loads((m0dir / "results" / f"{lid}.json").read_text()) for lid in laws0}
@@ -549,7 +553,7 @@ def decide_m0(ctx: Ctx, u: Unit, rec: dict, pred: set) -> None:
     except Exception as ex:  # noqa: BLE001
         msg = f"the projected model does not compile: {ex}"
         for e in entries.values():
-            e["mutant"], e["error"] = "error", msg[:500]
+            e["mutant"], e["error"] = "error", C.scrub(msg)[:500]
         u.error("M0", list(entries), msg)
         return
     mverdict = None
@@ -590,7 +594,7 @@ def decide_m0(ctx: Ctx, u: Unit, rec: dict, pred: set) -> None:
                 e["counter_law"] = _retry(M.counter_law, law, facts, m0dir / "gen", env_of[witness])
                 status = "REFUTED" if e["counter_law"]["marker"] == D.MARK_OK else "UNKNOWN"
             except Exception as ex:  # noqa: BLE001
-                e["mutant"], e["error"] = "error", f"counter-law check failed: {ex}"[:500]
+                e["mutant"], e["error"] = "error", C.scrub(f"counter-law check failed: {ex}")[:500]
                 u.error("counter_law", [lid], f"{lid}: {ex}")
                 continue
         elif pipe == "REFUTED":
@@ -630,7 +634,7 @@ def decide_m0(ctx: Ctx, u: Unit, rec: dict, pred: set) -> None:
                         try:
                             falsifier(ctx, u, law, e, cands, facts, model, limit)
                         except Exception as ex:  # noqa: BLE001
-                            e["mutant"], e["error"] = "error", f"the K2 (c) search failed: {ex}"[:500]
+                            e["mutant"], e["error"] = "error", C.scrub(f"the K2 (c) search failed: {ex}")[:500]
                             u.error("falsifier", [lid], f"{lid}: {ex}")
                             continue
         if e["witness"] is not None:
@@ -716,7 +720,7 @@ def window_view(u: Unit) -> str:
                            text=True, timeout=3600)
         if p.returncode == 0 and out.is_file():
             return out.read_text()
-        last = (p.stdout + p.stderr)[-1500:]
+        last = C.scrub(p.stdout + p.stderr)[-1500:]
     raise C.MutateError(f"the window view: {last}")
 
 
@@ -820,7 +824,7 @@ def decide_m1x(ctx: Ctx, u: Unit, rec: dict, pred: set, errs: dict) -> None:
         view = window_view(u)
     except Exception as ex:  # noqa: BLE001
         for e in entries.values():
-            e["mutant"], e["error"] = "error", str(ex)[:500]
+            e["mutant"], e["error"] = "error", C.scrub(str(ex))[:500]
         u.error("M1x", list(entries), str(ex))
         return
     view_sha = C.normalized_sha256(json.loads(view))
@@ -847,7 +851,7 @@ def decide_m1x(ctx: Ctx, u: Unit, rec: dict, pred: set, errs: dict) -> None:
     if p.returncode != 0:
         msg = f"holon differential (exit {p.returncode}): {S._tail(p)}"
         for e in entries.values():
-            e["mutant"], e["error"] = "error", msg[:500]
+            e["mutant"], e["error"] = "error", C.scrub(msg)[:500]
         u.error("M1x", list(entries), msg)
         return
     rdir = u.H / "results" / "M2" / "extracted_m1"
@@ -885,7 +889,7 @@ def decide_m2(ctx: Ctx, u: Unit, rec: dict, pred: set, actions: set, errs: dict,
             e = L.entry("M2", f"M2:{base_der[lid]['rule']}/{base_der[lid]['subform']}", b["mutant"] if b else "absent")
             e["entry_points"] = sorted(base_der[lid]["entry_points"])
             e["predicted"] = lid in pred
-            e["mutant"], e["error"] = "error", msg[:500]
+            e["mutant"], e["error"] = "error", C.scrub(msg)[:500]
             rec["laws"][lid] = e
         u.error("M2", sorted(base_der), msg)
         return
@@ -937,7 +941,7 @@ def decide_m2(ctx: Ctx, u: Unit, rec: dict, pred: set, actions: set, errs: dict,
         if widths is not None and mut_der[mid].get("subform") == "width":
             # a SORT-width law reads the width values of the unit's own i20_step run when its rollup document
             # changed (the contract's pipeline step 3); that run did not complete
-            e["mutant"], e["error"] = "error", widths[:500]
+            e["mutant"], e["error"] = "error", C.scrub(widths)[:500]
             u.error("i20_step", [key], f"{key}: {widths}")
             continue
         b = base_entry(ctx, key) if e["baseline"] != "absent" else None
@@ -967,22 +971,42 @@ def decide_m2(ctx: Ctx, u: Unit, rec: dict, pred: set, actions: set, errs: dict,
             msg = f"holon model (exit {p.returncode}): {S._tail(p)}"
             for key, mid, law, e in plan:
                 if mid in run_ids:
-                    e["mutant"], e["error"] = "error", msg[:500]
+                    e["mutant"], e["error"] = "error", C.scrub(msg)[:500]
             u.error("M2", [k for k, mid, _, _ in plan if mid in run_ids], msg)
             return
-    p = None
-    for _ in range(STEP_RETRY):
-        p = S.holon(u.H, ["run", "--milestone", "M2", "--no-registry", "--laws", ",".join(sorted(run_ids))],
-                    timeout=7200)
-        if p.returncode == 0:
-            break
+    def m2_run(ids: list):
+        q = None
+        for _ in range(STEP_RETRY):
+            q = S.holon(u.H, ["run", "--milestone", "M2", "--no-registry", "--laws", ",".join(sorted(ids))],
+                        timeout=7200)
+            if q.returncode == 0:
+                break
+        return q
+
+    p = m2_run(run_ids)
     if p.returncode != 0:
-        msg = f"holon run --milestone M2 (exit {p.returncode}): {S._tail(p)}"
+        # kill_criterion.errors: a failing set run is retried law by law, and only the laws that fail alone are error;
+        # the others are decided by one run of their own set, as when nothing fails (whatever the carry mode)
+        failed = {}
+        for mid in sorted(run_ids):
+            q = m2_run([mid])
+            if q.returncode != 0:
+                failed[mid] = f"holon run --milestone M2 --laws {mid} (exit {q.returncode}): {S._tail(q)}"
+        ok_ids = sorted(m for m in run_ids if m not in failed)
+        if ok_ids:
+            p = m2_run(ok_ids)
+            if p.returncode != 0:
+                for mid in ok_ids:
+                    failed[mid] = f"holon run --milestone M2 (exit {p.returncode}): {S._tail(p)}"
+                ok_ids = []
         for key, mid, law, e in plan:
-            if mid in run_ids:
-                e["mutant"], e["error"] = "error", msg[:500]
-        u.error("M2", [k for k, mid, _, _ in plan if mid in run_ids], msg)
-        return
+            if mid in failed:
+                e["mutant"], e["error"] = "error", C.scrub(failed[mid])[:500]
+        for mid in sorted(failed):
+            u.error("M2", [k for k, m, _, _ in plan if m == mid], failed[mid])
+        run_ids = ok_ids
+        if not run_ids:
+            return
     rdir = u.H / "results" / "M2"
     cones = {}
     if (rdir / "deps.json").is_file() and (u.H / "gen" / "M2" / "model" / "morph_rollup.defs.json").is_file():
@@ -1020,7 +1044,20 @@ def channel_wants(u: Unit) -> list[str]:
 
 def incomplete(harness: str, why: str) -> dict:
     return {"harness": harness, "steps": 0, "new_disagreements": [], "corpus_differences": None,
-            "error": why[-1500:]}
+            "error": C.scrub(why)[-1500:]}
+
+
+def _channel_retry(fn, *a):
+    """A channel run (holon.mutate.channels), retried once when it does not complete (kill_criterion.errors): the
+    channel functions report a failed run as an incomplete entry (error set) instead of raising, so _retry alone would
+    never retry them. The second attempt's result is kept."""
+    res = None
+    for _ in range(STEP_RETRY):
+        res = _retry(fn, *a)
+        entry = res[0] if isinstance(res, tuple) else res
+        if entry["error"] is None:
+            break
+    return res
 
 
 def run_i20(ctx: Ctx, u: Unit, rec: dict, errs: dict) -> dict:
@@ -1031,10 +1068,10 @@ def run_i20(ctx: Ctx, u: Unit, rec: dict, errs: dict) -> dict:
     try:
         if u.is_base:
             out = ctx.work / "i20_corpus.json"      # outside the unit's scratch tree, which is removed after it
-            res = _retry(CH.i20_baseline, u.H, u.tree, u.dir / "i20", out)
+            res = _channel_retry(CH.i20_baseline, u.H, u.tree, u.dir / "i20", out)
             u.i20_corpus = out
             return res
-        return _retry(CH.i20_mutant, u.H, u.tree, u.dir / "i20", ctx.root / I20_CORPUS)
+        return _channel_retry(CH.i20_mutant, u.H, u.tree, u.dir / "i20", ctx.root / I20_CORPUS)
     except Exception as ex:  # noqa: BLE001
         return incomplete("i20_step", f"{type(ex).__name__}: {ex}")
 
@@ -1045,7 +1082,7 @@ def run_i16(ctx: Ctx, u: Unit, rec: dict) -> dict:
         return incomplete("i16_edge", "no projected document: " + str(rec["projection"]["error"]))
     try:
         base_ids = None if u.is_base else ((ctx.inputs or {}).get("i16_ids") or [])
-        res, ids = _retry(CH.i16_edge, u.H, u.tree, u.dir / "i16", u.proj_path, base_ids)
+        res, ids = _channel_retry(CH.i16_edge, u.H, u.tree, u.dir / "i16", u.proj_path, base_ids)
         u.i16_ids = ids
         return res
     except Exception as ex:  # noqa: BLE001
@@ -1119,7 +1156,7 @@ def run_unit(ctx: Ctx, ud: dict, keep: bool = False) -> tuple[dict, Unit]:
     except Exception as ex:  # noqa: BLE001: a unit-level failure marks every law its paths decide
         tb = traceback.format_exc()
         ctx.log(f"{u.id}: unit failure: {tb[-3000:]}")
-        why = f"{type(ex).__name__}: {ex}"[:500]
+        why = C.scrub(f"{type(ex).__name__}: {ex}")[:500]
         for law, b in sorted(((ctx.base or {}).get("laws") or {}).items()):
             if law not in rec["laws"]:
                 e = L.entry(b["set"], b["family"], b["mutant"])
@@ -1132,6 +1169,14 @@ def run_unit(ctx: Ctx, ud: dict, keep: bool = False) -> tuple[dict, Unit]:
         u.error("unit", undecided, why)
     finally:
         u.close()
+    for x in u.errors:          # every message was scrubbed before its cut; this pass catches any other
+        x["message"] = C.scrub(x["message"])
+    for e in rec["laws"].values():
+        if isinstance(e.get("error"), str):
+            e["error"] = C.scrub(e["error"])
+    for r in rec["refinement"]["channels"]:
+        if isinstance(r.get("error"), str):
+            r["error"] = C.scrub(r["error"])
     rec["errors"] = sorted(u.errors, key=lambda x: (x["step"], x["laws"], x["message"]))
     rec["laws"] = {k: rec["laws"][k] for k in sorted(rec["laws"])}
     if u.is_base:      # the baseline is its own reference: its statuses fill every record's "baseline"
@@ -1151,8 +1196,8 @@ def run_unit(ctx: Ctx, ud: dict, keep: bool = False) -> tuple[dict, Unit]:
 
 
 def baseline_inputs(u: Unit, rec: dict) -> dict:
-    """What later units read from the baseline beside its record (gen/M2/mutation_i61/baseline_inputs.json)."""
-    return {"document": "I61 baseline inputs", "pipeline_commit": rec["pipeline_commit"],
+    """What later units read from the baseline beside its record (<gen>/baseline_inputs.json)."""
+    return {"document": f"{C.KEY} baseline inputs", "pipeline_commit": rec["pipeline_commit"],
             "cones": {"M1x": getattr(u, "m1x_cones", {}), "M2": getattr(u, "m2_cones", {})},
             "traces": {k: [[lab, t] for lab, t in v] for k, v in sorted(getattr(u, "traces", {}).items()) if v},
             "counter_laws": {k: v for k, v in sorted(getattr(u, "counter_laws", {}).items()) if v},
@@ -1196,7 +1241,7 @@ def cmd_run(argv: list) -> int:
     except SystemExit:
         return 2
     if a.milestone != "M2":
-        print(f"holon mutate run: refused: milestone {a.milestone} (I61 runs on M2)", file=sys.stderr)
+        print(f"holon mutate run: refused: milestone {a.milestone} ({C.KEY} runs on M2)", file=sys.stderr)
         return 2
     root = C.ROOT
     inst = C.instrument(root)
@@ -1343,11 +1388,12 @@ def gate_i16(ctx: Ctx) -> dict:
     p = subprocess.run([sys.executable, "-m", "holon", "mutate", "replay", "--i16"], cwd=str(ctx.root),
                        env=C.env_tools(), capture_output=True, text=True, timeout=7200)
     if p.returncode != 0:
-        return {"passed": False, "detail": f"holon mutate replay --i16 exit {p.returncode}: {(p.stdout + p.stderr)[-800:]}"}
+        return {"passed": False,
+                "detail": f"holon mutate replay --i16 exit {p.returncode}: {C.scrub(p.stdout + p.stderr)[-800:]}"}
     try:
         got = json.loads(p.stdout)
     except ValueError:
-        return {"passed": False, "detail": "holon mutate replay --i16 printed no JSON: " + p.stdout[-300:]}
+        return {"passed": False, "detail": "holon mutate replay --i16 printed no JSON: " + C.scrub(p.stdout)[-300:]}
     bad, parts = [], []
     for edge in sorted(json.loads((ctx.root / "replay" / "M2" / "implementations.json").read_text())["edges"]):
         rec = json.loads((ctx.root / "results" / "M2" / "refinement" / f"{edge}.json").read_text())
@@ -1404,7 +1450,8 @@ def gate_null(ctx: Ctx) -> dict:
 
 def gate_controls(ctx: Ctx, keep: bool = False) -> dict:
     """harness_gate.checks.controls: each planted control through the per-mutant pipeline, killed through every law
-    its 'expected' names by the 'how' it names; records results/M2/mutation_i61/controls/<id>.json."""
+    its 'expected' names by the 'how' it names, with no replay disagreement and no failed replay; records
+    <results>/controls/<id>.json."""
     bad, parts = [], []
     for c in ctx.inst["harness_gate"]["controls"]:
         ud = {"id": c["id"], "kind": "control", "mutant": c}
@@ -1416,11 +1463,17 @@ def gate_controls(ctx: Ctx, keep: bool = False) -> dict:
         if "falsifier" in exp:
             miss += [law for law in exp["laws"] if law not in miss and
                      ((rec["laws"].get(law) or {}).get("falsifier") or {}).get("kind") != exp["falsifier"]]
-        ok = rec["outcome"] == exp["outcome"] and not miss
+        # I62 (harness_gate.controls): a control whose own replay disagrees with its model, or whose replay of a
+        # law's hits fails, fails the gate even when it is killed as expected: the replay harness is what the gate
+        # certifies, and I61's C3 record showed such a disagreement (the none-value defect) before the run
+        replay_errors = [e["message"] for e in rec["errors"] if e["step"] == "replay"]
+        ok = rec["outcome"] == exp["outcome"] and not miss and not rec["replay_disagreements"] and not replay_errors
         parts.append(f"{c['id']} {rec['outcome']} by {sorted(how.items())}")
         if not ok:
             bad.append(f"{c['id']}: outcome {rec['outcome']}, expected {exp['outcome']} by {exp['how']} through "
-                       f"{exp['laws']}; missing {miss}; errors {[e['message'][:120] for e in rec['errors']][:3]}")
+                       f"{exp['laws']}; missing {miss}; replay disagreements {rec['replay_disagreements']}; replay "
+                       f"errors {[m[:120] for m in replay_errors][:3]}; errors "
+                       f"{[e['message'][:120] for e in rec['errors']][:3]}")
     return {"passed": not bad, "detail": "; ".join(bad) if bad else "; ".join(parts)}
 
 
@@ -1467,12 +1520,12 @@ def cmd_gate(argv: list) -> int:
             try:
                 checks[name] = fn(ctx)
             except Exception as ex:  # noqa: BLE001
-                checks[name] = {"passed": False, "detail": f"{type(ex).__name__}: {ex}"[:1500]}
+                checks[name] = {"passed": False, "detail": C.scrub(f"{type(ex).__name__}: {ex}")[:1500]}
             ctx.log(f"gate {name}: {checks[name]['passed']}: {checks[name]['detail'][:300]}")
         try:
             checks["controls"] = gate_controls(ctx, keep=a.keep)
         except Exception as ex:  # noqa: BLE001
-            checks["controls"] = {"passed": False, "detail": f"{type(ex).__name__}: {ex}"[:1500]}
+            checks["controls"] = {"passed": False, "detail": C.scrub(f"{type(ex).__name__}: {ex}")[:1500]}
         ctx.log(f"gate controls: {checks['controls']['passed']}: {checks['controls']['detail'][:300]}")
     finally:
         ctx.close()

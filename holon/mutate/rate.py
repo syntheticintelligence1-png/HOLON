@@ -3,6 +3,7 @@ format). `python -m holon mutate rate [--check]`."""
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+from pathlib import Path
 
 from . import common as C
 from . import decide as D
@@ -155,8 +156,9 @@ def summary(inst: dict, records: dict, adjudication: dict, refs: dict, commit: s
     return out
 
 
-def metric(summary: dict) -> dict:
-    """results/M2/metrics.json "mutation_adequacy" (reporting.metric; I22-R6's name and shape)."""
+def metric(summary: dict, source=None) -> dict:
+    """results/M2/metrics.json "mutation_adequacy" (reporting.metric; I22-R6's name and shape); source the summary's
+    repo-relative path (default this key's)."""
     a = summary["strata"][summary["threshold_stratum"]]
-    return {"source": C.SUMMARY.as_posix(), "threshold": summary["threshold"], "rate_all": a["rate_all"],
+    return {"source": Path(source or C.SUMMARY).as_posix(), "threshold": summary["threshold"], "rate_all": a["rate_all"],
             "rate_non_equivalent": a["rate_non_equivalent"], "meets_threshold": a["meets_threshold"]}

@@ -1,4 +1,4 @@
-"""Shared helpers of holon.mutate (I61): the instrument, the pinned target, canonical JSON and scratch trees.
+"""Shared helpers of holon.mutate (I61, I62): the instrument, the pinned target, canonical JSON and scratch trees.
 
 Paths are relative to a HOLON root (default: this checkout). Committed outputs are canonical JSON (dump: sorted keys,
 indent 2, a final newline); hashes are over compact canonical JSON (compact: sorted keys, separators ',' ':', UTF-8).
@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -15,15 +16,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-INSTRUMENT = Path("spec/M2/lib/mutation_catalog_i61.json")
+# The iteration whose instrument and outputs this package serves: I62 (the rerun with I61's defects fixed) unless
+# HOLON_MUTATE_KEY names I61, whose records stay as its run wrote them (its tests read them through that key). I62
+# keeps I61's catalog, diff sheet and replay harness sources byte for byte; everything it writes has its own paths.
+KEYS = ("I61", "I62")
+KEY = os.environ.get("HOLON_MUTATE_KEY") or "I62"
+if KEY not in KEYS:
+    raise SystemExit(f"holon mutate: HOLON_MUTATE_KEY={KEY!r} is none of {', '.join(KEYS)}")
+_k = KEY.lower()
+
+INSTRUMENT = Path(f"spec/M2/lib/mutation_catalog_{_k}.json")
 SHEET = Path("spec/M2/lib/mutation_diff_sheet_i61.md")
-REVIEW = Path("docs/iterations/I61_catalog_review.json")
-ADJUDICATION = Path("spec/M2/equivalent_mutants_i61.json")
-RESULTS = Path("results/M2/mutation_i61")
+REVIEW = Path(f"docs/iterations/{KEY}_catalog_review.json")
+ADJUDICATION = Path(f"spec/M2/equivalent_mutants_{_k}.json")
+RESULTS = Path(f"results/M2/mutation_{_k}")
 CONTROLS = RESULTS / "controls"
 GATE = RESULTS / "gate.json"
 SUMMARY = RESULTS / "summary.json"
-GEN = Path("gen/M2/mutation_i61")
+GEN = Path(f"gen/M2/mutation_{_k}")
 PROJECTED = GEN / "header.projected.json"
 HARNESS = Path("replay/M2/mutation_i61")
 FACTS2 = Path("spec/M2/facts")
@@ -36,6 +46,45 @@ class MutateError(Exception):
 
 def root(r=None) -> Path:
     return Path(r).resolve() if r else ROOT
+
+
+_DURATION = re.compile(r"(?<![\w.])\d+(?:\.\d+)?\s?(?:ns|µs|us|ms|s)\b")
+PLACES: dict = {}     # name -> path: the scratch and install paths a message may quote (holon.mutate.run.Ctx sets them)
+
+
+def untrace(text: str) -> str:
+    """A tool's output without the frames of its Python tracebacks (file paths, line numbers and code lines, which
+    differ between environments and Python versions): each "Traceback (most recent call last):" keeps its header line
+    and the exception line that ends it."""
+    out, frames = [], False
+    for line in text.splitlines():
+        if line.rstrip().endswith("Traceback (most recent call last):"):
+            out.append(line)
+            frames = True
+        elif frames and (line.startswith(" ") or not line.strip()):
+            continue
+        else:
+            frames = False
+            out.append(line)
+    return "\n".join(out)
+
+
+def scrub(text: str, places: dict | None = None) -> str:
+    """A tool's message made deterministic (records hold no timestamps, scratch paths or process ids; I62): traceback
+    frames dropped (untrace), every place (name -> path, the longest first; default PLACES) becomes <name>, and every
+    duration <t>. Apply it before a message is cut to length, so that the cut falls at the same place in every
+    environment. Idempotent."""
+    text = untrace(text)
+    forms = {}
+    for name, p in (PLACES if places is None else places).items():
+        if p is None:
+            continue
+        for f in {str(p), str(Path(p).resolve()), os.path.realpath(str(p))}:
+            if len(f) > 1:
+                forms.setdefault(f, name)
+    for f in sorted(forms, key=lambda x: (-len(x), x)):
+        text = text.replace(f, f"<{forms[f]}>")
+    return _DURATION.sub("<t>", text)
 
 
 def load_json(p):

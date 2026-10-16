@@ -68,6 +68,8 @@ import dataclasses
 import json
 import os
 import re
+import shutil
+import subprocess
 import threading
 import time
 from pathlib import Path
@@ -77,6 +79,9 @@ from . import common as C
 I20 = "i20_step"
 I16 = "i16_edge"
 WIDTH_VALUES = "width_values.json"
+# I62: the step harness's Solidity base this channel runs in place of I20's (replay/M2/solidity/HolonStepBase.sol), the
+# same file but for a deployment probe per trace: a trace whose deployment reverts writes F <tid> <data> and no run
+STEP_BASE = Path("replay/M2/mutation_i62/HolonStepBase.sol")
 ERROR_CHARS = 400
 _LOCK = threading.Lock()
 _ENV = {"BEND_NO_TELEMETRY": "1", "GOTOOLCHAIN": "local", "GOFLAGS": "-mod=readonly"}
@@ -279,12 +284,59 @@ class _I20Run:
     compared: list
     new: list
     width: dict | None
+    reverted: dict = dataclasses.field(default_factory=dict)   # {trace index: deployment revert data}
+
+
+def _run_steps(proj: Path, tc: dict, binding: dict, traces: list, slots: list, init: list, tag: str) -> tuple:
+    """holon.replay_fragments.run_harness on STEP_BASE (the same chunks, command, input and parse), except that a trace
+    whose deployment reverted (its line F <tid> <data>) has no run instead of failing the chunk. Returns (the runs of
+    the deployed traces, in trace order, {trace index: the deployment's revert data})."""
+    from .. import replay_fragments as RF
+    h = binding["harness"]
+    runs, reverted = [None] * len(traces), {}
+    for k, (lo, hi) in enumerate(RF.chunks(traces, RF.MAX_STEPS)):
+        fin, fout = proj / f"holon_{tag}_{k}.json", proj / f"holon_{tag}_{k}.out"
+        fin.write_text(json.dumps(RF.harness_input(traces[lo:hi], slots, init)))
+        fout.unlink(missing_ok=True)
+        cmd = ["nice", "-n", "10", tc["forge"], "test", "--match-contract", f"^{h['contract']}$", "--match-test",
+               "^test_steps\\(\\)$", "--offline", "--use", tc["solc"]]
+        env = {**os.environ, "HOLON_STEPS_IN": fin.name, "HOLON_STEPS_OUT": fout.name, "HOLON_LO": "0",
+               "HOLON_HI": str(hi - lo)}
+        proc = subprocess.run(cmd, cwd=proj, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        text = fout.read_text() if fout.exists() else ""
+        if proc.returncode != 0 or not text.rstrip().endswith(f"DONE 0 {hi - lo}"):
+            raise RF.FragmentsError(f"harness chunk {k} (traces {lo}..{hi}) failed (exit {proc.returncode}): "
+                                    f"{(proc.stdout or '')[-2500:]}")
+        for line in text.splitlines():
+            f = line.split(" ")
+            if f[0] == "F":
+                reverted[int(f[1]) + lo] = (f[2] if len(f) > 2 else "0x").lower()
+        for tr in RF.parse_output(text):
+            tr.tid += lo
+            for e in tr.execs:
+                e.tid = tr.tid
+            tr.steps = traces[tr.tid]
+            runs[tr.tid] = tr
+        fin.unlink(missing_ok=True)
+        fout.unlink(missing_ok=True)
+    both = sorted(i for i in reverted if runs[i] is not None)
+    if both:
+        raise RF.FragmentsError(f"traces {both[:10]} both ran and had their deployment revert")
+    missing = [i for i, r in enumerate(runs) if r is None and i not in reverted]
+    if missing:
+        raise RF.FragmentsError(f"the harness recorded no run for traces {missing[:10]}")
+    for tr in runs:
+        if tr is not None and len([e for e in tr.execs if e.id != "d"]) != len(tr.steps):
+            raise RF.FragmentsError(f"trace {tr.tid}: {len(tr.execs) - 1} records for {len(tr.steps)} steps")
+    return [r for r in runs if r is not None], reverted
 
 
 def _i20(htree: Path, tree: Path, work: Path, traces: list | None, jobs: int, clock: _Clock) -> _I20Run:
     """One I20 step-harness run as holon.replay_fragments.run does it (no checkout check, no record, no disagreements
-    file, no panic location): with traces None the corpus is searched (base traces, translation run, forks and
-    suffixes, second run); else the given traces run once."""
+    file, no panic location), on the harness with this channel's Solidity base (STEP_BASE): with traces None the corpus
+    is searched (base traces, translation run, forks and suffixes, second run; every deployment must succeed); else the
+    given traces run once, and a trace whose deployment reverts has no run (_I20Run.reverted)."""
+    traces_given = traces is not None
     from .. import fragments_corpus as FC
     from .. import replay_fragments as RF
     from ..replay import toolchain
@@ -296,6 +348,10 @@ def _i20(htree: Path, tree: Path, work: Path, traces: list | None, jobs: int, cl
     tc = toolchain(argparse.Namespace(forge=None, solc=None, write_pins=False), htree)
     clock.lap("toolchain")
     proj = RF.harness_project(binding, work, htree, tree, tc)
+    base = proj / "test" / STEP_BASE.name
+    if not base.is_file():
+        raise RF.FragmentsError(f"the binding's harness has no {STEP_BASE.name} for this channel's copy to replace")
+    shutil.copy(htree / STEP_BASE, base)
     RF.forge_build(proj, tc)
     tgt = RF.Target.build(proj, binding, doc)
     view = tgt.view
@@ -329,7 +385,7 @@ def _i20(htree: Path, tree: Path, work: Path, traces: list | None, jobs: int, cl
             runs = RF.run_harness(proj, tc, binding, traces, slots, init, RF.MAX_STEPS, jobs, tag="full")
             clock.lap("second_run")
     else:
-        runs = RF.run_harness(proj, tc, binding, traces, slots, init, RF.MAX_STEPS, jobs, tag="full")
+        runs, reverted = _run_steps(proj, tc, binding, traces, slots, init, tag="full")
         clock.lap("run")
     wv = RF.WidthValues(model, htree)
     compared, new = RF.compare_runs(runs, tgt, slots, model, step_fn, [wv.observe] if wv.sites else [])
@@ -337,7 +393,7 @@ def _i20(htree: Path, tree: Path, work: Path, traces: list | None, jobs: int, cl
     if wv.sites:
         width = wv.document(RF._rel(doc_path, htree), RF.sha256_json([c.input_sha for c in compared]))
     clock.lap("compare")
-    return _I20Run(traces, compared, new, width)
+    return _I20Run(traces, compared, new, width, reverted if traces_given else {})
 
 
 def i20_baseline(htree: Path, tree: Path, work: Path, corpus_out: Path, *, jobs: int = 1,
@@ -397,7 +453,7 @@ def i20_mutant(htree: Path, tree: Path, work: Path, corpus_in: Path, *, jobs: in
     ids = {d["id"] for d in r.new}
     diffs = corpus_differences(base_obs, observables(r.compared))
     detail.update(traces=len(traces), steps=len(r.compared), disagreements=len(ids),
-                  width_sites=len((r.width or {}).get("sites") or {}))
+                  width_sites=len((r.width or {}).get("sites") or {}), deployments_reverted=len(r.reverted))
     return entry(I20, len(r.compared), sorted(ids - set(base_ids)), diffs, None)
 
 
