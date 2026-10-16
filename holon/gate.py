@@ -1087,9 +1087,13 @@ class Gate:
             return fail(f"cannot run bend: {e}", "skipped: bend unavailable or not the pinned version")
         pin = self.cfg["bend"]["pinned_version"]
         ok = self.bend_version == pin
+        st = bend.stack_limits(self.cfg)   # F38: the stack the checker's own process runs with (never this one's)
+        mb = lambda n: f"{n // (1024 * 1024)} MB"  # noqa: E731
+        stack = (f"checker stack: JavaScript {mb(st['js_bytes'])}, RLIMIT_STACK {mb(st['rlimit_soft'])} (hard "
+                 f"{'unlimited' if st['rlimit_hard'] is None else mb(st['rlimit_hard'])}), set in its process by the launcher")
         self.checks["GENV"] = _res(ok, f"bend {self.bend_version}, pinned {pin}; fingerprint {fp['fingerprint']} "
                                        f"pinned ({where}, bun sha256 {fp['bun_sha256'][:12]}); executes "
-                                       f"{' '.join(fp['command'])}; {kernel}; no global bunfig; not quarantined "
+                                       f"{' '.join(fp['command'])}; {stack}; {kernel}; no global bunfig; not quarantined "
                                        "(results/quarantine.json is agent-writable: self-certified until Q1)")
         if not ok:
             self.genv_skip = "skipped: bend unavailable or not the pinned version"
