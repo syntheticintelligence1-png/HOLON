@@ -75,6 +75,11 @@ class TestG2Scope(unittest.TestCase):
         self.assertTrue(all(x["ok"] for x in out["entries"] if x["line"] in bc))
         self.assertIn("their own milestone's G2", out["note"])
 
+    def test_a_line_about_no_milestones_law_is_rechecked_by_every_gate(self):
+        self.assertEqual(SD._law_milestone(ROOT, "L_sort_realize_rollup_363_4a64383b"), "M3")
+        self.assertIsNone(SD._law_milestone(ROOT, "L_no_such_law"))
+        self.assertIsNone(SD._law_milestone(ROOT, "../M3/L_sort_realize_rollup_363_4a64383b"))
+
 
 class TestCheckerStack(unittest.TestCase):
     def test_the_environment_carries_only_the_registered_stack(self):

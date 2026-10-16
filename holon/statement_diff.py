@@ -848,9 +848,10 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
     {"problems": [..], "entries": [{"line", "entry", "ok", "committed", "commit"}], "git": bool, "note": str,
      "unchecked": [line numbers] (off git, below), "elsewhere": [line numbers] (on git, below),
      "crashes": [{"law_id", "kernel", "seconds", "message"}]}.
-    milestone (F35, F38): the milestone being gated. On git, a committed binding_change line of a law of ANOTHER
-    milestone gets every check but the re-check of its proofs, which its own milestone's G2 makes (listed in
-    "elsewhere" and in the note). Off git (a copied tree), a binding_change line of a law of ANOTHER
+    milestone (F35, F38): the milestone being gated. On git, a committed binding_change line of a law that lives in
+    ANOTHER milestone's laws/ gets every check but the re-check of its proofs, which that milestone's G2 makes (listed
+    in "elsewhere" and in the note); a line about a law found in no milestone (or in several) is re-checked by every
+    gate. Off git (a copied tree), a binding_change line of a law of ANOTHER
     milestone (no laws/<milestone>/<law_id>.json, whatever the line's own label says) cannot be checked (it needs the
     old model at its bound commit) and is not that gate's claim: it is listed in the note as not checked, never as
     accepted. Its own milestone's binding_change lines still fail off git. Every checker crash a re-check of a
@@ -896,8 +897,8 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
         acc = e.get("accepted") if isinstance(e, dict) else None
         # F38: a committed binding_change line of a law of another milestone gets every check here but the re-check of
         # its proofs in both kernels, which its own milestone's G2 makes (each line re-checked once per CI run)
-        own = not (milestone and isinstance(e, dict) and e.get("kind") == "binding_change" and e.get("law_id")
-                   and not (root / "laws" / milestone / f"{e['law_id']}.json").is_file())
+        own = not (milestone and isinstance(e, dict) and e.get("kind") == "binding_change"
+                   and _law_milestone(root, e.get("law_id")) not in (None, milestone))
         if commit is not None:
             if not own:
                 out.setdefault("elsewhere", []).append(n)
@@ -933,6 +934,15 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
                         f"verdict): " + ", ".join(f"{lid} {c.get('kernel')} {c.get('seconds')} s" for lid, c in cr[:8])
                         + (" ..." if len(cr) > 8 else ""))
     return out
+
+
+def _law_milestone(root: Path, lid) -> str | None:
+    """The milestone whose laws/<M>/ holds law lid, or None (no such law anywhere: then every gate re-checks a line
+    about it, F38, so no line escapes every re-check)."""
+    if not isinstance(lid, str) or not lid or "/" in lid or lid.startswith("."):
+        return None
+    hits = sorted(d.name for d in (Path(root) / "laws").glob("M*") if (d / f"{lid}.json").is_file())
+    return hits[0] if len(hits) == 1 else None
 
 
 def verify_signature_at(entry: dict, commit: str, root: Path) -> tuple[bool, str]:
