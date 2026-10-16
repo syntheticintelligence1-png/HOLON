@@ -12,7 +12,8 @@ Contract:
               variables' types are not evident is inlined as before, and the inlined text stays a candidate class
               (congruence-flat) after every other.
   verdict     the planted chain (a value that each let names twice, through a changed callee) is PROVED by bend2
-              and by BendTT (--verdict, when available); a planted non-equivalent chain is never PROVED.
+              and by BendTT (--verdict, when available); a planted non-equivalent chain is REFUTED by a
+              counter-witness, never PROVED.
   determinism two runs give byte-identical proofs.
   deferral    once a batch check of the lemma search hits bend.timeout_s, the remaining candidates are deferred:
               unchecked, never cached, decided by the final whole-proof check alone (a wrong one is refused there and
@@ -28,6 +29,7 @@ from __future__ import annotations
 
 import re
 import unittest
+from pathlib import Path
 from unittest import mock
 
 from tests_m3._m3 import ROOT  # noqa: F401  (puts the repository on sys.path)
@@ -86,8 +88,10 @@ NEW = (OLD.replace("""def b_eq(a: Bool, b: Bool) -> Bool:
       +o4 = {b_eq(o3, b_eq(o3, k)) : Bool}
       S{o4, n}"""))
 
-# one let changed: o3 no longer names k (old and new differ on some input)
-PLANTED = NEW.replace("      +o3 = {b_eq(o2, b_eq(o2, k)) : Bool}", "      +o3 = {b_eq(o2, b_eq(o2, True{})) : Bool}")
+# one let changed: o4 no longer names k, so it is True on every input where the old o4 is k (that is, a): old and new
+# differ exactly when a is False. (A change to an earlier let would not differ anywhere: b_eq(x, b_eq(x, y)) is y, so
+# each let's value is k whatever the previous let holds.)
+PLANTED = NEW.replace("      +o4 = {b_eq(o3, b_eq(o3, k)) : Bool}", "      +o4 = {b_eq(o3, b_eq(o3, True{})) : Bool}")
 
 STATEMENT = """law l_w:
   for +x: M.S
@@ -129,7 +133,8 @@ class TestChainShape(unittest.TestCase):
         self.assertTrue(any(n.startswith("q_w__l") for n in names), names)
         self.assertTrue(any(n.startswith("q_w__t") for n in names), names)
         self.assertTrue(any(n.startswith("q_w__u") for n in names), names)
-        # no motive or statement holds a let's value inside a later one: at most two b_eq calls nest anywhere
+        # no motive or statement holds a let's value inside a later one: at most four b_eq calls in any {...} (one
+        # let's value, b_eq(o, b_eq(o, k)), on each side)
         for ln in text.splitlines():
             depth = max((len(re.findall(r"b_eq\(", m)) for m in re.findall(r"\{[^{}]*\}", ln)), default=0)
             self.assertLessEqual(depth, 4, ln)
@@ -142,8 +147,7 @@ class TestChainShape(unittest.TestCase):
         r = self.gen.congruence("w", "q_w", self.lemmas(), "old")
         self.assertIsNotNone(r)
         # a let whose type is not evident is inlined as before; the lets after it are still chained
-        pm2 = E.pair_module(OLD, NEW.replace("      +k = {b_eq(a, True{}) : Bool}", "      +k = Bool.and(a, True{})")
-                            .replace("+k = {b_eq(s_a(x), True{}) : Bool}", "+k = {b_eq(s_a(x), True{}) : Bool}"),
+        pm2 = E.pair_module(OLD, NEW.replace("      +k = {b_eq(a, True{}) : Bool}", "      +k = Bool.and(a, True{})"),
                             STATEMENT)
         g2 = E.Gen(pm2)
         t_chain, _ = g2.congruence("w", "q_w", self.lemmas(), "new")
@@ -175,7 +179,7 @@ class TestChainVerdict(unittest.TestCase):
 
     def test_planted_difference_is_never_proved(self):
         r = prove(PLANTED)
-        self.assertNotEqual(r["status"], "PROVED")
+        self.assertEqual(r["status"], "REFUTED", r["reason"])
         self.assertNotIn("BendTT", r["kernels"] or [])
 
     def test_byte_identical(self):
@@ -206,6 +210,55 @@ class TestQ34Bound(unittest.TestCase):
         self.assertFalse(r.ok)
         self.assertTrue(bend.crashed(r))
         self.assertEqual(len(log), n)
+
+    def test_crashes_of_every_final_try_are_kept(self):
+        # the first final check crashes once, then refuses q_w (a cached lemma: the search corrects it and checks again)
+        real = bend.check_equivalence
+        crash = {"kernel": "bend", "seconds": 1.0, "message": "the machine stack overflowed"}
+        calls = []
+
+        def fake(p, cfg=None, verdict=False, tries=None):
+            calls.append(verdict)
+            if len(calls) == 1:
+                return bend.Run(1, "SOME PROOFS FAIL\nLocation: q_w\n", 2.0, []), [crash]
+            return real(p, cfg, verdict=verdict, tries=tries)
+        with mock.patch.object(bend, "check_equivalence", side_effect=fake):
+            r = E.prove(OLD, NEW, STATEMENT, counter_tries=0, cache=ES.LemmaCache(None))
+        self.assertEqual(r["status"], "PROVED", r.get("reason"))
+        self.assertGreater(calls.count(False), 1)          # the final check ran again after the correction
+        self.assertIn(crash, r["final"]["crashes"])         # and the first try's crash is still logged
+
+    def test_a_bendtt_run_with_no_verdict_is_not_a_rejection(self):
+        real = bend.check_equivalence
+
+        def fake(p, cfg=None, verdict=False, tries=None):
+            if verdict:
+                return bend.Run(None, "\n[timeout]", 900.0, []), []
+            return real(p, cfg, verdict=verdict, tries=tries)
+        with mock.patch.object(bend, "check_equivalence", side_effect=fake):
+            r = E.prove(OLD, NEW, STATEMENT, counter_tries=0, cache=ES.LemmaCache(None))
+        if bend.verdict_enabled():
+            self.assertNotEqual(r["status"], "PROVED")
+            w = [i for i in r["roots"] if i["root"] == "w"][0]
+            self.assertEqual((w["status"], w["bendtt"]), ("UNKNOWN", "timeout"))
+
+    def test_off_git_another_milestones_line_is_decided_by_where_its_law_lives(self):
+        import json
+        import tempfile
+        from holon import statement_diff as SD
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "laws" / "M3").mkdir(parents=True)
+            (root / "laws" / "M3" / "L_x.json").write_text("{}")
+            line = {"kind": "binding_change", "law_id": "L_x", "milestone": "M2"}   # an M3 law relabelled M2
+            (root / "laws" / "STATEMENT_DIFF.jsonl").write_text(json.dumps(line) + "\n")
+            own = SD.scan(root / "laws" / "STATEMENT_DIFF.jsonl", root, milestone="M3")
+            self.assertFalse(own["git"])
+            self.assertNotIn(1, own.get("unchecked", []))     # the gated milestone's own law: checked, not skipped
+            self.assertFalse(any(x.get("ok") for x in own["entries"]))
+            other = SD.scan(root / "laws" / "STATEMENT_DIFF.jsonl", root, milestone="M2")
+            self.assertEqual(other.get("unchecked"), [1])     # not M2's law: listed as not checked, never accepted
+            self.assertFalse(other["entries"])
 
     def test_the_bound_is_only_for_final_checks(self):
         seen = []

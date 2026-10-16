@@ -545,9 +545,11 @@ class Gen:
         chain (F35): a leaf reached through a chain of lets (lets, then the leaf expression) is proved one let at a
         time instead of with every let inlined into every motive (F34: a storage-write chain o1..o6, each let naming
         the previous one twice, inlined into 142-200 KB of motives that run BendTT out of its pinned fuel). Let i's
-        value is rewritten to its other-side form inside a helper q_<f>__t<n>, the rest of the chain as a function
-        of v_i and of the variables it reads; the rewritten value is bound by a proof-level let and passed on by
-        name. Every motive then holds one let's value, never the chain. A chain whose variables' types are not all
+        value is rewritten to its other-side form one let at a time: per let, a helper t_i (the driver's rest of the
+        chain from let i, as a function of v_i and of the variables it reads), a helper u_i (the same over the other
+        side's let values) and a lemma {u_i(xs, v_i) == t_i(xs, v_i)} over variables, which rewrites the next let's
+        value, bridges what still differs from the other side's text of that let, and ends with the next lemma.
+        Every conversion then compares one let's value over variables, never the chain. A chain whose variables' types are not all
         known (a let's value is annotated `{e : T}`, a variable of known type, or a call of a model definition) is
         inlined as before."""
         hdr, names, ret = self.header(f, lemma)
@@ -1562,6 +1564,7 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                            batch=ES.default_batch() if batch is None else batch, engine=engine, progress=_progress)
         out["search"] = search.stats
         final_tries = 0
+        final_crashes: list = []   # Q34: every crash of every final try, kept across the search's corrections
         while True:
             stop = search.run(deadline)
             proven = {f: search.proven[f] for f in search.ordered()}
@@ -1631,7 +1634,7 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                 _write(tmp, {"LAWS.bend": laws_text, "PROOF.bend": proof_text})
                 from ..pipeline import law_names
                 hatches = bend.escape_hatches(proof_text + laws_text + pm.text)
-                crashes = out["final"].setdefault("crashes", [])
+                crashes = out["final"]["crashes"] = final_crashes
                 r = _run(tmp, "PROOF.bend", cfg, final=crashes)
                 out["final"]["timeout_s"] = bend.equivalence_timeout(cfg)
                 ok = r.ok and sorted(law_names(laws_text)) == sorted(expected) and not hatches
@@ -1658,7 +1661,10 @@ def prove(old_text: str, new_text: str, statement_text: str, cfg: dict | None = 
                     if info["status"] == "PENDING":
                         info["status"] = "PROVED" if ok else "UNKNOWN"
                         info["bend_seconds"] = r.seconds
-                        info["bendtt"] = None if v is None else ("accepted" if v.ok else "rejected")
+                        # a BendTT run with no verdict is not a rejection: the bound or a crash on every try
+                        info["bendtt"] = (None if v is None else "accepted" if v.ok else
+                                          "timeout" if "[timeout]" in v.out else
+                                          "crashed" if "stack overflow" in v.out.lower() else "rejected")
                         info["bendtt_seconds"] = None if v is None else v.seconds
                         if not ok:
                             last = v if (v is not None and r.ok) else r

@@ -277,13 +277,29 @@ def run(args: list, cwd=None, timeout: int | None = None, cfg: dict | None = Non
         raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
     cmd = prefix + [str(a) for a in args]
     t0 = time.monotonic()
+    # its own process group, so a timeout stops everything the checker started (BendTT's Lean kernel is a child
+    # of bun), not only bun (F35 review m4: the bound must bound the resources too)
+    p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=_env(),
+                         start_new_session=True)
     try:
-        p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, env=_env(),
-                           timeout=timeout or int(cfg["bend"].get("timeout_s", 180)))
-        return Run(p.returncode, p.stdout + p.stderr, round(time.monotonic() - t0, 3), cmd)
-    except subprocess.TimeoutExpired as e:
-        out = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
-        return Run(None, out + "\n[timeout]", round(time.monotonic() - t0, 3), cmd)
+        out, err = p.communicate(timeout=timeout or int(cfg["bend"].get("timeout_s", 180)))
+        return Run(p.returncode, out + err, round(time.monotonic() - t0, 3), cmd)
+    except subprocess.TimeoutExpired:
+        _kill_group(p)
+        out, _err = p.communicate()
+        return Run(None, (out or "") + "\n[timeout]", round(time.monotonic() - t0, 3), cmd)
+    except BaseException:
+        _kill_group(p)
+        raise
+
+
+def _kill_group(p: subprocess.Popen) -> None:
+    import os
+    import signal
+    try:
+        os.killpg(p.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        p.kill()
 
 
 def parse_version(r: Run) -> str:
@@ -346,7 +362,7 @@ def check_equivalence(proof_file: Path, cfg: dict | None = None, verdict: bool =
     the caller, never acceptance."""
     t = equivalence_timeout(cfg)
     if tries is None:
-        tries = int((cfg or config()).get("equivalence", {}).get("crash_tries", 3))
+        tries = int((cfg or config()).get("equivalence", {}).get("crash_tries", 5))
     log = []
     for _ in range(max(1, tries)):
         r = check_verdict(proof_file, cfg, timeout=t) if verdict else check(proof_file, cfg, timeout=t)
