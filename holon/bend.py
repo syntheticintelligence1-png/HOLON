@@ -277,13 +277,29 @@ def run(args: list, cwd=None, timeout: int | None = None, cfg: dict | None = Non
         raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
     cmd = prefix + [str(a) for a in args]
     t0 = time.monotonic()
+    # its own process group, so a timeout stops everything the checker started (BendTT's Lean kernel is a child
+    # of bun), not only bun (F35 review m4: the bound must bound the resources too)
+    p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=_env(),
+                         start_new_session=True)
     try:
-        p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, env=_env(),
-                           timeout=timeout or int(cfg["bend"].get("timeout_s", 180)))
-        return Run(p.returncode, p.stdout + p.stderr, round(time.monotonic() - t0, 3), cmd)
-    except subprocess.TimeoutExpired as e:
-        out = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
-        return Run(None, out + "\n[timeout]", round(time.monotonic() - t0, 3), cmd)
+        out, err = p.communicate(timeout=timeout or int(cfg["bend"].get("timeout_s", 180)))
+        return Run(p.returncode, out + err, round(time.monotonic() - t0, 3), cmd)
+    except subprocess.TimeoutExpired:
+        _kill_group(p)
+        out, _err = p.communicate()
+        return Run(None, (out or "") + "\n[timeout]", round(time.monotonic() - t0, 3), cmd)
+    except BaseException:
+        _kill_group(p)
+        raise
+
+
+def _kill_group(p: subprocess.Popen) -> None:
+    import os
+    import signal
+    try:
+        os.killpg(p.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        p.kill()
 
 
 def parse_version(r: Run) -> str:
@@ -297,10 +313,11 @@ def version(cfg: dict | None = None) -> str:
     return parse_version(run(["version"], cfg=cfg))
 
 
-def check(proof_file: Path, cfg: dict | None = None) -> Run:
-    """Check a PROOF.bend in its own directory (Bend resolves imports relative to it)."""
+def check(proof_file: Path, cfg: dict | None = None, timeout: int | None = None) -> Run:
+    """Check a PROOF.bend in its own directory (Bend resolves imports relative to it). timeout: seconds (default
+    bend.timeout_s)."""
     proof_file = Path(proof_file)
-    return run([proof_file.name], cwd=proof_file.parent, cfg=cfg)
+    return run([proof_file.name], cwd=proof_file.parent, cfg=cfg, timeout=timeout)
 
 
 def verdict_available() -> bool:
@@ -314,12 +331,46 @@ def verdict_enabled(cfg: dict | None = None) -> bool:
     return verdict_available() if v == "auto" else bool(v)
 
 
-def check_verdict(proof_file: Path, cfg: dict | None = None) -> Run:
+def check_verdict(proof_file: Path, cfg: dict | None = None, timeout: int | None = None) -> Run:
     """Second kernel (whitepaper §8.8): BendTT, whose soundness is proved in Lean. Runs through run(),
     so the same resolved checker; the kernel binary it executes is pinned by GENV
     (verdict_kernel_path, bend.pinned_kernel_sha256)."""
     proof_file = Path(proof_file)
-    return run([proof_file.name, "--verdict"], cwd=proof_file.parent, cfg=cfg, timeout=1800)
+    return run([proof_file.name, "--verdict"], cwd=proof_file.parent, cfg=cfg, timeout=timeout or 1800)
+
+
+def equivalence_timeout(cfg: dict | None = None) -> int:
+    """Q34: the bound, in seconds, of the final whole-proof check of an equivalence proof and of G2's re-check of a
+    committed one, in each kernel (config equivalence.timeout_s, 900). Nothing else uses it."""
+    return int((cfg or config()).get("equivalence", {}).get("timeout_s", 900))
+
+
+def timed_out(r: Run) -> bool:
+    return r.code is None and r.out.endswith("[timeout]")
+
+
+def crashed(r: Run) -> bool:
+    """A checker crash (bend2's nondeterministic 'the machine stack overflowed'): no verdict either way (Q34)."""
+    return (not r.ok) and "stack overflow" in r.out.lower() and "Location:" not in r.out
+
+
+def check_equivalence(proof_file: Path, cfg: dict | None = None, verdict: bool = False, tries: int | None = None) -> tuple:
+    """(Run, crash log) of the final check of an equivalence proof in bend2 (verdict=False) or BendTT (--verdict),
+    bounded by equivalence_timeout. A crash is never a verdict: it is retried, up to `tries` runs in all (default
+    config equivalence.crash_tries), and each
+    crash is logged ({kernel, seconds, message}). The last run is returned: a crash or a timeout there is UNKNOWN to
+    the caller, never acceptance."""
+    t = equivalence_timeout(cfg)
+    if tries is None:
+        tries = int((cfg or config()).get("equivalence", {}).get("crash_tries", 5))
+    log = []
+    for _ in range(max(1, tries)):
+        r = check_verdict(proof_file, cfg, timeout=t) if verdict else check(proof_file, cfg, timeout=t)
+        if not crashed(r):
+            return r, log
+        log.append({"kernel": "BendTT" if verdict else "bend", "seconds": r.seconds,
+                    "message": "\n".join(ln for ln in r.out.splitlines() if ln.strip())[:300]})
+    return r, log
 
 
 def unsafe_env_files(root: Path) -> list[str]:
