@@ -1361,49 +1361,20 @@ def gate_i16(ctx: Ctx) -> dict:
 
 
 def gate_model(ctx: Ctx) -> dict:
-    """harness_gate.checks.model: on the original code, every role call of every laws/M0 statement at every candidate
-    of its candidate space whose value in the baseline model (the committed projection) is defined has a harness value
-    equal to it; undefined model values are counted, not compared."""
-    from . import m0 as M
-    from .. import facts as F
-    from ..model_eval import ModelError, value_in, value_out
-    facts = json.loads((ctx.root / C.PROJECTED).read_text())
-    model = base_model(ctx)
-    n = {"calls": 0, "compared": 0, "equal": 0, "undefined": 0}
-    bad = []
-    for lid, law in M.laws(ctx.root).items():
-        cands = M.candidates(law, facts)
-        res = original_claims(ctx, law, [env for _, env in cands])
-        calls = [(lab, c) for (lab, _), r in zip(cands, res) for c in r["calls"]]
-        by_role: dict = {}
-        for lab, c in calls:
-            by_role.setdefault(c["role"], []).append((lab, c))
-        for role, xs in sorted(by_role.items()):
-            if role not in facts["functions"]:
-                continue
-            arg_t, res_t = F.fn_types(facts, role)
-            jobs = [{"terms": [{"call": role, "args": [{"var": "x"}]}], "env": {"x": value_in(arg_t, c["arg"], facts)}}
-                    for _, c in xs]
-            outs = model.run_jobs(jobs)
-            for (lab, c), (v,) in zip(xs, outs):
-                n["calls"] += 1
-                try:
-                    mv = value_out(res_t, v)
-                except (ValueError, ModelError):
-                    n["undefined"] += 1
-                    continue
-                n["compared"] += 1
-                r = c["result"]
-                if r["kind"] == "value" and C.compact(r["value"]) == C.compact(mv):
-                    n["equal"] += 1
-                else:
-                    bad.append(f"{lid} {lab} {role}: harness {r['kind']} {str(r.get('value'))[:80]} != model "
-                               f"{str(mv)[:80]}")
-    detail = (f"{n['calls']} role calls over every candidate of the 8 statements: {n['compared']} compared, "
-              f"{n['equal']} equal, {n['undefined']} undefined in the model")
-    if bad:
-        detail += f"; {len(bad)} differ: " + "; ".join(bad[:8])
-    return {"passed": not bad and n["compared"] > 0, "detail": detail}
+    """harness_gate.checks.model: holon.mutate.replay.model_check, the overlap check, on the original tree against the
+    baseline model (the committed projection, compiled by the M0 pipeline). For every laws/M0 statement and every
+    candidate of its candidate space (holon.refute.candidates with the law's pins, in order), each role call whose value
+    in the model is defined has an equal harness value; undefined model values are counted, not compared."""
+    from .replay import model_check
+    r = model_check(ctx.original(), facts_path=ctx.root / C.PROJECTED)
+    t = r["total"]
+    detail = (f"{len(r['laws'])} statements, {t['candidates']} candidates: {t['compared']} role-call values compared, "
+              f"{t['equal']} equal, {t['different']} different, {t['model_undefined']} undefined in the model")
+    if t["different"]:
+        diffs = [f"{lid} {d['candidate']} {d['role']}: harness {str(d['harness'])[:80]} != model {str(d['model'])[:80]}"
+                 for lid, c in sorted(r["laws"].items()) for d in c["differences"]]
+        detail += "; " + "; ".join(diffs[:8])
+    return {"passed": t["different"] == 0 and t["compared"] > 0, "detail": detail}
 
 
 def gate_null(ctx: Ctx) -> dict:
