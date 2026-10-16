@@ -1,0 +1,2926 @@
+{
+  "adjudication_version": "holon-equivalent-mutants/0.2",
+  "adjudicator": "delegated_panel",
+  "delegation": {
+    "blindness_audit": "I61's blindness audit, unchanged (I61's panel ran before any I61 or I62 result existed): Every tool call of the 14 agents (668 calls) was scanned mechanically. Each absolute path in a command or file argument was classified against the allowed set: the blind folder, the agent's own work folder, the toolchain, and for a refuter its brief and claims file. Each remaining hit was then read by hand and compared with the agent's own outside_reads list. Findings: no agent opened a forbidden file of instrument adjudication.forbidden, another agent's work folder, out/, /home/user, /root/work/morph, /root/.holon (other than executing solc through the sanctioned /root/work/solc-0.8.24 symlink), /root/.claude or any git history, and none used the network. The reads outside the allowed set were directory listings (names only, no contents): of the panel root and its work/ folder (several agents, while checking that their own folder existed); of /root/work/ while locating the toolchain (it shows the entry name 'morph', and nothing under it was opened); and of the Go module cache's github.com/ directory. The go command touched /root/.config/go implicitly. The harness itself auto-saved oversized command outputs under /root/.claude/.../tool-results/ and background stdout under the session's tasks/ folder. No agent opened those files, with one exception: the rollup refuter read the stdout file of its own background forge run (it was empty). A process listing showed one agent its own shell's command line, which names a shell-snapshot file; the agent did not open it. Per-agent counts are in docs/iterations/I61_equivalence_panel.json.",
+    "decision": "Carried from I61 (instrument adjudication.panel): the catalog, the diff sheet (spec/M2/lib/mutation_diff_sheet_i61.md) and the pinned sources are I61's byte for byte, and equivalence is a property of the mutant and the original program alone, so I61's verdicts stand. I61's decision: The human delegated the equivalence verdicts to independent fresh agents (docs/HUMAN_ANSWERS.md, answers delegated to the lead, 2026-10-13; docs/iterations/I22.md; instrument adjudication.delegation). The lead drafted the catalog, so it judged nothing: it built the blind folder, launched the agents, gave each refuter the judges' claims, and assembled this file mechanically from the agents' outputs.",
+    "panel": "I61's panel, unchanged: Five file groups (codec 62, rollup 57, oz 3, go_header 70, go_b 50: the codec libraries, Rollup.sol, the OpenZeppelin units, common/batch/batch_header.go and the stratum-B Go files). Each group had two fresh judges: one reasoning from the pinned sources, one building distinguishing scenarios and running them (forge on the Foundry project, go test on the Go modules). Each group in which some judge called a mutant equivalent or claimed a duplicate then had one fresh adversarial refuter (codec, go_b, oz, rollup). go_header had no claim to attack, so no refuter ran there. That makes 14 agents, each with no stake in the outcome.",
+    "procedure": "I61's procedure, unchanged (no I62 panel ran; the verdicts are copied verdict for verdict from spec/M2/equivalent_mutants_i61.json, sha256 4dd33637592f35fc78763208f8b8f7c91ad6035aae4e396a8119f3b7c8df14c2): Each agent saw only the blind folder and the toolchain, wrote only in its own work folder and returned one JSON object. The blind folder held: a README with the rules; the five groups' sheets, each the diff sheet trimmed to the definition, the operators, the list of tce mutants and that group's mutant sections (each agent judged its own group's sheet); the pinned sources laid out as the target checkout; the OpenZeppelin and forge-std units. The toolchain was solc 0.8.24, forge, Go 1.24.7 with the existing module cache, and python3. A refuter received the judges' equivalence and duplicate claims with their reasons, and attacked each one with call sequences from deployment (Solidity) or inputs to the exported API (Go). Verdicts, as instrument adjudication.panel states them: a mutant is equivalent iff the refuter confirmed it; disagreement or doubt is not equivalent; a tce mutant is equivalent. duplicate_of names the candidate group's lowest id iff some judge claimed the duplicate and the refuter confirmed it. Some agents were stopped, either by the lead for machine-resource reasons or by a container restart, then resumed with a note that carried no verdict, forecast or outcome. No text an agent could see carried a forecast or an outcome."
+  },
+  "diff_sheet_sha256": "8cd2d92bc091d221088386fb6a6f65e80d70ffa1243cb679334da1117e71f0d9",
+  "instrument": {
+    "path": "spec/M2/lib/mutation_catalog_i62.json",
+    "sha256": "2328e970f039885eff874d9bb55f0f9935edd081cf3c593b5f05bc5bd9790a4b"
+  },
+  "mutants_sha256": "eccefd69d69138492c1a387afddba644b84767059cde10163d5044fcaf3dc24a",
+  "review": {
+    "path": "docs/iterations/I62_catalog_review.json",
+    "sha256": "46fdc6e0cb54c9c5de6371a5a6544e301af8716932d91730ad203a35527b1302"
+  },
+  "verdicts": {
+    "A001": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A002": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A003": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A004": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A005": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A006": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A007": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A008": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A009": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A010": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A011": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A012": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A013": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A014": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A015": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A016": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A017": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A018": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "Confirmed. I could not break it, and no call sequence can. The mutant changes storeSequencerSetVerifyHash from mstore(add(P,185),0) to mstore(add(P,186),0). Compiled, Rollup differs by exactly one byte: PUSH1 0xb9 becomes 0xba, at runtime offset 22899 with the optimizer off and 20812 with it on (999999 runs); the creation code also differs by one byte. The only call site is Rollup.sol:351 in _commitBatchWithBatchData, always with bytes32(0). In both builds it is followed directly by storeParentBatchHash's mstore at P+217, where P is the header pointer, i.e. the free pointer after _commitBatch. So after line 352 memory is identical in both, except that the mutant leaves byte P+185 untouched instead of zeroing it. P+185 is never written earlier in the call frame: (1) The proxy's delegatecall gives Rollup fresh memory, and the free pointer only grows. (2) The only writes that can land above the pointer before the header build are the external-call argument encodings and _commitBatch's prefix. isActive(address) and getCrossDomainMessage(uint256) write 36 bytes, getFirstUnfinalizedMessageEnqueueTime() writes 32. Each call is followed by a pointer bump of roundup(returndatasize), which is at least 32 because a shorter reply reverts in decoding; so at most 4 bytes stay above the pointer. _commitBatch's two mstores reach F+40 while the pointer moves to F+10+32n. (3) Everything else stays below the pointer: the parent-header calldatacopy writes exactly length bytes and bumps by length; the V2 blob loop bumps by 32k; mapping keccaks use scratch space 0x00-0x3f. Nothing on the success path before the build emits an event, abi-encodes or builds a revert string. Hence the only memory above P is [P,P+30) of zeros when n=0, or [P,P+4) holding the low bytes of the last L1 message index when n>=1. So the header bytes, the keccak batch hash, the CommitBatch event and every storage slot are equal. That holds for commitBatch, commitState and commitBatchWithProof; for new and parent versions 0/1/2, including V0 parents of any length >= 249; and for any callee return length, msg.sender or message index. Gas: the opcode is the same, and memory size after the parent-hash store is the same, so cumulative gas there is equal. An out-of-gas between the two stores in one build forces an out-of-gas by the parent store in the other, giving the same halt; no gas limit distinguishes them. Experiment: a three-way Foundry differential of the original, A018, and the original instrumented with a probe that scans [P,P+2048) and logs through topics only, writing no memory. Two environments: (a) the real L1MessageQueueWithGasPriceOracle and Submitter behind proxies, with 2500 queued messages; (b) an adversarial mock returning 32/33/36/63/64/1000/2048/4096-byte replies padded with 0xff or 0x00, message hashes all-ones, index or keccak, genesis V0 headers with 0-100 trailing bytes, totals near 2^64, and a sender with nonzero low bytes. Runs: deterministic sweeps (3 entry points x 3 versions x n up to 300), 40-seed campaigns with reverts and recommits, and 256-run fuzz per environment, all with the optimizer on and off. Per optimizer setting there were 1841 successful commits and 3684 compared calls, plus 2x256x30 fuzz steps. Success, revert data, return data and events were always equal. Every committed hash equalled an independent model hash built with sequencerSetVerifyHash = 0. The probe saw byte P+185 = 0 on all commits, and the highest nonzero byte above P was P+3."
+    },
+    "A019": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A020": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A021": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A022": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A023": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A024": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A025": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A026": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A027": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A028": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A029": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A030": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A031": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A032": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A033": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A034": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A035": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A036": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A037": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A038": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A039": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A040": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A041": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A042": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "Could not break it.\n\nWhen initialize2 can run: it is reinitializer(2), so only while _initialized is 0 or 1. Any of initialize2, initialize3 or initialize4 closes it for good, and nothing lowers _initialized.\n\nBefore importGenesisBatch: no commit, revert or finalize can pass. Each needs committedBatches[i] == keccak(header), and every entry is 0. So lastCommitted == lastFinalized == 0, and both versions read the same slot.\n\nAfter genesis: importGenesisBatch runs only once, because finalizedStateRoots[0] becomes non-zero and index 0 is never written again. Three invariants then hold:\n(I1) committedBatches[j] != 0 iff j <= lastCommitted. A commit writes only lastCommitted+1, finalize never touches committedBatches, and revertBatch must zero through the top: it requires committedBatches[b+count] == 0 and loops to the first zero.\n(I2) lastFinalized <= lastCommitted. finalizeBatch(i) needs batch i committed, and revert sets b-1 with b > lastFinalized.\n(I3) committedStateRoots[j] != 0 for every j in [lastFinalized, lastCommitted]. Each commit writes a required-non-zero postStateRoot at the new top, and revert touches no roots. The only delete is finalizeBatch(i) removing i-1, which is the old lastFinalized, after lastFinalized has already become i.\n\nReentrancy: the invariants also hold at every reentrancy point. View calls are STATICCALLs. The non-view external calls are popCrossDomainMessage, slash and the ETH transfer. When popCrossDomainMessage runs, lastFinalized is already i and root[i] is intact, and a nested finalize raises lastFinalized before it deletes anything.\n\nOverflow: indices stay at or below 2^64, so no +1 wraps.\n\nConclusion: after genesis both reads are non-zero, so neither version takes the branch. The two versions behave identically in every reachable state.\n\nEvidence:\n- 40 targeted scenarios, run original vs mutant. They call initialize2 before initialize; before genesis and right after it; after commits, finalizes, reverts and recommits; via the proxy admin's upgradeToAndCall; reentrantly from the queue's pop callback, from the slash callback and from a claimReward receiver; and after initialize3 and initialize4.\n- 550 random sequences. These include 313 successful initialize2 calls in the 400-seed run, 213 of them after genesis and 105 with lastCommitted > lastFinalized.\n- An exhaustive abstract model with nested reentrant finalizations (index bounds 4, 6 and 8; up to 4258 states) found no state that violates I3.\nNo difference was found anywhere."
+    },
+    "A043": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "Could not break it. The guarded write runs only when committedStateRoots[lastCommittedBatchIndex] == 0, and initialize2 can run only while _initialized < 2. After genesis, invariant I3 (see A042) keeps that root non-zero in every reachable state, mid-call reentrant states included. So the branch can be taken only before importGenesisBatch. At that point no commit, revert or finalize can succeed, so lastCommitted == lastFinalized == 0. The original and the mutant then write the same slot, committedStateRoots[0], with the same value. Evidence: the same 40 targeted scenarios and 550 random sequences as A042 (original vs A043) showed no difference. The abstract model check found no state with root[lastCommitted] == 0 and lastCommitted != lastFinalized."
+    },
+    "A044": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A045": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A046": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A047": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A048": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A049": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A050": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A051": {
+      "duplicate_of": "A050",
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A052": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A053": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A054": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          true,
+          false
+        ],
+        "refuter_confirmed": false
+      },
+      "reason": ""
+    },
+    "A055": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A056": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A057": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A058": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A059": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A060": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A061": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A062": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A063": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "Could not break it.\n\nWhy the loop always exits through break: line 439 requires committedBatches[b+count] == 0 on entry, and b+count is overflow-checked. revertBatch makes no external call at all (_loadBatchHeader is pure; batchInChallenge is an internal jump), so nothing can re-enter, and the loop body writes only zeros, into committedBatches[b..b+count-1]. When _count reaches 0, _batchIndex == b+count and the hash read there is 0, so the original breaks before it re-tests 'while (_count > 0)'. That condition is therefore false on no execution path. The always-true '_count >= 0' runs exactly the same iterations, and _count never wraps.\n\nTargeted counts, all identical:\n- 0 and 1;\n- exact span, span+1, span-1 and 10;\n- 2^200, 2^255 and MAX-b;\n- MAX-1 and MAX, which overflow-revert in both;\n- a challenge, or a set revertReqIndex, inside the range.\n\nRandom sequences: 895 successful reverts, 515 with count > span (break exit) and 380 with count == span. No difference. The model check also ran the original and the mutant loop on every enabled revert at bounds 4, 6 and 8 and found no difference."
+    },
+    "A064": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "Could not break it. 'revertReqIndex >= 0' is always true for uint256, so the two versions differ only when revertReqIndex == 0 and _batchIndex == 0. In that case the mutant stores 0 into a slot that already holds 0: no storage change, no event, no revert. The case is also unreachable. Inside the loop _batchIndex runs over [b, b+count-1], where b > lastFinalizedBatchIndex >= 0 and b+count is overflow-checked, so _batchIndex >= 1. Evidence:\n- Targeted scenarios: revertReqIndex set by a proveState timeout, then reverts that cover it, start at it, or lie above it; also reverts with revertReqIndex == 0.\n- Random sequences: 895 successful reverts, 51 of which cleared a non-zero revertReqIndex and 21 of which left one set.\n- Model check: no difference.\nNo difference was found anywhere."
+    },
+    "A065": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A066": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A067": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A068": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A069": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A070": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A071": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A072": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A073": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A074": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A075": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A076": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A077": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A078": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A079": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A080": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A081": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A082": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A083": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A084": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A085": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A086": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A087": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A088": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A089": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A090": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "Could not break it. Inside the unchecked block i < l1MessagePopped, so 'l1MessagePopped - i' never wraps, and _count is 256 when it is tested. The mutant takes the branch in exactly one extra case, l1MessagePopped - i == 256, and there it assigns _count = 256, the value it already holds. Every popCrossDomainMessage(startIndex, _count) call, and everything after it, is identical whatever the queue does. Tested with a queue mock that enforces the real L1MessageQueueWithGasPriceOracle checks: only the rollup may pop, count <= 256, and the start index must match. Batches popped 1, 255, 256, 257, 511, 512, 513, 768 and 1024 messages. The random sequences included 290 finalizations that popped a non-zero multiple of 256 and 485 that popped more than 256. No difference."
+    },
+    "A091": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A092": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A093": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A094": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A095": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A096": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A097": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A098": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A099": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A100": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A101": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A102": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A103": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A104": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A105": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A106": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A107": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A108": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A109": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A110": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "tce: Rollup's deployed bytecode is the original's (instrument tce)"
+    },
+    "A111": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "tce: Rollup's deployed bytecode is the original's (instrument tce)"
+    },
+    "A112": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "tce: Rollup's deployed bytecode is the original's (instrument tce)"
+    },
+    "A113": {
+      "duplicate_of": "A112",
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "tce: Rollup's deployed bytecode is the original's (instrument tce)"
+    },
+    "A114": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A115": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A116": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A117": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A118": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A119": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A120": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A121": {
+      "duplicate_of": "A112",
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "tce: Rollup's deployed bytecode is the original's (instrument tce)"
+    },
+    "A122": {
+      "duplicate_of": "A112",
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "tce: Rollup's deployed bytecode is the original's (instrument tce)"
+    },
+    "A123": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A124": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A125": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A126": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A127": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A128": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A129": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A130": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A131": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A132": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A133": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A134": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A135": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A136": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A137": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A138": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A139": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A140": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A141": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A142": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A143": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A144": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A145": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A146": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A147": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A148": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A149": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A150": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A151": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A152": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A153": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A154": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A155": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A156": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A157": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A158": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A159": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A160": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A161": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A162": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A163": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A164": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A165": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A166": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A167": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A168": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A169": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A170": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A171": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A172": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A173": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A174": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A175": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A176": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A177": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A178": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A179": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A180": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A181": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A182": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A183": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A184": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A185": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A186": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A187": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A188": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A189": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A190": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A191": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "A192": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B001": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B002": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "No distinguishing input exists. GenesisBatchHeader is the only exported entry point that reaches batch.go:55; nothing else in package genesis calls it. header comes from make([]byte, 257), so it is all zero, and before line 55 only header[0]=2 has been written. The mutant stores 8 constant zero bytes at header[2..9] instead of header[1..8]. Every byte it writes is already 0. header[1] keeps its zero from make, header[0] is untouched, and line 56 re-zeroes header[9]. From line 55 to the return, header is shared with nothing: there are no callbacks and no goroutines, only builtins and stdlib calls. So the returned slice is the only observation point. Its 257 bytes are identical in both programs: 02, 24 zero bytes, dataHash, emptyBlobVersionedHash, 32 zero bytes, Root, 96 zero bytes, then the low 64 bits of Number big-endian. cap is 257 and err is nil in both. header[2:] has constant length 255 >= 8, so the mutant adds no panic. The existing panics (nil header, nil Number, BaseFee wider than 256 bits in FillBytes) fire on lines 33-43, before the mutated line, with the same value. No input memory is written. Run: the harness binaries for the original and the mutant gave byte-identical output (same global sha256) on 13 fixed edge cases, which hit all three panic paths; 100000 seeded random headers, 3698 of which panicked; the repeat-call and alias checks; and 16 goroutines x 500 concurrent calls."
+    },
+    "B003": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "No distinguishing input exists. In the mutant, line 56 stores zeros at header[8..15] instead of header[9..16]. At that point the fresh make()'d header is zero everywhere except header[0]=2, and line 55 has just written zeros at 1..8, so the store changes nothing. header[16] keeps its zero from make instead of being written with 0, and line 57 still zeroes 17..24. Every later write is unchanged: dataHash at 25, the blob hash at 57, Root at 121 and Number at 249. So for every input the returned 257 bytes, the capacity (257) and the nil error are identical. header[8:] has constant length 249 >= 8, so the mutant adds no panic. The existing panics (nil header, nil Number, oversized BaseFee) happen before line 56, identically. header is not shared before the return, and no input memory is written. Run: the same differential harness (13 fixed cases, 100000 seeded random headers, repeat/alias and concurrent checks) gave output identical to the original, with 0 of 100019 lines differing."
+    },
+    "B004": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "No distinguishing input exists. In the mutant, line 56 stores zeros at header[10..17] instead of header[9..16]. All of those bytes are still zero from make at that point, since line 55 wrote only 1..8. header[9] keeps its zero from make instead of being written with 0, and line 57 re-zeroes header[17]. All later writes are unchanged, so the final 257 bytes, the capacity and the nil error match the original for every input. header[10:] has constant length 247 >= 8, so the mutant adds no panic. The existing panics occur before line 56, identically. Nothing observes header between line 56 and the return: there are no callbacks and the slice is not shared. No input memory is written. Run: the differential harness (13 fixed cases, 100000 seeded random headers, repeat/alias and concurrent checks) gave output identical to the original."
+    },
+    "B005": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "No distinguishing input exists. In the mutant, line 57 stores zeros at header[16..23] instead of header[17..24]. header[16] is already 0 (from make, and line 56 wrote 0 there), and header[17..23] are 0 from make, so the store changes nothing. header[24] keeps its zero from make instead of being written with 0. Line 58 then writes dataHash at 25..56 as before, and all later writes are unchanged. The returned 257 bytes, the capacity and the nil error are therefore identical for every input. header[16:] has constant length 241 >= 8, so the mutant adds no panic. The existing panics occur before line 57, identically. header is not shared before the return, and no input memory is written. Run: the differential harness (13 fixed cases, 100000 seeded random headers, repeat/alias and concurrent checks) gave output identical to the original."
+    },
+    "B006": {
+      "duplicate_of": null,
+      "equivalent": true,
+      "panel": {
+        "judges": [
+          true,
+          true
+        ],
+        "refuter_confirmed": true
+      },
+      "reason": "No distinguishing input exists. In the mutant, line 57 stores zeros at header[18..25] instead of header[17..24]. header[17] keeps its zero from make (line 56 covers only 9..16), and header[18..24] are already 0. header[25] is zeroed, but line 58, copy(header[25:], dataHash[:]), runs unconditionally right after it. That copy always copies all 32 bytes, because dataHash is a [32]byte and header[25:] has length 232, so header[25] ends up as dataHash[0] in both programs. Nothing reads header between lines 57 and 58, and nothing shares it before the return. The final 257 bytes, the capacity and the nil error are therefore identical for every input. header[18:] has constant length 239 >= 8, so the mutant adds no panic. The existing panics occur before line 57, identically. Run: the differential harness (13 fixed cases, 100000 seeded random headers, repeat/alias and concurrent checks) gave output identical to the original. The random headers produced all 256 values of header[25] (=dataHash[0]), so the overwritten byte was exercised in every value."
+    },
+    "B007": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B008": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B009": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B010": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B011": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B012": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B013": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B014": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B015": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B016": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B017": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B018": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B019": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B020": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B021": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B022": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B023": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B024": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B025": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B026": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B027": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B028": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B029": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B030": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B031": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B032": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B033": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B034": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B035": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B036": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B037": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B038": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B039": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B040": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B041": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B042": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B043": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B044": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B045": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B046": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B047": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B048": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B049": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    },
+    "B050": {
+      "duplicate_of": null,
+      "equivalent": false,
+      "panel": {
+        "judges": [
+          false,
+          false
+        ],
+        "refuter_confirmed": null
+      },
+      "reason": ""
+    }
+  }
+}

@@ -101,7 +101,8 @@ def holon(htree: Path, args: list, timeout: int = 7200) -> subprocess.CompletedP
 
 
 def _tail(p: subprocess.CompletedProcess, n: int = 600) -> str:
-    return ((p.stdout or "") + (p.stderr or ""))[-n:].strip()
+    """The last n characters of a step's output, scrubbed first (common.scrub), so the cut is the same everywhere."""
+    return C.scrub((p.stdout or "") + (p.stderr or ""))[-n:].strip()
 
 
 def extract(htree: Path, tree: Path, out: Path, log=None) -> tuple[dict, dict, dict]:

@@ -79,7 +79,9 @@ GO_HARNESS = C.HARNESS / "holon_mutate_replay_test.go"
 GO_TEST = "TestHolonMutateReplay"
 GO_BINARY = "holon_i61.test"
 GO_PREFIX = "HOLON-I61 "
-TRACE_HARNESSES = (Path("replay/M1/solidity/HolonTraceReplay.t.sol"), Path("replay/M2/solidity/HolonLastStep.t.sol"))
+# I62: the M1 trace harness's copy with a deployment probe per trace (a trace whose deployment reverts logs every step as
+# "rev deploy: <reason>": no step runs, so none panics), beside the I15 last-step harness, which imports it
+TRACE_HARNESSES = (Path("replay/M2/mutation_i62/HolonTraceReplay.t.sol"), Path("replay/M2/solidity/HolonLastStep.t.sol"))
 TRACE_CONTRACT = "HolonTraceReplay"
 SIDECAR = Path("spec/M2/lib/extract_solidity.json")   # the Solidity frontend's frozen compiler version and settings
 BINDING = Path("replay/M2/implementations.json")
@@ -1111,6 +1113,9 @@ def _bytes_arg(role: str, a) -> str:
 
 
 NONE, PANIC = object(), object()
+# a role whose value is none (replay.semantics: dec_go is None when validate() errs). It is a value, compared with the
+# other side like any value (none is never some(...)), unlike NONE, a call with no value, which makes no execution
+NONE_VALUE = {"none": True}
 
 
 class _Eval:
@@ -1124,7 +1129,8 @@ class _Eval:
         self._round = []
 
     def value(self, t: dict, path: tuple):
-        """The term's value, NONE (no value), PANIC, or None when a call it needs has not run yet."""
+        """The term's value, NONE_VALUE (the role's value is none), NONE (no value), PANIC, or None when a call it
+        needs has not run yet."""
         if "var" in t:
             if t["var"] not in self.env:
                 raise C.MutateError(f"the assignment binds no {t['var']}")
@@ -1133,18 +1139,22 @@ class _Eval:
             return t["bytes"].lower()
         if "field" in t:
             v = self.value(t["of"], path + ("of",))
+            if v is NONE_VALUE:
+                return NONE                  # a field of none: the model's undefined intermediate, no execution
             return v if v is None or v is NONE or v is PANIC else v[t["field"]]
         if "some" in t:
             return self.value(t["some"], path + ("some",))
         if "call" in t:
             if path in self.results:
                 r = self.results[path]
-                return r["value"] if r["kind"] == "value" else (PANIC if r["kind"] == "panic" else NONE)
+                if r["kind"] == "value":
+                    return NONE_VALUE if r["value"] is None else r["value"]
+                return PANIC if r["kind"] == "panic" else NONE
             vals = [self.value(a, path + ("args", i)) for i, a in enumerate(t["args"])]
             if any(v is PANIC for v in vals):
                 return PANIC
-            if any(v is NONE for v in vals):
-                return NONE
+            if any(v is NONE or v is NONE_VALUE for v in vals):
+                return NONE                  # a role never takes none as its argument: no execution
             return None
         raise C.MutateError(f"term {t} is not in the M0 IR")
 
@@ -1156,7 +1166,7 @@ class _Eval:
             self._visit(a, path + ("args", i), need)
         if "call" in t and path not in self.results and path not in self.asked:
             vals = [self.value(a, path + ("args", i)) for i, a in enumerate(t["args"])]
-            if len(vals) == 1 and vals[0] is not None and vals[0] is not NONE and vals[0] is not PANIC:
+            if len(vals) == 1 and all(vals[0] is not x for x in (None, NONE, NONE_VALUE, PANIC)):
                 need.setdefault(t["call"], {})[_canon(vals[0])] = vals[0]
                 self.asked.add(path)
                 self._round.append((path, t["call"], vals[0]))

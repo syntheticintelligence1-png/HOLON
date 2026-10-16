@@ -125,7 +125,7 @@ def proof_attempt(law: dict, facts: dict, gen_dir: Path, generator: str) -> dict
     if r.code is None:
         out["why"] = "timeout"
     elif out["verdict"] is None:
-        out["why"] = "no verdict line: " + r.first_line[:200]
+        out["why"] = "no verdict line: " + C.scrub(r.first_line)[:200]
     ok = r.ok and law_names(em.text) == [em.name] and not bend.escape_hatches(text + em.text)
     if r.marker == D.MARK_OK and not ok:
         out["why"] = "the checker accepted a file that is not this law's proof"

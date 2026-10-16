@@ -1,6 +1,6 @@
 {
   "ledger_version": "holon-ledger/0.1",
-  "doc": "Milestone M2's extension of spec/ledger/assumptions.json (holon.records.milestone_extensions; I15-B). A bundle there classifies the definitions of the model generated for its facts at the milestone that registered it (M1 for the rollup). The M2 model of the same facts adds definitions, which only this file classifies: holon.records reads it for records of milestone M2 (a run over derived facts, such as a mutation, checks that every definition in a law's cone is classified). The base ledger is not edited, so the documents built from it (gen/M2/diagram, gen/M2/evidence.json) are unchanged. Its \"bundles\" register the documents first modelled at M2 (holon.records.all_bundles): I20's extracted rollup document, whose model is gen/M2/extracted/model.bend.",
+  "doc": "Milestone M2's extension of spec/ledger/assumptions.json (holon.records.milestone_extensions; I15-B). A bundle there classifies the definitions of the model generated for its facts at the milestone that registered it (M1 for the rollup). The M2 model of the same facts adds definitions, which only this file classifies: holon.records reads it for records of milestone M2 (a run over derived facts, such as a mutation, checks that every definition in a law's cone is classified). The base ledger is not edited, so the documents built from it (gen/M2/diagram, gen/M2/evidence.json) are unchanged. Its \"bundles\" register the documents first modelled at M2 (holon.records.all_bundles): I20's extracted rollup document, whose model is gen/M2/extracted/model.bend, and (I62) the extracted header document, for the SORT-width laws holon derive can build over it.",
   "extends": [
     {
       "facts": "spec/M1/facts/morph_rollup.json",
@@ -110,6 +110,51 @@
           "why": "record plumbing generated from the compiler's storage layout and ABI: the store (one field per family), struct records, argument records, their getters and setters, and mapping-of-struct lookups"
         }
       ]
+    },
+    {
+      "facts": "spec/M2/facts/morph_header.extracted.json",
+      "facts_sha256": "0f3caeb4d06e85e337733d444ed48da55f8679c026f43bb4f26aefeb2bffe646",
+      "model": "extracted/model",
+      "doc": "I62: the extracted header document (I17's layout document of the header codec library, no transitions). holon derive builds a SORT-width law over it when a store site of its layout is reached by no action's narrowing store of the rollup document (no entry points): a mutant can make that store non-narrowing (I61's A027, A031, A116, A120, whose holon run refused the law for want of this bundle). Such a law is decided over the rollup document's extracted model (holon.sorts.width), where its cone is empty. Each assumption the document declares is an entry introduced by \"*\", so every law over this document carries all of them (a conservative reading: none is dropped); no definition is classified as assumption-free, so a derived version of this document with a non-empty cone is refused (holon.records.resolve_bundle).",
+      "entries": [
+        {
+          "id": "A-dirty",
+          "kind": "abstraction",
+          "source": "spec/M2/facts/morph_header.extracted.json#/assumptions/0",
+          "text": "Memory at the free pointer is not zeroed: every region a walk allocates (mload(0x40)) starts with unknown cells (memory_init dirty), so a byte that no op writes is unknown, never zero.",
+          "introduced_by": [
+            "*"
+          ]
+        },
+        {
+          "id": "A-env",
+          "kind": "abstraction",
+          "source": "spec/M2/facts/morph_header.extracted.json#/assumptions/1",
+          "text": "Environment terms (storage, block, msg and tx members, blobhash, results of external calls, memory reads, and values computed from them) are free: a revert whose failing condition mentions one belongs to the transition, not to the edge (rule J1), and conditions on them are projected away.",
+          "introduced_by": [
+            "*"
+          ]
+        },
+        {
+          "id": "A-implicit",
+          "kind": "abstraction",
+          "source": "spec/M2/facts/morph_header.extracted.json#/assumptions/2",
+          "text": "Implicit reverts (checked arithmetic, array bounds, ABI decoding) are not part of an edge's partiality: only explicit require, revert and branch conditions on inputs are.",
+          "introduced_by": [
+            "*"
+          ]
+        },
+        {
+          "id": "A-width:Header",
+          "kind": "abstraction",
+          "source": "spec/M2/facts/morph_header.extracted.json#/assumptions/3",
+          "text": "Fields of Header whose value type is wider than their stored width: the bytes keep only the low part of the value, so they determine it only when it fits the width.",
+          "introduced_by": [
+            "*"
+          ]
+        }
+      ],
+      "no_assumption": []
     }
   ]
 }
