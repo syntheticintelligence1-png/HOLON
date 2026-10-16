@@ -12,6 +12,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -44,7 +45,7 @@ def bend_cmd(cfg: dict | None = None) -> list[str]:
     return list((cfg or config())["bend"]["cmd"])
 
 
-def _env() -> dict:
+def _env(cfg: dict | None = None) -> dict:
     env = dict(os.environ)
     elan = Path.home() / ".elan" / "bin"
     if elan.is_dir():
@@ -58,8 +59,9 @@ def _env() -> dict:
     for k in [k for k in env if k == "BUN_OPTIONS" or k.startswith("BUN_CONFIG_") or k.startswith("BUN_JSC_")]:
         env.pop(k)
     # F38: JavaScriptCore options reach the checker only from the registered config: the stack, so a deep or large
-    # file gets a verdict instead of "the machine stack overflowed" (run() raises RLIMIT_STACK to match)
-    env["BUN_JSC_maxPerThreadStackUsage"] = str(js_stack_bytes())
+    # file gets a verdict instead of "the machine stack overflowed" (the launcher raises the checker's RLIMIT_STACK to
+    # match, see _spawn_argv)
+    env["BUN_JSC_maxPerThreadStackUsage"] = str(js_stack_bytes(cfg))
     # bend2/bend.ts resolves package imports through BEND_LIB / BEND_HUB: never let the environment
     # redirect them (HOLON's files import only Base and relative paths)
     for k in ("BEND_LIB", "BEND_HUB"):
@@ -195,7 +197,7 @@ def fingerprint(cfg: dict | None = None) -> dict:
     except (OSError, subprocess.SubprocessError):
         head = "unknown"
     try:
-        b = subprocess.run([bun_path, "--version"], capture_output=True, text=True, env=_env(), timeout=60,
+        b = subprocess.run([bun_path, "--version"], capture_output=True, text=True, env=_env(cfg), timeout=60,
                            cwd=str(checkout))
     except (OSError, subprocess.SubprocessError) as e:
         raise FingerprintError(f"cannot run {bun_path} --version: {e}") from None
@@ -276,14 +278,33 @@ def js_stack_bytes(cfg: dict | None = None) -> int:
     return int((cfg or config())["bend"].get("js_stack_mb", 1024)) * 1024 * 1024
 
 
-def _raise_stack_limit(nbytes: int) -> None:
-    """RLIMIT_STACK of this process (inherited by the checker it starts) raised to nbytes, within the hard limit.
-    Set here, not in a preexec_fn (unsafe with threads); only the main thread's growth limit changes."""
+# F38 review M2: RLIMIT_STACK is raised in the checker's process only, never in this one, whose other children (z3,
+# solc, the frontends) keep the environment they were registered with. A launcher run by this interpreter in isolated
+# mode (-I -S: no PYTHON* variable, no site, no current directory on sys.path) sets the soft limit and execs the checker
+# with the same argv. Not a preexec_fn: checks run from threads (holon.gen.eqsearch), where it can deadlock.
+_STACK_LAUNCHER = ("import os, resource, sys\n"
+                   "n = int(sys.argv[1])\n"
+                   "soft, hard = resource.getrlimit(resource.RLIMIT_STACK)\n"
+                   "resource.setrlimit(resource.RLIMIT_STACK, (n if hard == resource.RLIM_INFINITY else min(n, hard), hard))\n"
+                   "os.execv(sys.argv[2], sys.argv[2:])\n")
+
+
+def stack_limits(cfg: dict | None = None) -> dict:
+    """The checker's stack (F38): {"js_bytes", "rlimit_soft", "rlimit_hard"}. js_bytes is the JavaScript stack it is
+    given (BUN_JSC_maxPerThreadStackUsage); rlimit_soft the RLIMIT_STACK its process runs with, js_bytes within the
+    hard limit it inherits (rlimit_hard, None when unlimited), whatever this process's own soft limit is."""
     import resource
-    soft, hard = resource.getrlimit(resource.RLIMIT_STACK)
-    want = nbytes if hard == resource.RLIM_INFINITY else min(nbytes, hard)
-    if soft != resource.RLIM_INFINITY and soft < want:
-        resource.setrlimit(resource.RLIMIT_STACK, (want, hard))
+    n = js_stack_bytes(cfg)
+    _soft, hard = resource.getrlimit(resource.RLIMIT_STACK)
+    unlimited = hard == resource.RLIM_INFINITY
+    return {"js_bytes": n, "rlimit_soft": n if unlimited else min(n, hard), "rlimit_hard": None if unlimited else hard}
+
+
+def _spawn_argv(cmd: list[str], cfg: dict | None = None) -> list[str]:
+    """What run() executes for the checker command cmd: the stack launcher, which execs exactly cmd."""
+    if not sys.executable:
+        raise FileNotFoundError("cannot launch the bend checker: this interpreter's path is unknown (sys.executable)")
+    return [sys.executable, "-I", "-S", "-c", _STACK_LAUNCHER, str(js_stack_bytes(cfg)), *cmd]
 
 
 def run(args: list, cwd=None, timeout: int | None = None, cfg: dict | None = None) -> Run:
@@ -294,12 +315,11 @@ def run(args: list, cwd=None, timeout: int | None = None, cfg: dict | None = Non
     except FingerprintError as e:
         raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
     cmd = prefix + [str(a) for a in args]
-    _raise_stack_limit(js_stack_bytes(cfg))
     t0 = time.monotonic()
     # its own process group, so a timeout stops everything the checker started (BendTT's Lean kernel is a child
     # of bun), not only bun (F35 review m4: the bound must bound the resources too)
-    p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=_env(),
-                         start_new_session=True)
+    p = subprocess.Popen(_spawn_argv(cmd, cfg), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                         env=_env(cfg), start_new_session=True)
     try:
         out, err = p.communicate(timeout=timeout or int(cfg["bend"].get("timeout_s", 180)))
         return Run(p.returncode, out + err, round(time.monotonic() - t0, 3), cmd)
@@ -463,10 +483,9 @@ def run_budgeted(args: list, cwd, budget_s: float, cfg: dict | None = None) -> R
     except FingerprintError as e:
         raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
     cmd = prefix + [str(a) for a in args]
-    _raise_stack_limit(js_stack_bytes(cfg))
     t0 = time.monotonic()
-    p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=_env(),
-                         start_new_session=True)
+    p = subprocess.Popen(_spawn_argv(cmd, cfg), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+                         env=_env(cfg), start_new_session=True)
     try:
         out, _ = p.communicate(timeout=budget_s)
         return Run(p.returncode, out or "", round(time.monotonic() - t0, 3), cmd)

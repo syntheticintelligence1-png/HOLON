@@ -121,16 +121,80 @@ def signed_payload(entry: dict) -> bytes:
     return ir.canonical_json({k: v for k, v in entry.items() if k not in ("signature", "accepted")})
 
 
-def verify_signature(entry: dict, root: Path) -> tuple[bool, str]:
-    """A detached, ASCII-armored gpg signature over signed_payload(entry), made by a key in keys/. The keys
-    are imported into a throwaway GNUPGHOME, so no keyring outside keys/ is trusted."""
+FREEZE_TOOL = Path("tools") / "freeze.py"
+FROZEN_MANIFEST = "FROZEN.sha256"
+
+
+def _frozen_listing(data: bytes | None) -> dict[str, str]:
+    """{path: sha256} of a FROZEN.sha256 text (`<sha256>  <path>` per line), as tools/freeze.py check reads it."""
+    out = {}
+    for line in (data or b"").decode("utf-8", "replace").splitlines():
+        h, sep, f = line.partition("  ")
+        if sep and len(h) == 64 and all(c in "0123456789abcdef" for c in h):
+            out[f] = h
+    return out
+
+
+def _freeze_roots(data: bytes | None) -> list[str]:
+    """FROZEN_ROOTS of a tools/freeze.py text, read as a literal (never executed)."""
+    import ast
+    try:
+        for node in ast.parse((data or b"").decode("utf-8", "replace")).body:
+            if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "FROZEN_ROOTS"
+                                                    for t in node.targets):
+                roots = ast.literal_eval(node.value)
+                return [r for r in roots if isinstance(r, str)]
+    except (SyntaxError, ValueError):
+        pass
+    return []
+
+
+def _key_path(rel: str) -> bool:
+    """keys/<name>: one plain file name directly under keys/ with a KEY_SUFFIXES suffix."""
+    parts = rel.split("/")
+    return (len(parts) == 2 and parts[0] == "keys" and parts[1] not in ("", ".", "..")
+            and "\\" not in parts[1] and Path(parts[1]).suffix in KEY_SUFFIXES)
+
+
+def frozen_keys(root: Path, commit: str | None = None) -> tuple[list[bytes], str]:
+    """The public keys a signature is verified against (F38, Q39): only keys the human froze. A key keys/<name>
+    counts when tools/freeze.py puts it under the freeze (FROZEN_ROOTS names keys/ or the file), FROZEN.sha256
+    lists it, and its bytes hash to the listed sha256, all in the tree being checked; for a committed line
+    (`commit`, the commit that appended it), FROZEN.sha256 at that commit must list the same key with the same hash
+    and the key's bytes there must match it too (a key frozen later, or changed, signs nothing earlier). Agents
+    never freeze (AGENTS.md rule 1): until the human freezes a key, every signature fails. ([keys], why)."""
+    root = Path(root)
+    tool, manifest = root / FREEZE_TOOL, root / FROZEN_MANIFEST
+    roots = _freeze_roots(tool.read_bytes() if tool.is_file() else None)
+    listed = _frozen_listing(manifest.read_bytes() if manifest.is_file() else None)
+    cand = sorted(f for f in listed if _key_path(f) and ("keys" in roots or f in roots))
+    if not cand:
+        return [], ("no public key is frozen: a signature counts only against a key in keys/ that the human froze "
+                    "(under tools/freeze.py FROZEN_ROOTS and listed in FROZEN.sha256, Q3); none is")
+    then = _frozen_listing(blob_at(root, commit, FROZEN_MANIFEST)) if commit else listed
+    keys, skipped = [], []
+    for f in cand:
+        b = blob_at(root, commit, f) if commit else ((root / f).read_bytes() if (root / f).is_file() else None)
+        if b is not None and _sha(b) == listed[f] == then.get(f):
+            keys.append(b)
+        else:
+            skipped.append(f)
+    if not keys:
+        at = f" at {commit[:7]}" if commit else ""
+        return [], f"no frozen public key{at} matches FROZEN.sha256 ({', '.join(skipped)})"
+    return keys, f"{len(keys)} frozen key(s)"
+
+
+def verify_signature(entry: dict, root: Path, commit: str | None = None) -> tuple[bool, str]:
+    """A detached, ASCII-armored gpg signature over signed_payload(entry), made by a frozen key (frozen_keys; for
+    a committed line, as the commit that appended it had the key). The keys are imported into a throwaway
+    GNUPGHOME under names of their own, so no keyring outside them is trusted and no path in the tree is."""
     sig = entry.get("signature")
     if not isinstance(sig, str) or not sig.strip():
-        return False, "no gpg signature: this needs a signature verifiable against keys/ (Q3)"
-    kdir = Path(root) / "keys"
-    keys = sorted(p for p in kdir.glob("*") if p.is_file() and p.suffix in KEY_SUFFIXES) if kdir.is_dir() else []
+        return False, "no gpg signature: this needs a signature verifiable against a frozen key in keys/ (Q3)"
+    keys, why = frozen_keys(root, commit)
     if not keys:
-        return False, "the signature cannot be verified: keys/ holds no public key (a signature is a human act, Q3)"
+        return False, f"the signature cannot be verified: {why} (a signature is a human act, Q3)"
     gpg = shutil.which("gpg")
     if not gpg:
         return False, "the signature cannot be verified: gpg is not installed"
@@ -138,16 +202,20 @@ def verify_signature(entry: dict, root: Path) -> tuple[bool, str]:
     try:
         os.chmod(home, 0o700)
         env = {"GNUPGHOME": str(home), "PATH": os.environ.get("PATH", ""), "LC_ALL": "C"}
-        imp = subprocess.run([gpg, "--batch", "--quiet", "--import", *map(str, keys)], env=env, capture_output=True)
+        files = []
+        for i, b in enumerate(keys):
+            (home / f"key{i}").write_bytes(b)
+            files.append(str(home / f"key{i}"))
+        imp = subprocess.run([gpg, "--batch", "--quiet", "--import", *files], env=env, capture_output=True)
         if imp.returncode != 0:
-            return False, "the signature cannot be verified: the keys in keys/ do not import"
+            return False, "the signature cannot be verified: the frozen keys do not import"
         (home / "payload").write_bytes(signed_payload(entry))
         (home / "payload.asc").write_text(sig)
         v = subprocess.run([gpg, "--batch", "--status-fd", "1", "--verify", str(home / "payload.asc"), str(home / "payload")],
                            env=env, capture_output=True, text=True)
         if v.returncode == 0 and "[GNUPG:] VALIDSIG" in v.stdout:
-            return True, "gpg signature verified against keys/"
-        return False, "the gpg signature does not verify against keys/"
+            return True, "gpg signature verified against a frozen key in keys/"
+        return False, "the gpg signature does not verify against the frozen keys in keys/"
     finally:
         shutil.rmtree(home, ignore_errors=True)
 
@@ -849,12 +917,13 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
      "unchecked": [line numbers] (off git, below), "elsewhere": [line numbers] (on git, below),
      "crashes": [{"law_id", "kernel", "seconds", "message"}]}.
     milestone (F35, F38): the milestone being gated. On git, a committed binding_change line of a law that lives in
-    ANOTHER milestone's laws/ gets every check but the re-check of its proofs, which that milestone's G2 makes (listed
-    in "elsewhere" and in the note); a line about a law found in no milestone (or in several) is re-checked by every
-    gate. Off git (a copied tree), a binding_change line of a law of ANOTHER
-    milestone (no laws/<milestone>/<law_id>.json, whatever the line's own label says) cannot be checked (it needs the
-    old model at its bound commit) and is not that gate's claim: it is listed in the note as not checked, never as
-    accepted. Its own milestone's binding_change lines still fail off git. Every checker crash a re-check of a
+    ANOTHER milestone's laws/ gets every check (its artifacts regenerated and tied to the two models and the statement)
+    but bend's and BendTT's runs on its PROOF.bend, which that milestone's G2 makes (listed in "elsewhere" and in the
+    note); a line about a law found in no milestone (or in several) is re-checked in full by every gate. So a proof is
+    re-run only where its law's milestone is gated: CI gates M0-M2 in full and M3's G2 in its own job (gate-M3-G2).
+    Off git (a copied tree), a binding_change line of a law of ANOTHER milestone (no laws/<milestone>/<law_id>.json,
+    whatever the line's own label says) cannot be checked (it needs the old model at its bound commit) and is not that
+    gate's claim: it is listed in the note as not checked, never as accepted. Its own milestone's binding_change lines still fail off git. Every checker crash a re-check of a
     binding_change line retried in this scan (Q34: retried and logged, never a verdict) is listed in "crashes" and
     named in the note."""
     path, root = Path(path), Path(root)
@@ -895,8 +964,8 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
         item = {"line": n, "entry": e, "ok": False, "committed": commit is not None, "commit": commit}
         out["entries"].append(item)
         acc = e.get("accepted") if isinstance(e, dict) else None
-        # F38: a committed binding_change line of a law of another milestone gets every check here but the re-check of
-        # its proofs in both kernels, which its own milestone's G2 makes (each line re-checked once per CI run)
+        # F38: a committed binding_change line of a law of another milestone gets every check here but the kernels'
+        # runs on its proof, which its own milestone's G2 makes (each proof re-checked once per CI run)
         own = not (milestone and isinstance(e, dict) and e.get("kind") == "binding_change"
                    and _law_milestone(root, e.get("law_id")) not in (None, milestone))
         if commit is not None:
@@ -925,8 +994,8 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
     if out.get("elsewhere"):
         lines = out["elsewhere"]
         out["note"] += (f"; {len(lines)} binding_change line(s) of other milestones (line(s) {', '.join(map(str, lines[:8]))}"
-                        f"{' ...' if len(lines) > 8 else ''}): checked here but for their proofs, which their own "
-                        f"milestone's G2 re-checks in both kernels")
+                        f"{' ...' if len(lines) > 8 else ''}): every check here but the two kernels' runs on their "
+                        f"PROOF.bend, which their own milestone's G2 makes")
     cr = _RECHECKED.get("crashes", [])[n_crashes:]
     if cr:
         out["crashes"] = [{"law_id": lid, **c} for lid, c in cr]
@@ -946,30 +1015,17 @@ def _law_milestone(root: Path, lid) -> str | None:
 
 
 def verify_signature_at(entry: dict, commit: str, root: Path) -> tuple[bool, str]:
-    """verify_signature against keys/ as the commit that appended the line had it (F38): a key added later signs
-    nothing earlier, and keys/ at HEAD is not consulted for a committed line."""
-    import tempfile
-    root = Path(root)
-    ls = _git(root.resolve(), "ls-tree", "-r", "--name-only", commit, "--", "keys/")
-    tmp = Path(tempfile.mkdtemp(prefix="holon-keys-"))
-    try:
-        if ls.returncode == 0:
-            for rel in ls.stdout.decode("utf-8", "replace").split():
-                b = blob_at(root, commit, rel)
-                if b is not None:
-                    (tmp / rel).parent.mkdir(parents=True, exist_ok=True)
-                    (tmp / rel).write_bytes(b)
-        (tmp / "keys").mkdir(exist_ok=True)
-        return verify_signature(entry, tmp)
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
+    """verify_signature for a committed line (F38): against the frozen keys as the commit that appended the line had
+    them, read with git cat-file (no file of that commit is written anywhere)."""
+    return verify_signature(entry, root, commit=commit)
 
 
 def _verify_committed(e, acc, commit: str, root: Path, recheck: bool = True) -> str | None:
     """A committed line is not re-proved: its acceptance record must name the facts as they were at the commit
-    that appended it. A signature it carries or its acceptance record claims is verified here, against keys/ at
-    that commit (F38: a claim is never taken on trust). recheck=False (a binding_change of a law of another
-    milestone than the gated one, F38): its equivalence is re-checked by its own milestone's G2, not here."""
+    that appended it. A signature it carries or its acceptance record claims is verified here, against the frozen keys
+    as that commit had them (F38, frozen_keys: a claim is never taken on trust). An unsigned binding_change's
+    equivalence is verified by _verify_equivalence; recheck=False (a law of another milestone than the gated one, F38)
+    runs every tie of it but the two kernels' runs on its PROOF.bend, which its own milestone's G2 makes."""
     if not isinstance(e, dict) or not isinstance(acc, dict) or not isinstance(acc.get("facts"), dict):
         return f"committed at {commit[:7]} without an acceptance record (only `holon.statement_diff append` writes one)"
     if acc.get("kind") != e.get("kind"):
@@ -978,14 +1034,14 @@ def _verify_committed(e, acc, commit: str, root: Path, recheck: bool = True) -> 
     if e.get("signature") or acc.get("signature") is not None:
         ok, why = verify_signature_at(e, commit, root)
         if not ok:
-            return f"it carries or claims a signature, and G2 verifies it against keys/ at {commit[:7]}: {why}"
+            return f"it carries or claims a signature, and G2 verifies it against the frozen keys at {commit[:7]}: {why}"
         signed = acc.get("signature") == "verified against keys/"
     if e.get("kind") in ("strengthening", "cross_milestone") and not isinstance(acc.get("implication"), dict):
         return "its acceptance record names no checked implication"
     if e.get("kind") == "weakening" and not signed:
         return "its acceptance record names no verified signature"
-    if e.get("kind") == "binding_change" and not signed and recheck:
-        why = _verify_equivalence(e, acc.get("equivalence"), commit, root)   # F31
+    if e.get("kind") == "binding_change" and not signed:
+        why = _verify_equivalence(e, acc.get("equivalence"), commit, root, kernels=recheck)   # F31
         if why:
             return why
     if e.get("kind") == "reextraction" and e.get("facts") not in acc["facts"]:
@@ -1000,10 +1056,11 @@ def _verify_committed(e, acc, commit: str, root: Path, recheck: bool = True) -> 
     return None
 
 
-def _verify_equivalence(e: dict, eqv, commit: str, root: Path) -> str | None:
+def _verify_equivalence(e: dict, eqv, commit: str, root: Path, kernels: bool = True) -> str | None:
     """A committed unsigned binding_change (F31) is not re-proved: its acceptance record must name a generated
     equivalence checked by bend (and BendTT when it ran), for the entry's bound commit, and the two models it was proved
-    on must be the model at the bound commit and the model at the commit that appended the line."""
+    on must be the model at the bound commit and the model at the commit that appended the line. kernels=False (F38):
+    every tie (recheck_artifacts) but the kernels' runs."""
     if not isinstance(eqv, dict) or "bend" not in (eqv.get("kernels") or []):
         return "its acceptance record names no verified signature and no kernel-checked equivalence"
     if eqv.get("generator") != "holon.gen.equivalence" or eqv.get("bound_commit") != e.get("bound_commit"):
@@ -1037,7 +1094,7 @@ def _verify_equivalence(e: dict, eqv, commit: str, root: Path) -> str | None:
         stmt = None
     if stmt is None:
         return f"laws/{m}/{lid}.json at {commit[:7]} gives no statement to tie its equivalence to"
-    return recheck_artifacts(e, eqv, root, old, new, stmt, old_cone=(ob or {}).get("cone"))
+    return recheck_artifacts(e, eqv, root, old, new, stmt, old_cone=(ob or {}).get("cone"), kernels=kernels)
 
 
 # ---------------------------------------------------------------- binding_change proof artifacts (F33)
@@ -1061,7 +1118,7 @@ def write_artifacts(e: dict, acc_eqv: dict, result: dict, root: Path) -> None:
 
 
 def recheck_artifacts(e: dict, eqv: dict, root: Path, old_model: bytes | None, new_model: bytes | None,
-                      statement: str | None, old_cone: dict | None = None) -> str | None:
+                      statement: str | None, old_cone: dict | None = None, kernels: bool = True) -> str | None:
     """G2 on an accepted binding_change, never a re-search (F33): its committed proof artifacts are the files its
     acceptance record hashes, and every claim in them is regenerated rather than read from the record (which the
     appending agent wrote):
@@ -1073,7 +1130,8 @@ def recheck_artifacts(e: dict, eqv: dict, root: Path, old_model: bytes | None, n
       * no file holds an escape hatch;
       * bend2 accepts PROOF.bend again, and BendTT (--verdict) too whenever it is enabled or the record names it.
     The two models and the statement are required (a copied tree without the history cannot give them). None when all
-    of it holds, else the problem."""
+    of it holds, else the problem. kernels=False (F38: a gate of another milestone than the law's): all of it but the
+    last item, which the law's own milestone's G2 runs."""
     import gzip
     import shutil
     import tempfile
@@ -1097,7 +1155,7 @@ def recheck_artifacts(e: dict, eqv: dict, root: Path, old_model: bytes | None, n
         return ("its proof artifacts cannot be tied to the two models and the statement here (G2 needs the old model at "
                 "the bound commit, the new model and the law's statement: the git history)")
     memo = (eqv.get("pair_sha256"), eqv.get("laws_sha256"), eqv.get("proof_sha256"), _sha(old_model),
-            _sha(new_model), _sha(statement), _sha(json.dumps(old_cone, sort_keys=True)))
+            _sha(new_model), _sha(statement), _sha(json.dumps(old_cone, sort_keys=True)), bool(kernels))
     if memo in _RECHECKED:
         return _RECHECKED[memo]
     why = None
@@ -1126,7 +1184,7 @@ def recheck_artifacts(e: dict, eqv: dict, root: Path, old_model: bytes | None, n
             bad = sorted(n for n, h in old_cone.items() if n not in eo or _sha(eo[n]) != h)
             if bad:
                 why = f"its old model is not the old binding's cone ({', '.join(bad[:5])})"
-    if why is None:
+    if why is None and kernels:
         tmp = Path(tempfile.mkdtemp(prefix="holon-eqv-g2-"))
         try:
             for name in ARTIFACTS:
