@@ -8,6 +8,8 @@
     "pinned_kernel_sha256": "3cedffa1a1eabeb7473c89ce98c8d86e8380c2375de27d8bac13c6c379a114f7",
     "budget_s_per_file": 120,
     "timeout_s": 180,
+    "js_stack_mb": 1024,
+    "js_stack_doc": "F38 (lead): the checker's JavaScript stack, in MB. bun's JavaScriptCore caps a thread's stack at about 4 MB unless BUN_JSC_maxPerThreadStackUsage raises it, and the OS stack limit (RLIMIT_STACK) caps it too; holon sets both to this for every checker run (holon.bend._env, run). It only removes 'the machine stack overflowed' crashes on deep or large files (no verdict); it cannot change a verdict.",
     "verdict": "auto"
   },
   "equivalence": {
