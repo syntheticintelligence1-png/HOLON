@@ -51,6 +51,8 @@
                          [--gen-dir DIR] [--laws ID,..]   (the refutation engines, concretization, filter; I40)
   python -m holon eval <command> ...                   (I48: the evaluation corpus, the renaming tool and the
                                                         controls; holon.eval.cli lists the commands)
+  python -m holon mutate list|sheet|project|replay|gate|run|rate ...   (I61: A1 mutation adequacy on real code;
+                                                        holon.mutate.cli lists the commands)
   python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
                                                         (the theory core and basis sufficiency by application:
                                                         gen/<M>/theory/; I42)
@@ -126,6 +128,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["checker-upgrade"]:  # its flags go to holon.checker_upgrade unparsed
         from . import checker_upgrade
         return checker_upgrade.main(argv[1:])
+    if argv[:1] == ["mutate"]:  # likewise for holon.mutate.cli (I61: A1 mutation adequacy on real code)
+        from .mutate import cli as mutate_cli
+        return mutate_cli.main(argv[1:])
     if argv[:1] == ["eval"]:  # likewise for holon.eval.cli (I48)
         from .eval import cli as eval_cli
         return eval_cli.main(argv[1:])

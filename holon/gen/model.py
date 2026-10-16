@@ -135,6 +135,8 @@ def _cell(c: list) -> str:
         return f"{c[1]}_{c[2]}"
     if c[0] == "const":
         return str(int(c[1]))
+    if c == ["unknown"]:  # an undefined cell (additive extension, I61 projection): the UNDEF sentinel
+        return str(F.UNDEF)
     raise ValueError(c)
 
 
@@ -249,7 +251,16 @@ def gen_predicate(facts: dict, fn: str) -> list[str]:
 
 # ---------------------------------------------------------------- decoders, projections
 def _when_const(when: dict | None) -> int:
+    """The largest version a when-condition names: the cases 0n..kn and the tail (k+1)n+p then decide it."""
+    if when and "version_in" in when:  # additive extension (I61 projection): the tail lies above every listed version
+        return max(when["version_in"], default=0)
     return when["version_ge"] if when else 0
+
+
+def _getter(g: dict) -> str:
+    if F.getter_undefined(g):  # additive extension (I61 projection): width undefined bytes
+        return _list([str(F.UNDEF)] * g["width"])
+    return f"slice(b, {g['offset']}n, {g['width']}n)"
 
 
 def gen_decoder(facts: dict, fn: str) -> list[str]:
@@ -259,7 +270,7 @@ def gen_decoder(facts: dict, fn: str) -> list[str]:
     out = [f"# {fn}: {f.get('meaning', 'decoder')}".replace("?", "")]
     out += [f"def {fn}_fields_at(n: Nat, +b: {BYTES}) -> {FIELDS}:", "  match n:"]
     for pat, v in nat_cases(k):
-        gs = [f"slice(b, {g['offset']}n, {g['width']}n)" for g in getters if F.when_ok(g.get("when"), v)]
+        gs = [_getter(g) for g in getters if F.when_ok(g.get("when"), v)]
         out += [f"    case {pat}:", f"      {_list(gs)}"]
     out += ["", f"def {fn}_fields(b: {BYTES}) -> {FIELDS}:", "  match b:", "    case Nil{}:", "      Nil{}",
             "    case Con{+h, +t}:", f"      {fn}_fields_at(U32.to_nat(h), Con{{h, t}})", "",

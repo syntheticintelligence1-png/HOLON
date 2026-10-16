@@ -40,7 +40,9 @@ def version_constants(facts: dict) -> list[int]:
             ks.add(f["domain"]["version_le"])
         for w in [o.get("when") for o in f.get("ops", [])] + [g.get("when") for g in f.get("getters", [])] \
                 + list(f.get("when", {}).values()):
-            if w:
+            if w and "version_in" in w:  # additive extension (I61 projection): every version the condition lists
+                ks.update(w["version_in"])
+            elif w:
                 ks.add(w["version_ge"])
     return sorted(ks)
 

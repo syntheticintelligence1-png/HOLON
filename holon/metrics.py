@@ -206,6 +206,12 @@ def compute(milestone: str, root: Path = ROOT, results: Path | None = None) -> d
         "mutation_adequacy": "A1 mutation adequacy on real code is BUILD_PLAN I22 (blocked by Q6); the M0/M1 "
                              "mutations edit the facts, not the code (BUILD_PLAN V14)",
     }
+    # I61: A1 mutation adequacy on real code, from the committed summary (holon.mutate.rate.metric; the name and shape
+    # of I22-R6, which I23 reads); without a summary the metric stays not_applicable
+    summ = root / "results" / milestone / "mutation_i61" / "summary.json"
+    if milestone == "M2" and summ.is_file():
+        from .mutate.rate import metric as mutation_metric
+        doc["mutation_adequacy"] = mutation_metric(json.loads(summ.read_text()))
     # I25 (rule L8): evidenced-pair coverage, relative to the frozen evidence set (Prop 6.11), from
     # gen/<M>/par_lossy/*.json and spec/<M>/evidence_review.jsonl; absent for a milestone without PAR-lossy documents
     from .rules.par_lossy import metric as lossy_metric

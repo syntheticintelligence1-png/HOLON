@@ -1,0 +1,115 @@
+// SPDX-License-Identifier: MIT
+// HOLON I61 replay harness, Solidity side (holon/mutate/replay.py; instrument replay.m0; binding
+// replay/M2/implementations.json). A TEMPLATE: holon.mutate.replay fills its four marks for one source tree and writes
+// the result as test/HolonMutateReplay.t.sol of a scratch Foundry project that holds that tree's contracts (the units
+// the harness reaches), the OpenZeppelin units and morph's foundry.toml and remappings.txt, then runs
+//   HOLON_I61_IN=holon_i61_in.txt HOLON_I61_OUT=holon_i61_out.txt
+//   forge test --match-contract HolonMutateReplayTest --offline --use <solc 0.8.24> --gas-limit <2^63 - 1>
+// The marks (each a whole line):
+//   HOLON-IMPORTS  the import directives of the entry function's unit, paths rebased to test/, so that the copied
+//                  statements resolve every name as they do there
+//   HOLON-STRUCT   HolonHeader, the witness fields the store ops map, at the Header widths (I16's abi), and
+//                  HOLON_MARKERS, the number of statement markers in holonEnc
+//   HOLON-ENC      enc_sol, generated from the tree's own entry-function text (instrument replay.m0): the copied
+//                  version-only requires, the copied build block up to the statement holding the sink with the store
+//                  values bound from the witness, and the return of the bytes the sink hashes. `if (holonStop == k)
+//                  return "";` precedes the k-th copied statement (holonStop 0 never stops).
+//   HOLON-LOAD     ok_sol: the call of the tree's own loader (the load_sol edge's entry)
+// It calls the real code on every input and writes what the real code returns; it compares nothing.
+//
+// Input: one line per item, "0x" + hex of (op byte || payload), then a line "0x" that ends the file.
+//   op 1 (enc)   payload = abi.encode(HolonHeader)
+//   op 2 (load)  payload = the bytes given to the loader
+// Output: one line per item, in input order, then "done <n>":
+//   v <0x..>       holonEnc returned these bytes
+//   r <k> <0x..>   holonEnc reverted with this revert data; rerun to stop at each marker in turn, the last marker
+//                  (in text order) it reached is k: the k-th copied statement is the one that reverted (the markers
+//                  precede the statements in text order and the copied statements hold no loop)
+//   t              the loader returned
+//   f <0x..>       the loader reverted with this revert data
+// Each call is an external call into a fresh frame (memory past the free pointer is zero, as on the deployed path) with
+// at most HOLON_ITEM_GAS gas; the test runs under forge's --gas-limit, so that a long batch never runs out of gas.
+pragma solidity =0.8.24;
+
+import {Test} from "forge-std/Test.sol";
+import {Rollup} from "../contracts/l1/rollup/Rollup.sol";
+// HOLON-IMPORTS
+
+// HOLON-STRUCT
+
+/// The tree's own Rollup, reached through a subclass as in I16's binding.
+contract HolonMutateRollup is Rollup {
+    constructor() Rollup(53077) {}
+
+// HOLON-ENC
+
+    function holonLoad(bytes calldata holonB) external {
+// HOLON-LOAD
+    }
+}
+
+contract HolonMutateReplayTest is Test {
+    uint256 internal constant HOLON_ITEM_GAS = 30_000_000;
+    HolonMutateRollup internal holonTarget;
+
+    function setUp() public {
+        holonTarget = new HolonMutateRollup();
+    }
+
+    function holonEncItem(HolonHeader memory h) internal returns (string memory) {
+        try holonTarget.holonEnc{gas: HOLON_ITEM_GAS}(h, 0) returns (bytes memory out) {
+            return string.concat("v ", vm.toString(out));
+        } catch (bytes memory err) {
+            uint256 last = 0;
+            for (uint256 k = 1; k <= HOLON_MARKERS; k++) {
+                try holonTarget.holonEnc{gas: HOLON_ITEM_GAS}(h, k) returns (bytes memory) {
+                    last = k;
+                } catch {}
+            }
+            return string.concat("r ", vm.toString(last), " ", vm.toString(err));
+        }
+    }
+
+    function holonLoadItem(bytes calldata b) internal returns (string memory) {
+        try holonTarget.holonLoad{gas: HOLON_ITEM_GAS}(b) {
+            return "t";
+        } catch (bytes memory err) {
+            return string.concat("f ", vm.toString(err));
+        }
+    }
+
+    /// One item, as an external call so that each item starts from fresh memory.
+    function holonItem(bytes calldata item) external returns (string memory) {
+        require(item.length >= 1, "holon I61: empty item");
+        uint8 op = uint8(item[0]);
+        if (op == 1) {
+            return holonEncItem(abi.decode(item[1:], (HolonHeader)));
+        }
+        if (op == 2) {
+            return holonLoadItem(item[1:]);
+        }
+        revert("holon I61: unknown op");
+    }
+
+    function test_holon_mutate_replay() public {
+        string memory inPath = vm.envString("HOLON_I61_IN");
+        string memory outPath = vm.envString("HOLON_I61_OUT");
+        uint256 free;
+        assembly {
+            free := mload(0x40)
+        }
+        uint256 n = 0;
+        while (true) {
+            assembly {
+                mstore(0x40, free) // nothing an item allocates here outlives it: its output is written below
+            }
+            bytes memory item = vm.parseBytes(vm.readLine(inPath));
+            if (item.length == 0) {
+                break;
+            }
+            vm.writeLine(outPath, this.holonItem(item));
+            n += 1;
+        }
+        vm.writeLine(outPath, string.concat("done ", vm.toString(n)));
+    }
+}
