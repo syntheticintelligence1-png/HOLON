@@ -846,8 +846,11 @@ def _line_tag(e) -> str:
 def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> dict:
     """Every line of a STATEMENT_DIFF.jsonl with its verdict (see the module docstring):
     {"problems": [..], "entries": [{"line", "entry", "ok", "committed", "commit"}], "git": bool, "note": str,
-     "unchecked": [line numbers] (off git, below), "crashes": [{"law_id", "kernel", "seconds", "message"}]}.
-    milestone (F35): the milestone being gated. Off git (a copied tree), a binding_change line of a law of ANOTHER
+     "unchecked": [line numbers] (off git, below), "elsewhere": [line numbers] (on git, below),
+     "crashes": [{"law_id", "kernel", "seconds", "message"}]}.
+    milestone (F35, F38): the milestone being gated. On git, a committed binding_change line of a law of ANOTHER
+    milestone gets every check but the re-check of its proofs, which its own milestone's G2 makes (listed in
+    "elsewhere" and in the note). Off git (a copied tree), a binding_change line of a law of ANOTHER
     milestone (no laws/<milestone>/<law_id>.json, whatever the line's own label says) cannot be checked (it needs the
     old model at its bound commit) and is not that gate's claim: it is listed in the note as not checked, never as
     accepted. Its own milestone's binding_change lines still fail off git. Every checker crash a re-check of a
@@ -891,8 +894,14 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
         item = {"line": n, "entry": e, "ok": False, "committed": commit is not None, "commit": commit}
         out["entries"].append(item)
         acc = e.get("accepted") if isinstance(e, dict) else None
+        # F38: a committed binding_change line of a law of another milestone gets every check here but the re-check of
+        # its proofs in both kernels, which its own milestone's G2 makes (each line re-checked once per CI run)
+        own = not (milestone and isinstance(e, dict) and e.get("kind") == "binding_change" and e.get("law_id")
+                   and not (root / "laws" / milestone / f"{e['law_id']}.json").is_file())
         if commit is not None:
-            why = _verify_committed(e, acc, commit, root)
+            if not own:
+                out.setdefault("elsewhere", []).append(n)
+            why = _verify_committed(e, acc, commit, root, recheck=own)
             if why:
                 out["problems"].append(f"line {n}: {_line_tag(e)}: {why}")
             else:
@@ -912,6 +921,11 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
     if out.get("unchecked"):
         out["note"] += (f"; {len(out['unchecked'])} binding_change line(s) of another milestone not checked here (no git "
                         f"history; lines {', '.join(map(str, out['unchecked']))})")
+    if out.get("elsewhere"):
+        lines = out["elsewhere"]
+        out["note"] += (f"; {len(lines)} binding_change line(s) of other milestones (line(s) {', '.join(map(str, lines[:8]))}"
+                        f"{' ...' if len(lines) > 8 else ''}): checked here but for their proofs, which their own "
+                        f"milestone's G2 re-checks in both kernels")
     cr = _RECHECKED.get("crashes", [])[n_crashes:]
     if cr:
         out["crashes"] = [{"law_id": lid, **c} for lid, c in cr]
@@ -921,18 +935,46 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
     return out
 
 
-def _verify_committed(e, acc, commit: str, root: Path) -> str | None:
+def verify_signature_at(entry: dict, commit: str, root: Path) -> tuple[bool, str]:
+    """verify_signature against keys/ as the commit that appended the line had it (F38): a key added later signs
+    nothing earlier, and keys/ at HEAD is not consulted for a committed line."""
+    import tempfile
+    root = Path(root)
+    ls = _git(root.resolve(), "ls-tree", "-r", "--name-only", commit, "--", "keys/")
+    tmp = Path(tempfile.mkdtemp(prefix="holon-keys-"))
+    try:
+        if ls.returncode == 0:
+            for rel in ls.stdout.decode("utf-8", "replace").split():
+                b = blob_at(root, commit, rel)
+                if b is not None:
+                    (tmp / rel).parent.mkdir(parents=True, exist_ok=True)
+                    (tmp / rel).write_bytes(b)
+        (tmp / "keys").mkdir(exist_ok=True)
+        return verify_signature(entry, tmp)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _verify_committed(e, acc, commit: str, root: Path, recheck: bool = True) -> str | None:
     """A committed line is not re-proved: its acceptance record must name the facts as they were at the commit
-    that appended it."""
+    that appended it. A signature it carries or its acceptance record claims is verified here, against keys/ at
+    that commit (F38: a claim is never taken on trust). recheck=False (a binding_change of a law of another
+    milestone than the gated one, F38): its equivalence is re-checked by its own milestone's G2, not here."""
     if not isinstance(e, dict) or not isinstance(acc, dict) or not isinstance(acc.get("facts"), dict):
         return f"committed at {commit[:7]} without an acceptance record (only `holon.statement_diff append` writes one)"
     if acc.get("kind") != e.get("kind"):
         return f"its acceptance record is for kind {acc.get('kind')!r}"
+    signed = False
+    if e.get("signature") or acc.get("signature") is not None:
+        ok, why = verify_signature_at(e, commit, root)
+        if not ok:
+            return f"it carries or claims a signature, and G2 verifies it against keys/ at {commit[:7]}: {why}"
+        signed = acc.get("signature") == "verified against keys/"
     if e.get("kind") in ("strengthening", "cross_milestone") and not isinstance(acc.get("implication"), dict):
         return "its acceptance record names no checked implication"
-    if e.get("kind") == "weakening" and acc.get("signature") != "verified against keys/":
+    if e.get("kind") == "weakening" and not signed:
         return "its acceptance record names no verified signature"
-    if e.get("kind") == "binding_change" and acc.get("signature") != "verified against keys/":
+    if e.get("kind") == "binding_change" and not signed and recheck:
         why = _verify_equivalence(e, acc.get("equivalence"), commit, root)   # F31
         if why:
             return why

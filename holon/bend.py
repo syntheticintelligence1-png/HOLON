@@ -55,8 +55,11 @@ def _env() -> dict:
     env["BEND_NO_TELEMETRY"] = "1"  # main.ts skips its daily version check (a network GET)
     # bun reads BUN_OPTIONS as extra command-line flags (e.g. --preload ./x.ts, which would run code
     # inside the checker): the checker never inherits it
-    for k in [k for k in env if k == "BUN_OPTIONS" or k.startswith("BUN_CONFIG_")]:
+    for k in [k for k in env if k == "BUN_OPTIONS" or k.startswith("BUN_CONFIG_") or k.startswith("BUN_JSC_")]:
         env.pop(k)
+    # F38: JavaScriptCore options reach the checker only from the registered config: the stack, so a deep or large
+    # file gets a verdict instead of "the machine stack overflowed" (run() raises RLIMIT_STACK to match)
+    env["BUN_JSC_maxPerThreadStackUsage"] = str(js_stack_bytes())
     # bend2/bend.ts resolves package imports through BEND_LIB / BEND_HUB: never let the environment
     # redirect them (HOLON's files import only Base and relative paths)
     for k in ("BEND_LIB", "BEND_HUB"):
@@ -268,6 +271,21 @@ class Run:
         return MARK_FAIL if self.code not in (0, None) else "not_run"
 
 
+def js_stack_bytes(cfg: dict | None = None) -> int:
+    """The checker's JavaScript stack in bytes (config/holon.json bend.js_stack_mb, F38)."""
+    return int((cfg or config())["bend"].get("js_stack_mb", 1024)) * 1024 * 1024
+
+
+def _raise_stack_limit(nbytes: int) -> None:
+    """RLIMIT_STACK of this process (inherited by the checker it starts) raised to nbytes, within the hard limit.
+    Set here, not in a preexec_fn (unsafe with threads); only the main thread's growth limit changes."""
+    import resource
+    soft, hard = resource.getrlimit(resource.RLIMIT_STACK)
+    want = nbytes if hard == resource.RLIM_INFINITY else min(nbytes, hard)
+    if soft != resource.RLIM_INFINITY and soft < want:
+        resource.setrlimit(resource.RLIMIT_STACK, (want, hard))
+
+
 def run(args: list, cwd=None, timeout: int | None = None, cfg: dict | None = None) -> Run:
     """Run the resolved checker (checker_cmd: absolute bun + main.ts, the pair fingerprint() hashes)."""
     cfg = cfg or config()
@@ -276,6 +294,7 @@ def run(args: list, cwd=None, timeout: int | None = None, cfg: dict | None = Non
     except FingerprintError as e:
         raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
     cmd = prefix + [str(a) for a in args]
+    _raise_stack_limit(js_stack_bytes(cfg))
     t0 = time.monotonic()
     # its own process group, so a timeout stops everything the checker started (BendTT's Lean kernel is a child
     # of bun), not only bun (F35 review m4: the bound must bound the resources too)
@@ -444,6 +463,7 @@ def run_budgeted(args: list, cwd, budget_s: float, cfg: dict | None = None) -> R
     except FingerprintError as e:
         raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
     cmd = prefix + [str(a) for a in args]
+    _raise_stack_limit(js_stack_bytes(cfg))
     t0 = time.monotonic()
     p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=_env(),
                          start_new_session=True)

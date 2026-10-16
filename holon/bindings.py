@@ -591,9 +591,11 @@ def changed_defs(x: dict, y: dict) -> list[str]:
     return sorted(d for d in set(cx) | set(cy) if cx.get(d) != cy.get(d))
 
 
-def _accepted_entries(root: Path) -> dict[int, dict]:
+def _accepted_entries(root: Path, m: str | None = None) -> dict[int, dict]:
+    """Accepted lines of laws/STATEMENT_DIFF.jsonl; with m, as milestone m's G2 scans them (F38: another milestone's
+    binding_change proofs are re-checked by that milestone's G2, not again here)."""
     from .statement_diff import LOG, scan
-    s = scan(Path(root) / LOG, root)
+    s = scan(Path(root) / LOG, root, milestone=m)
     return {x["line"]: x["entry"] for x in s["entries"] if x.get("ok")}
 
 
@@ -632,7 +634,7 @@ def hash_only_change(x: dict, y: dict) -> bool:
 
 def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_defs: dict):
     """({law: STATEMENT_DIFF line}, [(law, why)]) for the changed laws."""
-    entries = _accepted_entries(root)
+    entries = _accepted_entries(root, m)
     current = {l["law_id"]: l for l in ir.load_laws_any(m, root)}
     covered, missing = {}, []
     for lid in changed:
@@ -670,7 +672,7 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     if not data.startswith(base) or merged_lines(data, p, root)[2]:   # append-only, merges included
         problems.append(f"{CHANGES} does not extend its committed versions (append-only)")
         return problems, ""
-    entries = _accepted_entries(root)
+    entries = _accepted_entries(root, m)
     n_lines = 0
     for i, raw in enumerate(data[len(base):].decode("utf-8", errors="replace").splitlines(), start=1):
         if not raw.strip():
