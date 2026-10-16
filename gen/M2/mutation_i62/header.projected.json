@@ -1,0 +1,646 @@
+{
+  "assumptions": [
+    {
+      "document": "spec/M2/facts/morph_batch.go.extracted.json",
+      "id": "go-append-growth",
+      "text": "The capacity append chooses when it grows is not modelled: a grown append's backing is fresh and its capacity is [\"unknown\", \"growth\"]."
+    },
+    {
+      "document": "spec/M2/facts/morph_batch.go.extracted.json",
+      "id": "go-errors-nonnil",
+      "text": "errors.New and fmt.Errorf return non-nil errors, and so does a package variable of an error type that the package initializer assigns from one of them."
+    },
+    {
+      "document": "spec/M2/facts/morph_batch.go.extracted.json",
+      "id": "go-nil-deref-not-modelled",
+      "text": "Nil pointer dereferences are not partiality sites."
+    },
+    {
+      "document": "spec/M2/facts/morph_batch.go.extracted.json",
+      "id": "go-opaque-calls",
+      "text": "Calls outside the analyzed packages that are not primitives are opaque: their results are call terms, and what they do to memory they can reach is unknown."
+    },
+    {
+      "document": "spec/M2/facts/morph_batch.go.extracted.json",
+      "id": "go-prim:(github.com/morph-l2/go-ethereum/common.Hash).Bytes",
+      "text": "Hash.Bytes() has a value receiver and returns h[:], a 32-byte slice over the receiver's copy: a fresh backing array whose element k is h[k]."
+    },
+    {
+      "document": "spec/M2/facts/morph_batch.go.extracted.json",
+      "id": "go-prim:github.com/morph-l2/go-ethereum/common.BytesToHash",
+      "text": "BytesToHash(b) is the 32-byte array holding b right-aligned (common/types.go: SetBytes crops b to its last 32 bytes, then copies it to h[32-len(b):]); for len(b) == 32 element k is b[k]."
+    },
+    {
+      "document": "spec/M2/facts/morph_batch.go.extracted.json",
+      "id": "go-prim:github.com/morph-l2/go-ethereum/crypto.Keccak256Hash",
+      "text": "Keccak256Hash(data...) is the keccak-256 digest of the concatenated arguments: an opaque HASH sink; it reads its arguments and retains none of them."
+    },
+    {
+      "document": "spec/M2/facts/morph_header.extracted.json",
+      "id": "A-dirty",
+      "text": "Memory at the free pointer is not zeroed: every region a walk allocates (mload(0x40)) starts with unknown cells (memory_init dirty), so a byte that no op writes is unknown, never zero."
+    },
+    {
+      "document": "spec/M2/facts/morph_header.extracted.json",
+      "id": "A-env",
+      "text": "Environment terms (storage, block, msg and tx members, blobhash, results of external calls, memory reads, and values computed from them) are free: a revert whose failing condition mentions one belongs to the transition, not to the edge (rule J1), and conditions on them are projected away."
+    },
+    {
+      "document": "spec/M2/facts/morph_header.extracted.json",
+      "id": "A-implicit",
+      "text": "Implicit reverts (checked arithmetic, array bounds, ABI decoding) are not part of an edge's partiality: only explicit require, revert and branch conditions on inputs are."
+    },
+    {
+      "document": "spec/M2/facts/morph_header.extracted.json",
+      "fields": [
+        "batchIndex",
+        "totalL1MessagePopped"
+      ],
+      "id": "A-width:Header",
+      "record": "Header",
+      "text": "Fields of Header whose value type is wider than their stored width: the bytes keep only the low part of the value, so they determine it only when it fits the width."
+    },
+    {
+      "id": "P-unprojected:enc_sol",
+      "paths": [
+        {
+          "cond": [
+            [
+              "<=",
+              "version",
+              2
+            ],
+            [
+              "!",
+              [
+                "!=",
+                "prevStateHash",
+                0
+              ]
+            ]
+          ],
+          "reason": "previous state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:294"
+        },
+        {
+          "cond": [
+            [
+              "<=",
+              "version",
+              2
+            ],
+            [
+              "!=",
+              "prevStateHash",
+              0
+            ],
+            [
+              "!",
+              [
+                "!=",
+                "postStateHash",
+                0
+              ]
+            ]
+          ],
+          "reason": "new state root is zero",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:295"
+        }
+      ],
+      "text": "revert conditions of enc_sol on fields other than version are not projected: the encoder is defined at every version of its domain"
+    }
+  ],
+  "extraction": {
+    "by": "holon.mutate.project",
+    "header_facts": {
+      "normalized_sha256": "a9c5672fc9a0feadbfb754caf1a6feda82a3a4f5b56fec84fce6bc050ec51d72",
+      "path": "facts/morph_header.json"
+    },
+    "inputs": [
+      {
+        "normalized_sha256": "e4b8023b92e8e5d392b42f9c293077c97ec4f5f51361e298f7317c8b9cfa9926",
+        "path": "spec/M2/facts/morph_batch.go.extracted.json"
+      },
+      {
+        "normalized_sha256": "48427399f684d548e00581d69cdd3b138db87ab5e37bf66d78fbd564a8a991e5",
+        "path": "spec/M2/facts/morph_header.extracted.json"
+      }
+    ],
+    "method": "projected"
+  },
+  "facts_version": "holon-facts/0.1",
+  "functions": {
+    "dec_go": {
+      "from": "Bytes",
+      "getters": [
+        {
+          "name": "version",
+          "offset": 0,
+          "width": 1
+        },
+        {
+          "name": "batchIndex",
+          "offset": 1,
+          "width": 8
+        },
+        {
+          "name": "l1MessagePopped",
+          "offset": 9,
+          "width": 8
+        },
+        {
+          "name": "totalL1MessagePopped",
+          "offset": 17,
+          "width": 8
+        },
+        {
+          "name": "dataHash",
+          "offset": 25,
+          "width": 32
+        },
+        {
+          "name": "blobVersionedHash",
+          "offset": 57,
+          "width": 32
+        },
+        {
+          "name": "prevStateHash",
+          "offset": 89,
+          "width": 32
+        },
+        {
+          "name": "postStateHash",
+          "offset": 121,
+          "width": 32
+        },
+        {
+          "name": "withdrawRootHash",
+          "offset": 153,
+          "width": 32
+        },
+        {
+          "name": "sequencerSetVerifyHash",
+          "offset": 185,
+          "width": 32
+        },
+        {
+          "name": "parentBatchHash",
+          "offset": 217,
+          "width": 32
+        },
+        {
+          "name": "lastBlockNumber",
+          "offset": 249,
+          "when": {
+            "version_ge": 1
+          },
+          "width": 8
+        }
+      ],
+      "guard": "ok_go",
+      "kind": "decoder",
+      "lang": "go",
+      "meaning": "None unless ok_go accepts b, else the getters whose when holds, in order",
+      "to": "Maybe<Fields>"
+    },
+    "enc_go_v0": {
+      "from": "Header",
+      "kind": "encoder",
+      "lang": "go-bytes",
+      "length": 249,
+      "memory_init": "zeros",
+      "ops": [
+        {
+          "offset": 0,
+          "op": "copy",
+          "src": [
+            {
+              "zeros": 1
+            },
+            {
+              "field": "batchIndex"
+            },
+            {
+              "field": "l1MessagePopped"
+            },
+            {
+              "field": "totalL1MessagePopped"
+            },
+            {
+              "field": "dataHash"
+            },
+            {
+              "field": "blobVersionedHash"
+            },
+            {
+              "field": "prevStateHash"
+            },
+            {
+              "field": "postStateHash"
+            },
+            {
+              "field": "withdrawRootHash"
+            },
+            {
+              "field": "sequencerSetVerifyHash"
+            },
+            {
+              "field": "parentBatchHash"
+            }
+          ]
+        }
+      ],
+      "to": "Bytes"
+    },
+    "enc_go_v1": {
+      "from": "Header",
+      "kind": "encoder",
+      "lang": "go-bytes",
+      "length": 257,
+      "memory_init": "zeros",
+      "ops": [
+        {
+          "offset": 0,
+          "op": "copy",
+          "src": [
+            {
+              "const": 1
+            },
+            {
+              "field": "batchIndex"
+            },
+            {
+              "field": "l1MessagePopped"
+            },
+            {
+              "field": "totalL1MessagePopped"
+            },
+            {
+              "field": "dataHash"
+            },
+            {
+              "field": "blobVersionedHash"
+            },
+            {
+              "field": "prevStateHash"
+            },
+            {
+              "field": "postStateHash"
+            },
+            {
+              "field": "withdrawRootHash"
+            },
+            {
+              "field": "sequencerSetVerifyHash"
+            },
+            {
+              "field": "parentBatchHash"
+            },
+            {
+              "field": "lastBlockNumber"
+            }
+          ]
+        }
+      ],
+      "to": "Bytes"
+    },
+    "enc_sol": {
+      "domain": {
+        "version_le": 2
+      },
+      "from": "Header",
+      "kind": "encoder",
+      "lang": "solidity-evm-memory",
+      "length_by_version": {
+        "0": 249,
+        "1": 257,
+        "2": 257
+      },
+      "memory_init": "dirty",
+      "ops": [
+        {
+          "offset": 0,
+          "op": "mstore8",
+          "src": [
+            {
+              "field": "version"
+            }
+          ]
+        },
+        {
+          "offset": 1,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "batchIndex"
+            },
+            {
+              "zeros": 24
+            }
+          ]
+        },
+        {
+          "offset": 9,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "l1MessagePopped"
+            },
+            {
+              "zeros": 24
+            }
+          ]
+        },
+        {
+          "offset": 17,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "totalL1MessagePopped"
+            },
+            {
+              "zeros": 24
+            }
+          ]
+        },
+        {
+          "offset": 25,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "dataHash"
+            }
+          ]
+        },
+        {
+          "offset": 57,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "blobVersionedHash"
+            }
+          ]
+        },
+        {
+          "offset": 89,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "prevStateHash"
+            }
+          ]
+        },
+        {
+          "offset": 121,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "postStateHash"
+            }
+          ]
+        },
+        {
+          "offset": 153,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "withdrawRootHash"
+            }
+          ]
+        },
+        {
+          "offset": 185,
+          "op": "mstore",
+          "src": [
+            {
+              "zeros": 32
+            }
+          ]
+        },
+        {
+          "offset": 217,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "parentBatchHash"
+            }
+          ]
+        },
+        {
+          "offset": 249,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "lastBlockNumber"
+            },
+            {
+              "zeros": 24
+            }
+          ],
+          "when": {
+            "version_ge": 1
+          }
+        }
+      ],
+      "to": "Bytes"
+    },
+    "ok_go": {
+      "from": "Bytes",
+      "kind": "predicate",
+      "lang": "go",
+      "meaning": "true iff some ok (Solidity) or nil-error (Go) path of the role admits b",
+      "rules": [
+        {
+          "if": "empty",
+          "then": false
+        },
+        {
+          "if": {
+            "version_in": [
+              0
+            ]
+          },
+          "then": {
+            "len_eq": 249
+          }
+        },
+        {
+          "if": {
+            "version_in": [
+              1,
+              2
+            ]
+          },
+          "then": {
+            "len_eq": 257
+          }
+        },
+        {
+          "if": "otherwise",
+          "then": false
+        }
+      ],
+      "to": "Bool"
+    },
+    "ok_sol": {
+      "from": "Bytes",
+      "kind": "predicate",
+      "lang": "solidity",
+      "meaning": "true iff some ok (Solidity) or nil-error (Go) path of the role admits b",
+      "rules": [
+        {
+          "if": "empty",
+          "then": false
+        },
+        {
+          "if": {
+            "version_in": [
+              0
+            ]
+          },
+          "then": {
+            "len_ge": 249
+          }
+        },
+        {
+          "if": {
+            "version_in": [
+              1,
+              2
+            ]
+          },
+          "then": {
+            "len_eq": 257
+          }
+        },
+        {
+          "if": "otherwise",
+          "then": false
+        }
+      ],
+      "to": "Bool"
+    },
+    "view": {
+      "from": "Header",
+      "kind": "projection",
+      "meaning": "the fields a correct decoder should recover from a header: header fields in dec_go getter order; lastBlockNumber included iff version >= 1",
+      "order": [
+        "version",
+        "batchIndex",
+        "l1MessagePopped",
+        "totalL1MessagePopped",
+        "dataHash",
+        "blobVersionedHash",
+        "prevStateHash",
+        "postStateHash",
+        "withdrawRootHash",
+        "sequencerSetVerifyHash",
+        "parentBatchHash",
+        "lastBlockNumber"
+      ],
+      "to": "Fields",
+      "when": {
+        "lastBlockNumber": {
+          "version_ge": 1
+        }
+      }
+    }
+  },
+  "target": {
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "repo": "morph-l2/morph",
+    "scope": "the M0 header roles, projected from the extracted documents (I61)"
+  },
+  "types": {
+    "Bool": {
+      "kind": "bool"
+    },
+    "Byte": {
+      "kind": "byte"
+    },
+    "Bytes": {
+      "kind": "bytes"
+    },
+    "Fields": {
+      "doc": "decoded header fields in getter order",
+      "kind": "list_of_bytes"
+    },
+    "Header": {
+      "fields": [
+        {
+          "go": "\u2014",
+          "name": "version",
+          "sol": "uint8 version (calldata BatchDataInput.version)",
+          "width": 1
+        },
+        {
+          "go": "BatchIndex uint64",
+          "name": "batchIndex",
+          "sol": "uint256 _batchIndex (stored as shl(192, x))",
+          "width": 8
+        },
+        {
+          "go": "L1MessagePopped uint64",
+          "name": "l1MessagePopped",
+          "sol": "batchDataInput.numL1Messages",
+          "width": 8
+        },
+        {
+          "go": "TotalL1MessagePopped uint64",
+          "name": "totalL1MessagePopped",
+          "sol": "_totalL1MessagesPoppedOverall",
+          "width": 8
+        },
+        {
+          "go": "DataHash common.Hash",
+          "name": "dataHash",
+          "sol": "dataHash",
+          "width": 32
+        },
+        {
+          "go": "BlobVersionedHash common.Hash",
+          "name": "blobVersionedHash",
+          "sol": "blobVersionedHash (V2: keccak of all blob hashes)",
+          "width": 32
+        },
+        {
+          "go": "PrevStateRoot common.Hash",
+          "name": "prevStateHash",
+          "sol": "batchDataInput.prevStateRoot",
+          "width": 32
+        },
+        {
+          "go": "PostStateRoot common.Hash",
+          "name": "postStateHash",
+          "sol": "batchDataInput.postStateRoot",
+          "width": 32
+        },
+        {
+          "go": "WithdrawalRoot common.Hash",
+          "name": "withdrawRootHash",
+          "sol": "batchDataInput.withdrawalRoot",
+          "width": 32
+        },
+        {
+          "go": "SequencerSetVerifyHash common.Hash",
+          "name": "sequencerSetVerifyHash",
+          "sol": "bytes32(0) constant in Rollup",
+          "width": 32
+        },
+        {
+          "go": "ParentBatchHash common.Hash",
+          "name": "parentBatchHash",
+          "sol": "_parentBatchHash",
+          "width": 32
+        },
+        {
+          "go": "LastBlockNumber uint64 (V1 struct only)",
+          "name": "lastBlockNumber",
+          "sol": "batchDataInput.lastBlockNumber (V1+ only)",
+          "width": 8
+        }
+      ],
+      "kind": "record"
+    }
+  }
+}

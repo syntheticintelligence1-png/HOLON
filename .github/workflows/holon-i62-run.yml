@@ -1,0 +1,204 @@
+# I62 (A1 mutation adequacy on real code, the rerun of I61's catalog with I61's defects fixed): the 242 catalog
+# mutants run in parallel shards on GitHub-hosted runners, as I61's did (holon-i61-run.yml).
+# A run is started by pushing a branch claude/i62-run-<n> whose HEAD is one commit over the pipeline commit: that
+# commit adds only the run's inputs (results/M2/mutation_i62/gate.json and baseline.json,
+# gen/M2/mutation_i62/baseline_inputs.json and i20_corpus.json). Each shard checks out the pipeline commit (HEAD^),
+# restores the inputs from HEAD as uncommitted files, and runs `holon mutate run --only <its ids>` there, so that
+# every record's pipeline_commit is the gate's. The collect job pushes the records, one commit over HEAD, to
+# claude/i62-run-<n>-results. The toolchain is the cached one of holon-ci.yml, at the pins in config/holon.json.
+name: holon-i62-run
+
+on:
+  push:
+    branches: ['claude/i62-run-*', '!claude/i62-run-*-results']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: holon-i62-run-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  NODE_VERSION: '22.22.0'
+  GO_VERSION: '1.24.7'
+  BEND_NO_TELEMETRY: '1'
+  HOLON_MUTATE_KEY: 'I62'
+  SHARDS: '24'
+  INPUTS: >-
+    results/M2/mutation_i62/gate.json
+    results/M2/mutation_i62/baseline.json
+    gen/M2/mutation_i62/baseline_inputs.json
+    gen/M2/mutation_i62/i20_corpus.json
+
+jobs:
+  toolchain:
+    name: toolchain (restore or install, verify pins)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      key: ${{ steps.key.outputs.key }}
+      shards: ${{ steps.plan.outputs.shards }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Cache key from the pins
+        id: key
+        run: echo "key=holon-toolchain-v1-${{ hashFiles('config/holon.json', 'tools/install_bend.sh', '.github/ci/install_toolchain.sh') }}" >> "$GITHUB_OUTPUT"
+      - name: Shards (every SHARDS-th catalog mutant)
+        id: plan
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          ids = [m["id"] for m in json.load(open("spec/M2/lib/mutation_catalog_i62.json"))["mutants"]]
+          n = int(os.environ["SHARDS"])
+          print("shards=" + json.dumps([",".join(ids[k::n]) for k in range(n)]))
+          PY
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        id: restore
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Install the pinned toolchain
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: bash .github/ci/install_toolchain.sh
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: steps.restore.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+
+  shard:
+    name: shard ${{ strategy.job-index }}
+    needs: toolchain
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        ids: ${{ fromJSON(needs.toolchain.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: ${{ needs.toolchain.outputs.key }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: The pipeline commit and the run's inputs
+        run: |
+          inputs_commit="$(git rev-parse HEAD)"
+          pipeline_commit="$(git rev-parse HEAD^)"
+          git checkout -q --detach "$pipeline_commit"
+          for f in $INPUTS; do mkdir -p "$(dirname "$f")"; git show "$inputs_commit:$f" > "$f"; done
+          echo "pipeline commit $pipeline_commit, inputs from $inputs_commit"
+      - name: Run the shard
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          set -o pipefail
+          python -m holon mutate run --milestone M2 --only "${{ matrix.ids }}" --work "$RUNNER_TEMP/work" 2>&1 \
+            | tee "$RUNNER_TEMP/out/shard.log"
+      - name: Collect the shard's records
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/out/records"
+          for i in $(echo "${{ matrix.ids }}" | tr ',' ' '); do
+            f="results/M2/mutation_i62/$i.json"
+            if [ -f "$f" ]; then cp "$f" "$RUNNER_TEMP/out/records/"; fi
+          done
+          ls "$RUNNER_TEMP/out/records" | wc -l
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: i62-shard-${{ strategy.job-index }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: ${{ runner.temp }}/out/
+
+  collect:
+    name: collect the records
+    needs: shard
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 2
+      - name: Download the shards' artifacts (the runner's gh CLI)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "${{ github.run_id }}" --repo "${{ github.repository }}" --pattern 'i62-shard-*' --dir "$RUNNER_TEMP/shards"
+      - name: Commit the records over the inputs and push them to <branch>-results
+        run: |
+          mkdir -p results/M2/mutation_i62 "$RUNNER_TEMP/logs"
+          find "$RUNNER_TEMP/shards" -path '*/records/*.json' -exec cp {} results/M2/mutation_i62/ \;
+          for d in "$RUNNER_TEMP"/shards/*/; do cp "$d/shard.log" "$RUNNER_TEMP/logs/$(basename "$d").log" 2>/dev/null || true; done
+          n="$(ls results/M2/mutation_i62/ | grep -cE '^[AB][0-9]{3}\.json$' || true)"
+          echo "records: $n"
+          git config user.name "holon-i62-run"
+          git config user.email "holon-i62-run@users.noreply.github.com"
+          git add results/M2/mutation_i62/
+          git commit -q -m "I62 run: $n catalog records from the CI shards (run ${{ github.run_id }})" || true
+          git push -f origin "HEAD:refs/heads/${GITHUB_REF_NAME}-results"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: i62-logs
+          if-no-files-found: ignore
+          retention-days: 14
+          path: ${{ runner.temp }}/logs/
