@@ -95,7 +95,11 @@ jobs:
             run: python -m holon audit prereg --milestone M3
           - name: freeze-check
             timeout: 15
-            run: python tools/freeze.py check
+            # the manifest's own sha256, pinned to the seed freeze (8a1dbe7): an edit of FROZEN.sha256 and
+            # tools/freeze.py together still passes `check`, but not this pin, which only a reviewed change moves
+            run: |
+              python tools/freeze.py check
+              test "$(python tools/freeze.py digest)" = "f854d69b0b58b581eb205a657d6925cc1e1460141ef9626df89ea87de1594fd0" || { echo "FROZEN.sha256 digest differs from the pinned seed freeze"; exit 1; }
           - name: frozen-suite
             timeout: 120
             run: HOLON_REPLAY=1 python -m unittest discover -s tests -t . -v
