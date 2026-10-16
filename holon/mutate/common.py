@@ -48,7 +48,7 @@ def root(r=None) -> Path:
     return Path(r).resolve() if r else ROOT
 
 
-_DURATION = re.compile(r"(?<![\w.])\d+(?:\.\d+)?\s?(?:ns|µs|us|ms|s)\b")
+_DURATION = re.compile(r"(?<![.\w])\d+(?:\.\d+)?\s?(?:ns|µs|us|ms|s)\b")
 PLACES: dict = {}     # name -> path: the scratch and install paths a message may quote (holon.mutate.run.Ctx sets them)
 
 
