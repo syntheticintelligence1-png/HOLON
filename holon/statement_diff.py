@@ -843,15 +843,23 @@ def _line_tag(e) -> str:
     return f"{e.get('kind')} {lid}"
 
 
-def scan(path: Path, root: Path, kinds=None) -> dict:
+def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> dict:
     """Every line of a STATEMENT_DIFF.jsonl with its verdict (see the module docstring):
-    {"problems": [..], "entries": [{"line", "entry", "ok", "committed", "commit"}], "git": bool, "note": str}."""
+    {"problems": [..], "entries": [{"line", "entry", "ok", "committed", "commit"}], "git": bool, "note": str,
+     "unchecked": [line numbers] (off git, below), "crashes": [{"law_id", "kernel", "seconds", "message"}]}.
+    milestone (F35): the milestone being gated. Off git (a copied tree), a binding_change line of a law of ANOTHER
+    milestone (no laws/<milestone>/<law_id>.json, whatever the line's own label says) cannot be checked (it needs the
+    old model at its bound commit) and is not that gate's claim: it is listed in the note as not checked, never as
+    accepted. Its own milestone's binding_change lines still fail off git. Every checker crash a re-check of a
+    binding_change line retried in this scan (Q34: retried and logged, never a verdict) is listed in "crashes" and
+    named in the note."""
     path, root = Path(path), Path(root)
     out = {"problems": [], "entries": [], "git": False, "note": ""}
     if not path.is_file():
         out["problems"].append(f"{path} does not exist")
         return out
     data = path.read_bytes()
+    n_crashes = len(_RECHECKED.get("crashes", []))
     hist = committed_history(path, root)
     out["git"] = hist is not None
     # (end offset, commit): the bytes up to `end` were appended by `commit` (HEAD's first-parent chain); a line a
@@ -875,6 +883,10 @@ def scan(path: Path, root: Path, kinds=None) -> dict:
             continue
         if kinds is not None and (not isinstance(e, dict) or e.get("kind") not in kinds):
             continue   # only these kinds are checked (catalog_bridge)
+        if hist is None and milestone and isinstance(e, dict) and e.get("kind") == "binding_change" \
+                and e.get("law_id") and not (root / "laws" / milestone / f"{e['law_id']}.json").is_file():
+            out.setdefault("unchecked", []).append(n)
+            continue
         commit = next((c for end, c in spans if start < end), None) if start < committed_len else side.get(raw)
         item = {"line": n, "entry": e, "ok": False, "committed": commit is not None, "commit": commit}
         out["entries"].append(item)
@@ -897,6 +909,15 @@ def scan(path: Path, root: Path, kinds=None) -> dict:
                                    "working tree")
         else:
             item["ok"] = True
+    if out.get("unchecked"):
+        out["note"] += (f"; {len(out['unchecked'])} binding_change line(s) of another milestone not checked here (no git "
+                        f"history; lines {', '.join(map(str, out['unchecked']))})")
+    cr = _RECHECKED.get("crashes", [])[n_crashes:]
+    if cr:
+        out["crashes"] = [{"law_id": lid, **c} for lid, c in cr]
+        out["note"] += (f"; {len(cr)} checker crash(es) retried while re-checking binding_change lines (Q34: never a "
+                        f"verdict): " + ", ".join(f"{lid} {c.get('kernel')} {c.get('seconds')} s" for lid, c in cr[:8])
+                        + (" ..." if len(cr) > 8 else ""))
     return out
 
 
@@ -1058,13 +1079,27 @@ def recheck_artifacts(e: dict, eqv: dict, root: Path, old_model: bytes | None, n
         try:
             for name in ARTIFACTS:
                 (tmp / name).write_text(texts[name])
-            r = bend.check(tmp / "PROOF.bend")
+            # Q34: bounded by equivalence.timeout_s in each kernel; a crash is retried and logged, never a verdict
+            r, crashes = bend.check_equivalence(tmp / "PROOF.bend")
             need_tt = bend.verdict_enabled() or "BendTT" in (eqv.get("kernels") or [])
-            v = bend.check_verdict(tmp / "PROOF.bend") if (r.ok and need_tt) else None
+            v = None
+            if r.ok and need_tt:
+                v, more = bend.check_equivalence(tmp / "PROOF.bend", verdict=True)
+                crashes += more
+            for c in crashes:
+                _RECHECKED.setdefault("crashes", []).append((e.get("law_id"), c))
+
+            def _why(kernel, run):
+                if run is not None and bend.timed_out(run):
+                    return (f"{kernel} did not finish its PROOF.bend within equivalence.timeout_s "
+                            f"({bend.equivalence_timeout()} s): UNKNOWN, not re-checked")
+                if run is not None and bend.crashed(run):
+                    return f"{kernel} crashed on its PROOF.bend on every try (no verdict): not re-checked"
+                return None
             if not r.ok:
-                why = f"bend2 no longer accepts its PROOF.bend: {EQ.kernel_message(r.out, 6)}"
+                why = _why("bend2", r) or f"bend2 no longer accepts its PROOF.bend: {EQ.kernel_message(r.out, 6)}"
             elif need_tt and not (v is not None and v.ok):
-                why = f"BendTT does not accept its PROOF.bend: {EQ.kernel_message(v.out if v else '', 6)}"
+                why = _why("BendTT", v) or f"BendTT does not accept its PROOF.bend: {EQ.kernel_message(v.out if v else '', 6)}"
             _RECHECKED.setdefault("seconds", []).append((e.get("law_id"), r.seconds, v.seconds if v else None))
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
