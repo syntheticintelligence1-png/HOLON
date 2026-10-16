@@ -525,8 +525,10 @@ def render_sheet(inst: dict, srcs: dict) -> str:
 
 
 def run_holon(args, cwd=ROOT, timeout=3600):
+    # amended (spec/M2/amendments.jsonl, I61, superseded_by_rerun): holon/mutate serves I62 by default; I61's tests
+    # read I61's files
     return subprocess.run([sys.executable, "-m", "holon", *args], cwd=cwd, capture_output=True, text=True,
-                          timeout=timeout)
+                          timeout=timeout, env={**os.environ, "HOLON_MUTATE_KEY": "I61"})
 
 
 def records() -> dict:
@@ -2391,10 +2393,14 @@ class TestResults(unittest.TestCase):
         self.assertEqual(s["corpus_detected"], sorted(i for i in r if r[i]["corpus_detected"] is True))
 
     def test_metrics_report_mutation_adequacy(self):
-        """I61-R9: I22-R6's metric name and shape, from stratum A (I23 reads it); it leaves not_applicable."""
+        """I61-R9: I22-R6's metric name and shape, from stratum A (I23 reads it); it leaves not_applicable. Amended
+        (spec/M2/amendments.jsonl, I61, superseded_by_rerun): once I62's summary exists it is the metric's source."""
         m = need(ROOT / "results" / "M2" / "metrics.json")
-        a = self.s["strata"]["A"]
-        self.assertEqual(m["mutation_adequacy"], {"source": "results/M2/mutation_i61/summary.json", "threshold": 0.8,
+        rel = "results/M2/mutation_i61/summary.json"
+        if (ROOT / "results" / "M2" / "mutation_i62" / "summary.json").is_file():
+            rel = "results/M2/mutation_i62/summary.json"
+        a = load_json(ROOT / rel)["strata"]["A"]
+        self.assertEqual(m["mutation_adequacy"], {"source": rel, "threshold": 0.8,
                                                   "rate_all": a["rate_all"],
                                                   "rate_non_equivalent": a["rate_non_equivalent"],
                                                   "meets_threshold": a["meets_threshold"]})
