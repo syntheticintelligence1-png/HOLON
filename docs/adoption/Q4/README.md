@@ -15,31 +15,51 @@ The adoption adds two files beside the frozen v1 schemas. It edits none of the v
 
 ## Steps (the human)
 
-1. **Review** the two files in `docs/adoption/Q4/schemas/`. Compare each with `spec/schemas/` at the commit you adopt from; they must be byte-equal.
-2. **Copy** them into the frozen root:
+1. **Start from a clean freeze.** On the commit you adopt from:
+   ```
+   python tools/freeze.py check      # FROZEN OK
+   python tools/freeze.py digest     # f854d69b0b58b581eb205a657d6925cc1e1460141ef9626df89ea87de1594fd0 at the I64 build
+   ```
+   If `check` reports any drift, stop. `write` (step 4) re-hashes every file under `FROZEN_ROOTS`, so it would freeze that drift too, without a word.
+2. **Review** the two files in `docs/adoption/Q4/schemas/`. Compare each with `spec/schemas/` at the commit you adopt from; they must be byte-equal.
+3. **Copy** them into the frozen root:
    ```
    cp docs/adoption/Q4/schemas/result_record_v2.schema.json schemas/
    cp docs/adoption/Q4/schemas/law_ir_0_3.schema.json schemas/
    ```
-3. **Re-freeze**, which only the human may do:
+4. **Re-freeze**, which only the human may do:
    ```
    python tools/freeze.py write
+   git diff FROZEN.sha256            # exactly two added lines, nothing else
    python tools/freeze.py check      # FROZEN OK
    python tools/freeze.py digest     # the new manifest digest
    ```
-   `write` adds the two files to `FROZEN.sha256`.
-4. **Move the CI digest pin** (Q40). In `.github/workflows/holon-ci.yml`, job `freeze-check`, replace the pinned digest with the one step 3 printed:
-   ```
-   test "$(python tools/freeze.py digest)" = "<new digest>" || { echo "FROZEN.sha256 digest differs from the pinned seed freeze"; exit 1; }
-   ```
-   The pin is `f854d69b0b58b581eb205a657d6925cc1e1460141ef9626df89ea87de1594fd0` at the I64 build. Moving it is the visible change Q40 asks for. Without this step, CI's freeze-check fails on the new manifest.
-5. **Commit** `schemas/`, `FROZEN.sha256` and `.github/workflows/holon-ci.yml` together, in one commit, and push it. CI's freeze-check job then runs `check` and the new pin.
+   `write` adds the two files to `FROZEN.sha256`. `git diff` must show exactly two added lines, one for `schemas/law_ir_0_3.schema.json` and one for `schemas/result_record_v2.schema.json`, and no other change. With the optional step below it also shows the contract files and the new hashes of the frozen files you edited.
+5. **Move the digest pin, in all three places** (Q40). Use the digest step 4 printed:
+   - `.github/workflows/holon-ci.yml`, job `freeze-check`:
+     ```
+     test "$(python tools/freeze.py digest)" = "<new digest>" || { echo "FROZEN.sha256 digest differs from the pinned seed freeze"; exit 1; }
+     ```
+     Also update the comment above it, which names the seed freeze (8a1dbe7), to name this adoption commit.
+   - `README.md`, step 4 of the review steps: the digest a PR must print.
+
+   The pin is `f854d69b0b58b581eb205a657d6925cc1e1460141ef9626df89ea87de1594fd0` at the I64 build. Moving it is the visible change Q40 asks for. Without the move:
+   - CI's freeze-check fails on the new manifest;
+   - the README's review step would reject every later PR.
+6. **Commit** together, in one commit, and push it:
+   - `schemas/`;
+   - `FROZEN.sha256`;
+   - `.github/workflows/holon-ci.yml`;
+   - `README.md`.
+
+   CI's freeze-check job then runs `check` and the new pin.
 
 ## Optional: freeze the intent contracts too
 
-Contracts in `laws/CONTRACTS/` are pinned by their registry hashes (K2). That pin is self-certified, not frozen, because an agent can edit a contract and its registry entry together (BUILD_PLAN §2 invariant 11; Q1). To freeze them, do this before step 3, in the same commit:
-- add `"laws/CONTRACTS"` to `FROZEN_ROOTS` in `tools/freeze.py`, which is itself frozen and so is a human edit;
-- then run step 3: `write` records every contract file and `REGISTRY.json` in `FROZEN.sha256`.
+Contracts in `laws/CONTRACTS/` are pinned by their registry hashes (K2). That pin is self-certified, not frozen, because an agent can edit a contract and its registry entry together (BUILD_PLAN §2 invariant 11; Q1). To freeze them, do this before step 4, in the same commit:
+- add `"laws/CONTRACTS"` to `FROZEN_ROOTS` in `tools/freeze.py`. That file is itself frozen, so this is a human edit;
+- add `laws/CONTRACTS/` to the list of frozen paths in `AGENTS.md` rule 1, which is frozen too, so that sessions are told;
+- then run step 4: `write` records every contract file, `REGISTRY.json`, and the new hashes of `tools/freeze.py` and `AGENTS.md` in `FROZEN.sha256`.
 
 After that, a new or changed contract is a frozen-file change for the human to review and re-freeze, like the schemas.
 
