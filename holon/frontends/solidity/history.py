@@ -243,7 +243,10 @@ def initializers(ast: dict, contract: str, text: str) -> list[dict]:
                     args = mod.get("arguments") or []
                     if len(args) != 1 or args[0].get("nodeType") != "Literal" or args[0].get("kind") != "number":
                         raise ExtractionError(f"{fn['name']}: the reinitializer's argument is not an integer literal")
-                    version = int(args[0]["value"], 0)
+                    try:
+                        version = int(args[0]["value"], 0)
+                    except ValueError as e:
+                        raise ExtractionError(f"{fn['name']}: reinitializer({args[0]['value']}) is not an integer") from e
                 else:
                     continue
                 offset = int(fn["src"].split(":", 1)[0])
@@ -435,9 +438,11 @@ def _index(ctx: Ctx) -> tuple[list, dict]:
     path = ctx.path(up["path"])
     if not path.is_file() or path.stat().st_size < 1000:
         raise Refused(f"{up['path']} is missing or an LFS pointer (git lfs pull --include {up['path']})")
+    from ...ir import canonical_json
     idx = _read_json(path, "upgrade source")
-    if idx.get("index_sha256") != up["index_sha256"]:
-        raise Refused(f"{up['path']}: index_sha256 is not the sidecar's upgrades.index_sha256")
+    content = {k: v for k, v in idx.items() if k != "index_sha256"}
+    if idx.get("index_sha256") != up["index_sha256"] or _sha(canonical_json(content)) != up["index_sha256"]:
+        raise Refused(f"{up['path']}: its content hash is not the sidecar's upgrades.index_sha256")
     topic = ctx.side["events"]["Upgraded"]
     items = sorted((int(i["block"]), int(i["log_index"]), i["tx"]) for i in idx.get("items", [])
                    if i.get("kind") == "log" and i.get("topic") == topic)
@@ -530,6 +535,13 @@ def check_snapshot(ctx: Ctx) -> list[str]:
         bad.append("the sidecar changed after the fetch")
     if doc.get("index") != {"path": ctx.side["upgrades"]["path"], "sha256": ctx.side["upgrades"]["index_sha256"]}:
         bad.append("the snapshot's index is not the sidecar's upgrade source")
+    from ...historical.net import host
+    if doc.get("proxy") != {"address": ctx.side["proxy"]["address"].lower(), "chain": ctx.side["proxy"]["chain"]}:
+        bad.append("the snapshot's proxy is not the sidecar's")
+    if doc.get("window") != ctx.side["upgrades"]["window"]:
+        bad.append("the snapshot's window is not the sidecar's")
+    if doc.get("rpc") != {"host": host(ctx.side["rpc"]["url"]), "methods": ctx.side["rpc"]["methods"]}:
+        bad.append("the snapshot's rpc is not the sidecar's")
     ups = doc.get("upgrades") or []
     if [(u["block"], u["log_index"], u["tx"]) for u in ups] != items:
         bad.append("the upgrades are not the upgrade source's Upgraded logs")
@@ -558,6 +570,12 @@ def check_snapshot(ctx: Ctx) -> list[str]:
             continue
         if (_sha(code), len(code)) != (u.get("code_sha256"), u.get("code_length")):
             bad.append(f"{ctx.out['code']}/{u['implementation']}.hex does not hash to the snapshot's code_sha256")
+    for rel, want in ((ctx.out["receipts"], {f"{u['tx']}.json" for u in ups}),
+                      (ctx.out["code"], {f"{u['implementation']}.hex" for u in ups})):
+        d = ctx.path(rel)
+        stray = sorted(f.name for f in d.iterdir() if f.name not in want) if d.is_dir() else []
+        if stray:
+            bad.append(f"{rel} holds files no upgrade names: {', '.join(stray)}")
     return bad
 
 
@@ -678,6 +696,12 @@ def main(argv=None) -> int:
     except Refused as e:
         print(f"refused: {e}", file=sys.stderr)
         return 2
+    except (KeyError, TypeError) as e:
+        print(f"refused: a malformed sidecar, configuration or input ({type(e).__name__}: {e})", file=sys.stderr)
+        return 2
+    except (subprocess.SubprocessError, OSError) as e:
+        print(f"error: {type(e).__name__}: {e}", file=sys.stderr)
+        return 3
     except ExtractionError as e:
         print(f"error: {e}", file=sys.stderr)
         return 3
