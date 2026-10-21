@@ -16,7 +16,8 @@ set of admissible blob lists B with equal (context, V(B)).
                first iteration at which its break holds; a hash of a region is an injective symbolic image of its cells
 
 Over every context (a candidate per atom) and every list satisfying the evaluable guards the lists are grouped by
-(context, V(B)): max_fiber is the largest group, bits log2 of it (6 decimals), max_fibers every largest group.
+(context, V(B)): max_fiber is the largest group, bits log2 of it (6 decimals), max_fibers every largest group (in the
+order of their canonical JSON).
 
 Nothing here names a target: every action, term, constant and span comes from the document.
 """
@@ -330,7 +331,7 @@ def measure(doc: dict, action: dict, at: str, fresh: list, max_length: int) -> d
         if len(ls) == mx:
             fibers.append({"context": sorted([k, v] for k, v in ctx),
                            "lists": sorted([word_hex(h) for h in B] for B in ls)})
-    fibers.sort(key=lambda f: (f["context"], f["lists"]))
+    fibers.sort(key=canon)
     return {"bits": round(math.log2(mx), 6), "max_fiber": mx, "max_fibers": fibers,
             "domain": {"alphabet": [word_hex(h) for h in alpha], "max_length": max_length, "atoms": cands},
             "unevaluated": sorted(unevaluated)}
