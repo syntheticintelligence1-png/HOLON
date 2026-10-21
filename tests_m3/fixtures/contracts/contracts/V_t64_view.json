@@ -1,0 +1,18 @@
+{
+ "contract_version": "holon-contract/0.1",
+ "id": "V_t64_view",
+ "kind": "volatile_view",
+ "milestone": "T64",
+ "rule": "OWN",
+ "view": {
+  "facts": "spec/M2/facts/morph_batch.go.extracted.json",
+  "function": "(*morph-l2/common/batch.BatchData).TxsPayloadV2",
+  "result": 0
+ },
+ "facts": "spec/M2/facts/morph_batch.go.extracted.json",
+ "maps_to": "whitepaper 5.8 (TxsPayloadV2 aliases the block-context buffer's spare capacity)",
+ "evidence": [
+  "E2"
+ ],
+ "rationale": "Fixture: declares TxsPayloadV2's returned slice volatile, the exception OWN-alias allows (whitepaper 5.8). Validated against the Go document's slice results; nothing proves it."
+}

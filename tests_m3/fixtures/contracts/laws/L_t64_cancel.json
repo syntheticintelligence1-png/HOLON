@@ -1,0 +1,78 @@
+{
+ "ir_version": "holon-ir/0.3",
+ "milestone": "T64",
+ "rule_catalog_version": "holon-rules/0.1",
+ "facts": "tests_m3/fixtures/contracts/toy_intent.facts.json",
+ "facts_sha256": "",
+ "law_id": "L_t64_cancel",
+ "rule": "UNDO",
+ "subform": "pair",
+ "notes": "I64 obstruction: the undo pair (challenge, cancel) from any reachable state with no open challenge; every later schedule q must observe the same as from the state itself. The challenge's +W on the deadline survives the cancel, so a finalize between the two deadlines tells them apart (O12's residue in miniature).",
+ "maps_to": "O12 (N2), in miniature",
+ "statement": {
+  "binders": [
+   {
+    "q": "forall",
+    "name": "s",
+    "type": "Reach"
+   },
+   {
+    "q": "forall",
+    "name": "q",
+    "type": "Trace"
+   }
+  ],
+  "assume": [
+   {
+    "eq": [
+     {
+      "obsv": "challenged",
+      "of": {
+       "var": "s"
+      }
+     },
+     {
+      "bool": false
+     }
+    ]
+   }
+  ],
+  "claim": {
+   "eq": [
+    {
+     "obs": {
+      "var": "q"
+     },
+     "from": {
+      "run": {
+       "trace": [
+        {
+         "act": "challenge",
+         "args": {}
+        },
+        {
+         "act": "cancel",
+         "args": {}
+        }
+       ]
+      },
+      "from": {
+       "var": "s"
+      }
+     }
+    },
+    {
+     "obs": {
+      "var": "q"
+     },
+     "from": {
+      "var": "s"
+     }
+    }
+   ]
+  },
+  "scope": {
+   "kind": "unbounded"
+  }
+ }
+}
