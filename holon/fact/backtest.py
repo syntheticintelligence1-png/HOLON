@@ -136,8 +136,27 @@ def act_fields(model_text: str) -> dict:
     for line in m.group(1).splitlines():
         c = re.match(r"\s*A_(\w+)\{(.*)\}\s*$", line)
         if c:
-            fs = [p.strip() for p in c.group(2).split(",") if p.strip()]
+            fs = _top_level(c.group(2))
             out[c.group(1)] = [(f.split(":")[0].strip(), f.split(":", 1)[1].strip()) for f in fs]
+    return out
+
+
+def _top_level(text: str) -> list[str]:
+    """text split at its top-level commas: a field's type may hold one (List<&2, Nat>)."""
+    out, depth, cur, prev = [], 0, [], ""
+    for ch in text:
+        if ch in "<({[":
+            depth += 1
+        elif ch in ")}]" or (ch == ">" and prev != "-"):
+            depth -= 1
+        if ch == "," and depth == 0:
+            out.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+        prev = ch
+    if "".join(cur).strip():
+        out.append("".join(cur).strip())
     return out
 
 
