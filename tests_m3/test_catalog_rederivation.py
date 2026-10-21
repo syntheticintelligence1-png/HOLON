@@ -14,16 +14,26 @@ holon-ir/0.3 statement hash covers rule_catalog_version, so the 80 PAR statement
   gate3                 holon.gate's G2 (registry, statement lifecycle, bindings), G8 and G3 run over every M3 law.
 
 Tests that read the repository history fail, never skip, without it (BUILD_PLAN §0.1.4).
+
+F39: later bumps (I27 1.2 -> 1.3, I31 1.3 -> 1.4 and 1.2 -> 1.4 across the merge, I26 1.4 -> 1.5) add lines of the same
+kind; the tests above hold for every line, and F30's 80 stay one per PAR law. Lines appended on two branches are ordered
+in the log by their merge, not by the registry history the tool walks, so the tool's lines are compared with the
+committed ones line for line by (law, old hash, new hash). A REFUTED typed law's checked LAWS.bend is its counter-law
+(G2 compares it with the bound counter-law). F35's binding_change lines are checked against the bound model at their
+bound commit, which needs the history, so gate3's G2 runs on a clone of the committed tree, not on a copy.
 """
 from __future__ import annotations
 
 import copy
 import json
 import shutil
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
-from tests_m3._m3 import ROOT, copy_repo, holon_module, load_json, write_json
+from tests_m3._m3 import ROOT, holon_module, load_json, write_json
 
 LOG = ROOT / "laws" / "STATEMENT_DIFF.jsonl"
 KIND = "catalog_rederivation"
@@ -47,14 +57,19 @@ class TestCatalogRederivation(unittest.TestCase):
         return e
 
     def test_the_80_par_laws_each_have_one_line(self):
+        """F30's bump (holon-rules/1.1 -> 1.2) has one line per PAR law; every later bump's lines (F39: I27, I31 and
+        I26 bumped the catalog again) are lines of the same kind, each between the two catalogs its sides name."""
         par = sorted(p.stem for p in (ROOT / "laws" / "M3").glob("L_par_*.json"))
         self.assertEqual(len(par), 80)
-        self.assertEqual(sorted(e["law_id"] for e in self.lines), par)
+        f30 = [e for e in self.lines if (e["old_catalog"], e["new_catalog"]) == (OLD_CATALOG, NEW_CATALOG)]
+        self.assertEqual(sorted(e["law_id"] for e in f30), par)
         for e in self.lines:
-            with self.subTest(law=e["law_id"]):
-                self.assertEqual((e["milestone"], e["old_catalog"], e["new_catalog"]), ("M3", OLD_CATALOG, NEW_CATALOG))
+            with self.subTest(law=e["law_id"], catalogs=(e["old_catalog"], e["new_catalog"])):
+                self.assertEqual(e["milestone"], "M3")
+                self.assertEqual((e["old"]["rule_catalog_version"], e["new"]["rule_catalog_version"]),
+                                 (e["old_catalog"], e["new_catalog"]))
                 self.assertEqual(self.SD.masked(e["old"]), self.SD.masked(e["new"]))
-                self.assertEqual(e["accepted"]["catalogs"], [OLD_CATALOG, NEW_CATALOG])
+                self.assertEqual(e["accepted"]["catalogs"], [e["old_catalog"], e["new_catalog"]])
 
     def test_every_m3_registry_change_is_tied_to_its_line(self):
         """G2's tie on the real history: every M3 statement-hash change since the log was introduced is covered, and
@@ -65,15 +80,25 @@ class TestCatalogRederivation(unittest.TestCase):
         bad, _ = self.SD.tie_problems("M3", ROOT, s)
         self.assertEqual(bad, [])
         rc = self.SD.registry_changes("M3", ROOT)
-        self.assertEqual(len(rc["changes"]), 80)
+        ok = [x["entry"] for x in s["entries"] if x.get("ok")]
+        tied = []
         for ch in rc["changes"]:
-            cov = [e for e in self.lines if self.SD.covers(e, ch)]
-            self.assertEqual([(e["law_id"], e["old_hash"], e["new_hash"]) for e in cov],
-                             [(ch["law_id"], ch["old_hash"], ch["new_hash"])])
+            cov = [e for e in ok if self.SD.covers(e, ch)]
+            lines = [e for e in cov if e.get("kind") == KIND]
+            with self.subTest(law=ch["law_id"], at=ch["at"]):
+                self.assertTrue(cov, "every change is covered")
+                if lines:   # a catalog bump: exactly its line, carrying the registry's two hashes
+                    self.assertEqual([(e["law_id"], e["old_hash"], e["new_hash"]) for e in lines],
+                                     [(ch["law_id"], ch["old_hash"], ch["new_hash"])])
+                    tied.append((ch["law_id"], ch["old_hash"], ch["new_hash"]))
+        # F39: every catalog line ties a registry change (none is extra), F30's 80 among them
+        self.assertEqual(sorted(tied), sorted((e["law_id"], e["old_hash"], e["new_hash"]) for e in self.lines))
+        self.assertGreaterEqual(len(tied), 80)
 
     def test_the_lines_are_what_the_tool_generates(self):
-        """Generate, never hand-write: with no line accepted yet, the tool rebuilds exactly the committed lines (in
-        log order), and each acceptance record is the one the check gives on this tree."""
+        """Generate, never hand-write: with no line accepted yet, the tool rebuilds exactly the committed lines (F39:
+        line for line by law and hashes; the log orders lines appended on two branches by their merge), and each
+        acceptance record is the one the check gives on this tree."""
         SD = self.SD
         real = SD.scan
 
@@ -83,12 +108,20 @@ class TestCatalogRederivation(unittest.TestCase):
         with mock.patch.object(SD, "scan", without_catalog_lines):
             es, notes = SD.catalog_rederivation_entries("M3", ROOT)
         self.assertEqual(notes, [])
-        self.assertEqual([json.dumps(e, sort_keys=True) for e in es],
-                         [json.dumps({k: v for k, v in x.items() if k != "accepted"}, sort_keys=True) for x in self.lines])
-        for e, x in zip(es, self.lines):
-            r = SD.check_entry(e, ROOT)
-            self.assertTrue(r["ok"], r["reason"])
-            self.assertEqual(SD.acceptance(e, r, ROOT), x["accepted"])
+
+        def key(e):
+            return e["law_id"], e["old_hash"], e["new_hash"]
+        committed = {key(x): x for x in self.lines}
+        self.assertEqual(len(committed), len(self.lines), "one line per registry change")
+        self.assertEqual(sorted(key(e) for e in es), sorted(committed))
+        for e in es:
+            x = committed[key(e)]
+            with self.subTest(law=e["law_id"], catalogs=(e["old_catalog"], e["new_catalog"])):
+                self.assertEqual(json.dumps(e, sort_keys=True),
+                                 json.dumps({k: v for k, v in x.items() if k != "accepted"}, sort_keys=True))
+                r = SD.check_entry(e, ROOT)
+                self.assertTrue(r["ok"], r["reason"])
+                self.assertEqual(SD.acceptance(e, r, ROOT), x["accepted"])
 
     def test_a_claim_change_is_never_a_catalog_rederivation(self):
         SD = self.SD
@@ -162,8 +195,12 @@ class TestBindingsM3(unittest.TestCase):
                 x = bound["laws"][lid]
                 self.assertEqual(x["model"], "gen/M3/sorts/models/morph_rollup.extracted.bend")
                 self.assertEqual(x["statement_hash"], reg[lid])
+                rec = load_json(ROOT / "results" / "M3" / f"{lid}.json")
                 text = (ROOT / "gen" / "M3" / "laws" / lid / "LAWS.bend").read_text()
-                self.assertEqual(B.text_sha256(text), x["statement_sha256"])
+                # the checked LAWS.bend is the bound emission for the record's status (F39: a REFUTED law's is its
+                # counter-law, as G2 checks it)
+                want = B.bound_counter(x, rec) if rec["status"] == "REFUTED" else x["statement_sha256"]
+                self.assertEqual(B.text_sha256(text), want)
                 self.assertIn(f"coerce_{lid[len('L_sort_'):]}", " ".join(x["cone"]))
 
     def test_a_catalog_rederivation_covers_only_a_hash_only_rebinding(self):
@@ -179,13 +216,26 @@ class TestBindingsM3(unittest.TestCase):
         self.assertFalse(B.hash_only_change({**x, "statement_sha256": "a"}, x))
 
 
+def clone_repo() -> Path:
+    """A scratch clone of the committed repository at HEAD, with its history (its parent directory is removed by the
+    caller): F35's binding_change lines are checked against the bound model at their bound commit."""
+    d = Path(tempfile.mkdtemp(prefix="holon-test-"))
+    p = subprocess.run(["git", "clone", "-q", "--no-hardlinks", str(ROOT), str(d / "repo")], capture_output=True,
+                       text=True)
+    if p.returncode != 0:
+        shutil.rmtree(d, ignore_errors=True)
+        raise AssertionError(f"git clone failed: {p.stderr[-500:]}")
+    return d / "repo"
+
+
 class TestGate3RunsTheLifecycle(unittest.TestCase):
-    """In a copy (no history, so the tie says it was not run), gate3's G2 now fails where only holon.gate's G2 looks:
-    an unaccepted statement-diff line, and a binding that no longer matches its law."""
+    """In a clone of the committed tree (F39: with the history, which the binding_change lines need), gate3's G2 fails
+    where only holon.gate's G2 looks: an unaccepted statement-diff line, and a binding that no longer matches its
+    law."""
 
     def test_g2_fails_on_an_unaccepted_line_and_on_a_stale_binding(self):
         G3 = holon_module("holon.sorts.gate3")
-        repo = copy_repo()
+        repo = clone_repo()
         try:
             ok = G3.Gate3("M3", repo).run(["G2"])["checks"]["G2"]
             self.assertTrue(ok["passed"], ok["detail"])
