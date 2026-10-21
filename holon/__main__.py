@@ -107,9 +107,9 @@ def _untyped_laws(argv: list) -> bool:
         return False
     entries = {e.get("law_id"): e for e in dv.get("laws") or [] if isinstance(e, dict)}
     typed_subforms = ("as_member", "realize", "reinterpret")
-    # rule UNDO (I27) is decided on the typed model too (holon.undo.run)
+    # rules UNDO (I27) and FACT (I26) are decided on the typed model too (holon.undo.run, holon.fact.run)
     return all(i in entries and not (entries[i].get("rule") == "SORT" and entries[i].get("subform") in typed_subforms)
-               and entries[i].get("rule") != "UNDO" for i in ids)
+               and entries[i].get("rule") not in ("UNDO", "FACT") for i in ids)
 
 
 def _disch_milestone(argv: list) -> bool:
@@ -121,6 +121,29 @@ def _disch_milestone(argv: list) -> bool:
     except (OSError, ValueError):
         return False
     return any(isinstance(e, dict) and e.get("rule") == "DISCH" for e in dv.get("laws") or [])
+
+
+def _typed_run(argv: list) -> int | None:
+    """`holon run | replay` of a typed milestone's laws other than FACT, or None when holon.pipeline decides them (a
+    --laws list naming only laws that are not typed)."""
+    if _disch_milestone(argv):
+        # I31: the DISCH laws of a typed milestone (holon.disch.run, after I30's laws for a whole-milestone run); a
+        # --laws list that names other laws too sends those on as before
+        from .disch import run as disch_run
+        split = disch_run.disch_ids_of(argv)
+        if split is None:
+            return disch_run.main(argv)
+        dids, others = split
+        if dids:
+            rc = 0
+            if others:
+                rc = main(disch_run.strip_args(argv, ("--laws", "--disch")) + ["--laws", ",".join(others)])
+            return max(rc, disch_run.main(disch_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(dids)]))
+    if not _untyped_laws(argv):
+        # the I30 laws of a typed milestone (holon.sorts.run3) and its UNDO laws (I27, holon.undo.run): run, replay
+        from .undo import run as undo_run
+        return undo_run.main(argv)
+    return None
 
 
 def main(argv=None) -> int:
@@ -209,23 +232,25 @@ def main(argv=None) -> int:
     if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
-    if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv) and _disch_milestone(argv):
-        # I31: the DISCH laws of a typed milestone (holon.disch.run, after I30's laws for a whole-milestone run); a
-        # --laws list that names other laws too sends those on as before
-        from .disch import run as disch_run
-        split = disch_run.disch_ids_of(argv)
-        if split is None:
-            return disch_run.main(argv)
-        dids, others = split
-        if dids:
-            rc = 0
-            if others:
-                rc = main(disch_run.strip_args(argv, ("--laws", "--disch")) + ["--laws", ",".join(others)])
-            return max(rc, disch_run.main(disch_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(dids)]))
-    if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv) and not _untyped_laws(argv):
-        # the I30 laws of a typed milestone (holon.sorts.run3) and its UNDO laws (I27, holon.undo.run): run, replay
-        from .undo import run as undo_run
-        return undo_run.main(argv)
+    if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv):
+        from .fact import run as fact_run
+        if fact_run.has_fact_laws(argv):
+            # I26: the FACT laws of a typed milestone (holon.fact.run, after every other law of a whole-milestone run
+            # or replay); a --laws list that names other laws too sends those on as before
+            split = fact_run.fact_ids_of(argv)
+            base = fact_run.strip_args(argv, ("--fact-sidecar",))
+            if split is None:
+                rc = _typed_run(base)
+                return max(0 if rc is None else rc, fact_run.main(argv))
+            fids, others = split
+            if fids:
+                rc = 0
+                if others:
+                    rc = main(fact_run.strip_args(base, ("--laws",)) + ["--laws", ",".join(others)])
+                return max(rc, fact_run.main(fact_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(fids)]))
+        rc = _typed_run(argv)
+        if rc is not None:
+            return rc
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")

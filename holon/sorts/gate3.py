@@ -22,6 +22,8 @@ listed under not_applicable with a reason.
   G4    canaries: per I30 subform among the laws, a counter-law whose witness is mutated (its entry step's clock or
         its first argument changed) must be rejected by Bend
 
+The DISCH laws (I31) and the FACT laws (I26) have their own checks (holon.disch.gate, holon.fact.gate), joined by name.
+
 The UNDO laws (I27, holon.undo.run): G1 also regenerates their analysis (holon undo), records, trace section and law
 and proof files and compares the classification regenerated from the records with results/<M>/undo/classification.json;
 G6 binds every REFUTED UNDO record to a passed entry of replay/<M>/undo/report.json. Every report carries "warnings":
@@ -489,6 +491,11 @@ class Gate3:
                     disch_gate.join(self, only)
                 except Exception as e:  # noqa: BLE001  (a crash is a failed check)
                     self.checks["G1"] = _res(False, f"DISCH checks: error: {type(e).__name__}: {e}")
+                from ..fact import gate as fact_gate       # I26: the FACT laws' checks, joined by name
+                try:
+                    fact_gate.join(self, only)
+                except Exception as e:  # noqa: BLE001  (a crash is a failed check)
+                    self.checks["G1"] = _res(False, f"FACT checks: error: {type(e).__name__}: {e}")
             if self.setup_error is None:
                 self.whole_milestone(g, ok, only, ("G2", "G8"))
                 self.other_laws(g, ok, only)
@@ -570,9 +577,9 @@ class Gate3:
         from .. import ir
         from ..gate import Gate
         mine = set(self.entries)
-        try:      # I31: the DISCH laws have their own checks (holon.disch.gate)
+        try:      # I31 and I26: the DISCH and FACT laws have their own checks (holon.disch.gate, holon.fact.gate)
             dv = json.loads((self.root / "laws" / self.m / "DERIVATION.json").read_text())
-            mine |= {e["law_id"] for e in dv["laws"] if e.get("rule") == "DISCH"}
+            mine |= {e["law_id"] for e in dv["laws"] if e.get("rule") in ("DISCH", "FACT")}
         except (OSError, ValueError, KeyError):
             pass
         others = [law["law_id"] for law in ir.load_laws_any(self.m, self.root) if law["law_id"] not in mine]

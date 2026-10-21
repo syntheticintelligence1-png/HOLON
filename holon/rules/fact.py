@@ -712,8 +712,10 @@ def main(argv=None) -> int:
             p.write_text(dumps(c), encoding="utf-8")
             print(f"holon fact: classification: {len(c['laws'])} laws, {len(c['disagreements'])} disagreements")
         if a.backtest:
-            from ..fact import backtest as B
-            b = B.write(a.milestone, root, sc)
+            # imported by name: holon.rules.fact sits in the M1/M2 generator closure (through holon.gen.refs), the
+            # back-test is no generator of theirs (holon.records.generator_files)
+            import importlib
+            b = importlib.import_module("holon.fact.backtest").write(a.milestone, root, sc)
             print(f"holon fact: back-test: {len(b['rows'])} rows, gaps {b['gaps']}, complete {b['complete']}")
     except Refused as e:
         print(f"holon fact: refused: {e}", file=sys.stderr)

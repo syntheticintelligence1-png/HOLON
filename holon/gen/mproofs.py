@@ -25,6 +25,8 @@ on the statement's shape and on the machine's structure (reads, effects), never 
                   is closed by computation ({==}) or is a premise once both are computed (the model runs
                   on the tables until only lookups ap_p(p, x) remain); its candidates are {==}, h0, h1, ..
                   and Bend picks (holon.mpipeline.param_search). Not in GENERATORS: it yields candidates.
+  product         (I26) the product program of a FACT law over the typed M3 model, by one route ("guard",
+                  "injective", "provenance"): holon.fact.product. Not in GENERATORS: holon.fact.run calls it.
 
 Witnesses over oracle parameters (I12) are resolved tables (holon.gen.mlaws.resolve_param); a witness dict
 may carry "$defs" (name -> Bend def of a sidecar instance), which the proof file defines before using them.
@@ -1129,3 +1131,11 @@ class ReachProof:
         text = "\n".join(_imports(self.imp) + lines) + "\n"
         off = len(_imports(self.imp))
         return text, {k + off: s for k, s in slot_at.items()}
+
+
+def product(route: str, *args, **kw) -> str:
+    """The product program's proof of a FACT law by one route (I26; holon.fact.product.product: the proof text, or
+    holon.fact.product.NoProof naming why the route does not apply). Imported by name when called: no M1 or M2
+    generator calls it, so holon.fact stays out of their generator closure (holon.records.generator_files)."""
+    import importlib
+    return importlib.import_module("holon.fact.product").product(route, *args, **kw)
