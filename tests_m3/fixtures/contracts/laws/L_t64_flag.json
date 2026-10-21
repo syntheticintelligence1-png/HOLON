@@ -1,0 +1,36 @@
+{
+ "ir_version": "holon-ir/0.3",
+ "milestone": "T64",
+ "rule_catalog_version": "holon-rules/0.1",
+ "facts": "tests_m3/fixtures/contracts/toy_intent.facts.json",
+ "facts_sha256": "",
+ "law_id": "L_t64_flag",
+ "rule": "SORT",
+ "notes": "I64 out-of-scope control: a planted false invariant (the flag stays down), refuted by raise; no contract names it.",
+ "statement": {
+  "binders": [
+   {
+    "q": "forall",
+    "name": "s",
+    "type": "Reach"
+   }
+  ],
+  "assume": [],
+  "claim": {
+   "eq": [
+    {
+     "obsv": "flag_down",
+     "of": {
+      "var": "s"
+     }
+    },
+    {
+     "bool": true
+    }
+   ]
+  },
+  "scope": {
+   "kind": "unbounded"
+  }
+ }
+}
