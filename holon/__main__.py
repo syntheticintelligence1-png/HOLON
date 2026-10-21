@@ -3,6 +3,7 @@
   python -m holon run  --milestone M0 [--facts PATH] [--out DIR] [--gen-dir DIR] [--no-registry] [--core import|paste]
                        [--laws ID,ID]   (M1+: decide only those laws; I15)
   python -m holon gate --milestone M0 [--root DIR] [--report PATH] [--checks G6,G9]
+  python -m holon contracts derive|apply --milestone M [--root DIR] [--check]   (intent contracts, K3 and K5; I64)
   python -m holon audit prereg --milestone M2 [--root DIR]
   python -m holon audit status [--json] [--root DIR]
   python -m holon audit regress --from A --to B [--json] [--root DIR]
@@ -231,7 +232,7 @@ def _main(argv: list) -> int:
         if dids:
             rc = 0
             if others:
-                rc = main(disch_run.strip_args(argv, ("--laws", "--disch")) + ["--laws", ",".join(others)])
+                rc = _main(disch_run.strip_args(argv, ("--laws", "--disch")) + ["--laws", ",".join(others)])
             return max(rc, disch_run.main(disch_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(dids)]))
     if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv) and not _untyped_laws(argv):
         # the I30 laws of a typed milestone (holon.sorts.run3) and its UNDO laws (I27, holon.undo.run): run, replay

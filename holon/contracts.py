@@ -298,9 +298,11 @@ def _intended_state(c: dict, milestone: str, root: Path, rdir: Path) -> str:
         return "stale: decided over other facts"
     try:
         h = statement_hash(law, root)
-    except Exception as e:  # noqa: BLE001  (a law whose hash cannot be computed is not proved)
-        return f"stale: the derived law's statement hash cannot be computed ({type(e).__name__}: {e})"
-    if rec.get("statement_hash") != h:
+    except Exception as e:  # noqa: BLE001  (a hash that cannot be computed is not the record's: K5's listed state)
+        print(f"holon contracts: {c['id']}: the derived law's statement hash cannot be computed "
+              f"({type(e).__name__}: {e})", file=sys.stderr)
+        h = None
+    if h is None or rec.get("statement_hash") != h:
         return "stale: decided for another statement (the record's statement_hash is not the derived law's)"
     return "proved"
 
