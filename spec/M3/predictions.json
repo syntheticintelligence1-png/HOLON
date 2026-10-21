@@ -1838,6 +1838,92 @@
           "L_disch_rev_rollup_228_79cc3e9a"
         ]
       }
+    },
+    "I63": {
+      "title": "= I28a: deployment history from the code (versions, reinitializers, storage-layout diffs and MIG edges over every tag of the target repository) and the proxy's on-chain upgrade timeline as an independent check",
+      "plan": "docs/BUILD_PLAN.md#i28",
+      "prompt": "prompts/I63_history.md",
+      "predictions": [
+        {
+          "id": "I63-P1",
+          "claim": "The proxy's first Upgraded log (block 20996846) is its creation over a placeholder: Morph's deploy scripts create every proxy as a TransparentUpgradeableProxy over EmptyContract with the deployer as admin (contracts/deploy/013-DeployProxys.ts at the head commit). Its implementation matches no version (coverage debt, reason no version's build matches), and its transaction logs no Initialized and exactly one AdminChanged, whose previous admin is the zero address.",
+          "check": "tests_m3/test_history.py::TestPredictions::test_p1_the_first_upgrade_is_the_placeholder"
+        },
+        {
+          "id": "I63-P2",
+          "claim": "Each of the other 11 upgrades matches exactly one version of the basis, and only under the deployed configuration (optimizer runs 200, cancun, bytecodeHash none: I23's Surprise 1), never under the checkout's declared foundry (999999) or hardhat (10000) configuration: the timeline's coverage debt is the first upgrade alone.",
+          "check": "tests_m3/test_history.py::TestPredictions::test_p2_every_later_upgrade_matches_one_tagged_version"
+        },
+        {
+          "id": "I63-P3",
+          "claim": "Mainnet starts on the v0.4.0 line: the first matched upgrade deploys the version of ref v0.4.0 (V3), and the versions of v0.2.0-beta and v0.2.1 (V1, V2) are never deployed, so the basis's incompatible V2->V3 edge (maxNumTxInChunk renamed __maxNumTxInChunk at slot 154) never runs on this proxy.",
+          "check": "tests_m3/test_history.py::TestPredictions::test_p3_mainnet_starts_on_the_v040_line"
+        },
+        {
+          "id": "I63-P4",
+          "claim": "No downgrade: no matched upgrade's version precedes the version of an earlier matched upgrade.",
+          "check": "tests_m3/test_history.py::TestPredictions::test_p4_no_downgrade"
+        },
+        {
+          "id": "I63-P5",
+          "claim": "Every matched upgrade is consistent (H8): its own transaction logs exactly the Initialized versions of the reinitializers its version introduces (for the first matched upgrade, every reinitializer of its version). So initialize2 and initialize3, guarded by nothing but reinitializer(k), were never left callable by anyone after their upgrade's transaction, and initialize4 ran inside the cutover's.",
+          "check": "tests_m3/test_history.py::TestPredictions::test_p5_every_reinitializer_runs_in_its_upgrade"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I63-R1",
+          "claim": "The last upgrade (block 26031669) sets I23's implementation 0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d, whose runtime code hashes to I23's sha256 53ec06626d3eedd585816d6258540daeffcf87b4ca9f8e575aebe49e1d79972e (results/M2/historical/trans.json), and it matches the head's version under the deployed configuration alone (I23's Surprise 1, restated through H7).",
+          "check": "tests_m3/test_history.py::TestRegressions::test_the_last_upgrade_is_i23s"
+        },
+        {
+          "id": "I63-R2",
+          "claim": "I63 states no law and changes no rule catalog: gates M0, M1 and M2 and the frozen suite pass, holon audit prereg passes for M2 and M3, and no commit that writes an I63 outcome path changes a law, a record, holon/rules/, spec/M1/, spec/M2/, gen/M0-M2, results/M0-M2, a gen/M3 or results/M3 path outside the outcome paths, replay/ or a frozen root.",
+          "check": "CI (frozen-suite, prereg-M2, prereg-M3, gate-M0, gate-M1, gate-M2) and tests_m3/test_history.py::TestRegressions::test_outcome_commits_touch_no_law_record_or_catalog"
+        },
+        {
+          "id": "I63-R3",
+          "claim": "Construction checks, not counted: spec/M3/lib/history_basis.json is tests_m3/_i63.py's computation over unchanged inputs (26 refs, all compiled under 3 configurations; 11 versions; 10 MIG edges, V2->V3 and V10->V11 incompatible); holon history extract --check reproduces gen/M3/history/morph_rollup.json, whose refs, versions and edges equal the basis's; holon.frontends.solidity.history names no Morph contract, function, address or configuration; holon history fetch --check verifies the snapshot offline, and the snapshot covers every Upgraded log of I59's index; holon history timeline --check reproduces results/M3/history/timeline.json, which equals the instrument's recomputation from the basis and the snapshot.",
+          "check": "tests_m3/test_history.py::TestInstrument::test_the_sidecar_and_the_basis_agree and tests_m3/test_history.py::TestInstrument::test_the_index_is_i59s and tests_m3/test_history.py::TestInstrument::test_the_refs_recompute and tests_m3/test_history.py::TestInstrument::test_the_basis_recomputes and tests_m3/test_history.py::TestHistory::test_extract_reproduces and tests_m3/test_history.py::TestHistory::test_the_history_is_the_basis and tests_m3/test_history.py::TestHistory::test_the_module_is_generic and tests_m3/test_history.py::TestOnchain::test_fetch_check_reproduces_offline and tests_m3/test_history.py::TestOnchain::test_the_snapshot_covers_every_upgrade and tests_m3/test_history.py::TestTimeline::test_timeline_reproduces and tests_m3/test_history.py::TestTimeline::test_the_timeline_is_the_instruments"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/history/",
+        "results/M3/history/"
+      ],
+      "tests": [
+        "tests_m3/test_history.py"
+      ],
+      "thresholds": {
+        "base": "b9737a3 (the integration line after PR #38)",
+        "history_sidecar": "spec/M3/lib/history.json",
+        "history_basis": "spec/M3/lib/history_basis.json",
+        "instrument": "tests_m3/_i63.py",
+        "target": {
+          "repo": "morph-l2/morph",
+          "head": "3e44e795586af3e11285b603ab642c67823add51",
+          "contract": "contracts/contracts/l1/rollup/Rollup.sol:Rollup"
+        },
+        "refs": 26,
+        "versions": 11,
+        "mig_edges": 10,
+        "incompatible_edges": [
+          "V2->V3",
+          "V10->V11"
+        ],
+        "version_config": "deployed",
+        "compiler_configs": {
+          "deployed": 200,
+          "foundry": 999999,
+          "hardhat": 10000
+        },
+        "proxy": "0x759894ced0e6af42c26668076ffa84d02e3cef60",
+        "upgrades": 12,
+        "upgrade_source": "results/M2/historical/index.json (I59), index_sha256 d12801b7f3065a84f19a5a8fe18f928e70aaa958ce9a55841dac355b7d2a7e76",
+        "rpc": "https://mainnet.gateway.tenderly.co",
+        "laws": 0,
+        "rule_catalog": "unchanged (I63 adds no producer; the laws half, key I28, takes the next free catalog version after I26)"
+      }
     }
   }
 }
