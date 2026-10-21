@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -39,6 +40,7 @@ LOG = ROOT / "laws" / "STATEMENT_DIFF.jsonl"
 KIND = "catalog_rederivation"
 OLD_CATALOG, NEW_CATALOG = "holon-rules/1.1", "holon-rules/1.2"
 TYPED = ("L_sort_realize_rollup_363_4a64383b", "L_sort_tag_rollup_279_e01ea84a", "L_sort_tag_rollup_406_e01ea84a")
+AT = re.compile(r"\(registry change at ([^)]*)\)")
 
 
 def log_lines(path=LOG) -> list[dict]:
@@ -97,8 +99,9 @@ class TestCatalogRederivation(unittest.TestCase):
 
     def test_the_lines_are_what_the_tool_generates(self):
         """Generate, never hand-write: with no line accepted yet, the tool rebuilds exactly the committed lines (F39:
-        line for line by law and hashes; the log orders lines appended on two branches by their merge), and each
-        acceptance record is the one the check gives on this tree."""
+        line for line by law and hashes, since the log orders lines appended on two branches by their merge; a line
+        appended before its registry change was committed names the working tree where the tool now names the
+        commit), and each acceptance record is the one the check gives on this tree."""
         SD = self.SD
         real = SD.scan
 
@@ -111,14 +114,23 @@ class TestCatalogRederivation(unittest.TestCase):
 
         def key(e):
             return e["law_id"], e["old_hash"], e["new_hash"]
+
+        def where(e):   # the reason names where the registry change sat when the line was generated
+            m = AT.search(e["reason"])
+            return m.group(1) if m else None
+
+        def masked(e):
+            return json.dumps({**{k: v for k, v in e.items() if k != "accepted"},
+                               "reason": AT.sub("(registry change at ..)", e["reason"])}, sort_keys=True)
         committed = {key(x): x for x in self.lines}
         self.assertEqual(len(committed), len(self.lines), "one line per registry change")
         self.assertEqual(sorted(key(e) for e in es), sorted(committed))
         for e in es:
             x = committed[key(e)]
             with self.subTest(law=e["law_id"], catalogs=(e["old_catalog"], e["new_catalog"])):
-                self.assertEqual(json.dumps(e, sort_keys=True),
-                                 json.dumps({k: v for k, v in x.items() if k != "accepted"}, sort_keys=True))
+                # F39: a line generated before its registry change was committed names the working tree there
+                self.assertIn(where(x), (where(e), "working tree"))
+                self.assertEqual(masked(e), masked(x))
                 r = SD.check_entry(e, ROOT)
                 self.assertTrue(r["ok"], r["reason"])
                 self.assertEqual(SD.acceptance(e, r, ROOT), x["accepted"])
