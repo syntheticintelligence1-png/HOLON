@@ -1,0 +1,109 @@
+{
+ "review": "I64 build",
+ "commit": "1164bc64",
+ "reviewer": "independent agent",
+ "verdict": "sign-off",
+ "verdict_note": "No blocking or major finding. holon/contracts.py implements K1-K10 as the docstring and tests_m3/_i64.py state them. On every probe (49 tampered trees, plus refusal, --check, formatting, --out and least-id runs), holon and the instrument agree, except the disclosed statement_hash check. One extra state text (B1) lies outside K5's list. P1-P4, R1 and R3 reproduce: 17 of the 18 tests run in a copy, and the R2 history test was replicated with read-only git. The R2 risks are settled by runs: gates M0, M1 and M2 pass (G10 not applicable, not applicable, PASS); the M3 partial gate fails only G11V on L_disch_rev_initializable_120_d9a34b48, with G10 passing; the frozen suite, freeze-check and both prereg audits pass. No frozen file, generator-closure file, or M0-M3 law, record or gen file changed. The outcome commit touches only outcome paths, v2 keeps every committed record valid, and the Q4 copies are byte-equal. Two minor findings to fix: an unlisted state text (B1), and the Q4 README's missing pre-write check and second digest pin (B2). Six advisories are for the report or I33. docs/iterations/I64.md is not committed yet. R2's history test runs to HEAD until it is, and the commit that adds it must itself touch only outcome paths.",
+ "findings": [
+  {
+   "id": "B1",
+   "severity": "minor",
+   "where": "holon/contracts.py:299-302",
+   "what": "_intended_state has a state K5 does not list: when holon.contracts.statement_hash raises, it returns \"stale: the derived law's statement hash cannot be computed (<type>: <message>)\". K5 says \"The states are exactly:\" seven texts plus holon's own \"stale: decided for another statement (the record's statement_hash is not the derived law's)\". This ninth text is in neither K5 nor the instrument (which says \"proved\" there), and it reaches results/<M>/contracts.json and G10's detail with an exception message inside.",
+   "why": "V3's fold fixed the state vocabulary exactly so that readers of contracts.json (OWN in I35, I33) and the agreement checks can rely on it. The branch is reachable only when holon.gen.refs.law_hash or Oracles.for_milestone raises for a derived law whose PROVED record is over the current facts (an oracle sidecar or target library changed or broken after the run). So no test reaches it.",
+   "fix": "In the except branch return the listed text \"stale: decided for another statement (the record's statement_hash is not the derived law's)\": a hash that cannot be computed is not the record's. Print the exception to stderr if it is wanted. Or keep the text and record it as an amendment line in spec/M3/amendments.jsonl with a Question, since the contract docstring is fixed."
+  },
+  {
+   "id": "B2",
+   "severity": "minor",
+   "where": "docs/adoption/Q4/README.md:16-44; README.md:85; .github/workflows/holon-ci.yml:98-99; AGENTS.md (rule 1's list)",
+   "what": "The human's steps are correct but not complete. (a) Nothing is checked before step 3's `tools/freeze.py write`. It re-hashes every file under FROZEN_ROOTS, so any drift in the tree at that moment is frozen along with the two schemas without notice. The README runs `check` only after `write`, where it always passes. (b) The repository's other copy of the pin is not moved. README.md:85 tells the human to reject any PR whose `tools/freeze.py digest` is not f854d69b..., and the CI comment at holon-ci.yml:98 names the seed freeze 8a1dbe7. After step 4 both are wrong, and the human's own PR check would reject every later PR. (c) With the optional step, AGENTS.md rule 1's list of frozen roots does not name laws/CONTRACTS.",
+   "why": "K10 asks for the human's exact steps. Q40's pin makes a manifest change visible, but that only protects anything if the re-freeze is shown to change nothing besides the adopted files.",
+   "fix": "Before step 3 add: on the commit you adopt from, `python tools/freeze.py check` prints FROZEN OK and `python tools/freeze.py digest` prints the current pin. After `write`, `git diff FROZEN.sha256` must show exactly two added lines, for schemas/law_ir_0_3.schema.json and schemas/result_record_v2.schema.json, and nothing else. With the optional step it also shows the laws/CONTRACTS files and tools/freeze.py's new hash. In step 4, also update the digest in README.md step 4 and the comment at holon-ci.yml:98-99, and commit them in the same commit (step 5). In the optional section, suggest adding laws/CONTRACTS/ to AGENTS.md rule 1's list in that commit. AGENTS.md is frozen, so the same `write` re-freezes it."
+  },
+  {
+   "id": "B3",
+   "severity": "advisory",
+   "where": "holon/__main__.py:234 (with 126-132)",
+   "what": "In the DISCH split of a typed `holon run`, _main runs the non-DISCH laws by calling the public main(). Since I64 that wrapper also runs the last step. So a split run applies the contracts twice: once after the non-DISCH laws, before the DISCH laws are decided, and again at the end.",
+   "why": "This is harmless today: apply is idempotent and M3 has no contract. But the inner application works on a half-updated results directory. A refusal there (exit 2) makes the outer main() skip the final application, though the DISCH laws still run. K5 places the step once the run's dispatch returns 0.",
+   "fix": "Call _main(...) at line 234, so that the step runs once, from the outer main()."
+  },
+  {
+   "id": "B4",
+   "severity": "advisory",
+   "where": "holon/contracts.py:339-353, 462-477 (and tests_m3/_i64.py:264-277)",
+   "what": "Neither apply nor G10 checks the value of intended.replaces. I probed copies of the T64 baseline. With replaces set to \"finding\" (the run's bin is \"pending\"), or to 42, G10 passes from holon and from the instrument, and apply carries 42 through unmark and mark unchanged. Also, G10 never compares results/<M>/contracts.json with its recomputation, though K9 says OWN (I35) reads the valid views from it.",
+   "why": "K6 defines a mark by filter_bin, intended.contract and intended.l_weak only, so the build conforms. But replaces is what apply restores and what I33's want_bin will read. So a wrong value survives every check except G1's regeneration. G9's v2 enum catches a value that is not a bin, and only on M2 and M3.",
+   "fix": "For I33, as a Question now, since it changes the contract: have apply refuse a replaces outside the four final bins (holon.filter.FINAL_BINS); have G10 report such a value; and have G10 compare contracts.json with status_doc, as `holon contracts apply --check` already does."
+  },
+  {
+   "id": "B5",
+   "severity": "advisory",
+   "where": "holon/contracts.py:252-259, 299-304; holon/undo/run.py:381",
+   "what": "statement_hash recomputes check_registry_multi's law_hash. It equals the record's statement_hash for all 16 M1 and 12 M2 records and for 118 of the 126 M3 records. It differs for the 8 M3 UNDO records (L_undo_pair_*), whose runner copies the hash from laws/M3/REGISTRY.json. run3 and disch.run copy it from there too.",
+   "why": "C_t64_ext's rule is UNDO. When I33 decides an L_weak through a typed runner, G10 may report a current proof as \"stale: decided for another statement\".",
+   "fix": "In I33, compare against the hash the deciding runner writes (for typed runners, the milestone registry's statement), and add a test milestone that decides an L_weak through a typed runner."
+  },
+  {
+   "id": "B6",
+   "severity": "advisory",
+   "where": "results/M3/L*.json and results/M2/extracted_m1/*.json (generator_sha256)",
+   "what": "Recomputed at the build head, these records match their closure hash: M0 8/8 (holon-ir/0.1, 5e4f183a), M1 16/16 (0.2, c287f258) and M2 12/12 (0.3, 0550aead). These do not match any of the six current closure hashes (0.1-0.3, run3 59faa5cc, undo a73b4fa4, disch 78eb205f): all 126 M3 records, which carry par 6edb0965, disch 5ceefbd0 and 2c9d9596, undo 03ffc198 and sort 5c7024b7, and the 14 records under results/M2/extracted_m1 (d1882dd7). No closure file changed in ec1e939..1164bc64. The closure files last changed in F38 (517c61b5, 2026-10-16), after the M3 records were committed (2026-10-15).",
+   "why": "This predates I64, and I64 is not its cause. K5's 'every M0-M3 record keeps its generator_sha256' holds: no record changed and no closure file changed. But on M3 the stored hash says nothing about the current generators.",
+   "fix": "No change for I64. State it in docs/iterations/I64.md. The next M3 regeneration (I26 or I33) refreshes the hashes."
+  },
+  {
+   "id": "B7",
+   "severity": "advisory",
+   "where": "holon/contracts.py:49-197, 317-336, 420-486 vs tests_m3/_i64.py",
+   "what": "179 of the instrument's 269 code lines recur verbatim in holon/contracts.py: problems, milestone_of, repo_path, l_weak_law, scope_of, expected_marks, contracts_doc/status_doc, and g10's registry, attribution and orphan loops.",
+   "why": "This breaks no rule: AGENTS rule 5 covers tests/reference/, and K3, K5 and K6 fix the texts by the instrument. But it changes what the holon-vs-instrument agreement shows. In P2-P4 and R3 it checks the wiring and the run's marking, not a second reading of K1, K2, K6 and K9. A defect shared with the instrument would pass both. This review probed K1-K9 independently on 49 trees and found none.",
+   "fix": "No change is needed now. Say in the report that the agreement checks are wiring checks for the copied parts. In I33, write holon's checks from the K-rules rather than from the instrument."
+  },
+  {
+   "id": "B8",
+   "severity": "advisory",
+   "where": "holon/__main__.py:1-62 (the CLI docstring); commit 1164bc64 message",
+   "what": "The CLI docstring, holon's list of commands, does not name `python -m holon contracts derive|apply --milestone M [--check]`. The outcome commit's message cites \"(Q61)\" for laws/CONTRACTS in FROZEN_ROOTS. There is no Q61: docs/HUMAN_ANSWERS.md ends at Q41 and BUILD_PLAN §6 has 20 items. The README correctly cites Q1.",
+   "why": "Documentation only.",
+   "fix": "Add the contracts line to the docstring, and cite Q1 in docs/iterations/I64.md."
+  }
+ ],
+ "verified": [
+  "Diff scope: 10 files. The build commit 39b95783 holds holon/contracts.py, holon/__main__.py, holon/gate.py, holon/sorts/gate3.py, the v2 schema and the CI list. The outcome commit 1164bc64 holds laws/CONTRACTS/REGISTRY.json and docs/adoption/Q4/{README.md, schemas/*}, all under the key's outcome_paths.",
+  "Neither commit changes or adds a frozen file: `tools/freeze.py check` gives FROZEN OK, and `digest` gives f854d69b..., equal to the CI pin. There is no bunfig.toml or .env, no escape hatch in the diff, and no T64 or fixture id anywhere in holon/ or CI.",
+  "No generator-closure file changed. None of the 10 files is in holon.records.generator_files for holon-ir/0.1, 0.2 or 0.3 (6, 120 and 121 files), or in the typed closures from run3.GEN3, GEN_UNDO+GEN3 or GEN3+GEN_DISCH (120, 123 and 125 files). holon/contracts.py, __main__.py, gate.py and sorts/gate3.py are in none of them, and ec1e939..14075f3a changed no closure file either.",
+  "generator_sha256 equals the recomputed closure hash for M0 (8/8), M1 (16/16) and M2 (12/12). M3 is pre-existing and unchanged by I64 (B6).",
+  "No M0-M3 law, record or gen file changed, and nothing under spec/M1, spec/M2, holon/rules or replay.",
+  "R2 history test, replicated with read-only git. The first commit with key I64 is 6100ff19. There is no docs/iterations/I64.md yet, so end = HEAD. The first-parent non-merge commits are [1164bc64, 39b95783] (--no-renames). Neither touches a forbidden prefix or a closure file, and 1164bc64 writes outcome paths.",
+  "The v2 schema change keeps every committed record valid. 162 M0-M3 records and 15 nested records give the same verdicts under the old and new v2, with both holon/schema.py and tests/reference/mini_schema. It uses only keywords holon/schema.py supports (type, required, properties, additionalProperties, enum, const, pattern, allOf with if/then), plus the annotations description and $comment.",
+  "K8 probes, all decided the same by both validators: a marked REFUTED M2 record is valid. These are rejected: replaces null or intended_bounded, an extra key in intended, a contract id V_..., an l_weak not L_contract_C_..., a marked UNKNOWN record, intended without filter_bin, and a non-object intended.",
+  "Q4 package: both schema copies are byte-equal to spec/schemas (cmp). The README's commands match tools/freeze.py (write, check, digest). Its pin line matches holon-ci.yml:102, and the current pin value is right. \"laws/CONTRACTS\" matches FROZEN_ROOTS' entry style. Neither schema has a non-local $ref. The frozen tests read only the v1 schemas by name.",
+  "K3 derive matches the instrument's derived_law, and its text is in holon.rules.dumps form. --check gives 0, and 1 on a stray L_contract_* file. Derive removes that file. It refuses with exit 2 and writes nothing for an invalid contract of another milestone (T65) and for a contract file that is not JSON. derive M2 with no M2 contract writes nothing.",
+  "K5 apply refuses with exit 2 and leaves every file unchanged on: filter_bin without intended, intended without the bin, a non-object intended, intended without replaces, a non-JSON record, a JSON-list record, and results/T64 missing or a file. --check gives 0 on the baseline and 1 on a removed mark or a deleted contracts.json, and writes nothing. apply restores the mark. It does nothing on M0 and M1. It keeps formatting: a record written with ensure_ascii=False is rewritten in that form.",
+  "after_run with a relative --out, and with the --milestone= and --out= forms, marks the --out directory and writes contracts.json there, leaving results/T64 untouched. --out is the results directory in every runner (pipeline.run, run_m1, run3, undo.run, disch.run), and none of them has --root.",
+  "G10, states and contracts.json from holon agree with tests_m3/_i64 on 49 tampered copies of the T64 baseline, except the two statement_hash cases K5 discloses (the record's statement_hash edited, the derived law's law_id edited). The tampers covered: registry entries (non-object, extra field, non-string sha256, M1, orphan, other milestone), a registry missing, not JSON or with a list of contracts, contract fields (absolute or '..' facts, list scope, view result true or '0', id not the file name, unknown kind, extra field, malformed milestone, invalid l_weak, E7, rule FOO, blank maps_to, unreadable view facts), contract files (JSON list, non-UTF-8, a directory), records (list, non-JSON, half marks both ways, wrong l_weak, non-object intended), the L_weak's record (other facts, UNKNOWN, list), the derived law (statement or facts_sha256 edited, not JSON, deleted), an unregistered second contract, the contracts directory removed, marks on UNKNOWN or PROVED records, a scope law with no record, and the facts edited.",
+  "Gate wiring: G10 follows G9 in holon.gate.CHECK_ORDER and in the new gate3.CHECK_ORDER, which is otherwise the old local list, and GEVID still follows GREF. not_applicable on M0 and M1 is decided before GENV, with no side effect. gate3 runs G10 once over every M3 record: G10 is not in OTHER and DischGate has none. The frozen gate_report schema admits extra checks and the not_applicable key, and the M0 report validates against it.",
+  "The last step runs only when argv[0] == 'run' and the dispatch returned 0, so it covers the pipeline, undo.run and disch.run dispatches. G1's regeneration subprocess (cwd and PYTHONPATH = the tree) runs it on its --out. On M0 and M1 it returns before reading anything. On M2 and M3, with no contract, it only reads.",
+  "holon.contracts.statement_hash equals the record's statement_hash for every M1 (16) and M2 (12) record.",
+  "Fairness of P1-P4. rechecked requires Bend exit 0 with ALL PROOFS CHECK, exactly one `import <relpath> as Laws` to the record's LAWS.bend, no law in the proof, the one law name in LAWS.bend, and a generator or refuter that existed at the prereg. The generators and refuter are unchanged (closure check), and the gate's G1, G3, G5 and G11 code is untouched by the diff. P2 compares with a bare run that has no contract. Each tamper starts from a passing G10, and G10 must fail from both the gate and the instrument, naming the token.",
+  "The witnesses are semantically right. L_t64_cancel's counter-law takes s0 and q = [challenge, finalize(5)]: the deadline is 3 against 6, with now = 5. L_contract_C_t64_ext holds of every state, since challenge has no guard, so reach_invariant closes it by computation, as the prompt disclosed.",
+  "The V1-V6 folds are in place and work. V1: rechecked's import and no-own-law checks. V2: K5 and the Deliverables state the closure rule, and the history test covers every I64 commit with --no-renames. V3: the state texts are listed in K5 and file names are <name>.json in K6, and holon's texts match. V4: the instrument validates l_weak with mini_schema and checks repo paths, registry entries and non-JSON records (probed). V5: baseline() removes a failed copy and tearDownModule removes the base, leaving no temporary directory after my run. V6: apply's refusals are tested.",
+  "The instrument, contract docstring and fixture pins are unchanged (test_the_key_pins_the_instruments passes), and the build diff touches nothing under tests_m3/.",
+  "holon/contracts.py imports neither tests/reference nor tests_m3. It validates l_weak with holon.schema, which agrees with mini_schema on every keyword law_ir_0_3 uses."
+ ],
+ "reproduced": [
+  "In a copy (no .git): `python -m unittest -v` over every test of tests_m3.test_contracts except the git-history test gives `Ran 17 tests in 510.858s`, `OK` (P1, P2, P3, P4, R1 and every R3 check).",
+  "The R2 history test, replicated with read-only `git log --first-parent --no-merges --no-renames --name-only 6100ff19..HEAD` and the closures computed at HEAD: 2 commits, no forbidden path and no closure file, and 1164bc64 writes outcome paths.",
+  "A T64 baseline via tests_m3.test_contracts.run_t64 in a copy (62 s). L_contract_C_t64_ext is PROVED by reach_invariant (exit 0, ALL PROOFS CHECK). L_t64_cancel is REFUTED by the counter-law cl_l_t64_cancel, with filter_bin intended_bounded and intended {contract C_t64_ext, l_weak L_contract_C_t64_ext, replaces pending}. L_t64_flag is REFUTED, pending, and unmarked. contracts.json shows C_t64_ext proved, marking [L_t64_cancel], and V_t64_view valid.",
+  "`bend PROOF.bend` on the three T64 proof files: ALL PROOFS CHECK and exit 0 each, and each imports its own LAWS.bend as Laws. `bend PROOF.bend --verdict` on the L_weak: exit 0. A negative control (3n -> 4n in the L_weak's LAWS.bend) gives SOME PROOFS FAIL with exit 1.",
+  "`python -m holon audit prereg --milestone M2` and `--milestone M3` (the copy's code, --root the checkout, read-only git): PREREG OK for both, and 'I64: OK prereg 6100ff199c8e'.",
+  "`python tools/freeze.py check`: FROZEN OK. `digest`: f854d69b0b58b581eb205a657d6925cc1e1460141ef9626df89ea87de1594fd0.",
+  "`python -m holon gate --milestone M0` (full) on a copy: GATE PASSED in 202 s. Every check passes. G10 is under not_applicable ('M0 holds no intent contracts: they start at M2 ...'), and the report validates against the frozen schemas/gate_report.schema.json.",
+  "`python -m holon gate --milestone M1` (full) on a copy: GATE PASSED in 235 s, with G10 not applicable. G1 regenerates 16 identical records, its subprocess running the last step.",
+  "`python -m holon gate --milestone M2` (full) on a copy: GATE PASSED in 1266 s. G10 PASS 'no intent contract on M2 (laws/CONTRACTS/ holds none for it)'. G1 reports 12 records identical and the M2 outputs regenerated byte-identical, and G9 has 12 records valid against v1 and v2.",
+  "`python -m holon gate --milestone M3 --checks G3,G5,G8,G9,G10,G11,G11V,GEVID` on a copy, in 369 s. GENV, G3, G5, G8, G9, G10 ('no intent contract on M3'), G11 and GEVID pass, and GREF is not applicable. G11V fails, only on L_disch_rev_initializable_120_d9a34b48 (the base's, Q36), as R2 predicts.",
+  "`python -m unittest discover -s tests -t . -v` on a copy, without HOLON_REPLAY: `Ran 38 tests in 1118.533s`, `OK (skipped=1)`. The skipped test is test_replay_report, which needs HOLON_REPLAY=1; CI sets it."
+ ]
+}

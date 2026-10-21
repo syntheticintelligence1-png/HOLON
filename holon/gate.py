@@ -1,7 +1,8 @@
 """`holon gate`: regenerate and re-check everything from scratch (whitepaper §9.3, M0_SPEC §7).
 
-Order: GENV, G2, G1, G8, G3, G5, G11, G11V, G6, G9, GREF, GEVID, G7, G4. The report is always written; exit 0 iff passed.
-A check with no meaning for the milestone is listed under the report's "not_applicable" {check: reason} (G8 on M0, M1).
+Order: GENV, G2, G1, G8, G3, G5, G11, G11V, G6, G9, G10, GREF, GEVID, G7, G4. The report is always written; exit 0 iff
+passed. A check with no meaning for the milestone is listed under the report's "not_applicable" {check: reason} (G8 and
+G10 on M0, M1).
 A full run records its wall time as from_scratch_gate_s in results/<m>/metrics_timing.json (I16).
 `--checks G6,G9` runs a subset (after GENV) and marks the report partial.
 
@@ -68,6 +69,14 @@ A full run records its wall time as from_scratch_gate_s in results/<m>/metrics_t
         sidecar at a located Panic inside the site's span, and the record's per-entry replay agrees.
         G6 reads no git and runs no tool.
   G9    every record validates against the frozen v1 schema and spec/schemas/result_record_v2
+  G10   (I64; whitepaper §9.3) intent contracts (holon.contracts.g10; tests_m3/test_contracts.py K6): the registry
+        laws/CONTRACTS/REGISTRY.json is well formed; every contract file and registry entry belongs to a milestone
+        G10 applies to; every contract of the milestone is registered with its current sha256, milestone and kind,
+        and every entry for the milestone has its file; every intended contract is proved (its L_weak, derived as
+        laws/<m>/L_contract_<id>.json, PROVED over the facts as they are now, for that statement) and every volatile
+        view valid; every record is a JSON object; and the records' marks are exactly the ones the proved contracts
+        license. With no contract it passes and says so. M0 and M1 list it under not_applicable (BUILD_PLAN §2
+        invariant 10; Q15 is still open)
   GREF  (I16) every entry of spec/M2/disagreements.json is classified by its links, never its label, to
         a class other than unexplained and equal to its label, and every disagreement id a refinement
         record under results/M2/refinement/ lists has an entry (holon.refinement.check_disagreements);
@@ -126,7 +135,7 @@ from .model_eval import CompiledModel, model_name
 ROOT = Path(__file__).resolve().parents[1]
 MIN_CANARIES = 10
 MAX_CANARIES = 24
-CHECK_ORDER = ["GENV", "G2", "G1", "G8", "G3", "G5", "G11", "G11V", "G6", "G9", "GREF", "GEVID", "G7", "G4"]
+CHECK_ORDER = ["GENV", "G2", "G1", "G8", "G3", "G5", "G11", "G11V", "G6", "G9", "G10", "GREF", "GEVID", "G7", "G4"]
 MODEL_ONLY = "model-only pending replay"
 # Gate and metrics outputs under results/: never part of what G1 regenerates and compares (G1 compares
 # only L_*.json, summary.json, deps.json and, since I16, metrics.json; this guards that list).
@@ -959,6 +968,19 @@ class Gate:
         self.checks["G9"] = _res(not bad and n > 0, f"{n} records valid against v1 and v2"
                                  + ("; ledger_assumptions recomputed" if m2plus(self.m) else "") if not bad and n
                                  else "; ".join(bad) or "no records")
+
+    def g10(self) -> None:
+        """G10 (I64): the milestone's intent contracts (holon.contracts.g10)."""
+        from .contracts import g10
+        ok, detail = g10(self.m, self.root)
+        self.checks["G10"] = _res(bool(ok), detail)
+
+    def g10_not_applicable(self) -> str | None:
+        """Why G10 does not apply to this milestone (M0, M1: no contracts before M2, BUILD_PLAN §2 invariant 10), or
+        None."""
+        from .contracts import g10
+        ok, detail = g10(self.m, self.root) if self.m in ("M0", "M1") else (True, None)
+        return detail if ok is None else None
 
     def gref(self) -> None:
         """GREF (I16): every refinement disagreement is explained by its links, never by its label
@@ -1988,9 +2010,14 @@ class Gate:
             if why is not None:
                 not_applicable["G8"] = why
                 order = [g for g in order if g != "G8"]
+        if "G10" in order:
+            why = self.g10_not_applicable()
+            if why is not None:
+                not_applicable["G10"] = why
+                order = [g for g in order if g != "G10"]
         steps = {"G2": self.g2, "G1": self.g1, "G8": self.g8, "G5": self.g5, "G3": self.g3, "G11": self.g11,
-                 "G11V": self.g11v, "G6": self.g6, "G9": self.g9, "GREF": self.gref, "GEVID": self.gevid,
-                 "G7": self.g7, "G4": self.g4}
+                 "G11V": self.g11v, "G6": self.g6, "G9": self.g9, "G10": self.g10, "GREF": self.gref,
+                 "GEVID": self.gevid, "G7": self.g7, "G4": self.g4}
         # a fresh build directory: nothing compiled is reused from the tree under check
         build = Path(tempfile.mkdtemp(prefix="holon-gate-build-"))
         old_build = os.environ.get("HOLON_BUILD_DIR")
@@ -2002,7 +2029,7 @@ class Gate:
             elif self.checks["GENV"]["passed"]:
                 if "G3" in order and "G5" not in order:
                     self.recheck_outputs()  # G3 reads the checker's own output; get it without recording G5
-                for g in ["G2", "G1", "G8", "G5", "G3", "G11", "G11V", "G6", "G9", "GREF", "GEVID", "G7", "G4"]:
+                for g in ["G2", "G1", "G8", "G5", "G3", "G11", "G11V", "G6", "G9", "G10", "GREF", "GEVID", "G7", "G4"]:
                     if g in order:
                         try:
                             steps[g]()
