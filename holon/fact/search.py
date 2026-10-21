@@ -14,9 +14,12 @@ sidecar's budget bounds it; the law's own Bend function decides every candidate 
   attribution    prefixes breadth first up to prefix_depth steps; y a candidate step of w taking the pin (S1's step and
                  its single-leaf variants whose pre-context takes the pin's copy branch, fx_pin_<x>, evaluated before
                  the step runs; only such a step is a candidate, counted and run) that succeeds; the first (prefix, y)
-                 at which fact_<x> is false. Then t: the first sequence of at most continuation_depth successful steps
-                 after y whose last step makes the consumer's external call with A[k].m (the calls the model's step
-                 looks up), [] when none within that bound.
+                 at which fact_<x> is false and which the real side accepts. Then t: the first sequence of at most
+                 continuation_depth successful steps after y whose last step makes the consumer's external call with
+                 A[k].m (the calls the model's step looks up) and which the real side accepts after (prefix, y), []
+                 when none within that bound. Shortest first, each length depth first; the steps before the last in
+                 rounds over the actions (each action's i-th candidate in turn), so a refused or fruitless action
+                 never holds up the others' S1 steps.
   inhabitants    for a PROVED kernel law: the first prefix and succeeding step x of the action with fhit_<x>(s, x, s, x)
                  true (G11V).
 
@@ -208,15 +211,30 @@ class FactSearch(US.UndoSearch):
                     continue
                 k = key_of(g, y)
                 code, gy, _c = self.m.run_step(g, y, save=True)
-                if code != 0:
-                    continue
-                bonded = bonded_of(gy, k)
-                t, bound = self.continuation(gy, trace + [y], bonded, e["basis"]["consumer"]["action"])
-                w = {"prefix": trace, "y": y, "t": t, "k": k, "bonded": bonded, "t_bound": bound}
+                try:
+                    if code != 0:
+                        continue
+                    w = {"prefix": trace, "y": y, "t": [], "k": k, "bonded": bonded_of(gy, k)}
+                    if not self.accepted_fact(w):   # (prefix, y) first: a y the deployment refuses gets no continuation
+                        continue
+                    t, bound = self.continuation(gy, trace + [y], w, e["basis"]["consumer"]["action"])
+                finally:
+                    self.forget(gy)
+                w = dict(w, t=t, t_bound=bound)
                 if self.accepted_fact(w):
                     return w
             return None
         return self.over_prefixes(w_action, at)
+
+    def forget(self, g: str | None) -> None:
+        """Drop a state the search is done with: the evaluator's saved state, and the state and pools I30's refuter
+        cached for it (a continuation explores thousands of states; kept, they grew the search to gigabytes)."""
+        if g is None:
+            return
+        self.m.drop([g])
+        for key in [key for key in self.ref.cache if key[0] == g]:
+            del self.ref.cache[key]
+        self.ref.fp.pop(g, None)
 
     def makes_consumer_call(self, calls: list, bonded: int) -> bool:
         for _to, data in calls or []:
@@ -236,49 +254,72 @@ class FactSearch(US.UndoSearch):
         return [US.fresh_step(st)] + [US.fresh_step(c) for c in self.variants1(g, trace, st)
                                       if c.env.get("blobhash") == st.env.get("blobhash")]
 
-    def continuation(self, g: str, trace: list, bonded: int, consumer_action: str) -> tuple[list, str]:
-        """The first sequence of at most continuation_depth successful steps from g whose last step makes the
-        consumer's call with the bonded principal; ([], the bound) when none. Shortest first; the last step is a call of
-        the action that makes the consumer's call (F5), the steps before it calls of every other state-changing action,
-        those writing most of the families that action reads first. A budget that runs out here ends the continuation
-        (t = [], the bound says so), never the witness."""
+    def continuation(self, g: str, trace: list, w: dict, consumer_action: str) -> tuple[list, str]:
+        """The first sequence t of at most continuation_depth successful steps from g (the state after y) whose last
+        step makes the consumer's call with the bonded principal w["bonded"], and which the real side accepts as the
+        witness w's continuation; ([], the bound) when none.
+        Shortest first: each length is searched depth first. The last step is a call of the action that makes the
+        consumer's call (F5). The steps before it are calls of every state-changing action, in rounds: the i-th
+        candidate of each action in turn, the actions writing most of the families the consumer's action reads first,
+        so every action's S1 step is tried before any variant.
+        A model continuation the real side refuses is counted (the bound says how many) and the search goes on. Every
+        state saved here is forgotten once explored. A budget that runs out here ends the continuation (t = [], the
+        bound says so), never the witness."""
         reads: set = set()
         US._reads(self.d.by.get(consumer_action) or {}, reads)
         acts = [a["name"] for a in self.doc.get("actions") or []
                 if self.d.by.get(a["name"], {}).get("mutability") not in ("view", "pure")]
         order = sorted(acts, key=lambda b: (-len(self.writes_of(b) & reads), b))
-        level = [([], g)]
-        tried = 0
+        tried, refused = [0], [0]
+
+        def last(gg: str, t: list):
+            for c in self.step_cands(gg, trace + t, consumer_action):
+                self.tick()
+                tried[0] += 1
+                code, g2, calls = self.m.run_step(gg, c, save=True)
+                self.forget(g2)
+                if code != 0 or not self.makes_consumer_call(calls, w["bonded"]):
+                    continue
+                if self.accept is None or self.accept(dict(w, t=t + [c])) is None:
+                    return t + [c]
+                refused[0] += 1
+            return None
+
+        def rounds(gg: str, t: list):
+            cands = [self.step_cands(gg, trace + t, b) for b in order]
+            for i in range(max((len(cs) for cs in cands), default=0)):
+                for cs in cands:
+                    if i < len(cs):
+                        yield cs[i]
+
+        def search(gg: str, t: list, left: int):
+            if left == 1:
+                return last(gg, t)
+            for c in rounds(gg, t):
+                self.tick()
+                tried[0] += 1
+                code, g2, _calls = self.m.run_step(gg, c, save=True)
+                try:
+                    found = search(g2, t + [c], left - 1) if code == 0 else None
+                finally:
+                    self.forget(g2)
+                if found is not None:
+                    return found
+            return None
+
+        def note() -> str:
+            return f"; {refused[0]} model continuation(s) refused by the real side" if refused[0] else ""
         try:
-            for d in range(self.cont_depth):
-                nxt = []
-                for t, gg in level:
-                    tr = trace + t
-                    for c in self.step_cands(gg, tr, consumer_action):
-                        self.tick()
-                        tried += 1
-                        code, g2, calls = self.m.run_step(gg, c, save=True)
-                        self.m.drop([g2])
-                        if code == 0 and self.makes_consumer_call(calls, bonded):
-                            return t + [c], f"{tried} continuation candidates"
-                    if d == self.cont_depth - 1:
-                        continue
-                    for b in order:
-                        for c in self.step_cands(gg, tr, b):
-                            self.tick()
-                            tried += 1
-                            code, g2, _calls = self.m.run_step(gg, c, save=True)
-                            if code != 0:
-                                self.m.drop([g2])
-                                continue
-                            nxt.append((t + [c], g2))
-                level = nxt
+            for n in range(1, self.cont_depth + 1):
+                found = search(g, [], n)
+                if found is not None:
+                    return found, f"{tried[0]} continuation candidates" + note()
         except US.Budget:
-            return [], (f"the candidate budget ({self.max_cands}) ran out after {tried} continuation candidates of at "
+            return [], (f"the candidate budget ({self.max_cands}) ran out after {tried[0]} continuation candidates of at "
                         f"most {self.cont_depth} successful steps: none found makes the consumer's call with the bonded "
-                        "principal")
-        return [], (f"{tried} continuation candidates of at most {self.cont_depth} successful steps: none makes the "
-                    "consumer's call with the bonded principal")
+                        "principal" + note())
+        return [], (f"{tried[0]} continuation candidates of at most {self.cont_depth} successful steps: none makes the "
+                    "consumer's call with the bonded principal" + note())
 
     def accepted_fact(self, w: dict) -> bool:
         why = None if self.accept is None else self.accept(w)
