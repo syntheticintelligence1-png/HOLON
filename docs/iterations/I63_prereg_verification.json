@@ -1,0 +1,87 @@
+{
+ "review": "I63 prereg verification",
+ "commit": "7e57c782a29e082f6c8f375171e532c893f18250",
+ "reviewed_against": "docs/iterations/I63_prereg_review.json (review of da90ec05)",
+ "reviewer": "independent agent",
+ "verdict": "sign-off",
+ "findings": [
+  {
+   "id": "V1",
+   "severity": "minor",
+   "lens": "fairness",
+   "where": "prompts/I63_history.md:39-41, :165; tests_m3/test_history.py:83-84 (H7)",
+   "what": "Every prediction depends on code matches: P1 needs the placeholder to match nothing, and P2-P5 need the later upgrades to match. For 11 of the 12 implementations, that code still has no anchor in the repository; only the last is anchored, by I23. The only check is a process step: the build's review reads the code again 'from a second provider'. The prereg says neither what follows if that read disagrees with a committed code file or cannot be done, nor what counts as a second provider.",
+   "why": "If the consequence is not fixed before the outcome, a mismatch can be explained away after the fact. The check has no teeth unless its result is defined in advance.",
+   "fix": "State in the prompt and in H7 what happens on a disagreement or failed read. Record both providers' sha256s in the build review and report the disagreement under Surprises. Every prediction whose verdict depends on that implementation's match is then recorded as UNKNOWN, not scored. Also require the second provider to be an RPC host other than the sidecar's."
+  },
+  {
+   "id": "V2",
+   "severity": "minor",
+   "lens": "facts",
+   "where": "prompts/I63_history.md:97 against :107",
+   "what": "Line 97 says the scripts and sources read were all at the head commit and 'None was read at an older tag'. Line 107 then lists 'Rollup.sol's initializer signatures at v0.4.1, v0.4.10 and the head'.",
+   "why": "The F21 disclosure contradicts itself about what was read.",
+   "fix": "Reword line 97, for example: 'Scripts were read at the head commit only; Rollup.sol's initializer signatures also at v0.4.1 and v0.4.10.'"
+  },
+  {
+   "id": "V3",
+   "severity": "minor",
+   "lens": "protocol",
+   "where": "tests_m3/test_history.py:14-23 (docstring: 'The key's thresholds hold their sha256s, checked by TestInstrument', listing the sidecar, the basis and tests_m3/_i63.py) and :188-203 (test_the_key_pins_the_instruments); spec/M3/predictions.json, I63 thresholds",
+   "what": "The thresholds pin the sidecar, the basis and the contract docstring, but tests_m3/_i63.py has only a path ('instrument'), and the pin test does not hash it. In practice the instrument is protected by holon audit prereg, which fingerprints the functions and module-level statements of helper modules. That is a different mechanism from the one the contract states.",
+   "why": "The contract misstates how its own instrument is fixed, and the key, which is immutable after the push, is the only place a real pin could go.",
+   "fix": "Before the push, either (a) add instrument_sha256 f3640dcad40aac24f55aecaf2fbff7c20c83423e5431b29a564baedf9bbee5de to the thresholds and assert it in test_the_key_pins_the_instruments, or (b) reword the docstring to say the audit fingerprints the instrument. If the docstring changes, recompute contract_docstring_sha256."
+  },
+  {
+   "id": "V4",
+   "severity": "advisory",
+   "lens": "fairness",
+   "where": "tests_m3/test_history.py:370-375 (test_p4); spec/M3/predictions.json I63-P4",
+   "what": "P4's guard ('at least two upgrades are matched') counts the last upgrade. R1 already records its match, to the head's version, which is the highest version and so can never be a downgrade. The guard therefore needs only one match that was not known in advance.",
+   "why": "The no-downgrade check can rest on a single blind data point.",
+   "fix": "Optionally count matched upgrades before the last (at least 2), as P2 and P5 already exclude the last upgrade."
+  },
+  {
+   "id": "V5",
+   "severity": "advisory",
+   "lens": "fairness",
+   "where": "prompts/I63_history.md:62-68; spec/M3/predictions.json I63-P5",
+   "what": "The disclosed cutover log with topic 0 0xaf9f8e4eb71b2fdd... is keccak256('SubmitterContractUpdated(address,address,uint256)'). Only initialize4 emits it (Rollup.sol:217 at v0.6.3 and at the head). The receipt also held exactly one proxy Initialized log, so before the prereg it followed that initialize4 ran in the cutover transaction and initialize3 did not. That rules out one way P5's 'versions 1, 2 and 3 logged before the last upgrade' could fail: initialize3 running in the cutover. It does not decide P5.",
+   "why": "A reader should be able to see this inference without recomputing the topic.",
+   "fix": "Add one sentence to the disclosure that names the event and draws this inference."
+  },
+  {
+   "id": "V6",
+   "severity": "advisory",
+   "lens": "facts",
+   "where": "prompts/I63_history.md:30 ('the receipt hash I59 committed weeks ago')",
+   "what": "I59's index was committed on 2026-10-13 (46ba230a), eight days before this prereg.",
+   "why": "This is a small overstatement. The point it supports still holds: the hashes were fetched by another iteration, before and independently of this build.",
+   "fix": "Say 'committed on 2026-10-13'."
+  },
+  {
+   "id": "V7",
+   "severity": "advisory",
+   "lens": "soundness",
+   "where": "tests_m3/_i63.py:430-441 (decode)",
+   "what": "decode() reads lg['topics'][0] for every log the proxy emitted. A topic-less (anonymous, LOG0) proxy log would raise IndexError rather than being skipped or refused with InstrumentError. No Rollup version, no proxy and no EmptyContract emits an anonymous event (git grep at four refs), so there is no effect on this target.",
+   "why": "This matters only for the generic extractor on other targets.",
+   "fix": "Optionally skip logs without topics, in the instrument before the push and in holon's implementation."
+  }
+ ],
+ "verified": [
+  "Commits. HEAD 7e57c782 changes only the six prereg inputs: prompts/I63_history.md, spec/M3/lib/history.json, spec/M3/lib/history_basis.json, spec/M3/predictions.json, tests_m3/_i63.py and tests_m3/test_history.py. Its parent 39b2e965 adds only docs/iterations/I63_prereg_review.json, which is byte-identical to my review (sha256 b60e349f...). In predictions.json the diff only adds the I63 key (91 insertions, no deletions).",
+  "Audits and schema. 'python -m holon audit prereg --milestone M3' gives 'I63: OK prereg 7e57c782a29e (3 outcome paths, 1 test file, 2 helper modules, 21 tracked functions)', PREREG OK. The M2 audit is also OK. The key validates against spec/schemas/predictions.schema.json and has the same fields as its neighbours.",
+  "Tests on a clean archive of 7e57c782 plus the LFS index: the 5 TestInstrument tests pass. test_the_basis_recomputes recomputed the basis in about 134 s, equal to the committed file, with the toolchain check passing. The other 16 tests are red for the right reasons: no CLI, no module, no gen/results outputs, no receipts, and no .git in the archive. The prediction tests error at the first missing receipt file.",
+  "F1, receipts. snapshot() hashes each committed receipt and compares it with I59's receipt item sha256, raising InstrumentError on any mismatch. decode() takes, from the proxy's logs only: the Upgraded log at I59's log index (implementation), Initialized, AdminChanged, the sender and contractAddress. P1 and P5 are decided on that decoding, and onchain.json must equal it (test_the_snapshot_reads_the_receipts). All 12 upgrade transactions have a receipt item in I59's index: status ok, with a sha256, and source gateway.tenderly.co, which is the sidecar's RPC.",
+  "decode() on I59's canonical form. I passed synthetic receipts (not chain data) through holon.historical.store.canon_bytes. They covered: padded quantities and minimal-hex ones (including logIndex 0x0), mixed-case addresses and topics, a creation receipt (to null, contractAddress set), and another contract's Initialized log in the same transaction. decode() returned the right implementation, Initialized versions (the proxy's only), AdminChanged pair, sender and contractAddress in every case.",
+  "F2. TestPredictions.ups() returns recomputed()['upgrades'] and asserts there are 12. P3 and P4 read recomputed()'s never_deployed and downgrades, P1 reads the instrument's decoding (snap()), and R1 reads recomputed(). No prediction or regression test reads results/M3/history/timeline.json.",
+  "F3 and F4. test_p5 drops the last upgrade. It requires at least one matched upgrade, every matched upgrade consistent, and the Initialized versions 1, 2 and 3 logged by upgrade transactions before the last. The 'initialize4 ran inside the cutover' clause is gone, and the disclosure gives exactly what was printed from the last receipt (the Initialized data was not printed). Consistency together with the union catches every window that spans a matched upgrade and every reinitializer that never ran in an upgrade transaction, so the test decides the claim as worded.",
+  "F5. timeline()'s baseline is max(top reinitializer version of the previous matched version, highest Initialized version logged by any earlier upgrade transaction), and 0 when neither exists. logged_max is updated after each upgrade, matched or not. This matches H8's text.",
+  "F6. in_flight() implements H6. Against da90ec05, the recomputed basis (0.2) changes only basis_version, sidecar_sha256 and the edges' in_flight; refs, versions and layout diffs are equal. V10->V11 lists Rollup.batchDataStore (retyped, reads itself) and Rollup.submitterContract (reinterpreted, reads l1StakingContract). V2->V3 lists __maxNumTxInChunk (reinterpreted, reads maxNumTxInChunk). Gaps are excluded: 22 to 27 entries per edge.",
+  "F7 and F21. The disclosure is consistent with the file evidence I saw during the first review. The draft's mtime was 15:25, its bytecode cache was written at 15:26:08, and gen/M3 changed and the draft disappeared at 15:29:23. results/M3 was untouched. The 12 timestamps are internally consistent: 12.04-12.08 s per block between consecutive upgrades, and 12.08 s from the Dencun anchor at block 19426587.",
+  "F8 and F9. outcome_paths adds docs/iterations/I63.md; as a literal prefix it does not cover the committed review file. The thresholds pin the sidecar (1e51846f...), the basis (78922f50...) and the docstring (1fc5395f...); I recomputed the docstring hash from the source. The pin test also checks tags (25), refs (26), versions (11), edges (10), the incompatible edges, the configurations, the proxy, the upgrade count and the RPC. R2 forbids spec/M3/lib/history.",
+  "F10-F19 as folded. 25 tags are pinned; refs() refuses a missing or moved tag, and test_the_refs_recompute passes. P4 has a guard. P2 covers ups[1:-1] and no longer claims bytecodeHash. H6 and H8 now carry the choices that were only in the test code, and never_deployed means 'in no match'. The index's content hash is recomputed (d12801b7...). The genericity check is case-insensitive, and no holon file imports tests_m3 or names _i63; none does today. P1 checks contractAddress == proxy and AdminChanged new == sender. A non-literal reinitializer is an extraction error. check_toolchain verifies solc and the sol_deps tree hash, and it passes.",
+  "The H7 and H8 text in the docstring agrees with decode() and timeline() on every point: the proxy-address filter, the Upgraded log at the item's log index, the Initialized and AdminChanged decoding, the match order, the baseline, the sorted initialized list, the downgrade 'after', the coverage-debt reasons and never_deployed."
+ ]
+}

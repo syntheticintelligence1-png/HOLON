@@ -303,7 +303,7 @@ The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
 | I25 | new | PAR-lossy and injective pushing | M3 | I24, I14, I8 | — | L3 |
 | I26 | (I21 rule half) | FACT rule, attribution (O25), F(m,c) | M3 | I24, I12 | — | M3 |
 | I27 | I22 | UNDO rule and static deadness | M3 | I24 | — | M3 |
-| I28 | I23 | Deployment-history extraction, versioned machines, PAR-init | M3 | I27, I8, I19 | Q18 | V12 |
+| I28 | I23 | Deployment-history extraction (its history half is I63), versioned machines, PAR-init | M3 | I27, I8, I19, I63 | Q18 | V12 |
 | I29 | I24 | NAT rule | M3 | I28 | — | M3 |
 | I30 | I25 | Sorts III: nominal types, hole-free coercions, generated ghost tags | M3 | I15, I8, I13 | — | V3 |
 | I31 | I26 | DISCH I: closure, blocking, external dependence | M3 | I24, I11 | — | V13 |
@@ -337,6 +337,8 @@ The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
 | I59 | (I23 part) | **= I23a: on-chain history fetch and first replay on real inputs.** Pulled forward by human answer Q5 and run in the background after I18; numbered I59 only because prereg keys must be plain numbers | M2 | I16, I17 | — | M2 exit (a), data half |
 | I60 | I22 replacement | **A1 mutation adequacy, replacement catalog.** I22's catalog was rejected before any run by the delegated independent sign-off (docs/iterations/I22.md): scope tied to the outcome, K2 not localized, the error clause too broad. Preregistered under a new key, as the plan's I22 rule requires | M2 | I20, I18, I21 | — | **M2 exit (b)** |
 | I61 | I60 replacement | **A1 mutation adequacy, second replacement catalog.** I60's catalog was not signed off (docs/iterations/I60.md): its enc_sol replay harness does not overlap the refuter's candidates. Preregistered under a new key, as I60's contract requires | M2 | I20, I18, I21 | — | **M2 exit (b)** |
+| I62 | I61 rerun | **A1 mutation adequacy, I61's catalog rerun with I61's defects fixed.** I61's run showed five pipeline defects and one gate rule to fix (docs/iterations/I61.md); its gate allows no second attempt after a pass, so the rerun is a new key, as the human chose (docs/HUMAN_ANSWERS.md Q41) | M2 | I61 | — | **M2 exit (b)** |
+| I63 | (I28 part) | **= I28a: deployment history from the code, cross-checked on chain.** I28's history half (versions, reinitializers, storage-layout diffs and MIG edges over every tag, the on-chain upgrade timeline: Q18), pulled forward because it needs no rule catalog while I26 holds the next one (the roadmap split of 2026-10-21); numbered I63 only because prereg keys must be plain numbers. I28 keeps its number for the laws half (versioned machines, PAR-init, O9, D4, F12.5, G11V in-flight sets), after I26, reading I63's outputs | M3 | I19, I23, I59 | Q18 | V12 (data half) |
 
 **Order in practice (2026-10-12).** Done: I1–I18, with I16 built early because it needs only I11. I59 (= I23a, data fetch only) runs in the background. Next is I19, then strictly I20, I21, I22, I23 and onward. Any other out-of-order step is announced, with its reason, before it starts.
 
