@@ -164,6 +164,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["historical"]:  # likewise for holon.historical (fetch | replay, I59)
         from . import historical
         return historical.main(argv[1:])
+    if argv[:1] == ["history"]:  # likewise for holon.frontends.solidity.history (deployment history, I63)
+        from .frontends.solidity import history
+        return history.main(argv[1:])
     if argv[:1] == ["theory2"]:  # likewise for holon.gen.theory2 (theory core II, I43)
         from .gen import theory2
         return theory2.main(argv[1:])
