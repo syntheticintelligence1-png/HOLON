@@ -377,9 +377,10 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
             return os.path.relpath(p, laws_dir).replace(os.sep, "/")
         return UP.law_file(law, statement_hash(law, m, root), rel(_typed_model(law, m, root, importable=True)),
                            rel(_trace_model(law, m, root, importable=True)), hashes, counter=counter)
-    if _fact(law):   # I26: emitted as holon.fact.run writes it (holon.fact.proofs.law_file)
-        from .fact import proofs as FP
+    if _fact(law):   # I26: emitted as holon.fact.run writes it (holon.fact.proofs.law_file); imported by name, as
+        import importlib   # holon.rules.fact does, so FACT's generator stays out of the M1-M3 records' closure
         from .sorts.proofs3 import rel_import
+        FP = importlib.import_module("holon.fact.proofs")
         laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]
         hashes = [b["name"] for b in law["statement"].get("binders", []) if str(b.get("type", "")).startswith("Fn<")]
         return FP.law_file(law, statement_hash(law, m, root),
