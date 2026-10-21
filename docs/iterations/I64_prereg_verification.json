@@ -1,0 +1,101 @@
+{
+  "review": "I64 prereg verification",
+  "commit": "b4f823781089375e6e5e8e278ac0e82ccb2514e5",
+  "reviewed_against": "docs/iterations/I64_prereg_review.json (review of c379e1fc)",
+  "reviewer": "independent agent",
+  "verdict": "no sign-off",
+  "resolution": {
+    "F1": "partly resolved",
+    "F2": "resolved",
+    "F3": "resolved",
+    "F4": "resolved",
+    "F5": "resolved",
+    "F6": "resolved",
+    "F7": "resolved",
+    "F8": "resolved",
+    "F9": "resolved",
+    "F10": "resolved",
+    "F11": "resolved",
+    "F12": "resolved"
+  },
+  "findings": [
+    {
+      "id": "V1",
+      "severity": "major",
+      "lens": "soundness",
+      "where": "tests_m3/test_contracts.py:249-269 (rechecked), 398 (P3), 431 (P4); holon/mpipeline.py:548-570 (separated layout), 1278-1300 (law_import_problem); tests_m3/test_intake.py:41-43",
+      "what": "F1's fix is incomplete. rechecked runs Bend on the record's PROOF.bend and reads the law names in the record's LAWS.bend. It never checks that the PROOF.bend imports that LAWS.bend as Laws, by its relative path. Nor does it check that the PROOF.bend declares no law of its own. T64 uses the separated layout: gen/T64/laws/<id>/LAWS.bend and gen/T64/proofs/<id>/PROOF.bend, since LEGACY_LAYOUT is M0 and M1 only. In that layout Bend no longer requires the proof to import ./LAWS.bend. law_import_problem's docstring says 'a proof that imports no law checks vacuously'. BEND_PRIMER §3.1 says a file with no laws prints ALL PROOFS CHECK. I41's contract names this case missing_expected_law. So 'ALL PROOFS CHECK' on PROOF.bend, plus the right name in LAWS.bend, does not show that this law was proved or refuted. In P1 the gate's G5 covers the import (gate.py:1341, import_problem). P3 (L_contract_C_t64_zero REFUTED) and P4 (the L_weak after each rerun) rely on rechecked alone.",
+      "why": "F1 asked for an independent AGENTS rule 6 check of the records that decide P1 and P3. As written, a record passes rechecked when its PROOF.bend stands alone (no law import, or a law declared and filled in the proof file itself), its LAWS.bend states the right name and its accepting attempt is labelled 'counter' or a prereg generator. The Bend re-checks that the P3 and P4 claims name would then be vacuous.",
+      "fix": "In rechecked, after the Bend run: text = proof.read_text(); want = os.path.relpath(laws.resolve(), proof.resolve().parent); assertEqual(re.findall(r'^import\\s+(\\S+)\\s+as\\s+Laws\\s*(?:#.*)?$', text, re.M), [want], lid); assertEqual(re.findall(r'^law\\s', text, re.M), [], lid). This is holon's own rule (mpipeline.law_import_problem, gate.laws_in_proofs) written out in the test. Optionally also scan both files with the escape patterns of holon/sorts/gate3.py:53. Alternatively, in P3 and after each run in P4, require gate(repo, T, 'G3,G5') to pass both checks."
+    },
+    {
+      "id": "V2",
+      "severity": "major",
+      "lens": "feasibility",
+      "where": "prompts/I64_contracts.md:65, 122; tests_m3/test_contracts.py:37-38 (K5), 88-91 (Rules), 653-697 (R2 history test, 694: outcome commits only); holon/records.py:63-68, 340-363; holon/gen/mlaws.py:322; holon/sorts/sites.py:770; holon/mpipeline.py:51, 1254, 1304; holon/gate.py:537-545, 1283-1287; tests_m2/test_i1_review.py:67-73 (MILESTONES M0, M1: tests_m2/_m2.py:25)",
+      "what": "Every holon-ir/0.2 and 0.3 record carries generator_sha256, a hash over the generator closure (records.generator_files): the entry modules plus every holon module they import, function-level imports included. mlaws.py:322 imports holon/sorts/sites.py. sites.py:770 imports holon/mpipeline.py, whose imports pull in holon/pipeline.py (mpipeline.py:1254, 1304), records.py, filter.py, ir.py, schema.py, intake.py, lean.py and others: 117 modules. holon/__main__.py, gate.py and sorts/gate3.py are not among them. The committed M0, M1 and M2 records carry exactly the current closure hashes (recomputed here: 0.1 5e4f183a..., 0.2 c287f258..., 0.3 0550aead...). The deliverable 'The run's last step, wired into every holon run path' (prompt:122; K5: 'the last step of every holon run that exits 0') points at holon/pipeline.py:main_run and holon/mpipeline.py:run_m1, both in that closure. Editing either, or records.py, filter.py, ir.py or holon/__init__.py, changes the generator_sha256 a regeneration writes for every M1 and M2 record. G1 strips only 'seconds' before comparing records, so G1 then fails on gates M1 and M2 (R2), and tests_m2/test_i1_review.py::test_generator_sha_matches_records fails too. The only way out is to regenerate results/M1 and results/M2, which the prereg forbids ('changes no M0-M3 law or record': prompt:65, docstring Rules). The prereg says neither where the step may live nor whether generator_sha256 churn is allowed. I41 allowed that churn in writing (tests_m3/test_intake.py:119-128). I42 kept its code out of the closure for this reason (tests_m3/test_theory_core.py:61-65). The R2 history test inspects only commits that write an outcome path, so a build commit that regenerates the M1/M2 records passes it.",
+      "why": "An honest build that follows the deliverable literally either misses R2 (gates M1 and M2 red on G1) or breaks the prereg's own rule in a commit no test inspects. This has to be settled before the build. The same gap leaves P1's 'existing generators' checked by name only: a generator edited under holon/gen/ keeps its name. Requiring the closure unchanged would make that clause checkable too.",
+      "fix": "State in K5 and in the prompt's Deliverables: holon/contracts.py and the run's last step are imported by no module of the holon-ir/0.1-0.3 generator closures (holon.records.generator_files). The step is called from holon/__main__.py after the run dispatch returns 0, which covers pipeline.main_run, holon.undo.run, holon.disch.run and G1's regeneration subprocess. I64 changes no file of those closures, so every M0-M2 record keeps its generator_sha256. Then extend the R2 history test, or add one, over every commit of `git log --ancestry-path --no-merges --no-renames --name-only -z <prereg>..<end>`, not only those that write an outcome path. Assert that none changes laws/M0-M3, results/M0-M3, gen/M0-M3, a frozen root, or a path in holon.records.generator_files('holon-ir/0.2') | generator_files('holon-ir/0.3') computed at HEAD. -z also stops git from quoting non-ASCII paths, which the present startswith match would miss. If churn is intended instead, say so as I41 did, and exempt generator_sha256 from 'changes no M0-M3 record' explicitly."
+    },
+    {
+      "id": "V3",
+      "severity": "minor",
+      "lens": "clarity",
+      "where": "tests_m3/test_contracts.py:54-63 (K6), 483-484 and 499 (tamper 'a contract on M1'), 37-53 (K5), 315, 568; tests_m3/_i64.py:163, 200, 203, 282",
+      "what": "Some texts the tests compare are defined only in the instrument's code. (1) The tamper 'a contract on M1' requires the gate's G10 detail to contain 'C_t64_m1.json', the file name with its extension (the instrument reports p.name, _i64.py:282). K6 says only that G10 'names each contract, file or law', and the file is a well-formed contract whose id is C_t64_m1, so a G10 that names it by id fails. (2) After a facts change, contracts.json is compared whole with _i64.contracts_doc (test_contracts.py:568). The build must therefore write 'stale: the derived law is not the contract's L_weak over the current facts' (_i64.py:200) verbatim, while K5 shows only 'stale: ...'. (3) The derived law's notes text (_i64.py:163) is compared verbatim at test_contracts.py:315.",
+      "why": "An honest build that follows the docstring can fail these R3 checks on wording alone.",
+      "fix": "K6: 'a file G10 cannot attribute to a milestone is named by its file name, <name>.json'. K3 and K5: 'notes and the state texts are exactly those of tests_m3/_i64.derived_law and _i64.states', or list the state strings in K5. Update contract_docstring_sha256."
+    },
+    {
+      "id": "V4",
+      "severity": "minor",
+      "lens": "soundness",
+      "where": "tests_m3/_i64.py:115-117, 130-132, 208-214, 245-258, 289-292; tests_m3/test_contracts.py:17-23 (K1), 54-61 (K6)",
+      "what": "Four differences remain between the instrument and K1/K6, each probed on synthetic trees. (1) l_weak only has to be an object with binders and claim, though K1 says 'an IR 0.3 statement over its facts'. (2) facts accepts an absolute path, or one with '..', whenever the file exists, though K1 says 'a repository path'. With facts '/etc/hostname' problems() reports nothing, and the contract shows as stale, not invalid. (3) Some registry entries are reported by no milestone's G10: an entry that is not an object, or one whose milestone is M0, M1 or any milestone G10 is never run on (an orphan is reported only by its own milestone's G10). REGISTRY.json holding 'C_junk': 5 and an M1 entry with no file gives g10 PASS on T64 and M2, though K6 requires REGISTRY.json to be a holon-contracts-registry/0.1 document. (4) A record in a proved contract's scope that is not JSON is skipped by refuted() and marks(), so G10 passes over it.",
+      "why": "The fixture exercises none of these, so no outcome changes now. But the instrument is fixed at this commit and defines G10 for I33.",
+      "fix": "(1) Validate derived_law(c) against law_ir_0_3 in the instrument (tests.reference.mini_schema), or state in K1 that derive (K3) checks it. (2) Require facts and view.facts to be relative, without '..'. (3) In g10, report every registry entry that is not {milestone, kind, sha256} of strings, and every entry for a milestone G10 never runs on. (4) Fail on an unreadable record named by a scope. Update instrument_sha256, and contract_docstring_sha256 if K1 or K6 change."
+    },
+    {
+      "id": "V5",
+      "severity": "minor",
+      "lens": "protocol",
+      "where": "tests_m3/test_contracts.py:208-220 (baseline, copy_of_baseline); tests/_util.py:79-87",
+      "what": "baseline() makes a copy_repo() (about 476 MB of this checkout) and never removes it. When run_t64 raises, nothing is cached, so each later caller makes and leaks another copy. At the prereg, seven tests leave a copy each, about 3.3 GB per red run: test_apply_and_derive_on_a_copy, test_the_least_id_names_the_mark, test_derive_writes_the_l_weak_laws, test_g10_agrees_with_the_instrument_on_t64, test_g10_fails_on_each_tamper, test_p1 and test_p2. A green run leaves one.",
+      "why": "Repeated red runs during the build can fill /tmp, so that later checks fail on disk errors that have nothing to do with I64. I41's T41 suite removes its copy in tearDownClass.",
+      "fix": "In baseline(), remove repo.parent and re-raise when run_t64 raises, or cache the exception. Add tearDownModule() to remove _RUNS['base'][0].parent."
+    },
+    {
+      "id": "V6",
+      "severity": "minor",
+      "lens": "soundness",
+      "where": "tests_m3/test_contracts.py:37-39 (K5), 84-86 (exit codes); holon/__main__.py:212-229 (typed run dispatch), 307-309",
+      "what": "Two stated behaviours have no test. One is K5's last step on the typed runners (holon.undo.run, holon.disch.run: 'whichever runner decides the milestone (typed or not)'): T64 runs only through holon.pipeline. The other is apply's three refusals with exit 2: results/M not a directory, a record that is not JSON, a record holding half a mark.",
+      "why": "I33's contract is on M3, a typed milestone. A build that wires the step into holon.pipeline only, or whose apply rewrites a half-marked record, passes every I64 test.",
+      "fix": "Add a TestApply check that apply exits 2 and writes nothing in two cases: on a copy where L_t64_cancel holds filter_bin intended_bounded without intended, and where results/T64 is removed. With V2's fix the step is called once in holon/__main__.py after every run dispatch. State that, and list exercising the typed path as I33's under 'Not in I64'."
+    }
+  ],
+  "verified": [
+    "Commits: b4f82378 sits on 2ce97e8b (BUILD_PLAN rows only) and ec1e939. It touches only prompts/I64_contracts.md, spec/M3/predictions.json, tests_m3/_i64.py, tests_m3/fixtures/contracts/ (8 files) and tests_m3/test_contracts.py: allowed prereg paths. 3b6fb493 adds only docs/iterations/I64_prereg_review.json. The working tree is clean.",
+    "spec/M3/predictions.json differs from 2ce97e8b only by the new key I64; the top-level fields and every other key are equal. It validates against spec/schemas/predictions.schema.json (mini_schema: no errors). Every test named in a check string resolves to a method of tests_m3/test_contracts.py.",
+    "Pins match the files (sha256sum): instrument_sha256 df91f709..., contract_docstring_sha256 d0b82665..., and all seven fixture_sha256 values. TestInstrument passes: 2 tests, OK, Python 3.13.16.",
+    "python -m holon audit prereg --milestone M3 prints PREREG OK. I64 is OK at prereg b4f823781089 (3 outcome paths, 1 test file, 2 helper modules: _m3 and _i64 are fingerprinted).",
+    "F2: test_p4 reads L_contract_C_t64_ext's status after each rerun (PROVED for the doc change, REFUTED for W = 4) and re-checks that record with Bend (test_contracts.py:428-431).",
+    "F3: every G10 verdict in P2-P4, the tamper test and the least-id test comes from both the gate and _i64.g10 (g10_both). P3 also requires the reason 'C_t64_zero: not proved: REFUTED', and P4 a 'C_t64_ext: stale' reason. The twelve tampers include the seven F3 named. Simulated on synthetic trees, the instrument passes the baseline and fails every tamper with its token.",
+    "Tamper save/restore is sound. Each subtest snapshots every *.json of laws/CONTRACTS and results/T64, and its finally unlinks added files and rewrites the snapshot, so a deleted record comes back and added contract files go. A G10-only gate writes nothing into the tree (gate_timing.json only when G5 runs).",
+    "F4: test_an_invalid_contract_is_refused is now red at the prereg. Its positive control (derive with C_t64_ext and V_t64_view must exit 0 and write the law) meets argparse's 'invalid choice' (exit 2). The refusal must name V_t64_bad, with no 'invalid choice' in the output.",
+    "F5: at the prereg, v2 rejects the marked REFUTED record, so the test is red. The first valid REFUTED and PROVED M2 records are L_sort_site_rollup_363_1fc7f88a and L_sort_site_def_bvh_at_6126d1f1. An honest v2 built from holon/schema.py's keywords alone passes all eight assertions and changes the validity of no committed M0-M3 record. It needs intended_bounded in both enums, an intended object requiring its three keys, and two allOf if/then rules. holon/schema.py and tests/reference/mini_schema support the same keywords.",
+    "F6: each untested item is now tested: apply --check (0, then 1 after a hand unmark), apply restoring the records, derive --check (1 after an edit), derive restoring and removing a law, apply after a facts change (mark back to replaces, state stale), the least-id rule, both CHECK_ORDERs read as module attributes, and assertNotIn('intended') in R1 and P3.",
+    "F7: contract_docs, milestone_of, scope_of and the guarded loads make states, g10 and contracts_doc total. Probed with non-JSON files, a list scope, an int id or milestone, a missing kind, a list l_weak, bad UTF-8 and a non-object registry: no exception. The view result must be type int. Registry milestone, kind, version and orphan entries for the milestone are checked. Files with an M0, M1 or malformed milestone fail G10 on every milestone.",
+    "F8: 'Not in I64' is accurate. holon/rules/__init__.py:761-767 deletes unknown laws/<M>/L*.json and rewrites REGISTRY.json. gate.py:286-300 and gate3's G2 compare laws/<M> with derive byte for byte. check_registry_multi refuses ids the registry does not list. refute_m3.py:466-468 rewrites filter_bin. thresholds.deferred_to_I33 lists them all.",
+    "F9: --no-renames lists both ends of a rename (c15b2596: holon/js/policy_lib.mjs appears only with it). The window is the non-merge commits in prereg..(first commit adding docs/iterations/I64.md). Replayed read-only now: prereg b4f82378, end HEAD, the only commit 3b6fb493, which writes no outcome path, so the test is red. spec/M3/predictions.json was never deleted, so the git show loop cannot fail. R2 now names the comparison for the M3 partial gate.",
+    "F10-F12: the disclosure cites mproofs.py:965-967 (the refusal itself is at 966-967), calls the Reach induction decorative and P1's PROVED half near-certain, and drops the ghost n. Q15 is cited as open (BUILD_PLAN §6 item 15), with invariant 10 for not_applicable. Contracts are called self-certified (invariant 11; Q1). 'Not in I64' now follows the Deliverables. K2 gives UTF-8 and ensure_ascii False, K3 'whatever its milestone', K5 --laws, --out, typed runners and the contracts.json shape, and K10 FROZEN.sha256. The exit-2 cases are defined.",
+    "rechecked's assumptions about holon's output hold. Attempts carry kind, generator, exit_code and error (mpipeline.py:792-793, 807-808, 867-868, 1139-1140, 1179-1184). BendTT's attempt has kind 'verdict', so ok[-1] is the accepting attempt. Law names come from mlaws.law_name (l_<id>, cl_l_<id>), emitted as 'law <name>:'. Artifact paths are relative to the copy's ROOT. GENERATORS_AT_PREREG equals mproofs.GENERATORS plus coercion_guard, param_premise and reach_invariant.",
+    "Routing: T64 runs untyped (no --sidecar), through pipeline.main_run to run_m1 (every law holon-ir/0.3), and its gate is holon.gate.Gate (main_gate needs the M prefix). G1 regenerates through `holon run` with the registry (gate.py:1263-1265), which run_t64 fills from the records, as I41's T41 does. At the prereg, a G10 gate on M0-M3 has no G10 line: G10 is an unknown check, and gate3 filters its local order.",
+    "Least-id test: `holon run --laws L_contract_C_t64_a --no-registry` skips the registry check, and run_m1 only checks that --laws ids exist. clean_gen keeps the other laws' files. summary.json and deps.json are rewritten for the listed law only, and neither G10 nor the instrument reads them. C_t64_a < C_t64_ext as strings, so the instrument names C_t64_a and lists L_t64_cancel under both.",
+    "results/T64/contracts.json is never read as a record: metrics, G1 and the instrument all glob ir.LAW_GLOB, 'L*.json'.",
+    "Disclosure facts hold. chain_revert and deadline_linear take only (State, Act) with two Bool premises (_parse_guarded); param_premise only oracle-table binders; hyp only claim == premise. undo_basis.json backtest.gaps == ['L_undo_cancel']; results/M1/L_undo_cancel.json is REFUTED; tests_m3/test_undo.py:244 defines gap G5. Rollup.sol (local morph 3e44e795) has proveRemainingTime at 360-363 and the challenge loop at 489-493.",
+    "CI run 39650731101 cannot be checked offline. Its stated result agrees with Q36/Q38, with ec1e939's merge message ('CI green but gate-M3-partial (base-red G11V, Q36)') and with thresholds.base_gate_M3_partial.",
+    "Red at the prereg: every test except TestInstrument (construction checks) and test_no_contract_on_the_real_milestones (an R1 regression, green by design). No test passes without a build.",
+    "No earlier key's test pins v2's filter_bin enum or a gate's check set exactly (assertIn only, e.g. test_refute.py:1189), so adding intended_bounded and G10 breaks none."
+  ]
+}
