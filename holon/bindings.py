@@ -281,18 +281,41 @@ def _trace_model(law: dict, m: str, root: Path, importable: bool = False) -> Pat
     return Path(root) / "gen" / m / "undo" / "models" / (plain(name) if importable else f"{name}.bend")
 
 
+def _fact(law: dict) -> bool:
+    """A FACT law (I26): a holon-ir/0.3 law of holon.rules.fact whose claim is a fact term. holon.fact.run decides it
+    over the typed model of its document and the FACT section, and holon.fact.proofs.law_file emits its law file."""
+    from .rules.fact import RULE
+
+    def term(t) -> bool:
+        if isinstance(t, dict):
+            return "fact" in t or any(term(v) for v in t.values())
+        return isinstance(t, list) and any(term(v) for v in t)
+    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == RULE and \
+        term((law.get("statement") or {}).get("claim"))
+
+
+def _fact_section(law: dict, m: str, root: Path, importable: bool = False) -> Path:
+    """The FACT section of a FACT law's document, as its records name it (gen/<m>/fact/models/<model>.fact.bend, a
+    link) or, with importable, the file behind that link which its law file imports."""
+    from .sorts.model3 import importable as plain, model_name as typed_name
+    name = typed_name(law["facts"]) + ".fact"
+    return Path(root) / "gen" / m / "fact" / "models" / (plain(name) if importable else f"{name}.bend")
+
+
 _IMPORT_LINE = re.compile(r"(?m)^import [^\n]*\n")
 _M_QUAL = re.compile(r"(?<![\w.])M\.")
 _U_QUAL = re.compile(r"(?<![\w.])U\.")
+_F_QUAL = re.compile(r"(?<![\w.])F\.")
 _TOP = re.compile(r"^(?:def|type)\s+([A-Za-z_][A-Za-z0-9_]*)")
 
 
 def _undo_kernel_text(law: dict, m: str, root: Path) -> str:
     """The kernel form's source of an UNDO law: the typed model followed by its trace section unqualified (its imports
     dropped, `M.` removed, and its re-exports of the model's own definitions, such as run, dropped: unqualified they
-    would redeclare them), one module BendTT translates whole."""
+    would redeclare them), one module BendTT translates whole. A FACT law's is the same with its FACT section."""
     model = _typed_model(law, m, root, importable=True).read_text()
-    trace = _M_QUAL.sub("", _IMPORT_LINE.sub("", _trace_model(law, m, root, importable=True).read_text()))
+    section = _fact_section(law, m, root, importable=True) if _fact(law) else _trace_model(law, m, root, importable=True)
+    trace = _M_QUAL.sub("", _IMPORT_LINE.sub("", section.read_text()))
     own = set(records.model_defs(model))
     keep, drop = [], False
     for line in trace.splitlines():
@@ -310,6 +333,8 @@ def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
     if _undo(law):   # I27: the trace section gen/<m>/undo/models/<model>.bend
         return _trace_model(law, m, root)
+    if _fact(law):   # I26: the FACT section gen/<m>/fact/models/<model>.fact.bend
+        return _fact_section(law, m, root)
     if _width(law):   # the extracted model (holon model's gen/<m>/extracted/model.bend)
         from .sorts.width import model_path as width_model
         return width_model(m, root)
@@ -352,6 +377,14 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
             return os.path.relpath(p, laws_dir).replace(os.sep, "/")
         return UP.law_file(law, statement_hash(law, m, root), rel(_typed_model(law, m, root, importable=True)),
                            rel(_trace_model(law, m, root, importable=True)), hashes, counter=counter)
+    if _fact(law):   # I26: emitted as holon.fact.run writes it (holon.fact.proofs.law_file)
+        from .fact import proofs as FP
+        from .sorts.proofs3 import rel_import
+        laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]
+        hashes = [b["name"] for b in law["statement"].get("binders", []) if str(b.get("type", "")).startswith("Fn<")]
+        return FP.law_file(law, statement_hash(law, m, root),
+                           rel_import(laws_dir, _typed_model(law, m, root, importable=True)),
+                           rel_import(laws_dir, _fact_section(law, m, root, importable=True)), hashes, counter=counter)
     if _typed(law):   # F30: emitted as holon.sorts.run3 writes it (holon.sorts.proofs3.law_file), one law-parameter
         from .sorts import proofs3 as P3   # table per hash function the IR's Fn binders name, importing the typed model
         laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]
@@ -456,11 +489,11 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
-    if _undo(law):   # I27: the typed model and the trace section as one module; U. roots are its trace definitions
+    if _undo(law) or _fact(law):   # I27, I26: the typed model and the section as one module; U./F. roots are its own
         cfg = cfg or bend.config(root)
         entries = dict(_entries_cached(_undo_kernel_text(law, m, root), json.dumps(cfg, sort_keys=True) if cfg else "",
                                        mp.relative_to(root).as_posix()))
-        c = kernel_cone(_U_QUAL.sub("M.", statement_text(law, m, root)), entries)
+        c = kernel_cone((_F_QUAL if _fact(law) else _U_QUAL).sub("M.", statement_text(law, m, root)), entries)
     else:
         entries = kernel_entries(mp, cfg or bend.config(root))
         c = kernel_cone(statement_text(law, m, root), entries)
