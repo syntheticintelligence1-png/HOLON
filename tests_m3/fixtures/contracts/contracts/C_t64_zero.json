@@ -1,0 +1,61 @@
+{
+ "contract_version": "holon-contract/0.1",
+ "id": "C_t64_zero",
+ "kind": "intended",
+ "milestone": "T64",
+ "rule": "UNDO",
+ "scope": {
+  "laws": [
+   "L_t64_cancel"
+  ]
+ },
+ "l_weak": {
+  "binders": [
+   {
+    "q": "forall",
+    "name": "s",
+    "type": "Reach"
+   }
+  ],
+  "assume": [],
+  "claim": {
+   "eq": [
+    {
+     "obsv": "deadline",
+     "of": {
+      "run": {
+       "trace": [
+        {
+         "act": "challenge",
+         "args": {}
+        },
+        {
+         "act": "cancel",
+         "args": {}
+        }
+       ]
+      },
+      "from": {
+       "var": "s"
+      }
+     }
+    },
+    {
+     "obsv": "deadline",
+     "of": {
+      "var": "s"
+     }
+    }
+   ]
+  },
+  "scope": {
+   "kind": "unbounded"
+  }
+ },
+ "facts": "tests_m3/fixtures/contracts/toy_intent.facts.json",
+ "maps_to": "O12 (N2), in miniature",
+ "evidence": [
+  "E2"
+ ],
+ "rationale": "Planted false contract: it claims the cancel leaves no residue on the deadline, from every reachable state. Its L_weak is false, so it must mark nothing and fail G10."
+}
