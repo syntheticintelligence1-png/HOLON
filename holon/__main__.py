@@ -125,6 +125,17 @@ def _disch_milestone(argv: list) -> bool:
 
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
+    rc = _main(argv)
+    if rc == 0 and argv[:1] == ["run"]:   # K5 (I64): the run's last step applies the milestone's intent contracts
+        from . import contracts
+        rc = contracts.after_run(argv)
+    return rc
+
+
+def _main(argv: list) -> int:
+    if argv[:1] == ["contracts"]:  # its flags go to holon.contracts unparsed (I64: intent contracts, K3 and K5)
+        from . import contracts
+        return contracts.main(argv[1:])
     if argv[:1] == ["checker-upgrade"]:  # its flags go to holon.checker_upgrade unparsed
         from . import checker_upgrade
         return checker_upgrade.main(argv[1:])
