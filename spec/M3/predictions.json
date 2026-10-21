@@ -1930,6 +1930,101 @@
         "laws": 0,
         "rule_catalog": "unchanged (I63 adds no producer; the laws half, key I28, takes the next free catalog version after I26)"
       }
+    },
+    "I64": {
+      "title": "= I33a: intent contracts (format, registry, derivation of L_weak, the run's marking), G10, intended_bounded in the v2 records, the volatile-view contract type and the Q4 adoption package, exercised on the toy milestone T64",
+      "plan": "docs/BUILD_PLAN.md#i33",
+      "prompt": "prompts/I64_contracts.md",
+      "predictions": [
+        {
+          "id": "I64-P1",
+          "claim": "On the test milestone T64 (tests_m3/fixtures/contracts/: one pending batch whose deadline every challenge extends by W = 3 and a cancel leaves extended), the existing generators and refuters decide: L_t64_cancel (the undo pair (challenge, cancel) under every later schedule) REFUTED; L_t64_flag (a planted false invariant) REFUTED; L_contract_C_t64_ext (C_t64_ext's L_weak: from every reachable state, after (challenge, cancel) the deadline is exactly 3 later, no challenge is open, and the commit time and the flag are unchanged) PROVED.",
+          "check": "tests_m3/test_contracts.py::TestPredictions::test_p1_the_generators_decide_the_toy"
+        },
+        {
+          "id": "I64-P2",
+          "claim": "With C_t64_ext and V_t64_view registered, holon run --milestone T64 marks L_t64_cancel's record filter_bin intended_bounded with intended {contract C_t64_ext, l_weak L_contract_C_t64_ext, replaces: the record's filter_bin in a run with no contract}, and the record is otherwise that run's record; L_t64_flag's record is that run's record (both but for wall-clock fields); the run with no contract writes no results/T64/contracts.json; G10 passes on T64.",
+          "check": "tests_m3/test_contracts.py::TestPredictions::test_p2_the_proved_contract_marks_its_scope_alone"
+        },
+        {
+          "id": "I64-P3",
+          "claim": "With the planted false contract C_t64_zero (L_weak: the cancel leaves no residue on the deadline) in place of C_t64_ext, L_contract_C_t64_zero is REFUTED, L_t64_cancel is not marked intended_bounded, and G10 fails naming C_t64_zero.",
+          "check": "tests_m3/test_contracts.py::TestPredictions::test_p3_a_false_contract_marks_nothing_and_fails_g10"
+        },
+        {
+          "id": "I64-P4",
+          "claim": "A change of the toy's facts makes G10 fail as stale. After a change that leaves the toy's behaviour (the doc text of action raise), holon contracts derive and holon run make G10 pass again with L_t64_cancel marked. After W changes from 3 to 4, derive and run leave C_t64_ext's L_weak (+3) REFUTED, nothing marked, and G10 failing.",
+          "check": "tests_m3/test_contracts.py::TestPredictions::test_p4_a_facts_change_needs_a_new_proof"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I64-R1",
+          "claim": "I64 registers no contract on M0-M3 and marks no M0-M3 record intended_bounded; G10 is listed under not_applicable on M0 and M1 and passes with no contract on M2 and M3.",
+          "check": "tests_m3/test_contracts.py::TestRegressions::test_no_contract_on_the_real_milestones and tests_m3/test_contracts.py::TestGate::test_g10_on_the_real_milestones"
+        },
+        {
+          "id": "I64-R2",
+          "claim": "Gates M0, M1, M2 and the M3 partial gate keep their results but for the added G10 line (the M3 partial gate's G11V stays the base's known failure, Q36); the frozen suite and holon audit prereg (M2, M3) pass; no commit that writes an I64 outcome path changes laws/M0-M3, results/M0-M3, gen/M0-M3, spec/M1, spec/M2, holon/rules/, replay/ or a frozen root.",
+          "check": "CI (frozen-suite, prereg-M2, prereg-M3, gate-M0, gate-M1, gate-M2, gate-M3-partial) and tests_m3/test_contracts.py::TestRegressions::test_outcome_commits_touch_no_law_or_record"
+        },
+        {
+          "id": "I64-R3",
+          "claim": "Construction checks, not counted: the fixture validates (laws and the contracts' L_weak against IR 0.3; the contracts by the instrument's K1/K9, V_t64_bad invalid); holon contracts derive writes the instrument's derived laws and --check reproduces them; an invalid contract is refused (exit 2, nothing written); G10 and results/T64/contracts.json agree with the instrument; the v2 schema admits intended_bounded while tools/freeze.py check passes; the Q4 package's schemas equal spec/schemas and its README names the freeze steps and the CI digest pin.",
+          "check": "tests_m3/test_contracts.py::TestInstrument::test_the_fixture_validates and tests_m3/test_contracts.py::TestFormat::test_derive_writes_the_l_weak_laws and tests_m3/test_contracts.py::TestFormat::test_an_invalid_contract_is_refused and tests_m3/test_contracts.py::TestGate::test_g10_agrees_with_the_instrument_on_t64 and tests_m3/test_contracts.py::TestSchemaAndAdoption::test_v2_admits_intended_bounded and tests_m3/test_contracts.py::TestSchemaAndAdoption::test_the_q4_package"
+        }
+      ],
+      "outcome_paths": [
+        "laws/CONTRACTS/",
+        "docs/adoption/Q4/",
+        "docs/iterations/I64.md"
+      ],
+      "tests": [
+        "tests_m3/test_contracts.py"
+      ],
+      "thresholds": {
+        "base": "ec1e939 (the integration line after PR #40)",
+        "instrument": "tests_m3/_i64.py",
+        "instrument_sha256": "de9e8ff118094115d2336f5ac0d7ffef2a3ab091c53f4c9d3216b66cc7e53a23",
+        "contract_docstring_sha256": "104c02a32dfe151c6fe4017f4c4c6b4e7b9bee16a3a520c8ef2d7aa9922e8427",
+        "fixture_sha256": {
+          "tests_m3/fixtures/contracts/contracts/C_t64_ext.json": "1cdfa0a1f33f9e6e0fbda911deaabae1a2e88eff8887b2e9194ddd0e57c84b04",
+          "tests_m3/fixtures/contracts/contracts/C_t64_zero.json": "cfee2fd3c93d361cc82c8bd835d4e82938a5ba508fa2554bef2e296c7b394234",
+          "tests_m3/fixtures/contracts/contracts/V_t64_bad.json": "2e4af5747167531f0a66599cefcfa8fc1d267c3180661bfe3a2329a73c9de71c",
+          "tests_m3/fixtures/contracts/contracts/V_t64_view.json": "afa48d07937c1d86def4f17fa1b3447de99348d018d9f2c7ccc87646f33c2346",
+          "tests_m3/fixtures/contracts/laws/L_t64_cancel.json": "197395e77664a20213fbd8bcc47d811d0f7c7a3abfcab8ceff14475052750bd8",
+          "tests_m3/fixtures/contracts/laws/L_t64_flag.json": "db74f6fca8584b715b39a4d2e2b6dc9d8a824454472cd275dc1b903e9190c9e2",
+          "tests_m3/fixtures/contracts/toy_intent.facts.json": "fae51fcc016045de9ad46fd3b3efa6f5973024193ba9d59d5ff3562b23d02486"
+        },
+        "toy": {
+          "milestone": "T64",
+          "params": {
+            "W": 3,
+            "F": 5
+          },
+          "laws": [
+            "L_t64_cancel",
+            "L_t64_flag"
+          ],
+          "contracts": {
+            "intended": [
+              "C_t64_ext",
+              "C_t64_zero"
+            ],
+            "volatile_view": [
+              "V_t64_view",
+              "V_t64_bad"
+            ]
+          }
+        },
+        "versions": {
+          "contract": "holon-contract/0.1",
+          "registry": "holon-contracts-registry/0.1",
+          "status": "holon-contracts/0.1"
+        },
+        "real_contracts": 0,
+        "deferred_to_I33": "the O12 contract on M3: a ghost counter in the M3 model, a proof class for linear bounds over Reach, and an UNDO analogue of L_undo_cancel (I27 gap G5)"
+      }
     }
   }
 }
