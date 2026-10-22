@@ -2060,6 +2060,146 @@
         ],
         "review": "docs/iterations/I64_prereg_review.json (first draft c379e1fc: no sign-off, 5 major and 7 minor) and docs/iterations/I64_prereg_verification.json (revision b4f82378: no sign-off, F1 partly resolved, 2 major and 4 minor); both folded"
       }
+    },
+    "I65": {
+      "title": "= I33b: the O12 intent contract on M2's window view of the extracted Rollup: a ghost counter (IR 0.3 term), the proof class trace_bound for linear bounds over traces, and a contract-derived law and marks integrated into a real milestone (M2 and its view records)",
+      "plan": "docs/BUILD_PLAN.md#i33",
+      "prompt": "prompts/I65_o12_view.md",
+      "predictions": [
+        {
+          "id": "I65-P1",
+          "claim": "L_contract_C_o12 (C_o12's L_weak over gen/M2/extracted/m1_view.json: for every trace p from s0 and window position k, bdf <= bdo + F + g, inch implies W <= g, and inch implies the open challenge started at or before t, with g the ghost sum of W over the successful challengeState steps) is PROVED, by the class trace_bound I65 adds, over the view's current facts. Its proof is accepted by Bend on a re-check in the test, imports exactly its LAWS.bend and states no law; G2, G3, G5 and G9 pass on M2 (GEVID is R1's: O4).",
+          "check": "tests_m3/test_o12.py::TestPredictions::test_p1_the_l_weak_is_proved_by_trace_bound"
+        },
+        {
+          "id": "I65-P2",
+          "claim": "Exactly one record of M0-M3 (results/M0-M3 and results/M2/extracted_m1) is marked: results/M2/extracted_m1/L_undo_cancel.json, filter_bin intended_bounded, intended {contract C_o12, l_weak L_contract_C_o12, replaces finding}; unmarked, it equals its version at the prereg but for generator_sha256 and wall-clock fields. results/M2/contracts.json is the instrument's. G10 on M2 passes from the gate and from the instrument with the detail 'C_o12 proved, marks L_undo_cancel'.",
+          "check": "tests_m3/test_o12.py::TestPredictions::test_p2_the_mark_lands_on_the_view_record_alone"
+        },
+        {
+          "id": "I65-P3",
+          "claim": "With the planted C_o12_tight (the bound with one second per successful challenge instead of W) registered beside C_o12, holon derive and holon run decide its L_weak REFUTED by the existing refuter (the generator counter, its search evaluating ghost terms by O1; counter-law re-checked by Bend); it marks nothing, C_o12's mark stays, contracts.json lists it 'not proved: REFUTED' with nothing marked, and G10 fails naming it, from the gate and from the instrument.",
+          "check": "tests_m3/test_o12.py::TestPredictions::test_p3_a_false_bound_is_refuted_and_marks_nothing"
+        },
+        {
+          "id": "I65-P4",
+          "claim": "A change to the view makes C_o12 stale and G10 fail. (a) After a change of a doc string only, holon derive and run prove the L_weak again (trace_bound, Bend re-check), but the view record, decided over the old view, is no longer licensed: no record is marked and G10 passes with 'C_o12 proved'. (b) With challengeState extending by W + 1, the L_weak is REFUTED (counter-law re-checked by Bend), nothing is marked and G10 fails with 'C_o12: not proved: REFUTED'. The gate and the instrument agree at every step.",
+          "check": "tests_m3/test_o12.py::TestPredictions::test_p4_a_view_change_needs_a_new_proof"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I65-R1",
+          "claim": "G10 is listed under not_applicable on M0 and M1 and passes on M3 with no contract; gates M0, M1 and M2 pass in full (CI jobs gate-M0, gate-M1, gate-M2 on the build head, which merges only once M2's evidence set models the window view: GEVID enforces on the derived law with no exemption, O4, Q62); the M3 gate's failing items are those of the base the build head stands on (at the prereg only G11V on L_disch_rev_initializable_120_d9a34b48, Q36), I65 adding none; the frozen suite, freeze-check and both prereg audits pass (the audits printing O8's amendments).",
+          "check": "tests_m3/test_o12.py::TestRegressions::test_r1_g10_on_every_milestone"
+        },
+        {
+          "id": "I65-R2",
+          "claim": "No commit of I65's own (O9: the non-merge commits of git log --first-parent <prereg>..<end>, end the first commit adding docs/iterations/I65.md) deletes a law or record, or adds one but I65's own files laws/CONTRACTS/C_o12.json, laws/M2/L_contract_C_o12.json, results/M2/L_contract_C_o12.json and results/M2/contracts.json (judged at HEAD by P1 and P2, so later own commits may change them); each other record such a commit changes keeps its status and differs from its parent's version only in generator_sha256, wall-clock fields, prover from absent to 'generator', and, on results/M2/extracted_m1/L_undo_cancel.json alone, P2's mark; no other law file changes but laws/M2/REGISTRY.json (only by that law's statement hash and the view's facts file) and laws/CONTRACTS/REGISTRY.json.",
+          "check": "tests_m3/test_o12.py::TestRegressions::test_r2_records_and_laws_change_only_as_allowed"
+        },
+        {
+          "id": "I65-R3",
+          "claim": "No commit of I65's own changes a frozen root, a law, record or generated file of M3 (results/M3/refute/filter.json included), an M0 record or generated file, or a law of M0 or M1; no contract but C_o12 names M0-M3, which I64-R1 as amended at this prereg (O8) checks too.",
+          "check": "tests_m3/test_o12.py::TestRegressions::test_r3_no_frozen_root_and_no_m3_generated_file and tests_m3/test_contracts.py::TestRegressions::test_no_contract_on_the_real_milestones"
+        },
+        {
+          "id": "I65-R4",
+          "claim": "Construction checks, not counted as predictions, each needing the built tree: the instruments and fixture are the key's (pins); the schema admits the ghost term and refuses five malformed ones, and the Q4 package follows it; Bend computes the committed ghost helper on GHOST_CASES from LAWS.bend's helpers alone (no open goal) and refuses each value plus one on the value; the contract is committed, registered and the only one on M0-M3; the derived law is listed in the registry (its primary facts unchanged), bound, absent from DERIVATION.json, ledger_match exact, lean4 not_run unsupported_form with the view's Lean model file in gen/M2/lean/models/ and no law file, and holon derive reproduces laws/M2 byte for byte; trace_bound proves the second claim C_o12_open; holon/ names no I65 id; an ambiguous scope law is refused by apply and fails G10; a record over other facts loses its mark; G10 fails on a missing, foreign or half mark of the view record; holon differential with holon refute's final filter, and the filter alone, keep the mark.",
+          "check": "tests_m3/test_o12.py::TestInstrument::test_the_key_pins_the_instruments and tests_m3/test_o12.py::TestInstrument::test_the_fixture_states_the_planned_bound and tests_m3/test_o12.py::TestGhost::test_the_schema_admits_the_ghost_term_and_nothing_looser and tests_m3/test_o12.py::TestGhost::test_the_ghost_counts_successful_challenges and tests_m3/test_o12.py::TestContract::test_the_contract_is_committed_registered_and_alone and tests_m3/test_o12.py::TestContract::test_the_derived_law_is_a_law_of_m2 and tests_m3/test_o12.py::TestMachinery::test_the_class_proves_a_second_claim and tests_m3/test_o12.py::TestMachinery::test_holon_names_no_i65_id and tests_m3/test_o12.py::TestMachinery::test_an_ambiguous_scope_law_is_refused and tests_m3/test_o12.py::TestMachinery::test_a_record_over_other_facts_is_not_licensed and tests_m3/test_o12.py::TestMachinery::test_g10_fails_on_a_tampered_or_missing_view_mark and tests_m3/test_o12.py::TestMachinery::test_the_differential_keeps_the_mark and tests_m3/test_o12.py::TestMachinery::test_refute_keeps_the_mark"
+        }
+      ],
+      "outcome_paths": [
+        "laws/CONTRACTS/",
+        "laws/M2/L_contract_C_o12.json",
+        "results/M2/L_contract_C_o12.json",
+        "results/M2/contracts.json",
+        "gen/M2/laws/L_contract_",
+        "gen/M2/proofs/L_contract_",
+        "docs/iterations/I65.md"
+      ],
+      "tests": [
+        "tests_m3/test_o12.py"
+      ],
+      "thresholds": {
+        "base": "e4475bb82a8e979699e88fe0ddf85c53f46e6be6",
+        "instrument": "tests_m3/_i65.py",
+        "instrument_sha256": "8a07f29add6fc546d9830ed3f3eb4fed8fe66e8d8840a15a31bb9cb5ce07a7cc",
+        "i64_instrument_sha256": "c1a6c14654aa30142b087c65a2667235ed352dfd12ef64b167678673ce36b5b9",
+        "contract_docstring_sha256": "f9a07877b1283e573560169bebd460098139002d18197456de9dcdf0e7272393",
+        "fixture_sha256": {
+          "tests_m3/fixtures/o12/C_o12.json": "39e630958bc2d487f92995f904ad057209db0e66527689145c8aa4a3be9c4992",
+          "tests_m3/fixtures/o12/C_o12_open.json": "2f516ead50908fc5cd30de6e8e8a94a51650876525a1f055e076c4c517519f0f",
+          "tests_m3/fixtures/o12/C_o12_tight.json": "81317292b14bdcfb6fbdfced44c61ecf45d7683228031dd41af387427ce9530d"
+        },
+        "registered_contracts": {
+          "C_o12": "M2"
+        },
+        "view_facts": {
+          "path": "gen/M2/extracted/m1_view.json",
+          "sha256": "2de8ab0d421dfb9d2fbcf027d5fb3d3b7f69df84580b4d0e8bb289a062d94b9d"
+        },
+        "view_anchor": {
+          "declaration": "spec/M2/lib/window_rollup.json",
+          "abstraction": "spec/M1/facts/morph_rollup.json",
+          "libraries": "spec/M1/lib/",
+          "hints": "spec/M1/policy_hints.mjs",
+          "ledger": "the abstraction's bundle in spec/ledger/assumptions.json with its spec/M2/ledger.json extension, re-keyed to the view (generated at lookup, O4)"
+        },
+        "scope_record_at_prereg": {
+          "path": "results/M2/extracted_m1/L_undo_cancel.json",
+          "status": "REFUTED",
+          "filter_bin": "finding",
+          "facts_sha256": "2de8ab0d421dfb9d2fbcf027d5fb3d3b7f69df84580b4d0e8bb289a062d94b9d",
+          "ledger_match": "derived"
+        },
+        "generators_at_prereg": [
+          "evaluate",
+          "nat_split",
+          "noninterference",
+          "deadline",
+          "chain_revert",
+          "act_split",
+          "hyp",
+          "expr_open",
+          "coercion_guard",
+          "param_premise",
+          "reach_invariant"
+        ],
+        "new_class": "trace_bound",
+        "pointwise_sidecar": "spec/M1/lib/morph_rollup.pointwise.json",
+        "second_claim": "tests_m3/fixtures/o12/C_o12_open.json (C_o12's (b) and (c) over p alone; construction, not a prediction)",
+        "refuters_at_prereg": [
+          "counter"
+        ],
+        "ghost_cases": [
+          [
+            "[]",
+            0
+          ],
+          [
+            "[challengeState(4, 1, 1)]",
+            0
+          ],
+          [
+            "[commit 1, commit 2, challengeState(4, 1, 1)]",
+            10
+          ],
+          [
+            "[commit 1, commit 2, challengeState(4, 1, 1), challengeState(4, 2, 1)]",
+            10
+          ],
+          [
+            "[commit 1, commit 2, challengeState(4, 1, 1), setPause(1, true), setPause(1, false), challengeState(4, 2, 1)]",
+            20
+          ]
+        ],
+        "lean": "the derived law's lean4 entry comes from M2's own Lean directory (gen/M2/lean) and is not_run with reason unsupported_form (allowed for a PROVED law by holon.gen.lean_common.ALLOWED_REASONS): no Lean emitter renders a ghost term. By I43's rule L4 the directory holds the model file of the Bend model its law uses, gen/M2/lean/models/m1_view.lean, emitted and checked like any model, its Lean twin library taken from the view's abstraction. I65 adds no Lean twin of the ghost term or of trace_bound, so Q8's promotion is not met for this one law, which the report states",
+        "gevid": "GEVID enforces on the derived law as on every M2 law, with no exemption (I14's rule stands; the exemption of the first fold was withdrawn on Codex's P1 finding on PR #43). M2's evidence set models no window view, so the law is uncovered until a separately preregistered key models the view in gen/M2/evidence.json as I20 covered its adopted documents (Q62); I65's build does not merge while GEVID fails on it",
+        "amendment_policy": "O8: amended at this prereg, each narrowed to I65's outcomes and logged in its own key's amendments file: I64-R1 (spec/M3/amendments.jsonl); I40's three bin tests and I40-R2 (spec/M3/amendments.jsonl); I43's sidecar, scope, R1, metrics, R3 and R9 tests (spec/M3/amendments.jsonl); I15's two records tests, its registry test and I15-P3's derivation test (spec/M2/amendments.jsonl, a later commit of the prereg's pull request). No other earlier test is amended: one that fails on I65's outcomes is a miss.",
+        "base_gate_M3_partial": "fails only G11V, on L_disch_rev_initializable_120_d9a34b48 (Q36): runs 39650731101 (ec1e939) and 39690030135 (6784640, I64's final head)",
+        "deferred_to_I33": "the O12 contract on M3: word-level (eight-limb) lemmas for trace_bound over the extracted model, the UNDO analogue of L_undo_cancel (a cancellation criterion in the UNDO rule, a catalog bump after I26), ghost terms in the typed runners, and a per-batch ghost"
+      }
     }
   }
 }
