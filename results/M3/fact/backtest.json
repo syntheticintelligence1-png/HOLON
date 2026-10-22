@@ -1,0 +1,67 @@
+{
+  "against": "M1",
+  "complete": true,
+  "document": "fact_backtest",
+  "exit_blockers": [],
+  "gaps": [],
+  "map": {
+    "path": "spec/M3/lib/fact.json",
+    "sha256": "651e15ed10a826aef6d8c11a1f00545436fd359283f05de2c0a7473f1e999557"
+  },
+  "milestone": "M3",
+  "rows": [
+    {
+      "acceptance": "witness",
+      "cf_bridge": {
+        "fn": "agg",
+        "law": "gen/M3/fact/backtest/CF_agg_L_fact_Z/LAWS.bend",
+        "set": [
+          [
+            1
+          ],
+          []
+        ],
+        "status": "checked"
+      },
+      "gap": null,
+      "implication": "accepted",
+      "moved": {
+        "c1": {
+          "blobs": [],
+          "lbn": 0,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 1,
+          "prev": 100,
+          "ver": 0,
+          "who": 2
+        },
+        "c2": {
+          "blobs": [
+            1
+          ],
+          "lbn": 0,
+          "n": 0,
+          "op": "commitBatch",
+          "parent": 0,
+          "post": 1,
+          "prev": 100,
+          "ver": 0,
+          "who": 2
+        },
+        "p": []
+      },
+      "new": "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash",
+      "new_status": "REFUTED",
+      "old": "L_fact_Z",
+      "old_statement_hash": "sha256:5b3e051df5bfc68545307bd43c5c2ac7ec9bf9be54c6c9851f7757b25b5a512e",
+      "old_status": "REFUTED",
+      "same_status": true,
+      "witness_transfer": {
+        "law": "gen/M3/fact/backtest/W_L_fact_Z/LAWS.bend",
+        "status": "checked"
+      }
+    }
+  ]
+}
