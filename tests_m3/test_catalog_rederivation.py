@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -232,8 +233,10 @@ def clone_repo() -> Path:
     """A scratch clone of the committed repository at HEAD, with its history (its parent directory is removed by the
     caller): F35's binding_change lines are checked against the bound model at their bound commit."""
     d = Path(tempfile.mkdtemp(prefix="holon-test-"))
+    # LFS files stay pointers: a checkout without the LFS objects (CI's) cannot smudge them, and G2 reads none
+    env = dict(os.environ, GIT_LFS_SKIP_SMUDGE="1")
     p = subprocess.run(["git", "clone", "-q", "--no-hardlinks", str(ROOT), str(d / "repo")], capture_output=True,
-                       text=True)
+                       text=True, env=env)
     if p.returncode != 0:
         shutil.rmtree(d, ignore_errors=True)
         raise AssertionError(f"git clone failed: {p.stderr[-500:]}")
