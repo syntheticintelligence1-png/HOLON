@@ -394,6 +394,17 @@ def strip_seconds(o):
     return o
 
 
+def computed_bin(r: dict):
+    """The bin the final filter computed for a record (I65 amendment, spec/M3/amendments.jsonl): its filter_bin, or, on
+    a record an intent contract marks (filter_bin intended_bounded and the field intended), the bin the mark replaces,
+    which holon refute's final filter recomputes into intended.replaces (tests_m3/test_o12.py rules O6 and O8). A record
+    with filter_bin intended_bounded and no intended keeps intended_bounded, which no prediction names."""
+    i = r.get("intended")
+    if r.get("filter_bin") == "intended_bounded" and isinstance(i, dict):
+        return i.get("replaces")
+    return r.get("filter_bin")
+
+
 def final_sides(key: str, rep: dict | None = None) -> dict:
     """F1-F4's sides: the record's I4 sides (a view record of results/M2/extracted_m1 takes the I4 sides of the M1
     record of its law, as rule K1-K4 does), each one an emitted test replaced taking the emitted test's result."""
@@ -912,14 +923,15 @@ class TestConcretization(unittest.TestCase):
         committedStateRoots[0] is never zero while batch 1 is unfinalized), 1 model_defect (the view's
         L_disch_delay_nofree: its last commit, which the view accepts, reverts on the real Rollup, whose queue holds one
         message), 3 pending (M1 and view L_fact_Z: ParseBatch rejects both sidecars, HypZ; M1 L_own_txspayload: Go only,
-        a node-level path needs I39)."""
+        a node-level path needs I39). Amended at the I65 prereg (spec/M3/amendments.jsonl): a record an intent contract
+        marks is held to the bin its mark replaces (computed_bin), the bin the final filter computes."""
         recs = self.c["records"]
         for key, (kind, result, want) in PREDICTED_BINS.items():
             with self.subTest(record=key):
                 x = recs[key]
                 self.assertEqual((x["kind"], x["result"]), (kind, result))
                 r = load_json(record_path(key))
-                self.assertEqual(r["filter_bin"], want)
+                self.assertEqual(computed_bin(r), want)
                 self.assertEqual(r["concretization"]["kind"], kind)
                 if kind == "go_only":
                     self.assertEqual((x["result"], x["reason"]), (None, "node-level public path needs I39"))
@@ -935,7 +947,8 @@ class TestConcretization(unittest.TestCase):
     def test_every_refuted_record_at_head_has_a_recomputed_bin(self):
         """Construction (BUILD_PLAN I40 exit: every record's bin recomputed): every REFUTED record at HEAD, those other
         M3 keys add included, carries a concretization and the final bin F1-F4 gives on its sides; no PROVED or UNKNOWN
-        record carries either."""
+        record carries either. Amended at the I65 prereg (spec/M3/amendments.jsonl): on a record an intent contract
+        marks, the final bin is the one its mark replaces (computed_bin)."""
         for key, r in I40.record_files(ROOT).items():
             with self.subTest(record=key):
                 if r.get("status") != "REFUTED":
@@ -943,13 +956,15 @@ class TestConcretization(unittest.TestCase):
                     self.assertNotIn("concretization", r)
                     continue
                 conc = r["concretization"]
-                self.assertEqual(r["filter_bin"], I40.expected_final_bin(final_sides(key, self.rep), conc))
+                self.assertEqual(computed_bin(r), I40.expected_final_bin(final_sides(key, self.rep), conc))
                 self.assertIn(key, self.c["records"])
 
     def test_the_filter_document_lists_every_recomputed_bin(self):
         """Construction: results/M3/refute/filter.json has one entry per REFUTED record at HEAD: before (its bin at the
         prereg, refute.json records, or null for a record added later), after (its filter_bin at HEAD), and its
-        concretization's kind and result; every BMC path of concretization.json obeys the sidecar's environment."""
+        concretization's kind and result; every BMC path of concretization.json obeys the sidecar's environment.
+        Amended at the I65 prereg (spec/M3/amendments.jsonl): after is the bin the final filter computes, so on a record
+        an intent contract marks it is the bin the mark replaces (computed_bin)."""
         f = need(OUT / "filter.json")
         self.assertEqual(f["rule"], "holon-filter/1.0")
         side = sidecar()
@@ -960,7 +975,7 @@ class TestConcretization(unittest.TestCase):
                 x = f["records"][key]
                 before = (side["records"].get(key) or {}).get("filter_bin")
                 self.assertEqual((x["before"], x["after"], x["kind"], x["result"]),
-                                 (before, r["filter_bin"], r["concretization"]["kind"], r["concretization"]["result"]))
+                                 (before, computed_bin(r), r["concretization"]["kind"], r["concretization"]["result"]))
         for key, x in self.c["records"].items():
             if x.get("kind") == "bmc" and x.get("path"):
                 with self.subTest(path=key):
@@ -1199,8 +1214,10 @@ class TestRecordsAndShared(unittest.TestCase):
         I43 prereg): kernels may gain exactly one lean4 entry, every earlier entry unchanged and in order, and
         independence_class may change only from I1-shared to I2, exactly when that entry's result is checked; a decided
         (PROVED or REFUTED) record of results/M2/extracted_m1, last written at I20 before I41 added the field, may also
-        gain "prover": "generator" when I43 regenerates it (amended at the I43 build); at least one of them changed
-        (needs .git: a failure, never a skip)."""
+        gain "prover": "generator" when I43 regenerates it (amended at the I43 build); a record may gain "intended", an
+        intent contract's mark, when its filter_bin is intended_bounded (amended at the I65 prereg,
+        spec/M3/amendments.jsonl; tests_m3/test_o12.py rule O8); at least one of them changed (needs .git: a failure,
+        never a skip)."""
         c = prereg_commit()
         allowed = {"filter_bin", "concretization", "generator_sha256"}
         changed = 0
@@ -1213,8 +1230,10 @@ class TestRecordsAndShared(unittest.TestCase):
                 diff = sorted(k for k in set(old) | set(new) if old.get(k) != new.get(k))
                 prover = {"prover"} if (d == "M2/extracted_m1" and old.get("status") in ("PROVED", "REFUTED")
                                         and "prover" not in old and new.get("prover") == "generator") else set()
+                mark = {"intended"} if (new.get("filter_bin") == "intended_bounded" and "intended" in new
+                                        and "intended" not in old) else set()   # I65's amendment: a contract's mark
                 with self.subTest(record=f"{d}/{n}"):
-                    self.assertLessEqual(set(diff) - {"kernels", "independence_class"} - prover, allowed, diff)
+                    self.assertLessEqual(set(diff) - {"kernels", "independence_class"} - prover - mark, allowed, diff)
                     gained = [k for k in new.get("kernels") or [] if k.get("name") == "lean4"]
                     if "kernels" in diff:
                         self.assertEqual([k for k in old.get("kernels") or [] if k.get("name") == "lean4"], [], diff)
