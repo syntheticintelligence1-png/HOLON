@@ -23,50 +23,22 @@ sidecar's budget bounds it; the law's own Bend function decides every candidate 
   inhabitants    for a PROVED kernel law: the first prefix and succeeding step x of the action with fhit_<x>(s, x, s, x)
                  true (G11V).
 
-Candidate values are I30's (S1's value sets) plus, for a bytes argument, the byte strings the deployment's recorded
-calls carried (I30's external-call hints, hint_bytes): the hints answer a call by its selector when every recorded call
-of it got one answer, so the model accepts an argument the deployment's dependency may refuse; offering the arguments
-the deployment did accept lets the real-side check keep a witness. A first run the deployment refuses ends K1's second
-runs for it. The order is deterministic; the search is not a proof of absence. Nothing here names a target.
+Candidate values are I30's (S1's value sets), and for the blob-hash list also every list of the law's measure domain
+(F9: the admissible lists, which x2's variants of the consumer range over). No value is taken from the deployment's
+recorded calls (Q23: an oracle's acceptance is learned by replay, never offered by hand). A first run the deployment
+refuses ends K1's second runs for it. The order is deterministic; the search is not a proof of absence. Nothing
+here names a target.
 """
 from __future__ import annotations
 
 import itertools
 import json
+import time
 
 from ..machine_bend import bname
 from ..rules import fact as RF
 from ..sorts import search3 as S3
 from ..undo import search as US
-
-
-def call_bytes(data: str) -> list:
-    """The dynamic byte strings an ABI-encoded calldata carries: at each head word whose value is a 32-aligned position
-    after it inside the arguments, a length word L and L bytes (no types needed; a spurious match is one more
-    candidate)."""
-    try:
-        b = bytes.fromhex(str(data)[10:])
-    except ValueError:
-        return []
-    n, out = len(b), []
-    for i in range(0, n - 31, 32):
-        o = int.from_bytes(b[i:i + 32], "big")
-        if o % 32 or o <= i or o + 32 > n:
-            continue
-        ln = int.from_bytes(b[o:o + 32], "big")
-        if 0 < ln <= n - o - 32:
-            out.append("0x" + b[o + 32:o + 32 + ln].hex())
-    return out
-
-
-def hint_bytes(hints, limit: int = 8) -> list:
-    """The byte strings the deployment's recorded calls carried as arguments (I30's external-call hints), shortest
-    first: candidates for a bytes argument a step passes on to such a call (an answer the hints give by selector
-    alone, whatever the argument, is the deployment's only for the arguments it saw)."""
-    seen = set()
-    for c in getattr(hints, "calls", None) or []:
-        seen.update(call_bytes(c.get("data") or ""))
-    return sorted(seen, key=lambda h: (len(h), h))[:limit]
 
 
 def blob_lists(alphabet: list, max_length: int) -> list:
@@ -87,7 +59,6 @@ class FactSearch(US.UndoSearch):
         m = (law.get("measure") or {}).get("domain") or {}
         self.blobs = blob_lists([w.lower() for w in (m.get("alphabet") or [])], int(m.get("max_length") or 0))
         self.consumer_sel = (consumer_sel or "").lower()
-        self.call_bytes = hint_bytes(getattr(self.m, "hints", None))
         self.last_refusal = None
 
     # ---------------------------------------------------------- candidates
@@ -107,9 +78,6 @@ class FactSearch(US.UndoSearch):
             if leaf[0] == "env" and leaf[1] == "blobhash":
                 vals = [v for v in sy.value_set(leaf, ty, st, state, prev_ts)]
                 vals += [b for b in self.blobs if b not in vals]
-            elif ty in ("bytes", "string"):
-                vals = sy.value_set(leaf, ty, st, state, prev_ts)
-                vals += [b for b in self.call_bytes if b not in vals]
             else:
                 vals = sy.value_set(leaf, ty, st, state, prev_ts)
             for v in vals:
@@ -224,7 +192,68 @@ class FactSearch(US.UndoSearch):
                 if self.accepted_fact(w):
                     return w
             return None
-        return self.over_prefixes(w_action, at)
+        return self.product_prefixes(w_action, at)
+
+    R0 = {"$r": "FxR", "f": {"s": {"$call": "gh_s0", "args": []}, "g": {"$call": "fx_g0", "args": []}}}
+
+    def companions(self, trace: list) -> str:
+        """The FACT section's chooser companions after a trace (run_fact's g from Reach's initial state), canonical."""
+        v = self.o.value("run_fact", [[self.m.act(st) for st in trace], self.R0])
+        return json.dumps(((v or {}).get("f") or {}).get("g"), sort_keys=True)
+
+    def product_prefixes(self, entry: str, at) -> tuple[dict | None, str]:
+        """The attribution search's prefixes: as UndoSearch.over_prefixes, breadth first up to prefix_depth steps, at
+        most max_prefixes states, but a state is the typed state with the chooser companions (the contract: "prefixes
+        ... with the chooser companions"): two prefixes are one state only when their typed states, last times and
+        companions agree, for the claim reads the companions (a chooser) as well as the typed state."""
+        depth = int(self.budget.get("prefix_depth", 3))
+        maxp = int(self.budget.get("max_prefixes", 3000))
+        g0 = self.m.s0()
+        tried = 1
+        t0 = time.time()
+        seen = {(self.m.fingerprint(g0), self.ref.ts0, self.companions([]))}
+        level = [([], g0)]
+        try:
+            for d in range(depth + 1):
+                nxt = []
+                for trace, g in level:
+                    self.timebox()
+                    w = at(trace, g)
+                    if w is not None:
+                        self.log(f"  witness at prefix depth {d} after {tried} states, {self.cands} candidates "
+                                 f"({round(time.time() - t0, 1)} s)")
+                        return w, (f"{tried} prefix states with their chooser companions (depth <= {depth}, max "
+                                   f"{maxp}), {self.cands} candidates (max {self.max_cands})" + self.refused_note())
+                    if d == depth:
+                        continue
+                    for t2, g2 in self.ref.successors(g, trace, entry, maxp - tried):
+                        ts = int(t2[-1].env.get("block.timestamp") or 0)
+                        key = (self.ref.fp.get(g2) or self.m.fingerprint(g2), ts, self.companions(t2))
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        tried += 1
+                        nxt.append((t2, g2))
+                        if tried >= maxp:
+                            break
+                    if tried >= maxp:
+                        break
+                self.log(f"  prefix depth {d}: {tried} states, {self.cands} candidates")
+                level = nxt
+                if not level:
+                    break
+        except US.Budget:
+            return None, (f"the candidate budget ({self.max_cands}) ran out after {tried} prefix states with their "
+                          "chooser companions; no witness" + self.refused_note())
+        except US.TimeBox:
+            when = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(self.deadline))
+            return None, (f"the time box ({when}) ended the search after {tried} prefix states with their chooser "
+                          f"companions and {self.cands} candidates, at prefix depth <= {depth}; the preregistered "
+                          f"budget (max {maxp} prefix states, {self.max_cands} candidates) was not exhausted: no "
+                          "witness, and no bound" + self.refused_note())
+        return None, (f"{tried} prefix states with their chooser companions, of at most {depth} successful steps (max "
+                      f"{maxp}), {self.cands} candidates (max {self.max_cands}), continuations of at most "
+                      f"{self.cont_depth} steps: no witness" + self.refused_note())
 
     def forget(self, g: str | None) -> None:
         """Drop a state the search is done with: the evaluator's saved state, and the state and pools I30's refuter
