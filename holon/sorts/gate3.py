@@ -428,6 +428,16 @@ class Gate3:
         self.checks["G9"] = _res(not bad, f"{len(self.entries)} records valid under v1 and v2" if not bad
                                  else "; ".join(bad[:6]))
 
+    def join_crashed(self, rule: str, checks, only: list | None, e: Exception) -> None:
+        """A joined rule's checks crashed: every one of its checks this run asked for fails with the error, joined to
+        the I30 laws' result of the same name; a check the run did not ask for is not added."""
+        msg = f"{rule} checks: error: {type(e).__name__}: {e}"
+        for k in checks:
+            if only and k not in only:
+                continue
+            a = self.checks.get(k)
+            self.checks[k] = _res(False, f"{a['detail']}; {msg}" if a else msg)
+
     def g10(self):
         """G10 (I64): the milestone's intent contracts, over every law of it (holon.contracts.g10)."""
         from ..contracts import g10
@@ -499,12 +509,12 @@ class Gate3:
                 try:
                     disch_gate.join(self, only)
                 except Exception as e:  # noqa: BLE001  (a crash is a failed check)
-                    self.checks["G1"] = _res(False, f"DISCH checks: error: {type(e).__name__}: {e}")
+                    self.join_crashed("DISCH", ("G1", "G5", "G11", "G11V", "G6", "G9", "G7", "G4"), only, e)
                 from ..fact import gate as fact_gate       # I26: the FACT laws' checks, joined by name
                 try:
                     fact_gate.join(self, only)
                 except Exception as e:  # noqa: BLE001  (a crash is a failed check)
-                    self.checks["G1"] = _res(False, f"FACT checks: error: {type(e).__name__}: {e}")
+                    self.join_crashed("FACT", fact_gate.CHECKS, only, e)
             if self.setup_error is None:
                 self.whole_milestone(g, ok, only, ("G2", "G8"))
                 self.other_laws(g, ok, only)
