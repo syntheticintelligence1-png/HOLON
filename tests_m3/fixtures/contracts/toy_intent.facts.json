@@ -1,0 +1,236 @@
+{
+ "facts_version": "holon-facts/0.2",
+ "target": {
+  "repo": "holon/toy-intent",
+  "commit": "0000000000000000000000000000000000000000",
+  "scope": "the I64 intent-contract fixture: one pending batch with a finalize deadline e; a challenge extends the deadline of the pending batch by W (as Rollup.sol:489-493 extends every other unfinalized batch), and cancelling the challenge leaves the extension: O12's residue in miniature"
+ },
+ "extraction": {
+  "method": "hand-written fixture",
+  "date": "2026-10-21"
+ },
+ "abstractions": [
+  "Times and deadlines are Nat; the challenge flag is a Bool.",
+  "challenge has no guard: unlike Rollup.sol's challengeState, which needs no challenge open, the toy lets a second challenge extend the deadline again. Every challenge then adds W from every state, so the intent contract's L_weak is a claim about every reachable state with no premise."
+ ],
+ "params": {
+  "W": 3,
+  "F": 5
+ },
+ "types": {},
+ "state": [
+  [
+   "c",
+   "Nat",
+   "commit time of the pending batch"
+  ],
+  [
+   "e",
+   "Nat",
+   "finalize deadline of the pending batch"
+  ],
+  [
+   "ch",
+   "Bool",
+   "a challenge is open"
+  ],
+  [
+   "fin",
+   "Bool",
+   "the pending batch was finalized"
+  ],
+  [
+   "flag",
+   "Bool",
+   "set once raised (the out-of-scope control)"
+  ],
+  [
+   "log",
+   "List<Obs>",
+   "observations"
+  ]
+ ],
+ "ghost_state": [],
+ "initial": {
+  "doc": "no batch, no challenge",
+  "c": 0,
+  "e": 0,
+  "ch": false,
+  "flag": false,
+  "log": [],
+  "fin": false
+ },
+ "principals": {},
+ "reasons": {
+  "2": "no challenge is open",
+  "3": "the deadline has not passed"
+ },
+ "defs": {},
+ "actions": [
+  {
+   "name": "commit",
+   "src": "toy: commit(t)",
+   "principal": "anyone",
+   "inputs": [
+    [
+     "t",
+     "Nat"
+    ]
+   ],
+   "guards": [],
+   "effects": {
+    "c": "t",
+    "e": [
+     "+",
+     "t",
+     "F"
+    ]
+   }
+  },
+  {
+   "name": "challenge",
+   "src": "toy: challenge()",
+   "principal": "anyone",
+   "inputs": [],
+   "guards": [],
+   "effects": {
+    "ch": true,
+    "e": [
+     "+",
+     "e",
+     "W"
+    ]
+   }
+  },
+  {
+   "name": "cancel",
+   "src": "toy: cancel()",
+   "principal": "anyone",
+   "inputs": [],
+   "guards": [
+    {
+     "require": "ch",
+     "reason": 2
+    }
+   ],
+   "effects": {
+    "ch": false
+   }
+  },
+  {
+   "name": "finalize",
+   "src": "toy: finalize(now)",
+   "principal": "anyone",
+   "inputs": [
+    [
+     "now",
+     "Nat"
+    ]
+   ],
+   "guards": [
+    {
+     "require": [
+      "<=",
+      "e",
+      "now"
+     ],
+     "reason": 3
+    }
+   ],
+   "effects": {
+    "fin": true
+   }
+  },
+  {
+   "name": "raise",
+   "src": "toy: raise()",
+   "principal": "anyone",
+   "inputs": [],
+   "guards": [],
+   "effects": {
+    "flag": true
+   }
+  }
+ ],
+ "observers": {
+  "deadline": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": "e",
+   "doc": "the pending batch's finalize deadline"
+  },
+  "challenged": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Bool",
+   "body": "ch",
+   "doc": "a challenge is open"
+  },
+  "committed_at": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Nat",
+   "body": "c",
+   "doc": "the pending batch's commit time"
+  },
+  "flag_down": {
+   "params": [
+    [
+     "s",
+     "State"
+    ]
+   ],
+   "type": "Bool",
+   "body": [
+    "!",
+    "flag"
+   ],
+   "doc": "planted false invariant: raise sets the flag"
+  }
+ },
+ "policy": "generic",
+ "search": {
+  "domains": {
+   "commit": {
+    "t": [
+     0,
+     1
+    ]
+   },
+   "finalize": {
+    "now": [
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   }
+  },
+  "prefixDepth": 3,
+  "maxPrefixes": 400
+ },
+ "coverage": {
+  "modelled": [
+   "commit",
+   "challenge",
+   "cancel",
+   "finalize",
+   "raise"
+  ],
+  "debt": []
+ }
+}

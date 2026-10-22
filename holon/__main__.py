@@ -3,6 +3,7 @@
   python -m holon run  --milestone M0 [--facts PATH] [--out DIR] [--gen-dir DIR] [--no-registry] [--core import|paste]
                        [--laws ID,ID]   (M1+: decide only those laws; I15)
   python -m holon gate --milestone M0 [--root DIR] [--report PATH] [--checks G6,G9]
+  python -m holon contracts derive|apply --milestone M [--root DIR] [--check]   (intent contracts, K3 and K5; I64)
   python -m holon audit prereg --milestone M2 [--root DIR]
   python -m holon audit status [--json] [--root DIR]
   python -m holon audit regress --from A --to B [--json] [--root DIR]
@@ -137,7 +138,7 @@ def _typed_run(argv: list) -> int | None:
         if dids:
             rc = 0
             if others:
-                rc = main(disch_run.strip_args(argv, ("--laws", "--disch")) + ["--laws", ",".join(others)])
+                rc = _main(disch_run.strip_args(argv, ("--laws", "--disch")) + ["--laws", ",".join(others)])
             return max(rc, disch_run.main(disch_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(dids)]))
     if not _untyped_laws(argv):
         # the I30 laws of a typed milestone (holon.sorts.run3) and its UNDO laws (I27, holon.undo.run): run, replay
@@ -148,6 +149,17 @@ def _typed_run(argv: list) -> int | None:
 
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
+    rc = _main(argv)
+    if rc == 0 and argv[:1] == ["run"]:   # K5 (I64): the run's last step applies the milestone's intent contracts
+        from . import contracts
+        rc = contracts.after_run(argv)
+    return rc
+
+
+def _main(argv: list) -> int:
+    if argv[:1] == ["contracts"]:  # its flags go to holon.contracts unparsed (I64: intent contracts, K3 and K5)
+        from . import contracts
+        return contracts.main(argv[1:])
     if argv[:1] == ["checker-upgrade"]:  # its flags go to holon.checker_upgrade unparsed
         from . import checker_upgrade
         return checker_upgrade.main(argv[1:])
@@ -187,6 +199,9 @@ def main(argv=None) -> int:
     if argv[:1] == ["historical"]:  # likewise for holon.historical (fetch | replay, I59)
         from . import historical
         return historical.main(argv[1:])
+    if argv[:1] == ["history"]:  # likewise for holon.frontends.solidity.history (deployment history, I63)
+        from .frontends.solidity import history
+        return history.main(argv[1:])
     if argv[:1] == ["theory2"]:  # likewise for holon.gen.theory2 (theory core II, I43)
         from .gen import theory2
         return theory2.main(argv[1:])
@@ -246,7 +261,7 @@ def main(argv=None) -> int:
             if fids:
                 rc = 0
                 if others:
-                    rc = main(fact_run.strip_args(base, ("--laws",)) + ["--laws", ",".join(others)])
+                    rc = _main(fact_run.strip_args(base, ("--laws",)) + ["--laws", ",".join(others)])
                 return max(rc, fact_run.main(fact_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(fids)]))
         rc = _typed_run(argv)
         if rc is not None:

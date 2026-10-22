@@ -1,0 +1,102 @@
+{
+ "compiler_configs": {
+  "deployed": {
+   "bytecode_hash": "none",
+   "evm_version": "cancun",
+   "optimizer_runs": 200,
+   "source": "docs/iterations/I23.md, Surprise 1: the implementation at 0x213ce22b... is the pinned Rollup.sol built with optimizer runs 200 (the solc default), cancun, bytecodeHash none"
+  },
+  "foundry": {
+   "bytecode_hash": "none",
+   "evm_version": "cancun",
+   "optimizer_runs": 999999,
+   "source": "contracts/foundry.toml at the head commit"
+  },
+  "hardhat": {
+   "bytecode_hash": "none",
+   "evm_version": "cancun",
+   "optimizer_runs": 10000,
+   "source": "contracts/hardhat.config.ts at the head commit"
+  }
+ },
+ "contract": {
+  "build_paths": [
+   "contracts"
+  ],
+  "name": "Rollup",
+  "source": "contracts/contracts/l1/rollup/Rollup.sol"
+ },
+ "doc": "I63's sidecar (= I28a, the history half of BUILD_PLAN I28; docs/HUMAN_ANSWERS.md Q18: code-derived history is the model, the on-chain timeline an independent check). The contract is the docstring of tests_m3/test_history.py. tags: every tag of the target repository at the prereg whose commit's tree holds the contract's source unit, pinned to its commit (H1 reads exactly these).",
+ "events": {
+  "AdminChanged": "0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f",
+  "Initialized": "0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498",
+  "Upgraded": "0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b"
+ },
+ "head": "3e44e795586af3e11285b603ab642c67823add51",
+ "history_version": "holon-history/0.1",
+ "outputs": {
+  "code": "results/M3/history/code",
+  "history": "gen/M3/history/morph_rollup.json",
+  "onchain": "results/M3/history/onchain.json",
+  "receipts": "results/M3/history/receipts",
+  "timeline": "results/M3/history/timeline.json"
+ },
+ "proxy": {
+  "address": "0x759894ced0e6af42c26668076ffa84d02e3cef60",
+  "admin_slot": "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103",
+  "chain": "ethereum mainnet (chain id 1)",
+  "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+ },
+ "rpc": {
+  "methods": [
+   "eth_getTransactionReceipt",
+   "eth_getCode",
+   "eth_getBlockByNumber"
+  ],
+  "note": "the keyless public gateway I59 and I23 used; receipts are checked against I59's receipt hashes; code is read at the latest block (an implementation's runtime code does not change after its creation) and has no anchor in the repository but I23's record of the last implementation",
+  "url": "https://mainnet.gateway.tenderly.co"
+ },
+ "tags": {
+  "v0.2.0-beta": "c648a45542dca038fe4df83287c21c3c67f717cb",
+  "v0.2.1": "7ea5bea884f416ef861fa467e4bc9e68edfa73a9",
+  "v0.4.0": "24b616b9943a9754b1ae25a8a7a127d0247f84ab",
+  "v0.4.1": "e608d89e45b8ea31d98eaa4c5425d75c42874d2f",
+  "v0.4.10": "3f2350b340c432de5d6331a8866578173e16e18f",
+  "v0.4.11": "128d56920ef83c05b9c03d1a3446d772c2853e4f",
+  "v0.4.2": "af4158b30577833649d9466dbc40ed77d12db579",
+  "v0.4.3": "a1e77833a79c02927519c23f2397adacf870964a",
+  "v0.4.4": "9ee2c201469c73a778e0d0f8881710d567a10279",
+  "v0.4.5": "2223d9836827b3c13ec0fbd7f769fed4b5235a9a",
+  "v0.4.6": "de901b6acfcc8af1c5578cc7ff3f16269b2f58b6",
+  "v0.4.7": "3cb4687bca674b093a715fc7d328327c35b6e99c",
+  "v0.4.8": "9392ad97225dc0760edb24d95db98b92cef2a6d6",
+  "v0.4.9": "1f4e42cf4c0e6680285770885477bc7450e5e900",
+  "v0.5.0": "86cd1bb84f95e7606d93f45c6f5087a36548f559",
+  "v0.5.1": "1d16588e4aad0cbe2845e487388f30514bc28655",
+  "v0.5.2": "83e4e8ba44cd30e1b54f6b3a7a4fec449ce2c970",
+  "v0.5.3": "a20bbfa25014a20ba229ca0c9621001d6b334b44",
+  "v0.5.4": "fef33f9df2052522bec93ae6733651e2e7b5193b",
+  "v0.5.5": "4fb95dc92911e80806c9a01e9a1335bde716375b",
+  "v0.5.6": "cafa07d19de8a5a36c8510890a72533c8e0e52e5",
+  "v0.5.7": "55272a512fb0f0c378e78852b0cfbd92c6a02826",
+  "v0.6.0": "0b3f19eed0ea9d5216272b71ed1276aa2eb2e687",
+  "v0.6.1": "4a1607dbe3288643827154738e28e5ef0734dccf",
+  "v0.6.3": "5edbc693d4edc72597b444a9b75424661fd536cf"
+ },
+ "target": {
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph"
+ },
+ "upgrades": {
+  "count": 12,
+  "index_sha256": "d12801b7f3065a84f19a5a8fe18f928e70aaa958ce9a55841dac355b7d2a7e76",
+  "path": "results/M2/historical/index.json",
+  "source": "I59's index: every log item whose topic is Upgraded (I59 read the proxy's logs only)",
+  "window": {
+   "from_block": 19426587,
+   "to_block": 26179508,
+   "to_block_hash": "0x3d07652cc0b9acdd37a33b468074d5afbfb4763b7b3654a62729fa8882d0ec41"
+  }
+ },
+ "version_config": "deployed"
+}

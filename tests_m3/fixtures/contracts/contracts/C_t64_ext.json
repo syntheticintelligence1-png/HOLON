@@ -1,0 +1,159 @@
+{
+ "contract_version": "holon-contract/0.1",
+ "id": "C_t64_ext",
+ "kind": "intended",
+ "milestone": "T64",
+ "rule": "UNDO",
+ "scope": {
+  "laws": [
+   "L_t64_cancel"
+  ]
+ },
+ "l_weak": {
+  "binders": [
+   {
+    "q": "forall",
+    "name": "s",
+    "type": "Reach"
+   }
+  ],
+  "assume": [],
+  "claim": {
+   "all": [
+    {
+     "eq": [
+      {
+       "obsv": "deadline",
+       "of": {
+        "run": {
+         "trace": [
+          {
+           "act": "challenge",
+           "args": {}
+          },
+          {
+           "act": "cancel",
+           "args": {}
+          }
+         ]
+        },
+        "from": {
+         "var": "s"
+        }
+       }
+      },
+      {
+       "plus": [
+        {
+         "obsv": "deadline",
+         "of": {
+          "var": "s"
+         }
+        },
+        {
+         "nat": 3
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "eq": [
+      {
+       "obsv": "challenged",
+       "of": {
+        "run": {
+         "trace": [
+          {
+           "act": "challenge",
+           "args": {}
+          },
+          {
+           "act": "cancel",
+           "args": {}
+          }
+         ]
+        },
+        "from": {
+         "var": "s"
+        }
+       }
+      },
+      {
+       "bool": false
+      }
+     ]
+    },
+    {
+     "eq": [
+      {
+       "obsv": "committed_at",
+       "of": {
+        "run": {
+         "trace": [
+          {
+           "act": "challenge",
+           "args": {}
+          },
+          {
+           "act": "cancel",
+           "args": {}
+          }
+         ]
+        },
+        "from": {
+         "var": "s"
+        }
+       }
+      },
+      {
+       "obsv": "committed_at",
+       "of": {
+        "var": "s"
+       }
+      }
+     ]
+    },
+    {
+     "eq": [
+      {
+       "obsv": "flag_down",
+       "of": {
+        "run": {
+         "trace": [
+          {
+           "act": "challenge",
+           "args": {}
+          },
+          {
+           "act": "cancel",
+           "args": {}
+          }
+         ]
+        },
+        "from": {
+         "var": "s"
+        }
+       }
+      },
+      {
+       "obsv": "flag_down",
+       "of": {
+        "var": "s"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "scope": {
+   "kind": "unbounded"
+  }
+ },
+ "facts": "tests_m3/fixtures/contracts/toy_intent.facts.json",
+ "maps_to": "O12 (N2), in miniature",
+ "evidence": [
+  "E2"
+ ],
+ "rationale": "Intended: a cancelled challenge keeps the +W it added to the pending batch's deadline (the extension protects the batch while the challenge is open, and is not worth undoing). L_weak bounds the residue: from every reachable state, after (challenge, cancel) the deadline is exactly W = 3 later, no challenge is open, and the commit time and the flag are as before."
+}

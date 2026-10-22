@@ -117,7 +117,7 @@ jobs:
             report: "$RUNNER_TEMP/ci-out/gate_report_M2.json"
           - name: gate-M3-partial
             timeout: 120
-            run: python -m holon gate --milestone M3 --checks G3,G5,G8,G9,G11,G11V,GEVID --report "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
+            run: python -m holon gate --milestone M3 --checks G3,G5,G8,G9,G10,G11,G11V,GEVID --report "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
             report: "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
           - name: gate-M3-G2
             # F38: each gate re-runs only its own milestone's binding_change proofs in the two kernels, so M3's are

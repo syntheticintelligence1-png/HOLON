@@ -17,6 +17,7 @@ listed under not_applicable with a reason.
   G6    every REFUTED entry point is a passed entry of replay/<M>/sorts/report.json, with the record's trace, and
         no REFUTED record's own replay failed (a kernel-accepted counter-law the real contract disagrees with)
   G9    every record is valid under the v1 and v2 schemas
+  G10   (I64) the milestone's intent contracts, over every law of it (holon.contracts.g10, as holon.gate's G10)
   G7    BendTT (--verdict) re-checks every decided law's proofs; joined (I43) with holon.gate's Lean G7 over the
         milestone's Lean directories (on M3 the PAR laws), with its cross-kernel coverage and canary lines
   G4    canaries: per I30 subform among the laws, a counter-law whose witness is mutated (its entry step's clock or
@@ -54,6 +55,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SUBFORMS = ("as_member", "realize", "reinterpret")
 ESCAPES = (re.compile(r"\?[A-Za-z_]"), re.compile(r"@unsafe"), re.compile(r"(?m)^\s*def\s+[\w.]+\?"),
            re.compile(r"(?m)^\s*import\s+\""))
+# the typed gate's default order after GENV (I64 added G10; tests_m3/test_contracts.py K6)
+CHECK_ORDER = ["G2", "G1", "G3", "G5", "G11", "G11V", "G6", "G9", "G10", "G7", "G4"]
 
 
 def _res(ok: bool, detail: str) -> dict:
@@ -425,6 +428,12 @@ class Gate3:
         self.checks["G9"] = _res(not bad, f"{len(self.entries)} records valid under v1 and v2" if not bad
                                  else "; ".join(bad[:6]))
 
+    def g10(self):
+        """G10 (I64): the milestone's intent contracts, over every law of it (holon.contracts.g10)."""
+        from ..contracts import g10
+        ok, detail = g10(self.m, self.root)
+        self.checks["G10"] = _res(bool(ok), detail)
+
     def g4(self):
         """Canaries: per subform among the decided laws, the counter-law with its entry step mutated must fail."""
         done = set()
@@ -470,7 +479,7 @@ class Gate3:
         try:
             ok = g.genv()
             self.checks["GENV"] = g.checks["GENV"]
-            order = ["G2", "G1", "G3", "G5", "G11", "G11V", "G6", "G9", "G7", "G4"]
+            order = list(CHECK_ORDER)
             if only:
                 order = [x for x in order if x in only]
             if self.setup_error is not None:   # F-M2-10, as holon.gate.Gate: every check fails with the reason
