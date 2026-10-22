@@ -263,8 +263,8 @@ class FactSearch(US.UndoSearch):
         candidate of each action in turn, the actions writing most of the families the consumer's action reads first,
         so every action's S1 step is tried before any variant.
         A model continuation the real side refuses is counted (the bound says how many) and the search goes on. Every
-        state saved here is forgotten once explored. A budget that runs out here ends the continuation (t = [], the
-        bound says so), never the witness."""
+        state saved here is forgotten once explored. A budget or the run's time box running out here ends the
+        continuation (t = [], the bound says so), never the witness."""
         reads: set = set()
         US._reads(self.d.by.get(consumer_action) or {}, reads)
         acts = [a["name"] for a in self.doc.get("actions") or []
@@ -317,6 +317,10 @@ class FactSearch(US.UndoSearch):
         except US.Budget:
             return [], (f"the candidate budget ({self.max_cands}) ran out after {tried[0]} continuation candidates of at "
                         f"most {self.cont_depth} successful steps: none found makes the consumer's call with the bonded "
+                        "principal" + note())
+        except US.TimeBox:
+            return [], (f"the run's time box ended the continuation after {tried[0]} continuation candidates of at most "
+                        f"{self.cont_depth} successful steps: none found makes the consumer's call with the bonded "
                         "principal" + note())
         return [], (f"{tried[0]} continuation candidates of at most {self.cont_depth} successful steps: none makes the "
                     "consumer's call with the bonded principal" + note())
