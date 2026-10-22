@@ -13,8 +13,10 @@ tests_m3/test_fact.py, "Deciding", "Replay", "Records" and "Classification").
      gen/<M>/proofs/<id>/witness/PROOF.bend is accepted only when bend2 and BendTT check it;
   3. without an accepted counter-law, the product program's routes (holon.gen.mproofs.product: guard, injective for a
      kernel law; provenance for an attribution law), each a PROOF.bend checked by bend2 and BendTT, within the term
-     budget (spec/M3/lib/term_size.json measure (1)); a PROVED law also needs a checked reachable inhabitant of
-     fhit_<x> (gen/<M>/<id>/nonvac/); otherwise UNKNOWN with what was tried;
+     budget (spec/M3/lib/term_size.json measure (1)), the law's inhabitant file counted with it; otherwise UNKNOWN
+     with what was tried. A PROVED law's record carries the search for a checked reachable inhabitant of fhit_<x>
+     (gen/<M>/<id>/nonvac/): without one it stays PROVED with non_vacuity unknown, as I30's records do, and G11V
+     fails it;
   4. every REFUTED law's runs replayed on the real contract (the binding's step harness): replay/<M>/fact/report.json;
   5. the record results/<M>/<id>.json (v1 and v2, with the fact field), and results/<M>/fact/classification.json.
 `replay` re-runs step 4 for the committed records.

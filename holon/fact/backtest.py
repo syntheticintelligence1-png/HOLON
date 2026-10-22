@@ -15,7 +15,11 @@ FB4  the table: acceptance "witness" iff both are REFUTED and both bridges check
      "implication".
 
 The back-test reads laws/M1/<old>.json's record and law file, results/M1/<old>.json, the M1 model and the analogue's
-record; no hand fact document. Nothing here names a target.
+record; no hand fact document. It names no law id. The move follows the map's prose (spec/M3/lib/fact.json
+backtest.move.act: the commit input's version, parent header, numL1Messages, lastBlockNumber and state roots), so the
+commit acts and those input members are named here, against the contract's "no member under holon/", and the move
+mirrors the instrument's (tests_m3/_i26.py::move_kernel_witness, which FB2 names): the independent evidence is Bend's
+acceptance of the M1 counter-law at the moved witness and of the CF bridge (docs/iterations/I26.md, Not done).
 """
 from __future__ import annotations
 
