@@ -1,0 +1,176 @@
+{
+  "review": "I65 prereg verification",
+  "commits": {
+    "base": "e4475bb82a8e979699e88fe0ddf85c53f46e6be6",
+    "prereg": "45e230eaf43fbd595728c62da0123038bdceb6d1",
+    "build_plan_and_human_answers": "9bb21e4df1d749381e976ed3837d897d790421c4",
+    "i15_amendments": "ff59c3f6ebe2533b29d0c9346bdfca269d258e2f",
+    "compared_with_first_version": [
+      "7fa0da41",
+      "f3735007 (backup/i65-prereg-pre-fold)"
+    ]
+  },
+  "reviewer": "independent agent (fresh context)",
+  "sign_off": false,
+  "summary": "I don't sign off: 2 major findings, 1 minor and 4 notes. The fold fixes the first review's findings in substance: 13 of the 15 are fixed, F6 is only partly fixed, and F7 is fixed but its fix creates a new major. \n\nWhat holds. The ghost check can now pass and is non-vacuous. A probe on a toy file shows that Bend 2.0.36 reports a wrong `{==}` value as '- expected : <left side>' and '- observed : <right side>', exits 1 and prints no TODO, exactly as the test's regexes expect. C_o12's (a)-(c) and C_o12_open's (b) and (c) are true and inductive over the view's 10 actions; each of (b) and (c) is inductive on its own. R2 and R3 are scoped to I65's own commits. O2 now names the walk through the decide chain, the Nat binders quantified inside the invariant, and the atoms of a linear sum. O4 and O6 preregister the derive step outside the closures, the view's anchor, the generated ledger bundle, the GEVID exemption, the Lean key and the kept marks. Each is implementable against holon/ at e4475bb8: Oracles.for_milestone returns None for the view, so the view takes no oracle table; and G1, G6 and the differential's compared outputs are unaffected by a mark on a view record. I15's amendments are logged in spec/M2/amendments.jsonl, and both prereg audits pass. \n\nWhat breaks. Three more earlier tests break on outcomes the prereg itself states, and O8 does not amend them. (1) Two I43 tests: O4 has the view's Lean model emitted into gen/M2/lean/models/ (m1_view.lean), and I43-R3's test_lean_check_is_deterministic_on_the_committed_tree and I43-R9's test_every_emitted_lean_file_obeys_the_file_rules pin the Lean directories' files to the sidecar's models. (2) I15-P3's test_363_is_one_law_reached_from_the_three_commits_at_their_realization_checks indexes claim['eq'] for every law `holon derive --out` writes. The derived law's claim is {'all': [...]}, so the test stops with a KeyError. O8 says 'one that fails on I65's outcomes is a miss', but all three failures follow from the prereg's own rules, so they should be amended now, with their lines. \n\nMinor. The GEVID exemption contradicts the text of I14's GEVID contract. No I14 test fails, but the prereg should name the change and raise it as a Question for the human.",
+  "checked": [
+    "F1's fix works. I probed Bend 2.0.36 with a toy file unrelated to the subject (in my scratchpad). A file of `def` theorems with `{==}` proofs and no law prints 'ALL PROOFS CHECK' and exits 0. A wrong value prints 'SOME PROOFS FAIL', '- expected : 0n', '- observed : 1n' (or 10n / 11n for a fold through Nat.add) with no TODO, and exits 1. `Nil{}` is accepted for a List<&2, _> argument. So TestGhost (tests_m3/test_o12.py:480-515) can pass on a correct build. Each value plus one is refused on the value itself: the expected line is the computed ghost and the observed line is the claimed number. without_laws (test_o12.py:381-393) keeps the header, the imports and the helpers, which holon.gen.mlaws.emit writes before the law block (mlaws.py:539-564). The file sits in the law's own directory, so `import ../../model/m1_view.bend as M` resolves.",
+    "GHOST_CASES are right, recomputed in the view's guard order: [] 0; [CH1] 0 (reason 25, 1 > LCI 0); [C1, C2, CH1] 10; [.., CH2] 10 (reason 29); [.., PAUSE, UNPAUSE, CH2] 20 (setPause(true) empties chs[1] and clears inch; nth_ch(chs, 2) is the default; batch 2's bdf is 60 > 10 after the bump). The constructor field orders match HAct in gen/M2/model/morph_rollup.bend:255-265, which is the same in the view model.",
+    "Question 6: C_o12_open, (b) !inch || W <= g and (c) !inch || nth_ch(chs, bc).s <= t, is true and inductive from s0. Each conjunct is inductive alone: - only a successful challengeState sets inch; it adds W to g and writes chs[idx].s = t with bc = idx; - revertBatch (inch && !any_open), setPause (inch && !status) and proveState (false) can only clear inch; - clear_chs, set_ch(.., empty_ch) and set_d's padding give s = 0 or leave s unchanged; - only wait moves t, and only upward; no action writes W, and g never decreases. C_o12's (a) also holds: - prt = W + cstart - t <= W <= g under guard 16 with (b) and (c); - b_bump_go adds W to positions other than 0 and the challenged one while the ghost adds W; - take, snoc and the empty entry (0 <= F + g) are fine; - drop(win, 1) needs the hypothesis at k + 1, which O2 now quantifies.",
+    "The planted falsity holds. C_o12_tight fails at [C1, C2, CH1], k = 2 (60 > 51). The W + 1 bump of P4(b) fails (a) at the same prefix (61 > 60). _bump_w_plus_one's asserts match the view's challengeState effect ['call', 'bump_f', 'win', ['-', 'idx', 'lfi'], 'W'].",
+    "Audits and pins: `python -m holon audit prereg --milestone M3` and `--milestone M2` both exit 0 (PREREG OK). They print every O8 amendment under I64, I40, I43 and I15, and the I15 lines come from spec/M2/amendments.jsonl. tests_m3.test_o12.TestInstrument passes (2 tests): the instrument, I64's instrument, the docstring and the fixture match the key's sha256 values.",
+    "Amendments run at the prereg: I64-R1 (test_no_contract_on_the_real_milestones) passes. I40-R2 (test_earlier_records_change_only_in_the_filter_fields) passes. I40's recomputed-bin and filter-document tests pass. I43's test_scope_counts passes. I15's test_every_m2_law_has_a_record_valid_under_v1_and_v2 and test_proved_site_laws_are_not_vacuous pass. Each amendment is narrow and keyed to subform intended_weak or to a full mark (filter_bin intended_bounded with intended), so at the prereg each checks what it checked before. I read the I43 sidecar recomputation over without_intended_weak(): it reproduces the pinned laws/M2/REGISTRY.json bytes as long as I65 only adds the statement and the facts_files entry, and json.dumps(indent=2, sort_keys=True) + newline equals holon.rules.dumps and today's file. I could not run that test, because it runs bend on the view's model.",
+    "Feasibility of O4 and O6 against holon/ at e4475bb8: - derive: holon/__main__ dispatches `derive` to holon.rules.main, so a hook after rc == 0 can write the K3 laws into --out and extend the registry without touching holon/rules or the closures. Today's I64 closure check (test_contracts.py:756-790) does not see __main__, gate.py or contracts.py. - anchor: only gen/M2/extracted/m1_view.json carries extraction.declaration. targetlib.lib_files and hints_for can anchor it, and refs.law_hash reaches the libraries through lib_files (refs.py:124-131). - ledger: all_bundles can add a generated bundle keyed by the view's path, like _linked_bundles, so resolve_bundle gives 'exact'. The view records pass M1's facts as base_facts and stay 'derived'. - GEVID: gevid() can skip coverage and mismatch for subform intended_weak, and the recomputed record fields are an uncovered law's. - Lean: run_m1 takes lean_key from dir_key_for (mpipeline.py:651), and that call can be keyed to the own directory. - refute and differential: refute_m3.concretize (refute_m3.py:388-476) can write the final bin into intended.replaces; differential.run can end with apply; G1 compares only four differential outputs and top-level records.",
+    "No view record is re-decided in the tree (O6), and nothing in the search has changed since the view records were last written. No commit after 4c0910e3 touches explore.mjs, machine.mjs, policy.mjs, gen/machine.py, mpipeline.py, machine_bend.py, the M1 library or the policy hints. So test_the_differential_keeps_the_mark can reproduce the committed concretization and filter_bin through `holon refute --only filter`. That test needs the pinned solver (refute_m3.main's pin check).",
+    "trace_bound changes no existing record. It runs inside run_m1's GENERATORS loop, and a generator that returns None leaves no attempt (mpipeline.py:785-797). No M1 or M2 law has the class's shape: they use obsv, fn, site and width_site claims, never expr props. The same holds for G4's flip_const canaries: trace_bound returns None on '== false', so the canary is skipped (mcanary.py:300-317).",
+    "R2 and R3: own_commits() parses `git log --first-parent --no-merges --no-renames --name-status <prereg>..<end>` correctly. At the prereg the own commits are 9bb21e4d and ff59c3f6, and neither touches a frozen root, M3, M0 outputs or laws. The per-commit checks pass on a build that commits the derived law and its record once in final form and regenerates M1 and M2 records (generator_sha256 only).",
+    "R1's M3 item is safe from M3 records whose generator hash goes stale. Those hashes are already stale at the base (PAR 6edb0965 against the 0.3 closure 0550aead). The M3 gate run in CI is partial (base_gate_M3_partial) and has no G1.",
+    "These earlier tests read M2 laws or records and stay green on I65's outcomes as O4-O6 describe them: - tests_m2: test_sort_sites test_two_runs_are_byte_identical_and_match_the_committed_files, test_law_ir and TestDeriveHonesty; test_evidence_gate test_the_m2_registry_carries_the_evidence_sha_whenever_it_exists (passes with the exemption); test_sort_site_outcomes test_refinement_refs_name_the_m2_corpus; test_historical_exit test_premise_inhabitants_and_edge_evidence (with the regenerated laws.json; holon.historical.laws handles a record with no site); - tests_m3: test_derive_par I24-R2 and test_catalog_override_is_refused_on_m2 (if the hook runs only after success); test_intake TestRealM2 (the derived law is PROVED, so it is refused not_unknown); test_contracts test_g10_on_the_real_milestones (checks PASS only) and test_v2_admits_intended_bounded; test_refute test_refute_check_reproduces_every_committed_output under O6; - commit-scoped tests of I26, I31, I40, I63 and I64 (I65 writes none of their outcome paths). None of the M1/M2 tests that use MILESTONES = (M0, M1) is affected.",
+    "Disclosure: the unpushed WIP build (branch claude/brave-wright-2c5d0o-i65-build, 84784d4c and b253ae0e, worktree /home/user/HOLON-i65b) holds code only. Its laws/CONTRACTS holds REGISTRY.json alone, and no contract-derived law, record or Lean file exists there, which agrees with 'never run on the subject'. I ran nothing on C_o12, C_o12_tight, C_o12_open, a derived law or the view's model."
+  ],
+  "prior_findings": [
+    {
+      "id": "F1",
+      "status": "fixed",
+      "note": "The check no longer imports LAWS.bend: it copies LAWS.bend's header, imports and helpers byte for byte (without_laws) and adds one `{==}` theorem per case (test_o12.py:480-515). Each wrong value is asserted non-zero exit, no 'TODO', and '- expected : v n' / '- observed : v+1 n'. My Bend probe confirms this format: Bend prints the left side as expected and the right side as observed, and the test puts the computed ghost on the left."
+    },
+    {
+      "id": "F2",
+      "status": "fixed",
+      "note": "O6 now says the differential writes records without concretization and the final filter of `holon refute` writes it back, keeping the mark (test_o12.py:105-112). test_the_differential_keeps_the_mark runs `holon refute --only filter` after `holon differential --reuse-view` and compares only filter_bin, intended and concretization (test_o12.py:724-742). O1 pins that a law without ghost terms keeps its search and record."
+    },
+    {
+      "id": "F3",
+      "status": "fixed",
+      "note": "O2 (test_o12.py:33-58) now: walks each action's decide chain keeping guard equations (convoy), so the commits' prt is known on the Ok branch; quantifies the Nat binders inside the invariant (finalizeBatch's drop); defines the atoms of a linear sum (get(call(nth_default builtin, list, index), field)); and proves the pointwise sidecar's statements in PROOF.bend."
+    },
+    {
+      "id": "F4",
+      "status": "fixed",
+      "note": "O4 (test_o12.py:68-96) and the key's view_anchor and gevid thresholds preregister the ledger bundle (generated for the view itself, so ledger_match is exact), GEVID's exemption with a named detail, evidence.json and evidence_sha256 unchanged, and every M2 gate check. R2 allows exactly the law's statement and the view's facts_files entry in laws/M2/REGISTRY.json. Residual: the exemption changes I14's contract text (new N3)."
+    },
+    {
+      "id": "F5",
+      "status": "fixed",
+      "note": "own_commits() (test_o12.py:270-285) scopes R2 and R3 like I64-R2 (first-parent, no merges, end = the first commit adding docs/iterations/I65.md), and both check each commit against its parent."
+    },
+    {
+      "id": "F6",
+      "status": "partly",
+      "note": "Fixed in part: the I40, I43 and I64 amendments sit at the prereg in spec/M3/amendments.jsonl, the I15 ones in spec/M2/amendments.jsonl (ff59c3f6), all narrow, and the prompt's routing rule is corrected. Not fixed: three more earlier tests still break on I65's stated outcomes and are not amended. These are tests_m3/test_lean_promoted.py TestCode.test_lean_check_is_deterministic_on_the_committed_tree and TestDifferential.test_every_emitted_lean_file_obeys_the_file_rules (N1), and tests_m2/test_sort_sites.py TestPredictedDerivation.test_363_is_one_law_reached_from_the_three_commits_at_their_realization_checks (N2)."
+    },
+    {
+      "id": "F7",
+      "status": "fixed",
+      "note": "O4 names the Lean directory (M2's own), the reason (not_run, unsupported_form), the emitters' behaviour (lean_common.Unsupported on a ghost term) and the view's model under gen/M2/lean/models. TestContract checks the entry. But emitting that model breaks two unamended I43 tests (N1)."
+    },
+    {
+      "id": "F8",
+      "status": "fixed",
+      "note": "O4: holon/contracts.py writes the K3 laws, called from holon/__main__ and from G1's regeneration. holon/rules does not change and no closure module imports contracts.py. Note that the WIP build (84784d4c) still has holon.rules importing holon.contracts (N6)."
+    },
+    {
+      "id": "F9",
+      "status": "fixed",
+      "note": "O2 says trace_bound joins GENERATORS while coercion_guard, param_premise and reach_invariant still run after it. O2 and O1 say the refuter changes only by O1, and that the search is unchanged for laws without ghost terms. The prompt's Risks list the depth-3/3000-state BFS and the per-state deduplication of a trace-dependent term."
+    },
+    {
+      "id": "F10",
+      "status": "fixed",
+      "note": "test_refute_keeps_the_mark and test_the_differential_keeps_the_mark first assert the built tree's mark. test_r1's docstring is corrected. test_holon_names_no_i65_id greps holon/ for C_o12 and L_undo_cancel (clean today). C_o12_open is a second claim trace_bound must prove (test_the_class_proves_a_second_claim)."
+    },
+    {
+      "id": "F11",
+      "status": "fixed",
+      "note": "R2 now allows prover only from absent to 'generator' (test_o12.py:810-811)."
+    },
+    {
+      "id": "F12",
+      "status": "fixed",
+      "note": "O9 names the files shared with I26 and the rule that whichever lands second merges, keeps both terms, refreshes the Q4 copy and regenerates. R1's M3 item is phrased relative to the base the build head stands on. The order of the two lanes is left open, which is acceptable."
+    },
+    {
+      "id": "F13",
+      "status": "fixed",
+      "note": "The pointwise sidecar is named (spec/M1/lib/morph_rollup.pointwise.json) and added to the holon-ir/0.2 and 0.3 generator closures. Its statements are proved in PROOF.bend, and the byte-pinned core does not change."
+    },
+    {
+      "id": "F14",
+      "status": "fixed",
+      "note": "The view record's real-code evidence is now attributed to I40's concretization. The human's choice is recorded in docs/HUMAN_ANSWERS.md (9bb21e4d). The I64-R1 amendment states that its record check does not see the view mark. The audit's note that I65-R3 names an I64 test is harmless."
+    },
+    {
+      "id": "F15",
+      "status": "fixed",
+      "note": "The prompt now discloses the loose bound (n·W of slack), that design intent rests on CASESTUDY N2 and BUILD_PLAN I33, that E2 is an evidence-calculus level copied by K3, and the two bins for one law."
+    }
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "major",
+      "where": "Rule O4 'Lean (G7)' (tests_m3/test_o12.py:89-92) and O8 (test_o12.py:116-136) against tests_m3/test_lean_promoted.py:1083-1100 (TestCode.test_lean_check_is_deterministic_on_the_committed_tree, I43-R3) and :1194-1214 (TestDifferential.test_every_emitted_lean_file_obeys_the_file_rules, I43-R9)",
+      "finding": "O4 says 'The directory's Lean model of the view (gen/M2/lean/models/) is emitted and checked like the model of every attempted law'. holon.lean._emission (lean.py:1145-1173) does this for every attempted item whose model builds, and the derived law is attempted: PROVED, kind machine_oracle. So gen/M2/lean/models/m1_view.lean appears after the build. Two I43 tests pin the Lean directories' files to the frozen sidecar and break: - I43-R3 asserts that each directory holds exactly the sidecar's model files, report.json and the law files (`have == want`, :1100); - I43-R9 marks any .lean file that is neither a sidecar law's file nor a sidecar model as 'neither an attempted law's file nor a model file' (:1211). Neither test is amended. O8's four I43 amendments cover only the sidecar, scope, R1 and metrics tests. The build cannot keep O4's model and these tests at once. If it skips the model, for instance by leaving lean_machine.lib_twin unanchored so that the view's twin is not found, O4's sentence is false.",
+      "evidence": "spec/M3/lib/lean_promoted.json dirs and models: the only model of directory M2 is gen/M2/lean/models/morph_rollup.lean. lean._build_model takes lib_twin from the law's facts path (lean.py:1056-1058; lean_machine.py:600-612), so the view needs the anchor here too, but the deliverables name only targetlib.py and records.py. I43's own contract (test_lean_promoted.py L0/L4, lines 56-61) says a directory holds models/<stem>.lean for every Bend model its laws use, so emitting the model is the contract's reading and the tests are narrower than it.",
+      "fix": "Preregister amendments of both I43 tests, with lines in spec/M3/amendments.jsonl. A Lean directory may also hold the model files of the facts of its intended_weak laws, each obeying the model-file rules of tests_m3/_i43.file_check where they apply, and nothing else. Add holon/gen/lean_machine.py (lib_twin's anchor) to the deliverables. Or else state in O4 that no Lean model is emitted for the view and amend I43's L0 instead. Either way, decide before the build."
+    },
+    {
+      "id": "N2",
+      "severity": "major",
+      "where": "Rule O4 'Derive' (test_o12.py:70-74: contract laws written 'into --out's directory when given') and O8 against tests_m2/test_sort_sites.py:729-742 (TestPredictedDerivation.test_363_is_one_law_reached_from_the_three_commits_at_their_realization_checks, I15-P3)",
+      "finding": "The I15-P3 check builds `[l for l, d in laws.items() if d['statement']['claim']['eq'][0].get('site') == SITE_363]` over self.r.law_docs(), which is every L*.json that `holon derive --milestone M2 --out <tmp>` writes (LAW_FILES ^L[0-9]?_..., line 194). After the build that includes L_contract_C_o12.json, whose claim is {'all': [...]}, so the comprehension raises KeyError: 'eq' and an earlier prediction's test errors. It is not amended. ff59c3f6 amends only test_registry and the two TestRecords tests. The build cannot avoid this: O4 makes derive --out write the contract laws, and test_two_runs_are_byte_identical and I24-R2 compare derive --out with the committed laws/M2, which contain the derived law.",
+      "evidence": "I reproduced the comprehension on tests_m3/_i64.derived_law(C_o12): the law id matches LAW_FILES, the claim keys are ['all'], and KeyError 'eq' follows. The test was already amended once by I20 (.get for width laws; listed by the M2 audit), but that amendment still indexes ['eq'].",
+      "fix": "Add an I15 amendment in the same tests_m2 commit, with a line in spec/M2/amendments.jsonl: skip laws of subform intended_weak, or read claim.get('eq', [{}])[0]. State it in O8."
+    },
+    {
+      "id": "N3",
+      "severity": "minor",
+      "where": "Rule O4 GEVID (test_o12.py:85-88) and the key's thresholds.gevid against I14's contract (tests_m2/test_evidence.py docstring:162-180)",
+      "finding": "I14's contract says GEVID fails, from M2 on, on 'a law the set does not cover', and that enforcing mode passes 'iff there is no problem and no mismatch'. It adds that 'laws are never edited to agree with GEVID: a mismatch is a finding about the metadata'. O4 exempts subform intended_weak from both checks, and the derived law's metadata E2 is copied by K3 from a hand-written contract, which is the case the mismatch check exists for. No I14 test fails: test_the_m2_registry_carries_the_evidence_sha_whenever_it_exists only needs GEVID to pass. So the audit wants no line, but the prereg changes an earlier key's contract without saying so.",
+      "evidence": "evidence.py:1150-1164 (mismatches fail when enforcing; uncovered is a problem when enforcing). The I65 prompt's GEVID bullet and O4 do not mention I14's rule.",
+      "fix": "Name the change to I14's GEVID contract in O4 and the prompt, and list it under Questions for the human, with the alternative of covering the view through its abstraction's evidence model. Keep the GEVID detail naming the law."
+    },
+    {
+      "id": "N4",
+      "severity": "note",
+      "where": "I65-R2 (test_o12.py:771-812)",
+      "finding": "R2's per-commit check also binds the files I65 adds. After the own commit that adds results/M2/L_contract_C_o12.json, later own commits may change that record only in generator_sha256, seconds and prover, and must keep its status. They may not change laws/M2/L_contract_C_o12.json at all. So intermediate states cannot be committed: a lean4 entry 'no_report' before `holon lean`, a record decided before the Lean report or GEVID exemption exists, or a status other than the final one. This is satisfiable, but it is an unstated constraint on the build's commit history.",
+      "evidence": "test_o12.py:794-812 compares every modified record with its parent's version, the derived law's included. Only REGISTRY entries for LID and the view are exempt (lines 797-803).",
+      "fix": "Say this in the prompt's Rules, so the build commits the derived law, its record, contracts.json and the mark once, in final form."
+    },
+    {
+      "id": "N5",
+      "severity": "note",
+      "where": "O8's claim that each amended test passes at the prereg; the I40 and I43 tests",
+      "finding": "Some amended tests are red at the base e4475bb8 (and at the prereg) for reasons unrelated to I65: - I40-P7's test_every_refuted_record_gets_its_predicted_bin fails on 6 records (M0 L_dom_hdr, M1 and view L_nat_eta2, view L_disch_delay_nofree, two M3 PAR): bmc unknown instead of no_path or path, pending instead of model_defect; - I43-R1's test_statuses_and_bend_files_are_unchanged fails on 3 typed M3 records' unregenerated fields; - I43-R2's sidecar test fails on 2 typed M3 record inputs. I40's test_records_are_valid_and_the_schema_knows_the_final_bins also fails on 15 view records, whose ledger_match is 'derived' while v2's is const 'exact'. The I65-relevant subtests pass and the amendments neither cause nor hide these failures. But 'passing at the prereg' holds only subtest by subtest, and these tests cannot show I65's amendments green as wholes after the build.",
+      "evidence": "python -m unittest of these tests at ff59c3f6 gives 9 subtest failures, none on L_undo_cancel or on an intended_weak law. The sidecar record inputs mismatch for results/M3/L_sort_realize_rollup_363_4a64383b.json and results/M3/L_sort_tag_rollup_279_e01ea84a.json.",
+      "fix": "Mention it in the I65 report, so these are not counted as I65 misses, and route them to their owners."
+    },
+    {
+      "id": "N6",
+      "severity": "note",
+      "where": "prompts/I65_o12_view.md:47 and :53",
+      "finding": "Two disclosure wordings are imprecise. (1) 'The independent prereg review ... found (a)-(c) true and inductive; C_o12_open was checked the same way.' C_o12_open was added in the fold, after that review, and the review checked only (a)-(c) together. I checked (b) and (c) alone and they are true and inductive, so the claim holds, but the attribution reads as the review's. (2) The WIP build is disclosed as 'the ghost term's schema, emission, statement refs and search evaluation; marks ...; the differential's last step; marks kept ...'. Its commit 84784d4c also makes holon.rules.compute import holon.contracts (with_contracts), the design the revised O4 forbids because it would put contracts.py into the closures and break I64-R2. It is not mentioned.",
+      "evidence": "git show 84784d4c -- holon/rules/__init__.py. The first review's checked list mentions only (a)-(c).",
+      "fix": "Reword (1) to say who checked C_o12_open. In (2), add that the WIP's derive change in holon/rules is dropped under O4."
+    },
+    {
+      "id": "N7",
+      "severity": "note",
+      "where": "holon/intake.py:356-363 and I64 K3 (the derived law takes the contract's rule, UNDO)",
+      "finding": "The prover intake treats every law of rule UNDO as I27's typed UNDO law: it regenerates no model or law file and gives the reason 'holon run decides this UNDO law with holon.undo.run'. L_contract_C_o12 has rule UNDO but is decided by run_m1 on M2. This is harmless for I65 (the law is PROVED, so it is refused not_unknown first) and the I41 tests stay green. But an UNKNOWN contract-derived law would be refused with a false reason, and its law file would escape the intake's G1.",
+      "evidence": "intake.py:356 `if law.get(\"rule\") == \"UNDO\":` before any milestone or subform test. tests_m3/_i64.derived_law copies c['rule'].",
+      "fix": "None needed for I65. Record it as a known gap, or key the intake's skip on the typed-UNDO derivation entry rather than the rule."
+    }
+  ],
+  "reviewed_against": "docs/iterations/I65_prereg_review.json (review of 7fa0da41)",
+  "resolution": {
+    "N1": "resolved in ff5b93fb: the view's Lean model stays (I43 rule L4), with its twin library anchored (holon/gen/lean_machine.py among the deliverables); I43-R3 and I43-R9 amended with lines in spec/M3/amendments.jsonl",
+    "N2": "resolved in 65769e19: I15-P3's derivation test amended with a line in spec/M2/amendments.jsonl",
+    "N3": "resolved differently after Codex's P1 finding on PR #43 (the exemption suppresses the check AGENTS rule 2 protects): the exemption was withdrawn. GEVID enforces on the derived law as I14 defines it; M2's evidence set models no window view, so the law is uncovered until a separately preregistered key models the view (Q62), and I65's build does not merge before that",
+    "N4": "resolved in ff5b93fb: R2 judges I65's own files at HEAD (P1, P2) instead of binding them across its commits",
+    "N5": "disclosed in ff5b93fb (rule O8 and the prompt's Earlier tests) and in the pull request; follow-up task for I43's baselines",
+    "N6": "resolved in ff5b93fb: both wordings corrected",
+    "N7": "recorded in ff5b93fb as a known gap (the prompt's Risks); fixed by the build if the derived law ends UNKNOWN"
+  }
+}
