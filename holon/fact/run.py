@@ -427,8 +427,9 @@ class Decider:
         if el["subform"] == "kernel":
             return {"runs": [{"prefix": self.steps_json(tc, r["prefix"]), "x": self.steps_json(tc, [r["x"]])[0]}
                              for r in w["runs"]], "hashes": self.hashes_json(tc, tables)}
+        # k a JSON integer: the contract leaves its form open, and its replay check reads it with int()
         return {"prefix": self.steps_json(tc, w["prefix"]), "y": self.steps_json(tc, [w["y"]])[0],
-                "t": self.steps_json(tc, w.get("t") or []), "k": hexw(w["k"]), "chooser": w["chooser"],
+                "t": self.steps_json(tc, w.get("t") or []), "k": int(w["k"]), "chooser": w["chooser"],
                 "bonded": addr(w["bonded"]), "hashes": self.hashes_json(tc, tables)}
 
     def chooser(self, el: dict, tc: FactCtx, w: dict) -> str | None:
