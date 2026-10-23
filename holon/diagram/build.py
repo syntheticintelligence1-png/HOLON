@@ -37,7 +37,7 @@ import re
 from pathlib import Path
 
 from .. import facts as F
-from ..gen.targetlib import Library, lib_files
+from ..gen.targetlib import Library, lib_files, window_declaration
 from ..ir import canonical_json
 from ..records import LEDGER, all_bundles
 from . import access as A
@@ -355,6 +355,9 @@ class Machine:
         lib = Library.for_facts(ctx.path, f.get("params", {}), root=ctx.root)
         for p in lib_files(ctx.path, ctx.root):
             ctx.inputs[p.resolve().relative_to(ctx.root.resolve()).as_posix()] = _sha(p)
+        w = window_declaration(ctx.path, ctx.root)
+        if w is not None:   # I66 (rule V4): a window view takes its abstraction's libraries, by its declaration
+            ctx.inputs[w[0]] = _sha(Path(ctx.root) / w[0])
         self.roles = A.Roles({k: b.get("kind") for k, b in lib.builtins.items()}, f.get("shadow", {}))
         self.bases, self.base_prov, self.base_problems = A.shadow_bases(f, self.roles)
 

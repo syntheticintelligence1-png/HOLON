@@ -14,10 +14,17 @@ writes <out or gen/<M>/diagram>/<model>.json for every fact document of the mile
 and spec/M<j>/facts/*.json for j <= the milestone, except extracted documents (*.extracted.json, holon extract:
 compared with the frozen facts, not fact documents yet). Diagrams start at M2: gen/M0 and gen/M1 are
 pinned byte for byte (I6), so no diagram is written under them.
+
+Window views (I66, rules V2 and V4 of tests_m3/test_view_evidence.py). It also writes one diagram per window view of
+the milestone (window_views: a holon-facts/0.2 document directly under gen/<M>/extracted/, holon.differential's output,
+whose window declaration is one of spec/<M>/lib/window_*.json), named by the view file's stem and built by the same
+adapters, its libraries anchored to its abstraction's (holon.gen.targetlib.anchor). A window view is never a fact
+document; one whose stem is a fact document's is a DiagramError and nothing is written.
 """
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -25,7 +32,7 @@ from pathlib import Path
 from .build import ROOT, build
 from .model import DiagramError, dumps
 
-__all__ = ["build", "fact_documents", "main", "DiagramError"]
+__all__ = ["build", "fact_documents", "window_views", "main", "DiagramError"]
 
 
 def fact_documents(milestone: str, root: Path | str = ROOT) -> list[Path]:
@@ -49,6 +56,27 @@ def fact_documents(milestone: str, root: Path | str = ROOT) -> list[Path]:
     if not docs:
         raise DiagramError(f"no fact documents for {milestone} under {root}")
     return docs
+
+
+def window_views(milestone: str, root: Path | str = ROOT) -> list[Path]:
+    """The milestone's window views, sorted: every holon-facts/0.2 document directly under gen/<M>/extracted/
+    (holon.differential's output) whose window declaration (holon.gen.targetlib.window_declaration) is one of the
+    milestone's, spec/<M>/lib/window_*.json. Never a fact document (fact_documents)."""
+    from ..gen.targetlib import window_declaration
+    root = Path(root).resolve()
+    decls = {p.relative_to(root).as_posix() for p in sorted((root / "spec" / milestone / "lib").glob("window_*.json"))}
+    out = []
+    for p in sorted((root / "gen" / milestone / "extracted").glob("*.json")):
+        try:
+            doc = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, ValueError):
+            continue
+        if not isinstance(doc, dict) or doc.get("facts_version") != "holon-facts/0.2":
+            continue
+        w = window_declaration(p, root)
+        if w is not None and w[0] in decls:
+            out.append(p)
+    return out
 
 
 def main(argv=None) -> int:
@@ -97,7 +125,11 @@ def run(milestone: str, out: str | None, root: str | None) -> int:
             texts = linked_diagrams(milestone, root_p)
         else:
             docs = fact_documents(milestone, root_p)
-            texts = {p.stem: dumps(build(p, root_p).to_json()) for p in docs}
+            views = window_views(milestone, root_p)   # I66: one diagram per window view too
+            clash = sorted({p.stem for p in views} & {p.stem for p in docs})
+            if clash:
+                raise DiagramError(f"a window view has a fact document's model name: {clash}")
+            texts = {p.stem: dumps(build(p, root_p).to_json()) for p in [*docs, *views]}
     except DiagramError as e:
         print(f"holon diagram: {e}", file=sys.stderr)
         return 1
