@@ -244,6 +244,7 @@ def counter(em: EmittedM, m: Machine, model_import: str, witness: dict, lhs_at: 
     import re as _re
     lhs_at = _re.sub(r"(?<![\w.])proj_V_", "Laws.proj_V_", lhs_at)  # statement helpers live in LAWS.bend
     lhs_at = _re.sub(r"(?<![\w.])(ex_[0-9a-f]{12})\(", r"Laws.\1(", lhs_at)   # as do expr helpers (I24)
+    lhs_at = _re.sub(r"(?<![\w.])(gh1?_[0-9a-f]{12})\(", r"Laws.\1(", lhs_at)   # and ghost helpers (I65 rule O1)
     helpers: list[str] = []
     if eqfn is None and ty in em.views:
         helpers, eqfn = _eq_defs(m, ty, em.views[ty])
