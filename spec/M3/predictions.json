@@ -2305,6 +2305,312 @@
         },
         "abstraction_horizon_s": 60
       }
+    },
+    "I66": {
+      "title": "holon differential's window view in M2's evidence set (Q62): its diagram by I11's adapters and its E2, E3, E4 and E6 atoms by I14's calculus, so that a law over the view (I65's L_contract_C_o12) is covered by GEVID; the library half of I65's view anchor, as I65's code",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I66)",
+      "prompt": "prompts/I66_view_evidence.md",
+      "predictions": [
+        {
+          "id": "I66-P2",
+          "claim": "The m1_view model's E6 atoms are the abstraction's 11 and its E4 atoms the abstraction's 2 (blob_hash between commitBatch and commitBatchWithProof), same p, q, via and src; its E3 atoms are 8, the abstraction's E3 atoms whose guard the view keeps, each at that guard's index in the view with the same operands, reason and src, as the instrument re-indexes them: commitBatch guards[18] and [19], commitBatchWithProof [22] and [23], commitState [16] and [17] (from [17] and [18]), finalizeBatch [9] and [11]; finalizeBatch's guards[14] (qpend == btot - bn, L1MessageQueueWithGasPriceOracle.sol:325) goes with its removed require.",
+          "check": "tests_m3/test_view_evidence.py::TestPredictions::test_p2_the_views_e3_e4_e6_inventories"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I66-R1",
+          "claim": "No law's computed evidence moves: for every law of laws/M0, laws/M1 and laws/M2 at the prereg, law_evidence over gen/M2/evidence.json equals law_evidence over the prereg's set, and its record's evidence_levels, evidence_triage and evidence_override are the prereg's; the M1 laws' records over the view (results/M2/extracted_m1) keep theirs and stay uncovered; GEVID passes on M0 and M1 (report-only) and on M2 (enforcing) with no problem and no uncovered law; laws/M2/REGISTRY.json's evidence_sha256 is the set's.",
+          "check": "tests_m3/test_view_evidence.py::TestRegressions::test_r1_no_laws_evidence_moves_and_gevid_passes"
+        },
+        {
+          "id": "I66-R2",
+          "claim": "At least one of I66's own commits (rule V9: the non-merge commits of git log --first-parent <prereg>..<end>, end the first commit adding docs/iterations/I66.md) adds gen/M2/diagram/m1_view.json. None changes a frozen root, a fact document (facts/, spec/M1/facts/, spec/M2/facts/), the view or its declaration, gen/M0, gen/M1, gen/M3 or gen/T32, a gen/M2 file but the view's diagram and gen/M2/evidence.json, a results/ file but the records directly under results/M1, results/M2 and results/T32 and results/M2/m2_exit.json (so nothing of results/M0, results/M3, results/M2/extracted_m1 or results/T32/summary.json), replay/, audit/, spec/ledger/, spec/lib/, spec/M1/lib/, spec/schemas/, spec/M3/ but spec/M3/amendments.jsonl, or a law file but laws/M2/REGISTRY.json, and that only in evidence_sha256 (so nothing of laws/T32); none adds or deletes a law or a record; each M1, M2 or T32 record such a commit changes keeps its status and differs from its parent's version only in generator_sha256 and keys named seconds (so I40's filter stage is re-applied in the same commit, and the M1 and M2 records' lean4 kernel entries, rebuilt from the committed Lean reports, do not change: rule V7). No M3 record is re-made, so after the build every M3 record's generator_sha256 trails I66's closures (GEN3, GEN_FACT, GEN_UNDO, GEN_DISCH, holon-ir/0.3; rule V7) until the next M3 re-make. Each such commit that changes results/M2/m2_exit.json changes only the entries of exit_a.coverage.not_replayed keyed by the view (gen/M2/extracted/m1_view.json#<edge id>), judged against its parent, so a lead merged into the branch never counts; at I66's end those entries are exactly the view diagram's CODEC, CONS and TRANS edges (11), and none says 'the hand abstraction'.",
+          "check": "tests_m3/test_view_evidence.py::TestRegressions::test_r2_own_commits_change_only_what_v7_allows"
+        },
+        {
+          "id": "I66-R3",
+          "claim": "GEVID passes from the gate on M0, M1 (report-only) and M2 (enforcing), and holon historical exit --milestone M2 --check reproduces results/M2/m2_exit.json and docs/M2_EXIT.md; gates M0, M1 and M2 pass in full on the build head (CI jobs gate-M0, gate-M1, gate-M2; G1 regenerating the view's diagram with the other diagrams); CI's M3 jobs, gate-M3-partial (--checks G3,G5,G8,G9,G10,G11,G11V,GEVID) and gate-M3-G2 (--checks G2), which run no G1, fail on the build head only on the base's items (as at I26's merge: gate-M3-partial fails G11V on Q36's law L_disch_rev_initializable_120_d9a34b48, gate-M3-G2 passes), I66 adding none; CI's third M3 job, tests-m3-catalog (python -m unittest tests_m3.test_catalog_rederivation: M3's registry tie to laws/STATEMENT_DIFF.jsonl, the lines holon.statement_diff generates, the typed bindings rederived by holon.bindings, and gate3's G2 on a clone), passes on the build head as it passed in I26's final run, since it reads only M3's laws, registry, bindings, records and generated files, the statement-diff log and the history, none of which I66 changes, and derives through no library lookup I66 changes (no M3 law's facts is a window view: I66-R4); the frozen suite, freeze-check and both prereg audits pass (the audits printing V8's amendments). The full M3 gate is not claimed: it was never run on the base (docs/iterations/I26.md, Question 1 and Not done: its G1 alone is about 68 z3-hours, and I26 expects it to fail G6 on O25's replay and G11V on Q36's law), and after I66 its G1 (holon/fact/gate.py rerun_problems, holon/sorts/gate3.py G1) also fails on staleness, every M3 record's generator_sha256 trailing I66's closures until the next M3 re-make (rule V7).",
+          "check": "tests_m3/test_view_evidence.py::TestRegressions::test_r3_the_gates_and_the_exit_document"
+        },
+        {
+          "id": "I66-R4",
+          "claim": "Construction checks, not counted as predictions: the instruments and the fixture are the key's (pins); the view is its abstraction without the recorded requires, the instrument's one window view of M2 (none of M3), anchored to the abstraction's libraries; the probe is a valid law over the view naming challengeState by one act term, which no law file names; the instrument's rules L1-L4 give what holon's law_evidence gives over the committed set for every law of laws/M0-M2 at the prereg and for the probe over the abstraction ([E2, E5, E6], 35 atoms). Each of the rest reads the built tree: holon.diagram.window_views gives the instrument's views (M2: the view; M3: none), and in a copy without the view it gives none, holon diagram writes the three fact documents' diagrams alone and holon evidence writes the prereg's gen/M2/evidence.json byte for byte; holon.gen.targetlib's window_declaration, anchor and lib_files follow the instrument's anchor rule for the view (spec/lib/ and spec/M1/lib/) and for every facts path a law of laws/ names, every JSON document directly under gen/M2/extracted/ and every document under facts/ and spec/M*/facts/ (unchanged); the view is no fact document, gen/M2/sorts is the prereg's and the frozen assignment has no model of it; no own commit changes an input of laws/M3/DERIVATION.json or gen/M3/evidence.json or a facts file of laws/M3/REGISTRY.json, and the committed gen/M3/evidence.json is what build_milestone('M3') builds now; holon/ names no I66 id, and holon/diagram/, holon/gen/targetlib.py and holon/historical/exit_report.py name neither the view's nor the declaration's file.",
+          "check": "tests_m3/test_view_evidence.py::TestInstrument::test_the_key_pins_the_instruments and tests_m3/test_view_evidence.py::TestInstrument::test_the_view_is_its_abstraction_without_the_removed_requires and tests_m3/test_view_evidence.py::TestInstrument::test_the_probe_is_a_law_over_the_view and tests_m3/test_view_evidence.py::TestInstrument::test_the_instrument_is_i14s_law_rules and tests_m3/test_view_evidence.py::TestConstruction::test_window_views_are_found_by_their_declaration and tests_m3/test_view_evidence.py::TestConstruction::test_the_view_takes_its_abstractions_libraries and tests_m3/test_view_evidence.py::TestConstruction::test_the_view_is_no_fact_document and tests_m3/test_view_evidence.py::TestConstruction::test_no_m3_input_moves and tests_m3/test_view_evidence.py::TestConstruction::test_holon_names_no_i66_id"
+        },
+        {
+          "id": "I66-R5",
+          "claim": "Construction checks, not counted as predictions, each reading the built tree (rules V4-V7, which hold by construction once implemented as written): holon diagram writes the view's diagram beside the three fact documents' (byte-identical to the prereg's), the committed directory being that output, and the view's diagram is valid, names the view, has the abstraction's 62 edges by id and kind (10 TRANS, 2 MIG, 1 CONS, 22 STORE, 27 LOAD), equal writes and STORE writers, reads and LOAD readers a subset of the abstraction's and equal for the 12 edges no removed require can change, each TRANS edge's guards without the removed requires, the abstraction's principal classes, and the declaration and the abstraction's libraries among its inputs; gen/M2/evidence.json keeps the prereg's four models, 230 atoms, 74 unresolved entries and header and gains exactly the model m1_view (facts, sha256, holon-facts/0.2, its diagram, I14's anchors of it, sites {}; no E1 or E5 atom), its inputs the prereg's 13 plus exactly the view, its diagram and the declaration, its evidence_sha256 its body's hash, new and the registry's; the view's E2 atoms at TRANS.challengeState are the abstraction's 35 (32 between TRANS edges), its E2 atoms and unresolved entries at the 12 unchanged endpoints the abstraction's, and every other one relates a (p, q, carrier) the abstraction relates; the probe law tests_m3/fixtures/view_evidence/L_probe_view_challenge.json is covered by m1_view, names [TRANS.challengeState], has the view's 10 TRANS edges as context and computes [E2, E6], by holon's law_evidence and the instrument's rules L1-L4 alike, its 34 relevant atoms (32 E2, 2 E6) being the relevant atoms of the same probe over the abstraction's model but its E5 one (it was I66-P1 until the verification of the review's fold, finding N3: it follows from the E2 check above, I66-P2 and rule V6; the id is not reused); I65's derived law is covered by m1_view with the view's 10 TRANS edges as context and names nothing (levels []) while docs/iterations/I65.md does not exist, and once it does names TRANS.challengeState with the probe's levels and atoms; the sets built for a test milestone or from diagrams passed in (I24's evidence_of, the _given_par_inputs and test_evidence_set shape, I25's T251 start, an M2 build given its diagrams) model no view and render byte for byte as at the prereg, with or without the view; a window view with a fact document's stem makes holon diagram and holon evidence exit 1 and write nothing; two runs of holon evidence write the committed file, which is render(build(<the fact documents>, root, milestone='M2')), and a build for no milestone has no view; with their ledger links and LEDGER or HASH debt emptied, the view's and the abstraction's diagrams give the same models, atoms and unresolved entries; results/M2/m2_exit.json lists the view's 11 edges as not replayed, each with the abstraction's why but for the replayed actions (commitBatch, finalizeBatch), which read 'the window view's <action> (gen/M2/extracted/m1_view.json, <its extraction method>); ...', and docs/M2_EXIT.md names each; at I66's end every record of results/M1, results/M2 and results/T32 carries a generator_sha256 other than at the prereg, one value per milestone (the re-make of rule V7 reached them all), and laws/T32, gen/T32 and results/T32/summary.json are the prereg's.",
+          "check": "tests_m3/test_view_evidence.py::TestBuild::test_the_view_has_its_abstractions_diagram and tests_m3/test_view_evidence.py::TestBuild::test_the_set_gains_the_view_model_alone and tests_m3/test_view_evidence.py::TestBuild::test_e2_moves_only_where_a_removed_require_can and tests_m3/test_view_evidence.py::TestBuild::test_the_probe_over_the_view and tests_m3/test_view_evidence.py::TestBuild::test_the_derived_law_names_nothing_until_i65 and tests_m3/test_view_evidence.py::TestBuild::test_test_milestone_and_in_memory_sets_model_no_view and tests_m3/test_view_evidence.py::TestBuild::test_a_stem_collision_is_refused and tests_m3/test_view_evidence.py::TestBuild::test_the_cli_is_the_build_and_deterministic and tests_m3/test_view_evidence.py::TestBuild::test_the_view_model_ignores_ledger_links and tests_m3/test_view_evidence.py::TestBuild::test_the_re_make_reached_every_m1_m2_and_t32_record and tests_m3/test_view_evidence.py::TestBuild::test_the_exit_document_names_the_window_view"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M2/diagram/m1_view.json",
+        "gen/M2/evidence.json",
+        "docs/iterations/I66.md"
+      ],
+      "tests": [
+        "tests_m3/test_view_evidence.py"
+      ],
+      "thresholds": {
+        "base": "e215fbf5fca5194646a08dc4e72ff0f15522aa64",
+        "instrument": "tests_m3/_i66.py",
+        "instrument_sha256": "9cb14d61629f28d205c961b3a0d57121b43e88ecee4c6cb4df5b4d6bb3525ddb",
+        "contract_docstring_sha256": "98dcf859078ff9e4a7662a4fd4bb8a7afb1d3d98d0a6db63fa93741f2df88c9d",
+        "fixture_sha256": {
+          "tests_m3/fixtures/view_evidence/L_probe_view_challenge.json": "3810ee0aae52d5ec091362fb7dbb041cb72c1894890fec696897821c325d4904"
+        },
+        "view": {
+          "path": "gen/M2/extracted/m1_view.json",
+          "sha256": "2de8ab0d421dfb9d2fbcf027d5fb3d3b7f69df84580b4d0e8bb289a062d94b9d",
+          "model": "m1_view",
+          "diagram": "gen/M2/diagram/m1_view.json",
+          "removed": {
+            "commitBatch": [
+              21
+            ],
+            "commitBatchWithProof": [
+              25,
+              30
+            ],
+            "commitState": [
+              11,
+              20
+            ],
+            "finalizeBatch": [
+              14
+            ],
+            "proveState": [
+              9
+            ],
+            "setPause": [
+              1,
+              2
+            ]
+          },
+          "kept_actions": [
+            "challengeState",
+            "revertBatch",
+            "sendMessage",
+            "wait"
+          ]
+        },
+        "declaration": {
+          "path": "spec/M2/lib/window_rollup.json",
+          "sha256": "c1e746c36e3b05f86fafa8403d11f8970ffbfe137cfc77ed4de3d7ea004218b3"
+        },
+        "abstraction": {
+          "path": "spec/M1/facts/morph_rollup.json",
+          "sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+          "model": "morph_rollup",
+          "diagram": "gen/M2/diagram/morph_rollup.json",
+          "diagram_sha256": "f9364d1dd3d5291f461c0b51ed3ea6b65d45957cfce41d50996b1ce5bd20be82"
+        },
+        "unchanged_read_edges": [
+          "CONS.blobs_of",
+          "LOAD.obs.csr_last",
+          "LOAD.obs.kappa",
+          "LOAD.obs.lci_of",
+          "LOAD.obs.new_hdr",
+          "LOAD.obs.tags_ok",
+          "MIG.eta2",
+          "MIG.legacy",
+          "TRANS.challengeState",
+          "TRANS.revertBatch",
+          "TRANS.sendMessage",
+          "TRANS.wait"
+        ],
+        "evidence_at_prereg": {
+          "path": "gen/M2/evidence.json",
+          "sha256": "7ec0dddf273b444c9f7e06baf6038712a2b3e580879924c8bf50a424449faaf5",
+          "evidence_sha256": "76c917153041ea5405751361d7a6b923602905091f5bb1b5d7f66b28ed44f05d",
+          "models": [
+            "morph_batchdata",
+            "morph_header",
+            "morph_rollup",
+            "morph_rollup.extracted"
+          ],
+          "atoms": 230,
+          "unresolved": 74,
+          "inputs": 13,
+          "morph_rollup_atoms": {
+            "E1": 0,
+            "E2": 174,
+            "E3": 9,
+            "E4": 2,
+            "E5": 14,
+            "E6": 11
+          },
+          "morph_rollup_unresolved": 68
+        },
+        "registry_at_prereg": {
+          "path": "laws/M2/REGISTRY.json",
+          "sha256": "685659975b95dd13db2fce7cb44e4c0cead0fa6117f4e30ed49b9cfa9091623b",
+          "evidence_sha256": "76c917153041ea5405751361d7a6b923602905091f5bb1b5d7f66b28ed44f05d"
+        },
+        "challenge_state_e2_at_prereg": {
+          "atoms": 35,
+          "q_is_challengeState": 18,
+          "p_is_challengeState": 19,
+          "self": 2,
+          "between_trans_edges": 32
+        },
+        "probe": {
+          "law_id": "L_probe_view_challenge",
+          "view_levels_expected": [
+            "E2",
+            "E6"
+          ],
+          "view_relevant_atoms_expected": {
+            "E2": 32,
+            "E6": 2
+          },
+          "status": "construction (I66-R5, TestBuild.test_the_probe_over_the_view), not a prediction: it follows from R5's E2 check at TRANS.challengeState, I66-P2 and rule V6; it was I66-P1 until the verification of the prereg review's fold (finding N3), and the id I66-P1 is not reused",
+          "abstraction_levels_at_prereg": [
+            "E2",
+            "E5",
+            "E6"
+          ],
+          "abstraction_relevant_atoms_at_prereg": {
+            "E2": 32,
+            "E5": 1,
+            "E6": 2
+          },
+          "how": "holon.diagram.evidence.law_evidence and the instrument's law_atoms (equal) of the probe with facts and facts_sha256 set to the abstraction's, over the committed gen/M2/evidence.json, at the prereg; never over the view, which has no model there"
+        },
+        "derived_law_at_prereg": "I65's derived law (tests_m3/_i64.derived_law of tests_m3/fixtures/o12/C_o12.json), facts set to the abstraction's, over the committed set: named [], levels [] (no L2 rule reads a ghost term on this base)",
+        "predictions_note": "one counted prediction, I66-P2; I66-P1 (the probe over the view) was moved to the construction checks of I66-R5 at the verification of the prereg review's fold (finding N3), and its id is not reused",
+        "view_e3_predicted": [
+          [
+            "TRANS.commitBatch",
+            "guards[18].require"
+          ],
+          [
+            "TRANS.commitBatch",
+            "guards[19].require"
+          ],
+          [
+            "TRANS.commitBatchWithProof",
+            "guards[22].require"
+          ],
+          [
+            "TRANS.commitBatchWithProof",
+            "guards[23].require"
+          ],
+          [
+            "TRANS.commitState",
+            "guards[16].require"
+          ],
+          [
+            "TRANS.commitState",
+            "guards[17].require"
+          ],
+          [
+            "TRANS.finalizeBatch",
+            "guards[9].require"
+          ],
+          [
+            "TRANS.finalizeBatch",
+            "guards[11].require"
+          ]
+        ],
+        "e5": "rule V5: a window view's E5 reads the frozen assignment's model of its stem when there is one and otherwise no sort (no atom); gen/M2/sorts/assignment.json has none for m1_view, so the view has no E5 atom (construction); a fact document without a model stays an EvidenceError. Consequence (prompt, Questions): over the view a law whose only atoms stronger than E6 would be E5 atoms has max E6, so a REFUTED one is triaged intent_question where over the abstraction it is a finding",
+        "exit_coverage": "results/M2/m2_exit.json gains, in exit_a.coverage.not_replayed, one entry per CODEC, CONS or TRANS edge of the view's diagram (the abstraction's 10 TRANS and 1 CONS edge ids, keyed gen/M2/extracted/m1_view.json#<edge id>), each with the abstraction's why for the same edge, but for the actions the trans window replayed (commitBatch and finalizeBatch), whose why reads 'the window view's <action> (gen/M2/extracted/m1_view.json, <the view's extraction method>); its extracted counterpart ... was replayed ...' (rule V7's wording fix in holon/historical/exit_report.py, by provenance.extraction's declaration, never by name); docs/M2_EXIT.md renders it; nothing else of either changes",
+        "toy_sets_at_prereg": {
+          "i24_evidence_of_T24": {
+            "models": [
+              "morph_rollup.extracted",
+              "par_weak.facts"
+            ],
+            "sha256": "1d73c40eef9b2256dcb7f4602d1de403e945ce719208503e6863e9176f8b60a8"
+          },
+          "given_par_inputs_T24": {
+            "models": [
+              "par_weak.facts"
+            ],
+            "sha256": "066181fc07d199a2af82727c4b0da3ee9122ee9f48564817f11ce6cb288dd9c2"
+          },
+          "par_lossy_T251": {
+            "models": [],
+            "sha256": "24993da0067a69cb355c08ce62eec8560ee2b232bcc3a428cbb797c48c680c1f"
+          },
+          "m2_in_memory": {
+            "models": [
+              "morph_batchdata",
+              "morph_header",
+              "morph_rollup",
+              "morph_rollup.extracted"
+            ],
+            "sha256": "ee0a4c7d06640fcfd218e183d0721014b8dec16b6dcac0c4b1bb644ad1f2e5c7"
+          }
+        },
+        "regenerated": [
+          "gen/M2/diagram/m1_view.json (holon diagram --milestone M2)",
+          "gen/M2/evidence.json (holon evidence --milestone M2)",
+          "laws/M2/REGISTRY.json (holon derive --milestone M2; evidence_sha256 alone; laws/M2/DERIVATION.json unchanged)",
+          "every M1 and M2 record (holon run --milestone M1 and --milestone M2, then I40's filter stage holon refute --milestone M3 --only filter; generator_sha256 and seconds alone; results/M3/refute/filter.json unchanged; holon lean need not run: holon run rebuilds the lean4 kernel entries from the committed Lean reports, thresholds.lean)",
+          "the five records of results/T32 (holon profile --milestone T32, I32; generator_sha256 and seconds alone; laws/T32, gen/T32, results/T32/summary.json and gen/M3/disch/classification.json unchanged; thresholds.t32)",
+          "results/M2/m2_exit.json and docs/M2_EXIT.md (holon historical exit --milestone M2)"
+        ],
+        "closures": {
+          "i66_code": [
+            "holon/diagram/__init__.py",
+            "holon/diagram/build.py",
+            "holon/diagram/evidence.py",
+            "holon/gen/targetlib.py",
+            "holon/historical/exit_report.py"
+          ],
+          "in": {
+            "holon-ir/0.2": 122,
+            "holon-ir/0.3": 123,
+            "GEN3": 122,
+            "GEN3+GEN_FACT": 132,
+            "GEN3+GEN_UNDO": 125,
+            "GEN3+GEN_DISCH": 127,
+            "GEN_PROFILE (I32, holon.profile.generator_files)": 124
+          },
+          "note": "files per closure at the base (holon.records._holon_imports); every closure listed holds holon/gen/targetlib.py and holon/diagram/{__init__,build,evidence,access}.py; holon-ir/0.1 (6 files) holds none of them and holon/historical/exit_report.py is in no closure; the counts are the same at fde1f819 and at e215fbf5, which adds GEN_PROFILE",
+          "m3_records_at_base": {
+            "records": 131,
+            "current": 123,
+            "PAR": 80,
+            "DISCH": 35,
+            "FACT": 5,
+            "typed": 3,
+            "UNDO_already_trailing": 8
+          },
+          "m3_after_build": "I66 re-makes no M3 record: every M3 record's generator_sha256 trails the closures, as at I65's build head and as I43 let typed records trail (gap LP-G9), until the next M3 re-make (I28's build, holon-rules/1.6; F40 and I67); the full M3 gate's G1 fails on that staleness until then, while CI's gate-M3-partial and gate-M3-G2 run no G1"
+        },
+        "amendment_policy": "V8: amended in this prereg's pull request, each narrowed to I66's outcomes and logged in its own key's amendments file: I14's header, inputs, E3/E5 node, E6 tokenizer, E3 inventory and E4 inventory tests (tests_m2/test_evidence.py; spec/M2/amendments.jsonl; a later commit of the pull request, since an M3 prereg commit may not touch tests_m2/; the lines say that I14-P5's and I14-P6's words then count the fact documents' atoms, 17 and 4 in the set after I66, and that I66-P2 checks the view's exactly); I43's sidecar test (tests_m3/test_lean_promoted.py; spec/M3/amendments.jsonl; in the prereg commit; it accepts the registry following any rebuild of the committed set whose evidence_sha256 is its own body hash); I32-R2's test (tests_m3/test_disch_profile.py::TestRegressions.test_r2_no_closure_and_no_earlier_output_changes; spec/M3/amendments.jsonl; in the prereg commit), which diffed the I32 prereg against HEAD and so counted I66's closure files and M1 records as I32's: it now finds I32's own commits by ancestry (the merge M that brought the commit adding docs/iterations/I32.md in through its second parent; the non-merge commits of git log --first-parent M^2 ^M^1 ^<prereg>), runs its closure and earlier-output checks over them, and compares M1's L_disch_delay_* records at M^2 with the prereg's but for generator_sha256 and keys named seconds; this narrows it beyond I66's outcomes (later keys' commits are judged by their own regressions). No other earlier test is amended: one that fails on I66's outcomes is a miss.",
+        "known_red_at_base": "tests_m3/test_lean_promoted.py::TestPreregInstruments.test_sidecar_is_the_computation fails at e215fbf5, as at fde1f819, on 103 laws/M3 inputs moved by I26's catalog bump (I26's Question 5) and on the witnesses baselines of two typed M3 records (results/M3/L_sort_realize_rollup_363_4a64383b.json, results/M3/L_sort_tag_rollup_279_e01ea84a.json; PR #44 brought them up to date against F35's regeneration, and I26 re-made both records since); I66's amendment covers laws/M2/REGISTRY.json's evidence_sha256 alone",
+        "base_gate_M3": "the base is e215fbf5 (I32's build merged into the lead after fde1f819; I32 added holon.profile and its modules, T32's outputs, gen/M3/disch/classification.json, two I32 amendment lines, docs/iterations/I32.md and a BUILD_PLAN note, and changed no file of a generator closure but holon/__main__.py's CLI table, which is in none). As recorded for I26's final CI run (holon-ci run 39718875290: 10 of 11 jobs pass), CI's gate-M3-partial fails only G11V on L_disch_rev_initializable_120_d9a34b48 (Q36), and gate-M3-G2 and tests-m3-catalog (tests_m3.test_catalog_rederivation) pass; the build report states the base's own CI run. The full M3 gate was never run (docs/iterations/I26.md, Question 1 and Not done)",
+        "t32": {
+          "milestone": "T32, I32's test milestone over M1's machine (facts spec/M1/facts/morph_rollup.json)",
+          "evidence": "no evidence set is built for T32: holon.profile and its modules read no evidence or diagram module, its records carry no evidence fields and laws/T32/REGISTRY.json has no evidence_sha256; so V5's rule (a test milestone models no view) has no T32 set to exclude, and the toy-set check keeps the shapes callers build (I24's and I25's)",
+          "closure": "holon.profile.generator_files (GEN_PROFILE and its holon imports, 124 files at e215fbf5) holds holon/gen/targetlib.py and holon/diagram/{__init__,build,evidence,access}.py",
+          "records_at_base": {
+            "records": 5,
+            "current": 5
+          },
+          "remake": "holon profile --milestone T32 after I66's code re-makes the five records in generator_sha256 and seconds alone; laws/T32, gen/T32, results/T32/summary.json and gen/M3/disch/classification.json stay byte-identical. Without it, I32's C1 (tests_m3/test_disch_profile.py::TestRun.test_c1_runs_and_regenerates_byte_identically) would fail, since it compares a fresh run's records with the committed ones up to seconds",
+          "i32_r2": "I32-R2's test diffed the I32 prereg against HEAD; after I66's build it would count I66's closure files and M1 records as I32's, so it is amended at this prereg to judge I32's own commits, found by ancestry: R = 27d08ab8 (adds docs/iterations/I32.md), M = e215fbf5 (the oldest merge on R..HEAD's ancestry path whose second parent reaches R and whose first parent does not), the seven non-merge commits of git log --first-parent M^2 ^M^1 ^<prereg> (6f1e076e to c164ba51), ending at 19dcde76; the L_disch_delay_* records are compared at 19dcde76 with the prereg's, but for generator_sha256 and seconds. Verified in a scratch clone: the same seven commits on the lead with I66 merged, on branches based before e215fbf5 that merge it (the I65 build, I33 and I36 heads), on a branch based after it and on I32's own branch; both forms of the test pass at e215fbf5"
+        },
+        "lean": {
+          "records_with_lean4": {
+            "M1": 16,
+            "M1_records": 16,
+            "M2": 8,
+            "M2_records": 12
+          },
+          "reports": [
+            "gen/M1/lean/report.json",
+            "gen/M2/lean/report.json"
+          ],
+          "why_no_holon_lean": "holon run rebuilds each record's lean4 kernel entry with holon.lean.kernel_entry_v2 from the committed Lean report, which backs it while the Lean text emitted now has the report's source_sha256 and the record has the report's verdict, statement hash and main theorem. The emitted text reads the law, its facts document, the Lean twin libraries (holon.gen.lean_machine.lib_twin: *.lean.json by a path rule of its own, not holon.gen.targetlib), the oracle parameters and the SORT-site entries (laws/<M>/DERIVATION.json and the sort sites sidecar); I66 changes none of these, and holon/lean.py and holon/gen/lean_*.py import none of I66's modules. So holon lean need not run, every lean4 entry is rebuilt as it is, and R2 requires it so (records differ only in generator_sha256 and seconds; gen/M1 and gen/M2/lean are never changed)"
+        },
+        "coordination": "I65's build rebases onto I66's merge: holon/gen/targetlib.py then differs from I65's 85d91d70 only in hints_for (I66 takes window_declaration, anchor and lib_files verbatim), and I65 adds hints_for's anchor, holon.audit.regress.lib_docs_at, the ledger bundle, the closures' window_*.json entry, the Lean twin library (its O4) and rule L2's reading of the ghost term; its ledger anchor rewrites gen/M2/diagram/m1_view.json and so gen/M2/evidence.json's input entry for it, but not the view's model, atoms or unresolved entries (R5's ledger check), so neither evidence_sha256 nor the registry. The pull request merges with a merge commit (guaranteed by the coordinator), so that I66's commits stay out of I65's own commits (I65-R2). I26 (merged at 9bb2eac7), I32 (prereg at 476b02bc; build merged at e215fbf5) and PR #44 (an I43 follow-up at fde1f819) touch no input of M2's evidence set: between 25303315 and e215fbf5, gen/M2, laws/M2, the view and holon/diagram are unchanged and the M1 and M2 records moved only in generator_sha256 and seconds (not at all between fde1f819 and e215fbf5), and every pin of this key holds at e215fbf5. I65's build, merged after I66, changes the same closures, so it re-makes the M1, M2 and T32 records again. The M3 records' re-make that refreshes their generator_sha256 is planned with I28's build (holon-rules/1.6) and the F40 and I67 re-makes.",
+        "deferred": "the ghost term's reading in rule L2 (I65's build; it changes I14's contract text, whose L2 says every other term names nothing); hints_for, holon.audit.regress.lib_docs_at, the ledger bundle, the generator closures' spec/*/lib/window_*.json entry and the Lean twin library of the view (I65's O4; 85d91d70, e57fa11d; harmless at I66, since no committed law names the view and holon.differential's runs already take the abstraction as their anchor); E5 for window views (a sorts assignment of the view, I13's pass over it or inheritance from the abstraction, a calculus change for the human); covering the M1 laws' records over the view (a change of L1); atoms for I20's adopted 0.3 documents (a 0.3 diagram adapter, I20's Question 5); refreshing the M3 records' generator_sha256 (the next M3 re-make)"
+      }
     }
   }
 }
